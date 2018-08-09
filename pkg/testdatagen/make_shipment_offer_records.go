@@ -18,7 +18,8 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	// Test for ShipmentID first before creating a new Shipment
 	shipmentID := assertions.ShipmentOffer.ShipmentID
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
-		// TODO: Make Shipment and get ID
+		shipment := MakeDefaultShipment(db)
+		shipmentID = shipment.ID
 	}
 
 	// Test for TSP ID first before creating a new TSP
@@ -128,8 +129,21 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
+		nowPlusOne := now.Add(oneWeek)
+		nowPlusTwo := now.Add(oneWeek * 2)
 		move := MakeMove(db, moveAssertions)
-		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market, &move, nil)
+		shipmentAssertions := Assertions{
+			Shipment: models.Shipment{
+				RequestedPickupDate:     &now,
+				PickupDate:              &nowPlusOne,
+				DeliveryDate:            &nowPlusTwo,
+				TrafficDistributionList: &tdl,
+				SourceGBLOC:             &sourceGBLOC,
+				Market:                  &market,
+				Move:                    &move,
+			},
+		}
+		shipment := MakeShipment(db, shipmentAssertions)
 		shipmentList = append(shipmentList, shipment)
 		time.Sleep(100 * time.Millisecond)
 	}

@@ -175,7 +175,8 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	// Given: A shipment's move with orders in acceptable status
-	now := time.Now()
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
 	tdl, _ := testdatagen.MakeTDL(
 		suite.db,
 		testdatagen.DefaultSrcRateArea,
@@ -183,7 +184,17 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
 
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED
