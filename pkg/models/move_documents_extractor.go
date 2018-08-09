@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MoveDocumentExtractor is an object representing ANY move document, and thus has all the fields
@@ -19,8 +20,8 @@ type MoveDocumentExtractor struct {
 	PersonallyProcuredMoveID *uuid.UUID         `json:"personally_procured_move_id" db:"personally_procured_move_id"`
 	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
-	ReimbursementID          *uuid.UUID         `json:"reimbursement_id" db:"reimbursement_id"`
-	Reimbursement            Reimbursement      `belongs_to:"reimbursement"`
+	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
+	PaymentMethod            *string            `json:"payment_method" db:"payment_method"`
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time          `json:"updated_at" db:"updated_at"`
@@ -36,9 +37,9 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 		Where("move_documents.move_id=$1", m.ID.String())
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
-		"move_documents.*, ed.moving_expense_type, ed.reimbursement_id")
+		"move_documents.*, ed.moving_expense_type, ed.requested_amount_cents, ed.payment_method")
 
-	err := db.RawQuery(sql, args...).Eager("Document.Uploads", "Reimbursement").All(&moveDocs)
+	err := db.RawQuery(sql, args...).Eager("Document.Uploads").All(&moveDocs)
 	if err != nil {
 		return moveDocs, err
 	}

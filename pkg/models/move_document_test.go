@@ -40,10 +40,6 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
-		Reimbursement: models.Reimbursement{
-			RequestedAmount: 100,
-			MethodOfReceipt: models.MethodOfReceiptMILPAY,
-		},
 	}
 
 	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
@@ -64,7 +60,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 			suite.Equal(moveDoc.MoveDocumentType, MoveDocumentTypeEXPENSE)
 			suite.Equal(moveDoc.Status, MoveDocumentStatusOK)
 			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
-			suite.Equal((&moveDoc.MovingExpenseDocument.Reimbursement.RequestedAmount).Int(), 1000)
+			suite.Equal((&moveDoc.MovingExpenseDocument.RequestedAmountCents).Int(), 2589)
 		}
 	}
 

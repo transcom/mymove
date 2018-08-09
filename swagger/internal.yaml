@@ -464,7 +464,7 @@ definitions:
     properties:
       MIL_PAY:
         type: integer
-      OTHER_DD:
+      OTHER:
         type: integer
       GTCC:
         type: integer
@@ -584,8 +584,21 @@ definitions:
         title: Notes
       moving_expense_type:
         $ref: '#/definitions/MovingExpenseType'
-      reimbursement:
-        $ref: '#/definitions/Reimbursement'
+      requested_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Requested Amount
+        description: unit is cents
+      payment_method:
+        type: string
+        title: Payment Method
+        enum:
+          - OTHER
+          - GTCC
+        x-display-value:
+          OTHER: Other account
+          GTCC: GTCC
     required:
       - id
       - move_id
@@ -621,32 +634,6 @@ definitions:
       - upload_ids
       - title
       - move_document_type
-  UpdateGenericMoveDocumentPayload:
-    # used by client side code - DO NOT DELETE
-    type: object
-    properties:
-      personally_procured_move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      title:
-        type: string
-        example: very_useful_document.pdf
-        title: Document Title
-      move_document_type:
-        $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-    required:
-      - title
-      - move_document_type
-      - status
   MoveDocumentType:
     type: string
     title: Document Type
@@ -663,7 +650,6 @@ definitions:
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
   CreateMovingExpenseDocumentPayload:
-    # used by client side code - DO NOT DELETE
     type: object
     properties:
       personally_procured_move_id:
@@ -684,8 +670,21 @@ definitions:
         $ref: '#/definitions/MovingExpenseType'
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
-      reimbursement:
-        $ref: '#/definitions/CreateReimbursement'
+      requested_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Requested Amount
+        description: unit is cents
+      payment_method:
+        type: string
+        title: Method of Payment
+        enum:
+          - OTHER
+          - GTCC
+        x-display-value:
+          OTHER: Other payment method
+          GTCC: GTCC
       notes:
         type: string
         example: This document is good to go!
@@ -696,38 +695,8 @@ definitions:
       - title
       - move_document_type
       - moving_expense_type
-      - reimbursement
-  UpdateMovingExpenseDocumentPayload:
-    type: object
-    properties:
-      personally_procured_move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      move_document_type:
-        type: string
-        $ref: '#/definitions/MoveDocumentType'
-      title:
-        type: string
-        example: very_useful_document.pdf
-      moving_expense_type:
-        $ref: '#/definitions/MovingExpenseType'
-      status:
-         $ref: '#/definitions/MoveDocumentStatus'
-      reimbursement:
-        $ref: '#/definitions/Reimbursement'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-    required:
-      - title
-      - status
-      - move_document_type
-      - moving_expense_type
-      - reimbursement
+      - requested_amount_cents
+      - payment_method
   MovingExpenseType:
     type: string
     title: Moving Expense Type
