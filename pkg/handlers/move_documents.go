@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -123,8 +124,29 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	newType := models.MoveDocumentType(payload.MoveDocumentType)
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
-	moveDoc.Status = models.MoveDocumentStatus(payload.Status)
 	moveDoc.MoveDocumentType = newType
+
+	newStatus := models.MoveDocumentStatus(payload.Status)
+
+	// If this is a shipment summary and it has been approved, we process the ppm.
+	if newStatus != moveDoc.Status {
+		err = moveDoc.AttemptTransition(newStatus)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+
+		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
+			if len(moveDoc.Move.PersonallyProcuredMoves) == 0 {
+				return responseForError(h.logger, errors.New("No PPM loaded for Approved Move Doc"))
+			}
+
+			ppm := &moveDoc.Move.PersonallyProcuredMoves[0]
+			err := ppm.Process()
+			if err != nil {
+				return responseForError(h.logger, err)
+			}
+		}
+	}
 
 	var saveAction models.MoveDocumentSaveAction
 
