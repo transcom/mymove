@@ -18,7 +18,8 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	// Test for ShipmentID first before creating a new Shipment
 	shipmentID := assertions.ShipmentOffer.ShipmentID
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
-		// TODO: Make Shipment and get ID
+		shipment := MakeDefaultShipment(db)
+		shipmentID = shipment.ID
 	}
 
 	// Test for TSP ID first before creating a new TSP

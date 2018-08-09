@@ -35,8 +35,8 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	sourceGBLOC := "OHAI"
 	market := "dHHG"
 
-	shipment := testdatagen.MakeShipment(db, Assertions{
-		Shipment: models.Shipment{
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			PickupDate:              &pickupDate,
 			DeliveryDate:            &deliveryDate,
