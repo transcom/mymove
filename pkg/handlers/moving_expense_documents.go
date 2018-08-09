@@ -20,15 +20,16 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 	}
 
 	movingExpenseDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID:                fmtUUID(movingExpenseDocument.MoveDocument.ID),
-		MoveID:            fmtUUID(movingExpenseDocument.MoveDocument.MoveID),
-		Document:          documentPayload,
-		Title:             &movingExpenseDocument.MoveDocument.Title,
-		MoveDocumentType:  internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
-		Status:            internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status),
-		Notes:             movingExpenseDocument.MoveDocument.Notes,
-		MovingExpenseType: internalmessages.MovingExpenseType(movingExpenseDocument.MovingExpenseType),
-		Reimbursement:     payloadForReimbursementModel(&movingExpenseDocument.Reimbursement),
+		ID:                   fmtUUID(movingExpenseDocument.MoveDocument.ID),
+		MoveID:               fmtUUID(movingExpenseDocument.MoveDocument.MoveID),
+		Document:             documentPayload,
+		Title:                &movingExpenseDocument.MoveDocument.Title,
+		MoveDocumentType:     internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
+		Status:               internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status),
+		Notes:                movingExpenseDocument.MoveDocument.Notes,
+		MovingExpenseType:    internalmessages.MovingExpenseType(movingExpenseDocument.MovingExpenseType),
+		RequestedAmountCents: int64(movingExpenseDocument.RequestedAmountCents),
+		PaymentMethod:        movingExpenseDocument.PaymentMethod,
 	}
 
 	return &movingExpenseDocumentPayload, nil
@@ -83,8 +84,6 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		ppmID = &id
 	}
 
-	reimbursement := models.BuildRequestedReimbursement(unit.Cents(*payload.Reimbursement.RequestedAmount), models.MethodOfReceipt(*payload.Reimbursement.MethodOfReceipt))
-
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
 		h.db,
 		uploads,
@@ -92,7 +91,8 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes,
-		reimbursement,
+		unit.Cents(*payload.RequestedAmountCents),
+		*payload.PaymentMethod,
 		models.MovingExpenseType(payload.MovingExpenseType),
 	)
 
