@@ -33,7 +33,8 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 
 	if moveDoc.MovingExpenseDocument != nil {
 		payload.MovingExpenseType = internalmessages.MovingExpenseType(moveDoc.MovingExpenseDocument.MovingExpenseType)
-		payload.Reimbursement = payloadForReimbursementModel(&moveDoc.MovingExpenseDocument.Reimbursement)
+		payload.RequestedAmountCents = int64(moveDoc.MovingExpenseDocument.RequestedAmountCents)
+		payload.PaymentMethod = moveDoc.MovingExpenseDocument.PaymentMethod
 	}
 
 	return &payload, nil
@@ -50,6 +51,14 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.MovingExpenseType != nil {
 		expenseType = internalmessages.MovingExpenseType(*docExtractor.MovingExpenseType)
 	}
+	var paymentMethod string
+	if docExtractor.PaymentMethod != nil {
+		paymentMethod = string(*docExtractor.PaymentMethod)
+	}
+	var requestedAmt unit.Cents
+	if docExtractor.RequestedAmountCents != nil {
+		requestedAmt = *docExtractor.RequestedAmountCents
+	}
 
 	payload := internalmessages.MoveDocumentPayload{
 		ID:     fmtUUID(docExtractor.ID),
@@ -61,7 +70,8 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		Status:                   internalmessages.MoveDocumentStatus(docExtractor.Status),
 		Notes:                    docExtractor.Notes,
 		MovingExpenseType:        expenseType,
-		Reimbursement:            payloadForReimbursementModel(&docExtractor.Reimbursement),
+		RequestedAmountCents:     int64(requestedAmt),
+		PaymentMethod:            paymentMethod,
 	}
 
 	return &payload, nil
@@ -154,24 +164,22 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	// depending on which type of document already exists
 	if models.IsExpenseModelDocumentType(newType) {
 		// We should have a MovingExpenseDocument model
-		reimbursementAmt := unit.Cents(*payload.Reimbursement.RequestedAmount)
-		reimbursementMethod := models.MethodOfReceipt(*payload.Reimbursement.MethodOfReceipt)
+		requestedAmt := unit.Cents(payload.RequestedAmountCents)
+		paymentMethod := payload.PaymentMethod
 		if moveDoc.MovingExpenseDocument == nil {
 			// But we don't have one, so create it to be saved later
-			reimbursement := models.BuildRequestedReimbursement(
-				reimbursementAmt,
-				reimbursementMethod)
 			moveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
-				MoveDocumentID:    moveDoc.ID,
-				MoveDocument:      *moveDoc,
-				MovingExpenseType: models.MovingExpenseType(payload.MovingExpenseType),
-				Reimbursement:     reimbursement,
+				MoveDocumentID:       moveDoc.ID,
+				MoveDocument:         *moveDoc,
+				MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
+				RequestedAmountCents: requestedAmt,
+				PaymentMethod:        paymentMethod,
 			}
 		} else {
 			// We have one already, so update the fields
 			moveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(payload.MovingExpenseType)
-			moveDoc.MovingExpenseDocument.Reimbursement.RequestedAmount = reimbursementAmt
-			moveDoc.MovingExpenseDocument.Reimbursement.MethodOfReceipt = reimbursementMethod
+			moveDoc.MovingExpenseDocument.RequestedAmountCents = requestedAmt
+			moveDoc.MovingExpenseDocument.PaymentMethod = paymentMethod
 		}
 		saveAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
 	} else {

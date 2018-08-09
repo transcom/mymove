@@ -31,12 +31,6 @@ const summaryReducer = ReduxHelpers.generateAsyncReducer(
 
 export const clearPpmIncentive = () => ({ type: CLEAR_PPM_INCENTIVE });
 
-const getOtherExpenses = item => {
-  const other = get(item, 'payment_methods.OTHER_DD', 0);
-  const milPay = get(item, 'payment_methods.MIL_PAY', 0);
-  const val = other + milPay;
-  return val > 0 ? val : null;
-};
 export const getTabularExpenses = (expenseData, movingExpenseSchema) => {
   if (!expenseData || !movingExpenseSchema) return [];
   const expenses = movingExpenseSchema.enum.map(type => {
@@ -51,25 +45,14 @@ export const getTabularExpenses = (expenseData, movingExpenseSchema) => {
     return {
       type: get(movingExpenseSchema['x-display-value'], type),
       GTCC: get(item, 'payment_methods.GTCC', null),
-      other: getOtherExpenses(item),
+      other: get(item, 'payment_methods.OTHER', null),
       total: item.total,
     };
   });
-  const otherDD = get(
-    expenseData,
-    'grand_total.payment_method_totals.OTHER_DD',
-    0,
-  );
-  const milPay = get(
-    expenseData,
-    'grand_total.payment_method_totals.MIL_PAY',
-    0,
-  );
-  const other = otherDD + milPay;
   expenses.push({
     type: 'Total',
     GTCC: get(expenseData, 'grand_total.payment_method_totals.GTCC'),
-    other: other > 0 ? other : null,
+    other: get(expenseData, 'grand_total.payment_method_totals.OTHER'),
     total: get(expenseData, 'grand_total.total'),
   });
   return expenses;

@@ -181,7 +181,6 @@ export const ApprovedMoveSummary = withContext(props => {
     entitlement,
     requestPaymentSuccess,
   } = props;
-  const canRequestPayment = props.context.flags.paymentRequest;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(
     ppm.planned_move_date,
@@ -251,18 +250,12 @@ export const ApprovedMoveSummary = withContext(props => {
                       Request a PPM payment, a storage payment, or an advance
                       against your PPM payment before your move is done.
                     </div>
-                    {canRequestPayment ? (
-                      <Link
-                        to={`moves/${move.id}/request-payment`}
-                        className="usa-button usa-button-secondary"
-                      >
-                        Request Payment
-                      </Link>
-                    ) : (
-                      <button className="usa-button-secondary" disabled={true}>
-                        Request Payment - Coming Soon!
-                      </button>
-                    )}
+                    <Link
+                      to={`moves/${move.id}/request-payment`}
+                      className="usa-button usa-button-secondary"
+                    >
+                      Request Payment
+                    </Link>
                   </div>
                 )}
               </div>
