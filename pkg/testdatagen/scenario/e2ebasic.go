@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // E2eBasicScenario builds a basic set of data for e2e testing
@@ -17,7 +18,7 @@ type e2eBasicScenario NamedScenario
 var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Basic user with tsp access
 	testdatagen.MakeTspUser(db, testdatagen.Assertions{
@@ -68,6 +69,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &nowTime,
 		},
+		Uploader: loader,
 	})
 	ppm0.Move.Submit()
 	// Save move and dependencies
@@ -99,6 +101,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &pastTime,
 		},
+		Uploader: loader,
 	})
 	ppm1.Move.Submit()
 	ppm1.Move.Approve()
@@ -131,6 +134,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &futureTime,
 		},
+		Uploader: loader,
 	})
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
@@ -161,6 +165,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
 			Locator: "BLABLA",
 		},
+		Uploader: loader,
 	})
 
 }
