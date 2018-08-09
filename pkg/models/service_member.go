@@ -105,7 +105,7 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 // DO NOT USE IF YOU NEED USER AUTH
 func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
-	err := db.Q().Find(&serviceMember, id)
+	err := db.Q().Eager("DutyStation").Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound

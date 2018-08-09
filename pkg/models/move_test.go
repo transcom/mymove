@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/uuid"
@@ -175,6 +176,20 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	// Given: A shipment's move with orders in acceptable status
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders.Status = OrderStatusSUBMITTED
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember.DutyStation = dutyStation
+	suite.mustSave(&serviceMember)
+	fmt.Printf("dutty %v", serviceMember.DutyStation)
+
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(
 		suite.db,
@@ -183,19 +198,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
-
-	orders := testdatagen.MakeDefaultOrder(suite.db)
-	orders.Status = OrderStatusSUBMITTED
-
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
-	suite.Nil(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	shipment.Move = move
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
-	shipment.ServiceMember = serviceMember
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, move, &serviceMember)
 
 	// Associate Shipment with the move it's on.
 	move.Shipments = append(move.Shipments, shipment)
