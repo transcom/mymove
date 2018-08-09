@@ -151,7 +151,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			}
 
 			ppm := &moveDoc.Move.PersonallyProcuredMoves[0]
-			err := ppm.Process()
+			err := ppm.Complete()
 			if err != nil {
 				return responseForError(h.logger, err)
 			}

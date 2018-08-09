@@ -235,6 +235,6 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	q.All(&ppms)
 	suite.Require().Equal(len(ppms), 1, "Should have a PPM!")
 	reloadedPPM := ppms[0]
-	suite.Require().Equal(string(models.PPMStatusPROCESSED), string(reloadedPPM.Status))
+	suite.Require().Equal(string(models.PPMStatusCOMPLETED), string(reloadedPPM.Status))
 
 }
