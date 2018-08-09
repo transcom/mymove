@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -13,17 +14,12 @@ func MakeMovingExpenseDocument(db *pop.Connection, assertions Assertions) models
 		moveDoc = MakeMoveDocument(db, assertions)
 	}
 
-	reimbursement := assertions.MovingExpenseDocument.Reimbursement
-	if isZeroUUID(assertions.MovingExpenseDocument.ReimbursementID) {
-		reimbursement, _ = MakeDraftReimbursement(db)
-	}
-
 	movingExpenseDocument := models.MovingExpenseDocument{
-		MoveDocumentID:    moveDoc.ID,
-		MoveDocument:      moveDoc,
-		MovingExpenseType: models.MovingExpenseTypeCONTRACTEDEXPENSE,
-		ReimbursementID:   reimbursement.ID,
-		Reimbursement:     reimbursement,
+		MoveDocumentID:       moveDoc.ID,
+		MoveDocument:         moveDoc,
+		MovingExpenseType:    models.MovingExpenseTypeCONTRACTEDEXPENSE,
+		PaymentMethod:        "GTCC",
+		RequestedAmountCents: unit.Cents(2589),
 	}
 
 	// Overwrite values with those from assertions

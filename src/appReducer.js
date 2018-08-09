@@ -38,6 +38,12 @@ import shipments, {
 import addresses, {
   STATE_KEY as ADDRESSES_STATE_KEY,
 } from 'shared/Entities/modules/addresses';
+import moves, {
+  STATE_KEY as MOVES_STATE_KEY,
+} from 'shared/Entities/modules/moves';
+import orders, {
+  STATE_KEY as ORDERS_STATE_KEY,
+} from 'shared/Entities/modules/orders';
 
 const entititesReducer = combineReducers({
   [MOVEDOCUMENTS_STATE_KEY]: moveDocuments,
@@ -45,6 +51,8 @@ const entititesReducer = combineReducers({
   [UPLOADS_STATE_KEY]: uploads,
   [SHIPMENTS_STATE_KEY]: shipments,
   [ADDRESSES_STATE_KEY]: addresses,
+  [MOVES_STATE_KEY]: moves,
+  [ORDERS_STATE_KEY]: orders,
 });
 
 const defaultReducers = {

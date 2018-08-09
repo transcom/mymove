@@ -362,6 +362,9 @@ definitions:
       source_gbloc:
         $ref: '#/definitions/GBLOC'
         readOnly: true
+      destination_gbloc:
+        $ref: '#/definitions/GBLOC'
+        readOnly: true
       market:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true

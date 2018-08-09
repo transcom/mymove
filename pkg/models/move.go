@@ -14,6 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MoveStatus represents the status of an order record's lifecycle
@@ -180,7 +181,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
-	_, authErr := FetchOrder(db, session, move.OrdersID)
+	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
 	if authErr != nil {
 		return nil, authErr
 	}
@@ -288,7 +289,8 @@ func (m Move) CreateMovingExpenseDocument(
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string,
-	reimbursement Reimbursement,
+	requestedAmountCents unit.Cents,
+	paymentMethod string,
 	movingExpenseType MovingExpenseType) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
@@ -310,20 +312,13 @@ func (m Move) CreateMovingExpenseDocument(
 			return transactionError
 		}
 
-		// Save the reimbursement to get an ID.
-		if verrs, err := db.ValidateAndCreate(&reimbursement); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Creating Moving Expense Advance")
-			return transactionError
-		}
-
 		// Finally, create the MovingExpenseDocument
 		newMovingExpenseDocument = &MovingExpenseDocument{
-			MoveDocumentID:    newMoveDocument.ID,
-			MoveDocument:      *newMoveDocument,
-			MovingExpenseType: movingExpenseType,
-			ReimbursementID:   reimbursement.ID,
-			Reimbursement:     reimbursement,
+			MoveDocumentID:       newMoveDocument.ID,
+			MoveDocument:         *newMoveDocument,
+			MovingExpenseType:    movingExpenseType,
+			RequestedAmountCents: requestedAmountCents,
+			PaymentMethod:        paymentMethod,
 		}
 		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
 		if err != nil || verrs.HasAny() {
@@ -467,9 +462,9 @@ func createNewMove(db *pop.Connection,
 	return nil, verrs, ErrLocatorGeneration
 }
 
-// SaveMoveStatuses safely saves a Move status and its associated PPMs' Advances' statuses.
-// TODO: Add functionality to save more than just status on these objects
-func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) {
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
+// and shipment GBLOCs.
+func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -492,6 +487,31 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 			}
 		}
 
+		if move.Status == MoveStatusSUBMITTED {
+
+			// Save Shipment GBLOCs
+			orders, err := FetchOrder(db, move.OrdersID)
+			if err != nil {
+				responseError = errors.Wrap(err, "Error fetching orders")
+				return transactionError
+			}
+			for _, shipment := range move.Shipments {
+				destinationGbloc, err := getGbloc(db, orders.NewDutyStationID)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
+					return transactionError
+				}
+				shipment.DestinationGBLOC = &destinationGbloc
+				// TODO: Implement sourceGbloc calculation
+
+				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Shipment")
+					return transactionError
+				}
+			}
+		}
+
 		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")
@@ -503,12 +523,18 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 			responseError = errors.Wrap(err, "Error Saving Move")
 			return transactionError
 		}
-
 		return nil
-
 	})
 
 	return responseVErrors, responseError
+}
+
+func getGbloc(db *pop.Connection, dutyStationID uuid.UUID) (gbloc string, err error) {
+	transportationOffice, err := FetchDutyStationTransportationOffice(db, dutyStationID)
+	if err != nil {
+		return "", errors.Wrap(err, "could not load transportation office for duty station")
+	}
+	return transportationOffice.Gbloc, nil
 }
 
 // FetchMoveForAdvancePaperwork returns a Move with all of the associations required
