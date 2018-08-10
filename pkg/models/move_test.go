@@ -175,6 +175,35 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	// Given: A shipment's move with orders in acceptable status
+
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember.DutyStationID = &dutyStation.ID
+	serviceMember.DutyStation = dutyStation
+	suite.mustSave(&serviceMember)
+
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
+	tdl, _ := testdatagen.MakeTDL(
+		suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
+	market := "dHHG"
+	sourceGBLOC := "BMLK"
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+			ServiceMember:           &serviceMember,
+		},
+	})
+
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED
 
@@ -183,26 +212,10 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
-	serviceMember.DutyStationID = &dutyStation.ID
-	serviceMember.DutyStation = dutyStation
-	suite.mustSave(&serviceMember)
-
-	now := time.Now()
-	tdl, err := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
-	suite.Nil(err)
-	market := "dHHG"
-	shipment, err := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, "", &market, move, &serviceMember)
-	suite.Nil(err)
-
 	// Associate Shipment with the move it's on.
 	move.Shipments = append(move.Shipments, shipment)
 	move.Orders = orders
+
 	// And: Move is in SUBMITTED state
 	move.Status = MoveStatusSUBMITTED
 	verrs, err = SaveMoveDependencies(suite.db, move)
@@ -212,9 +225,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 
 	// Then: Shipment GBLOCs will be equal to:
 	// destination GBLOC: orders' new duty station's transportation office's GBLOC
+	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *shipment.DestinationGBLOC)
 	// source GBLOC: service member's current duty station's transportation office's GBLOC
-	destGBLOC := shipment.DestinationGBLOC
-	sourceGBLOC := shipment.SourceGBLOC
-	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *destGBLOC)
-	suite.Assertions.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *sourceGBLOC)
+	suite.Assertions.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *shipment.SourceGBLOC)
 }
