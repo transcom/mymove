@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -170,6 +171,15 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	for i, moveDoc := range move.MoveDocuments {
 		db.Load(&moveDoc.Document, "Uploads")
 		move.MoveDocuments[i] = moveDoc
+	}
+
+	// Eager loading of nested has_many associations is broken
+	for i, shipment := range move.Shipments {
+		shipment.PickupAddress = &Address{}
+		db.Load(shipment.PickupAddress, "PickupAddress")
+		fmt.Printf("pu address %v", shipment.PickupAddress)
+
+		move.Shipments[i].PickupAddress = shipment.PickupAddress
 	}
 
 	if err != nil {
