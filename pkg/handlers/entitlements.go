@@ -30,7 +30,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	serviceMember, err := models.FetchServiceMember(h.db, session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, orders.ServiceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

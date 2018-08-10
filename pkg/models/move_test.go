@@ -175,6 +175,13 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	// Given: A shipment's move with orders in acceptable status
+
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember.DutyStationID = &dutyStation.ID
+	serviceMember.DutyStation = dutyStation
+	suite.mustSave(&serviceMember)
+
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
 	tdl, _ := testdatagen.MakeTDL(
@@ -193,6 +200,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
+			ServiceMember:           &serviceMember,
 		},
 	})
 
@@ -200,15 +208,14 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	orders.Status = OrderStatusSUBMITTED
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-
 	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
-	shipment.Move = move
 
 	// Associate Shipment with the move it's on.
 	move.Shipments = append(move.Shipments, shipment)
 	move.Orders = orders
+
 	// And: Move is in SUBMITTED state
 	move.Status = MoveStatusSUBMITTED
 	verrs, err = SaveMoveDependencies(suite.db, move)
@@ -216,7 +223,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	suite.Nil(err)
 	suite.db.Reload(&shipment)
 
-	// Then: Shipment dest. GBLOC will be equal to orders' new duty station's trans. office's GBLOC
-	destGBLOC := shipment.DestinationGBLOC
-	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *destGBLOC)
+	// Then: Shipment GBLOCs will be equal to:
+	// destination GBLOC: orders' new duty station's transportation office's GBLOC
+	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *shipment.DestinationGBLOC)
+	// source GBLOC: service member's current duty station's transportation office's GBLOC
+	suite.Assertions.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *shipment.SourceGBLOC)
 }
