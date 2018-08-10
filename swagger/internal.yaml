@@ -29,7 +29,7 @@ definitions:
   Affiliation:
     type: string
     x-nullable: true
-    title: Branch
+    title: Branch of service
     enum: &AFFILIATION
       - ARMY
       - NAVY
@@ -746,7 +746,7 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
-        title: DoD ID
+        title: DoD ID number
       orders:
         type: array
         items:
@@ -849,7 +849,7 @@ definitions:
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
-        title: 'DoD ID #'
+        title: 'DoD ID number'
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -858,7 +858,7 @@ definitions:
         type: string
         format: ssn
         x-nullable: true
-        title: 'Social Security Number'
+        title: 'Social security number'
         example: '555-55-5555'
       first_name:
         type: string
@@ -937,7 +937,7 @@ definitions:
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
-        title: DoD ID
+        title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -946,7 +946,7 @@ definitions:
         type: string
         format: ssn
         x-nullable: true
-        title: Social Security Number
+        title: Social security number
         example: '555-55-5555'
       first_name:
         type: string
