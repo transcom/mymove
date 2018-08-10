@@ -45,7 +45,7 @@ func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (Doc
 		return Document{}, err
 	}
 
-	_, smErr := FetchServiceMember(db, session, document.ServiceMemberID)
+	_, smErr := FetchServiceMemberForUser(db, session, document.ServiceMemberID)
 	if smErr != nil {
 		return Document{}, smErr
 	}
