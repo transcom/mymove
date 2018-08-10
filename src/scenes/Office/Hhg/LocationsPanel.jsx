@@ -7,8 +7,6 @@ import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 import editablePanel from '../editablePanel';
 import { addressElementDisplay, addressElementEdit } from '../AddressElement';
 import { no_op } from 'shared/utils';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelField } from 'shared/EditablePanel';
 
 const LocationsDisplay = props => {
   const pickupAddress = {
@@ -27,10 +25,6 @@ const LocationsDisplay = props => {
     postal_code: '91011',
   };
 
-  const fieldProps = {
-    schema: props.shipmentSchema,
-    values: props.shipment,
-  };
   // const pickupAddress = props.shipment.pickup_address;
   // const deliveryAddress = props.shipment.delivery_address;
   return (
@@ -65,15 +59,15 @@ const LocationsEdit = props => {
   };
   let pickupAddressProps = {
     swagger: props.addressSchema,
-    values: props.backupMailingAddress,
+    values: pickupAddress,
   };
-  const { shipmentSchema } = props;
+  // const { shipmentSchema } = props;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <FormSection name="pickupAddress">
           <span className="column-subhead">Pickup</span>
-          {addressElementEdit(pickupAddress, 'Primary')}
+          {addressElementEdit(pickupAddressProps, 'Primary')}
         </FormSection>
       </div>
       <div className="editable-panel-column">
