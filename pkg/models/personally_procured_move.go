@@ -100,7 +100,7 @@ func (p *PersonallyProcuredMove) Submit() error {
 
 // Approve approves the PPM to go forward.
 func (p *PersonallyProcuredMove) Approve() error {
-	if p.Status != PPMStatusSUBMITTED {
+	if !(p.Status == PPMStatusSUBMITTED || p.Status == PPMStatusDRAFT) {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 
