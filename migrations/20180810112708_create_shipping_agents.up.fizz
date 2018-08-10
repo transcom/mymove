@@ -1,0 +1,9 @@
+create_table("shipping_agents") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("shipment_id", "uuid", {})
+	t.Column("agent_type", "text", {})
+	t.Column("name", "text", {})
+	t.Column("phone_number", "text", {})
+	t.Column("email", "text", {})
+	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {})
+}
