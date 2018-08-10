@@ -25,7 +25,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 	}
 	// Load Servicemember and first level associations
-	serviceMember, err := models.FetchServiceMember(h.db, session, session.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, session.ServiceMemberID)
 	if err != nil {
 		h.logger.Error("Error retrieving service_member", zap.Error(err))
 		return userop.NewShowLoggedInUserUnauthorized()
