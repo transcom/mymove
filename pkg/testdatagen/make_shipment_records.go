@@ -9,47 +9,74 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeShipment creates a single shipment record.
-func MakeShipment(db *pop.Connection, requestedPickup time.Time,
-	pickup time.Time, delivery time.Time,
-	tdl models.TrafficDistributionList, sourceGBLOC string, market *string, move *models.Move, sm *models.ServiceMember) (models.Shipment, error) {
+// MakeShipment creates a single shipment record
+func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
-	var moveObj models.Move
+	requestedPickupDate := assertions.Shipment.RequestedPickupDate
+	pickupDate := assertions.Shipment.PickupDate
+	deliveryDate := assertions.Shipment.DeliveryDate
+	tdl := assertions.Shipment.TrafficDistributionList
+	if tdl == nil {
+		// TODO: Fix TDL
+		// tdl = MakeDefaultTDL(db)
+	}
+
+	defaultGBLOC := "OHAI"
+	sourceGBLOC := assertions.Shipment.SourceGBLOC
+	if sourceGBLOC == nil {
+		sourceGBLOC = &defaultGBLOC
+	}
+	destinationGBLOC := assertions.Shipment.DestinationGBLOC
+	if destinationGBLOC == nil {
+		destinationGBLOC = &defaultGBLOC
+	}
+
+	market := assertions.Shipment.Market
+
+	move := assertions.Shipment.Move
 	if move == nil {
-		moveObj = MakeDefaultMove(db)
-	} else {
-		moveObj = *move
+		newMove := MakeDefaultMove(db)
+		move = &newMove
 	}
 
-	var serviceMember models.ServiceMember
-	if sm == nil {
-		serviceMember = MakeDefaultServiceMember(db)
-	} else {
-		serviceMember = *sm
+	serviceMember := assertions.Shipment.ServiceMember
+	if serviceMember == nil {
+		newServiceMember := MakeDefaultServiceMember(db)
+		serviceMember = &newServiceMember
 	}
 
-	pickupAddress := MakeAddress(db, Assertions{})
-	codeOfService := "D"
-	destinationGBLOC := "OHAI"
+	codeOfService := assertions.Shipment.CodeOfService
+	if codeOfService == nil {
+		newCodeOfService := "D"
+		codeOfService = &newCodeOfService
+	}
+
+	pickupAddress := assertions.Shipment.PickupAddress
+	if pickupAddress == nil {
+		newPickupAddress := MakeAddress(db, Assertions{})
+		pickupAddress = &newPickupAddress
+	}
+
 	shipment := models.Shipment{
 		TrafficDistributionListID:    uuidPointer(tdl.ID),
+		TrafficDistributionList:      tdl,
 		ServiceMemberID:              serviceMember.ID,
-		TrafficDistributionList:      &tdl,
-		PickupDate:                   timePointer(pickup),
-		DeliveryDate:                 timePointer(delivery),
-		SourceGBLOC:                  stringPointer(sourceGBLOC),
-		DestinationGBLOC:             stringPointer(destinationGBLOC),
+		ServiceMember:                serviceMember,
+		PickupDate:                   timePointer(*pickupDate),
+		DeliveryDate:                 timePointer(*deliveryDate),
+		SourceGBLOC:                  stringPointer(*sourceGBLOC),
+		DestinationGBLOC:             stringPointer(*destinationGBLOC),
 		Market:                       market,
-		CodeOfService:                &codeOfService,
+		CodeOfService:                codeOfService,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),
-		RequestedPickupDate:          timePointer(requestedPickup),
-		MoveID:                       moveObj.ID,
-		Move:                         &moveObj,
+		RequestedPickupDate:          timePointer(*requestedPickupDate),
+		MoveID:                       move.ID,
+		Move:                         move,
 		Status:                       "DEFAULT",
 		EstimatedPackDays:            models.Int64Pointer(2),
 		EstimatedTransitDays:         models.Int64Pointer(3),
 		PickupAddressID:              &pickupAddress.ID,
-		PickupAddress:                &pickupAddress,
+		PickupAddress:                pickupAddress,
 		HasSecondaryPickupAddress:    false,
 		SecondaryPickupAddressID:     nil,
 		SecondaryPickupAddress:       nil,
@@ -72,7 +99,12 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		log.Panic(err)
 	}
 
-	return shipment, err
+	return shipment
+}
+
+// MakeDefaultShipment makes a Shipment with default values
+func MakeDefaultShipment(db *pop.Connection) models.Shipment {
+	return MakeShipment(db, Assertions{})
 }
 
 // MakeShipmentData creates three shipment records
@@ -87,13 +119,43 @@ func MakeShipmentData(db *pop.Connection) {
 	}
 
 	// Add three shipment table records using UUIDs from TDLs
-	now := time.Now()
-	thirtyMin, _ := time.ParseDuration("30m")
 	oneWeek, _ := time.ParseDuration("7d")
+	now := time.Now()
+	nowPlusOne := now.Add(oneWeek)
+	nowPlusTwo := now.Add(oneWeek * 2)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 
-	MakeShipment(db, now, now, now.Add(thirtyMin), tdlList[0], sourceGBLOC, &market, nil, nil)
-	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1], sourceGBLOC, &market, nil, nil)
-	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2], sourceGBLOC, &market, nil, nil)
+	MakeShipment(db, Assertions{
+		Shipment: models.Shipment{
+			RequestedPickupDate:     &now,
+			PickupDate:              &now,
+			DeliveryDate:            &now,
+			TrafficDistributionList: &tdlList[0],
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
+
+	MakeShipment(db, Assertions{
+		Shipment: models.Shipment{
+			RequestedPickupDate:     &nowPlusOne,
+			PickupDate:              &nowPlusOne,
+			DeliveryDate:            &nowPlusOne,
+			TrafficDistributionList: &tdlList[1],
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
+
+	MakeShipment(db, Assertions{
+		Shipment: models.Shipment{
+			RequestedPickupDate:     &nowPlusTwo,
+			PickupDate:              &nowPlusTwo,
+			DeliveryDate:            &nowPlusTwo,
+			TrafficDistributionList: &tdlList[2],
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
 }
