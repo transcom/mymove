@@ -26,7 +26,17 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 
 	// Make shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market, nil, nil)
+		now := time.Now()
+		testdatagen.MakeShipment(db, testdatagen.Assertions{
+			Shipment: models.Shipment{
+				RequestedPickupDate:     &now,
+				PickupDate:              &now,
+				DeliveryDate:            &now,
+				TrafficDistributionList: &tdl,
+				SourceGBLOC:             &sourceGBLOC,
+				Market:                  &market,
+			},
+		})
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
@@ -62,11 +72,29 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 
 	// Make shipments in first TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl, sourceGBLOC, &market, nil, nil)
+		testdatagen.MakeShipment(db, testdatagen.Assertions{
+			Shipment: models.Shipment{
+				RequestedPickupDate:     &shipmentDate,
+				PickupDate:              &shipmentDate,
+				DeliveryDate:            &shipmentDate,
+				TrafficDistributionList: &tdl,
+				SourceGBLOC:             &sourceGBLOC,
+				Market:                  &market,
+			},
+		})
 	}
 	// Make shipments in second TDL
 	for i := 0; i <= shipmentsToMake; i++ {
-		testdatagen.MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl2, sourceGBLOC, &market, nil, nil)
+		testdatagen.MakeShipment(db, testdatagen.Assertions{
+			Shipment: models.Shipment{
+				RequestedPickupDate:     &shipmentDate,
+				PickupDate:              &shipmentDate,
+				DeliveryDate:            &shipmentDate,
+				TrafficDistributionList: &tdl2,
+				SourceGBLOC:             &sourceGBLOC,
+				Market:                  &market,
+			},
+		})
 	}
 
 	// Make TSPs
