@@ -63,7 +63,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

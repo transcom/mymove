@@ -57,6 +57,7 @@ func main() {
 		err = tdgs.RunRateEngineScenario2(db)
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
 		tdgs.E2eBasicScenario.Run(db)
+		log.Print("Success! Created e2e test data.")
 	} else {
 		// Can this be less repetitive without being overly clever?
 		testdatagen.MakeTDLData(db)
