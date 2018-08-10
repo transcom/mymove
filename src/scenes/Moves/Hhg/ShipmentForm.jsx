@@ -4,13 +4,16 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 
+import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
+import { request } from 'shared/api';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
 import Address from 'scenes/Moves/Hhg/Address';
 import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
+
+
 
 import {
   createOrUpdateShipment,
@@ -43,7 +46,15 @@ export class ShipmentForm extends Component {
   loadShipment() {
     const currentID = get(this.props, 'currentShipment.id');
     if (currentID) {
-      this.props.getShipment(this.props.currentShipment.move_id, currentID);
+      const args = {moveId: this.props.currentShipment.move_id, shipmentId: currentID};
+      const request = this.props.request('loadShipment', 'shipments.getShipment', args);
+
+      request.then(response => console.log("then", response) )
+        .catch(error => {
+          this.setState({shipmentError: error});
+          console.error("caught", error);
+        });
+      //this.props.getShipment(this.props.currentShipment.move_id, currentID);
     }
   }
 
@@ -129,7 +140,7 @@ ShipmentForm.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment, getShipment },
+    { createOrUpdateShipment, setCurrentShipment, getShipment, request }, 
     dispatch,
   );
 }

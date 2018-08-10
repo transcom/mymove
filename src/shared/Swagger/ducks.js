@@ -1,6 +1,6 @@
 import * as helpers from 'shared/ReduxHelpers';
 import { GetSpec, GetPublicSpec } from './api';
-import { last, startsWith } from 'lodash';
+import { filter, last, sortBy, startsWith } from 'lodash';
 
 const resource = 'SWAGGER';
 
@@ -13,26 +13,53 @@ export const loadPublicSchema = helpers.generateAsyncActionCreator(
   GetPublicSpec,
 );
 
-export default helpers.generateAsyncReducer(resource, v => ({ spec: v }));
+export const swaggerReducer =  helpers.generateAsyncReducer(resource, v => ({ spec: v }));
 
 const initialState = {
-  requests: {},
+  byID: {},
+  errored: {},
 };
 
-export function requestReducer(state = initialState, action) {
+export function requestsReducer(state = initialState, action) {
   if (startsWith(action.type, '@@swagger')) {
     const parts = action.type.split('/');
     switch (last(parts)) {
       case 'START':
         return Object.assign({}, state, {
-          moveIsLoading: true,
-          moveHasLoadSuccess: false,
+          byID: {
+            ...state.byID,
+            [action.request.id]: action.request,
+          },
         });
       case 'SUCCESS':
-
+        return Object.assign({}, state, {
+          byID: {
+            ...state.byID,
+            [action.request.id]: action.request,
+          },
+        });
       case 'FAILURE':
-
+        return Object.assign({}, state, {
+          byID: {
+            ...state.byID,
+            [action.request.id]: action.request,
+          },
+          errored: {
+            ...state.errored,
+            [action.request.id]: action.request,
+          }
+        });
       default:
+        return state;
     }
   }
+  return state;
+}
+
+export function lastRequest(state, label) {
+  const requests = filter(state.requests.byID, function(value, key) {
+    return value.label === label;
+  });
+  const sorted = sortBy(requests, ['start']);
+  return last(sorted);
 }

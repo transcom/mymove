@@ -4,7 +4,7 @@ import { routerReducer } from 'react-router-redux';
 
 import { loggedInUserReducer } from 'shared/User/ducks';
 import userReducer from 'shared/User/ducks';
-import swaggerReducer from 'shared/Swagger/ducks';
+import { swaggerReducer, requestsReducer } from 'shared/Swagger/ducks';
 import uiReducer from 'shared/UI/ducks';
 
 import { feedbackReducer } from 'scenes/Feedback/ducks';
@@ -59,6 +59,7 @@ const defaultReducers = {
   loggedInUser: loggedInUserReducer,
   router: routerReducer,
   swagger: swaggerReducer,
+  requests: requestsReducer,
   ui: uiReducer,
   user: userReducer,
 };

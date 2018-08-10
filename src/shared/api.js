@@ -1,39 +1,58 @@
 import { get, uniqueId } from 'lodash';
 import Swagger from 'swagger-client';
+import { normalize } from 'normalizr';
 
 import store from 'shared/store';
-
+import { addEntities } from 'shared/Entities/actions'
 let client = null;
 let publicClient = null;
 
-window.request = function(label, opName, params) {
-  const operation = get(client, 'apis.' + opName);
+export function request(label, opName, params) {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
+    const operation = get(client, 'apis.' + opName);
 
-  if (!operation) {
-    throw new Error(`Operation '${opName}' does not exist!`);
-  }
+    if (!operation) {
+      throw new Error(`Operation '${opName}' does not exist!`);
+    }
 
-  const id = uniqueId('req_');
+    const id = uniqueId('req_');
+    const requestLog = {
+      id,
+      opName,
+      params,
+      start: new Date(),
+    };
+    store.dispatch({ type: `@@swagger/${opName}/START`, label, request: requestLog });
 
-  store.dispatch({ type: `@@swagger/${opName}/START`, label, id });
-
-  return operation(params)
-    .then(payload =>
-      store.dispatch({ type: `@@swagger/${opName}/SUCCESS`, id, payload }),
-    )
-    .catch(error =>
-      store.dispatch({ type: `@@swagger/${opName}/FAILURE`, id, error }),
-    );
-};
+    const request = operation(params)
+      .then(response => {
+        const updatedRequestLog = Object.assign({}, requestLog, {
+          ok: response.ok,
+          end: new Date(),
+        });
+        dispatch({ type: `@@swagger/${opName}/SUCCESS`, response, request: updatedRequestLog });
+        const data = normalize(response.body, schema.shipment);
+        dispatch(addEntities(data.entities));
+        return response;
+      })
+      .catch(response => {
+        console.error(`Operation ${opName} failed: ${response} (${response.status})`);
+        const updatedRequestLog = Object.assign({}, requestLog, {
+          ok: false,
+          end: new Date(),
+          response,
+        });
+        dispatch({ type: `@@swagger/${opName}/FAILURE`, response, request: updatedRequestLog });
+        throw response;
+      });
+    return request;
+  };
+}
 
 export async function getClient() {
   if (!client) {
-    client = await Swagger({
-      url: '/internal/swagger.yaml',
-      requestInterceptor: req => {
-        console.debug(req);
-      },
-    });
+    client = await Swagger({ url: '/internal/swagger.yaml' });
   }
   return client;
 }

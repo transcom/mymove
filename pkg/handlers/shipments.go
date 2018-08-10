@@ -240,8 +240,9 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		return shipmentop.NewGetShipmentBadRequest()
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
-	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
+	// shipmentPayload := payloadForShipmentModel(*shipment)
+	return shipmentop.NewGetShipmentInternalServerError()
+	// return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
 
 /*
