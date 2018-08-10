@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+// AgentType represents the type of agent being recorded
+type AgentType string
+
+const (
+	// AgentTypeORIGIN capture enum value "ORIGIN"
+	AgentTypeORIGIN AgentType = "ORIGIN"
+	// AgentTypeDESTINATION capture enum value "DESTINATION"
+	AgentTypeDESTINATION AgentType = "DESTINATION"
+)
+
 // ShippingAgent represents an assigned agent for a shipment
 type ShippingAgent struct {
 	ID          uuid.UUID `json:"id" db:"id"`
@@ -16,7 +26,7 @@ type ShippingAgent struct {
 	Shipment    *Shipment `belongs_to:"shipment"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
-	AgentType   string    `json:"agent_type" db:"agent_type"`
+	AgentType   AgentType `json:"agent_type" db:"agent_type"`
 	Name        string    `json:"name" db:"name"`
 	PhoneNumber string    `json:"phone_number" db:"phone_number"`
 	Email       string    `json:"email" db:"email"`
@@ -42,7 +52,7 @@ func (s ShippingAgents) String() string {
 func (s *ShippingAgent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.ShipmentID, Name: "ShipmentID"},
-		&validators.StringIsPresent{Field: s.AgentType, Name: "AgentType"},
+		&validators.StringIsPresent{Field: string(s.AgentType), Name: "AgentType"},
 		&validators.StringIsPresent{Field: s.Name, Name: "Name"},
 		&validators.StringIsPresent{Field: s.PhoneNumber, Name: "PhoneNumber"},
 		&validators.StringIsPresent{Field: s.Email, Name: "Email"},
