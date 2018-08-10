@@ -17,12 +17,14 @@ class ShipmentInfo extends Component {
 
   render() {
     var move = this.props.shipment.move;
+    var sm = this.props.shipment && this.props.shipment.service_member;
     return (
       <div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds Todo-phase2">
-            {/* This comes from the Server Member model which is not yet on Shipments */}
-            <h1>Shipment Info: LastName, FirstName</h1>
+          <div className="usa-width-two-thirds">
+            <h1>
+              Shipment Info: {sm && sm.last_name}, {sm && sm.first_name}
+            </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
             <NavLink to="/queues/new" activeClassName="usa-current">
@@ -33,10 +35,12 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>GBL# {this.props.shipment.source_gbloc}</li>
+              <li className="Todo-phase2">GBL# OHAI9999999</li>
               <li>Locator# {move && move.locator}</li>
-              {/* This comes from Service Member and Order models which are currently not connected to Shipments */}
-              <li className="Todo-phase2">KKFA to HAFC</li>
+              <li>
+                {this.props.shipment.source_gbloc} to{' '}
+                {this.props.shipment.destination_gbloc}
+              </li>
               <li>
                 Requested Move date{' '}
                 {formatDate(this.props.shipment.requested_pickup_date)}

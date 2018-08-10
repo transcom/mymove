@@ -132,6 +132,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	query := tx.Eager(
 		"TrafficDistributionList",
+		"ServiceMember",
 		"Move",
 		"PickupAddress",
 		"SecondaryPickupAddress",
@@ -238,6 +239,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 
 	err := tx.Eager(
 		"TrafficDistributionList",
+		"ServiceMember",
 		"Move",
 		"PickupAddress",
 		"SecondaryPickupAddress",
