@@ -66,6 +66,9 @@ const OrdersDisplay = props => {
         ) : (
           <PanelField title="Orders Number" className="missing">
             missing
+            <Link to={`/moves/${props.move.id}/orders`} target="_blank">
+              <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+            </Link>
           </PanelField>
         )}
         <PanelField
