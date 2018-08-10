@@ -29,8 +29,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 		testdatagen.DefaultCOS)
 	suite.Nil(err, "error making TDL")
 
-	tsp, err := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	suite.Nil(err, "error making TSP")
+	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	sourceGBLOC := "OHAI"
 	market := "dHHG"
