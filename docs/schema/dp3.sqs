@@ -1870,21 +1870,6 @@
         <uid><![CDATA[60AD4181-DF23-481F-A2FD-3A5C2632D852]]></uid>
     </SQLTable>
     <SQLTable>
-        <name><![CDATA[shipping_agen]]></name>
-        <schema><![CDATA[]]></schema>
-        <location>
-            <x>205.00</x>
-            <y>694.00</y>
-        </location>
-        <size>
-            <width>200.00</width>
-            <height>100.00</height>
-        </size>
-        <zorder>35</zorder>
-        <labelWindowIndex><![CDATA[2]]></labelWindowIndex>
-        <uid><![CDATA[687D69F0-F9EE-4515-B204-4546F30AAB93]]></uid>
-    </SQLTable>
-    <SQLTable>
         <name><![CDATA[moving_expense_documents]]></name>
         <schema><![CDATA[]]></schema>
         <location>
