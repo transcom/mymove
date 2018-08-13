@@ -39,7 +39,8 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 // Test_FetchAllShipments tests that a shipment is returned when we fetch shipments with their offers.
 func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
-	now := time.Now()
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
 	tdl, _ := testdatagen.MakeTDL(
 		suite.db,
 		testdatagen.DefaultSrcRateArea,
@@ -47,9 +48,29 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
-	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
+
+	shipment2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
+	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, false)
 
@@ -65,7 +86,8 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 // Test_FetchUnassignedShipments tests that a shipment is returned when we fetch shipments with offers.
 func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
-	now := time.Now()
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
 	tdl, _ := testdatagen.MakeTDL(
 		suite.db,
 		testdatagen.DefaultSrcRateArea,
@@ -73,9 +95,29 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
-	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
+
+	shipment2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
+	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, true)
 

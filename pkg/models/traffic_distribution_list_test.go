@@ -23,11 +23,11 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 	t := suite.T()
 
 	foundTDL, _ := testdatagen.MakeTDL(suite.db, "US14", "3", "2")
-	foundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
 
 	notFoundTDL, _ := testdatagen.MakeTDL(suite.db, "US14", "5", "2")
-	notFoundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
 
 	tdls, err := FetchTDLsAwaitingBandAssignment(suite.db)
@@ -48,7 +48,7 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 	t := suite.T()
 
 	foundTDL, _ := testdatagen.MakeTDL(suite.db, "US28", "4", "2")
-	foundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
