@@ -495,14 +495,27 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 				responseError = errors.Wrap(err, "Error fetching orders")
 				return transactionError
 			}
+
 			for _, shipment := range move.Shipments {
+				serviceMember, err := FetchServiceMember(db, shipment.ServiceMemberID)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error fetching service member")
+					return transactionError
+				}
+
 				destinationGbloc, err := getGbloc(db, orders.NewDutyStationID)
 				if err != nil {
 					responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
 					return transactionError
 				}
 				shipment.DestinationGBLOC = &destinationGbloc
-				// TODO: Implement sourceGbloc calculation
+
+				sourceGbloc, err := getGbloc(db, *serviceMember.DutyStationID)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
+					return transactionError
+				}
+				shipment.SourceGBLOC = &sourceGbloc
 
 				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)

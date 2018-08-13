@@ -1355,8 +1355,10 @@ definitions:
     title: Dept. indicator
     enum:
       - AIR_FORCE
+      - MARINES
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
+      MARINES: 17 - United States Marines
   Shipment:
     type: object
     properties:
@@ -1385,21 +1387,26 @@ definitions:
         type: string
         pattern: '^[A-Z]{4}$'
         example: LHNQ
+        title: Channel
+        format: string
         x-nullable: true
         readOnly: true
       destination_gbloc:
         type: string
         pattern: '^[A-Z]{4}$'
         example: LHNQ
+        format: string
         x-nullable: true
         readOnly: true
       market:
         type: string
         x-nullable: true
+        title: Shipment market
         readOnly: true
       code_of_service:
         type: string
         x-nullable: true
+        title: Code of service
         readOnly: true
       status:
         type: string
