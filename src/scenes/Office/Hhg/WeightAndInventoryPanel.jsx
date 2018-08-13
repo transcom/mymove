@@ -6,6 +6,7 @@ import { reduxForm, getFormValues, isValid } from 'redux-form';
 
 import editablePanel from '../editablePanel';
 import { no_op } from 'shared/utils';
+import { formatNumber } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField } from 'shared/EditablePanel';
 
@@ -19,7 +20,7 @@ const WeightAndInventoryDisplay = props => {
       <div className="editable-panel-column">
         <span className="column-subhead">Weights</span>
         <PanelField title="Customer Estimate">
-          {get(fieldProps, 'values.weight_estimate', '').toLocaleString()} lbs
+          {formatNumber(get(fieldProps, 'values.weight_estimate', ''))} lbs
         </PanelField>
       </div>
       <div className="editable-panel-column">

@@ -84,6 +84,7 @@ export class SignedCertification extends Component {
             pageList={pages}
             pageKey={pageKey}
             initialValues={initialValues}
+            discardOnBack
           >
             <div className="usa-grid">
               <h2>Now for the official part...</h2>

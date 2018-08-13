@@ -136,7 +136,8 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return order, nil
 }
 
-// FetchOrder returns orders
+// FetchOrder returns orders without REGARDLESS OF USER.
+// DO NOT USE IF YOU NEED USER AUTH
 func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Find(&order, id)

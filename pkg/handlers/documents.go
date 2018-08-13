@@ -52,7 +52,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
