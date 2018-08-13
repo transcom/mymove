@@ -10,7 +10,7 @@ func (suite *ModelSuite) Test_ServiceAgentValidations() {
 	expErrors := map[string][]string{
 		"shipment_id":      {"ShipmentID can not be blank."},
 		"role":             {"Role can not be blank."},
-		"point_of_contact": {"Point of Contact can not be blank."},
+		"point_of_contact": {"PointOfContact can not be blank."},
 	}
 
 	suite.verifyValidationErrors(serviceAgent, expErrors)

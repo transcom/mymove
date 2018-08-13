@@ -58,9 +58,6 @@ func (s *ServiceAgent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: s.ShipmentID, Name: "ShipmentID"},
 		&validators.StringIsPresent{Field: string(s.Role), Name: "Role"},
 		&validators.StringIsPresent{Field: s.PointOfContact, Name: "PointOfContact"},
-		&validators.StringIsPresent{Field: *s.Email, Name: "Email"},
-		&validators.StringIsPresent{Field: *s.PhoneNumber, Name: "PhoneNumber"},
-		&validators.StringIsPresent{Field: *s.FaxNumber, Name: "FaxNumber"},
 	), nil
 }
 
