@@ -16,14 +16,15 @@ class ShipmentInfo extends Component {
   }
 
   render() {
-    var move = this.props.shipment.move;
-    var sm = this.props.shipment && this.props.shipment.service_member;
+    var last_name = get(this.props.shipment, 'service_member.last_name');
+    var first_name = get(this.props.shipment, 'service_member.first_name');
+    var locator = get(this.props.shipment, 'move.locator');
     return (
       <div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-two-thirds">
             <h1>
-              Shipment Info: {sm && sm.last_name}, {sm && sm.first_name}
+              Shipment Info: {last_name}, {first_name}
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
@@ -36,7 +37,7 @@ class ShipmentInfo extends Component {
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
               <li className="Todo-phase2">GBL# OHAI9999999</li>
-              <li>Locator# {move && move.locator}</li>
+              <li>Locator# {locator}</li>
               <li>
                 {this.props.shipment.source_gbloc} to{' '}
                 {this.props.shipment.destination_gbloc}
