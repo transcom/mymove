@@ -84,7 +84,6 @@ const HHGTabContent = props => {
         title="Weight & Inventory"
         moveId={props.moveId}
       />
-      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
     </div>
   );
 };

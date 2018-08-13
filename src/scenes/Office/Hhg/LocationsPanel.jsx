@@ -35,19 +35,34 @@ const LocationsDisplay = props => {
 };
 
 const LocationsEdit = props => {
-  const { shipment } = props;
+  let { shipment } = props;
+  let pickupProps = {
+    swagger: props.addressSchema,
+    values: props.pickupAddress,
+  };
+  let secondaryPickupProps = {
+    swagger: props.addressSchema,
+    values: props.secondaryPickupAddress,
+  };
+  let deliveryProps = {
+    swagger: props.addressSchema,
+    values: props.deliveryAddress,
+  };
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <FormSection name="pickupAddress">
           <span className="column-subhead">Pickup</span>
-          {addressElementEdit(shipment.pickup_address, 'Primary')}
+          {addressElementEdit(pickupProps, 'Primary')}
+          {shipment.has_secondary_pickup_address &&
+            addressElementEdit(secondaryPickupProps, 'Secondary')}
         </FormSection>
       </div>
       <div className="editable-panel-column">
         <FormSection name="deliveryAddress">
           <span className="column-subhead">Delivery</span>
-          {addressElementEdit(shipment.deliveryAddress, 'Primary')}
+          {shipment.has_delivery_address &&
+            addressElementEdit(deliveryProps, 'Primary')}
         </FormSection>
       </div>
     </React.Fragment>
@@ -83,7 +98,7 @@ function mapStateToProps(state) {
       state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
 
-    shipment: shipment,
+    shipment,
     pickupAddress,
     secondaryPickupAddress,
     deliveryAddress,
