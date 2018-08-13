@@ -9,71 +9,45 @@ import { addressElementDisplay, addressElementEdit } from '../AddressElement';
 import { no_op } from 'shared/utils';
 
 const LocationsDisplay = props => {
-  const pickupAddress = {
-    street_address_1: '123 4th St.',
-    street_address_2: 'Flat 5',
-    city: 'Sixto',
-    state: 'LA',
-    postal_code: '89101',
-  };
+  const {
+    shipment,
+    pickupAddress,
+    secondaryPickupAddress,
+    deliveryAddress,
+  } = props;
 
-  const deliveryAddress = {
-    street_address_1: '234 5th St.',
-    street_address_2: 'Flat 6',
-    city: 'Sevento',
-    state: 'BE',
-    postal_code: '91011',
-  };
-
-  // const pickupAddress = props.shipment.pickup_address;
-  // const deliveryAddress = props.shipment.delivery_address;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <span className="column-subhead">Pickup</span>
         {addressElementDisplay(pickupAddress, 'Primary')}
+        {shipment.has_secondary_pickup_address &&
+          addressElementDisplay(secondaryPickupAddress, 'Secondary')}
       </div>
-      <div className="editable-panel-column">
-        <span className="column-subhead">Delivery</span>
-        {addressElementDisplay(deliveryAddress, 'Primary')}
-      </div>
+      {shipment.has_delivery_address && (
+        <div className="editable-panel-column">
+          <span className="column-subhead">Delivery</span>
+          {addressElementDisplay(deliveryAddress, 'Primary')}
+        </div>
+      )}
     </React.Fragment>
   );
 };
 
 const LocationsEdit = props => {
-  const pickupAddress = {
-    street_address_1: '123 4th St.',
-    street_address_2: 'Flat 5',
-    city: 'Sixto',
-    state: 'LA',
-    postal_code: '89101',
-  };
-
-  const deliveryAddress = {
-    street_address_1: '234 5th St.',
-    street_address_2: 'Flat 6',
-    city: 'Sevento',
-    state: 'BE',
-    postal_code: '91011',
-  };
-  let pickupAddressProps = {
-    swagger: props.addressSchema,
-    values: pickupAddress,
-  };
-  // const { shipmentSchema } = props;
+  const { shipment } = props;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <FormSection name="pickupAddress">
           <span className="column-subhead">Pickup</span>
-          {addressElementEdit(pickupAddressProps, 'Primary')}
+          {addressElementEdit(shipment.pickup_address, 'Primary')}
         </FormSection>
       </div>
       <div className="editable-panel-column">
         <FormSection name="deliveryAddress">
           <span className="column-subhead">Delivery</span>
-          {addressElementEdit(deliveryAddress, 'Primary')}
+          {addressElementEdit(shipment.deliveryAddress, 'Primary')}
         </FormSection>
       </div>
     </React.Fragment>
@@ -92,10 +66,15 @@ LocationsPanel = reduxForm({ form: formName })(LocationsPanel);
 
 function mapStateToProps(state) {
   let shipment = get(state, 'office.officeMove.shipments.0', {});
+  let pickupAddress = get(shipment, 'pickup_address', {});
+  let secondaryPickupAddress = get(shipment, 'secondary_pickup_address', {});
+  let deliveryAddress = get(shipment, 'delivery_address', {});
+
   return {
     initialValues: {
-      pickupAddress: get(shipment, 'pickup_address', {}),
-      deliveryAddress: get(shipment, 'delivery_address', {}),
+      pickupAddress,
+      secondaryPickupAddress,
+      deliveryAddress,
     },
     // Wrapper
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
@@ -105,6 +84,10 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
 
     shipment: shipment,
+    pickupAddress,
+    secondaryPickupAddress,
+    deliveryAddress,
+
     isUpdating: state.office.shipmentIsUpdating,
 
     // editablePanel
