@@ -21,9 +21,14 @@ func RandomSCAC() string {
 }
 
 // MakeTSP makes a single transportation service provider record.
-func MakeTSP(db *pop.Connection, SCAC string) (models.TransportationServiceProvider, error) {
+func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationServiceProvider {
+
+	scac := assertions.TransportationServiceProvider.StandardCarrierAlphaCode
+	if scac == "" {
+		scac = RandomSCAC()
+	}
 	tsp := models.TransportationServiceProvider{
-		StandardCarrierAlphaCode: SCAC,
+		StandardCarrierAlphaCode: scac,
 	}
 
 	verrs, err := db.ValidateAndSave(&tsp)
@@ -34,20 +39,22 @@ func MakeTSP(db *pop.Connection, SCAC string) (models.TransportationServiceProvi
 		log.Panic(err)
 	}
 
-	return tsp, err
+	return tsp
 }
 
-// MakeTSPData creates three TSP records
-func MakeTSPData(db *pop.Connection) {
-	MakeTSP(db, RandomSCAC())
-	MakeTSP(db, RandomSCAC())
-	MakeTSP(db, RandomSCAC())
+// MakeDefaultTSP makes a TSP with default values
+func MakeDefaultTSP(db *pop.Connection) models.TransportationServiceProvider {
+	return MakeTSP(db, Assertions{})
 }
 
 // MakeTSPs creates numTSP number of TSP records
 // numTSP specifies how many TSPs to create
 func MakeTSPs(db *pop.Connection, numTSP int) {
 	for i := 0; i < numTSP; i++ {
-		MakeTSP(db, RandomSCAC())
+		MakeTSP(db, Assertions{
+			TransportationServiceProvider: models.TransportationServiceProvider{
+				StandardCarrierAlphaCode: RandomSCAC(),
+			},
+		})
 	}
 }

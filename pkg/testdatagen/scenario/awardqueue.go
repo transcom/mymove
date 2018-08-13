@@ -40,11 +40,11 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
-	tsp1, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC())
-	tsp2, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC())
-	tsp3, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC())
-	tsp4, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC())
-	tsp5, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC())
+	tsp1 := testdatagen.MakeDefaultTSP(db)
+	tsp2 := testdatagen.MakeDefaultTSP(db)
+	tsp3 := testdatagen.MakeDefaultTSP(db)
+	tsp4 := testdatagen.MakeDefaultTSP(db)
+	tsp5 := testdatagen.MakeDefaultTSP(db)
 
 	// TSPs should be ordered by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 0.42, 0.42)
@@ -98,15 +98,15 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 	}
 
 	// Make TSPs
-	tsp1, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // Good TSP with blackout date
-	tsp2, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // Very good TSP, no blackout date
-	tsp3, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // Pretty good TSP, no blackout date
-	tsp4, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // So-so TSP with blackout date
-	tsp5, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // Meh TSP, no blackout date
-	tsp6, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // Sterling TSP with no blackout date
-	tsp7, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // Decent TSP with blackout date
-	tsp8, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // Decent TSP,  no blackout date
-	tsp9, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // V v bad TSP
+	tsp1 := testdatagen.MakeDefaultTSP(db) // Good TSP with blackout date
+	tsp2 := testdatagen.MakeDefaultTSP(db) // Very good TSP, no blackout date
+	tsp3 := testdatagen.MakeDefaultTSP(db) // Pretty good TSP, no blackout date
+	tsp4 := testdatagen.MakeDefaultTSP(db) // So-so TSP with blackout date
+	tsp5 := testdatagen.MakeDefaultTSP(db) // Meh TSP, no blackout date
+	tsp6 := testdatagen.MakeDefaultTSP(db) // Sterling TSP with no blackout date
+	tsp7 := testdatagen.MakeDefaultTSP(db) // Decent TSP with blackout date
+	tsp8 := testdatagen.MakeDefaultTSP(db) // Decent TSP,  no blackout date
+	tsp9 := testdatagen.MakeDefaultTSP(db) // V v bad TSP
 
 	// Put TSPs in 2 TDLs to handle these shipments
 	testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 0.42, 0.44)
