@@ -1,0 +1,13 @@
+create_table("service_agents") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("shipment_id", "uuid", {})
+	t.Column("role", "text", {})
+	t.Column("point_of_contact", "text", {})
+	t.Column("email", "text", {"null": true})
+	t.Column("phone_number", "text", {"null": true})
+	t.Column("fax_number", "text", {"null": true})
+	t.Column("email_is_preferred", "bool", {"null": true})
+	t.Column("phone_is_preferred", "bool", {"null": true})
+	t.Column("notes", "text", {"null": true})
+	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {})
+}
