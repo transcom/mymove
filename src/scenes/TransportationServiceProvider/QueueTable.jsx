@@ -73,6 +73,15 @@ class QueueTable extends Component {
                 accessor: 'source_gbloc',
               },
               {
+                Header: 'Customer name',
+                accessor: 'service_member',
+                Cell: row => (
+                  <span className="customer_name">
+                    {row.value.last_name}, {row.value.first_name}
+                  </span>
+                ),
+              },
+              {
                 Header: 'Locator #',
                 accessor: 'move.locator',
               },

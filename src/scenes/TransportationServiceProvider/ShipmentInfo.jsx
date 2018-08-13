@@ -126,13 +126,16 @@ class ShipmentInfo extends Component {
   };
 
   render() {
-    var move = this.props.shipment.move;
+    var last_name = get(this.props.shipment, 'service_member.last_name');
+    var first_name = get(this.props.shipment, 'service_member.first_name');
+    var locator = get(this.props.shipment, 'move.locator');
     return (
       <div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds Todo-phase2">
-            {/* This comes from the Server Member model which is not yet on Shipments */}
-            <h1>Shipment Info: LastName, FirstName</h1>
+          <div className="usa-width-two-thirds">
+            <h1>
+              Shipment Info: {last_name}, {first_name}
+            </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
             <NavLink to="/queues/new" activeClassName="usa-current">
@@ -143,9 +146,8 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              {/* Not clear where this comes from yet */}
-              <li className="Todo-phase2">GBL# KKFA9999999</li>
-              <li>Locator# {move && move.locator}</li>
+              <li className="Todo-phase2">GBL# OHAI9999999</li>
+              <li>Locator# {locator}</li>
               <li>
                 {this.props.shipment.source_gbloc} to{' '}
                 {this.props.shipment.destination_gbloc}

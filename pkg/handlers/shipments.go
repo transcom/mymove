@@ -254,6 +254,7 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentPayload := &apimessages.Shipment{
 		ID: *fmtUUID(s.ID),
 		TrafficDistributionList:      publicPayloadForTrafficDistributionListModel(s.TrafficDistributionList),
+		ServiceMember:                publicPayloadForServiceMemberModel(s.ServiceMember),
 		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
 		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
 		CreatedAt:                    strfmt.DateTime(s.CreatedAt),

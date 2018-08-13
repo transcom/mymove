@@ -317,6 +317,62 @@ definitions:
       HHG: Household Goods Move
       PPM: Personal Procured Move
       COMBO: Both HHG and PPM
+  ServiceMember:
+    type: object
+    properties:
+      first_name:
+        type: string
+        example: John
+        x-nullable: true
+        title: First Name
+      middle_name:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Name
+      last_name:
+        type: string
+        example: Donut
+        x-nullable: true
+        title: Last Name
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+        title: Suffix
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best Contact Phone
+      secondary_telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Secondary Phone
+      personal_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Personal Email Address
+      phone_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Telephone
+      text_message_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Text Message - Coming Soon!
+      email_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Email
   TrafficDistributionList:
     type: object
     properties:
@@ -346,6 +402,9 @@ definitions:
         readOnly: true
       traffic_distribution_list:
         $ref: '#/definitions/TrafficDistributionList'
+        readOnly: true
+      service_member:
+        $ref: '#/definitions/ServiceMember'
         readOnly: true
       pickup_date:
         type: string
