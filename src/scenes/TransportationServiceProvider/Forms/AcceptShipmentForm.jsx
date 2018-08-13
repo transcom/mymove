@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -13,7 +12,6 @@ import { withContext } from 'shared/AppContext';
 
 import { loadShipmentDependencies, acceptShipment } from './ducks';
 import { formatDate } from 'shared/formatters';
-
 
 const shipmentAcceptFormName = 'shipment_accept';
 

@@ -14,7 +14,11 @@ class ShippingAgentDetails extends Component {
           swagger={schema}
           required
         />
-        <SwaggerField fieldName="origin_agent_email" swagger={schema} required />
+        <SwaggerField
+          fieldName="origin_agent_email"
+          swagger={schema}
+          required
+        />
 
         <h3 className="smheading">Destination Shipping Agent</h3>
         <SwaggerField
