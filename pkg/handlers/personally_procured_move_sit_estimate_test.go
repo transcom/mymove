@@ -14,7 +14,13 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	t := suite.T()
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
-	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "D") // Victoria, TX to Salina, KS
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US68",
+			DestinationRegion: "5",
+			CodeOfService:     "D",
+		},
+	}) // Victoria, TX to Salina, KS
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
@@ -93,7 +99,13 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	t := suite.T()
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
-	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US68",
+			DestinationRegion: "5",
+			CodeOfService:     "2",
+		},
+	}) // Victoria, TX to Salina, KS
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})

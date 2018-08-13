@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -17,8 +18,8 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	deliveryDate := assertions.Shipment.DeliveryDate
 	tdl := assertions.Shipment.TrafficDistributionList
 	if tdl == nil {
-		// TODO: Fix TDL
-		// tdl = MakeDefaultTDL(db)
+		newTDL := MakeDefaultTDL(db)
+		tdl = &newTDL
 	}
 
 	defaultGBLOC := "OHAI"

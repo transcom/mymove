@@ -23,12 +23,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	t := suite.T()
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl, err := testdatagen.MakeTDL(suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
-	suite.Nil(err, "error making TDL")
-
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	sourceGBLOC := "OHAI"
