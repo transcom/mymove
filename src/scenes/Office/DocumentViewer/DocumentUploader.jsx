@@ -20,8 +20,9 @@ const moveDocumentFormName = 'move_document_upload';
 
 export class DocumentUploader extends Component {
   componentDidUpdate() {
+    const { initialValues, location } = this.props;
     // Clear query string after initial values are set
-    if (this.props.initialValues && this.props.location.search) {
+    if (initialValues && get(location, 'search', false)) {
       this.props.replace(this.props.location.pathname);
     }
   }
