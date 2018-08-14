@@ -4,6 +4,8 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadShipmentType = 'LOAD_SHIPMENT';
+const acceptShipmentType = 'ACCEPT_SHIPMENT';
+const rejectShipmentType = 'REJECT_SHIPMENT';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
@@ -11,6 +13,14 @@ const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 // SINGLE RESOURCE ACTION TYPES
 
 const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
+
+export const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  acceptShipmentType,
+);
+
+export const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  rejectShipmentType,
+);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
@@ -24,6 +34,10 @@ export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
   loadShipmentType,
   LoadShipment,
 );
+
+export const acceptShipment = shipmentId => {};
+
+export const rejectShipment = (shipmentId, rejectReason) => {};
 
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
