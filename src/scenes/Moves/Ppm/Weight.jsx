@@ -251,7 +251,7 @@ export class PpmWeight extends Component {
     if (currentPpm) {
       let requestedAmount = get(currentPpm, 'advance.requested_amount');
       if (requestedAmount) {
-        requestedAmount = parseFloat(requestedAmount) / 100;
+        requestedAmount = formatCents(requestedAmount);
       }
       let methodOfReceipt = get(currentPpm, 'advance.method_of_receipt');
       // GTCC is an invalid method of receipt in PPM advances, so default to direct deposit

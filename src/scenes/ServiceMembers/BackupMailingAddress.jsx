@@ -35,8 +35,8 @@ export class BackupMailingAddress extends Component {
       >
         <h1 className="sm-heading">Backup mailing address</h1>
         <p>
-          Enter a backup mailing address, such as your permanent residence or a
-          parent’s address.
+          Enter the address where mail will reach you if we can’t reach you at
+          your primary address, such as your parents’ address.
         </p>
 
         <SwaggerField
@@ -48,13 +48,27 @@ export class BackupMailingAddress extends Component {
           fieldName="street_address_2"
           swagger={this.props.schema}
         />
-        <SwaggerField fieldName="city" swagger={this.props.schema} required />
-        <SwaggerField fieldName="state" swagger={this.props.schema} required />
-        <SwaggerField
-          fieldName="postal_code"
-          swagger={this.props.schema}
-          required
-        />
+
+        <div className="address_inline">
+          <SwaggerField
+            fieldName="city"
+            swagger={this.props.schema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="state"
+            swagger={this.props.schema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="postal_code"
+            swagger={this.props.schema}
+            className="city_state_zip"
+            required
+          />
+        </div>
       </BackupMailingWizardForm>
     );
   }
