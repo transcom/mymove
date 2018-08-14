@@ -300,13 +300,14 @@ const initialState = {
   serviceMemberHasUpdateSuccess: false,
   backupContactsHaveLoadError: null,
   backupContactsHaveLoadSuccess: false,
+  downloadAttachmentsHasError: null,
   ppmsHaveLoadError: null,
   ppmsHaveLoadSuccess: false,
   ppmHasUpdateError: null,
   ppmHasUpdateSuccess: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
-  downloadAttachmentsHasError: null,
+  moveHasApproveError: false,
   moveHasCancelError: false,
   moveHasCancelSuccess: false,
   flashMessage: false,
@@ -508,16 +509,19 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_BASICS.start:
       return Object.assign({}, state, {
         basicsIsApproving: true,
+        moveHasApproveError: false,
       });
     case APPROVE_BASICS.success:
       return Object.assign({}, state, {
         basicsIsApproving: false,
         officeMove: action.payload,
+        moveHasApproveError: false,
       });
     case APPROVE_BASICS.failure:
       return Object.assign({}, state, {
         basicsIsApproving: false,
         error: action.error.message,
+        moveHasApproveError: true,
       });
     case CANCEL_MOVE.start:
       return Object.assign({}, state, {

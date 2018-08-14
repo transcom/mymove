@@ -56,18 +56,33 @@ const OrdersDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelField title="Orders Number">
-          <Link to={`/moves/${props.move.id}/orders`} target="_blank">
-            <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
-            <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-          </Link>
-        </PanelField>
+        {props.orders.orders_number ? (
+          <PanelField title="Orders Number">
+            <Link to={`/moves/${props.move.id}/orders`} target="_blank">
+              <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
+              <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+            </Link>
+          </PanelField>
+        ) : (
+          <PanelField title="Orders Number" className="missing">
+            missing
+            <Link to={`/moves/${props.move.id}/orders`} target="_blank">
+              <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+            </Link>
+          </PanelField>
+        )}
         <PanelField
           title="Date issued"
           value={formatDate(props.orders.issue_date)}
         />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
-        <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
+        {props.orders.orders_type_detail ? (
+          <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
+        ) : (
+          <PanelField title="Orders type detail" className="missing">
+            missing
+          </PanelField>
+        )}
         <PanelField
           title="Report by"
           value={formatDate(props.orders.report_by_date)}
