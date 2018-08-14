@@ -1,11 +1,5 @@
 /* global cy */
 
-// Sign in user
-//  choose hhg move type
-// Fill in the form (including optional addresses)
-// click next (which submits data)
-// verify next page is Review page
-// Update hhg. . .
 describe('completing the hhg flow', function() {
   beforeEach(() => {
     // sm_hhg@example.com
@@ -92,6 +86,7 @@ describe('completing the hhg flow', function() {
     cy.nextPage();
     cy.contains('Success');
     cy.contains('Next Step: Awaiting approval');
+
     cy.resetDb();
   });
 });
