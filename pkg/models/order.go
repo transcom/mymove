@@ -170,3 +170,22 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 func (o *Order) CreateNewMove(db *pop.Connection, moveType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 	return createNewMove(db, *o, moveType)
 }
+
+// IsComplete checks if orders have all fields necessary to approve a move
+func (o *Order) IsComplete() bool {
+
+	if o.OrdersTypeDetail == nil {
+		return false
+	}
+	if o.OrdersNumber == nil {
+		return false
+	}
+	if o.DepartmentIndicator == nil {
+		return false
+	}
+	if o.TAC == nil {
+		return false
+	}
+
+	return true
+}

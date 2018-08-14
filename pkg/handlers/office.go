@@ -21,13 +21,19 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
 	}
-
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
-
 	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
+	}
+	// Don't approve Move if orders are incomplete
+	orders, ordersErr := models.FetchOrder(h.db, move.OrdersID)
+	if ordersErr != nil {
+		return responseForError(h.logger, ordersErr)
+	}
+	if orders.IsComplete() != true {
+		return officeop.NewApprovePPMBadRequest()
 	}
 
 	move.Approve()
@@ -110,7 +116,6 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-
 	moveID := ppm.MoveID
 	ppm.Status = models.PPMStatusAPPROVED
 
