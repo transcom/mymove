@@ -8,7 +8,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { formatCentsRange } from 'shared/formatters';
+import { formatCentsRange, formatCents } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
@@ -421,9 +421,7 @@ export class Summary extends Component {
                         <td> Advance: </td>
                         <td>
                           {' '}
-                          ${(
-                            currentPpm.advance.requested_amount / 100
-                          ).toLocaleString()}
+                          ${formatCents(currentPpm.advance.requested_amount)}
                         </td>
                       </tr>
                     )}
