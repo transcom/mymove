@@ -15,12 +15,19 @@ describe('completing the hhg flow', function() {
   it('selects hhg and progresses thru form', function() {
     cy.visit('localhost:4000/moves/8718c8ac-e0c6-423b-bdc6-af971ee05b9a');
 
-    cy.contains('Household Goods Move').click();
-    cy.contains('Next').click({ force: true });
+    cy
+      .contains('Household Goods Move')
+      .click()
+      .nextPage();
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-start/);
     });
-    // cy.get(calendar date)
+    // Calendar move date
+    cy
+      .get('div[class="DayPicker-Day"][tabindex="0"]') // get's the 1st of the month
+      .click()
+      .should('have.class', 'DayPicker-Day--selected');
+
     // Pickup address
     cy
       .get('input[name="pickup_address.street_address_1"]')
@@ -32,6 +39,8 @@ describe('completing the hhg flow', function() {
       .type('Alameda');
     cy.get('select[name="pickup_address.state"]').select('CA');
     cy.get('input[name="pickup_address.postal_code"]').type('94607');
+
+    // Check yes for radios
     cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
 
     // Secondary pickup address
@@ -61,10 +70,28 @@ describe('completing the hhg flow', function() {
     // Weights
     cy
       .get('input[name="weight_estimate"]')
+      .clear()
       .type('3000')
       .get('input[name="progear_weight_estimate"]')
+      .clear()
       .type('250')
       .get('input[name="spouse_progear_weight_estimate"]')
-      .type('150');
+      .clear()
+      .type('158');
+
+    // Review page
+    cy.nextPage();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+    });
+    cy.nextPage();
+    cy.contains('SIGNATURE');
+    cy.get('input[name="signature"]').type('SM Signature');
+
+    // Status summary page
+    cy.nextPage();
+    cy.contains('Success');
+    cy.contains('Next Step: Awaiting approval');
+    cy.resetDb();
   });
 });
