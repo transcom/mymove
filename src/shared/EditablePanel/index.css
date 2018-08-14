@@ -125,7 +125,7 @@
 }
 
 .panel-field.missing .field-value {
-  color:red;
+  color:#FFA305;
   font-style: italic;
 }
 

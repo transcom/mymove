@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize, isEmpty } from 'lodash';
+import { get, capitalize, isEmpty, includes } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
@@ -218,12 +218,23 @@ class MoveInfo extends Component {
   render() {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
+    const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
     const { moveDocuments } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
+    const ordersComplete = Boolean(
+      orders.orders_number &&
+        orders.orders_type_detail &&
+        orders.department_indicator &&
+        orders.tac,
+    );
+    const ppmApproved = includes(
+      ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
+      ppm.status,
+    );
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -340,9 +351,14 @@ class MoveInfo extends Component {
           </div>
           <div className="usa-width-one-fourth">
             <div>
+              {this.props.approveMoveHasError && (
+                <Alert type="warning" heading="Unable to approve">
+                  Please fill out missing data
+                </Alert>
+              )}
               <button
                 onClick={this.approveBasics}
-                disabled={move.status === 'APPROVED'}
+                disabled={move.status === 'APPROVED' || !ordersComplete}
                 style={{
                   backgroundColor: move.status === 'APPROVED' && 'green',
                 }}
@@ -353,14 +369,14 @@ class MoveInfo extends Component {
               <button
                 onClick={this.approvePPM}
                 disabled={
-                  ppm.status === 'APPROVED' || move.status !== 'APPROVED'
+                  ppmApproved || move.status !== 'APPROVED' || !ordersComplete
                 }
                 style={{
-                  backgroundColor: ppm.status === 'APPROVED' && 'green',
+                  backgroundColor: ppmApproved && 'green',
                 }}
               >
                 Approve PPM
-                {ppm.status === 'APPROVED' && check}
+                {ppmApproved && check}
               </button>
               <CancelPanel cancelMove={this.cancelMove} />
               {/* Disabling until features implemented
@@ -447,6 +463,7 @@ const mapStateToProps = state => ({
   ),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
+  approveMoveHasError: get(state, 'office.moveHasApproveError'),
 });
 
 const mapDispatchToProps = dispatch =>
