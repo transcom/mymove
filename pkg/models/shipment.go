@@ -55,6 +55,7 @@ type Shipment struct {
 	WeightEstimate               *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate        *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate  *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
+	ServiceAgents                ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.

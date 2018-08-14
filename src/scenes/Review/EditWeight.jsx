@@ -7,6 +7,7 @@ import { push } from 'react-router-redux';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
+import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import {
@@ -73,7 +74,7 @@ let EditWeightForm = props => {
   if (
     incentive_estimate_max &&
     advanceAmt &&
-    incentive_estimate_max < advanceAmt / 100
+    incentive_estimate_max < formatCents(advanceAmt)
   ) {
     advanceError = true;
     incentiveClass = 'error';
@@ -157,7 +158,9 @@ let EditWeightForm = props => {
             <div className="display-value">
               <p>Advance</p>
               <p>
-                <strong>${initialValues.advance.requested_amount / 100}</strong>
+                <strong>
+                  ${formatCents(initialValues.advance.requested_amount)}
+                </strong>
               </p>
             </div>
           )}
