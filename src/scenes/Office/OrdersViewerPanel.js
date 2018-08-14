@@ -53,7 +53,7 @@ const OrdersViewerDisplay = props => {
           <PanelSwaggerField fieldName="orders_number" {...ordersFieldsProps} />
         ) : (
           <PanelField title="Orders number" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
         {orders.issue_date ? (
@@ -63,14 +63,14 @@ const OrdersViewerDisplay = props => {
           />
         ) : (
           <PanelField title="Date issued" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
         {orders.orders_type ? (
           <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
         ) : (
           <PanelField title="Orders type" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
         {orders.orders_type_detail ? (
@@ -81,7 +81,7 @@ const OrdersViewerDisplay = props => {
         ) : (
           <PanelField title="Orders type detail" className="missing">
             {' '}
-            Missing
+            missing
           </PanelField>
         )}
         {orders.report_by_date ? (
@@ -91,7 +91,7 @@ const OrdersViewerDisplay = props => {
           />
         ) : (
           <PanelField title="Report by" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
         {currentDutyStation ? (
@@ -100,7 +100,7 @@ const OrdersViewerDisplay = props => {
           </PanelField>
         ) : (
           <PanelField title="Current Duty Station" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
         {orders.new_duty_station ? (
@@ -109,7 +109,7 @@ const OrdersViewerDisplay = props => {
           </PanelField>
         ) : (
           <PanelField title="New Duty Station" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
         {orders.has_dependents && (
@@ -123,7 +123,7 @@ const OrdersViewerDisplay = props => {
           />
         ) : (
           <PanelField title="Dept. Indicator" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
         {orders.tac ? (
@@ -134,7 +134,7 @@ const OrdersViewerDisplay = props => {
           />
         ) : (
           <PanelField title="TAC" className="missing">
-            Missing
+            missing
           </PanelField>
         )}
       </div>

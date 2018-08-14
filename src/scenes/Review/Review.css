@@ -53,6 +53,7 @@
 .ppm-container h3 {
   background-color: rgb(209, 219, 233);
   padding: 1.5rem 1rem 1.5rem 1rem;
+  margin-left: 1px;
 }
 
 .ppm-container img {
