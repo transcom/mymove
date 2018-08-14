@@ -6,9 +6,19 @@
 // click next (which submits data)
 // verify next page is Review page
 // Update hhg. . .
-describe.skip('completing the hhg flow', function() {
+describe('completing the hhg flow', function() {
   beforeEach(() => {
-    //profile@comple.te
-    cy.signInAsUser('13F3949D-0D53-4BE4-B1B1-AE4314793F34');
+    // sm_hhg@example.com
+    cy.signInAsUser('4b389406-9258-4695-a091-0bf97b5a132f');
+  });
+
+  it('selects hhg and progresses thru form', function() {
+    cy.visit('localhost:4000/moves/8718c8ac-e0c6-423b-bdc6-af971ee05b9a');
+
+    cy.contains('Household Goods Move').click();
+    cy.contains('Next').click({ force: true });
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-start/);
+    });
   });
 });
