@@ -183,12 +183,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 			PersonalEmail: models.StringPointer(email),
 		},
 		Move: models.Move{
-			ID:      uuid.FromStringOrNil("2ed0b5a2-26d9-49a3-a775-5220055e8ffe"),
-			Locator: "RLKBEM",
-		},
-		Shipment: models.Shipment{
-			PickupDate:          &nowTime,
-			RequestedPickupDate: &nowTime,
+			ID:               uuid.FromStringOrNil("2ed0b5a2-26d9-49a3-a775-5220055e8ffe"),
+			Locator:          "RLKBEM",
+			SelectedMoveType: models.StringPointer("HHG"),
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("0dfdbdda-c57e-4b29-994a-09fb8641fc75"),
