@@ -7,6 +7,7 @@ import editablePanel from './editablePanel';
 
 import { updateBackupInfo } from './ducks';
 
+import { addressElementDisplay, addressElementEdit } from './AddressElement';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField } from 'shared/EditablePanel';
@@ -18,24 +19,7 @@ const BackupInfoDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelField title="Backup mailing address">
-          {backupAddress.street_address_1}
-          <br />
-          {backupAddress.street_address_2 && (
-            <span>
-              {backupAddress.street_address_2}
-              <br />
-            </span>
-          )}
-          {backupAddress.street_address_3 && (
-            <span>
-              {backupAddress.street_address_3}
-              <br />
-            </span>
-          )}
-          {backupAddress.city}, {backupAddress.state}{' '}
-          {backupAddress.postal_code}
-        </PanelField>
+        {addressElementDisplay(backupAddress, 'Backup mailing address')}
       </div>
       <div className="editable-panel-column">
         <PanelField title="Backup contact">
@@ -84,33 +68,11 @@ const BackupInfoEdit = props => {
       </div>
 
       <div className="editable-panel-column">
-        <div className="panel-subhead">Backup Mailing Address</div>
-
         <FormSection name="backupMailingAddress">
-          <SwaggerField
-            fieldName="street_address_1"
-            {...backupMailingAddressProps}
-            required
-          />
-          <SwaggerField
-            fieldName="street_address_2"
-            {...backupMailingAddressProps}
-          />
-          <SwaggerField
-            fieldName="city"
-            {...backupMailingAddressProps}
-            required
-          />
-          <SwaggerField
-            fieldName="state"
-            {...backupMailingAddressProps}
-            required
-          />
-          <SwaggerField
-            fieldName="postal_code"
-            {...backupMailingAddressProps}
-            required
-          />
+          {addressElementEdit(
+            backupMailingAddressProps,
+            'Backup mailing address',
+          )}
         </FormSection>
       </div>
     </React.Fragment>
