@@ -18,7 +18,8 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	// Test for ShipmentID first before creating a new Shipment
 	shipmentID := assertions.ShipmentOffer.ShipmentID
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
-		// TODO: Make Shipment and get ID
+		shipment := MakeDefaultShipment(db)
+		shipmentID = shipment.ID
 	}
 
 	// Test for TSP ID first before creating a new TSP
@@ -80,7 +81,7 @@ func MakeShipmentOfferData(db *pop.Connection) {
 // CreateShipmentOfferData creates a list of TSP Users, Shipments, and Shipment Offers
 // Must pass in the number of tsp users to create and number of shipments.
 // The split of shipment offers should be the length of TSP users and the sum should equal the number of shipments
-func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
+func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int, statuses []string) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
 	var tspUserList []models.TspUser
 	var shipmentList []models.Shipment
 	var shipmentOfferList []models.ShipmentOffer
@@ -102,9 +103,13 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
+		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
 		tspUserAssertions := Assertions{
+			User: models.User{
+				LoginGovEmail: email,
+			},
 			TspUser: models.TspUser{
-				Email: fmt.Sprintf("leo_spaceman%d@example.com", i),
+				Email: email,
 			},
 		}
 		tspUser := MakeTspUser(db, tspUserAssertions)
@@ -126,10 +131,27 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			SelectedMoveType: &selectedMoveType,
 		},
 	}
+	if len(statuses) == 0 {
+		statuses = []string{"DEFAULT", "AWARDED"}
+	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
+		nowPlusOne := now.Add(oneWeek)
+		nowPlusTwo := now.Add(oneWeek * 2)
 		move := MakeMove(db, moveAssertions)
-		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market, &move, nil)
+		shipmentAssertions := Assertions{
+			Shipment: models.Shipment{
+				RequestedPickupDate:     &now,
+				PickupDate:              &nowPlusOne,
+				DeliveryDate:            &nowPlusTwo,
+				TrafficDistributionList: &tdl,
+				SourceGBLOC:             &sourceGBLOC,
+				Market:                  &market,
+				Move:                    &move,
+				Status:                  statuses[rand.Intn(len(statuses))],
+			},
+		}
+		shipment := MakeShipment(db, shipmentAssertions)
 		shipmentList = append(shipmentList, shipment)
 		time.Sleep(100 * time.Millisecond)
 	}

@@ -68,7 +68,8 @@ export class WizardFormPage extends Component {
   }
 
   previousPage() {
-    this.beforeTransition(getPreviousPagePath);
+    const shouldHandleSubmit = !this.props.discardOnBack;
+    this.beforeTransition(getPreviousPagePath, shouldHandleSubmit);
   }
 
   render() {
@@ -156,6 +157,7 @@ WizardFormPage.propTypes = {
   additionalParams: PropTypes.object,
   additionalValues: PropTypes.object, // These values are passed into the form with change()
   windowWidth: PropTypes.number,
+  discardOnBack: PropTypes.bool,
 };
 
 function mapDispatchToProps(dispatch) {

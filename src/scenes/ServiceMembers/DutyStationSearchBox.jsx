@@ -97,33 +97,35 @@ export class DutyStationSearchBox extends Component {
       get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
     return (
       <Fragment>
-        {this.state.error && (
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              {this.state.error.message}
-            </Alert>
-          </div>
-        )}
-        <p>{this.props.title || defaultTitle}</p>
-        <AsyncSelect
-          className="duty-input-box"
-          cacheOptions
-          getOptionLabel={getOptionName}
-          getOptionValue={getOptionName}
-          loadOptions={this.getDebouncedOptions}
-          onChange={this.localOnChange}
-          onInputChange={this.onInputChange}
-          components={{ Option: this.renderOption }}
-          value={isEmptyStation ? null : this.props.input.value}
-          placeholder="Start typing a duty station..."
-        />
-        {!isEmptyStation && (
-          <p className="location">
-            {this.props.input.value.address.city},{' '}
-            {this.props.input.value.address.state}{' '}
-            {this.props.input.value.address.postal_code}
-          </p>
-        )}
+        <div className="duty-station-search">
+          {this.state.error && (
+            <div className="usa-width-one-whole error-message">
+              <Alert type="error" heading="An error occurred">
+                {this.state.error.message}
+              </Alert>
+            </div>
+          )}
+          <p>{this.props.title || defaultTitle}</p>
+          <AsyncSelect
+            className="duty-input-box"
+            cacheOptions
+            getOptionLabel={getOptionName}
+            getOptionValue={getOptionName}
+            loadOptions={this.getDebouncedOptions}
+            onChange={this.localOnChange}
+            onInputChange={this.onInputChange}
+            components={{ Option: this.renderOption }}
+            value={isEmptyStation ? null : this.props.input.value}
+            placeholder="Start typing a duty station..."
+          />
+          {!isEmptyStation && (
+            <p className="location">
+              {this.props.input.value.address.city},{' '}
+              {this.props.input.value.address.state}{' '}
+              {this.props.input.value.address.postal_code}
+            </p>
+          )}
+        </div>
       </Fragment>
     );
   }

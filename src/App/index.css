@@ -35,3 +35,35 @@ img._fix-ie-11-height {
 .wider-label label {
   max-width: 100rem;
 }
+
+.grey {
+  color: rgb(100, 100, 100);
+}
+
+.usa-input-label {
+  margin-bottom: 1rem;
+}
+
+.usa-input {
+  margin: 0rem 1.5rem 0rem 0rem;
+}
+
+.rounded select {
+  background-color: rgb(248, 248, 248);
+  border-radius: 7px;
+}
+
+.city_state_zip {
+  display: inline-block;
+}
+.city_state_zip input {
+  display: inline-block;
+  width: 18rem;
+}
+.city_state_zip select {
+  display: inline-block;
+}
+
+.address_inline {
+  display: inline-block;
+}
