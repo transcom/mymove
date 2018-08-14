@@ -26,6 +26,16 @@ func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.db)
 	order2 := testdatagen.MakeDefaultOrder(suite.db)
 
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
+	tdl, _ := testdatagen.MakeTDL(
+		suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
+	market := "dHHG"
+	sourceGBLOC := "BMLK"
+
 	session := &auth.Session{
 		UserID:          order1.ServiceMember.UserID,
 		ServiceMemberID: order1.ServiceMemberID,
@@ -38,10 +48,24 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
 
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+			ServiceMember:           &order1.ServiceMember,
+			Move:                    move,
+		},
+	})
+
 	// All correct
 	fetchedMove, err := FetchMove(suite.db, session, move.ID)
 	suite.Nil(err, "Expected to get moveResult back.")
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
+	suite.Equal(fetchedMove.Shipments[0].PickupAddressID, shipment.PickupAddressID)
 
 	// Bad Move
 	fetchedMove, err = FetchMove(suite.db, session, uuid.Must(uuid.NewV4()))
