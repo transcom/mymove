@@ -32,6 +32,30 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	return move
 }
 
+// MakeMoveWithoutMoveType creates a single Move and associated set of Orders, but without a chosen move type
+func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.Move {
+
+	// Create new Orders if not provided
+	orders := assertions.Order
+	if isZeroUUID(assertions.Order.ID) {
+		orders = MakeOrder(db, assertions)
+	}
+
+	move := models.Move{
+		Orders:   orders,
+		OrdersID: orders.ID,
+		Status:   models.MoveStatusDRAFT,
+		Locator:  models.GenerateLocator(),
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&move, assertions.Move)
+
+	mustCreate(db, &move)
+
+	return move
+}
+
 // MakeDefaultMove makes a Move with default values
 func MakeDefaultMove(db *pop.Connection) models.Move {
 	return MakeMove(db, Assertions{})

@@ -163,4 +163,28 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 
+	//service member with orders and a move, but no move type selected to select HHG
+	email = "sm_hhg@example.com"
+	uuidStr = "4b389406-9258-4695-a091-0bf97b5a132f"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("b5d1f44b-5ceb-4a0e-9119-5687808996ff"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHGDude"),
+			LastName:      models.StringPointer("UserPerson"),
+			Edipi:         models.StringPointer("6833908163"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
+			Locator: "REWGIE",
+		},
+	})
 }
