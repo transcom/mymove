@@ -268,7 +268,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -310,7 +310,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 	numTspUsers := 2
 	numShipments := 25
 	numShipmentOfferSplit := []int{15, 10}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -360,7 +360,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -411,7 +411,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDes
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -462,7 +462,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryA
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -513,7 +513,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryD
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -564,7 +564,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -594,7 +594,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResult
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
-	status := []string{"DEFAULT"}
+	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)

@@ -15,6 +15,21 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// ShipmentStatus is the status of the Shipment
+type ShipmentStatus string
+
+const (
+	// ShipmentStatusDRAFT captures enum value "DRAFT"
+	ShipmentStatusDRAFT ShipmentStatus = "DRAFT"
+	// ShipmentStatusSUBMITTED captures enum value "SUBMITTED"
+	ShipmentStatusSUBMITTED ShipmentStatus = "SUBMITTED"
+	// ShipmentStatusAPPROVED captures enum value "APPROVED"
+	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
+	// ShipmentStatusAWARDED captures enum value "AWARDED"
+	// Using AWARDED for TSP Queue work, not yet in office/SM flow
+	ShipmentStatusAWARDED ShipmentStatus = "AWARDED"
+)
+
 // Shipment represents a single shipment within a Service Member's move.
 // PickupDate: when the shipment is currently scheduled to be picked up by the TSP
 // RequestedPickupDate: when the shipment was originally scheduled to be picked up
@@ -37,7 +52,7 @@ type Shipment struct {
 	RequestedPickupDate          *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
 	MoveID                       uuid.UUID                `json:"move_id" db:"move_id"`
 	Move                         *Move                    `belongs_to:"move"`
-	Status                       string                   `json:"status" db:"status"`
+	Status                       ShipmentStatus           `json:"status" db:"status"`
 	CodeOfService                *string                  `json:"code_of_service" db:"code_of_service"`
 	EstimatedPackDays            *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays         *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
@@ -74,6 +89,35 @@ type ShipmentWithOffer struct {
 	Accepted                        *bool      `db:"accepted"`
 	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
+}
+
+// Shipments is not required by pop and may be deleted
+type Shipments []Shipment
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
+		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
+		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
+		&OptionalInt64IsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
+		&OptionalPoundIsPositive{Field: s.WeightEstimate, Name: "weight_estimate"},
+		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
+		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
+	), nil
+}
+
+// State Machinery
+// Avoid calling Shipment.Status = ... ever. Use these methods to change the state.
+
+// Submit marks the Shipment request for review
+func (s *Shipment) Submit() error {
+	if s.Status != ShipmentStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, "Submit")
+	}
+
+	s.Status = ShipmentStatusSUBMITTED
+	return nil
 }
 
 // FetchShipments looks up all shipments joined with their offer information in a
@@ -194,22 +238,6 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 	err := query.All(&shipments)
 
 	return shipments, err
-}
-
-// Shipments is not required by pop and may be deleted
-type Shipments []Shipment
-
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
-		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
-		&validators.StringIsPresent{Field: s.Status, Name: "status"},
-		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
-		&OptionalInt64IsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
-		&OptionalPoundIsPositive{Field: s.WeightEstimate, Name: "weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
-	), nil
 }
 
 // FetchShipment Fetches and Validates a Shipment model
