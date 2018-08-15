@@ -11,15 +11,20 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 
 	// Create new Orders if not provided
 	orders := assertions.Order
+	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Order.ID) {
 		orders = MakeOrder(db, assertions)
 	}
 
-	selectedMoveType := "PPM"
+	defaultMoveType := "PPM"
+	selectedMoveType := assertions.Move.SelectedMoveType
+	if selectedMoveType == nil {
+		selectedMoveType = &defaultMoveType
+	}
 	move := models.Move{
 		Orders:           orders,
 		OrdersID:         orders.ID,
-		SelectedMoveType: &selectedMoveType,
+		SelectedMoveType: selectedMoveType,
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
 	}
