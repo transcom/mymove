@@ -56,6 +56,7 @@ func (suite *ModelSuite) TestFetchMove() {
 			Market:                  &market,
 			ServiceMember:           &order1.ServiceMember,
 			Move:                    move,
+			MoveID:                  move.ID,
 		},
 	})
 
@@ -228,6 +229,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 			Market:                  &market,
 			ServiceMember:           &serviceMember,
 			Move:                    move,
+			MoveID:                  move.ID,
 		},
 	})
 	// Associate Shipment with the move it's on.

@@ -15,6 +15,7 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 
 	// Create new Move if not provided
 	move := assertions.PersonallyProcuredMove.Move
+	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.PersonallyProcuredMove.MoveID) {
 		move = MakeMove(db, assertions)
 	}
