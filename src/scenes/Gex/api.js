@@ -6,4 +6,5 @@ export async function SendGexRequest(payload) {
     sendGexRequestPayload: payload,
   });
   checkResponse(response, 'failed to send GEX request');
+  return response.body;
 }

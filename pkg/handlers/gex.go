@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	gexop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/gex"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // SendGexRequestHandler sends a request to GEX
@@ -57,9 +57,12 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
-	s := buf.String()
-	fmt.Println("Server response: " + resp.Status + "; " + s)
-	return gexop.NewSendGexRequestOK()
+	responseBody := buf.String()
+
+	responsePayload := internalmessages.GexResponsePayload{
+		GexResponse: resp.Status + "; " + responseBody,
+	}
+	return gexop.NewSendGexRequestOK().WithPayload(&responsePayload)
 }
 
 func getTLSConfig() (*tls.Config, error) {

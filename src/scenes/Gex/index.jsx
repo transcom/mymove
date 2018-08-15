@@ -23,8 +23,18 @@ const schema = {
 };
 
 export class Gex extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      response: '',
+    };
+  }
+
   sendRequest = values => {
-    this.props.sendGexRequest(values);
+    this.props.sendGexRequest(values).then(response => {
+      this.setState({ response: response.payload.gex_response });
+    });
   };
 
   render() {
@@ -44,6 +54,7 @@ export class Gex extends Component {
           />
           <button type="submit">Submit</button>
         </form>
+        <div>{this.state.response}</div>
       </div>
     );
   }

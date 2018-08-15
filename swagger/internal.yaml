@@ -1306,6 +1306,12 @@ definitions:
     required:
       - transaction_name
       - transaction_body
+  GexResponsePayload:
+    type: object
+    properties:
+      gex_response:
+        type: string
+        title: The HTTP response body received from GEX
   TShirtSize:
     type: string
     x-nullable: true
@@ -3750,6 +3756,8 @@ paths:
       responses:
         200:
           description: sent request
+          schema:
+            $ref: '#/definitions/GexResponsePayload'
         400:
           description: invalid request
         500:
