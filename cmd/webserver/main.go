@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -160,7 +161,7 @@ func main() {
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext := utils.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetCookieSecret(*clientAuthSecretKey)
 	if *noSessionTimeout {
 		handlerContext.SetNoSessionTimeout()
