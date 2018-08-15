@@ -31,6 +31,7 @@ type Assertions struct {
 	ServiceMember                 models.ServiceMember
 	Shipment                      models.Shipment
 	ShipmentOffer                 models.ShipmentOffer
+	TrafficDistributionList       models.TrafficDistributionList
 	TransportationServiceProvider models.TransportationServiceProvider
 	TspUser                       models.TspUser
 	Upload                        models.Upload

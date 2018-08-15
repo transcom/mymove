@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,29 +14,41 @@ import (
 func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	requestedPickupDate := assertions.Shipment.RequestedPickupDate
+	if requestedPickupDate == nil {
+		requestedPickupDate = models.TimePointer(PerformancePeriodStart)
+	}
 	pickupDate := assertions.Shipment.PickupDate
+	if pickupDate == nil {
+		pickupDate = models.TimePointer(DateInsidePerformancePeriod)
+	}
 	deliveryDate := assertions.Shipment.DeliveryDate
-	tdl := assertions.Shipment.TrafficDistributionList
-	if tdl == nil {
-		// TODO: Fix TDL
-		// tdl = MakeDefaultTDL(db)
+	if deliveryDate == nil {
+		deliveryDate = models.TimePointer(DateOutsidePerformancePeriod)
 	}
 
-	defaultGBLOC := "OHAI"
+	tdl := assertions.Shipment.TrafficDistributionList
+	if tdl == nil {
+		newTDL := MakeDefaultTDL(db)
+		tdl = &newTDL
+	}
+
 	sourceGBLOC := assertions.Shipment.SourceGBLOC
 	if sourceGBLOC == nil {
-		sourceGBLOC = &defaultGBLOC
+		sourceGBLOC = &DefaultSrcGBLOC
 	}
 	destinationGBLOC := assertions.Shipment.DestinationGBLOC
 	if destinationGBLOC == nil {
-		destinationGBLOC = &defaultGBLOC
+		destinationGBLOC = &DefaultSrcGBLOC
 	}
 
 	market := assertions.Shipment.Market
+	if market == nil {
+		market = &DefaultMarket
+	}
 
 	move := assertions.Shipment.Move
-	if move == nil {
-		newMove := MakeDefaultMove(db)
+	if move == nil || isZeroUUID(assertions.Shipment.Move.ID) {
+		newMove := MakeMove(db, assertions)
 		move = &newMove
 	}
 
@@ -47,8 +60,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	codeOfService := assertions.Shipment.CodeOfService
 	if codeOfService == nil {
-		newCodeOfService := "D"
-		codeOfService = &newCodeOfService
+		codeOfService = &DefaultCOS
 	}
 
 	pickupAddress := assertions.Shipment.PickupAddress
