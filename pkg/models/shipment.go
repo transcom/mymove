@@ -55,6 +55,7 @@ type Shipment struct {
 	WeightEstimate               *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate        *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate  *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
+	ServiceAgents                ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.
@@ -68,6 +69,7 @@ type ShipmentWithOffer struct {
 	TrafficDistributionListID       *uuid.UUID `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
 	SourceGBLOC                     *string    `db:"source_gbloc"`
+	DestinationGBLOC                *string    `db:"destination_gbloc"`
 	Market                          *string    `db:"market"`
 	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
 	Accepted                        *bool      `db:"accepted"`
@@ -93,6 +95,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.book_date,
 				shipments.traffic_distribution_list_id,
 				shipments.source_gbloc,
+				shipments.destination_gbloc,
 				shipments.market,
 				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,
@@ -111,6 +114,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.book_date,
 				shipments.traffic_distribution_list_id,
 				shipments.source_gbloc,
+				shipments.destination_gbloc,
 				shipments.market,
 				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,
@@ -132,6 +136,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	query := tx.Eager(
 		"TrafficDistributionList",
+		"ServiceMember",
 		"Move",
 		"PickupAddress",
 		"SecondaryPickupAddress",
@@ -238,6 +243,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 
 	err := tx.Eager(
 		"TrafficDistributionList",
+		"ServiceMember",
 		"Move",
 		"PickupAddress",
 		"SecondaryPickupAddress",

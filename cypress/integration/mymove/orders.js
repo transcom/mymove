@@ -25,13 +25,13 @@ describe('orders entry', function() {
     cy
       .get('input[placeholder="Date"]')
       .first()
-      .type('2018-6-2{enter}')
+      .type('6/2/2018{enter}')
       .blur();
 
     cy
       .get('input[placeholder="Date"]')
       .last()
-      .type('2018-8-9{enter}')
+      .type('8/9/2018{enter}')
       .blur();
 
     cy

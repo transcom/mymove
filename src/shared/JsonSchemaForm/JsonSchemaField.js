@@ -321,6 +321,7 @@ const createSchemaField = (
   } else if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
+    className += ' rounded';
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {
       fieldProps = configureCentsField(swaggerField, fieldProps);
