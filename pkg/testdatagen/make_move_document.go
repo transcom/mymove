@@ -9,8 +9,7 @@ import (
 // MakeMoveDocument creates a single Move Document.
 func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocument {
 	document := assertions.MoveDocument.Document
-	// In a real scenario, ID will have to be populated for the model
-	// To be populated by Eager, which is why ID is required
+	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.MoveDocument.DocumentID) {
 		document = MakeDocument(db, assertions)
 	}

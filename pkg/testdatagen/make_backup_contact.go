@@ -11,8 +11,7 @@ import (
 // MakeBackupContact creates a single BackupContact and associated service member.
 func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupContact {
 	serviceMember := assertions.BackupContact.ServiceMember
-	// In a real scenario, ID will have to be populated for the model
-	// To be populated by Eager, which is why ID is required
+	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.BackupContact.ServiceMemberID) {
 		serviceMember = MakeServiceMember(db, assertions)
 	}

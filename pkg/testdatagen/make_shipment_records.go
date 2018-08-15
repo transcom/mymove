@@ -47,8 +47,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	}
 
 	move := assertions.Shipment.Move
-	// In a real scenario, ID will have to be populated for the model
-	// To be populated by Eager, which is why ID is required
+	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Shipment.MoveID) {
 		newMove := MakeMove(db, assertions)
 		move = &newMove
