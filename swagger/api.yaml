@@ -528,13 +528,13 @@ definitions:
         example: 10000
         title: Weight
         x-nullable: true
-      pm_survey_pro_gear_weight_estimate:
+      pm_survey_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 10000
         title: Pro-Gear Weight
         x-nullable: true
-      pm_survey_spousal_pro_gear_weight_estimate:
+      pm_survey_spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 10000
