@@ -41,11 +41,7 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 
@@ -88,11 +84,7 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 

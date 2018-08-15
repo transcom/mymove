@@ -117,11 +117,14 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	}
 
 	// Create shipments
-	tdl, _ := MakeTDL(
-		db,
-		DefaultSrcRateArea,
-		DefaultDstRegion,
-		DefaultCOS)
+	tdl := MakeTDL(
+		db, Assertions{
+			TrafficDistributionList: models.TrafficDistributionList{
+				SourceRateArea:    DefaultSrcRateArea,
+				DestinationRegion: DefaultDstRegion,
+				CodeOfService:     DefaultCOS,
+			},
+		})
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	oneWeek, _ := time.ParseDuration("7d")
