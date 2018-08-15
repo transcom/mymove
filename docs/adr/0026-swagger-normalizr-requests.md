@@ -56,7 +56,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state, props) {
   return {
     shipment: selectShipment(props.shipmentID),
-    error: lastError(requestLabel),
+    error: lastError(state, requestLabel),
   };
 }
 
@@ -134,7 +134,7 @@ function mapStateToProps(state) {
   return {
     shipments: allShipments(state),
     selectedShipment: selectShipment(currentShipmentID(state)),
-    error: lastError(requestLabel),
+    error: lastError(state, requestLabel),
   };
 }
 ```

@@ -26,10 +26,6 @@ const requestLabel = 'ShipmentForm.loadShipment';
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 
 export class ShipmentForm extends Component {
-  state = {
-    shipmentError: null,
-  };
-
   componentDidMount() {
     this.loadShipment();
   }
@@ -50,17 +46,7 @@ export class ShipmentForm extends Component {
         moveId: this.props.currentShipment.move_id,
         shipmentId: currentID,
       };
-      const request = this.props.request(
-        requestLabel,
-        'shipments.getShipment',
-        args,
-      );
-
-      request.then(response => console.log('then', response)).catch(error => {
-        this.setState({ shipmentError: error });
-        console.error('caught', error);
-      });
-      //this.props.getShipment(this.props.currentShipment.move_id, currentID);
+      this.props.request(requestLabel, 'shipments.getShipment', args);
     }
   }
 
@@ -158,7 +144,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
-    error: lastError(requestLabel),
+    error: lastError(state, requestLabel),
   };
   return props;
 }

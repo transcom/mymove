@@ -76,5 +76,5 @@ export function lastRequest(state, label) {
 }
 
 export function lastError(state, label) {
-  return state.lastErrors[label];
+  return state.requests.lastErrors[label];
 }
