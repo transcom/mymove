@@ -7,13 +7,12 @@ import { getFormValues } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 import { request } from 'shared/api';
+import { lastError } from 'shared/Swagger/ducks';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
 import Address from 'scenes/Moves/Hhg/Address';
 import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
-
-
 
 import {
   createOrUpdateShipment,
@@ -23,6 +22,7 @@ import {
 import './ShipmentForm.css';
 
 const formName = 'shipment_form';
+const requestLabel = 'ShipmentForm.loadShipment';
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 
 export class ShipmentForm extends Component {
@@ -46,14 +46,20 @@ export class ShipmentForm extends Component {
   loadShipment() {
     const currentID = get(this.props, 'currentShipment.id');
     if (currentID) {
-      const args = {moveId: this.props.currentShipment.move_id, shipmentId: currentID};
-      const request = this.props.request('loadShipment', 'shipments.getShipment', args);
+      const args = {
+        moveId: this.props.currentShipment.move_id,
+        shipmentId: currentID,
+      };
+      const request = this.props.request(
+        requestLabel,
+        'shipments.getShipment',
+        args,
+      );
 
-      request.then(response => console.log("then", response) )
-        .catch(error => {
-          this.setState({shipmentError: error});
-          console.error("caught", error);
-        });
+      request.then(response => console.log('then', response)).catch(error => {
+        this.setState({ shipmentError: error });
+        console.error('caught', error);
+      });
       //this.props.getShipment(this.props.currentShipment.move_id, currentID);
     }
   }
@@ -97,7 +103,7 @@ export class ShipmentForm extends Component {
         additionalValues={{ requested_pickup_date: requestedPickupDate }}
       >
         <Fragment>
-          {this.state.shipmentError && (
+          {this.props.error && (
             <div className="usa-grid">
               <div className="usa-width-one-whole error-message">
                 <Alert type="error" heading="An error occurred">
@@ -140,7 +146,7 @@ ShipmentForm.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment, getShipment, request }, 
+    { createOrUpdateShipment, setCurrentShipment, getShipment, request },
     dispatch,
   );
 }
@@ -152,6 +158,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
+    error: lastError(requestLabel),
   };
   return props;
 }

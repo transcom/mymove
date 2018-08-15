@@ -1,6 +1,6 @@
 import * as helpers from 'shared/ReduxHelpers';
 import { GetSpec, GetPublicSpec } from './api';
-import { filter, last, sortBy, startsWith } from 'lodash';
+import { filter, last, omit, sortBy, startsWith } from 'lodash';
 
 const resource = 'SWAGGER';
 
@@ -13,11 +13,14 @@ export const loadPublicSchema = helpers.generateAsyncActionCreator(
   GetPublicSpec,
 );
 
-export const swaggerReducer =  helpers.generateAsyncReducer(resource, v => ({ spec: v }));
+export const swaggerReducer = helpers.generateAsyncReducer(resource, v => ({
+  spec: v,
+}));
 
 const initialState = {
   byID: {},
   errored: {},
+  lastErrors: {},
 };
 
 export function requestsReducer(state = initialState, action) {
@@ -47,7 +50,15 @@ export function requestsReducer(state = initialState, action) {
           errored: {
             ...state.errored,
             [action.request.id]: action.request,
-          }
+          },
+          lastErrors: {
+            ...state.lastErrors,
+            [action.label]: action.request,
+          },
+        });
+      case 'RESET':
+        return Object.assign({}, state, {
+          lastErrors: omit(state.lastErrors, [action.label]),
         });
       default:
         return state;
@@ -62,4 +73,8 @@ export function lastRequest(state, label) {
   });
   const sorted = sortBy(requests, ['start']);
   return last(sorted);
+}
+
+export function lastError(state, label) {
+  return state.lastErrors[label];
 }
