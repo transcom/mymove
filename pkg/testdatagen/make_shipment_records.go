@@ -47,7 +47,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	}
 
 	move := assertions.Shipment.Move
-	if isZeroUUID(assertions.Shipment.MoveID) {
+	if move == nil || isZeroUUID(assertions.Shipment.Move.ID) {
 		newMove := MakeMove(db, assertions)
 		move = &newMove
 	}

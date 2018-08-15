@@ -23,7 +23,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	move := models.Move{
 		Orders:           orders,
 		OrdersID:         orders.ID,
-		SelectedMoveType: stringPointer(*selectedMoveType),
+		SelectedMoveType: selectedMoveType,
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
 	}
