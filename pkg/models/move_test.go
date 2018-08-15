@@ -28,11 +28,7 @@ func (suite *ModelSuite) TestFetchMove() {
 
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
 
