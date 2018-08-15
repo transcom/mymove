@@ -56,15 +56,15 @@ type Shipment struct {
 	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
 	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
-	PMSurveyPackDate                    *time.Time               `json:"pm_survey_pack_date" db:"pm_survey_pack_date"`
-	PMSurveyPickupDate                  *time.Time               `json:"pm_survey_pickup_date" db:"pm_survey_pickup_date"`
-	PMSurveyLatestPickupDate            *time.Time               `json:"pm_survey_latest_pickup_date" db:"pm_survey_latest_pickup_date"`
-	PMSurveyEarliestDeliveryDate        *time.Time               `json:"pm_survey_earliest_delivery_date" db:"pm_survey_earliest_delivery_date"`
-	PMSurveyLatestDeliveryDate          *time.Time               `json:"pm_survey_latest_delivery_date" db:"pm_survey_latest_delivery_date"`
-	PMSurveyWeightEstimate              *unit.Pound              `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
-	PMSurveyProgearWeightEstimate       *unit.Pound              `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
-	PMSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
-	PMSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
+	PmSurveyPackDate                    *time.Time               `json:"pm_survey_pack_date" db:"pm_survey_pack_date"`
+	PmSurveyPickupDate                  *time.Time               `json:"pm_survey_pickup_date" db:"pm_survey_pickup_date"`
+	PmSurveyLatestPickupDate            *time.Time               `json:"pm_survey_latest_pickup_date" db:"pm_survey_latest_pickup_date"`
+	PmSurveyEarliestDeliveryDate        *time.Time               `json:"pm_survey_earliest_delivery_date" db:"pm_survey_earliest_delivery_date"`
+	PmSurveyLatestDeliveryDate          *time.Time               `json:"pm_survey_latest_delivery_date" db:"pm_survey_latest_delivery_date"`
+	PmSurveyWeightEstimate              *unit.Pound              `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
+	PmSurveyProgearWeightEstimate       *unit.Pound              `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
+	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
+	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.
