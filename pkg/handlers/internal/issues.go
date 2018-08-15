@@ -1,0 +1,71 @@
+package internal
+
+import (
+	"time"
+
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"go.uber.org/zap"
+
+	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/models"
+)
+
+func payloadForIssueModel(issue models.Issue) internalmessages.IssuePayload {
+	issuePayload := internalmessages.IssuePayload{
+		CreatedAt:    fmtDateTime(issue.CreatedAt),
+		Description:  swag.String(issue.Description),
+		ID:           fmtUUID(issue.ID),
+		UpdatedAt:    fmtDateTime(issue.UpdatedAt),
+		ReporterName: issue.ReporterName,
+		DueDate:      (*strfmt.Date)(issue.DueDate),
+	}
+	return issuePayload
+}
+
+// CreateIssueHandler creates a new issue via POST /issue
+type CreateIssueHandler utils.HandlerContext
+
+// Handle creates a new Issue from a request payload
+func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.Responder {
+	newIssue := models.Issue{
+		Description:  *params.CreateIssuePayload.Description,
+		ReporterName: params.CreateIssuePayload.ReporterName,
+		DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
+	}
+	var response middleware.Responder
+	if _, err := h.Db.ValidateAndCreate(&newIssue); err != nil {
+		h.Logger.Error("DB Insertion", zap.Error(err))
+		// how do I raise an erorr?
+		response = issueop.NewCreateIssueBadRequest()
+	} else {
+		issuePayload := payloadForIssueModel(newIssue)
+		response = issueop.NewCreateIssueCreated().WithPayload(&issuePayload)
+
+	}
+	return response
+}
+
+// IndexIssuesHandler returns a list of all issues
+type IndexIssuesHandler utils.HandlerContext
+
+// Handle retrieves a list of all issues in the system
+func (h IndexIssuesHandler) Handle(params issueop.IndexIssuesParams) middleware.Responder {
+	var issues models.Issues
+	var response middleware.Responder
+	if err := h.Db.All(&issues); err != nil {
+		h.Logger.Error("DB Query", zap.Error(err))
+		response = issueop.NewIndexIssuesBadRequest()
+	} else {
+		issuePayloads := make(internalmessages.IndexIssuesPayload, len(issues))
+		for i, issue := range issues {
+			issuePayload := payloadForIssueModel(issue)
+			issuePayloads[i] = &issuePayload
+		}
+		response = issueop.NewIndexIssuesOK().WithPayload(issuePayloads)
+	}
+	return response
+}
