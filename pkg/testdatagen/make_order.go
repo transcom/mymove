@@ -13,16 +13,20 @@ import (
 func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	// Create new relational data if not provided
 	sm := assertions.Order.ServiceMember
+	// In a real scenario, ID will have to be populated for the model
+	// To be populated by Eager, which is why ID is required
 	if isZeroUUID(assertions.Order.ServiceMemberID) {
 		sm = MakeExtendedServiceMember(db, assertions)
 	}
 
 	station := assertions.Order.NewDutyStation
+	// Note above
 	if isZeroUUID(assertions.Order.NewDutyStationID) {
 		station = MakeDefaultDutyStation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
+	// Note above
 	if isZeroUUID(assertions.Order.UploadedOrdersID) {
 		document = MakeDocument(db, Assertions{
 			Document: models.Document{

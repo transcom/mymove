@@ -10,6 +10,8 @@ import (
 // MakeMovingExpenseDocument creates a single Moving Expense Document.
 func MakeMovingExpenseDocument(db *pop.Connection, assertions Assertions) models.MovingExpenseDocument {
 	moveDoc := assertions.MovingExpenseDocument.MoveDocument
+	// In a real scenario, ID will have to be populated for the model
+	// To be populated by Eager, which is why ID is required
 	if isZeroUUID(assertions.MovingExpenseDocument.MoveDocumentID) {
 		moveDoc = MakeMoveDocument(db, assertions)
 	}

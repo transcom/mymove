@@ -9,6 +9,8 @@ import (
 // MakeServiceMember creates a single ServiceMember with associated data.
 func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	user := assertions.ServiceMember.User
+	// In a real scenario, ID will have to be populated for the model
+	// To be populated by Eager, which is why ID is required
 	if isZeroUUID(assertions.ServiceMember.UserID) {
 		user = MakeUser(db, assertions)
 	}
