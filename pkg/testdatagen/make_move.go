@@ -15,11 +15,15 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		orders = MakeOrder(db, assertions)
 	}
 
-	selectedMoveType := "PPM"
+	defaultMoveType := "PPM"
+	selectedMoveType := assertions.Move.SelectedMoveType
+	if selectedMoveType == nil {
+		selectedMoveType = &defaultMoveType
+	}
 	move := models.Move{
 		Orders:           orders,
 		OrdersID:         orders.ID,
-		SelectedMoveType: &selectedMoveType,
+		SelectedMoveType: selectedMoveType,
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
 	}
