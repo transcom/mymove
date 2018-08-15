@@ -78,6 +78,9 @@ describe('completing the hhg flow', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
     });
+
+    // TODO: when shipment info is available on Review page, test edit of fields
+
     cy.nextPage();
     cy.contains('SIGNATURE');
     cy.get('input[name="signature"]').type('SM Signature');
