@@ -496,26 +496,31 @@ definitions:
         type: string
         format: date
         example: "2018-04-26"
+        title: "Pack date"
         x-nullable: true
       pm_survey_pickup_date:
         type: string
         format: date
         example: "2018-04-26"
+        title: "Pickup date"
         x-nullable: true
       pm_survey_latest_pickup_date:
         type: string
         format: date
         example: "2018-04-26"
+        title: "Latest pickup date"
         x-nullable: true
       pm_survey_earliest_delivery_date:
         type: string
         format: date
         example: "2018-04-26"
+        title: "Earliest delivery date"
         x-nullable: true
       pm_survey_latest_delivery_date:
         type: string
         format: date
         example: "2018-04-26"
+        title: "Latest delivery date"
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
