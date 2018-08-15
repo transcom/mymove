@@ -17,7 +17,7 @@ var DefaultMarket = "dHHG"
 var DefaultServiceArea = "4"
 
 // DefaultCOS is the default Code of Service for testing.
-var DefaultCOS = "2"
+var DefaultCOS = "D"
 
 // DefaultSrcRateArea is a default rate area (California) for testing.
 var DefaultSrcRateArea = "US87"

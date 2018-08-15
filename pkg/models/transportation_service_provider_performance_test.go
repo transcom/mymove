@@ -92,7 +92,7 @@ func (suite *ModelSuite) Test_GetRateCycle() {
 func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, .2, .1)
 
@@ -114,7 +114,11 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			CodeOfService: "2",
+		},
+	})
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, .2, .3)
 	band := 1
@@ -141,7 +145,11 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	tspsToMake := 5
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			CodeOfService: "2",
+		},
+	})
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
@@ -171,7 +179,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
@@ -354,7 +362,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 // order for the Award Queue operation.
 func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	t := suite.T()
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
@@ -394,7 +402,7 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
@@ -426,7 +434,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
@@ -451,7 +459,13 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US68",
+			DestinationRegion: "5",
+			CodeOfService:     "2",
+		},
+	}) // Victoria, TX to Salina, KS
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
