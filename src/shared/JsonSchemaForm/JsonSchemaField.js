@@ -3,7 +3,8 @@ import React, { Fragment } from 'react';
 import validator from './validator';
 import { Field } from 'redux-form';
 import moment from 'moment';
-import SingleDatePicker, { defaultDateFormat } from './SingleDatePicker';
+import SingleDatePicker from './SingleDatePicker';
+import { defaultDateFormat } from 'shared/utils';
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -120,7 +121,6 @@ const configureDateField = (swaggerField, props) => {
   props.type = 'date';
   props.customComponent = SingleDatePicker;
   props.normalize = normalizeDates;
-  props.validate.push(validator.isDate);
   return props;
 };
 

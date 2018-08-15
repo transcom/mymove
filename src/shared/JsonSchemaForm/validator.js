@@ -1,5 +1,5 @@
 import { isFinite, isInteger as rawIsInteger, memoize } from 'lodash';
-import { defaultDateFormat } from './SingleDatePicker';
+import { defaultDateFormat } from 'shared/utils';
 import moment from 'moment';
 
 const isRequired = value => (value ? undefined : 'Required');
