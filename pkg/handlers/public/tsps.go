@@ -3,7 +3,7 @@ package public
 import (
 	"github.com/go-openapi/runtime/middleware"
 
-	publictspsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/tsps"
+	tspsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/tsps"
 	"github.com/transcom/mymove/pkg/handlers/utils"
 )
 
@@ -11,7 +11,7 @@ import (
 type TspsIndexTSPsHandler utils.HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h TspsIndexTSPsHandler) Handle(params publictspsop.IndexTSPsParams) middleware.Responder {
+func (h TspsIndexTSPsHandler) Handle(params tspsop.IndexTSPsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .indexTSPs has not yet been implemented")
 }
 
@@ -19,7 +19,7 @@ func (h TspsIndexTSPsHandler) Handle(params publictspsop.IndexTSPsParams) middle
 type TspsGetTspShipmentsHandler utils.HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h TspsGetTspShipmentsHandler) Handle(params publictspsop.GetTspShipmentsParams) middleware.Responder {
+func (h TspsGetTspShipmentsHandler) Handle(params tspsop.GetTspShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .tspShipments has not yet been implemented")
 }
 
@@ -27,6 +27,6 @@ func (h TspsGetTspShipmentsHandler) Handle(params publictspsop.GetTspShipmentsPa
 type TspsGetTspBlackoutsHandler utils.HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h TspsGetTspBlackoutsHandler) Handle(params publictspsop.GetTspShipmentsParams) middleware.Responder {
+func (h TspsGetTspBlackoutsHandler) Handle(params tspsop.GetTspShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .tspShipments has not yet been implemented")
 }

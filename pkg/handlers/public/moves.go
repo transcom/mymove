@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func publicPayloadForMoveModel(move *models.Move) *apimessages.Move {
+func payloadForMoveModel(move *models.Move) *apimessages.Move {
 	if move == nil {
 		return nil
 	}

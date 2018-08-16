@@ -8,7 +8,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
-	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
+	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 
-	params := publicshipmentop.IndexShipmentsParams{
+	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 	}
 
@@ -40,8 +40,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
-	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*shipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
 	suite.parent.Equal(1, len(okResponse.Payload))
@@ -79,29 +79,29 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	// Test query with first user
 	req1 := httptest.NewRequest("GET", "/shipments", nil)
 	req1 = suite.parent.AuthenticateTspRequest(req1, tspUser1)
-	params1 := publicshipmentop.IndexShipmentsParams{
+	params1 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req1,
 		Limit:       &limit,
 		Offset:      &offset,
 	}
 
 	response1 := handler.Handle(params1)
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response1)
-	okResponse1 := response1.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response1)
+	okResponse1 := response1.(*shipmentop.IndexShipmentsOK)
 	suite.parent.Equal(15, len(okResponse1.Payload))
 
 	// Test query with second user
 	req2 := httptest.NewRequest("GET", "/shipments", nil)
 	req2 = suite.parent.AuthenticateTspRequest(req2, tspUser2)
-	params2 := publicshipmentop.IndexShipmentsParams{
+	params2 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req2,
 		Limit:       &limit,
 		Offset:      &offset,
 	}
 
 	response2 := handler.Handle(params2)
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response2)
-	okResponse2 := response2.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response2)
+	okResponse2 := response2.(*shipmentop.IndexShipmentsOK)
 	suite.parent.Equal(10, len(okResponse2.Payload))
 }
 
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	limit := int64(25)
 	offset := int64(1)
 	orderBy := "PICKUP_DATE_ASC"
-	params := publicshipmentop.IndexShipmentsParams{
+	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Limit:       &limit,
 		Offset:      &offset,
@@ -137,8 +137,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
-	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*shipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
 	suite.parent.Equal(3, len(okResponse.Payload))
@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	limit := int64(25)
 	offset := int64(1)
 	orderBy := "PICKUP_DATE_DESC"
-	params := publicshipmentop.IndexShipmentsParams{
+	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Limit:       &limit,
 		Offset:      &offset,
@@ -188,8 +188,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
-	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*shipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
 	suite.parent.Equal(3, len(okResponse.Payload))
@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	limit := int64(25)
 	offset := int64(1)
 	orderBy := "DELIVERY_DATE_ASC"
-	params := publicshipmentop.IndexShipmentsParams{
+	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Limit:       &limit,
 		Offset:      &offset,
@@ -239,8 +239,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
-	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*shipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
 	suite.parent.Equal(3, len(okResponse.Payload))
@@ -278,7 +278,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	limit := int64(25)
 	offset := int64(1)
 	orderBy := "DELIVERY_DATE_DESC"
-	params := publicshipmentop.IndexShipmentsParams{
+	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Limit:       &limit,
 		Offset:      &offset,
@@ -290,8 +290,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
-	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*shipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
 	suite.parent.Equal(3, len(okResponse.Payload))
@@ -328,14 +328,14 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.parent.AuthenticateTspRequest(req, tspUser)
-	params := publicshipmentop.IndexShipmentsParams{
+	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      status,
 	}
 
 	response := handler.Handle(params)
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
-	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*shipmentop.IndexShipmentsOK)
 	suite.parent.Equal(25, len(okResponse.Payload))
 }
 
@@ -359,13 +359,13 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.parent.AuthenticateTspRequest(req, tspUser)
-	params := publicshipmentop.IndexShipmentsParams{
+	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      statusFilter,
 	}
 
 	response := handler.Handle(params)
-	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
-	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.parent.Assertions.IsType(&shipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*shipmentop.IndexShipmentsOK)
 	suite.parent.Equal(0, len(okResponse.Payload))
 }

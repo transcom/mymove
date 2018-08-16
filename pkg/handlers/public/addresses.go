@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func publicPayloadForAddressModel(a *models.Address) *apimessages.Address {
+func payloadForAddressModel(a *models.Address) *apimessages.Address {
 	if a == nil {
 		return nil
 	}

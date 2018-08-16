@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func publicPayloadForTrafficDistributionListModel(tdl *models.TrafficDistributionList) *apimessages.TrafficDistributionList {
+func payloadForTrafficDistributionListModel(tdl *models.TrafficDistributionList) *apimessages.TrafficDistributionList {
 	if tdl == nil {
 		return nil
 	}

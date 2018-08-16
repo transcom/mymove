@@ -5,7 +5,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func publicPayloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessages.ServiceMember {
+func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessages.ServiceMember {
 
 	serviceMemberPayload := apimessages.ServiceMember{
 		FirstName:              serviceMember.FirstName,
