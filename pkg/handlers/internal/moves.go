@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/apimessages"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers/utils"
@@ -195,33 +194,4 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return responseForError(h.Logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
-}
-
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
-
-func publicPayloadForMoveModel(move *models.Move) *apimessages.Move {
-	if move == nil {
-		return nil
-	}
-
-	var SelectedMoveType = apimessages.SelectedMoveTypeHHG
-	if move.SelectedMoveType != nil {
-		SelectedMoveType = apimessages.SelectedMoveType(*move.SelectedMoveType)
-	}
-
-	cancelReason := ""
-	if move.CancelReason != nil {
-		cancelReason = *move.CancelReason
-	}
-	return &apimessages.Move{
-		SelectedMoveType: &SelectedMoveType,
-		OrdersID:         fmtUUID(move.OrdersID),
-		Status:           apimessages.MoveStatus(move.Status),
-		Locator:          swag.String(move.Locator),
-		CancelReason:     swag.String(cancelReason),
-	}
 }

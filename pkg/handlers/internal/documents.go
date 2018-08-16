@@ -8,17 +8,10 @@ import (
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	publicdocumentsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/documents"
 	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
-
-/*
- * ------------------------------------------
- * The code below is for the INTERNAL REST API.
- * ------------------------------------------
- */
 
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
 	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
@@ -103,23 +96,3 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)
 }
-
-/* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,
-need to be reconciled. This will be done when the NotImplemented code below is Implemented
-*/
-
-// CreateDocumentUploadHandler creates a new document upload via POST /document/{document_uuid}/uploads
-type CreateDocumentUploadHandler utils.HandlerContext
-
-// Handle creates a new DocumentUpload from a request payload
-func (h CreateDocumentUploadHandler) Handle(params publicdocumentsop.CreateDocumentUploadParams) middleware.Responder {
-	return middleware.NotImplemented("operation .createDocumentUpload has not yet been implemented")
-}
-
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
-
-// NO CODE YET!

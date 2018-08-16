@@ -1,24 +1,10 @@
-package internal
+package public
 
 import (
 	"github.com/go-openapi/runtime/middleware"
 	publicblackoutsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/blackouts"
 	"github.com/transcom/mymove/pkg/handlers/utils"
 )
-
-/*
- * ------------------------------------------
- * The code below is for the INTERNAL REST API.
- * ------------------------------------------
- */
-
-// NO CODE YET!
-
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
 
 // PublicBlackoutIndexHandler returns a list of all the Blackouts
 type PublicBlackoutIndexHandler utils.HandlerContext

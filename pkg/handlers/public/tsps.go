@@ -1,4 +1,4 @@
-package internal
+package public
 
 import (
 	"github.com/go-openapi/runtime/middleware"
@@ -6,20 +6,6 @@ import (
 	publictspsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/tsps"
 	"github.com/transcom/mymove/pkg/handlers/utils"
 )
-
-/*
- * ------------------------------------------
- * The code below is for the INTERNAL REST API.
- * ------------------------------------------
- */
-
-// NO CODE YET!
-
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
 
 // PublicTspsIndexTSPsHandler returns a list of all the TSPs
 type PublicTspsIndexTSPsHandler utils.HandlerContext

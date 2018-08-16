@@ -1,4 +1,4 @@
-package internal
+package public
 
 import (
 	"github.com/go-openapi/swag"
@@ -6,18 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-/*
- * --------------------------------------------
- * The code below is for the INTERNAL REST API.
- * --------------------------------------------
- */
-
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
 
 func publicPayloadForTrafficDistributionListModel(tdl *models.TrafficDistributionList) *apimessages.TrafficDistributionList {
 	if tdl == nil {

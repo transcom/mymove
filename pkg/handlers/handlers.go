@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers/internal"
+	"github.com/transcom/mymove/pkg/handlers/public"
 	"github.com/transcom/mymove/pkg/handlers/utils"
 )
 
@@ -32,14 +33,14 @@ func NewPublicAPIHandler(context utils.HandlerContext) http.Handler {
 	// Documents
 
 	// Shipments
-	publicAPI.ShipmentsIndexShipmentsHandler = internal.PublicIndexShipmentsHandler(context)
-	publicAPI.ShipmentsGetShipmentHandler = internal.PublicGetShipmentHandler(context)
-	publicAPI.ShipmentsCreateShipmentAcceptHandler = internal.PublicCreateShipmentAcceptHandler(context)
-	publicAPI.ShipmentsCreateShipmentRejectHandler = internal.PublicCreateShipmentRejectHandler(context)
+	publicAPI.ShipmentsIndexShipmentsHandler = public.PublicIndexShipmentsHandler(context)
+	publicAPI.ShipmentsGetShipmentHandler = public.PublicGetShipmentHandler(context)
+	publicAPI.ShipmentsCreateShipmentAcceptHandler = public.PublicCreateShipmentAcceptHandler(context)
+	publicAPI.ShipmentsCreateShipmentRejectHandler = public.PublicCreateShipmentRejectHandler(context)
 
 	// TSPs
-	publicAPI.TspsIndexTSPsHandler = internal.PublicTspsIndexTSPsHandler(context)
-	publicAPI.TspsGetTspShipmentsHandler = internal.PublicTspsGetTspShipmentsHandler(context)
+	publicAPI.TspsIndexTSPsHandler = public.PublicTspsIndexTSPsHandler(context)
+	publicAPI.TspsGetTspShipmentsHandler = public.PublicTspsGetTspShipmentsHandler(context)
 
 	return publicAPI.Serve(nil)
 }

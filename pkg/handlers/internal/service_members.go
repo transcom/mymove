@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/apimessages"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers/utils"
@@ -14,11 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-/*
- * ------------------------------------------
- * The code below is for the INTERNAL REST API.
- * ------------------------------------------
- */
 func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
@@ -292,27 +286,4 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 		return responseForError(h.Logger, err)
 	}
 	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
-}
-
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
-
-func publicPayloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessages.ServiceMember {
-
-	serviceMemberPayload := apimessages.ServiceMember{
-		FirstName:              serviceMember.FirstName,
-		MiddleName:             serviceMember.MiddleName,
-		LastName:               serviceMember.LastName,
-		Suffix:                 serviceMember.Suffix,
-		Telephone:              serviceMember.Telephone,
-		SecondaryTelephone:     serviceMember.SecondaryTelephone,
-		PersonalEmail:          serviceMember.PersonalEmail,
-		PhoneIsPreferred:       serviceMember.PhoneIsPreferred,
-		TextMessageIsPreferred: serviceMember.TextMessageIsPreferred,
-		EmailIsPreferred:       serviceMember.EmailIsPreferred,
-	}
-	return &serviceMemberPayload
 }
