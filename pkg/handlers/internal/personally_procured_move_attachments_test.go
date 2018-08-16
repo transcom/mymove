@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	context := suite.createHandlerContext()
 
 	// Open our test file
-	f, err := os.Open("fixtures/test.pdf")
+	f, err := os.Open("../fixtures/test.pdf")
 	suite.NoError(err)
 
 	// Backfill the uploaded orders file in filesystem

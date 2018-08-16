@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
-	suite.Assertions.Equal(*utils.FmtString("123456"), okResponse.Payload.OrdersNumber)
+	suite.Assertions.Equal(utils.FmtString("123456"), okResponse.Payload.OrdersNumber)
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
 	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
