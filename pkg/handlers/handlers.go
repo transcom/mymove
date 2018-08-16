@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers/internal"
+	"github.com/transcom/mymove/pkg/handlers/orders"
 	"github.com/transcom/mymove/pkg/handlers/public"
 	"github.com/transcom/mymove/pkg/handlers/utils"
 )
@@ -133,9 +134,9 @@ func NewOrdersAPIHandler(context utils.HandlerContext) http.Handler {
 	}
 
 	ordersAPI := ordersops.NewMymoveAPI(ordersSpec)
-	ordersAPI.GetOrdersHandler = internal.GetOrdersHandler(context)
-	ordersAPI.IndexOrdersHandler = internal.IndexOrdersHandler(context)
-	ordersAPI.PostRevisionHandler = internal.PostRevisionHandler(context)
-	ordersAPI.PostRevisionToOrdersHandler = internal.PostRevisionToOrdersHandler(context)
+	ordersAPI.GetOrdersHandler = orders.GetOrdersHandler(context)
+	ordersAPI.IndexOrdersHandler = orders.IndexOrdersHandler(context)
+	ordersAPI.PostRevisionHandler = orders.PostRevisionHandler(context)
+	ordersAPI.PostRevisionToOrdersHandler = orders.PostRevisionToOrdersHandler(context)
 	return ordersAPI.Serve(nil)
 }

@@ -1,4 +1,4 @@
-package internal
+package orders
 
 import (
 	"github.com/go-openapi/runtime/middleware"
