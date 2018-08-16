@@ -137,7 +137,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
-	//service member with orders and a move, but no move type selected
+	//service member with orders and a move
 
 	email = "profile@comple.te"
 	uuidStr = "13F3949D-0D53-4BE4-B1B1-AE4314793F34"
@@ -163,15 +163,43 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 
-	// Service member with uploaded orders and a new shipment move
-	email = "hhg@incomple.te"
-	uuidStr = "ebc176e0-bb34-47d4-ba37-ff13e2dd40b9"
+	//service member with orders and a move, but no move type selected to select HHG
+	email = "sm_hhg@example.com"
+	uuidStr = "4b389406-9258-4695-a091-0bf97b5a132f"
+
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
 		},
 	})
+
+	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("b5d1f44b-5ceb-4a0e-9119-5687808996ff"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHGDude"),
+			LastName:      models.StringPointer("UserPerson"),
+			Edipi:         models.StringPointer("6833908163"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
+			Locator: "REWGIE",
+		},
+	})
+
+	// Service member with uploaded orders and a new shipment move
+	email = "hhg@incomple.te"
+	uuidStr = "ebc176e0-bb34-47d4-ba37-ff13e2dd40b9"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
 	nowTime = time.Now()
 	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -197,5 +225,4 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	hhg0.Move.Submit()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, hhg0.Move)
-
 }
