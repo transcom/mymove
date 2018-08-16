@@ -341,6 +341,19 @@ In development, we use [direnv](https://direnv.net/) to setup environment variab
     require NEW_ENV_VAR "Look for info on this value in Google Drive"
     ```
 
+For per-tier environment variables (that are not secret), simply add the variables to the relevant `config/env/[experimental|staging|prod].env` file with the format `NAME=VALUE` on each line.  Then add the relevant section to `config/app.container-definition.json`.  The deploy process uses Go's [template package](https://golang.org/pkg/text/template/) for rendering the container definition.  For example,
+
+```bash
+MY_SPECIAL_TOKEN=abcxyz
+```
+
+```json
+{
+  "name": "MY_SPECIAL_TOKEN",
+  "value": "{{ .MY_SPECIAL_TOKEN }}"
+},
+```
+
 ### Documentation
 
 You can view the project's GoDoc on [godoc.org](https://godoc.org/github.com/transcom/mymove).
