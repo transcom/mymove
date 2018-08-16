@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
-	station := testdatagen.MakeDefaultDutyStation(suite.parent.Db)
+	station := testdatagen.MakeDefaultDutyStation(suite.Db)
 
 	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -21,22 +21,22 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 		HTTPRequest:   req,
 		DutyStationID: *utils.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := showHandler.Handle(params)
 
-	suite.parent.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
+	suite.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
 	okResponse := response.(*transportationofficeop.ShowDutyStationTransportationOfficeOK)
 
-	suite.parent.Assertions.Equal(station.TransportationOffice.ID.String(), okResponse.Payload.ID.String())
-	suite.parent.Assertions.Equal(station.TransportationOffice.PhoneLines[0].Number, okResponse.Payload.PhoneLines[0])
+	suite.Assertions.Equal(station.TransportationOffice.ID.String(), okResponse.Payload.ID.String())
+	suite.Assertions.Equal(station.TransportationOffice.PhoneLines[0].Number, okResponse.Payload.PhoneLines[0])
 
 }
 
 func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
-	station := testdatagen.MakeDefaultDutyStation(suite.parent.Db)
+	station := testdatagen.MakeDefaultDutyStation(suite.Db)
 	station.TransportationOffice = models.TransportationOffice{}
 	station.TransportationOfficeID = nil
-	suite.parent.MustSave(&station)
+	suite.MustSave(&station)
 
 	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -45,11 +45,11 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffic
 		HTTPRequest:   req,
 		DutyStationID: *utils.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := showHandler.Handle(params)
 
-	suite.parent.Assertions.IsType(&utils.ErrResponse{}, response)
+	suite.Assertions.IsType(&utils.ErrResponse{}, response)
 	errResponse := response.(*utils.ErrResponse)
 
-	suite.parent.Assertions.Equal(http.StatusNotFound, errResponse.Code)
+	suite.Assertions.Equal(http.StatusNotFound, errResponse.Code)
 }

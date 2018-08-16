@@ -15,21 +15,21 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
-	ppm := testdatagen.MakeDefaultPPM(suite.parent.Db)
+	ppm := testdatagen.MakeDefaultPPM(suite.Db)
 	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
-	upload := testdatagen.MakeUpload(suite.parent.Db, testdatagen.Assertions{
+	upload := testdatagen.MakeUpload(suite.Db, testdatagen.Assertions{
 		Upload: models.Upload{
 			UploaderID: sm.UserID,
 		},
 	})
 	upload.DocumentID = nil
-	suite.parent.MustSave(&upload)
+	suite.MustSave(&upload)
 	uploadIds := []strfmt.UUID{*utils.FmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.parent.AuthenticateRequest(request, sm)
+	request = suite.AuthenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:                uploadIds,
@@ -45,43 +45,43 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
-	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
+	context := utils.NewHandlerContext(suite.Db, suite.Logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler(context)
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
-	suite.parent.IsNotErrResponse(response)
+	suite.IsNotErrResponse(response)
 	createdResponse := response.(*movedocop.CreateGenericMoveDocumentOK)
 	createdPayload := createdResponse.Payload
-	suite.parent.NotNil(createdPayload.ID)
+	suite.NotNil(createdPayload.ID)
 
 	// Make sure the Upload was associated to the new document
 	createdDocumentID := createdPayload.Document.ID
 	var fetchedUpload models.Upload
-	suite.parent.Db.Find(&fetchedUpload, upload.ID)
-	suite.parent.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
+	suite.Db.Find(&fetchedUpload, upload.ID)
+	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Next try the wrong user
-	wrongUser := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
-	request = suite.parent.AuthenticateRequest(request, wrongUser)
+	wrongUser := testdatagen.MakeDefaultServiceMember(suite.Db)
+	request = suite.AuthenticateRequest(request, wrongUser)
 	newMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newMoveDocParams)
-	suite.parent.CheckResponseForbidden(badUserResponse)
+	suite.CheckResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	newMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMoveDocParams)
-	suite.parent.CheckResponseNotFound(badMoveResponse)
+	suite.CheckResponseNotFound(badMoveResponse)
 }
 
 func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
-	ppm := testdatagen.MakeDefaultPPM(suite.parent.Db)
+	ppm := testdatagen.MakeDefaultPPM(suite.Db)
 	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
-	moveDocument := testdatagen.MakeMoveDocument(suite.parent.Db, testdatagen.Assertions{
+	moveDocument := testdatagen.MakeMoveDocument(suite.Db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID: move.ID,
 			Move:   move,
@@ -90,14 +90,14 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	})
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.parent.AuthenticateRequest(request, sm)
+	request = suite.AuthenticateRequest(request, sm)
 
 	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
 		HTTPRequest: request,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
+	context := utils.NewHandlerContext(suite.Db, suite.Logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler(context)
@@ -106,33 +106,33 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	// assert we got back the 201 response
 	indexResponse := response.(*movedocop.IndexMoveDocumentsOK)
 	indexPayload := indexResponse.Payload
-	suite.parent.NotNil(indexPayload)
+	suite.NotNil(indexPayload)
 
 	for _, moveDoc := range indexPayload {
-		suite.parent.Require().Equal(*moveDoc.ID, strfmt.UUID(moveDocument.ID.String()), "expected move ids to match")
-		suite.parent.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
+		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(moveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
 	}
 
 	// Next try the wrong user
-	wrongUser := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
-	request = suite.parent.AuthenticateRequest(request, wrongUser)
+	wrongUser := testdatagen.MakeDefaultServiceMember(suite.Db)
+	request = suite.AuthenticateRequest(request, wrongUser)
 	indexMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(indexMoveDocParams)
-	suite.parent.CheckResponseForbidden(badUserResponse)
+	suite.CheckResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	indexMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(indexMoveDocParams)
-	suite.parent.CheckResponseNotFound(badMoveResponse)
+	suite.CheckResponseNotFound(badMoveResponse)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// When: there is a move and move document
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 	sm := move.Orders.ServiceMember
 
-	moveDocument := testdatagen.MakeMoveDocument(suite.parent.Db, testdatagen.Assertions{
+	moveDocument := testdatagen.MakeMoveDocument(suite.Db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID: move.ID,
 			Move:   move,
@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		},
 	})
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.parent.AuthenticateRequest(request, sm)
+	request = suite.AuthenticateRequest(request, sm)
 
 	// And: the title and status are updated
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
@@ -161,18 +161,18 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := UpdateMoveDocumentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
-	suite.parent.IsNotErrResponse(response)
+	suite.IsNotErrResponse(response)
 	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
 	updatePayload := updateResponse.Payload
-	suite.parent.NotNil(updatePayload)
+	suite.NotNil(updatePayload)
 
-	suite.parent.Require().Equal(*updatePayload.ID, strfmt.UUID(moveDocument.ID.String()), "expected move doc ids to match")
+	suite.Require().Equal(*updatePayload.ID, strfmt.UUID(moveDocument.ID.String()), "expected move doc ids to match")
 
 	// And: the new data to be there
-	suite.parent.Require().Equal(*updatePayload.Title, "super_awesome.pdf")
-	suite.parent.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
+	suite.Require().Equal(*updatePayload.Title, "super_awesome.pdf")
+	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
 }

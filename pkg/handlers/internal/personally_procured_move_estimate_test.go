@@ -13,14 +13,14 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
-	if err := scenario.RunRateEngineScenario2(suite.parent.Db); err != nil {
-		suite.parent.FailNow("failed to run scenario 2: %+v", err)
+	if err := scenario.RunRateEngineScenario2(suite.Db); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
+	user := testdatagen.MakeDefaultServiceMember(suite.Db)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.parent.AuthenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		WeightEstimate:  7500,
 	}
 
-	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
+	context := utils.NewHandlerContext(suite.Db, suite.Logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler(context)
 	showResponse := showHandler.Handle(params)
@@ -38,23 +38,23 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
 	cost := okResponse.Payload
 
-	suite.parent.Equal(int64(605203), *cost.RangeMin, "RangeMin was not equal")
-	suite.parent.Equal(int64(668909), *cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(605203), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(668909), *cost.RangeMax, "RangeMax was not equal")
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
-	if err := scenario.RunRateEngineScenario2(suite.parent.Db); err != nil {
-		suite.parent.FailNow("failed to run scenario 2: %+v", err)
+	if err := scenario.RunRateEngineScenario2(suite.Db); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.parent.MustSave(&user)
+	suite.MustSave(&user)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.parent.AuthenticateUserRequest(req, user)
+	req = suite.AuthenticateUserRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		WeightEstimate:  600,
 	}
 
-	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
+	context := utils.NewHandlerContext(suite.Db, suite.Logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler(context)
 	showResponse := showHandler.Handle(params)
@@ -72,6 +72,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
 	cost := okResponse.Payload
 
-	suite.parent.Equal(int64(256739), *cost.RangeMin, "RangeMin was not equal")
-	suite.parent.Equal(int64(283765), *cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(256739), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(283765), *cost.RangeMax, "RangeMax was not equal")
 }

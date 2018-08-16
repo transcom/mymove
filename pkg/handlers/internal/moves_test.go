@@ -15,10 +15,10 @@ import (
 
 func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	// Given: a set of orders, user and servicemember
-	orders := testdatagen.MakeDefaultOrder(suite.parent.Db)
+	orders := testdatagen.MakeDefaultOrder(suite.Db)
 
 	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
-	req = suite.parent.AuthenticateRequest(req, orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, orders.ServiceMember)
 
 	// When: a new Move is posted
 	var selectedType = internalmessages.SelectedMoveTypePPM
@@ -31,22 +31,22 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 		HTTPRequest:       req,
 	}
 	// Then: we expect a move to have been created based on orders
-	handler := CreateMoveHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := CreateMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
-	suite.parent.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
+	suite.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
 	okResponse := response.(*moveop.CreateMoveCreated)
 
-	suite.parent.Assertions.Equal(orders.ID.String(), okResponse.Payload.OrdersID.String())
+	suite.Assertions.Equal(orders.ID.String(), okResponse.Payload.OrdersID.String())
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.parent.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -58,26 +58,26 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 	// And: a move is patched
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.parent.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
+	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
 	okResponse := response.(*moveop.PatchMoveCreated)
 
 	// And: Returned query to include our added move
-	suite.parent.Assertions.Equal(&newType, okResponse.Payload.SelectedMoveType)
+	suite.Assertions.Equal(&newType, okResponse.Payload.SelectedMoveType)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.Db)
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.parent.AuthenticateRequest(req, anotherUser)
+	req = suite.AuthenticateRequest(req, anotherUser)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -90,21 +90,21 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
-	suite.parent.CheckResponseForbidden(response)
+	suite.CheckResponseForbidden(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
-	user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
+	user := testdatagen.MakeDefaultServiceMember(suite.Db)
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
 	// And: the context contains a logged in user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.parent.AuthenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -117,19 +117,19 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
-	suite.parent.CheckResponseNotFound(response)
+	suite.CheckResponseNotFound(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.parent.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	patchPayload := internalmessages.PatchMovePayload{}
 	params := moveop.PatchMoveParams{
@@ -138,90 +138,90 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
-	suite.parent.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
+	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
 	okResponse := response.(*moveop.PatchMoveCreated)
 
-	suite.parent.Assertions.Equal(move.ID.String(), okResponse.Payload.ID.String())
+	suite.Assertions.Equal(move.ID.String(), okResponse.Payload.ID.String())
 }
 
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.parent.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.ShowMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: show Move is queried
-	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
-	suite.parent.Assertions.IsType(&moveop.ShowMoveOK{}, showResponse)
+	suite.Assertions.IsType(&moveop.ShowMoveOK{}, showResponse)
 	okResponse := showResponse.(*moveop.ShowMoveOK)
 
 	// And: Returned query to include our added move
-	suite.parent.Assertions.Equal(move.OrdersID.String(), okResponse.Payload.OrdersID.String())
+	suite.Assertions.Equal(move.OrdersID.String(), okResponse.Payload.OrdersID.String())
 
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.Db)
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.parent.AuthenticateRequest(req, anotherUser)
+	req = suite.AuthenticateRequest(req, anotherUser)
 
 	showMoveParams := moveop.ShowMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: Show move is queried
-	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
-	suite.parent.CheckResponseForbidden(showResponse)
+	suite.CheckResponseForbidden(showResponse)
 
 }
 
 func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.parent.Db)
+	ppm := testdatagen.MakeDefaultPPM(suite.Db)
 	move := ppm.Move
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
-	req = suite.parent.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.SubmitMoveForApprovalParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is submitted
-	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
-	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.parent.Logger))
+	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.Logger))
 	handler := SubmitMoveHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.parent.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+	suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
 	okResponse := response.(*moveop.SubmitMoveForApprovalOK)
 
 	// And: Returned query to have an approved status
-	suite.parent.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+	suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 	// And: Expect move's PPM's advance to have "Requested" status
-	suite.parent.Assertions.Equal(
+	suite.Assertions.Equal(
 		internalmessages.ReimbursementStatusREQUESTED,
 		*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
 }

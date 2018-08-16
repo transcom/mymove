@@ -5,5 +5,5 @@ import (
 )
 
 type HandlerSuite struct {
-	parent utils.HandlerSuite
+	utils.HandlerSuite
 }

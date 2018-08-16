@@ -10,52 +10,52 @@ import (
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
-	unknownUser := testdatagen.MakeDefaultUser(suite.parent.Db)
+	unknownUser := testdatagen.MakeDefaultUser(suite.Db)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.parent.AuthenticateUserRequest(req, unknownUser)
+	req = suite.AuthenticateUserRequest(req, unknownUser)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.parent.True(ok)
-	suite.parent.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
+	suite.True(ok)
+	suite.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
 }
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.parent.Db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.Db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
 	})
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.parent.AuthenticateRequest(req, sm)
+	req = suite.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.parent.True(ok)
-	suite.parent.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.parent.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.True(ok)
+	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.parent.Db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.Db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
@@ -64,20 +64,20 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	// Remove transportation office info from current station
 	station := sm.DutyStation
 	station.TransportationOfficeID = nil
-	suite.parent.MustSave(&station)
+	suite.MustSave(&station)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.parent.AuthenticateRequest(req, sm)
+	req = suite.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.parent.True(ok)
-	suite.parent.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	suite.True(ok)
+	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
 }

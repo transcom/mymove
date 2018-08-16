@@ -15,20 +15,20 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 	sm := move.Orders.ServiceMember
 
-	upload := testdatagen.MakeUpload(suite.parent.Db, testdatagen.Assertions{
+	upload := testdatagen.MakeUpload(suite.Db, testdatagen.Assertions{
 		Upload: models.Upload{
 			UploaderID: sm.UserID,
 		},
 	})
 	upload.DocumentID = nil
-	suite.parent.MustSave(&upload)
+	suite.MustSave(&upload)
 	uploadIds := []strfmt.UUID{*utils.FmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.parent.AuthenticateRequest(request, sm)
+	request = suite.AuthenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:        uploadIds,
@@ -43,33 +43,33 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
-	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
+	context := utils.NewHandlerContext(suite.Db, suite.Logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler(context)
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
-	suite.parent.IsNotErrResponse(response)
+	suite.IsNotErrResponse(response)
 	createdResponse := response.(*movedocop.CreateGenericMoveDocumentOK)
 	createdPayload := createdResponse.Payload
-	suite.parent.NotNil(createdPayload.ID)
+	suite.NotNil(createdPayload.ID)
 
 	// Make sure the Upload was associated to the new document
 	createdDocumentID := createdPayload.Document.ID
 	var fetchedUpload models.Upload
-	suite.parent.Db.Find(&fetchedUpload, upload.ID)
-	suite.parent.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
+	suite.Db.Find(&fetchedUpload, upload.ID)
+	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Next try the wrong user
-	wrongUser := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
-	request = suite.parent.AuthenticateRequest(request, wrongUser)
+	wrongUser := testdatagen.MakeDefaultServiceMember(suite.Db)
+	request = suite.AuthenticateRequest(request, wrongUser)
 	newMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newMoveDocParams)
-	suite.parent.CheckResponseForbidden(badUserResponse)
+	suite.CheckResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	newMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMoveDocParams)
-	suite.parent.CheckResponseNotFound(badMoveResponse)
+	suite.CheckResponseNotFound(badMoveResponse)
 }

@@ -1,4 +1,4 @@
-package internal
+package orders
 
 import (
 	"github.com/transcom/mymove/pkg/handlers/utils"

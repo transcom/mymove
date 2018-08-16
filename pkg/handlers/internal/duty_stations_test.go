@@ -13,14 +13,14 @@ import (
 )
 
 func (suite *HandlerSuite) TestSearchDutyStationHandler() {
-	t := suite.parent.T()
+	t := suite.T()
 
 	// Need a logged in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.parent.MustSave(&user)
+	suite.MustSave(&user)
 
 	address := models.Address{
 		StreetAddress1: "some address",
@@ -28,21 +28,21 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		State:          "state",
 		PostalCode:     "12345",
 	}
-	suite.parent.MustSave(&address)
+	suite.MustSave(&address)
 
 	station1 := models.DutyStation{
 		Name:        "First Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.parent.MustSave(&station1)
+	suite.MustSave(&station1)
 
 	station2 := models.DutyStation{
 		Name:        "Second Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.parent.MustSave(&station2)
+	suite.MustSave(&station2)
 
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
 
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := SearchDutyStationsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

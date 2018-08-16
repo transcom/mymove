@@ -17,8 +17,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
-	t := suite.parent.T()
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	t := suite.T()
+	move := testdatagen.MakeDefaultMove(suite.Db)
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -32,11 +32,11 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.parent.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	query := suite.parent.Db.Where(fmt.Sprintf("submitting_user_id='%v'", move.Orders.ServiceMember.User.ID)).Where(fmt.Sprintf("move_id='%v'", move.ID))
+	query := suite.Db.Where(fmt.Sprintf("submitting_user_id='%v'", move.Orders.ServiceMember.User.ID)).Where(fmt.Sprintf("move_id='%v'", move.ID))
 	certs := []models.SignedCertification{}
 	query.All(&certs)
 
@@ -54,15 +54,15 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() {
-	t := suite.parent.T()
+	t := suite.T()
 
 	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
 	user2 := models.User{
 		LoginGovUUID:  userUUID2,
 		LoginGovEmail: "email2@example.com",
 	}
-	suite.parent.MustSave(&user2)
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	suite.MustSave(&user2)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -77,17 +77,17 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	// Uses a different user than is on the move object
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.parent.AuthenticateUserRequest(req, user2)
+	req = suite.AuthenticateUserRequest(req, user2)
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
-	suite.parent.CheckResponseForbidden(response)
+	suite.CheckResponseForbidden(response)
 
 	certs := []models.SignedCertification{}
-	suite.parent.Db.All(&certs)
+	suite.Db.All(&certs)
 
 	if len(certs) > 0 {
 		t.Errorf("Expected to find no signed certifications but found %v", len(certs))
@@ -95,9 +95,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 }
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
-	t := suite.parent.T()
+	t := suite.T()
 
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("lorem ipsum"),
@@ -113,17 +113,17 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	// Uses a different user than is on the move object
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.parent.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
-	suite.parent.CheckResponseNotFound(response)
+	suite.CheckResponseNotFound(response)
 
 	var certs []models.SignedCertification
-	suite.parent.Db.All(&certs)
+	suite.Db.All(&certs)
 
 	if len(certs) > 0 {
 		t.Errorf("Expected to find no signed certifications but found %v", len(certs))
@@ -131,7 +131,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
-	move := testdatagen.MakeDefaultMove(suite.parent.Db)
+	move := testdatagen.MakeDefaultMove(suite.Db)
 
 	time1 := time.Date(2018, time.January, 1, 1, 1, 1, 1, time.UTC)
 	cert1 := models.SignedCertification{
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 		Signature:         "name",
 		Date:              time1,
 	}
-	suite.parent.MustSave(&cert1)
+	suite.MustSave(&cert1)
 
 	time2 := time.Date(2018, time.February, 1, 1, 1, 1, 1, time.UTC)
 	cert2 := models.SignedCertification{
@@ -151,32 +151,32 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 		Signature:         "name",
 		Date:              time2,
 	}
-	suite.parent.MustSave(&cert2)
+	suite.MustSave(&cert2)
 
 	req := httptest.NewRequest("GET", "/moves/id/signed_certifications", nil)
 	params := certop.IndexSignedCertificationsParams{
-		HTTPRequest: suite.parent.AuthenticateRequest(req, move.Orders.ServiceMember),
+		HTTPRequest: suite.AuthenticateRequest(req, move.Orders.ServiceMember),
 		MoveID:      *utils.FmtUUID(move.ID),
 	}
 
-	handler := IndexSignedCertificationsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := IndexSignedCertificationsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
-	suite.parent.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
+	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
 	okResponse := response.(*certop.IndexSignedCertificationsOK)
 
-	suite.parent.Require().Len(okResponse.Payload, 2)
-	suite.parent.Require().Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
+	suite.Require().Len(okResponse.Payload, 2)
+	suite.Require().Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
 
 	// Now test that a limit works
 	params.Limit = utils.FmtInt64(1)
 
-	handler = IndexSignedCertificationsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler = IndexSignedCertificationsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response = handler.Handle(params)
 
-	suite.parent.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
+	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
 	okResponse = response.(*certop.IndexSignedCertificationsOK)
 
-	suite.parent.Len(okResponse.Payload, 1)
-	suite.parent.Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
+	suite.Len(okResponse.Payload, 1)
+	suite.Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
 }

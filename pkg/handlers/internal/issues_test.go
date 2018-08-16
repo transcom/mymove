@@ -11,14 +11,14 @@ import (
 )
 
 func (suite *HandlerSuite) TestSubmitIssueHandler() {
-	t := suite.parent.T()
+	t := suite.T()
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := CreateIssueHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -36,14 +36,14 @@ func (suite *HandlerSuite) TestSubmitIssueHandler() {
 }
 
 func (suite *HandlerSuite) TestSubmitDueDate() {
-	t := suite.parent.T()
+	t := suite.T()
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
 	testDate := utils.FmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC))
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
+	handler := CreateIssueHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 }
 
 func (suite *HandlerSuite) TestIndexIssuesHandler() {
-	t := suite.parent.T()
+	t := suite.T()
 
 	// Given: An issue
 	testDescription := "This is a test issue for your indexIssueHandler."
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handlerContext := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
+	handlerContext := utils.NewHandlerContext(suite.Db, suite.Logger)
 
 	handler := CreateIssueHandler(handlerContext)
 	createResponse := handler.Handle(newIssueParams)
