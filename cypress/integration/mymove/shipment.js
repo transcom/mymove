@@ -7,7 +7,7 @@ describe('completing the hhg flow', function() {
   });
 
   it('selects hhg and progresses thru form', function() {
-    cy.visit('localhost:4000/moves/8718c8ac-e0c6-423b-bdc6-af971ee05b9a');
+    cy.visit('/moves/8718c8ac-e0c6-423b-bdc6-af971ee05b9a');
 
     cy
       .contains('Household Goods Move')
