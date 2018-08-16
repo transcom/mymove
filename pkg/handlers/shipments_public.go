@@ -151,7 +151,7 @@ func (h PublicCreateShipmentRejectHandler) Handle(params publicshipmentop.Create
 }
 
 func publicPatchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
-	// Premove Survey Fields entered by TSP agent
+	// Premove Survey values entered by TSP agent
 	if payload.PmSurveyEarliestDeliveryDate != nil {
 		shipment.PmSurveyEarliestDeliveryDate = (*time.Time)(payload.PmSurveyEarliestDeliveryDate)
 	}
@@ -183,7 +183,7 @@ func publicPatchShipmentWithPayload(shipment *models.Shipment, payload *apimessa
 
 }
 
-// PublicPatchShipmentHandler allows a TSP to refuse a particular shipment
+// PublicPatchShipmentHandler allows a TSP to patch a particular shipment
 type PublicPatchShipmentHandler HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
