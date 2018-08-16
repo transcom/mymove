@@ -26,22 +26,45 @@ func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.db)
 	order2 := testdatagen.MakeDefaultOrder(suite.db)
 
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
+
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
+
+	market := "dHHG"
+	sourceGBLOC := "BMLK"
+
 	session := &auth.Session{
 		UserID:          order1.ServiceMember.UserID,
 		ServiceMemberID: order1.ServiceMemberID,
 		ApplicationName: auth.MyApp,
 	}
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 
 	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
 
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+			ServiceMember:           &order1.ServiceMember,
+			Move:                    move,
+			MoveID:                  move.ID,
+		},
+	})
+
 	// All correct
 	fetchedMove, err := FetchMove(suite.db, session, move.ID)
 	suite.Nil(err, "Expected to get moveResult back.")
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
+	suite.Equal(fetchedMove.Shipments[0].PickupAddressID, shipment.PickupAddressID)
 
 	// Bad Move
 	fetchedMove, err = FetchMove(suite.db, session, uuid.Must(uuid.NewV4()))
@@ -184,13 +207,17 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
+
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders.Status = OrderStatusSUBMITTED
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
@@ -201,17 +228,10 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
 			ServiceMember:           &serviceMember,
+			Move:                    move,
+			MoveID:                  move.ID,
 		},
 	})
-
-	orders := testdatagen.MakeDefaultOrder(suite.db)
-	orders.Status = OrderStatusSUBMITTED
-
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
-	suite.Nil(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-
 	// Associate Shipment with the move it's on.
 	move.Shipments = append(move.Shipments, shipment)
 	move.Orders = orders

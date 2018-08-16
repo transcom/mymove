@@ -42,13 +42,26 @@ export class ResidentialAddress extends Component {
           fieldName="street_address_2"
           swagger={this.props.schema}
         />
-        <SwaggerField fieldName="city" swagger={this.props.schema} required />
-        <SwaggerField fieldName="state" swagger={this.props.schema} required />
-        <SwaggerField
-          fieldName="postal_code"
-          swagger={this.props.schema}
-          required
-        />
+        <div className="address_inline">
+          <SwaggerField
+            fieldName="city"
+            swagger={this.props.schema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="state"
+            swagger={this.props.schema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="postal_code"
+            swagger={this.props.schema}
+            className="city_state_zip"
+            required
+          />
+        </div>
       </ResidentalWizardForm>
     );
   }

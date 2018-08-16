@@ -166,18 +166,42 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	var move Move
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document", "Shipments").Find(&move, id)
 
-	// Eager loading of nested has_many associations is broken
-	for i, moveDoc := range move.MoveDocuments {
-		db.Load(&moveDoc.Document, "Uploads")
-		move.MoveDocuments[i] = moveDoc
-	}
-
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
+	}
+
+	// Eager loading of nested has_many associations is broken
+	for i, moveDoc := range move.MoveDocuments {
+		db.Load(&moveDoc.Document, "Uploads")
+		move.MoveDocuments[i] = moveDoc
+	}
+
+	// Eager loading of nested has_many associations is broken
+	for i, shipment := range move.Shipments {
+		if shipment.PickupAddressID != nil {
+			pickupAddress := Address{}
+			if err = db.Find(&pickupAddress, shipment.PickupAddressID); err == nil {
+				move.Shipments[i].PickupAddress = &pickupAddress
+			}
+		}
+
+		if shipment.HasSecondaryPickupAddress && shipment.SecondaryPickupAddressID != nil {
+			secondaryPickupAddress := Address{}
+			if err = db.Find(&secondaryPickupAddress, shipment.SecondaryPickupAddressID); err == nil {
+				move.Shipments[i].SecondaryPickupAddress = &secondaryPickupAddress
+			}
+		}
+
+		if shipment.HasDeliveryAddress && shipment.DeliveryAddressID != nil {
+			deliveryAddress := Address{}
+			if err = db.Find(&deliveryAddress, shipment.DeliveryAddressID); err == nil {
+				move.Shipments[i].DeliveryAddress = &deliveryAddress
+			}
+		}
 	}
 
 	// Ensure that the logged-in user is authorized to access this move

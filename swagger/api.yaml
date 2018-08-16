@@ -210,7 +210,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_id:
+      shipment_uuid:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -492,43 +492,128 @@ definitions:
         minimum: 0
         example: 200
         x-nullable: true
-  ShipmentAccept:
+      pm_survey_pack_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Pack date"
+        x-nullable: true
+      pm_survey_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Pickup date"
+        x-nullable: true
+      pm_survey_latest_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Latest pickup date"
+        x-nullable: true
+      pm_survey_earliest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Earliest delivery date"
+        x-nullable: true
+      pm_survey_latest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Latest delivery date"
+        x-nullable: true
+      pm_survey_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Weight
+        x-nullable: true
+      pm_survey_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Pro-Gear Weight
+        x-nullable: true
+      pm_survey_spouse_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Spouse's Pro-Gear
+        x-nullable: true
+      pm_survey_notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+  IndexServiceAgents:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceAgent'
+  ServiceAgent:
     type: object
     properties:
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-    required:
-      - origin_shipping_agent
-      - destination_shipping_agent
-  ShippingAgentContact:
-    type: object
-    properties:
-      name:
+      id:
         type: string
-        example: Speedy Moving and Storage
-      phone_number:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_uuid:
         type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      role:
+        type: string
+        enum:
+          - ORIGIN
+          - Destination
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      point_of_contact:
+        type: string
+        example: John Doe at Acme Shipping
       email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email used to contact shipping agent
         example: jackson_flies@gmail.com
+        x-nullable: true
+      phone_number:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1213
+        x-nullable: true
+      fax_number:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1213
+        x-nullable: true
+      email_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Email
+      phone_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Telephone
+      notes:
+        type: string
+        x-nullable: true
+        example: This service agent is available at all hours
     required:
-      - name
-      - phone_number
-      - email
+      - shipment_uuid
+      - role
+      - point_of_contact
   ShipmentReject:
     type: object
     properties:
       reason:
         type: string
         example: We are overbooked and did not manage to file blackout dates in a timely fashion.
+    required:
+      - reason
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
@@ -647,9 +732,9 @@ definitions:
       - REJECTED
       - IN_PROGRESS
       - IN_TRANSIT
-      - COMPLETE
       - DELIVERED
       - COMPLETED
+      - CANCELED
     x-display-value:
       AWARDED: Awarded
       ACCEPTED: Accepted
@@ -986,9 +1071,142 @@ paths:
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized to see the details of this shipment
+          description: not authorized to update the details of this shipment
         404:
           description: shipment UUID not found in system
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/service_agents:
+    get:
+      summary: Gets service agents for shipment
+      description: Allows a user to retrieve a list of service agents for a shipment.
+      operationId: indexServiceAgents
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns an array of Service Agents
+          schema:
+            $ref: '#/definitions/IndexServiceAgents'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
+        422:
+          description: cannot process request with given information
+        500:
+          description: server error
+    post:
+      summary: Create a Service Agent
+      description: Creates a new Service Agent associated with a shipment
+      operationId: createServiceAgent
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: payload
+          in: body
+          required: true
+          description: Service Agent information
+          schema:
+            $ref: '#/definitions/ServiceAgent'
+      responses:
+        200:
+          description: returns a Service Agent with UUID.
+          schema:
+            $ref: '#/definitions/ServiceAgent'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to add documents to this shipment
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/service_agents/{service_agent_uuid}:
+    patch:
+      summary: Updates a particular service agent
+      description: Takes a partial service agent object and replaces the fields in the DB with the ones passed int he body
+      operationId: updateServiceAgent
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: service_agent_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service agent
+        - name: payload
+          in: body
+          required: true
+          description: Service Agent information
+          schema:
+            $ref: '#/definitions/ServiceAgent'
+      responses:
+        200:
+          description: returns the details of the service agent
+          schema:
+            $ref: '#/definitions/ServiceAgent'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to update the details of this service agent
+        404:
+          description: service agent UUID not found in system
+        500:
+          description: server error
+    delete:
+      summary: delete the service agent related to the shipment
+      operationId: deleteServiceAgent
+      tags:
+        - blackouts
+      parameters:
+        - in: path
+          name: shipment_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the shipment
+        - in: path
+          name: service_agent_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the service_agent
+      responses:
+        200:
+          description: the service agent was successfully deleted
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated service agent
+        404:
+          description: no service agent found with that UUID
         500:
           description: server error
   /shipments/{shipment_uuid}/accept:
@@ -1005,11 +1223,6 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
-        - name: payload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ShipmentAccept'
       responses:
         200:
           description: returns updated (accepted) shipment object
@@ -1154,8 +1367,8 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
-        - in: body
-          name: payload
+        - name: payload
+          in: body
           description: reason for refusing award
           required: true
           schema:
