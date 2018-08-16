@@ -15,12 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-/*
- * --------------------------------------------
- * The code below is for the INTERNAL REST API.
- * --------------------------------------------
- */
-
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
 	var ppmPayloads internalmessages.IndexPersonallyProcuredMovePayload
