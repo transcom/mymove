@@ -74,7 +74,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
-	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
-	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)
@@ -575,12 +575,14 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	// Handler to Test
 	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
 
+	// The params expect statuses in strings, so they have to be cast from ShipmentStatus types
+	stringStatus := []string{string(models.ShipmentStatusDRAFT)}
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.authenticateTspRequest(req, tspUser)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Status:      status,
+		Status:      stringStatus,
 	}
 
 	response := handler.Handle(params)
