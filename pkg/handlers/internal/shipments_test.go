@@ -14,6 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
+
 func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessages.Address) {
 	suite.T().Helper()
 	suite.Equal(expected.StreetAddress1, actual.StreetAddress1, "Street1 did not match")
