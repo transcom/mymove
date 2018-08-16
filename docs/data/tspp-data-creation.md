@@ -59,28 +59,7 @@ Use the `\copy` command in psql again to import the TDL scores. Use your absolut
 
 Now let's combine the important parts of both data sources into one table, which we'll begin to shape into a full set of TSPP data.
 
-If you wanted to create the empty table separately of the command below, these are the column details. You don't need to, though.
-
-```SQL
-DROP TABLE IF EXISTS tdl_scores_and_discounts;
-CREATE TABLE tdl_scores_and_discounts (
-  rate_cycle text,
-  market text,
-  origin text,
-  destination text,
-  cos text,
-  quartile int,
-  rank int,
-  scac text,
-  lh_rate numeric(6,2),
-  sit_rate numeric(6,2) ,
-  svy_score numeric(8,4),
-  rate_score numeric(8,4),
-  bvs numeric(8,4)
-);
-```
-
-Do this instead. This will create and populate the table described above with the relevant, overlapping details from the table imported earlier with BVSes and the table with discount rates:
+The following command will create and populate the table described above with the relevant, overlapping details from the table imported earlier with BVSes and the table with discount rates:
 
 ```SQL
 CREATE TABLE tdl_scores_and_discounts AS
@@ -96,7 +75,28 @@ CREATE TABLE tdl_scores_and_discounts AS
     s.cos = dr.cos
   AND
     s.scac = dr.scac;
-  ```
+```
+
+> If you wanted to create an empty table with the same schema as the result of running the command above, here is how. **You don't need to do this!**
+>
+> ```SQL
+> DROP TABLE IF EXISTS tdl_scores_and_discounts;
+> CREATE TABLE tdl_scores_and_discounts (
+>   rate_cycle text,
+>   market text,
+>   origin text,
+>   destination text,
+>   cos text,
+>   quartile int,
+>   rank int,
+>   scac text,
+>   lh_rate numeric(6,2),
+>   sit_rate numeric(6,2) ,
+>   svy_score numeric(8,4),
+>   rate_score numeric(8,4),
+>   bvs numeric(8,4)
+> );
+> ```
 
 Add a TDL ID column to fill with this next update:
 `ALTER TABLE tdl_scores_and_discounts ADD COLUMN tdl_id uuid;`
@@ -108,7 +108,7 @@ UPDATE
   tdl_scores_and_discounts
 SET
   destination = RIGHT(destination, char_length(destination) - 7);
-  ```
+```
 
 Add TDL IDs to the rows in our interim table:
 
@@ -125,7 +125,7 @@ AND
   tdl.destination_region = tsd.destination
 AND
   tdl.code_of_service = tsd.cos;
-  ```
+```
 
 Make room for TSP IDs:
 `ALTER TABLE tdl_scores_and_discounts ADD COLUMN tsp_id uuid;`
@@ -150,9 +150,17 @@ ALTER TABLE
   transportation_service_provider_performances ALTER COLUMN best_value_score TYPE numeric;
 ```
 
-Let's put it all into the TSPP table. Use your data's current rate cycle and performance period date in lieu of the hard-coded dates below.
+Now we're ready to combine the datasets together into one table. First, be sure to clear out the `transportation_service_provider_performances` table in case it already contains data:
+
+```sql
+DELETE FROM transportation_service_provider_performances;
+```
+
+The following command will fill the TSPP table with data. Use your data's current rate cycle and performance period date in lieu of the hard-coded dates below. **This command will take a few minutes to run!**
 
 > _Rate cycle_ in this context means the rate cycle **period**, so either the peak or non-peak part of the annual rate cycle and **not** the rate cycle itself.
+>
+> [This document](https://docs.google.com/document/d/1BsE_yIx5_6URs4Kp7baRVMhqJ4Ec_q3hdCmwOYR4EIc) specifies the date ranges for both the performance periods and the rate cycle periods.
 
 ```SQL
 INSERT INTO
@@ -173,7 +181,7 @@ DROP TABLE temp_tdl_scores;
 DROP TABLE temp_tsp_discount_rates;
 ```
 
-Run this in your terminal to dump your pretty new table for use elsewhere. Double-check your local db name before assuming this will work.
-`pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances > tspp_data_dump.pgsql`
+Run this in your terminal to dump the contents of the `transportation_Service_provider_performances` table for use elsewhere. Double-check your local db name before assuming this will work.
+`pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > tspp_data_dump.pgsql`
 
 Et voilà: TSPPs!
