@@ -150,7 +150,9 @@ ALTER TABLE
   transportation_service_provider_performances ALTER COLUMN best_value_score TYPE numeric;
 ```
 
-Let's put it all into the TSPP table. Use your data's current rate cycle and performance period date in lieu of the hard-coded dates below:
+Let's put it all into the TSPP table. Use your data's current rate cycle and performance period date in lieu of the hard-coded dates below.
+
+> _Rate cycle_ in this context means the rate cycle **period**, so either the peak or non-peak part of the annual rate cycle and **not** the rate cycle itself.
 
 ```SQL
 INSERT INTO
