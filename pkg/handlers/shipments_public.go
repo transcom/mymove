@@ -203,13 +203,13 @@ func (h PublicPatchShipmentHandler) Handle(params publicshipmentop.PatchShipment
 	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
-		return publicshipmentop.NewGetShipmentForbidden()
+		return publicshipmentop.NewPatchShipmentForbidden()
 	}
 
 	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
-		return publicshipmentop.NewGetShipmentBadRequest()
+		return publicshipmentop.NewPatchShipmentBadRequest()
 	}
 
 	publicPatchShipmentWithPayload(shipment, params.Update)

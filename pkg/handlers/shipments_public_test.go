@@ -102,10 +102,58 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandler() {
 
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
-	suite.Equal(UpdatePayload.PmSurveyNotes, okResponse.Payload.PmSurveyNotes)
-	fmt.Println(*UpdatePayload.PmSurveySpouseProgearWeightEstimate)
-	fmt.Println(*okResponse.Payload.PmSurveySpouseProgearWeightEstimate)
-	suite.Equal(Int64(54), *okResponse.Payload.PmSurveySpouseProgearWeightEstimate)
+	suite.Equal(*UpdatePayload.PmSurveyNotes, *okResponse.Payload.PmSurveyNotes)
+	suite.Equal(int64(54), *okResponse.Payload.PmSurveySpouseProgearWeightEstimate)
+	suite.Equal(int64(53), *okResponse.Payload.PmSurveyProgearWeightEstimate)
+	suite.Equal(int64(33), *okResponse.Payload.PmSurveyWeightEstimate)
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyLatestDeliveryDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyEarliestDeliveryDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPickupDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPackDate))
+}
+
+func (suite *HandlerSuite) TestPublicPatchShipmentHandlerWrongTSP() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []string{"AWARDED"}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	shipment := shipments[0]
+
+	otherTspUser := testdatagen.MakeDefaultTspUser(suite.db)
+
+	// And: the context contains the auth values for the wrong tsp
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, otherTspUser)
+
+	genericDate := time.Now()
+	UpdatePayload := apimessages.Shipment{
+		PmSurveyPackDate:                    fmtDatePtr(&genericDate),
+		PmSurveyPickupDate:                  fmtDatePtr(&genericDate),
+		PmSurveyEarliestDeliveryDate:        fmtDatePtr(&genericDate),
+		PmSurveyLatestDeliveryDate:          fmtDatePtr(&genericDate),
+		PmSurveyWeightEstimate:              swag.Int64(33),
+		PmSurveyProgearWeightEstimate:       swag.Int64(53),
+		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
+		PmSurveyNotes:                       swag.String("Unsure about pickup date."),
+	}
+
+	params := publicshipmentop.PatchShipmentParams{
+		HTTPRequest:  req,
+		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
+		Update:       &UpdatePayload,
+	}
+
+	// And: patch shipment is returned
+	handler := PublicPatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&publicshipmentop.PatchShipmentBadRequest{}, response)
 }
 
 // TestPublicIndexShipmentsHandlerAllShipments tests the api endpoint with no query parameters
