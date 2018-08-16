@@ -11,6 +11,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 
 	// Create new Orders if not provided
 	orders := assertions.Order
+	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Order.ID) {
 		orders = MakeOrder(db, assertions)
 	}

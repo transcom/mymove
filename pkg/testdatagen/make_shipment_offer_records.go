@@ -151,6 +151,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
 				Move:                    &move,
+				MoveID:                  move.ID,
 				Status:                  statuses[rand.Intn(len(statuses))],
 			},
 		}
