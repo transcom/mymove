@@ -13,13 +13,13 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// TestPublicIndexShipmentsHandlerAllShipments tests the api endpoint with no query parameters
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
+// TestIndexShipmentsHandlerAllShipments tests the api endpoint with no query parameters
+func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []string{"DEFAULT"}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -36,7 +36,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	}
 
 	// And: an index of shipments is returned
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -54,14 +54,14 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	}
 }
 
-// TestPublicIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
+// TestIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
+func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 
 	numTspUsers := 2
 	numShipments := 25
 	numShipmentOfferSplit := []int{15, 10}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -74,7 +74,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 	offset := int64(1)
 
 	// Handler to Test
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 
 	// Test query with first user
 	req1 := httptest.NewRequest("GET", "/shipments", nil)
@@ -105,13 +105,13 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 	suite.Equal(10, len(okResponse2.Payload))
 }
 
-// TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc sorts returned shipments
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc() {
+// TestIndexShipmentsHandlerSortShipmentsPickupAsc sorts returned shipments
+func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -133,7 +133,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPic
 	}
 
 	// And: an index of shipments is returned
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -156,13 +156,13 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPic
 	}
 }
 
-// TestPublicIndexShipmentsHandlerSortShipmentsPickupDesc sorts returned shipments
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDesc() {
+// TestIndexShipmentsHandlerSortShipmentsPickupDesc sorts returned shipments
+func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -184,7 +184,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPic
 	}
 
 	// And: an index of shipments is returned
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -207,13 +207,13 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPic
 	}
 }
 
-// TestPublicIndexShipmentsHandlerSortShipmentsDeliveryAsc sorts returned shipments
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
+// TestIndexShipmentsHandlerSortShipmentsDeliveryAsc sorts returned shipments
+func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -235,7 +235,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDel
 	}
 
 	// And: an index of shipments is returned
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -258,13 +258,13 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDel
 	}
 }
 
-// TestPublicIndexShipmentsHandlerSortShipmentsDeliveryDesc sorts returned shipments
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryDesc() {
+// TestIndexShipmentsHandlerSortShipmentsDeliveryDesc sorts returned shipments
+func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -286,7 +286,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDel
 	}
 
 	// And: an index of shipments is returned
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -309,13 +309,13 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDel
 	}
 }
 
-// TestPublicIndexShipmentsHandlerFilterByStatus tests the api endpoint with defined status query param
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
+// TestIndexShipmentsHandlerFilterByStatus tests the api endpoint with defined status query param
+func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -323,7 +323,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus()
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
@@ -339,13 +339,13 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus()
 	suite.Equal(25, len(okResponse.Payload))
 }
 
-// TestPublicIndexShipmentsHandlerFilterByStatusNoResults tests the api endpoint with defined status query param that returns nothing
-func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResults() {
+// TestIndexShipmentsHandlerFilterByStatusNoResults tests the api endpoint with defined status query param that returns nothing
+func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -353,7 +353,7 @@ func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNo
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
 	statusFilter := []string{"NOTASTATUS"}
 
 	// Test query with first user
