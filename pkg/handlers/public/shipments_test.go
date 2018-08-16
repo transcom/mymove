@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []string{"DEFAULT"}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -29,28 +29,28 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
-	suite.Equal(1, len(okResponse.Payload))
+	suite.parent.Equal(1, len(okResponse.Payload))
 	if len(okResponse.Payload) == 1 {
 		responsePayload := okResponse.Payload[0]
 		// And: Payload is equivalent to original shipment
-		suite.Equal(strfmt.UUID(shipment.ID.String()), responsePayload.ID)
-		suite.Equal(apimessages.SelectedMoveType(*shipment.Move.SelectedMoveType), *responsePayload.Move.SelectedMoveType)
-		suite.Equal(shipment.TrafficDistributionList.SourceRateArea, *responsePayload.TrafficDistributionList.SourceRateArea)
+		suite.parent.Equal(strfmt.UUID(shipment.ID.String()), responsePayload.ID)
+		suite.parent.Equal(apimessages.SelectedMoveType(*shipment.Move.SelectedMoveType), *responsePayload.Move.SelectedMoveType)
+		suite.parent.Equal(shipment.TrafficDistributionList.SourceRateArea, *responsePayload.TrafficDistributionList.SourceRateArea)
 	}
 }
 
@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	numShipments := 25
 	numShipmentOfferSplit := []int{15, 10}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -74,11 +74,11 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	offset := int64(1)
 
 	// Handler to Test
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 
 	// Test query with first user
 	req1 := httptest.NewRequest("GET", "/shipments", nil)
-	req1 = suite.authenticateTspRequest(req1, tspUser1)
+	req1 = suite.parent.AuthenticateTspRequest(req1, tspUser1)
 	params1 := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req1,
 		Limit:       &limit,
@@ -86,13 +86,13 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	}
 
 	response1 := handler.Handle(params1)
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response1)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response1)
 	okResponse1 := response1.(*publicshipmentop.IndexShipmentsOK)
-	suite.Equal(15, len(okResponse1.Payload))
+	suite.parent.Equal(15, len(okResponse1.Payload))
 
 	// Test query with second user
 	req2 := httptest.NewRequest("GET", "/shipments", nil)
-	req2 = suite.authenticateTspRequest(req2, tspUser2)
+	req2 = suite.parent.AuthenticateTspRequest(req2, tspUser2)
 	params2 := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req2,
 		Limit:       &limit,
@@ -100,9 +100,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	}
 
 	response2 := handler.Handle(params2)
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response2)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response2)
 	okResponse2 := response2.(*publicshipmentop.IndexShipmentsOK)
-	suite.Equal(10, len(okResponse2.Payload))
+	suite.parent.Equal(10, len(okResponse2.Payload))
 }
 
 // TestIndexShipmentsHandlerSortShipmentsPickupAsc sorts returned shipments
@@ -111,7 +111,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -133,15 +133,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
-	suite.Equal(3, len(okResponse.Payload))
+	suite.parent.Equal(3, len(okResponse.Payload))
 
 	var pickupDate time.Time
 	empty := time.Time{}
@@ -150,7 +150,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 			pickupDate = time.Time(responsePayload.PickupDate)
 		} else {
 			newDT := time.Time(responsePayload.PickupDate)
-			suite.True(newDT.After(pickupDate))
+			suite.parent.True(newDT.After(pickupDate))
 			pickupDate = newDT
 		}
 	}
@@ -162,7 +162,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -184,15 +184,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
-	suite.Equal(3, len(okResponse.Payload))
+	suite.parent.Equal(3, len(okResponse.Payload))
 
 	var pickupDate time.Time
 	empty := time.Time{}
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 			pickupDate = time.Time(responsePayload.PickupDate)
 		} else {
 			newDT := time.Time(responsePayload.PickupDate)
-			suite.True(newDT.Before(pickupDate))
+			suite.parent.True(newDT.Before(pickupDate))
 			pickupDate = newDT
 		}
 	}
@@ -213,7 +213,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -222,7 +222,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -235,15 +235,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
-	suite.Equal(3, len(okResponse.Payload))
+	suite.parent.Equal(3, len(okResponse.Payload))
 
 	var deliveryDate time.Time
 	empty := time.Time{}
@@ -252,7 +252,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 			deliveryDate = time.Time(responsePayload.DeliveryDate)
 		} else {
 			newDT := time.Time(responsePayload.DeliveryDate)
-			suite.True(newDT.After(deliveryDate))
+			suite.parent.True(newDT.After(deliveryDate))
 			deliveryDate = newDT
 		}
 	}
@@ -264,7 +264,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -273,7 +273,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -286,15 +286,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
-	suite.Equal(3, len(okResponse.Payload))
+	suite.parent.Equal(3, len(okResponse.Payload))
 
 	var deliveryDate time.Time
 	empty := time.Time{}
@@ -303,7 +303,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 			deliveryDate = time.Time(responsePayload.DeliveryDate)
 		} else {
 			newDT := time.Time(responsePayload.DeliveryDate)
-			suite.True(newDT.Before(deliveryDate))
+			suite.parent.True(newDT.Before(deliveryDate))
 			deliveryDate = newDT
 		}
 	}
@@ -315,7 +315,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -323,20 +323,20 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      status,
 	}
 
 	response := handler.Handle(params)
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
-	suite.Equal(25, len(okResponse.Payload))
+	suite.parent.Equal(25, len(okResponse.Payload))
 }
 
 // TestIndexShipmentsHandlerFilterByStatusNoResults tests the api endpoint with defined status query param that returns nothing
@@ -345,7 +345,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DEFAULT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.parent.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -353,19 +353,19 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexShipmentsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	statusFilter := []string{"NOTASTATUS"}
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.parent.AuthenticateTspRequest(req, tspUser)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      statusFilter,
 	}
 
 	response := handler.Handle(params)
-	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	suite.parent.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
-	suite.Equal(0, len(okResponse.Payload))
+	suite.parent.Equal(0, len(okResponse.Payload))
 }

@@ -20,23 +20,26 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
+// HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
 	suite.Suite
-	db                 *pop.Connection
-	logger             *zap.Logger
-	filesToClose       []*runtime.File
-	notificationSender notifications.NotificationSender
+	Db                 *pop.Connection
+	Logger             *zap.Logger
+	FilesToClose       []*runtime.File
+	NotificationSender notifications.NotificationSender
 }
 
+// SetupTest is the DB setup
 func (suite *HandlerSuite) SetupTest() {
-	suite.db.TruncateAll()
+	suite.Db.TruncateAll()
 }
 
-func (suite *HandlerSuite) mustSave(model interface{}) {
+// MustSave requires saving without errors
+func (suite *HandlerSuite) MustSave(model interface{}) {
 	t := suite.T()
 	t.Helper()
 
-	verrs, err := suite.db.ValidateAndSave(model)
+	verrs, err := suite.Db.ValidateAndSave(model)
 	if err != nil {
 		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
 	}
@@ -45,49 +48,57 @@ func (suite *HandlerSuite) mustSave(model interface{}) {
 	}
 }
 
-func (suite *HandlerSuite) isNotErrResponse(response middleware.Responder) {
-	r, ok := response.(*errResponse)
+// IsNotErrResponse enforces handler does not return an error response
+func (suite *HandlerSuite) IsNotErrResponse(response middleware.Responder) {
+	r, ok := response.(*ErrResponse)
 	if ok {
-		suite.logger.Error("Received an unexpected error response from handler: ", zap.Error(r.err))
+		suite.Logger.Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
 		// Formally lodge a complaint
-		suite.IsType(&errResponse{}, response)
+		suite.IsType(&ErrResponse{}, response)
 	}
 }
 
-func (suite *HandlerSuite) checkErrorResponse(resp middleware.Responder, code int, name string) {
-	errResponse, ok := resp.(*errResponse)
-	if !ok || errResponse.code != code {
+// CheckErrorResponse verifies error response is what is expected
+func (suite *HandlerSuite) CheckErrorResponse(resp middleware.Responder, code int, name string) {
+	errResponse, ok := resp.(*ErrResponse)
+	if !ok || errResponse.Code != code {
 		suite.T().Fatalf("Expected %s Response: %v", name, resp)
 		debug.PrintStack()
 	}
 }
 
-func (suite *HandlerSuite) checkResponseBadRequest(resp middleware.Responder) {
-	suite.checkErrorResponse(resp, http.StatusBadRequest, "BadRequest")
+// CheckResponseBadRequest looks at BadRequest errors
+func (suite *HandlerSuite) CheckResponseBadRequest(resp middleware.Responder) {
+	suite.CheckErrorResponse(resp, http.StatusBadRequest, "BadRequest")
 }
 
-func (suite *HandlerSuite) checkResponseUnauthorized(resp middleware.Responder) {
-	suite.checkErrorResponse(resp, http.StatusUnauthorized, "Unauthorized")
+// CheckResponseUnauthorized looks at Unauthorized errors
+func (suite *HandlerSuite) CheckResponseUnauthorized(resp middleware.Responder) {
+	suite.CheckErrorResponse(resp, http.StatusUnauthorized, "Unauthorized")
 }
 
-func (suite *HandlerSuite) checkResponseForbidden(resp middleware.Responder) {
-	suite.checkErrorResponse(resp, http.StatusForbidden, "Forbidden")
+// CheckResponseForbidden looks at Forbidden errors
+func (suite *HandlerSuite) CheckResponseForbidden(resp middleware.Responder) {
+	suite.CheckErrorResponse(resp, http.StatusForbidden, "Forbidden")
 }
 
-func (suite *HandlerSuite) checkResponseNotFound(resp middleware.Responder) {
-	suite.checkErrorResponse(resp, http.StatusNotFound, "NotFound")
+// CheckResponseNotFound looks at NotFound errors
+func (suite *HandlerSuite) CheckResponseNotFound(resp middleware.Responder) {
+	suite.CheckErrorResponse(resp, http.StatusNotFound, "NotFound")
 }
 
-func (suite *HandlerSuite) checkResponseInternalServerError(resp middleware.Responder) {
-	suite.checkErrorResponse(resp, http.StatusInternalServerError, "InternalServerError")
+// CheckResponseInternalServerError looks at InternalServerError errors
+func (suite *HandlerSuite) CheckResponseInternalServerError(resp middleware.Responder) {
+	suite.CheckErrorResponse(resp, http.StatusInternalServerError, "InternalServerError")
 }
 
-func (suite *HandlerSuite) checkResponseTeapot(resp middleware.Responder) {
-	suite.checkErrorResponse(resp, http.StatusTeapot, "Teapot")
+// CheckResponseTeapot enforces that response come from a Teapot
+func (suite *HandlerSuite) CheckResponseTeapot(resp middleware.Responder) {
+	suite.CheckErrorResponse(resp, http.StatusTeapot, "Teapot")
 }
 
-// Request authenticated with a service member
-func (suite *HandlerSuite) authenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
+// AuthenticateRequest Request authenticated with a service member
+func (suite *HandlerSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          serviceMember.UserID,
@@ -98,8 +109,8 @@ func (suite *HandlerSuite) authenticateRequest(req *http.Request, serviceMember 
 	return req.WithContext(ctx)
 }
 
-// Request only authenticated with a bare user - have no idea if they are a service member yet
-func (suite *HandlerSuite) authenticateUserRequest(req *http.Request, user models.User) *http.Request {
+// AuthenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
+func (suite *HandlerSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          user.ID,
@@ -109,7 +120,8 @@ func (suite *HandlerSuite) authenticateUserRequest(req *http.Request, user model
 	return req.WithContext(ctx)
 }
 
-func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
+// AuthenticateOfficeRequest authenticates Office users
+func (suite *HandlerSuite) AuthenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          *user.UserID,
@@ -120,7 +132,8 @@ func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user mod
 	return req.WithContext(ctx)
 }
 
-func (suite *HandlerSuite) authenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
+// AuthenticateTspRequest authenticates TSP users
+func (suite *HandlerSuite) AuthenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          *user.UserID,
@@ -131,7 +144,8 @@ func (suite *HandlerSuite) authenticateTspRequest(req *http.Request, user models
 	return req.WithContext(ctx)
 }
 
-func (suite *HandlerSuite) fixture(name string) *runtime.File {
+// Fixture allows us to include a fixture like a PDF in the test
+func (suite *HandlerSuite) Fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -143,12 +157,12 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	// #nosec never comes from user input
 	file, err := os.Open(fixturePath)
 	if err != nil {
-		suite.logger.Fatal("Error opening fixture file", zap.Error(err))
+		suite.Logger.Fatal("Error opening fixture file", zap.Error(err))
 	}
 
 	info, err := file.Stat()
 	if err != nil {
-		suite.logger.Fatal("Error accessing fixture stats", zap.Error(err))
+		suite.Logger.Fatal("Error accessing fixture stats", zap.Error(err))
 	}
 
 	header := multipart.FileHeader{
@@ -165,16 +179,18 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	return returnFile
 }
 
+// AfterTest tries to close open files
 func (suite *HandlerSuite) AfterTest() {
-	for _, file := range suite.filesToClose {
+	for _, file := range suite.FilesToClose {
 		file.Data.Close()
 	}
 }
 
 func (suite *HandlerSuite) closeFile(file *runtime.File) {
-	suite.filesToClose = append(suite.filesToClose, file)
+	suite.FilesToClose = append(suite.FilesToClose, file)
 }
 
+// TestHandlerSuite creates our test suite
 func TestHandlerSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
@@ -189,9 +205,9 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	hs := &HandlerSuite{
-		db:                 db,
-		logger:             logger,
-		notificationSender: notifications.NewStubNotificationSender(logger),
+		Db:                 db,
+		Logger:             logger,
+		NotificationSender: notifications.NewStubNotificationSender(logger),
 	}
 
 	suite.Run(t, hs)

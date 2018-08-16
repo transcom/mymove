@@ -7,17 +7,18 @@ import (
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 )
 
-func (suite *utils.HandlerSuite) TestSubmitIssueHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestSubmitIssueHandler() {
+	t := suite.parent.T()
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateIssueHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -34,15 +35,15 @@ func (suite *utils.HandlerSuite) TestSubmitIssueHandler() {
 
 }
 
-func (suite *utils.HandlerSuite) TestSubmitDueDate() {
-	t := suite.T()
+func (suite *HandlerSuite) TestSubmitDueDate() {
+	t := suite.parent.T()
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
 	testDate := utils.FmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC))
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateIssueHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -58,8 +59,8 @@ func (suite *utils.HandlerSuite) TestSubmitDueDate() {
 	}
 }
 
-func (suite *utils.HandlerSuite) TestIndexIssuesHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestIndexIssuesHandler() {
+	t := suite.parent.T()
 
 	// Given: An issue
 	testDescription := "This is a test issue for your indexIssueHandler."
@@ -68,7 +69,7 @@ func (suite *utils.HandlerSuite) TestIndexIssuesHandler() {
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handlerContext := NewHandlerContext(suite.db, suite.logger)
+	handlerContext := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 
 	handler := CreateIssueHandler(handlerContext)
 	createResponse := handler.Handle(newIssueParams)

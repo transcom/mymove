@@ -1,53 +1,55 @@
 package internal
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *utils.HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
-	station := testdatagen.MakeDefaultDutyStation(suite.db)
+func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
+	station := testdatagen.MakeDefaultDutyStation(suite.parent.Db)
 
-	path := utils.Fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
+	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
 		HTTPRequest:   req,
-		DutyStationID: *fmtUUID(station.ID),
+		DutyStationID: *utils.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := showHandler.Handle(params)
 
-	suite.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
+	suite.parent.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
 	okResponse := response.(*transportationofficeop.ShowDutyStationTransportationOfficeOK)
 
-	suite.Assertions.Equal(station.TransportationOffice.ID.String(), okResponse.Payload.ID.String())
-	suite.Assertions.Equal(station.TransportationOffice.PhoneLines[0].Number, okResponse.Payload.PhoneLines[0])
+	suite.parent.Assertions.Equal(station.TransportationOffice.ID.String(), okResponse.Payload.ID.String())
+	suite.parent.Assertions.Equal(station.TransportationOffice.PhoneLines[0].Number, okResponse.Payload.PhoneLines[0])
 
 }
 
-func (suite *utils.HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
-	station := testdatagen.MakeDefaultDutyStation(suite.db)
+func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
+	station := testdatagen.MakeDefaultDutyStation(suite.parent.Db)
 	station.TransportationOffice = models.TransportationOffice{}
 	station.TransportationOfficeID = nil
-	suite.mustSave(&station)
+	suite.parent.MustSave(&station)
 
-	path := utils.Fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
+	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
 		HTTPRequest:   req,
-		DutyStationID: *fmtUUID(station.ID),
+		DutyStationID: *utils.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := showHandler.Handle(params)
 
-	suite.Assertions.IsType(&errResponse{}, response)
-	errResponse := response.(*errResponse)
+	suite.parent.Assertions.IsType(&utils.ErrResponse{}, response)
+	errResponse := response.(*utils.ErrResponse)
 
-	suite.Assertions.Equal(http.StatusNotFound, errResponse.code)
+	suite.parent.Assertions.Equal(http.StatusNotFound, errResponse.Code)
 }

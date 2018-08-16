@@ -14,12 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *utils.HandlerSuite) TestCreateOrder() {
-	sm := testdatagen.MakeDefaultServiceMember(suite.db)
-	station := testdatagen.MakeDefaultDutyStation(suite.db)
+func (suite *HandlerSuite) TestCreateOrder() {
+	sm := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
+	station := testdatagen.MakeDefaultDutyStation(suite.parent.Db)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
-	req = suite.authenticateRequest(req, sm)
+	req = suite.parent.AuthenticateRequest(req, sm)
 
 	hasDependents := true
 	spouseHasProGear := true
@@ -42,26 +42,26 @@ func (suite *utils.HandlerSuite) TestCreateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetFileStorer(fakeS3)
 	createHandler := CreateOrdersHandler(context)
 
 	response := createHandler.Handle(params)
 
-	suite.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
+	suite.parent.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
 	okResponse := response.(*ordersop.CreateOrdersCreated)
 
-	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Len(okResponse.Payload.Moves, 1)
-	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
+	suite.parent.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
+	suite.parent.Assertions.Len(okResponse.Payload.Moves, 1)
+	suite.parent.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
 }
 
-func (suite *utils.HandlerSuite) TestShowOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.db)
+func (suite *HandlerSuite) TestShowOrder() {
+	order := testdatagen.MakeDefaultOrder(suite.parent.Db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
-	req = suite.authenticateRequest(req, order.ServiceMember)
+	req = suite.parent.AuthenticateRequest(req, order.ServiceMember)
 
 	params := ordersop.ShowOrdersParams{
 		HTTPRequest: req,
@@ -69,25 +69,25 @@ func (suite *utils.HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler(context)
 
 	response := showHandler.Handle(params)
 
-	suite.Assertions.IsType(&ordersop.ShowOrdersOK{}, response)
+	suite.parent.Assertions.IsType(&ordersop.ShowOrdersOK{}, response)
 	okResponse := response.(*ordersop.ShowOrdersOK)
 
-	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
+	suite.parent.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
+	suite.parent.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
 }
 
-func (suite *utils.HandlerSuite) TestUpdateOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.db)
+func (suite *HandlerSuite) TestUpdateOrder() {
+	order := testdatagen.MakeDefaultOrder(suite.parent.Db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)
-	req = suite.authenticateRequest(req, order.ServiceMember)
+	req = suite.parent.AuthenticateRequest(req, order.ServiceMember)
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	newOrdersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
@@ -116,17 +116,17 @@ func (suite *utils.HandlerSuite) TestUpdateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetFileStorer(fakeS3)
 	updateHandler := UpdateOrdersHandler(context)
 
 	response := updateHandler.Handle(params)
 
-	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
+	suite.parent.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
-	suite.Assertions.Equal(*utils.FmtString("123456"), okResponse.Payload.OrdersNumber)
-	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
-	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
-	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
+	suite.parent.Assertions.Equal(*utils.FmtString("123456"), okResponse.Payload.OrdersNumber)
+	suite.parent.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
+	suite.parent.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
+	suite.parent.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
 }

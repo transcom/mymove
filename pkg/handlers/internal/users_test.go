@@ -4,57 +4,58 @@ import (
 	"net/http/httptest"
 
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *utils.HandlerSuite) TestUnknownLoggedInUserHandler() {
-	unknownUser := testdatagen.MakeDefaultUser(suite.db)
+func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
+	unknownUser := testdatagen.MakeDefaultUser(suite.parent.Db)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.authenticateUserRequest(req, unknownUser)
+	req = suite.parent.AuthenticateUserRequest(req, unknownUser)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.True(ok)
-	suite.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
+	suite.parent.True(ok)
+	suite.parent.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
 }
 
-func (suite *utils.HandlerSuite) TestServiceMemberLoggedInUserHandler() {
+func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.parent.Db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
 	})
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.authenticateRequest(req, sm)
+	req = suite.parent.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.True(ok)
-	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.parent.True(ok)
+	suite.parent.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	suite.parent.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
 }
 
-func (suite *utils.HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
+func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.parent.Db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
@@ -63,20 +64,20 @@ func (suite *utils.HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedIn
 	// Remove transportation office info from current station
 	station := sm.DutyStation
 	station.TransportationOfficeID = nil
-	suite.mustSave(&station)
+	suite.parent.MustSave(&station)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.authenticateRequest(req, sm)
+	req = suite.parent.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	suite.True(ok)
-	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	suite.parent.True(ok)
+	suite.parent.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
 }

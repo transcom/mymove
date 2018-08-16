@@ -9,15 +9,16 @@ import (
 
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *utils.HandlerSuite) TestCreateDocumentsHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestCreateDocumentsHandler() {
+	t := suite.parent.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
@@ -25,10 +26,10 @@ func (suite *utils.HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, serviceMember)
+	req = suite.parent.AuthenticateRequest(req, serviceMember)
 	params.HTTPRequest = req
 
-	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateDocumentHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)
@@ -50,21 +51,21 @@ func (suite *utils.HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	document := models.Document{}
-	err := suite.db.Find(&document, documentPayload.ID)
+	err := suite.parent.Db.Find(&document, documentPayload.ID)
 	if err != nil {
 		t.Errorf("Couldn't find expected document.")
 	}
 }
 
-func (suite *utils.HandlerSuite) TestShowDocumentHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestShowDocumentHandler() {
+	t := suite.parent.T()
 
-	upload := testdatagen.MakeDefaultUpload(suite.db)
+	upload := testdatagen.MakeDefaultUpload(suite.parent.Db)
 
 	documentID := upload.DocumentID
 	var document models.Document
 
-	err := suite.db.Eager("ServiceMember.User").Find(&document, documentID)
+	err := suite.parent.Db.Eager("ServiceMember.User").Find(&document, documentID)
 	if err != nil {
 		t.Fatalf("could not load document: %s", err)
 	}
@@ -73,10 +74,10 @@ func (suite *utils.HandlerSuite) TestShowDocumentHandler() {
 	params.DocumentID = strfmt.UUID(documentID.String())
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, document.ServiceMember)
+	req = suite.parent.AuthenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := ShowDocumentHandler(context)

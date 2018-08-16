@@ -11,21 +11,21 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
-	t := suite.T()
+func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
+	t := suite.parent.T()
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.parent.Db, testdatagen.Assertions{
 		TrafficDistributionList: models.TrafficDistributionList{
 			SourceRateArea:    "US68",
 			DestinationRegion: "5",
 			CodeOfService:     "D",
 		},
 	}) // Victoria, TX to Salina, KS
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
+	tsp := testdatagen.MakeDefaultTSP(suite.parent.Db)
 
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.parent.MustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.parent.MustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
@@ -38,7 +38,7 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
 	}
-	suite.mustSave(&originServiceArea)
+	suite.parent.MustSave(&originServiceArea)
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
@@ -51,7 +51,7 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
 	}
-	suite.mustSave(&destServiceArea)
+	suite.parent.MustSave(&destServiceArea)
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
@@ -65,24 +65,24 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
-	suite.mustSave(&tspPerformance)
+	suite.parent.MustSave(&tspPerformance)
 
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.parent.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *utils.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",
 		WeightEstimate:  3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
-	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowPPMSitEstimateHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -96,21 +96,21 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	}
 }
 
-func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
-	t := suite.T()
+func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
+	t := suite.parent.T()
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.parent.Db, testdatagen.Assertions{
 		TrafficDistributionList: models.TrafficDistributionList{
 			SourceRateArea:    "US68",
 			DestinationRegion: "5",
 			CodeOfService:     "2",
 		},
 	}) // Victoria, TX to Salina, KS
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
+	tsp := testdatagen.MakeDefaultTSP(suite.parent.Db)
 
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.parent.MustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.parent.MustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
@@ -123,7 +123,7 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
 	}
-	suite.mustSave(&originServiceArea)
+	suite.parent.MustSave(&originServiceArea)
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
@@ -136,7 +136,7 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
 	}
-	suite.mustSave(&destServiceArea)
+	suite.parent.MustSave(&destServiceArea)
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
@@ -150,24 +150,24 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
-	suite.mustSave(&tspPerformance)
+	suite.parent.MustSave(&tspPerformance)
 
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.parent.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *utils.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",
 		WeightEstimate:  3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
-	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowPPMSitEstimateHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -181,11 +181,11 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	}
 }
 
-func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
+func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	// Given: A PPM Estimate request with all relevant records except TSP performance
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.parent.MustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.parent.MustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
@@ -198,7 +198,7 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
 	}
-	suite.mustSave(&originServiceArea)
+	suite.parent.MustSave(&originServiceArea)
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
@@ -211,26 +211,26 @@ func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
 	}
-	suite.mustSave(&destServiceArea)
+	suite.parent.MustSave(&destServiceArea)
 
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	// And: the context contains required auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.parent.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *utils.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",
 		WeightEstimate:  3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
-	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowPPMSitEstimateHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect bad request response
-	suite.checkResponseNotFound(showResponse)
+	suite.parent.CheckResponseNotFound(showResponse)
 }

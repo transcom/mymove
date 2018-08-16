@@ -70,7 +70,7 @@ type CookieUpdateResponder struct {
 	cookieSecret     string
 	noSessionTimeout bool
 	logger           *zap.Logger
-	responder        middleware.Responder
+	Responder        middleware.Responder
 }
 
 // NewCookieUpdateResponder constructs a wrapper for the responder which will update cookies
@@ -80,14 +80,14 @@ func NewCookieUpdateResponder(request *http.Request, secret string, noSessionTim
 		cookieSecret:     secret,
 		noSessionTimeout: noSessionTimeout,
 		logger:           logger,
-		responder:        responder,
+		Responder:        responder,
 	}
 }
 
 // WriteResponse updates the session cookie before writing out the details of the response
 func (cur *CookieUpdateResponder) WriteResponse(rw http.ResponseWriter, p runtime.Producer) {
 	auth.WriteSessionCookie(rw, cur.session, cur.cookieSecret, cur.noSessionTimeout, cur.logger)
-	cur.responder.WriteResponse(rw, p)
+	cur.Responder.WriteResponse(rw, p)
 }
 
 // CreateFailedValidationPayload Converts the value returned by Pop's ValidateAnd* methods into a payload that can

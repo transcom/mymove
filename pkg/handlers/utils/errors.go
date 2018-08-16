@@ -13,26 +13,27 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-type errResponse struct {
-	code int
-	err  error
+// ErrResponse collect errors and error codes
+type ErrResponse struct {
+	Code int
+	Err  error
 }
 
 type clientMessage struct {
 	Message string `json:"message"`
 }
 
-// errResponse creates errResponse with default headers values
-func newErrResponse(code int, err error) *errResponse {
-	return &errResponse{code: code, err: err}
+// ErrResponse creates ErrResponse with default headers values
+func newErrResponse(code int, err error) *ErrResponse {
+	return &ErrResponse{Code: code, Err: err}
 }
 
 // WriteResponse to the client
-func (o *errResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
-	rw.WriteHeader(o.code)
-	json.NewEncoder(rw).Encode(clientMessage{o.err.Error()})
+	rw.WriteHeader(o.Code)
+	json.NewEncoder(rw).Encode(clientMessage{o.Err.Error()})
 }
 
 // ResponseForError logs an error and returns the expected error type

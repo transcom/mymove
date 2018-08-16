@@ -12,25 +12,25 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *utils.HandlerSuite) TestShowPPMEstimateHandler() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
-		suite.FailNow("failed to run scenario 2: %+v", err)
+func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
+	if err := scenario.RunRateEngineScenario2(suite.parent.Db); err != nil {
+		suite.parent.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.parent.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(scenario.May15_2018),
+		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		WeightEstimate:  7500,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler(context)
 	showResponse := showHandler.Handle(params)
@@ -38,33 +38,33 @@ func (suite *utils.HandlerSuite) TestShowPPMEstimateHandler() {
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(605203), *cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(668909), *cost.RangeMax, "RangeMax was not equal")
+	suite.parent.Equal(int64(605203), *cost.RangeMin, "RangeMin was not equal")
+	suite.parent.Equal(int64(668909), *cost.RangeMax, "RangeMax was not equal")
 }
 
-func (suite *utils.HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
-		suite.FailNow("failed to run scenario 2: %+v", err)
+func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
+	if err := scenario.RunRateEngineScenario2(suite.parent.Db); err != nil {
+		suite.parent.FailNow("failed to run scenario 2: %+v", err)
 	}
 
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.mustSave(&user)
+	suite.parent.MustSave(&user)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.authenticateUserRequest(req, user)
+	req = suite.parent.AuthenticateUserRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(scenario.May15_2018),
+		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		WeightEstimate:  600,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler(context)
 	showResponse := showHandler.Handle(params)
@@ -72,6 +72,6 @@ func (suite *utils.HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(256739), *cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(283765), *cost.RangeMax, "RangeMax was not equal")
+	suite.parent.Equal(int64(256739), *cost.RangeMin, "RangeMin was not equal")
+	suite.parent.Equal(int64(283765), *cost.RangeMax, "RangeMax was not equal")
 }

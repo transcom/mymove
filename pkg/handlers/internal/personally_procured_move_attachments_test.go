@@ -18,33 +18,33 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *utils.HandlerSuite) assertPDFPageCount(count int, file afero.File, storer storage.FileStorer) {
+func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer storage.FileStorer) {
 	pdfConfig := pdfcpu.NewInMemoryConfiguration()
 	pdfConfig.FileSystem = storer.FileSystem()
 
 	ctx, err := api.Read(file.Name(), pdfConfig)
-	suite.NoError(err)
+	suite.parent.NoError(err)
 
 	err = pdfcpu.ValidateXRefTable(ctx.XRefTable)
-	suite.NoError(err)
+	suite.parent.NoError(err)
 
-	suite.Equal(2, ctx.PageCount)
+	suite.parent.Equal(2, ctx.PageCount)
 }
 
-func (suite *utils.HandlerSuite) createHandlerContext() utils.HandlerContext {
-	context := NewHandlerContext(suite.db, suite.logger)
+func (suite *HandlerSuite) createHandlerContext() utils.HandlerContext {
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 
 	return context
 }
 
-func (suite *utils.HandlerSuite) TestCreatePPMAttachmentsHandler() {
+func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	uploadKeyRe := regexp.MustCompile(`(user/.+/uploads/.+)\?`)
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
-	ppm := testdatagen.MakeDefaultPPM(suite.db)
-	expDoc := testdatagen.MakeMovingExpenseDocument(suite.db, testdatagen.Assertions{
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.parent.Db)
+	ppm := testdatagen.MakeDefaultPPM(suite.parent.Db)
+	expDoc := testdatagen.MakeMovingExpenseDocument(suite.parent.Db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			PersonallyProcuredMoveID: &ppm.ID,
 		},
@@ -55,40 +55,40 @@ func (suite *utils.HandlerSuite) TestCreatePPMAttachmentsHandler() {
 
 	// Open our test file
 	f, err := os.Open("fixtures/test.pdf")
-	suite.NoError(err)
+	suite.parent.NoError(err)
 
 	// Backfill the uploaded orders file in filesystem
 	uploadedOrdersUpload := ppm.Move.Orders.UploadedOrders.Uploads[0]
-	_, err = context.storage.Store(uploadedOrdersUpload.StorageKey, f, uploadedOrdersUpload.Checksum)
-	suite.NoError(err)
+	_, err = context.Storage.Store(uploadedOrdersUpload.StorageKey, f, uploadedOrdersUpload.Checksum)
+	suite.parent.NoError(err)
 
 	// Create upload for expense document model
-	loader := uploader.NewUploader(suite.db, suite.logger, context.storage)
+	loader := uploader.NewUploader(suite.parent.Db, suite.parent.Logger, context.Storage)
 	loader.CreateUpload(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, f)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.authenticateOfficeRequest(request, officeUser)
+	request = suite.parent.AuthenticateOfficeRequest(request, officeUser)
 
 	params := ppmop.CreatePPMAttachmentsParams{
-		PersonallyProcuredMoveID: *fmtUUID(ppm.ID),
+		PersonallyProcuredMoveID: *utils.FmtUUID(ppm.ID),
 		HTTPRequest:              request,
 	}
 
 	handler := CreatePersonallyProcuredMoveAttachmentsHandler(context)
 	response := handler.Handle(params)
 	// assert we got back the 201 response
-	suite.isNotErrResponse(response)
+	suite.parent.IsNotErrResponse(response)
 	createdResponse := response.(*ppmop.CreatePPMAttachmentsOK)
 	createdPDFPayload := createdResponse.Payload
-	suite.NotNil(createdPDFPayload.URL)
+	suite.parent.NotNil(createdPDFPayload.URL)
 
 	// Extract upload key from returned URL
 	attachmentsURL := string(*createdPDFPayload.URL)
 	uploadKey := uploadKeyRe.FindStringSubmatch(attachmentsURL)[1]
 
-	merged, err := context.storage.Fetch(uploadKey)
-	suite.NoError(err)
+	merged, err := context.Storage.Fetch(uploadKey)
+	suite.parent.NoError(err)
 	mergedFile := merged.(afero.File)
 
-	suite.assertPDFPageCount(2, mergedFile, context.storage)
+	suite.assertPDFPageCount(2, mergedFile, context.Storage)
 }

@@ -8,18 +8,19 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *utils.HandlerSuite) TestSearchDutyStationHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestSearchDutyStationHandler() {
+	t := suite.parent.T()
 
 	// Need a logged in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.mustSave(&user)
+	suite.parent.MustSave(&user)
 
 	address := models.Address{
 		StreetAddress1: "some address",
@@ -27,21 +28,21 @@ func (suite *utils.HandlerSuite) TestSearchDutyStationHandler() {
 		State:          "state",
 		PostalCode:     "12345",
 	}
-	suite.mustSave(&address)
+	suite.parent.MustSave(&address)
 
 	station1 := models.DutyStation{
 		Name:        "First Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.mustSave(&station1)
+	suite.parent.MustSave(&station1)
 
 	station2 := models.DutyStation{
 		Name:        "Second Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.mustSave(&station2)
+	suite.parent.MustSave(&station2)
 
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
 
@@ -58,7 +59,7 @@ func (suite *utils.HandlerSuite) TestSearchDutyStationHandler() {
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := SearchDutyStationsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

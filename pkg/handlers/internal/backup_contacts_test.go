@@ -15,10 +15,10 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *utils.HandlerSuite) TestCreateBackupContactHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestCreateBackupContactHandler() {
+	t := suite.parent.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
 		Email:      swag.String("email@example.com"),
@@ -33,9 +33,9 @@ func (suite *utils.HandlerSuite) TestCreateBackupContactHandler() {
 		ServiceMemberID:            *utils.FmtUUID(serviceMember.ID),
 	}
 
-	params.HTTPRequest = suite.authenticateRequest(req, serviceMember)
+	params.HTTPRequest = suite.parent.AuthenticateRequest(req, serviceMember)
 
-	handler := CreateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateBackupContactHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*contactop.CreateServiceMemberBackupContactCreated)
@@ -44,7 +44,7 @@ func (suite *utils.HandlerSuite) TestCreateBackupContactHandler() {
 	}
 
 	contacts := models.BackupContacts{}
-	suite.db.Q().Eager().All(&contacts)
+	suite.parent.Db.Q().Eager().All(&contacts)
 
 	if len(contacts) != 1 {
 		t.Errorf("Expected to find 1 result but found %v", len(contacts))
@@ -56,10 +56,10 @@ func (suite *utils.HandlerSuite) TestCreateBackupContactHandler() {
 
 }
 
-func (suite *utils.HandlerSuite) TestIndexBackupContactsHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
+	t := suite.parent.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.parent.Db)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
 	req := httptest.NewRequest("GET", indexPath, nil)
@@ -67,9 +67,9 @@ func (suite *utils.HandlerSuite) TestIndexBackupContactsHandler() {
 	params := contactop.IndexServiceMemberBackupContactsParams{
 		ServiceMemberID: *utils.FmtUUID(contact.ServiceMember.ID),
 	}
-	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
+	params.HTTPRequest = suite.parent.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := IndexBackupContactsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexBackupContactsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.IndexServiceMemberBackupContactsOK)
@@ -84,11 +84,11 @@ func (suite *utils.HandlerSuite) TestIndexBackupContactsHandler() {
 	}
 }
 
-func (suite *utils.HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
-	t := suite.T()
+func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
+	t := suite.parent.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.db)
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.parent.Db)
+	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
 	req := httptest.NewRequest("GET", indexPath, nil)
@@ -97,23 +97,23 @@ func (suite *utils.HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 		ServiceMemberID: *utils.FmtUUID(contact.ServiceMember.ID),
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
+	params.HTTPRequest = suite.parent.AuthenticateRequest(req, otherServiceMember)
 
-	handler := IndexBackupContactsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexBackupContactsHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
-	errResponse := response.(*errResponse)
-	code := errResponse.code
+	errResponse := response.(*utils.ErrResponse)
+	code := errResponse.Code
 
 	if code != http.StatusForbidden {
 		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
 	}
 }
 
-func (suite *utils.HandlerSuite) TestShowBackupContactsHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestShowBackupContactsHandler() {
+	t := suite.parent.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.parent.Db)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("GET", showPath, nil)
@@ -121,9 +121,9 @@ func (suite *utils.HandlerSuite) TestShowBackupContactsHandler() {
 	params := contactop.ShowServiceMemberBackupContactParams{
 		BackupContactID: *utils.FmtUUID(contact.ID),
 	}
-	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
+	params.HTTPRequest = suite.parent.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := ShowBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowBackupContactHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.ShowServiceMemberBackupContactOK)
@@ -134,11 +134,11 @@ func (suite *utils.HandlerSuite) TestShowBackupContactsHandler() {
 	}
 }
 
-func (suite *utils.HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
-	t := suite.T()
+func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
+	t := suite.parent.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.db)
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.parent.Db)
+	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("GET", showPath, nil)
@@ -147,23 +147,23 @@ func (suite *utils.HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 		BackupContactID: *utils.FmtUUID(contact.ID),
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
+	params.HTTPRequest = suite.parent.AuthenticateRequest(req, otherServiceMember)
 
-	handler := ShowBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowBackupContactHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
-	errResponse := response.(*errResponse)
-	code := errResponse.code
+	errResponse := response.(*utils.ErrResponse)
+	code := errResponse.Code
 
 	if code != http.StatusForbidden {
 		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
 	}
 }
 
-func (suite *utils.HandlerSuite) TestUpdateBackupContactsHandler() {
-	t := suite.T()
+func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
+	t := suite.parent.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.parent.Db)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("PUT", updatePath, nil)
@@ -179,9 +179,9 @@ func (suite *utils.HandlerSuite) TestUpdateBackupContactsHandler() {
 		BackupContactID:                         *utils.FmtUUID(contact.ID),
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
-	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
+	params.HTTPRequest = suite.parent.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := UpdateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := UpdateBackupContactHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.UpdateServiceMemberBackupContactCreated)
@@ -192,11 +192,11 @@ func (suite *utils.HandlerSuite) TestUpdateBackupContactsHandler() {
 	}
 }
 
-func (suite *utils.HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
-	t := suite.T()
+func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
+	t := suite.parent.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.db)
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.parent.Db)
+	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("PUT", updatePath, nil)
@@ -213,13 +213,13 @@ func (suite *utils.HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
+	params.HTTPRequest = suite.parent.AuthenticateRequest(req, otherServiceMember)
 
-	handler := UpdateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := UpdateBackupContactHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 	response := handler.Handle(params)
 
-	errResponse := response.(*errResponse)
-	code := errResponse.code
+	errResponse := response.(*utils.ErrResponse)
+	code := errResponse.Code
 
 	if code != http.StatusForbidden {
 		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)

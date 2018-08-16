@@ -10,50 +10,50 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
-		suite.FailNow("failed to run scenario 2: %+v", err)
+func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
+	if err := scenario.RunRateEngineScenario2(suite.parent.Db); err != nil {
+		suite.parent.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.parent.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(scenario.May15_2018),
+		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		Weight:          7500,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMIncentiveHandler(context)
 	showResponse := showHandler.Handle(params)
-	suite.Assertions.IsType(&ppmop.ShowPPMIncentiveForbidden{}, showResponse)
+	suite.parent.Assertions.IsType(&ppmop.ShowPPMIncentiveForbidden{}, showResponse)
 }
 
-func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandler() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
-		suite.FailNow("failed to run scenario 2: %+v", err)
+func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
+	if err := scenario.RunRateEngineScenario2(suite.parent.Db); err != nil {
+		suite.parent.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.parent.Db)
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.authenticateOfficeRequest(req, officeUser)
+	req = suite.parent.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(scenario.May15_2018),
+		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		Weight:          7500,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMIncentiveHandler(context)
 	showResponse := showHandler.Handle(params)
@@ -61,28 +61,28 @@ func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandler() {
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(637056), *cost.Gcc, "Gcc was not equal")
-	suite.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
+	suite.parent.Equal(int64(637056), *cost.Gcc, "Gcc was not equal")
+	suite.parent.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
-func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
-		suite.FailNow("failed to run scenario 2: %+v", err)
+func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
+	if err := scenario.RunRateEngineScenario2(suite.parent.Db); err != nil {
+		suite.parent.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.parent.Db)
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.authenticateOfficeRequest(req, officeUser)
+	req = suite.parent.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(scenario.May15_2018),
+		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		Weight:          600,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMIncentiveHandler(context)
 	showResponse := showHandler.Handle(params)
@@ -90,6 +90,6 @@ func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(270252), *cost.Gcc, "Gcc was not equal")
-	suite.Equal(int64(256739), *cost.IncentivePercentage, "IncentivePercentage was not equal")
+	suite.parent.Equal(int64(270252), *cost.Gcc, "Gcc was not equal")
+	suite.parent.Equal(int64(256739), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }

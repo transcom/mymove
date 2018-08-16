@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -14,25 +15,25 @@ var statusToQueueMap = map[string]string{
 	"APPROVED":  "ppm",
 }
 
-func (suite *utils.HandlerSuite) TestShowQueueHandler() {
+func (suite *HandlerSuite) TestShowQueueHandler() {
 	for status, queueType := range statusToQueueMap {
 
-		suite.db.TruncateAll()
+		suite.parent.Db.TruncateAll()
 
 		// Given: An office user
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.parent.Db)
 
 		//  A set of orders and a move belonging to those orders
-		order := testdatagen.MakeDefaultOrder(suite.db)
+		order := testdatagen.MakeDefaultOrder(suite.parent.Db)
 
 		newMove := models.Move{
 			OrdersID: order.ID,
 			Status:   models.MoveStatus(status),
 		}
-		suite.mustSave(&newMove)
+		suite.parent.MustSave(&newMove)
 
 		// Make a PPM
-		newMove.CreatePPM(suite.db,
+		newMove.CreatePPM(suite.parent.Db,
 			nil,
 			models.Int64Pointer(8000),
 			models.TimePointer(testdatagen.DateInsidePeakRateCycle),
@@ -50,49 +51,49 @@ func (suite *utils.HandlerSuite) TestShowQueueHandler() {
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
 		req := httptest.NewRequest("GET", path, nil)
-		req = suite.authenticateOfficeRequest(req, officeUser)
+		req = suite.parent.AuthenticateOfficeRequest(req, officeUser)
 
 		params := queueop.ShowQueueParams{
 			HTTPRequest: req,
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler(NewHandlerContext(suite.db, suite.logger))
+		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 200 status code
 		okResponse := showResponse.(*queueop.ShowQueueOK)
-		*utils.Fmt.Printf("status: %v res: %v", status, okResponse)
+		fmt.Printf("status: %v res: %v", status, okResponse)
 		moveQueueItem := okResponse.Payload[0]
 
 		// And: Returned query to include our added move
 		// The moveQueueItems are produced by joining Moves, Orders and ServiceMember to each other, so we check the
 		// furthest link in that chain
 		expectedCustomerName := fmt.Sprintf("%v, %v", *order.ServiceMember.LastName, *order.ServiceMember.FirstName)
-		suite.Equal(expectedCustomerName, *moveQueueItem.CustomerName)
+		suite.parent.Equal(expectedCustomerName, *moveQueueItem.CustomerName)
 	}
 }
 
-func (suite *utils.HandlerSuite) TestShowQueueHandlerForbidden() {
+func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 	for _, queueType := range statusToQueueMap {
 
 		// Given: A non-office user
-		user := testdatagen.MakeDefaultServiceMember(suite.db)
+		user := testdatagen.MakeDefaultServiceMember(suite.parent.Db)
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
 		req := httptest.NewRequest("GET", path, nil)
-		req = suite.authenticateRequest(req, user)
+		req = suite.parent.AuthenticateRequest(req, user)
 
 		params := queueop.ShowQueueParams{
 			HTTPRequest: req,
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler(NewHandlerContext(suite.db, suite.logger))
+		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.parent.Db, suite.parent.Logger))
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 403 status code
-		suite.Assertions.IsType(&queueop.ShowQueueForbidden{}, showResponse)
+		suite.parent.Assertions.IsType(&queueop.ShowQueueForbidden{}, showResponse)
 	}
 }
