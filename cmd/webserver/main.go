@@ -25,10 +25,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
-	"github.com/transcom/mymove/pkg/edi/costedinvoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
@@ -194,10 +192,6 @@ func main() {
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
 	routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
 	handlerContext.SetPlanner(routePlanner)
-
-	shipments, err := models.FetchShipments(dbConnection, false)
-	invoice, err := edicostedinvoice.Generate858C(shipments, dbConnection)
-	fmt.Println(invoice)
 
 	var storer storage.FileStorer
 	if *storageBackend == "s3" {

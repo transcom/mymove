@@ -80,8 +80,8 @@ type ShipmentWithOffer struct {
 // FetchShipments looks up all shipments joined with their offer information in a
 // ShipmentWithOffer struct. Optionally, you can only query for unassigned
 // shipments with the `onlyUnassigned` parameter.
-func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipment, error) {
-	shipments := []Shipment{}
+func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
+	shipments := []ShipmentWithOffer{}
 
 	var sql string
 
@@ -122,7 +122,6 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 			FROM shipments
 			LEFT JOIN shipment_offers ON
 				shipment_offers.shipment_id=shipments.id`
-		sql = `SELECT * FROM shipments`
 	}
 
 	err := dbConnection.RawQuery(sql).All(&shipments)
@@ -134,10 +133,10 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 func FetchShipmentForInvoice(db *pop.Connection, shipmentID uuid.UUID) (Shipment, error) {
 	var shipment Shipment
 	err := db.Q().Eager(
+		"Move",
 		"PickupAddress",
-		"Move.Orders.ServiceMember",
+		"ServiceMember",
 	).Find(&shipment, shipmentID)
-
 	return shipment, err
 }
 
