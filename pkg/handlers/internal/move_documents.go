@@ -21,9 +21,9 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:     fmtUUID(moveDoc.ID),
-		MoveID: fmtUUID(moveDoc.MoveID),
-		PersonallyProcuredMoveID: fmtUUIDPtr(moveDoc.PersonallyProcuredMoveID),
+		ID:     utils.FmtUUID(moveDoc.ID),
+		MoveID: utils.FmtUUID(moveDoc.MoveID),
+		PersonallyProcuredMoveID: utils.FmtUUIDPtr(moveDoc.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &moveDoc.Title,
 		MoveDocumentType:         internalmessages.MoveDocumentType(moveDoc.MoveDocumentType),
@@ -61,9 +61,9 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:     fmtUUID(docExtractor.ID),
-		MoveID: fmtUUID(docExtractor.MoveID),
-		PersonallyProcuredMoveID: fmtUUIDPtr(docExtractor.PersonallyProcuredMoveID),
+		ID:     utils.FmtUUID(docExtractor.ID),
+		MoveID: utils.FmtUUID(docExtractor.MoveID),
+		PersonallyProcuredMoveID: utils.FmtUUIDPtr(docExtractor.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &docExtractor.Title,
 		MoveDocumentType:         internalmessages.MoveDocumentType(docExtractor.MoveDocumentType),
@@ -90,19 +90,19 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.Db)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.Storage, doc)
 		if err != nil {
-			return responseForError(h.Logger, err)
+			return utils.ResponseForError(h.Logger, err)
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
@@ -123,7 +123,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	// Fetch move document from move id
 	moveDoc, err := models.FetchMoveDocument(h.Db, session, moveDocID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	payload := params.UpdateMoveDocument
@@ -170,12 +170,12 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	verrs, err := models.SaveMoveDocument(h.Db, moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	moveDocPayload, err := payloadForMoveDocument(h.Storage, *moveDoc)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }

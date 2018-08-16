@@ -16,10 +16,10 @@ import (
 
 func payloadForIssueModel(issue models.Issue) internalmessages.IssuePayload {
 	issuePayload := internalmessages.IssuePayload{
-		CreatedAt:    fmtDateTime(issue.CreatedAt),
+		CreatedAt:    utils.FmtDateTime(issue.CreatedAt),
 		Description:  swag.String(issue.Description),
-		ID:           fmtUUID(issue.ID),
-		UpdatedAt:    fmtDateTime(issue.UpdatedAt),
+		ID:           utils.FmtUUID(issue.ID),
+		UpdatedAt:    utils.FmtDateTime(issue.UpdatedAt),
 		ReporterName: issue.ReporterName,
 		DueDate:      (*strfmt.Date)(issue.DueDate),
 	}

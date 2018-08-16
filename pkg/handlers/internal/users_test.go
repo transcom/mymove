@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
+func (suite *utils.HandlerSuite) TestUnknownLoggedInUserHandler() {
 	unknownUser := testdatagen.MakeDefaultUser(suite.db)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	suite.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
 }
 
-func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
+func (suite *utils.HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	firstName := "Joseph"
 	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
 }
 
-func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
+func (suite *utils.HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
 	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{

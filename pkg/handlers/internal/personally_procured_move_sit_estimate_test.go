@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
+func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	t := suite.T()
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	}
 }
 
-func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
+func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	t := suite.T()
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	}
 }
 
-func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
+func (suite *utils.HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	// Given: A PPM Estimate request with all relevant records except TSP performance
 	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})

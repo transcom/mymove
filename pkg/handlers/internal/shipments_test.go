@@ -1,9 +1,7 @@
 package internal
 
 import (
-	"fmt"
 	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -15,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessages.Address) {
+func (suite *utils.HandlerSuite) verifyAddressFields(expected, actual *internalmessages.Address) {
 	suite.T().Helper()
 	suite.Equal(expected.StreetAddress1, actual.StreetAddress1, "Street1 did not match")
 	suite.Equal(expected.StreetAddress2, actual.StreetAddress2, "Street2 did not match")
@@ -26,7 +24,7 @@ func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessage
 	suite.Equal(expected.Country, actual.Country, "Country did not match")
 }
 
-func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
+func (suite *utils.HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
@@ -87,7 +85,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.Equal(1, count)
 }
 
-func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
+func (suite *utils.HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
@@ -132,7 +130,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Nil(unwrapped.Payload.SpouseProgearWeightEstimate)
 }
 
-func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
+func (suite *utils.HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
@@ -193,7 +191,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")
 }
 
-func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
+func (suite *utils.HandlerSuite) TestPatchShipmentHandlerNoMove() {
 	t := suite.T()
 	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember

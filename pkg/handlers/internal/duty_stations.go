@@ -13,9 +13,9 @@ import (
 
 func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
 	payload := internalmessages.DutyStationPayload{
-		ID:          fmtUUID(station.ID),
-		CreatedAt:   fmtDateTime(station.CreatedAt),
-		UpdatedAt:   fmtDateTime(station.UpdatedAt),
+		ID:          utils.FmtUUID(station.ID),
+		CreatedAt:   utils.FmtDateTime(station.CreatedAt),
+		UpdatedAt:   utils.FmtDateTime(station.UpdatedAt),
 		Name:        swag.String(station.Name),
 		Affiliation: &station.Affiliation,
 		Address:     payloadForAddressModel(&station.Address),

@@ -44,13 +44,13 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	}
 
 	movePayload := &internalmessages.MovePayload{
-		CreatedAt:               fmtDateTime(move.CreatedAt),
+		CreatedAt:               utils.FmtDateTime(move.CreatedAt),
 		SelectedMoveType:        &SelectedMoveType,
 		Locator:                 swag.String(move.Locator),
-		ID:                      fmtUUID(move.ID),
-		UpdatedAt:               fmtDateTime(move.UpdatedAt),
+		ID:                      utils.FmtUUID(move.ID),
+		UpdatedAt:               utils.FmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
-		OrdersID:                fmtUUID(order.ID),
+		OrdersID:                utils.FmtUUID(order.ID),
 		Status:                  internalmessages.MoveStatus(move.Status),
 		Shipments:               shipmentPayloads,
 	}
@@ -68,7 +68,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 
 	orders, err := models.FetchOrderForUser(h.Db, session, ordersID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	move, verrs, err := orders.CreateNewMove(h.Db, params.CreateMovePayload.SelectedMoveType)
@@ -76,11 +76,11 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		if err == models.ErrCreateViolatesUniqueConstraint {
 			h.Logger.Error("Failed to create Unique Record Locator")
 		}
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 	movePayload, err := payloadForMoveModel(h.Storage, orders, *move)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return moveop.NewCreateMoveCreated().WithPayload(movePayload)
 }
@@ -98,17 +98,17 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.Db, session, move.OrdersID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	movePayload, err := payloadForMoveModel(h.Storage, orders, *move)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return moveop.NewShowMoveOK().WithPayload(movePayload)
 }
@@ -125,12 +125,12 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.Db, session, move.OrdersID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	payload := params.PatchMovePayload
 	newSelectedMoveType := payload.SelectedMoveType
@@ -145,11 +145,11 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 
 	verrs, err := h.Db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 	movePayload, err := payloadForMoveModel(h.Storage, orders, *move)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return moveop.NewPatchMoveCreated().WithPayload(movePayload)
 }
@@ -166,19 +166,19 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	err = move.Submit()
 	if err != nil {
 		h.Logger.Error("Failed to change move status to submit", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status)))
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	// Transaction to save move and dependencies
 	verrs, err := models.SaveMoveDependencies(h.Db, move)
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	err = h.NotificationSender.SendNotification(
@@ -186,12 +186,12 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	)
 	if err != nil {
 		h.Logger.Error("problem sending email to user", zap.Error(err))
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	movePayload, err := payloadForMoveModel(h.Storage, move.Orders, *move)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
 }

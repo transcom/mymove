@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateOrder() {
+func (suite *utils.HandlerSuite) TestCreateOrder() {
 	sm := testdatagen.MakeDefaultServiceMember(suite.db)
 	station := testdatagen.MakeDefaultDutyStation(suite.db)
 
@@ -27,13 +27,13 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:    fmtBool(hasDependents),
-		SpouseHasProGear: fmtBool(spouseHasProGear),
-		IssueDate:        fmtDate(issueDate),
-		ReportByDate:     fmtDate(reportByDate),
+		HasDependents:    utils.FmtBool(hasDependents),
+		SpouseHasProGear: utils.FmtBool(spouseHasProGear),
+		IssueDate:        utils.FmtDate(issueDate),
+		ReportByDate:     utils.FmtDate(reportByDate),
 		OrdersType:       ordersType,
-		NewDutyStationID: fmtUUID(station.ID),
-		ServiceMemberID:  fmtUUID(sm.ID),
+		NewDutyStationID: utils.FmtUUID(station.ID),
+		ServiceMemberID:  utils.FmtUUID(sm.ID),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
 }
 
-func (suite *HandlerSuite) TestShowOrder() {
+func (suite *utils.HandlerSuite) TestShowOrder() {
 	order := testdatagen.MakeDefaultOrder(suite.db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 
 	params := ordersop.ShowOrdersParams{
 		HTTPRequest: req,
-		OrdersID:    *fmtUUID(order.ID),
+		OrdersID:    *utils.FmtUUID(order.ID),
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
 }
 
-func (suite *HandlerSuite) TestUpdateOrder() {
+func (suite *utils.HandlerSuite) TestUpdateOrder() {
 	order := testdatagen.MakeDefaultOrder(suite.db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -95,23 +95,23 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	otherServiceMemberUUID := uuid.Must(uuid.NewV4())
 
 	payload := &internalmessages.CreateUpdateOrders{
-		OrdersNumber:        fmtString("123456"),
-		HasDependents:       fmtBool(order.HasDependents),
-		SpouseHasProGear:    fmtBool(order.SpouseHasProGear),
-		IssueDate:           fmtDate(order.IssueDate),
-		ReportByDate:        fmtDate(order.ReportByDate),
+		OrdersNumber:        utils.FmtString("123456"),
+		HasDependents:       utils.FmtBool(order.HasDependents),
+		SpouseHasProGear:    utils.FmtBool(order.SpouseHasProGear),
+		IssueDate:           utils.FmtDate(order.IssueDate),
+		ReportByDate:        utils.FmtDate(order.ReportByDate),
 		OrdersType:          newOrdersType,
 		OrdersTypeDetail:    &newOrdersTypeDetail,
-		NewDutyStationID:    fmtUUID(order.NewDutyStationID),
+		NewDutyStationID:    utils.FmtUUID(order.NewDutyStationID),
 		Tac:                 order.TAC,
 		DepartmentIndicator: &departmentIndicator,
 		// Attempt to assign to another service member
-		ServiceMemberID: fmtUUID(otherServiceMemberUUID),
+		ServiceMemberID: utils.FmtUUID(otherServiceMemberUUID),
 	}
 
 	params := ordersop.UpdateOrdersParams{
 		HTTPRequest:  req,
-		OrdersID:     *fmtUUID(order.ID),
+		OrdersID:     *utils.FmtUUID(order.ID),
 		UpdateOrders: payload,
 	}
 
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
-	suite.Assertions.Equal(fmtString("123456"), okResponse.Payload.OrdersNumber)
+	suite.Assertions.Equal(*utils.FmtString("123456"), okResponse.Payload.OrdersNumber)
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
 	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)

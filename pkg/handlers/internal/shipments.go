@@ -19,17 +19,17 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	shipmentPayload := &internalmessages.Shipment{
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
-		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
+		TrafficDistributionListID:    utils.FmtUUIDPtr(s.TrafficDistributionListID),
 		ServiceMemberID:              strfmt.UUID(s.ServiceMemberID.String()),
 		SourceGbloc:                  s.SourceGBLOC,
 		DestinationGbloc:             s.DestinationGBLOC,
 		Market:                       s.Market,
 		CodeOfService:                s.CodeOfService,
 		Status:                       s.Status,
-		BookDate:                     fmtDatePtr(s.BookDate),
-		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
-		PickupDate:                   fmtDatePtr(s.PickupDate),
-		DeliveryDate:                 fmtDatePtr(s.DeliveryDate),
+		BookDate:                     utils.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:          utils.FmtDatePtr(s.RequestedPickupDate),
+		PickupDate:                   utils.FmtDatePtr(s.PickupDate),
+		DeliveryDate:                 utils.FmtDatePtr(s.DeliveryDate),
 		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
 		EstimatedPackDays:            s.EstimatedPackDays,
@@ -41,9 +41,9 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
 		HasPartialSitDeliveryAddress: s.HasPartialSITDeliveryAddress,
 		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:               fmtPoundPtr(s.WeightEstimate),
-		ProgearWeightEstimate:        fmtPoundPtr(s.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate:  fmtPoundPtr(s.SpouseProgearWeightEstimate),
+		WeightEstimate:               utils.FmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:        utils.FmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:  utils.FmtPoundPtr(s.SpouseProgearWeightEstimate),
 	}
 	return shipmentPayload
 }
@@ -60,7 +60,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	payload := params.Shipment
@@ -85,9 +85,9 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,
-		WeightEstimate:               poundPtrFromInt64Ptr(payload.WeightEstimate),
-		ProgearWeightEstimate:        poundPtrFromInt64Ptr(payload.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate:  poundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate),
+		WeightEstimate:               utils.PoundPtrFromInt64Ptr(payload.WeightEstimate),
+		ProgearWeightEstimate:        utils.PoundPtrFromInt64Ptr(payload.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:  utils.PoundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate),
 		PickupAddress:                pickupAddress,
 		HasSecondaryPickupAddress:    payload.HasSecondaryPickupAddress,
 		SecondaryPickupAddress:       secondaryPickupAddress,
@@ -102,7 +102,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	verrs, err := models.SaveShipmentAndAddresses(h.Db, &newShipment)
 
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	shipmentPayload := payloadForShipmentModel(newShipment)
@@ -169,13 +169,13 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 	shipment.HasPartialSITDeliveryAddress = payload.HasPartialSitDeliveryAddress
 
 	if payload.WeightEstimate != nil {
-		shipment.WeightEstimate = poundPtrFromInt64Ptr(payload.WeightEstimate)
+		shipment.WeightEstimate = utils.PoundPtrFromInt64Ptr(payload.WeightEstimate)
 	}
 	if payload.ProgearWeightEstimate != nil {
-		shipment.ProgearWeightEstimate = poundPtrFromInt64Ptr(payload.ProgearWeightEstimate)
+		shipment.ProgearWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.ProgearWeightEstimate)
 	}
 	if payload.SpouseProgearWeightEstimate != nil {
-		shipment.SpouseProgearWeightEstimate = poundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate)
+		shipment.SpouseProgearWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate)
 	}
 }
 
@@ -193,7 +193,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 	shipment, err := models.FetchShipment(h.Db, session, shipmentID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	if shipment.MoveID != moveID {
@@ -205,7 +205,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	verrs, err := models.SaveShipmentAndAddresses(h.Db, shipment)
 
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
@@ -226,7 +226,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	shipment, err := models.FetchShipment(h.Db, session, shipmentID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	if shipment.MoveID != moveID {

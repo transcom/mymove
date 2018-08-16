@@ -20,13 +20,13 @@ import (
 
 func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
 	return &internalmessages.UploadPayload{
-		ID:          fmtUUID(upload.ID),
+		ID:          utils.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
 		ContentType: swag.String(upload.ContentType),
-		URL:         fmtURI(url),
+		URL:         utils.FmtURI(url),
 		Bytes:       &upload.Bytes,
-		CreatedAt:   fmtDateTime(upload.CreatedAt),
-		UpdatedAt:   fmtDateTime(upload.UpdatedAt),
+		CreatedAt:   utils.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   utils.FmtDateTime(upload.UpdatedAt),
 	}
 }
 
@@ -58,7 +58,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		// Fetch document to ensure user has access to it
 		document, docErr := models.FetchDocument(h.Db, session, documentID)
 		if docErr != nil {
-			return responseForError(h.Logger, docErr)
+			return utils.ResponseForError(h.Logger, docErr)
 		}
 		docID = &document.ID
 	}
@@ -108,12 +108,12 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 	uploadID, _ := uuid.FromString(params.UploadID.String())
 	upload, err := models.FetchUpload(h.Db, session, uploadID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	uploader := uploaderpkg.NewUploader(h.Db, h.Logger, h.Storage)
 	if err = uploader.DeleteUpload(&upload); err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	return uploadop.NewDeleteUploadNoContent()
@@ -132,11 +132,11 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 		uuid, _ := uuid.FromString(uploadID.String())
 		upload, err := models.FetchUpload(h.Db, session, uuid)
 		if err != nil {
-			return responseForError(h.Logger, err)
+			return utils.ResponseForError(h.Logger, err)
 		}
 
 		if err = uploader.DeleteUpload(&upload); err != nil {
-			return responseForError(h.Logger, err)
+			return utils.ResponseForError(h.Logger, err)
 		}
 	}
 

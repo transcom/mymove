@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
+func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	suite.Assertions.IsType(&ppmop.ShowPPMIncentiveForbidden{}, showResponse)
 }
 
-func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
+func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandler() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	suite.Equal(int64(637056), *cost.Gcc, "Gcc was not equal")
 	suite.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
-func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
+func (suite *utils.HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}

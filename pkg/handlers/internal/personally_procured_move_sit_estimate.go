@@ -30,12 +30,12 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		time.Time(params.PlannedMoveDate),
 	)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
 
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	// Swagger returns int64 when using the integer type

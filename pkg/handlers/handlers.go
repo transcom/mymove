@@ -34,14 +34,14 @@ func NewPublicAPIHandler(context utils.HandlerContext) http.Handler {
 	// Documents
 
 	// Shipments
-	publicAPI.ShipmentsIndexShipmentsHandler = public.PublicIndexShipmentsHandler(context)
-	publicAPI.ShipmentsGetShipmentHandler = public.PublicGetShipmentHandler(context)
-	publicAPI.ShipmentsCreateShipmentAcceptHandler = public.PublicCreateShipmentAcceptHandler(context)
-	publicAPI.ShipmentsCreateShipmentRejectHandler = public.PublicCreateShipmentRejectHandler(context)
+	publicAPI.ShipmentsIndexShipmentsHandler = public.IndexShipmentsHandler(context)
+	publicAPI.ShipmentsGetShipmentHandler = public.GetShipmentHandler(context)
+	publicAPI.ShipmentsCreateShipmentAcceptHandler = public.CreateShipmentAcceptHandler(context)
+	publicAPI.ShipmentsCreateShipmentRejectHandler = public.CreateShipmentRejectHandler(context)
 
 	// TSPs
-	publicAPI.TspsIndexTSPsHandler = public.PublicTspsIndexTSPsHandler(context)
-	publicAPI.TspsGetTspShipmentsHandler = public.PublicTspsGetTspShipmentsHandler(context)
+	publicAPI.TspsIndexTSPsHandler = public.TspsIndexTSPsHandler(context)
+	publicAPI.TspsGetTspShipmentsHandler = public.TspsGetTspShipmentsHandler(context)
 
 	return publicAPI.Serve(nil)
 }

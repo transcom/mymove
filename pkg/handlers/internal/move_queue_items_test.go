@@ -14,7 +14,7 @@ var statusToQueueMap = map[string]string{
 	"APPROVED":  "ppm",
 }
 
-func (suite *HandlerSuite) TestShowQueueHandler() {
+func (suite *utils.HandlerSuite) TestShowQueueHandler() {
 	for status, queueType := range statusToQueueMap {
 
 		suite.db.TruncateAll()
@@ -62,7 +62,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 		// Then: Expect a 200 status code
 		okResponse := showResponse.(*queueop.ShowQueueOK)
-		fmt.Printf("status: %v res: %v", status, okResponse)
+		*utils.Fmt.Printf("status: %v res: %v", status, okResponse)
 		moveQueueItem := okResponse.Payload[0]
 
 		// And: Returned query to include our added move
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	}
 }
 
-func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
+func (suite *utils.HandlerSuite) TestShowQueueHandlerForbidden() {
 	for _, queueType := range statusToQueueMap {
 
 		// Given: A non-office user

@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 
@@ -10,10 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
+func (suite *utils.HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 	station := testdatagen.MakeDefaultDutyStation(suite.db)
 
-	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
+	path := utils.Fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
@@ -31,13 +30,13 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 
 }
 
-func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
+func (suite *utils.HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
 	station := testdatagen.MakeDefaultDutyStation(suite.db)
 	station.TransportationOffice = models.TransportationOffice{}
 	station.TransportationOfficeID = nil
 	suite.mustSave(&station)
 
-	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
+	path := utils.Fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{

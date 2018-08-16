@@ -26,8 +26,8 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 	}
 
 	documentPayload := &internalmessages.DocumentPayload{
-		ID:              fmtUUID(document.ID),
-		ServiceMemberID: fmtUUID(document.ServiceMemberID),
+		ID:              utils.FmtUUID(document.ID),
+		ServiceMemberID: utils.FmtUUID(document.ServiceMemberID),
 		Uploads:         uploads,
 	}
 	return documentPayload, nil
@@ -42,13 +42,13 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	// Fetch to check auth
 	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	newDocument := models.Document{
@@ -67,7 +67,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	h.Logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
 	documentPayload, err := payloadForDocumentModel(h.Storage, newDocument)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
@@ -81,17 +81,17 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	document, err := models.FetchDocument(h.Db, session, documentID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.Storage, document)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)

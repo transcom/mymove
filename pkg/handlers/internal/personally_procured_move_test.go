@@ -4,7 +4,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
@@ -17,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) TestCreatePPMHandler() {
+func (suite *utils.HandlerSuite) TestCreatePPMHandler() {
 	user1 := testdatagen.MakeDefaultServiceMember(suite.db)
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
@@ -36,7 +35,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	}
 
 	newPPMParams := ppmop.CreatePersonallyProcuredMoveParams{
-		MoveID: strfmt.UUID(move.ID.String()),
+		MoveID: str * utils.Fmt.UUID(move.ID.String()),
 		CreatePersonallyProcuredMovePayload: &newPPMPayload,
 		HTTPRequest:                         request,
 	}
@@ -56,13 +55,13 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
-	newPPMParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	newPPMParams.MoveID = str * utils.Fmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newPPMParams)
 	suite.checkResponseNotFound(badMoveResponse)
 
 }
 
-func (suite *HandlerSuite) TestIndexPPMHandler() {
+func (suite *utils.HandlerSuite) TestIndexPPMHandler() {
 
 	t := suite.T()
 
@@ -108,7 +107,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	req = suite.authenticateRequest(req, move1.Orders.ServiceMember)
 
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
-		MoveID:      strfmt.UUID(move1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move1.ID.String()),
 		HTTPRequest: req,
 	}
 
@@ -120,7 +119,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	indexPPMPayload := okResponse.Payload
 
 	for _, ppm := range indexPPMPayload {
-		if *ppm.ID == *fmtUUID(otherPPM.ID) {
+		if *ppm.ID == **utils.FmtUUID(otherPPM.ID) {
 			t.Error("We should only have got back ppms associated with this move")
 		}
 	}
@@ -130,7 +129,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 }
 
-func (suite *HandlerSuite) TestPatchPPMHandler() {
+func (suite *utils.HandlerSuite) TestPatchPPMHandler() {
 	scenario.RunRateEngineScenario1(suite.db)
 
 	initialSize := internalmessages.TShirtSize("S")
@@ -181,7 +180,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:                    &newSize,
 		WeightEstimate:          newWeight,
-		PlannedMoveDate:         fmtDatePtr(&newMoveDate),
+		PlannedMoveDate:         utils.FmtDatePtr(&newMoveDate),
 		HasAdditionalPostalCode: newHasAdditionalPostalCode,
 		PickupPostalCode:        newPickupPostalCode,
 		DestinationPostalCode:   newDestinationPostalCode,
@@ -190,8 +189,8 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -214,7 +213,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.Equal(*patchPPMPayload.Mileage, int64(900), "Mileage should have been set to 900")
 }
 
-func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
+func (suite *utils.HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	t := suite.T()
 	scenario.RunRateEngineScenario1(suite.db)
 
@@ -246,8 +245,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: payload,
 	}
 
@@ -287,7 +286,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	suite.Assertions.Equal(int64(3260), *patchPPMPayload.PlannedSitMax)
 }
 
-func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
+func (suite *utils.HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
@@ -314,13 +313,13 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:            &newSize,
 		WeightEstimate:  newWeight,
-		PlannedMoveDate: fmtDatePtr(&newMoveDate),
+		PlannedMoveDate: utils.FmtDatePtr(&newMoveDate),
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -331,7 +330,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 }
 
 // TODO: no response is returned when the moveid doesn't match. How did this ever work?
-func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
+func (suite *utils.HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
@@ -371,8 +370,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -382,7 +381,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 }
 
-func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
+func (suite *utils.HandlerSuite) TestPatchPPMHandlerNoMove() {
 	t := suite.T()
 
 	initialSize := internalmessages.TShirtSize("S")
@@ -413,8 +412,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(badMoveID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(badMoveID.String()),
+		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -428,7 +427,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	}
 }
 
-func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
+func (suite *utils.HandlerSuite) TestPatchPPMHandlerAdvance() {
 	t := suite.T()
 
 	initialSize := internalmessages.TShirtSize("S")
@@ -465,8 +464,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -501,7 +500,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 
 }
 
-func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
+func (suite *utils.HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	t := suite.T()
 
 	initialSize := internalmessages.TShirtSize("S")
@@ -529,8 +528,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -562,7 +561,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	suite.Require().Equal(initialAmount, *created.Payload.Advance.RequestedAmount, "expected amount to shine through.")
 }
 
-func (suite *HandlerSuite) TestRequestPPMPayment() {
+func (suite *utils.HandlerSuite) TestRequestPPMPayment() {
 	t := suite.T()
 
 	initialSize := internalmessages.TShirtSize("S")
@@ -608,7 +607,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	requestPaymentParams := ppmop.RequestPPMPaymentParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
+		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm1.ID.String()),
 	}
 
 	handler := RequestPPMPaymentHandler(NewHandlerContext(suite.db, suite.logger))
@@ -623,7 +622,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 }
 
-func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
+func (suite *utils.HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 	t := suite.T()
 	// When: There is a move, ppm, move document and 2 expense docs
 	ppm := testdatagen.MakeDefaultPPM(suite.db)
@@ -651,7 +650,7 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 
 	requestExpenseSumParams := ppmop.RequestPPMExpenseSummaryParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm.ID.String()),
 	}
 
 	handler := RequestPPMExpenseSummaryHandler(NewHandlerContext(suite.db, suite.logger))

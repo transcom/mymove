@@ -29,17 +29,17 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	}
 
 	payload := &internalmessages.Orders{
-		ID:                  fmtUUID(order.ID),
-		CreatedAt:           fmtDateTime(order.CreatedAt),
-		UpdatedAt:           fmtDateTime(order.UpdatedAt),
-		ServiceMemberID:     fmtUUID(order.ServiceMemberID),
-		IssueDate:           fmtDate(order.IssueDate),
-		ReportByDate:        fmtDate(order.ReportByDate),
+		ID:                  utils.FmtUUID(order.ID),
+		CreatedAt:           utils.FmtDateTime(order.CreatedAt),
+		UpdatedAt:           utils.FmtDateTime(order.UpdatedAt),
+		ServiceMemberID:     utils.FmtUUID(order.ServiceMemberID),
+		IssueDate:           utils.FmtDate(order.IssueDate),
+		ReportByDate:        utils.FmtDate(order.ReportByDate),
 		OrdersType:          order.OrdersType,
 		OrdersTypeDetail:    order.OrdersTypeDetail,
 		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
-		HasDependents:       fmtBool(order.HasDependents),
-		SpouseHasProGear:    fmtBool(order.SpouseHasProGear),
+		HasDependents:       utils.FmtBool(order.HasDependents),
+		SpouseHasProGear:    utils.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:      documentPayload,
 		OrdersNumber:        order.OrdersNumber,
 		Moves:               moves,
@@ -62,20 +62,20 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	dutyStation, err := models.FetchDutyStation(h.Db, stationID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	newOrder, verrs, err := serviceMember.CreateOrder(
@@ -87,20 +87,20 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		*payload.SpouseHasProGear,
 		dutyStation)
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	// TODO: Don't default to PPM when we start supporting HHG
 	newMoveType := internalmessages.SelectedMoveTypePPM
 	newMove, verrs, err := newOrder.CreateNewMove(h.Db, &newMoveType)
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
 	orderPayload, err := payloadForOrdersModel(h.Storage, newOrder)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
 }
@@ -115,12 +115,12 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 	orderID, _ := uuid.FromString(params.OrdersID.String())
 	order, err := models.FetchOrderForUser(h.Db, session, orderID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.Storage, order)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
 }
@@ -134,21 +134,21 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	order, err := models.FetchOrderForUser(h.Db, session, orderID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	payload := params.UpdateOrders
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	dutyStation, err := models.FetchDutyStation(h.Db, stationID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	order.OrdersNumber = payload.OrdersNumber
@@ -163,17 +163,17 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.TAC = payload.Tac
 
 	if payload.DepartmentIndicator != nil {
-		order.DepartmentIndicator = fmtString(string(*payload.DepartmentIndicator))
+		order.DepartmentIndicator = utils.FmtString(string(*payload.DepartmentIndicator))
 	}
 
 	verrs, err := models.SaveOrder(h.Db, &order)
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.Storage, order)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }

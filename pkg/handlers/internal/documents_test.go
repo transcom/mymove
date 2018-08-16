@@ -14,14 +14,14 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateDocumentsHandler() {
+func (suite *utils.HandlerSuite) TestCreateDocumentsHandler() {
 	t := suite.T()
 
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
-		ServiceMemberID: *fmtUUID(serviceMember.ID),
+		ServiceMemberID: *utils.FmtUUID(serviceMember.ID),
 	}
 
 	req := &http.Request{}
@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 }
 
-func (suite *HandlerSuite) TestShowDocumentHandler() {
+func (suite *utils.HandlerSuite) TestShowDocumentHandler() {
 	t := suite.T()
 
 	upload := testdatagen.MakeDefaultUpload(suite.db)

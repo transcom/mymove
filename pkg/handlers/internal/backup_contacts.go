@@ -12,9 +12,9 @@ import (
 
 func payloadForBackupContactModel(contact models.BackupContact) internalmessages.ServiceMemberBackupContactPayload {
 	contactPayload := internalmessages.ServiceMemberBackupContactPayload{
-		ID:         fmtUUID(contact.ID),
-		UpdatedAt:  fmtDateTime(contact.UpdatedAt),
-		CreatedAt:  fmtDateTime(contact.CreatedAt),
+		ID:         utils.FmtUUID(contact.ID),
+		UpdatedAt:  utils.FmtDateTime(contact.UpdatedAt),
+		CreatedAt:  utils.FmtDateTime(contact.CreatedAt),
 		Name:       &contact.Name,
 		Email:      &contact.Email,
 		Telephone:  contact.Phone,
@@ -34,7 +34,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	newContact, verrs, err := serviceMember.CreateBackupContact(h.Db,
@@ -43,7 +43,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 		params.CreateBackupContactPayload.Telephone,
 		params.CreateBackupContactPayload.Permission)
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(newContact)
@@ -61,7 +61,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	contacts := serviceMember.BackupContacts
@@ -86,7 +86,7 @@ func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackup
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.Db, session, contactID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)
@@ -104,7 +104,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.Db, session, contactID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
@@ -113,7 +113,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Permission = params.UpdateServiceMemberBackupContactPayload.Permission
 
 	if verrs, err := h.Db.ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)

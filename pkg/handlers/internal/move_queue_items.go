@@ -14,8 +14,8 @@ import (
 
 func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
-		ID:               fmtUUID(MoveQueueItem.ID),
-		CreatedAt:        fmtDateTime(MoveQueueItem.CreatedAt),
+		ID:               utils.FmtUUID(MoveQueueItem.ID),
+		CreatedAt:        utils.FmtDateTime(MoveQueueItem.CreatedAt),
 		Edipi:            swag.String(MoveQueueItem.Edipi),
 		Rank:             MoveQueueItem.Rank,
 		CustomerName:     swag.String(MoveQueueItem.CustomerName),
@@ -23,9 +23,9 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		Status:           swag.String(MoveQueueItem.Status),
 		PpmStatus:        MoveQueueItem.PpmStatus,
 		OrdersType:       swag.String(MoveQueueItem.OrdersType),
-		MoveDate:         fmtDatePtr(MoveQueueItem.MoveDate),
-		CustomerDeadline: fmtDate(MoveQueueItem.CustomerDeadline),
-		LastModifiedDate: fmtDateTime(MoveQueueItem.LastModifiedDate),
+		MoveDate:         utils.FmtDatePtr(MoveQueueItem.MoveDate),
+		CustomerDeadline: utils.FmtDate(MoveQueueItem.CustomerDeadline),
+		LastModifiedDate: utils.FmtDateTime(MoveQueueItem.LastModifiedDate),
 		LastModifiedName: swag.String(MoveQueueItem.LastModifiedName),
 	}
 	return &MoveQueueItemPayload
@@ -47,7 +47,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 	MoveQueueItems, err := models.GetMoveQueueItems(h.Db, lifecycleState)
 	if err != nil {
 		h.Logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))

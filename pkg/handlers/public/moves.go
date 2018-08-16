@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -23,7 +24,7 @@ func publicPayloadForMoveModel(move *models.Move) *apimessages.Move {
 	}
 	return &apimessages.Move{
 		SelectedMoveType: &SelectedMoveType,
-		OrdersID:         fmtUUID(move.OrdersID),
+		OrdersID:         utils.FmtUUID(move.OrdersID),
 		Status:           apimessages.MoveStatus(move.Status),
 		Locator:          swag.String(move.Locator),
 		CancelReason:     swag.String(cancelReason),

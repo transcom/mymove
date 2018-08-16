@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
+func (suite *utils.HandlerSuite) TestCreateMoveHandlerAllValues() {
 	// Given: a set of orders, user and servicemember
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 
@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	suite.Assertions.Equal(orders.ID.String(), okResponse.Payload.OrdersID.String())
 }
 
-func (suite *HandlerSuite) TestPatchMoveHandler() {
+func (suite *utils.HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.db)
 
@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 	suite.Assertions.Equal(&newType, okResponse.Payload.SelectedMoveType)
 }
 
-func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
+func (suite *utils.HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.db)
 	// And: another logged in user
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	suite.checkResponseForbidden(response)
 }
 
-func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
+func (suite *utils.HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	suite.checkResponseNotFound(response)
 }
 
-func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
+func (suite *utils.HandlerSuite) TestPatchMoveHandlerNoType() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.db)
 
@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	suite.Assertions.Equal(move.ID.String(), okResponse.Payload.ID.String())
 }
 
-func (suite *HandlerSuite) TestShowMoveHandler() {
+func (suite *utils.HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.db)
@@ -172,7 +172,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 }
 
-func (suite *HandlerSuite) TestShowMoveWrongUser() {
+func (suite *utils.HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.db)
 	// And: another logged in user
@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 }
 
-func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
+func (suite *utils.HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move

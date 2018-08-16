@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *HandlerSuite) TestSearchDutyStationHandler() {
+func (suite *utils.HandlerSuite) TestSearchDutyStationHandler() {
 	t := suite.T()
 
 	// Need a logged in user

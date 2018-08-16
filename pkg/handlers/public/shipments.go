@@ -15,41 +15,41 @@ import (
 
 func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentPayload := &apimessages.Shipment{
-		ID: *fmtUUID(s.ID),
+		ID: *utils.FmtUUID(s.ID),
 		TrafficDistributionList:      publicPayloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                publicPayloadForServiceMemberModel(s.ServiceMember),
-		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
-		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
+		PickupDate:                   *utils.FmtDateTimePtr(s.PickupDate),
+		DeliveryDate:                 *utils.FmtDateTimePtr(s.DeliveryDate),
 		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
 		DestinationGbloc:             apimessages.GBLOC(*s.DestinationGBLOC),
 		Market:                       apimessages.ShipmentMarket(*s.Market),
-		BookDate:                     *fmtDatePtr(s.BookDate),
-		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),
+		BookDate:                     *utils.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:          *utils.FmtDateTimePtr(s.RequestedPickupDate),
 		Move:                         publicPayloadForMoveModel(s.Move),
 		Status:                       apimessages.ShipmentStatus(s.Status),
-		EstimatedPackDays:            fmtInt64(*s.EstimatedPackDays),
-		EstimatedTransitDays:         fmtInt64(*s.EstimatedTransitDays),
+		EstimatedPackDays:            utils.FmtInt64(*s.EstimatedPackDays),
+		EstimatedTransitDays:         utils.FmtInt64(*s.EstimatedTransitDays),
 		PickupAddress:                publicPayloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:    *fmtBool(s.HasSecondaryPickupAddress),
+		HasSecondaryPickupAddress:    *utils.FmtBool(s.HasSecondaryPickupAddress),
 		SecondaryPickupAddress:       publicPayloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:           *fmtBool(s.HasDeliveryAddress),
+		HasDeliveryAddress:           *utils.FmtBool(s.HasDeliveryAddress),
 		DeliveryAddress:              publicPayloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress: *fmtBool(s.HasPartialSITDeliveryAddress),
+		HasPartialSitDeliveryAddress: *utils.FmtBool(s.HasPartialSITDeliveryAddress),
 		PartialSitDeliveryAddress:    publicPayloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:               fmtInt64(s.WeightEstimate.Int64()),
-		ProgearWeightEstimate:        fmtInt64(s.ProgearWeightEstimate.Int64()),
-		SpouseProgearWeightEstimate:  fmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		WeightEstimate:               utils.FmtInt64(s.WeightEstimate.Int64()),
+		ProgearWeightEstimate:        utils.FmtInt64(s.ProgearWeightEstimate.Int64()),
+		SpouseProgearWeightEstimate:  utils.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
 	}
 	return shipmentPayload
 }
 
-// PublicIndexShipmentsHandler returns a list of shipments
-type PublicIndexShipmentsHandler utils.HandlerContext
+// IndexShipmentsHandler returns a list of shipments
+type IndexShipmentsHandler utils.HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmentsParams) middleware.Responder {
+func (h IndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmentsParams) middleware.Responder {
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -83,11 +83,11 @@ func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmen
 	return publicshipmentop.NewIndexShipmentsOK().WithPayload(isp)
 }
 
-// PublicGetShipmentHandler returns a particular shipment
-type PublicGetShipmentHandler utils.HandlerContext
+// GetShipmentHandler returns a particular shipment
+type GetShipmentHandler utils.HandlerContext
 
 // Handle returns a specified shipment
-func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentParams) middleware.Responder {
+func (h GetShipmentHandler) Handle(params publicshipmentop.GetShipmentParams) middleware.Responder {
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -119,58 +119,58 @@ func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentPara
 	return publicshipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
-// PublicCreateShipmentAcceptHandler allows a TSP to accept a particular shipment
-type PublicCreateShipmentAcceptHandler utils.HandlerContext
+// CreateShipmentAcceptHandler allows a TSP to accept a particular shipment
+type CreateShipmentAcceptHandler utils.HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
+func (h CreateShipmentAcceptHandler) Handle(params publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
 	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
 }
 
-// PublicCreateShipmentRejectHandler allows a TSP to refuse a particular shipment
-type PublicCreateShipmentRejectHandler utils.HandlerContext
+// CreateShipmentRejectHandler allows a TSP to refuse a particular shipment
+type CreateShipmentRejectHandler utils.HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentRejectHandler) Handle(params publicshipmentop.CreateShipmentRejectParams) middleware.Responder {
+func (h CreateShipmentRejectHandler) Handle(params publicshipmentop.CreateShipmentRejectParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// PublicUpdateShipmentHandler allows a TSP to refuse a particular shipment
-type PublicUpdateShipmentHandler utils.HandlerContext
+// UpdateShipmentHandler allows a TSP to refuse a particular shipment
+type UpdateShipmentHandler utils.HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicUpdateShipmentHandler) Handle(p publicshipmentop.UpdateShipmentParams) middleware.Responder {
+func (h UpdateShipmentHandler) Handle(p publicshipmentop.UpdateShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// PublicGetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
-type PublicGetShipmentContactDetailsHandler utils.HandlerContext
+// GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
+type GetShipmentContactDetailsHandler utils.HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicGetShipmentContactDetailsHandler) Handle(p publicshipmentop.GetShipmentContactDetailsParams) middleware.Responder {
+func (h GetShipmentContactDetailsHandler) Handle(p publicshipmentop.GetShipmentContactDetailsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// PublicGetShipmentClaimsHandler allows a TSP to accept a particular shipment
-type PublicGetShipmentClaimsHandler utils.HandlerContext
+// GetShipmentClaimsHandler allows a TSP to accept a particular shipment
+type GetShipmentClaimsHandler utils.HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicGetShipmentClaimsHandler) Handle(p publicshipmentop.GetShipmentClaimsParams) middleware.Responder {
+func (h GetShipmentClaimsHandler) Handle(p publicshipmentop.GetShipmentClaimsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// PublicGetShipmentDocumentsHandler allows a TSP to accept a particular shipment
-type PublicGetShipmentDocumentsHandler utils.HandlerContext
+// GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
+type GetShipmentDocumentsHandler utils.HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicGetShipmentDocumentsHandler) Handle(p publicshipmentop.GetShipmentDocumentsParams) middleware.Responder {
+func (h GetShipmentDocumentsHandler) Handle(p publicshipmentop.GetShipmentDocumentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// PublicCreateShipmentDocumentHandler allows a TSP to accept a particular shipment
-type PublicCreateShipmentDocumentHandler utils.HandlerContext
+// CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
+type CreateShipmentDocumentHandler utils.HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentDocumentHandler) Handle(p publicshipmentop.CreateShipmentDocumentParams) middleware.Responder {
+func (h CreateShipmentDocumentHandler) Handle(p publicshipmentop.CreateShipmentDocumentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }

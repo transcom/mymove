@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer storage.FileStorer) {
+func (suite *utils.HandlerSuite) assertPDFPageCount(count int, file afero.File, storer storage.FileStorer) {
 	pdfConfig := pdfcpu.NewInMemoryConfiguration()
 	pdfConfig.FileSystem = storer.FileSystem()
 
@@ -31,7 +31,7 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 	suite.Equal(2, ctx.PageCount)
 }
 
-func (suite *HandlerSuite) createHandlerContext() utils.HandlerContext {
+func (suite *utils.HandlerSuite) createHandlerContext() utils.HandlerContext {
 	context := NewHandlerContext(suite.db, suite.logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
@@ -39,7 +39,7 @@ func (suite *HandlerSuite) createHandlerContext() utils.HandlerContext {
 	return context
 }
 
-func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
+func (suite *utils.HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	uploadKeyRe := regexp.MustCompile(`(user/.+/uploads/.+)\?`)
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)

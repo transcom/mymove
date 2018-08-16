@@ -1,4 +1,4 @@
-package internal
+package utils
 
 import (
 	"encoding/json"
@@ -35,7 +35,8 @@ func (o *errResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 	json.NewEncoder(rw).Encode(clientMessage{o.err.Error()})
 }
 
-func responseForError(logger *zap.Logger, err error) middleware.Responder {
+// ResponseForError logs an error and returns the expected error type
+func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
 		logger.Debug("not found", zap.Error(err))
@@ -55,7 +56,8 @@ func responseForError(logger *zap.Logger, err error) middleware.Responder {
 	}
 }
 
-func responseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
+// ResponseForVErrors checks for validation errors
+func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
 	if verrs.HasAny() {
 		logger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
 		if err == nil {
@@ -63,10 +65,11 @@ func responseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 		}
 		return newErrResponse(http.StatusBadRequest, err)
 	}
-	return responseForError(logger, err)
+	return ResponseForError(logger, err)
 }
 
-func responseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
+// ResponseForConflictErrors checks for conflict errors
+func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
 	logger.Error("Encountered conflict error", zap.Error(err))
 
 	return newErrResponse(http.StatusConflict, err)

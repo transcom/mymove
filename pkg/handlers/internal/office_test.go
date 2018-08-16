@@ -3,23 +3,21 @@ package internal
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/strfmt"
-
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestApproveMoveHandler() {
+func (suite *utils.HandlerSuite) TestApproveMoveHandler() {
 	// Given: a set of complete orders, a move, office user and servicemember user
 	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
 	assertions := testdatagen.Assertions{
 		Order: models.Order{
-			OrdersNumber:        fmtString("1234"),
+			OrdersNumber:        utils.FmtString("1234"),
 			OrdersTypeDetail:    &hhgPermitted,
-			TAC:                 fmtString("1234"),
-			DepartmentIndicator: fmtString("17 - United States Marines"),
+			TAC:                 utils.FmtString("1234"),
+			DepartmentIndicator: utils.FmtString("17 - United States Marines"),
 		},
 	}
 	move := testdatagen.MakeMove(suite.db, assertions)
@@ -38,7 +36,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
 	handler := ApproveMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -52,7 +50,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	suite.Assertions.Equal(internalmessages.MoveStatusAPPROVED, okResponse.Payload.Status)
 }
 
-func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
+func (suite *utils.HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	// Given: a set of incomplete orders, a move, office user and servicemember user
 	move := testdatagen.MakeDefaultMove(suite.db)
 	// Given: an office User
@@ -70,7 +68,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
 	}
 	// And: move handler is hit
 	handler := ApproveMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -80,7 +78,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	suite.Assertions.IsType(&officeop.ApprovePPMBadRequest{}, response)
 }
 
-func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
+func (suite *utils.HandlerSuite) TestApproveMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
 	move := testdatagen.MakeDefaultMove(suite.db)
 	// Given: an non-office User
@@ -92,7 +90,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
 	handler := ApproveMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -101,7 +99,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	// Then: response is Forbidden
 	suite.Assertions.IsType(&officeop.ApproveMoveForbidden{}, response)
 }
-func (suite *HandlerSuite) TestCancelMoveHandler() {
+func (suite *utils.HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
 	// Orders has service member with transportation office and phone nums
 	orders := testdatagen.MakeDefaultOrder(suite.db)
@@ -137,7 +135,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
 		CancelMove:  reasonPayload,
 	}
 
@@ -154,7 +152,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// And: Returned query to have an canceled status
 	suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
 }
-func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
+func (suite *utils.HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
 	move := testdatagen.MakeDefaultMove(suite.db)
 	// Given: an non-office User
@@ -171,7 +169,7 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
 		CancelMove:  reasonPayload,
 	}
 	// And: a move is canceled
@@ -183,7 +181,7 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Then: response is Forbidden
 	suite.Assertions.IsType(&officeop.CancelMoveForbidden{}, response)
 }
-func (suite *HandlerSuite) TestApprovePPMHandler() {
+func (suite *utils.HandlerSuite) TestApprovePPMHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm := testdatagen.MakeDefaultPPM(suite.db)
 
@@ -195,7 +193,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm.ID.String()),
 	}
 
 	// And: a ppm is approved
@@ -212,7 +210,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	suite.Equal(internalmessages.PPMStatusAPPROVED, okResponse.Payload.Status)
 }
 
-func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
+func (suite *utils.HandlerSuite) TestApprovePPMHandlerForbidden() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
@@ -223,7 +221,7 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm.ID.String()),
 	}
 
 	// And: a ppm is approved
@@ -236,7 +234,7 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	suite.Assertions.IsType(&officeop.ApprovePPMForbidden{}, response)
 }
 
-func (suite *HandlerSuite) TestApproveReimbursementHandler() {
+func (suite *utils.HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
@@ -246,7 +244,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	req = suite.authenticateOfficeRequest(req, officeUser)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
-		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
+		ReimbursementID: str * utils.Fmt.UUID(reimbursement.ID.String()),
 	}
 
 	// And: a reimbursement is approved
@@ -261,7 +259,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	suite.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
 }
 
-func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
+func (suite *utils.HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
@@ -271,7 +269,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	req = suite.authenticateRequest(req, user)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
-		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
+		ReimbursementID: str * utils.Fmt.UUID(reimbursement.ID.String()),
 	}
 
 	// And: a reimbursement is approved

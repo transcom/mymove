@@ -32,12 +32,12 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.Db, session, ppmID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	err = h.Db.Load(ppm, "Move.Orders.UploadedOrders.Uploads")
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	// Fetch move documents with matching types
@@ -78,7 +78,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Upload merged PDF to S3 and return Upload object
 	pdfUpload, verrs, err := loader.CreateUpload(nil, session.UserID, mergedPdf)
 	if verrs.HasAny() || err != nil {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	url, err := loader.PresignedURL(pdfUpload)

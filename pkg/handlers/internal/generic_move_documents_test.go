@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
+func (suite *utils.HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	move := testdatagen.MakeDefaultMove(suite.db)
 	sm := move.Orders.ServiceMember
 
@@ -32,8 +32,8 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:        uploadIds,
 		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
-		Title:            fmtString("awesome_document.pdf"),
-		Notes:            fmtString("Some notes here"),
+		Title:            utils.FmtString("awesome_document.pdf"),
+		Notes:            utils.FmtString("Some notes here"),
 	}
 
 	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{

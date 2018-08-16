@@ -20,8 +20,8 @@ func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument 
 	}
 
 	genericMoveDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID:               fmtUUID(moveDocument.ID),
-		MoveID:           fmtUUID(moveDocument.MoveID),
+		ID:               utils.FmtUUID(moveDocument.ID),
+		MoveID:           utils.FmtUUID(moveDocument.MoveID),
 		Document:         documentPayload,
 		Title:            &moveDocument.Title,
 		MoveDocumentType: internalmessages.MoveDocumentType(moveDocument.MoveDocumentType),
@@ -44,7 +44,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	payload := params.CreateGenericMoveDocumentPayload
@@ -60,7 +60,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		converted := uuid.Must(uuid.FromString(id.String()))
 		upload, err := models.FetchUpload(h.Db, session, converted)
 		if err != nil {
-			return responseForError(h.Logger, err)
+			return utils.ResponseForError(h.Logger, err)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -72,7 +72,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		// Enforce that the ppm's move_id matches our move
 		ppm, err := models.FetchPersonallyProcuredMove(h.Db, session, id)
 		if err != nil {
-			return responseForError(h.Logger, err)
+			return utils.ResponseForError(h.Logger, err)
 		}
 		if !uuid.Equal(ppm.MoveID, moveID) {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()
@@ -89,12 +89,12 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		payload.Notes)
 
 	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	newPayload, err := payloadForGenericMoveDocumentModel(h.Storage, *newMoveDocument)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }

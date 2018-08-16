@@ -6,17 +6,15 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 // TestPublicIndexShipmentsHandlerAllShipments tests the api endpoint with no query parameters
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -57,7 +55,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 }
 
 // TestPublicIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 
 	numTspUsers := 2
 	numShipments := 25
@@ -108,7 +106,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 }
 
 // TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc sorts returned shipments
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
@@ -159,7 +157,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc
 }
 
 // TestPublicIndexShipmentsHandlerSortShipmentsPickupDesc sorts returned shipments
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDesc() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
@@ -210,7 +208,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDes
 }
 
 // TestPublicIndexShipmentsHandlerSortShipmentsDeliveryAsc sorts returned shipments
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
@@ -261,7 +259,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryA
 }
 
 // TestPublicIndexShipmentsHandlerSortShipmentsDeliveryDesc sorts returned shipments
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryDesc() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryDesc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
@@ -312,7 +310,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryD
 }
 
 // TestPublicIndexShipmentsHandlerFilterByStatus tests the api endpoint with defined status query param
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
@@ -342,7 +340,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 }
 
 // TestPublicIndexShipmentsHandlerFilterByStatusNoResults tests the api endpoint with defined status query param that returns nothing
-func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResults() {
+func (suite *utils.HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResults() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}

@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
+func (suite *utils.HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 
 	move := testdatagen.MakeDefaultMove(suite.db)
 	sm := move.Orders.ServiceMember
@@ -33,11 +33,11 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
 		UploadIds:            uploadIds,
 		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
-		Title:                fmtString("awesome_document.pdf"),
-		Notes:                fmtString("Some notes here"),
+		Title:                utils.FmtString("awesome_document.pdf"),
+		Notes:                utils.FmtString("Some notes here"),
 		MovingExpenseType:    internalmessages.MovingExpenseTypeWEIGHINGFEES,
-		PaymentMethod:        fmtString("GTCC"),
-		RequestedAmountCents: fmtInt64(2589),
+		PaymentMethod:        utils.FmtString("GTCC"),
+		RequestedAmountCents: utils.FmtInt64(2589),
 	}
 
 	newMovingExpenseDocParams := movedocop.CreateMovingExpenseDocumentParams{

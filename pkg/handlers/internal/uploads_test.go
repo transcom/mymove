@@ -13,17 +13,17 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
+func createPrereqs(suite *utils.HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	params := uploadop.NewCreateUploadParams()
-	params.DocumentID = fmtUUID(document.ID)
+	params.DocumentID = utils.FmtUUID(document.ID)
 	params.File = suite.fixture("test.pdf")
 
 	return document, params
 }
 
-func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
+func makeRequest(suite *utils.HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
 	req := &http.Request{}
 	req = suite.authenticateRequest(req, serviceMember)
 
@@ -37,7 +37,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 	return response
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
+func (suite *utils.HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	document, params := createPrereqs(suite)
@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	}
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
+func (suite *utils.HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	_, params := createPrereqs(suite)
@@ -86,14 +86,14 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	}
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
+func (suite *utils.HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	document, params := createPrereqs(suite)
 
 	// Make a document ID that is not actually associated with a document
-	params.DocumentID = fmtUUID(uuid.Must(uuid.NewV4()))
+	params.DocumentID = utils.FmtUUID(uuid.Must(uuid.NewV4()))
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	suite.Assertions.IsType(&errResponse{}, response)
@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	}
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
+func (suite *utils.HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	t := suite.T()
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
@@ -137,7 +137,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	}
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
+func (suite *utils.HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
 	fakeS3 := storageTest.NewFakeS3Storage(false)
 	document, params := createPrereqs(suite)
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	}
 }
 
-func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
+func (suite *utils.HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	upload := testdatagen.MakeDefaultUpload(suite.db)
@@ -187,7 +187,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	suite.NotNil(err)
 }
 
-func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
+func (suite *utils.HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	upload1 := testdatagen.MakeDefaultUpload(suite.db)

@@ -21,7 +21,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	if !session.IsServiceMember() {
 		userPayload := internalmessages.LoggedInUserPayload{
-			ID: fmtUUID(session.UserID),
+			ID: utils.FmtUUID(session.UserID),
 		}
 		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 	}
@@ -37,7 +37,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		// Fetch associations on duty station
 		dutyStation, err := models.FetchDutyStation(h.Db, *serviceMember.DutyStationID)
 		if err != nil {
-			return responseForError(h.Logger, err)
+			return utils.ResponseForError(h.Logger, err)
 		}
 		serviceMember.DutyStation = dutyStation
 
@@ -46,11 +46,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return responseForError(h.Logger, err)
+				return utils.ResponseForError(h.Logger, err)
 			}
 			// We might not have Transportation Office data for a Duty Station, and that's ok
 			if errors.Cause(err) != models.ErrFetchNotFound {
-				return responseForError(h.Logger, err)
+				return utils.ResponseForError(h.Logger, err)
 			}
 		}
 		serviceMember.DutyStation.TransportationOffice = transportationOffice
@@ -60,7 +60,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	if len(serviceMember.Orders) > 0 {
 		orders, err := models.FetchOrderForUser(h.Db, session, serviceMember.Orders[0].ID)
 		if err != nil {
-			return responseForError(h.Logger, err)
+			return utils.ResponseForError(h.Logger, err)
 		}
 		serviceMember.Orders[0] = orders
 
@@ -68,11 +68,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return responseForError(h.Logger, err)
+				return utils.ResponseForError(h.Logger, err)
 			}
 			// We might not have Transportation Office data for a Duty Station, and that's ok
 			if errors.Cause(err) != models.ErrFetchNotFound {
-				return responseForError(h.Logger, err)
+				return utils.ResponseForError(h.Logger, err)
 			}
 		}
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
@@ -83,7 +83,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				// TODO: load advances on all ppms for the latest order's move
 				ppm, err := models.FetchPersonallyProcuredMove(h.Db, session, serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
 				if err != nil {
-					return responseForError(h.Logger, err)
+					return utils.ResponseForError(h.Logger, err)
 				}
 				serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
 			}
@@ -91,7 +91,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 
 	userPayload := internalmessages.LoggedInUserPayload{
-		ID:            fmtUUID(session.UserID),
+		ID:            utils.FmtUUID(session.UserID),
 		ServiceMember: payloadForServiceMemberModel(h.Storage, serviceMember),
 	}
 	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)

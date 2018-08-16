@@ -15,12 +15,12 @@ import (
 
 func payloadForSignedCertificationModel(cert models.SignedCertification) *internalmessages.SignedCertificationPayload {
 	return &internalmessages.SignedCertificationPayload{
-		ID:                fmtUUID(cert.ID),
-		CreatedAt:         fmtDateTime(cert.CreatedAt),
-		UpdatedAt:         fmtDateTime(cert.UpdatedAt),
-		CertificationText: fmtString(cert.CertificationText),
-		Signature:         fmtString(cert.Signature),
-		Date:              fmtDate(cert.Date),
+		ID:                utils.FmtUUID(cert.ID),
+		CreatedAt:         utils.FmtDateTime(cert.CreatedAt),
+		UpdatedAt:         utils.FmtDateTime(cert.UpdatedAt),
+		CertificationText: utils.FmtString(cert.CertificationText),
+		Signature:         utils.FmtString(cert.Signature),
+		Date:              utils.FmtDate(cert.Date),
 	}
 }
 
@@ -35,13 +35,13 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	payload := params.CreateSignedCertificationPayload
 	_, verrs, err := move.CreateSignedCertification(h.Db, session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
 	if verrs.HasAny() || err != nil {
-		return responseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
 	}
 
 	return certop.NewCreateSignedCertificationCreated()
@@ -58,7 +58,7 @@ func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertif
 
 	move, err := models.FetchMove(h.Db, session, moveID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 
 	certs := move.SignedCertifications

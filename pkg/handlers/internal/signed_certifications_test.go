@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
+func (suite *utils.HandlerSuite) TestCreateSignedCertificationHandler() {
 	t := suite.T()
 	move := testdatagen.MakeDefaultMove(suite.db)
 
@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 }
 
-func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() {
+func (suite *utils.HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() {
 	t := suite.T()
 
 	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	}
 }
 
-func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
+func (suite *utils.HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	t := suite.T()
 
 	move := testdatagen.MakeDefaultMove(suite.db)
@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	}
 }
 
-func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
+func (suite *utils.HandlerSuite) TestIndexSignedCertificationsHandler() {
 	move := testdatagen.MakeDefaultMove(suite.db)
 
 	time1 := time.Date(2018, time.January, 1, 1, 1, 1, 1, time.UTC)
@@ -168,7 +168,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 	suite.Require().Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
 
 	// Now test that a limit works
-	params.Limit = fmtInt64(1)
+	params.Limit = utils.FmtInt64(1)
 
 	handler = IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
 	response = handler.Handle(params)

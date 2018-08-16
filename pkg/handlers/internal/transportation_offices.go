@@ -20,9 +20,9 @@ func payloadForTransportationOfficeModel(office models.TransportationOffice) *in
 	}
 
 	payload := &internalmessages.TransportationOffice{
-		ID:         fmtUUID(office.ID),
-		CreatedAt:  fmtDateTime(office.CreatedAt),
-		UpdatedAt:  fmtDateTime(office.UpdatedAt),
+		ID:         utils.FmtUUID(office.ID),
+		CreatedAt:  utils.FmtDateTime(office.CreatedAt),
+		UpdatedAt:  utils.FmtDateTime(office.UpdatedAt),
 		Name:       swag.String(office.Name),
 		Gbloc:      office.Gbloc,
 		Address:    payloadForAddressModel(&office.Address),
@@ -39,7 +39,7 @@ func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportation
 	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
 	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.Db, dutyStationID)
 	if err != nil {
-		return responseForError(h.Logger, err)
+		return utils.ResponseForError(h.Logger, err)
 	}
 	transportationOfficePayload := payloadForTransportationOfficeModel(transportationOffice)
 

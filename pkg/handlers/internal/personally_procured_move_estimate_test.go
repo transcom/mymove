@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
+func (suite *utils.HandlerSuite) TestShowPPMEstimateHandler() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	suite.Equal(int64(668909), *cost.RangeMax, "RangeMax was not equal")
 }
 
-func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
+func (suite *utils.HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
