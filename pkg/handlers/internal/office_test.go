@@ -36,7 +36,7 @@ func (suite *utils.HandlerSuite) TestApproveMoveHandler() {
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
 	handler := ApproveMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -68,7 +68,7 @@ func (suite *utils.HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: move handler is hit
 	handler := ApproveMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -90,7 +90,7 @@ func (suite *utils.HandlerSuite) TestApproveMoveHandlerForbidden() {
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
 	handler := ApproveMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -135,7 +135,7 @@ func (suite *utils.HandlerSuite) TestCancelMoveHandler() {
 	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 		CancelMove:  reasonPayload,
 	}
 
@@ -169,7 +169,7 @@ func (suite *utils.HandlerSuite) TestCancelMoveHandlerForbidden() {
 	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 		CancelMove:  reasonPayload,
 	}
 	// And: a move is canceled
@@ -193,7 +193,7 @@ func (suite *utils.HandlerSuite) TestApprovePPMHandler() {
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm.ID.String()),
+		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
 	// And: a ppm is approved
@@ -221,7 +221,7 @@ func (suite *utils.HandlerSuite) TestApprovePPMHandlerForbidden() {
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm.ID.String()),
+		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
 	// And: a ppm is approved
@@ -244,7 +244,7 @@ func (suite *utils.HandlerSuite) TestApproveReimbursementHandler() {
 	req = suite.authenticateOfficeRequest(req, officeUser)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
-		ReimbursementID: str * utils.Fmt.UUID(reimbursement.ID.String()),
+		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
 	}
 
 	// And: a reimbursement is approved
@@ -269,7 +269,7 @@ func (suite *utils.HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	req = suite.authenticateRequest(req, user)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
-		ReimbursementID: str * utils.Fmt.UUID(reimbursement.ID.String()),
+		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
 	}
 
 	// And: a reimbursement is approved

@@ -35,7 +35,7 @@ func (suite *utils.HandlerSuite) TestCreatePPMHandler() {
 	}
 
 	newPPMParams := ppmop.CreatePersonallyProcuredMoveParams{
-		MoveID: str * utils.Fmt.UUID(move.ID.String()),
+		MoveID: strfmt.UUID(move.ID.String()),
 		CreatePersonallyProcuredMovePayload: &newPPMPayload,
 		HTTPRequest:                         request,
 	}
@@ -55,7 +55,7 @@ func (suite *utils.HandlerSuite) TestCreatePPMHandler() {
 	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
-	newPPMParams.MoveID = str * utils.Fmt.UUID(uuid.Must(uuid.NewV4()).String())
+	newPPMParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newPPMParams)
 	suite.checkResponseNotFound(badMoveResponse)
 
@@ -107,7 +107,7 @@ func (suite *utils.HandlerSuite) TestIndexPPMHandler() {
 	req = suite.authenticateRequest(req, move1.Orders.ServiceMember)
 
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
-		MoveID:      str * utils.Fmt.UUID(move1.ID.String()),
+		MoveID:      strfmt.UUID(move1.ID.String()),
 		HTTPRequest: req,
 	}
 
@@ -189,8 +189,8 @@ func (suite *utils.HandlerSuite) TestPatchPPMHandler() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -245,8 +245,8 @@ func (suite *utils.HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: payload,
 	}
 
@@ -318,8 +318,8 @@ func (suite *utils.HandlerSuite) TestPatchPPMHandlerWrongUser() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -370,8 +370,8 @@ func (suite *utils.HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -412,8 +412,8 @@ func (suite *utils.HandlerSuite) TestPatchPPMHandlerNoMove() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(badMoveID.String()),
-		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
+		MoveID:      strfmt.UUID(badMoveID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -464,8 +464,8 @@ func (suite *utils.HandlerSuite) TestPatchPPMHandlerAdvance() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -528,8 +528,8 @@ func (suite *utils.HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
 		HTTPRequest: req,
-		MoveID:      str * utils.Fmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           str * utils.Fmt.UUID(ppm1.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
@@ -607,7 +607,7 @@ func (suite *utils.HandlerSuite) TestRequestPPMPayment() {
 
 	requestPaymentParams := ppmop.RequestPPMPaymentParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm1.ID.String()),
+		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
 	handler := RequestPPMPaymentHandler(NewHandlerContext(suite.db, suite.logger))
@@ -650,7 +650,7 @@ func (suite *utils.HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 
 	requestExpenseSumParams := ppmop.RequestPPMExpenseSummaryParams{
 		HTTPRequest:              req,
-		PersonallyProcuredMoveID: str * utils.Fmt.UUID(ppm.ID.String()),
+		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
 	handler := RequestPPMExpenseSummaryHandler(NewHandlerContext(suite.db, suite.logger))

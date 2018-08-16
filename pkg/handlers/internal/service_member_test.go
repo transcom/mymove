@@ -30,7 +30,7 @@ func (suite *utils.HandlerSuite) TestShowServiceMemberHandler() {
 
 	params := servicememberop.ShowServiceMemberParams{
 		HTTPRequest:     req,
-		ServiceMemberID: str * utils.Fmt.UUID(newServiceMember.ID.String()),
+		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 	}
 	// And: show ServiceMember is queried
 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
@@ -54,7 +54,7 @@ func (suite *utils.HandlerSuite) TestShowServiceMemberWrongUser() {
 
 	showServiceMemberParams := servicememberop.ShowServiceMemberParams{
 		HTTPRequest:     req,
-		ServiceMemberID: str * utils.Fmt.UUID(notLoggedInUser.ID.String()),
+		ServiceMemberID: strfmt.UUID(notLoggedInUser.ID.String()),
 	}
 	// And: Show servicemember is queried
 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
@@ -72,7 +72,7 @@ func (suite *utils.HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
-		UserID:                 str * utils.Fmt.UUID(user.ID.String()),
+		UserID:                 strfmt.UUID(user.ID.String()),
 		Edipi:                  swag.String("random string bla"),
 		FirstName:              swag.String("random string bla"),
 		MiddleName:             swag.String("random string bla"),
@@ -86,7 +86,7 @@ func (suite *utils.HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		EmailIsPreferred:       swag.Bool(true),
 		ResidentialAddress:     fakeAddressPayload(),
 		BackupMailingAddress:   fakeAddressPayload(),
-		SocialSecurityNumber:   (*str * utils.Fmt.SSN)(swag.String("123-45-6789")),
+		SocialSecurityNumber:   (*strfmt.SSN)(swag.String("123-45-6789")),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -123,7 +123,7 @@ func (suite *utils.HandlerSuite) TestSubmitServiceMemberSSN() {
 	// When: a new ServiceMember is posted
 	ssn := "123-45-6789"
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
-		SocialSecurityNumber: (*str * utils.Fmt.SSN)(swag.String(ssn)),
+		SocialSecurityNumber: (*strfmt.SSN)(swag.String(ssn)),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -202,7 +202,7 @@ func (suite *utils.HandlerSuite) TestPatchServiceMemberHandler() {
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
-		ServiceMemberID:           str * utils.Fmt.UUID(newServiceMember.ID.String()),
+		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
@@ -255,7 +255,7 @@ func (suite *utils.HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
-		ServiceMemberID:           str * utils.Fmt.UUID(newServiceMember.ID.String()),
+		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
@@ -285,7 +285,7 @@ func (suite *utils.HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() 
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
-		ServiceMemberID:           str * utils.Fmt.UUID(servicememberUUID.String()),
+		ServiceMemberID:           strfmt.UUID(servicememberUUID.String()),
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
@@ -316,7 +316,7 @@ func (suite *utils.HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
-		ServiceMemberID:           str * utils.Fmt.UUID(newServiceMember.ID.String()),
+		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
@@ -341,7 +341,7 @@ func (suite *utils.HandlerSuite) TestShowServiceMemberOrders() {
 
 	params := servicememberop.ShowServiceMemberOrdersParams{
 		HTTPRequest:     req,
-		ServiceMemberID: str * utils.Fmt.UUID(order1.ServiceMemberID.String()),
+		ServiceMemberID: strfmt.UUID(order1.ServiceMemberID.String()),
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
