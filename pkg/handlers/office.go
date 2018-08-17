@@ -32,7 +32,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 
 	err = move.Approve()
 	if err != nil {
-		h.logger.Error("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+		h.logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return responseForError(h.logger, err)
 	}
 

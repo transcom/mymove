@@ -188,9 +188,10 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID:           move.ID,
-			Move:             move,
-			MoveDocumentType: models.MoveDocumentTypeSHIPMENTSUMMARY,
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
+			PersonallyProcuredMoveID: &ppm.ID,
 		},
 		Document: models.Document{
 			ServiceMemberID: sm.ID,
