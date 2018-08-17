@@ -1,0 +1,49 @@
+.paperwork{
+	margin: 1em;
+	list-style: none;
+	counter-reset: my-awesome-counter;
+}
+
+.paperwork hr {
+	border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.paperwork > p, .paperwork > a {
+	margin-left: 1em;
+}
+
+.paperwork-step {
+	display: flex;
+	justify-content: flex-start;
+	counter-increment: my-awesome-counter;
+}
+
+.paperwork-step::before {
+	content: counter(my-awesome-counter) ") ";
+	font-weight: bold;
+	margin-top: 0.1em;
+}
+
+.paperwork-step div {
+	margin-left: 0.3em;
+	width: 66%;
+}
+
+.paperwork-step div p {
+	margin: 0;
+}
+
+.paperwork-step div p:first-child {
+	font-weight: bold;
+}
+
+.paperwork-step button, .paperwork-step Link {
+	margin-left: auto;
+	width: 300px;
+	height: 40px;
+	align-self: center;
+}
+
