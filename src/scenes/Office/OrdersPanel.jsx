@@ -76,13 +76,11 @@ const OrdersDisplay = props => {
           value={formatDate(props.orders.issue_date)}
         />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
-        {props.orders.orders_type_detail ? (
-          <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
-        ) : (
-          <PanelField title="Orders type detail" className="missing">
-            missing
-          </PanelField>
-        )}
+        <PanelSwaggerField
+          fieldName="orders_type_detail"
+          nullWarning
+          {...fieldProps}
+        />
         <PanelField
           title="Report by"
           value={formatDate(props.orders.report_by_date)}

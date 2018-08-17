@@ -52,21 +52,35 @@ SwaggerValue.propTypes = {
 };
 
 export const PanelSwaggerField = props => {
-  const { fieldName, schema } = props;
+  const { fieldName, nullWarning, schema, values } = props;
   const title =
     props.title || get(schema, `properties.${fieldName}.title`, fieldName);
 
-  return (
+  let component = (
     <PanelField title={title}>
       <SwaggerValue {...props} />
+      {props.children}
     </PanelField>
   );
+
+  if (nullWarning && !values[fieldName]) {
+    component = (
+      <PanelField title={title} className="missing">
+        missing
+        {props.children}
+      </PanelField>
+    );
+  }
+
+  return component;
 };
 PanelSwaggerField.propTypes = {
   fieldName: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   values: PropTypes.object.isRequired,
   title: PropTypes.string,
+  children: PropTypes.node,
+  nullWarning: PropTypes.bool,
 };
 
 export class EditablePanel extends Component {
