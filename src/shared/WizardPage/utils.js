@@ -18,10 +18,10 @@ export function isLastPage(pageList, currentPage) {
   return index === pageList.length - 1;
 }
 
-export async function beforeTransition(func) {
+export async function beforeTransition(func, shouldHandleSubmit = true) {
   const { dirty, pageList, pageKey, handleSubmit } = this.props;
   const path = func(pageList, pageKey);
-  if (dirty && handleSubmit) {
+  if (dirty && handleSubmit && shouldHandleSubmit) {
     const awaitSubmit = await handleSubmit();
     if (!awaitSubmit || !awaitSubmit.error) {
       this.goto(path);

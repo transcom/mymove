@@ -81,7 +81,7 @@ func MakeShipmentOfferData(db *pop.Connection) {
 // CreateShipmentOfferData creates a list of TSP Users, Shipments, and Shipment Offers
 // Must pass in the number of tsp users to create and number of shipments.
 // The split of shipment offers should be the length of TSP users and the sum should equal the number of shipments
-func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
+func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int, statuses []string) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
 	var tspUserList []models.TspUser
 	var shipmentList []models.Shipment
 	var shipmentOfferList []models.ShipmentOffer
@@ -103,9 +103,13 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
+		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
 		tspUserAssertions := Assertions{
+			User: models.User{
+				LoginGovEmail: email,
+			},
 			TspUser: models.TspUser{
-				Email: fmt.Sprintf("leo_spaceman%d@example.com", i),
+				Email: email,
 			},
 		}
 		tspUser := MakeTspUser(db, tspUserAssertions)
@@ -113,11 +117,14 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	}
 
 	// Create shipments
-	tdl, _ := MakeTDL(
-		db,
-		DefaultSrcRateArea,
-		DefaultDstRegion,
-		DefaultCOS)
+	tdl := MakeTDL(
+		db, Assertions{
+			TrafficDistributionList: models.TrafficDistributionList{
+				SourceRateArea:    DefaultSrcRateArea,
+				DestinationRegion: DefaultDstRegion,
+				CodeOfService:     DefaultCOS,
+			},
+		})
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	oneWeek, _ := time.ParseDuration("7d")
@@ -126,6 +133,9 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		Move: models.Move{
 			SelectedMoveType: &selectedMoveType,
 		},
+	}
+	if len(statuses) == 0 {
+		statuses = []string{"DRAFT", "AWARDED"}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
@@ -141,6 +151,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
 				Move:                    &move,
+				MoveID:                  move.ID,
+				Status:                  statuses[rand.Intn(len(statuses))],
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)

@@ -6,12 +6,18 @@ import (
 	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
 func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
@@ -147,7 +153,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -164,7 +170,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -270,7 +276,7 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -285,4 +291,27 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 		return responseForError(h.logger, err)
 	}
 	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
+}
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+func publicPayloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessages.ServiceMember {
+
+	serviceMemberPayload := apimessages.ServiceMember{
+		FirstName:              serviceMember.FirstName,
+		MiddleName:             serviceMember.MiddleName,
+		LastName:               serviceMember.LastName,
+		Suffix:                 serviceMember.Suffix,
+		Telephone:              serviceMember.Telephone,
+		SecondaryTelephone:     serviceMember.SecondaryTelephone,
+		PersonalEmail:          serviceMember.PersonalEmail,
+		PhoneIsPreferred:       serviceMember.PhoneIsPreferred,
+		TextMessageIsPreferred: serviceMember.TextMessageIsPreferred,
+		EmailIsPreferred:       serviceMember.EmailIsPreferred,
+	}
+	return &serviceMemberPayload
 }
