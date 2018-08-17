@@ -24,6 +24,7 @@ import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
+import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -31,6 +32,7 @@ import {
   approveBasics,
   approvePPM,
   cancelMove,
+  patchShipment,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import {
@@ -84,6 +86,13 @@ const HHGTabContent = props => {
         title="Weight & Inventory"
         moveId={props.moveId}
       />
+      {props.officeShipment && (
+        <PremoveSurvey
+          title="Premove Survey"
+          shipment={props.officeShipment}
+          update={props.patchShipment}
+        />
+      )}
     </div>
   );
 };
@@ -343,6 +352,8 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
+                    officeShipment={this.props.officeShipment}
+                    patchShipment={this.props.patchShipment}
                     moveId={this.props.match.params.moveId}
                   />
                 </PrivateRoute>
@@ -451,6 +462,7 @@ MoveInfo.propTypes = {
 const mapStateToProps = state => ({
   swaggerError: get(state, 'swagger.hasErrored'),
   officeMove: get(state, 'office.officeMove', {}),
+  officeShipment: get(state, 'office.officeShipment', {}),
   officeOrders: get(state, 'office.officeOrders', {}),
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
@@ -474,6 +486,7 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       cancelMove,
+      patchShipment,
     },
     dispatch,
   );

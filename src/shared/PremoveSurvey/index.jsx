@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import isMobile from 'is-mobile';
 import { Link } from 'react-router-dom';
-import { concat, get, reject, every, includes } from 'lodash';
+import { concat, get, pick, reject, every, includes } from 'lodash';
 import {
   reduxForm,
   Field,
@@ -28,6 +28,18 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 import './index.css';
+
+const surveyFields = [
+  'pm_survey_pack_date',
+  'pm_survey_pickup_date',
+  'pm_survey_latest_pickup_date',
+  'pm_survey_earliest_delivery_date',
+  'pm_survey_latest_delivery_date',
+  'pm_survey_weight_estimate',
+  'pm_survey_progear_weight_estimate',
+  'pm_survey_spouse_progear_weight_estimate',
+  'pm_survey_notes',
+];
 
 const SurveyDisplay = props => {
   const fieldProps = {
@@ -194,7 +206,7 @@ function mapStateToProps(state, props) {
     // reduxForm
     formValues: formValues,
     initialValues: {
-      survey: props.shipment,
+      survey: pick(props.shipment, surveyFields),
     },
 
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
