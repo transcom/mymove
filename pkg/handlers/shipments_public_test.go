@@ -1,19 +1,14 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	// "github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
-	// shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
-	// "github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
-	// "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -29,9 +24,7 @@ func (suite *HandlerSuite) TestPublicGetShipmentHandler() {
 	numShipmentOfferSplit := []int{1}
 	status := []string{"DRAFT"}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
@@ -63,9 +56,7 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandler() {
 	numShipmentOfferSplit := []int{1}
 	status := []string{"AWARDED"}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
@@ -118,9 +109,7 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandlerWrongTSP() {
 	numShipmentOfferSplit := []int{1}
 	status := []string{"AWARDED"}
 	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	shipment := shipments[0]
 
@@ -163,9 +152,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	numShipmentOfferSplit := []int{1}
 	status := []string{"DRAFT"}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
@@ -205,9 +192,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 	numShipmentOfferSplit := []int{15, 10}
 	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser1 := tspUsers[0]
 	tspUser2 := tspUsers[1]
@@ -255,9 +240,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -306,9 +289,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDes
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -357,9 +338,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryA
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -408,9 +387,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryD
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -459,9 +436,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -489,9 +464,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResult
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
