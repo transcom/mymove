@@ -11,6 +11,8 @@ const allowedDateFormats = [
   'YYYY/M/D',
   'YYYY-M-D',
   'M-D-YYYY',
+  'D-MMM-YYYY',
+  'MMM-D-YYYY',
 ];
 
 function parseDate(str, _format, locale = 'en') {
