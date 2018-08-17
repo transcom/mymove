@@ -23,11 +23,11 @@ const (
 	ShipmentStatusDRAFT ShipmentStatus = "DRAFT"
 	// ShipmentStatusSUBMITTED captures enum value "SUBMITTED"
 	ShipmentStatusSUBMITTED ShipmentStatus = "SUBMITTED"
-	// ShipmentStatusAPPROVED captures enum value "APPROVED"
-	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
 	// ShipmentStatusAWARDED captures enum value "AWARDED"
 	// Using AWARDED for TSP Queue work, not yet in office/SM flow
 	ShipmentStatusAWARDED ShipmentStatus = "AWARDED"
+	// ShipmentStatusAPPROVED captures enum value "APPROVED"
+	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.

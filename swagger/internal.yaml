@@ -1744,13 +1744,13 @@ definitions:
     enum:
       - DRAFT
       - SUBMITTED
-      - APPROVED
       - AWARDED
+      - APPROVED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
-      APPROVED: Approved
       AWARDED: Awarded
+      APPROVED: Approved
   PPMStatus:
     type: string
     title: PPM status
