@@ -197,8 +197,6 @@ func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment
 			StateOrProvinceCode: shipment.PickupAddress.State,
 			PostalCode:          shipment.PickupAddress.PostalCode,
 			CountryCode:         country,
-			LocationQualifier:   "TODO", // CY (county), IP (postal), or RA (rate area)"...
-			LocationIdentifier:  "TODO", // Waiting on US Bank to get back to me about whether we can omit these
 		},
 		// Origin installation information
 		&edisegment.N1{
@@ -207,20 +205,12 @@ func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment
 			IdentificationCodeQualifier: "27", // GBLOC
 			IdentificationCode:          "LKNQ",
 		},
-		&edisegment.N4{
-			LocationQualifier:  "RA",   // Rate area
-			LocationIdentifier: "US88", // TODO: real rate area
-		},
 		// Destination installation information
 		&edisegment.N1{
 			EntityIdentifierCode: "RH",   // Destination name qualifier
 			Name:                 "MLNQ", // TODO: pull from TransportationOffice
 			IdentificationCodeQualifier: "27", // GBLOC
 			IdentificationCode:          "MLNQ",
-		},
-		&edisegment.N4{
-			LocationQualifier:  "RA",
-			LocationIdentifier: "US891", // TODO: real rate area
 		},
 		// Accounting info
 		&edisegment.FA1{
