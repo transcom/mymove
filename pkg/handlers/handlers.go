@@ -36,6 +36,7 @@ func NewPublicAPIHandler(context utils.HandlerContext) http.Handler {
 	// Shipments
 	publicAPI.ShipmentsIndexShipmentsHandler = public.IndexShipmentsHandler(context)
 	publicAPI.ShipmentsGetShipmentHandler = public.GetShipmentHandler(context)
+	publicAPI.ShipmentsPatchShipmentHandler = public.PatchShipmentHandler(context)
 	publicAPI.ShipmentsCreateShipmentAcceptHandler = public.CreateShipmentAcceptHandler(context)
 	publicAPI.ShipmentsCreateShipmentRejectHandler = public.CreateShipmentRejectHandler(context)
 

@@ -47,6 +47,14 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	expDoc := testdatagen.MakeMovingExpenseDocument(suite.Db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			PersonallyProcuredMoveID: &ppm.ID,
+			Status: models.MoveDocumentStatusOK,
+		},
+	})
+	// Doc with an unapproved status
+	testdatagen.MakeMovingExpenseDocument(suite.Db, testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status: models.MoveDocumentStatusHASISSUE,
 		},
 	})
 

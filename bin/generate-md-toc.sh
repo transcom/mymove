@@ -17,7 +17,7 @@ function generate_toc() {
   regen=$'\n\nRegenerate with "bin/generate-md-toc.sh"'
 
   # shellcheck disable=SC2016
-  yarn run markdown-toc -i "${filename}" --bullets='*' --append="${regen}"
+  node_modules/.bin/markdown-toc -i "${filename}" --bullets='*' --append="${regen}"
 }
 
 filename="${1:-}"

@@ -100,7 +100,7 @@ func (p *PersonallyProcuredMove) Submit() error {
 
 // Approve approves the PPM to go forward.
 func (p *PersonallyProcuredMove) Approve() error {
-	if p.Status != PPMStatusSUBMITTED {
+	if !(p.Status == PPMStatusSUBMITTED || p.Status == PPMStatusDRAFT) {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 
@@ -144,7 +144,9 @@ func (p *PersonallyProcuredMove) Cancel() error {
 func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, docTypes []MoveDocumentType) (MoveDocuments, error) {
 	var moveDocs MoveDocuments
 
-	q := db.Where("personally_procured_move_id = ?", p.ID)
+	q := db.
+		Where("personally_procured_move_id = ?", p.ID).
+		Where("status = ?", MoveDocumentStatusOK)
 
 	// If we were given doc types, append that WHERE statement
 	if len(docTypes) > 0 {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -13,12 +14,139 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *HandlerSuite) TestGetShipmentHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []string{"DRAFT"}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	params := shipmentop.GetShipmentParams{
+		HTTPRequest:  req,
+		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
+	}
+
+	// And: get shipment is returned
+	handler := GetShipmentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&shipmentop.GetShipmentOK{}, response)
+	okResponse := response.(*shipmentop.GetShipmentOK)
+
+	// And: Payload is equivalent to original shipment
+	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
+}
+
+func (suite *HandlerSuite) TestPatchShipmentHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []string{"AWARDED"}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	genericDate := time.Now()
+	UpdatePayload := apimessages.Shipment{
+		PmSurveyPackDate:                    utils.FmtDatePtr(&genericDate),
+		PmSurveyPickupDate:                  utils.FmtDatePtr(&genericDate),
+		PmSurveyEarliestDeliveryDate:        utils.FmtDatePtr(&genericDate),
+		PmSurveyLatestDeliveryDate:          utils.FmtDatePtr(&genericDate),
+		PmSurveyWeightEstimate:              swag.Int64(33),
+		PmSurveyProgearWeightEstimate:       swag.Int64(53),
+		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
+		PmSurveyNotes:                       swag.String("Unsure about pickup date."),
+	}
+
+	params := shipmentop.PatchShipmentParams{
+		HTTPRequest:  req,
+		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
+		Update:       &UpdatePayload,
+	}
+
+	// And: patch shipment is returned
+	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&shipmentop.PatchShipmentOK{}, response)
+	okResponse := response.(*shipmentop.PatchShipmentOK)
+
+	// And: Payload has new values
+	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
+	suite.Equal(*UpdatePayload.PmSurveyNotes, *okResponse.Payload.PmSurveyNotes)
+	suite.Equal(int64(54), *okResponse.Payload.PmSurveySpouseProgearWeightEstimate)
+	suite.Equal(int64(53), *okResponse.Payload.PmSurveyProgearWeightEstimate)
+	suite.Equal(int64(33), *okResponse.Payload.PmSurveyWeightEstimate)
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyLatestDeliveryDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyEarliestDeliveryDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPickupDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPackDate))
+}
+
+func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []string{"AWARDED"}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	shipment := shipments[0]
+
+	otherTspUser := testdatagen.MakeDefaultTspUser(suite.Db)
+
+	// And: the context contains the auth values for the wrong tsp
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateTspRequest(req, otherTspUser)
+
+	genericDate := time.Now()
+	UpdatePayload := apimessages.Shipment{
+		PmSurveyPackDate:                    utils.FmtDatePtr(&genericDate),
+		PmSurveyPickupDate:                  utils.FmtDatePtr(&genericDate),
+		PmSurveyEarliestDeliveryDate:        utils.FmtDatePtr(&genericDate),
+		PmSurveyLatestDeliveryDate:          utils.FmtDatePtr(&genericDate),
+		PmSurveyWeightEstimate:              swag.Int64(33),
+		PmSurveyProgearWeightEstimate:       swag.Int64(53),
+		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
+		PmSurveyNotes:                       swag.String("Unsure about pickup date."),
+	}
+
+	params := shipmentop.PatchShipmentParams{
+		HTTPRequest:  req,
+		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
+		Update:       &UpdatePayload,
+	}
+
+	// And: patch shipment is returned
+	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&shipmentop.PatchShipmentBadRequest{}, response)
+}
+
 // TestIndexShipmentsHandlerAllShipments tests the api endpoint with no query parameters
 func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -60,7 +188,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	numTspUsers := 2
 	numShipments := 25
 	numShipmentOfferSplit := []int{15, 10}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -110,7 +238,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -161,7 +289,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
@@ -212,11 +340,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -263,11 +389,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -314,11 +438,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
@@ -344,11 +466,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
-	status := []string{"DEFAULT"}
+	status := []string{"DRAFT"}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.Db, numTspUsers, numShipments, numShipmentOfferSplit, status)
-	if err != nil {
-		fmt.Println(err)
-	}
+	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 

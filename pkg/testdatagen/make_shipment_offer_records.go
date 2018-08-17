@@ -135,7 +135,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		},
 	}
 	if len(statuses) == 0 {
-		statuses = []string{"DEFAULT", "AWARDED"}
+		statuses = []string{"DRAFT", "AWARDED"}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()

@@ -186,7 +186,11 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 }
 func (suite *HandlerSuite) TestApprovePPMHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.Db)
+	ppm := testdatagen.MakePPM(suite.Db, testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusSUBMITTED,
+		},
+	})
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.Db)
 

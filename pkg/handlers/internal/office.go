@@ -37,7 +37,11 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return officeop.NewApprovePPMBadRequest()
 	}
 
-	move.Approve()
+	err = move.Approve()
+	if err != nil {
+		h.Logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+		return utils.ResponseForError(h.Logger, err)
+	}
 
 	verrs, err := h.Db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
@@ -118,7 +122,11 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return utils.ResponseForError(h.Logger, err)
 	}
 	moveID := ppm.MoveID
-	ppm.Status = models.PPMStatusAPPROVED
+	err = ppm.Approve()
+	if err != nil {
+		h.Logger.Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
+		return utils.ResponseForError(h.Logger, err)
+	}
 
 	verrs, err := h.Db.ValidateAndUpdate(ppm)
 	if err != nil || verrs.HasAny() {

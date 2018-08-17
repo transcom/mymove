@@ -1,6 +1,8 @@
 package public
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
@@ -16,31 +18,40 @@ import (
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
 		ID: *utils.FmtUUID(s.ID),
-		TrafficDistributionList:      payloadForTrafficDistributionListModel(s.TrafficDistributionList),
-		ServiceMember:                payloadForServiceMemberModel(s.ServiceMember),
-		PickupDate:                   *utils.FmtDateTimePtr(s.PickupDate),
-		DeliveryDate:                 *utils.FmtDateTimePtr(s.DeliveryDate),
-		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
-		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
-		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
-		DestinationGbloc:             apimessages.GBLOC(*s.DestinationGBLOC),
-		Market:                       apimessages.ShipmentMarket(*s.Market),
-		BookDate:                     *utils.FmtDatePtr(s.BookDate),
-		RequestedPickupDate:          *utils.FmtDateTimePtr(s.RequestedPickupDate),
-		Move:                         payloadForMoveModel(s.Move),
-		Status:                       apimessages.ShipmentStatus(s.Status),
-		EstimatedPackDays:            utils.FmtInt64(*s.EstimatedPackDays),
-		EstimatedTransitDays:         utils.FmtInt64(*s.EstimatedTransitDays),
-		PickupAddress:                payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:    *utils.FmtBool(s.HasSecondaryPickupAddress),
-		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:           *utils.FmtBool(s.HasDeliveryAddress),
-		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress: *utils.FmtBool(s.HasPartialSITDeliveryAddress),
-		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:               utils.FmtInt64(s.WeightEstimate.Int64()),
-		ProgearWeightEstimate:        utils.FmtInt64(s.ProgearWeightEstimate.Int64()),
-		SpouseProgearWeightEstimate:  utils.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
+		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
+		PickupDate:                          *utils.FmtDateTimePtr(s.PickupDate),
+		DeliveryDate:                        *utils.FmtDateTimePtr(s.DeliveryDate),
+		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
+		SourceGbloc:                         apimessages.GBLOC(*s.SourceGBLOC),
+		DestinationGbloc:                    apimessages.GBLOC(*s.DestinationGBLOC),
+		Market:                              apimessages.ShipmentMarket(*s.Market),
+		BookDate:                            *utils.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:                 *utils.FmtDateTimePtr(s.RequestedPickupDate),
+		Move:                                payloadForMoveModel(s.Move),
+		Status:                              apimessages.ShipmentStatus(s.Status),
+		EstimatedPackDays:                   utils.FmtInt64(*s.EstimatedPackDays),
+		EstimatedTransitDays:                utils.FmtInt64(*s.EstimatedTransitDays),
+		PickupAddress:                       payloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:           *utils.FmtBool(s.HasSecondaryPickupAddress),
+		SecondaryPickupAddress:              payloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:                  *utils.FmtBool(s.HasDeliveryAddress),
+		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress:        *utils.FmtBool(s.HasPartialSITDeliveryAddress),
+		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:                      utils.FmtInt64(s.WeightEstimate.Int64()),
+		ProgearWeightEstimate:               utils.FmtInt64(s.ProgearWeightEstimate.Int64()),
+		SpouseProgearWeightEstimate:         utils.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		PmSurveyPackDate:                    utils.FmtDatePtr(s.PmSurveyPackDate),
+		PmSurveyPickupDate:                  utils.FmtDatePtr(s.PmSurveyPickupDate),
+		PmSurveyLatestPickupDate:            utils.FmtDatePtr(s.PmSurveyLatestPickupDate),
+		PmSurveyEarliestDeliveryDate:        utils.FmtDatePtr(s.PmSurveyEarliestDeliveryDate),
+		PmSurveyLatestDeliveryDate:          utils.FmtDatePtr(s.PmSurveyLatestDeliveryDate),
+		PmSurveyWeightEstimate:              utils.FmtPoundPtr(s.PmSurveyWeightEstimate),
+		PmSurveyProgearWeightEstimate:       utils.FmtPoundPtr(s.PmSurveyProgearWeightEstimate),
+		PmSurveySpouseProgearWeightEstimate: utils.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
+		PmSurveyNotes:                       s.PmSurveyNotes,
 	}
 	return shipmentpayload
 }
@@ -135,12 +146,77 @@ func (h CreateShipmentRejectHandler) Handle(params shipmentop.CreateShipmentReje
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// UpdateShipmentHandler allows a TSP to refuse a particular shipment
-type UpdateShipmentHandler utils.HandlerContext
+func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
+	// Premove Survey values entered by TSP agent
+	if payload.PmSurveyEarliestDeliveryDate != nil {
+		shipment.PmSurveyEarliestDeliveryDate = (*time.Time)(payload.PmSurveyEarliestDeliveryDate)
+	}
+	if payload.PmSurveyLatestDeliveryDate != nil {
+		shipment.PmSurveyLatestDeliveryDate = (*time.Time)(payload.PmSurveyLatestDeliveryDate)
+	}
+	if payload.PmSurveyLatestPickupDate != nil {
+		shipment.PmSurveyLatestPickupDate = (*time.Time)(payload.PmSurveyLatestPickupDate)
+	}
+	if payload.PmSurveyNotes != nil {
+		shipment.PmSurveyNotes = payload.PmSurveyNotes
+	}
+	if payload.PmSurveyPackDate != nil {
+		shipment.PmSurveyPackDate = (*time.Time)(payload.PmSurveyPackDate)
+	}
+	if payload.PmSurveyPickupDate != nil {
+		shipment.PmSurveyPickupDate = (*time.Time)(payload.PmSurveyPickupDate)
+	}
+
+	if payload.PmSurveyProgearWeightEstimate != nil {
+		shipment.PmSurveyProgearWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
+	}
+	if payload.PmSurveySpouseProgearWeightEstimate != nil {
+		shipment.PmSurveySpouseProgearWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
+	}
+	if payload.PmSurveyWeightEstimate != nil {
+		shipment.PmSurveyWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
+	}
+
+}
+
+// PatchShipmentHandler allows a TSP to refuse a particular shipment
+type PatchShipmentHandler utils.HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h UpdateShipmentHandler) Handle(p shipmentop.UpdateShipmentParams) middleware.Responder {
-	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
+func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.Logger.Error("Missing TSP User ID")
+		return shipmentop.NewGetShipmentForbidden()
+	}
+
+	tspUser, err := models.FetchTspUserByID(h.Db, session.TspUserID)
+	if err != nil {
+		h.Logger.Error("DB Query", zap.Error(err))
+		return shipmentop.NewPatchShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.Db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger.Error("DB Query", zap.Error(err))
+		return shipmentop.NewPatchShipmentBadRequest()
+	}
+
+	patchShipmentWithPayload(shipment, params.Update)
+	verrs, err := models.SaveShipmentAndAddresses(h.Db, shipment)
+
+	if err != nil || verrs.HasAny() {
+		return utils.ResponseForVErrors(h.Logger, verrs, err)
+	}
+
+	shipmentPayload := payloadForShipmentModel(*shipment)
+	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
 // GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
