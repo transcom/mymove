@@ -7,13 +7,9 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	// "github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
-	// shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
-	// "github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
-	// "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
