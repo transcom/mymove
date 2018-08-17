@@ -2704,7 +2704,7 @@ paths:
           description: move not found
         500:
           description: server error
-  /moves/{moveId}/shipment/{shipmentId}:
+  /shipment/{shipmentId}:
     patch:
       summary: Updates a Shipment for the given move
       description: Update a Shipment tied to the move ID
@@ -2712,12 +2712,6 @@ paths:
       tags:
         - shipments
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this Shipment is associated with
         - in: path
           name: shipmentId
           type: string
@@ -2751,12 +2745,6 @@ paths:
       tags:
         - shipments
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this Shipment is associated with
         - in: path
           name: shipmentId
           type: string

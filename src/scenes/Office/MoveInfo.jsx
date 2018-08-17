@@ -51,7 +51,7 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 const BasicsTabContent = props => {
   return (
     <div className="office-tab">
-      <OrdersPanel title="Orders" moveId={props.match.params.moveId} />
+      <OrdersPanel title="Orders" />
       <CustomerInfoPanel
         title="Customer Info"
         moveId={props.match.params.moveId}

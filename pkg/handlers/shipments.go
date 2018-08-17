@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -191,8 +190,6 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	shipment, err := models.FetchShipment(h.db, session, shipmentID)
@@ -200,10 +197,6 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 		return responseForError(h.logger, err)
 	}
 
-	if shipment.MoveID != moveID {
-		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
-		return shipmentop.NewPatchShipmentBadRequest()
-	}
 	patchShipmentWithPayload(shipment, params.Shipment)
 
 	verrs, err := models.SaveShipmentAndAddresses(h.db, shipment)
@@ -224,18 +217,11 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	shipment, err := models.FetchShipment(h.db, session, shipmentID)
 	if err != nil {
 		return responseForError(h.logger, err)
-	}
-
-	if shipment.MoveID != moveID {
-		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
-		return shipmentop.NewGetShipmentBadRequest()
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)

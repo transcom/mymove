@@ -21,7 +21,7 @@ export default function reducer(state = {}, action) {
 
 export function createOrUpdateShipment(moveId, shipment, id) {
   if (id) {
-    return updateShipment(moveId, id, shipment);
+    return updateShipment(id, shipment);
   } else {
     return createShipment(moveId, shipment);
   }
