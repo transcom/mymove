@@ -3,133 +3,173 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { CreateUpload, DeleteUpload } from 'shared/api.js';
 import isMobile from 'is-mobile';
-import { concat, reject, every, includes } from 'lodash';
+import { Link } from 'react-router-dom';
+import { concat, get, reject, every, includes } from 'lodash';
+import {
+  reduxForm,
+  Field,
+  FormSection,
+  getFormValues,
+  isValid,
+} from 'redux-form';
+
+import {
+  PanelSwaggerField,
+  PanelField,
+  SwaggerValue,
+  editablePanelify,
+} from 'shared/EditablePanel';
+import { formatDate } from 'shared/formatters';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 import './index.css';
 
 const SurveyDisplay = props => {
   const fieldProps = {
-    schema: props.ordersSchema,
-    values: props.orders,
+    schema: props.shipmentSchema,
+    values: props.shipment,
   };
 
   return (
     <React.Fragment>
-      <div className="editable-panel-column">
-        {props.orders.orders_number ? (
-          <PanelField title="Orders Number">
-            <Link to={`/moves/${props.move.id}/orders`} target="_blank">
-              <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
-              <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-            </Link>
-          </PanelField>
-        ) : (
-          <PanelField title="Orders Number" className="missing">
-            missing
-            <Link to={`/moves/${props.move.id}/orders`} target="_blank">
-              <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-            </Link>
-          </PanelField>
-        )}
-        <PanelField
-          title="Date issued"
-          value={formatDate(props.orders.issue_date)}
+      <div className="editable-panel-3-column">
+        <PanelSwaggerField
+          title="Pack Date"
+          fieldName="pm_survey_pack_date"
+          nullWarning
+          {...fieldProps}
         />
-        <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
-        {props.orders.orders_type_detail ? (
-          <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
-        ) : (
-          <PanelField title="Orders type detail" className="missing">
-            missing
-          </PanelField>
-        )}
-        <PanelField
-          title="Report by"
-          value={formatDate(props.orders.report_by_date)}
+        <PanelSwaggerField
+          title="Pickup Date"
+          fieldName="pm_survey_pickup_date"
+          nullWarning
+          {...fieldProps}
         />
-        <PanelField title="Current Duty Station">
-          {get(props.serviceMember, 'current_station.name', '')}
-        </PanelField>
-        <PanelField title="New Duty Station">
-          {get(props.orders, 'new_duty_station.name', '')}
-        </PanelField>
+        <PanelSwaggerField
+          title="Latest Pickup Date"
+          fieldName="pm_survey_latest_pickup_date"
+          nullWarning
+          {...fieldProps}
+        />
+      </div>
+      <div className="editable-panel-3-column">
+        <PanelSwaggerField
+          title="Earliest Pickup Date"
+          fieldName="pm_survey_earliest_delivery_date"
+          nullWarning
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Latest Delivery Date"
+          fieldName="pm_survey_latest_delivery_date"
+          nullWarning
+          {...fieldProps}
+        />
+      </div>
+      <div className="editable-panel-3-column">
+        <PanelSwaggerField
+          title="Weight Estimate"
+          fieldName="pm_survey_weight_estimate"
+          nullWarning
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Progear Weight Estimate"
+          fieldName="pm_survey_progear_weight_estimate"
+          nullWarning
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Spouse Progear Weight Estimate"
+          fieldName="pm_survey_spouse_progear_weight_estimate"
+          nullWarning
+          {...fieldProps}
+        />
       </div>
       <div className="editable-panel-column">
-        {renderEntitlements(props.entitlements, props.orders)}
-        {props.orders.has_dependents && (
-          <PanelField title="Dependents" value="Authorized" />
-        )}
+        <PanelSwaggerField
+          title="Notes"
+          fieldName="pm_survey_notes"
+          nullWarning
+          {...fieldProps}
+        />
       </div>
     </React.Fragment>
   );
 };
 
 const SurveyEdit = props => {
-  const schema = props.ordersSchema;
+  const schema = props.shipmentSchema;
   return (
     <React.Fragment>
-      <div className="editable-panel-column">
-        <FormSection name="orders">
+      <FormSection name="survey">
+        <div className="editable-panel-3-column">
           <SwaggerField
-            fieldName="orders_number"
+            fieldName="pm_survey_pack_date"
             swagger={schema}
             className="half-width"
             required
           />
           <SwaggerField
-            fieldName="issue_date"
+            fieldName="pm_survey_pickup_date"
             swagger={schema}
             className="half-width"
-          />
-          <SwaggerField fieldName="orders_type" swagger={schema} required />
-          <SwaggerField
-            fieldName="orders_type_detail"
-            swagger={schema}
             required
           />
-          <SwaggerField fieldName="report_by_date" swagger={schema} />
-        </FormSection>
-
-        <FormSection name="serviceMember">
-          <div className="usa-input duty-station">
-            <Field
-              name="current_station"
-              component={DutyStationSearchBox}
-              props={{ title: 'Current Duty Station' }}
-            />
-          </div>
-        </FormSection>
-
-        <FormSection name="orders">
-          <div className="usa-input duty-station">
-            <Field
-              name="new_duty_station"
-              component={DutyStationSearchBox}
-              props={{ title: 'New Duty Station' }}
-            />
-          </div>
-        </FormSection>
-      </div>
-      <div className="editable-panel-column">
-        {renderEntitlements(props.entitlements, props.orders)}
-
-        <FormSection name="orders">
           <SwaggerField
-            fieldName="has_dependents"
+            fieldName="pm_survey_latest_pickup_date"
             swagger={schema}
-            title="Dependents authorized"
+            className="half-width"
+            required
           />
-          {get(props, 'formValues.orders.has_dependents', false) && (
-            <SwaggerField
-              fieldName="spouse_has_pro_gear"
-              swagger={schema}
-              title="Spouse has pro gear"
-            />
-          )}
-        </FormSection>
-      </div>
+        </div>
+
+        <div className="editable-panel-3-column">
+          <SwaggerField
+            fieldName="pm_survey_earliest_delivery_date"
+            swagger={schema}
+            className="half-width"
+            required
+          />
+          <SwaggerField
+            fieldName="pm_survey_latest_delivery_date"
+            swagger={schema}
+            className="half-width"
+            required
+          />
+        </div>
+
+        <div className="editable-panel-3-column">
+          <SwaggerField
+            fieldName="pm_survey_weight_estimate"
+            swagger={schema}
+            className="half-width"
+            required
+          />
+          <SwaggerField
+            fieldName="pm_survey_progear_weight_estimate"
+            swagger={schema}
+            className="half-width"
+            required
+          />
+          <SwaggerField
+            fieldName="pm_survey_spouse_progear_weight_estimate"
+            swagger={schema}
+            className="half-width"
+            required
+          />
+        </div>
+        <SwaggerField
+          fieldName="pm_survey_notes"
+          swagger={schema}
+          className="half-width"
+        />
+      </FormSection>
     </React.Fragment>
   );
 };
@@ -147,8 +187,28 @@ PremoveSurveyPanel.propTypes = {
   shipment: PropTypes.object,
 };
 
-function mapStateToProps(state) {
-  return {};
+function mapStateToProps(state, props) {
+  let formValues = getFormValues(formName)(state);
+
+  return {
+    // reduxForm
+    formValues: formValues,
+    initialValues: {
+      survey: props.shipment,
+    },
+
+    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+
+    hasError: false,
+    // errorMessage: get(state, 'office.error'),
+    isUpdating: false,
+
+    // editablePanelify
+    formIsValid: isValid(formName)(state),
+    getUpdateArgs: function() {
+      return [get(props, 'shipment.id'), formValues.survey];
+    },
+  };
 }
 
 function mapDispatchToProps(dispatch) {

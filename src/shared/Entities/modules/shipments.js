@@ -2,7 +2,7 @@ import { denormalize, normalize } from 'normalizr';
 
 import { shipments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
-import { getClient, checkResponse } from 'shared/api';
+import { getClient, getPublicClient, checkResponse } from 'shared/api';
 
 export const STATE_KEY = 'shipments';
 
@@ -59,14 +59,12 @@ export function createShipment(
 }
 
 export function updateShipment(
-  moveId,
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.shipments.patchShipment({
-      moveId,
       shipmentId,
       shipment,
     });

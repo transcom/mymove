@@ -13,6 +13,13 @@
   vertical-align: top;
 }
 
+.editable-panel-3-column {
+  display: inline-block;
+  width: 28%;
+  margin-right: 5%;
+  vertical-align: top;
+}
+
 .column-subhead{
   display: block;
   margin: 0.8em;
