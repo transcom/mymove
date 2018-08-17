@@ -144,7 +144,9 @@ func (p *PersonallyProcuredMove) Cancel() error {
 func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, docTypes []MoveDocumentType) (MoveDocuments, error) {
 	var moveDocs MoveDocuments
 
-	q := db.Where("personally_procured_move_id = ?", p.ID)
+	q := db.
+		Where("personally_procured_move_id = ?", p.ID).
+		Where("status = ?", MoveDocumentStatusOK)
 
 	// If we were given doc types, append that WHERE statement
 	if len(docTypes) > 0 {
