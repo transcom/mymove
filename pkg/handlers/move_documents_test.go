@@ -175,3 +175,67 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	suite.Require().Equal(*updatePayload.Title, "super_awesome.pdf")
 	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
 }
+
+func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
+	// When: there is a move and move document
+	ppm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	move := ppm.Move
+	sm := move.Orders.ServiceMember
+
+	moveDocument := testdatagen.MakeMoveDocument(suite.db, testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
+			PersonallyProcuredMoveID: &ppm.ID,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	})
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.authenticateRequest(request, sm)
+
+	// And: the title and status are updated
+	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+		ID:               fmtUUID(moveDocument.ID),
+		MoveID:           fmtUUID(move.ID),
+		Title:            fmtString(moveDocument.Title),
+		Notes:            moveDocument.Notes,
+		Status:           internalmessages.MoveDocumentStatusOK,
+		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
+	}
+
+	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
+		HTTPRequest:        request,
+		UpdateMoveDocument: &updateMoveDocPayload,
+		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
+	}
+
+	handler := UpdateMoveDocumentHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(updateMoveDocParams)
+
+	// Then: we expect to get back a 200 response
+	suite.isNotErrResponse(response)
+	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
+	updatePayload := updateResponse.Payload
+	suite.NotNil(updatePayload)
+
+	suite.Require().Equal(*updatePayload.ID, strfmt.UUID(moveDocument.ID.String()), "expected move doc ids to match")
+
+	// And: the new data to be there
+	suite.Require().Equal(updatePayload.Status, internalmessages.MoveDocumentStatusOK)
+
+	var ppms models.PersonallyProcuredMoves
+	q := suite.db.Where("move_id = ?", move.ID)
+	q.All(&ppms)
+	suite.Require().Equal(len(ppms), 1, "Should have a PPM!")
+	reloadedPPM := ppms[0]
+	suite.Require().Equal(string(models.PPMStatusCOMPLETED), string(reloadedPPM.Status))
+
+}

@@ -1,4 +1,4 @@
-package uploader
+package uploader_test
 
 import (
 	"io"
@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type UploaderSuite struct {
@@ -103,7 +104,7 @@ func TestUploaderSuite(t *testing.T) {
 func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
-	up := NewUploader(suite.db, suite.logger, suite.storer)
+	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
 	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
@@ -116,11 +117,11 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
-	up := NewUploader(suite.db, suite.logger, suite.storer)
+	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("empty.pdf")
 
 	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
-	suite.Equal(err, ErrZeroLengthFile)
+	suite.Equal(err, uploader.ErrZeroLengthFile)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // E2eBasicScenario builds a basic set of data for e2e testing
@@ -17,7 +18,7 @@ type e2eBasicScenario NamedScenario
 var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Basic user with tsp access
 	testdatagen.MakeTspUser(db, testdatagen.Assertions{
@@ -42,7 +43,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 
-	// Service member with uploaded orders and a new move
+	// Service member with uploaded orders and a new ppm
 	email := "ppm@incomple.te"
 	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -68,12 +69,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &nowTime,
 		},
+		Uploader: loader,
 	})
 	ppm0.Move.Submit()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, &ppm0.Move)
 
-	// Service member with a move in progress
+	// Service member with a ppm in progress
 	email = "ppm.in@progre.ss"
 	uuidStr = "20199d12-5165-4980-9ca7-19b5dc9f1032"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -99,13 +101,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &pastTime,
 		},
+		Uploader: loader,
 	})
 	ppm1.Move.Submit()
 	ppm1.Move.Approve()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, &ppm1.Move)
 
-	// Service member with a move approved, but not in progress
+	// Service member with a ppm move approved, but not in progress
 	email = "ppm@approv.ed"
 	uuidStr = "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -131,13 +134,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &futureTime,
 		},
+		Uploader: loader,
 	})
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
-	//service member with orders and a move, but no move type selected
+	//service member with orders and a move
 
 	email = "profile@comple.te"
 	uuidStr = "13F3949D-0D53-4BE4-B1B1-AE4314793F34"
@@ -161,6 +165,69 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
 			Locator: "BLABLA",
 		},
+		Uploader: loader,
 	})
 
+	//service member with orders and a move, but no move type selected to select HHG
+	email = "sm_hhg@example.com"
+	uuidStr = "4b389406-9258-4695-a091-0bf97b5a132f"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("b5d1f44b-5ceb-4a0e-9119-5687808996ff"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHGDude"),
+			LastName:      models.StringPointer("UserPerson"),
+			Edipi:         models.StringPointer("6833908163"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
+			Locator: "REWGIE",
+		},
+	})
+
+	// Service member with uploaded orders and a new shipment move
+	email = "hhg@incomple.te"
+	uuidStr = "ebc176e0-bb34-47d4-ba37-ff13e2dd40b9"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	nowTime = time.Now()
+	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("0d719b18-81d6-474a-86aa-b87246fff65c"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("2ed0b5a2-26d9-49a3-a775-5220055e8ffe"),
+			Locator:          "RLKBEM",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("0dfdbdda-c57e-4b29-994a-09fb8641fc75"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+	})
+	hhg0.Move.Submit()
+	// Save move and dependencies
+	models.SaveMoveDependencies(db, hhg0.Move)
 }

@@ -1,7 +1,11 @@
 package testdatagen
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -18,21 +22,35 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		uploaderID = document.ServiceMember.UserID
 	}
 
-	upload := models.Upload{
-		DocumentID:  &document.ID,
-		Document:    document,
-		UploaderID:  uploaderID,
-		Filename:    "testFile.pdf",
-		Bytes:       2202009,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	// Users can either assert an Uploader (and a real file is used), or can optionally assert fields
+	var upload *models.Upload
+	if assertions.Uploader != nil {
+		// If an Uploader is passed in, Upload assertions are ignored
+		var verrs *validate.Errors
+		var err error
+		file := fixture("test.pdf")
+		upload, verrs, err = assertions.Uploader.CreateUpload(&document.ID, uploaderID, file)
+		if verrs.HasAny() || err != nil {
+			log.Panic(fmt.Errorf("Errors encountered saving upload %v, %v", verrs, err))
+		}
+	} else {
+		// If no file is being stored, use asserted fields
+		upload = &models.Upload{
+			DocumentID:  &document.ID,
+			Document:    document,
+			UploaderID:  uploaderID,
+			Filename:    "testFile.pdf",
+			Bytes:       2202009,
+			ContentType: "application/pdf",
+			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		}
+
+		mergeModels(upload, assertions.Upload)
+
+		mustCreate(db, upload)
 	}
 
-	mergeModels(&upload, assertions.Upload)
-
-	mustCreate(db, &upload)
-
-	return upload
+	return *upload
 }
 
 // MakeDefaultUpload makes an Upload with default values

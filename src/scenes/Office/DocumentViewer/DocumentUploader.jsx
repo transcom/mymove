@@ -1,7 +1,7 @@
-import { get, map } from 'lodash';
+import { includes, get, map } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
+import { push, replace } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
@@ -19,6 +19,14 @@ import './DocumentUploader.css';
 const moveDocumentFormName = 'move_document_upload';
 
 export class DocumentUploader extends Component {
+  componentDidUpdate() {
+    const { initialValues, location } = this.props;
+    // Clear query string after initial values are set
+    if (initialValues && get(location, 'search', false)) {
+      this.props.replace(this.props.location.pathname);
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -182,10 +190,25 @@ DocumentUploader = reduxForm({
 
 DocumentUploader.propTypes = {
   moveId: PropTypes.string.isRequired,
+  moveDocumentType: PropTypes.string,
+  location: PropTypes.object,
 };
 
-function mapStateToProps(state) {
-  const props = {
+function mapStateToProps(state, props) {
+  const docTypes = get(
+    state,
+    'swagger.spec.definitions.MoveDocumentType.enum',
+    [],
+  );
+
+  let initialValues = {};
+  // Verify the provided doc type against the schema
+  if (includes(docTypes, props.moveDocumentType)) {
+    initialValues.move_document_type = props.moveDocumentType;
+  }
+
+  const newProps = {
+    initialValues: initialValues,
     formValues: getFormValues(moveDocumentFormName)(state),
     genericMoveDocSchema: get(
       state,
@@ -201,7 +224,7 @@ function mapStateToProps(state) {
     currentPpm:
       get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
   };
-  return props;
+  return newProps;
 }
 
 function mapDispatchToProps(dispatch) {
@@ -210,6 +233,7 @@ function mapDispatchToProps(dispatch) {
       createMoveDocument,
       createMovingExpenseDocument,
       push,
+      replace,
     },
     dispatch,
   );

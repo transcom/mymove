@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -212,13 +211,8 @@ func main() {
 		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
 	} else {
 		zap.L().Info("Using filesystem storage backend")
-		absTmpPath, err := filepath.Abs("tmp")
-		if err != nil {
-			log.Fatalln(errors.New("could not get absolute path for tmp"))
-		}
-		storagePath := path.Join(absTmpPath, "storage")
-		webRoot := "/" + "storage"
-		storer = storage.NewFilesystem(storagePath, webRoot, logger)
+		fsParams := storage.DefaultFilesystemParams(logger)
+		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
 

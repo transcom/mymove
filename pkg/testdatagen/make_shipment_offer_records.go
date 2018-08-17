@@ -117,11 +117,14 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	}
 
 	// Create shipments
-	tdl, _ := MakeTDL(
-		db,
-		DefaultSrcRateArea,
-		DefaultDstRegion,
-		DefaultCOS)
+	tdl := MakeTDL(
+		db, Assertions{
+			TrafficDistributionList: models.TrafficDistributionList{
+				SourceRateArea:    DefaultSrcRateArea,
+				DestinationRegion: DefaultDstRegion,
+				CodeOfService:     DefaultCOS,
+			},
+		})
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	oneWeek, _ := time.ParseDuration("7d")
@@ -132,7 +135,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		},
 	}
 	if len(statuses) == 0 {
-		statuses = []string{"DEFAULT", "AWARDED"}
+		statuses = []string{"DRAFT", "AWARDED"}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
@@ -148,6 +151,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
 				Move:                    &move,
+				MoveID:                  move.ID,
 				Status:                  statuses[rand.Intn(len(statuses))],
 			},
 		}
