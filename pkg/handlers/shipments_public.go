@@ -5,6 +5,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
+	"time"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -149,12 +150,77 @@ func (h PublicCreateShipmentRejectHandler) Handle(params publicshipmentop.Create
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// PublicUpdateShipmentHandler allows a TSP to refuse a particular shipment
-type PublicUpdateShipmentHandler HandlerContext
+func publicPatchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
+	// Premove Survey values entered by TSP agent
+	if payload.PmSurveyEarliestDeliveryDate != nil {
+		shipment.PmSurveyEarliestDeliveryDate = (*time.Time)(payload.PmSurveyEarliestDeliveryDate)
+	}
+	if payload.PmSurveyLatestDeliveryDate != nil {
+		shipment.PmSurveyLatestDeliveryDate = (*time.Time)(payload.PmSurveyLatestDeliveryDate)
+	}
+	if payload.PmSurveyLatestPickupDate != nil {
+		shipment.PmSurveyLatestPickupDate = (*time.Time)(payload.PmSurveyLatestPickupDate)
+	}
+	if payload.PmSurveyNotes != nil {
+		shipment.PmSurveyNotes = payload.PmSurveyNotes
+	}
+	if payload.PmSurveyPackDate != nil {
+		shipment.PmSurveyPackDate = (*time.Time)(payload.PmSurveyPackDate)
+	}
+	if payload.PmSurveyPickupDate != nil {
+		shipment.PmSurveyPickupDate = (*time.Time)(payload.PmSurveyPickupDate)
+	}
+
+	if payload.PmSurveyProgearWeightEstimate != nil {
+		shipment.PmSurveyProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
+	}
+	if payload.PmSurveySpouseProgearWeightEstimate != nil {
+		shipment.PmSurveySpouseProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
+	}
+	if payload.PmSurveyWeightEstimate != nil {
+		shipment.PmSurveyWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
+	}
+
+}
+
+// PublicPatchShipmentHandler allows a TSP to patch a particular shipment
+type PublicPatchShipmentHandler HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicUpdateShipmentHandler) Handle(p publicshipmentop.UpdateShipmentParams) middleware.Responder {
-	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
+func (h PublicPatchShipmentHandler) Handle(params publicshipmentop.PatchShipmentParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewPatchShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewPatchShipmentBadRequest()
+	}
+
+	publicPatchShipmentWithPayload(shipment, params.Update)
+	verrs, err := models.SaveShipmentAndAddresses(h.db, shipment)
+
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	shipmentPayload := publicPayloadForShipmentModel(*shipment)
+	return publicshipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
 // PublicGetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
