@@ -72,11 +72,12 @@ func main() {
 		numTspUsers := 2
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
-		status := []string{"DEFAULT", "AWARDED"}
+		status := []string{"DRAFT", "AWARDED"}
 		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 		if err != nil {
 			log.Panic(err)
 		}
+		log.Print("Success! Created TSP test data.")
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
 		tdgs.E2eBasicScenario.Run(db, loader)
 		log.Print("Success! Created e2e test data.")

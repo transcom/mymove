@@ -58,6 +58,7 @@ type MoveDocument struct {
 	MoveID                   uuid.UUID              `json:"move_id" db:"move_id"`
 	Move                     Move                   `belongs_to:"moves"`
 	PersonallyProcuredMoveID *uuid.UUID             `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	PersonallyProcuredMove   PersonallyProcuredMove `belongs_to:"personally_procured_moves"`
 	Title                    string                 `json:"title" db:"title"`
 	Status                   MoveDocumentStatus     `json:"status" db:"status"`
 	MoveDocumentType         MoveDocumentType       `json:"move_document_type" db:"move_document_type"`
@@ -82,6 +83,46 @@ func (m *MoveDocument) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
+// State Machinery
+
+// AttemptTransition is glue for when you are modifying the status of a model
+// via a PUT rather than an action url. This translates the target status into an action method.
+func (m *MoveDocument) AttemptTransition(targetStatus MoveDocumentStatus) error {
+	// If it's the same it's not a transition
+	if targetStatus == m.Status {
+		return nil
+	}
+
+	switch targetStatus {
+	case MoveDocumentStatusOK:
+		return m.Approve()
+	case MoveDocumentStatusHASISSUE:
+		return m.Reject()
+	}
+
+	return errors.Wrap(ErrInvalidTransition, string(targetStatus))
+}
+
+// Approve marks the Document as OK
+func (m *MoveDocument) Approve() error {
+	if m.Status != MoveDocumentStatusAWAITINGREVIEW {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+
+	m.Status = MoveDocumentStatusOK
+	return nil
+}
+
+// Reject marks the Document as HAS_ISSUE
+func (m *MoveDocument) Reject() error {
+	if m.Status != MoveDocumentStatusAWAITINGREVIEW {
+		return errors.Wrap(ErrInvalidTransition, "Reject")
+	}
+
+	m.Status = MoveDocumentStatusHASISSUE
+	return nil
+}
+
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
 func (m *MoveDocument) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
@@ -97,7 +138,7 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 // FetchMoveDocument fetches a MoveDocument model
 func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
 	var moveDoc MoveDocument
-	err := db.Q().Eager("Document.Uploads").Find(&moveDoc, id)
+	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -188,6 +229,17 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 				return transactionError
 			}
 			moveDocument.MovingExpenseDocument = nil
+		}
+
+		// Updating the move document can cause the PPM to be updated
+		if moveDocument.PersonallyProcuredMoveID != nil {
+			ppm := moveDocument.PersonallyProcuredMove
+
+			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving Move Document's PPM")
+				return transactionError
+			}
 		}
 
 		// Finally, save the MoveDocument
