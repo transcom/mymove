@@ -18,11 +18,11 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
-	user1 := testdatagen.MakeDefaultServiceMember(suite.Db)
-	orders := testdatagen.MakeDefaultOrder(suite.Db)
+	user1 := testdatagen.MakeDefaultServiceMember(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
-	move, verrs, locErr := orders.CreateNewMove(suite.Db, &selectedType)
+	move, verrs, locErr := orders.CreateNewMove(suite.db, &selectedType)
 	suite.False(verrs.HasAny(), "failed to create new move")
 	suite.Nil(locErr)
 
@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		HTTPRequest:                         request,
 	}
 
-	handler := CreatePersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := CreatePersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newPPMParams)
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
@@ -67,8 +67,8 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	t := suite.T()
 
 	// Given: moves and associated PPMs
-	move1 := testdatagen.MakeDefaultMove(suite.Db)
-	move2 := testdatagen.MakeDefaultMove(suite.Db)
+	move1 := testdatagen.MakeDefaultMove(suite.db)
+	move2 := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move1.ID,
@@ -89,17 +89,17 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		Status:         models.PPMStatusDRAFT,
 	}
 
-	verrs, err := suite.Db.ValidateAndCreate(&ppm1)
+	verrs, err := suite.db.ValidateAndCreate(&ppm1)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
 
-	verrs, err = suite.Db.ValidateAndCreate(&ppm2)
+	verrs, err = suite.db.ValidateAndCreate(&ppm2)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
 
-	verrs, err = suite.Db.ValidateAndCreate(&otherPPM)
+	verrs, err = suite.db.ValidateAndCreate(&otherPPM)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := IndexPersonallyProcuredMovesHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexPersonallyProcuredMovesHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(indexPPMParams)
 
 	// assert we got back the 201 response
@@ -131,7 +131,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandler() {
-	scenario.RunRateEngineScenario1(suite.Db)
+	scenario.RunRateEngineScenario1(suite.db)
 
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newPickupPostalCode := swag.String("32168")
 	newDestinationPostalCode := swag.String("29401")
 
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	newAdvanceWorksheet := models.Document{
 		ServiceMember:   move.Orders.ServiceMember,
@@ -195,7 +195,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	handler.Planner = route.NewTestingPlanner(900)
 	response := handler.Handle(patchPPMParams)
 
@@ -216,7 +216,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	t := suite.T()
-	scenario.RunRateEngineScenario1(suite.Db)
+	scenario.RunRateEngineScenario1(suite.db)
 
 	weight := swag.Int64(4100)
 
@@ -225,7 +225,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	pickupPostalCode := swag.String("32168")
 	destinationPostalCode := swag.String("29401")
 
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                move.ID,
@@ -251,7 +251,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		PatchPersonallyProcuredMovePayload: payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	handler.Planner = route.NewTestingPlanner(900)
 	response := handler.Handle(patchPPMParams)
 
@@ -295,8 +295,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
 	newMoveDate := time.Now()
 
-	user2 := testdatagen.MakeDefaultServiceMember(suite.Db)
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	user2 := testdatagen.MakeDefaultServiceMember(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:          move.ID,
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseForbidden(response)
@@ -337,17 +337,17 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
 
-	orders := testdatagen.MakeDefaultOrder(suite.Db)
-	orders1 := testdatagen.MakeDefaultOrder(suite.Db)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders1 := testdatagen.MakeDefaultOrder(suite.db)
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
-	move, verrs, err := orders.CreateNewMove(suite.Db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	move2, verrs, err := orders1.CreateNewMove(suite.Db, &selectedType)
+	move2, verrs, err := orders1.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move2.Orders = orders1
@@ -376,7 +376,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 	suite.CheckResponseForbidden(response)
 
@@ -390,7 +390,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
 
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	badMoveID := uuid.Must(uuid.NewV4())
 
@@ -418,7 +418,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the badrequest response
@@ -434,7 +434,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := swag.Int64(1)
 
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
@@ -470,7 +470,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
@@ -507,7 +507,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := swag.Int64(1)
 
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
@@ -534,7 +534,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchPersonallyProcuredMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseBadRequest(response)
@@ -568,7 +568,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := swag.Int64(1)
 
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	err := move.Submit()
 	if err != nil {
@@ -611,7 +611,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
-	handler := RequestPPMPaymentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := RequestPPMPaymentHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(requestPaymentParams)
 
 	created, ok := response.(*ppmop.RequestPPMPaymentOK)
@@ -626,7 +626,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 	t := suite.T()
 	// When: There is a move, ppm, move document and 2 expense docs
-	ppm := testdatagen.MakeDefaultPPM(suite.Db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	sm := ppm.Move.Orders.ServiceMember
 
 	assertions := testdatagen.Assertions{
@@ -643,8 +643,8 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 		},
 	}
 
-	testdatagen.MakeMovingExpenseDocument(suite.Db, assertions)
-	testdatagen.MakeMovingExpenseDocument(suite.Db, assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
 	req = suite.AuthenticateRequest(req, sm)
@@ -654,7 +654,7 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
-	handler := RequestPPMExpenseSummaryHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := RequestPPMExpenseSummaryHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(requestExpenseSumParams)
 
 	expenseSummary, ok := response.(*ppmop.RequestPPMExpenseSummaryOK)

@@ -23,17 +23,17 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Fetch move, orders, serviceMember and PPM
-	move, err := models.FetchMove(h.Db, session, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
-	orders, err := models.FetchOrderForUser(h.Db, session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.db, session, move.OrdersID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, orders.ServiceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	// Return 404 if there's no PPM or Rank
@@ -45,7 +45,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 
 	smEntitlement := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
 	if int(weightEstimate) > smEntitlement {
-		return utils.ResponseForConflictErrors(h.Logger, fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
+		return utils.ResponseForConflictErrors(h.logger, fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
 	}
 
 	return entitlementop.NewValidateEntitlementOK()

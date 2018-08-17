@@ -62,24 +62,24 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
-	dutyStation, err := models.FetchDutyStation(h.Db, stationID)
+	dutyStation, err := models.FetchDutyStation(h.db, stationID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	newOrder, verrs, err := serviceMember.CreateOrder(
-		h.Db,
+		h.db,
 		time.Time(*payload.IssueDate),
 		time.Time(*payload.ReportByDate),
 		payload.OrdersType,
@@ -87,20 +87,20 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		*payload.SpouseHasProGear,
 		dutyStation)
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	// TODO: Don't default to PPM when we start supporting HHG
 	newMoveType := internalmessages.SelectedMoveTypePPM
-	newMove, verrs, err := newOrder.CreateNewMove(h.Db, &newMoveType)
+	newMove, verrs, err := newOrder.CreateNewMove(h.db, &newMoveType)
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
 	orderPayload, err := payloadForOrdersModel(h.Storage, newOrder)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
 }
@@ -113,14 +113,14 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec swagger verifies uuid format
 	orderID, _ := uuid.FromString(params.OrdersID.String())
-	order, err := models.FetchOrderForUser(h.Db, session, orderID)
+	order, err := models.FetchOrderForUser(h.db, session, orderID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.Storage, order)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
 }
@@ -134,21 +134,21 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
-	order, err := models.FetchOrderForUser(h.Db, session, orderID)
+	order, err := models.FetchOrderForUser(h.db, session, orderID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	payload := params.UpdateOrders
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
-	dutyStation, err := models.FetchDutyStation(h.Db, stationID)
+	dutyStation, err := models.FetchDutyStation(h.db, stationID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	order.OrdersNumber = payload.OrdersNumber
@@ -166,14 +166,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		order.DepartmentIndicator = utils.FmtString(string(*payload.DepartmentIndicator))
 	}
 
-	verrs, err := models.SaveOrder(h.Db, &order)
+	verrs, err := models.SaveOrder(h.db, &order)
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.Storage, order)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }

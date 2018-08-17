@@ -32,18 +32,18 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
-	newContact, verrs, err := serviceMember.CreateBackupContact(h.Db,
+	newContact, verrs, err := serviceMember.CreateBackupContact(h.db,
 		*params.CreateBackupContactPayload.Name,
 		*params.CreateBackupContactPayload.Email,
 		params.CreateBackupContactPayload.Telephone,
 		params.CreateBackupContactPayload.Permission)
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(newContact)
@@ -59,9 +59,9 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	contacts := serviceMember.BackupContacts
@@ -84,9 +84,9 @@ func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackup
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(h.Db, session, contactID)
+	contact, err := models.FetchBackupContact(h.db, session, contactID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)
@@ -102,9 +102,9 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(h.Db, session, contactID)
+	contact, err := models.FetchBackupContact(h.db, session, contactID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
@@ -112,8 +112,8 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
 	contact.Permission = params.UpdateServiceMemberBackupContactPayload.Permission
 
-	if verrs, err := h.Db.ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+	if verrs, err := h.db.ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)

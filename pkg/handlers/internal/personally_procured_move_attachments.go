@@ -30,18 +30,18 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.Db, session, ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
-	err = h.Db.Load(ppm, "Move.Orders.UploadedOrders.Uploads")
+	err = h.db.Load(ppm, "Move.Orders.UploadedOrders.Uploads")
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	// Fetch move documents with matching types
-	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.Db, moveDocumentAttachmentsTypes)
+	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.db, moveDocumentAttachmentsTypes)
 	if err != nil {
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
@@ -50,10 +50,10 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader := uploader.NewUploader(h.Db, h.Logger, h.Storage)
-	generator, err := paperwork.NewGenerator(h.Db, h.Logger, loader)
+	loader := uploader.NewUploader(h.db, h.logger, h.Storage)
+	generator, err := paperwork.NewGenerator(h.db, h.logger, loader)
 	if err != nil {
-		h.Logger.Error("failed to initialize generator", zap.Error(err))
+		h.logger.Error("failed to initialize generator", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 
@@ -71,19 +71,19 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Convert to PDF and merge into single PDF
 	mergedPdf, err := generator.CreateMergedPDFUpload(uploads)
 	if err != nil {
-		h.Logger.Error("failed to merge PDF files", zap.Error(err))
+		h.logger.Error("failed to merge PDF files", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsUnprocessableEntity()
 	}
 
 	// Upload merged PDF to S3 and return Upload object
 	pdfUpload, verrs, err := loader.CreateUpload(nil, session.UserID, mergedPdf)
 	if verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	url, err := loader.PresignedURL(pdfUpload)
 	if err != nil {
-		h.Logger.Error("failed to get presigned url", zap.Error(err))
+		h.logger.Error("failed to get presigned url", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 

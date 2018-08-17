@@ -46,9 +46,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.Db, session, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	payload := params.CreateMovingExpenseDocumentPayload
@@ -62,9 +62,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.Db, session, converted)
+		upload, err := models.FetchUpload(h.db, session, converted)
 		if err != nil {
-			return utils.ResponseForError(h.Logger, err)
+			return utils.ResponseForError(h.logger, err)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -74,9 +74,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
 		// Enforce that the ppm's move_id matches our move
-		ppm, err := models.FetchPersonallyProcuredMove(h.Db, session, id)
+		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
 		if err != nil {
-			return utils.ResponseForError(h.Logger, err)
+			return utils.ResponseForError(h.logger, err)
 		}
 		if !uuid.Equal(ppm.MoveID, moveID) {
 			return movedocop.NewCreateMovingExpenseDocumentBadRequest()
@@ -86,7 +86,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	}
 
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
-		h.Db,
+		h.db,
 		uploads,
 		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
@@ -98,12 +98,12 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	)
 
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	newPayload, err := payloadForMovingExpenseDocumentModel(h.Storage, *newMovingExpenseDocument)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 	return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
 }

@@ -15,8 +15,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	sm := testdatagen.MakeDefaultServiceMember(suite.Db)
-	station := testdatagen.MakeDefaultDutyStation(suite.Db)
+	sm := testdatagen.MakeDefaultServiceMember(suite.db)
+	station := testdatagen.MakeDefaultDutyStation(suite.db)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateRequest(req, sm)
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
 	createHandler := CreateOrdersHandler(context)
 
@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.Db)
+	order := testdatagen.MakeDefaultOrder(suite.db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler(context)
 
@@ -83,7 +83,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.Db)
+	order := testdatagen.MakeDefaultOrder(suite.db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)
@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
 	updateHandler := UpdateOrdersHandler(context)
 

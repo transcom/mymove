@@ -32,7 +32,7 @@ func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessage
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
-	move := testdatagen.MakeMove(suite.Db, testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
 	addressPayload := fakeAddressPayload()
@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 		HTTPRequest: req,
 	}
 
-	handler := CreateShipmentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := CreateShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
@@ -87,13 +87,13 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.Equal(swag.Int64(325), unwrapped.Payload.ProgearWeightEstimate)
 	suite.Equal(swag.Int64(120), unwrapped.Payload.SpouseProgearWeightEstimate)
 
-	count, err := suite.Db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
+	count, err := suite.db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
 	suite.Nil(err, "could not count shipments")
 	suite.Equal(1, count)
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
-	move := testdatagen.MakeMove(suite.Db, testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment", nil)
@@ -106,7 +106,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 		HTTPRequest: req,
 	}
 
-	handler := CreateShipmentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := CreateShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	market := "dHHG"
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
 
-	count, err := suite.Db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
+	count, err := suite.db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
 	suite.Nil(err, "could not count shipments")
 	suite.Equal(1, count)
 
@@ -138,10 +138,10 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 }
 
 func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
-	move := testdatagen.MakeMove(suite.Db, testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
-	addressPayload := testdatagen.MakeAddress(suite.Db, testdatagen.Assertions{})
+	addressPayload := testdatagen.MakeAddress(suite.db, testdatagen.Assertions{})
 
 	shipment1 := models.Shipment{
 		MoveID:                       move.ID,
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 		Shipment:    &payload,
 	}
 
-	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchShipmentParams)
 
 	// assert we got back the 200 response
@@ -200,11 +200,11 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 
 func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 	t := suite.T()
-	move := testdatagen.MakeMove(suite.Db, testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 	badMoveID := uuid.Must(uuid.NewV4())
 
-	addressPayload := testdatagen.MakeAddress(suite.Db, testdatagen.Assertions{})
+	addressPayload := testdatagen.MakeAddress(suite.db, testdatagen.Assertions{})
 
 	shipment1 := models.Shipment{
 		MoveID:                       move.ID,
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 		Shipment:    &payload,
 	}
 
-	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchShipmentParams)
 
 	// assert we got back the badrequest response

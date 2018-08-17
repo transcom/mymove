@@ -44,10 +44,10 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	lifecycleState := params.QueueType
 
-	MoveQueueItems, err := models.GetMoveQueueItems(h.Db, lifecycleState)
+	MoveQueueItems, err := models.GetMoveQueueItems(h.db, lifecycleState)
 	if err != nil {
-		h.Logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return utils.ResponseForError(h.Logger, err)
+		h.logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))

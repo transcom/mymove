@@ -37,9 +37,9 @@ type ShowDutyStationTransportationOfficeHandler utils.HandlerContext
 // Handle retrieves the transportation office in the system for a given duty station ID
 func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyStationTransportationOfficeParams) middleware.Responder {
 	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
-	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.Db, dutyStationID)
+	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, dutyStationID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 	transportationOfficePayload := payloadForTransportationOfficeModel(transportationOffice)
 

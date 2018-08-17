@@ -33,15 +33,15 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	// User should always be populated by middleware
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.Db, session, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	payload := params.CreateSignedCertificationPayload
-	_, verrs, err := move.CreateSignedCertification(h.Db, session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
+	_, verrs, err := move.CreateSignedCertification(h.db, session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
 	if verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	return certop.NewCreateSignedCertificationCreated()
@@ -56,9 +56,9 @@ func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertif
 	// #nosec Format of UUID is checked by swagger
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.Db, session, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	certs := move.SignedCertifications

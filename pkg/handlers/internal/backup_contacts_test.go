@@ -18,7 +18,7 @@ import (
 func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.Db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
 		Email:      swag.String("email@example.com"),
@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 
 	params.HTTPRequest = suite.AuthenticateRequest(req, serviceMember)
 
-	handler := CreateBackupContactHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := CreateBackupContactHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*contactop.CreateServiceMemberBackupContactCreated)
@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	}
 
 	contacts := models.BackupContacts{}
-	suite.Db.Q().Eager().All(&contacts)
+	suite.db.Q().Eager().All(&contacts)
 
 	if len(contacts) != 1 {
 		t.Errorf("Expected to find 1 result but found %v", len(contacts))
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.Db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.db)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
 	req := httptest.NewRequest("GET", indexPath, nil)
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := IndexBackupContactsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexBackupContactsHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.IndexServiceMemberBackupContactsOK)
@@ -87,8 +87,8 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.Db)
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.Db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.db)
+	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
 	req := httptest.NewRequest("GET", indexPath, nil)
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := IndexBackupContactsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := IndexBackupContactsHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	errResponse := response.(*utils.ErrResponse)
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.Db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.db)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("GET", showPath, nil)
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := ShowBackupContactHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := ShowBackupContactHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.ShowServiceMemberBackupContactOK)
@@ -137,8 +137,8 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.Db)
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.Db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.db)
+	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("GET", showPath, nil)
@@ -149,7 +149,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := ShowBackupContactHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := ShowBackupContactHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	errResponse := response.(*utils.ErrResponse)
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.Db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.db)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("PUT", updatePath, nil)
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := UpdateBackupContactHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := UpdateBackupContactHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.UpdateServiceMemberBackupContactCreated)
@@ -195,8 +195,8 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.Db)
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.Db)
+	contact := testdatagen.MakeDefaultBackupContact(suite.db)
+	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("PUT", updatePath, nil)
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := UpdateBackupContactHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := UpdateBackupContactHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	errResponse := response.(*utils.ErrResponse)

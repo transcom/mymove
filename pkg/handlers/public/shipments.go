@@ -67,23 +67,23 @@ func (h IndexShipmentsHandler) Handle(params shipmentop.IndexShipmentsParams) mi
 	// Possible they are coming from the wrong endpoint and thus the session is missing the
 	// TspUserID
 	if session.TspUserID == uuid.Nil {
-		h.Logger.Error("Missing TSP User ID")
+		h.logger.Error("Missing TSP User ID")
 		return shipmentop.NewIndexShipmentsForbidden()
 	}
 
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
 	// See original commits in https://github.com/transcom/mymove/pull/802
-	tspUser, err := models.FetchTspUserByID(h.Db, session.TspUserID)
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
 	if err != nil {
-		h.Logger.Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		return shipmentop.NewIndexShipmentsForbidden()
 	}
 
-	shipments, err := models.FetchShipmentsByTSP(h.Db, tspUser.TransportationServiceProviderID,
+	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID,
 		params.Status, params.OrderBy, params.Limit, params.Offset)
 	if err != nil {
-		h.Logger.Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		return shipmentop.NewIndexShipmentsBadRequest()
 	}
 
@@ -107,22 +107,22 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	// Possible they are coming from the wrong endpoint and thus the session is missing the
 	// TspUserID
 	if session.TspUserID == uuid.Nil {
-		h.Logger.Error("Missing TSP User ID")
+		h.logger.Error("Missing TSP User ID")
 		return shipmentop.NewGetShipmentForbidden()
 	}
 
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
 	// See original commits in https://github.com/transcom/mymove/pull/802
-	tspUser, err := models.FetchTspUserByID(h.Db, session.TspUserID)
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
 	if err != nil {
-		h.Logger.Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		return shipmentop.NewGetShipmentForbidden()
 	}
 
-	shipment, err := models.FetchShipmentByTSP(h.Db, tspUser.TransportationServiceProviderID, shipmentID)
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
-		h.Logger.Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		return shipmentop.NewGetShipmentBadRequest()
 	}
 
@@ -192,27 +192,27 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	// Possible they are coming from the wrong endpoint and thus the session is missing the
 	// TspUserID
 	if session.TspUserID == uuid.Nil {
-		h.Logger.Error("Missing TSP User ID")
+		h.logger.Error("Missing TSP User ID")
 		return shipmentop.NewGetShipmentForbidden()
 	}
 
-	tspUser, err := models.FetchTspUserByID(h.Db, session.TspUserID)
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
 	if err != nil {
-		h.Logger.Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		return shipmentop.NewPatchShipmentForbidden()
 	}
 
-	shipment, err := models.FetchShipmentByTSP(h.Db, tspUser.TransportationServiceProviderID, shipmentID)
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
-		h.Logger.Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		return shipmentop.NewPatchShipmentBadRequest()
 	}
 
 	patchShipmentWithPayload(shipment, params.Update)
-	verrs, err := models.SaveShipmentAndAddresses(h.Db, shipment)
+	verrs, err := models.SaveShipmentAndAddresses(h.db, shipment)
 
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)

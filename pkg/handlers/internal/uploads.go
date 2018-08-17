@@ -38,11 +38,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
-		h.Logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	h.Logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
+	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
@@ -51,14 +51,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	if params.DocumentID != nil {
 		documentID, err := uuid.FromString(params.DocumentID.String())
 		if err != nil {
-			h.Logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+			h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
 			return uploadop.NewCreateUploadBadRequest()
 		}
 
 		// Fetch document to ensure user has access to it
-		document, docErr := models.FetchDocument(h.Db, session, documentID)
+		document, docErr := models.FetchDocument(h.db, session, documentID)
 		if docErr != nil {
-			return utils.ResponseForError(h.Logger, docErr)
+			return utils.ResponseForError(h.logger, docErr)
 		}
 		docID = &document.ID
 	}
@@ -66,23 +66,23 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	// Read the incoming data into a new afero.File for consumption
 	aFile, err := h.Storage.FileSystem().Create(file.Header.Filename)
 	if err != nil {
-		h.Logger.Error("Error opening afero file.", zap.Error(err))
+		h.logger.Error("Error opening afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
 	_, err = io.Copy(aFile, file.Data)
 	if err != nil {
-		h.Logger.Error("Error copying incoming data into afero file.", zap.Error(err))
+		h.logger.Error("Error copying incoming data into afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	uploader := uploaderpkg.NewUploader(h.Db, h.Logger, h.Storage)
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.Storage)
 	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, aFile)
 	if err != nil {
 		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
 			return uploadop.NewCreateUploadBadRequest()
 		}
-		h.Logger.Error("Failed to create upload", zap.Error(err))
+		h.logger.Error("Failed to create upload", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	} else if verrs.HasAny() {
 		payload := utils.CreateFailedValidationPayload(verrs)
@@ -91,7 +91,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	url, err := uploader.PresignedURL(newUpload)
 	if err != nil {
-		h.Logger.Error("failed to get presigned url", zap.Error(err))
+		h.logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 	uploadPayload := payloadForUploadModel(*newUpload, url)
@@ -106,14 +106,14 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	upload, err := models.FetchUpload(h.Db, session, uploadID)
+	upload, err := models.FetchUpload(h.db, session, uploadID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
-	uploader := uploaderpkg.NewUploader(h.Db, h.Logger, h.Storage)
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.Storage)
 	if err = uploader.DeleteUpload(&upload); err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	return uploadop.NewDeleteUploadNoContent()
@@ -126,17 +126,17 @@ type DeleteUploadsHandler utils.HandlerContext
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	uploader := uploaderpkg.NewUploader(h.Db, h.Logger, h.Storage)
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.Storage)
 
 	for _, uploadID := range params.UploadIds {
 		uuid, _ := uuid.FromString(uploadID.String())
-		upload, err := models.FetchUpload(h.Db, session, uuid)
+		upload, err := models.FetchUpload(h.db, session, uuid)
 		if err != nil {
-			return utils.ResponseForError(h.Logger, err)
+			return utils.ResponseForError(h.logger, err)
 		}
 
 		if err = uploader.DeleteUpload(&upload); err != nil {
-			return utils.ResponseForError(h.Logger, err)
+			return utils.ResponseForError(h.logger, err)
 		}
 	}
 

@@ -24,16 +24,16 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
-	engine := rateengine.NewRateEngine(h.Db, h.Logger, h.Planner)
+	engine := rateengine.NewRateEngine(h.db, h.logger, h.Planner)
 
-	lhDiscount, _, err := PPMDiscountFetch(h.Db,
-		h.Logger,
+	lhDiscount, _, err := PPMDiscountFetch(h.db,
+		h.logger,
 		params.OriginZip,
 		params.DestinationZip,
 		time.Time(params.PlannedMoveDate),
 	)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	cost, err := engine.ComputePPM(unit.Pound(params.Weight),
@@ -46,7 +46,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	)
 
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	gcc := cost.GCC

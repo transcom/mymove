@@ -24,15 +24,15 @@ import (
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
 	suite.Suite
-	Db                 *pop.Connection
-	Logger             *zap.Logger
-	FilesToClose       []*runtime.File
-	NotificationSender notifications.NotificationSender
+	db                 *pop.Connection
+	logger             *zap.Logger
+	filesToClose       []*runtime.File
+	notificationSender notifications.notificationSender
 }
 
 // SetupTest is the DB setup
 func (suite *HandlerSuite) SetupTest() {
-	suite.Db.TruncateAll()
+	suite.db.TruncateAll()
 }
 
 // MustSave requires saving without errors
@@ -40,7 +40,7 @@ func (suite *HandlerSuite) MustSave(model interface{}) {
 	t := suite.T()
 	t.Helper()
 
-	verrs, err := suite.Db.ValidateAndSave(model)
+	verrs, err := suite.db.ValidateAndSave(model)
 	if err != nil {
 		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
 	}
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) MustSave(model interface{}) {
 func (suite *HandlerSuite) IsNotErrResponse(response middleware.Responder) {
 	r, ok := response.(*utils.ErrResponse)
 	if ok {
-		suite.Logger.Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
+		suite.logger.Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
 		// Formally lodge a complaint
 		suite.IsType(&utils.ErrResponse{}, response)
 	}
@@ -158,12 +158,12 @@ func (suite *HandlerSuite) Fixture(name string) *runtime.File {
 	// #nosec never comes from user input
 	file, err := os.Open(fixturePath)
 	if err != nil {
-		suite.Logger.Fatal("Error opening fixture file", zap.Error(err))
+		suite.logger.Fatal("Error opening fixture file", zap.Error(err))
 	}
 
 	info, err := file.Stat()
 	if err != nil {
-		suite.Logger.Fatal("Error accessing fixture stats", zap.Error(err))
+		suite.logger.Fatal("Error accessing fixture stats", zap.Error(err))
 	}
 
 	header := multipart.FileHeader{
@@ -182,13 +182,13 @@ func (suite *HandlerSuite) Fixture(name string) *runtime.File {
 
 // AfterTest tries to close open files
 func (suite *HandlerSuite) AfterTest() {
-	for _, file := range suite.FilesToClose {
+	for _, file := range suite.filesToClose {
 		file.Data.Close()
 	}
 }
 
 func (suite *HandlerSuite) closeFile(file *runtime.File) {
-	suite.FilesToClose = append(suite.FilesToClose, file)
+	suite.filesToClose = append(suite.filesToClose, file)
 }
 
 // TestHandlerSuite creates our test suite
@@ -206,9 +206,9 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	hs := &HandlerSuite{
-		Db:                 db,
-		Logger:             logger,
-		NotificationSender: notifications.NewStubNotificationSender(logger),
+		db:                 db,
+		logger:             logger,
+		notificationSender: notifications.NewStubnotificationSender(logger),
 	}
 
 	suite.Run(t, hs)

@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
-	unknownUser := testdatagen.MakeDefaultUser(suite.Db)
+	unknownUser := testdatagen.MakeDefaultUser(suite.db)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateUserRequest(req, unknownUser)
@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.db, suite.logger))
 
 	response := handler.Handle(params)
 
@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.Db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.db, suite.logger))
 
 	response := handler.Handle(params)
 
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.Db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := ShowLoggedInUserHandler(utils.NewHandlerContext(suite.db, suite.logger))
 
 	response := handler.Handle(params)
 

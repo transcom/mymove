@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := SearchDutyStationsHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

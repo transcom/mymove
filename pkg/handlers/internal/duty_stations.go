@@ -36,9 +36,9 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 	var stations models.DutyStations
 	var err error
 
-	stations, err = models.FindDutyStations(h.Db, params.Search)
+	stations, err = models.FindDutyStations(h.db, params.Search)
 	if err != nil {
-		h.Logger.Error("Finding duty stations", zap.Error(err))
+		h.logger.Error("Finding duty stations", zap.Error(err))
 		return stationop.NewSearchDutyStationsInternalServerError()
 
 	}

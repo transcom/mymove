@@ -37,8 +37,8 @@ func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.
 		DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
 	}
 	var response middleware.Responder
-	if _, err := h.Db.ValidateAndCreate(&newIssue); err != nil {
-		h.Logger.Error("DB Insertion", zap.Error(err))
+	if _, err := h.db.ValidateAndCreate(&newIssue); err != nil {
+		h.logger.Error("DB Insertion", zap.Error(err))
 		// how do I raise an erorr?
 		response = issueop.NewCreateIssueBadRequest()
 	} else {
@@ -56,8 +56,8 @@ type IndexIssuesHandler utils.HandlerContext
 func (h IndexIssuesHandler) Handle(params issueop.IndexIssuesParams) middleware.Responder {
 	var issues models.Issues
 	var response middleware.Responder
-	if err := h.Db.All(&issues); err != nil {
-		h.Logger.Error("DB Query", zap.Error(err))
+	if err := h.db.All(&issues); err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
 		response = issueop.NewIndexIssuesBadRequest()
 	} else {
 		issuePayloads := make(internalmessages.IndexIssuesPayload, len(issues))

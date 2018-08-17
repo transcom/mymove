@@ -18,13 +18,13 @@ var statusToQueueMap = map[string]string{
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	for status, queueType := range statusToQueueMap {
 
-		suite.Db.TruncateAll()
+		suite.db.TruncateAll()
 
 		// Given: An office user
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.Db)
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 		//  A set of orders and a move belonging to those orders
-		order := testdatagen.MakeDefaultOrder(suite.Db)
+		order := testdatagen.MakeDefaultOrder(suite.db)
 
 		newMove := models.Move{
 			OrdersID: order.ID,
@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		suite.MustSave(&newMove)
 
 		// Make a PPM
-		newMove.CreatePPM(suite.Db,
+		newMove.CreatePPM(suite.db,
 			nil,
 			models.Int64Pointer(8000),
 			models.TimePointer(testdatagen.DateInsidePeakRateCycle),
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.db, suite.logger))
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 200 status code
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 	for _, queueType := range statusToQueueMap {
 
 		// Given: A non-office user
-		user := testdatagen.MakeDefaultServiceMember(suite.Db)
+		user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.db, suite.logger))
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 403 status code

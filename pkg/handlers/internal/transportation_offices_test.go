@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
-	station := testdatagen.MakeDefaultDutyStation(suite.Db)
+	station := testdatagen.MakeDefaultDutyStation(suite.db)
 
 	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -21,7 +21,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 		HTTPRequest:   req,
 		DutyStationID: *utils.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
-	station := testdatagen.MakeDefaultDutyStation(suite.Db)
+	station := testdatagen.MakeDefaultDutyStation(suite.db)
 	station.TransportationOffice = models.TransportationOffice{}
 	station.TransportationOfficeID = nil
 	suite.MustSave(&station)
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffic
 		HTTPRequest:   req,
 		DutyStationID: *utils.FmtUUID(station.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	showHandler := ShowDutyStationTransportationOfficeHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&utils.ErrResponse{}, response)

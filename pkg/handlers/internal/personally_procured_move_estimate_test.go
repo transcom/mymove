@@ -13,11 +13,11 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
-	if err := scenario.RunRateEngineScenario2(suite.Db); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.Db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, user)
@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		WeightEstimate:  7500,
 	}
 
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler(context)
 	showResponse := showHandler.Handle(params)
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
-	if err := scenario.RunRateEngineScenario2(suite.Db); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		WeightEstimate:  600,
 	}
 
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler(context)
 	showResponse := showHandler.Handle(params)

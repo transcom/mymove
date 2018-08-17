@@ -15,7 +15,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	// Given: a set of orders, user and servicemember
-	orders := testdatagen.MakeDefaultOrder(suite.Db)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 
 	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
 	req = suite.AuthenticateRequest(req, orders.ServiceMember)
@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 		HTTPRequest:       req,
 	}
 	// Then: we expect a move to have been created based on orders
-	handler := CreateMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := CreateMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 	// And: a move is patched
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -71,9 +71,9 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.Db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
-	user := testdatagen.MakeDefaultServiceMember(suite.Db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
@@ -150,7 +150,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: show Move is queried
-	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -175,9 +175,9 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.Db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.Db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -188,7 +188,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: Show move is queried
-	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.Db, suite.Logger))
+	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
 	suite.CheckResponseForbidden(showResponse)
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.Db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move
 
 	// And: the context contains the auth values
@@ -209,8 +209,8 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is submitted
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
-	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.Logger))
+	context := utils.NewHandlerContext(suite.db, suite.logger)
+	context.SetnotificationSender(notifications.NewStubnotificationSender(suite.logger))
 	handler := SubmitMoveHandler(context)
 	response := handler.Handle(params)
 

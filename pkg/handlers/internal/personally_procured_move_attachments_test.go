@@ -32,7 +32,7 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 }
 
 func (suite *HandlerSuite) createHandlerContext() utils.HandlerContext {
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 
@@ -42,16 +42,16 @@ func (suite *HandlerSuite) createHandlerContext() utils.HandlerContext {
 func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	uploadKeyRe := regexp.MustCompile(`(user/.+/uploads/.+)\?`)
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.Db)
-	ppm := testdatagen.MakeDefaultPPM(suite.Db)
-	expDoc := testdatagen.MakeMovingExpenseDocument(suite.Db, testdatagen.Assertions{
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	expDoc := testdatagen.MakeMovingExpenseDocument(suite.db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status: models.MoveDocumentStatusOK,
 		},
 	})
 	// Doc with an unapproved status
-	testdatagen.MakeMovingExpenseDocument(suite.Db, testdatagen.Assertions{
+	testdatagen.MakeMovingExpenseDocument(suite.db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status: models.MoveDocumentStatusHASISSUE,
@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	suite.NoError(err)
 
 	// Create upload for expense document model
-	loader := uploader.NewUploader(suite.Db, suite.Logger, context.Storage)
+	loader := uploader.NewUploader(suite.db, suite.logger, context.Storage)
 	loader.CreateUpload(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, f)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)

@@ -42,32 +42,32 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMemberForUser(h.Db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	newDocument := models.Document{
 		ServiceMemberID: serviceMember.ID,
 	}
 
-	verrs, err := h.Db.ValidateAndCreate(&newDocument)
+	verrs, err := h.db.ValidateAndCreate(&newDocument)
 	if err != nil {
-		h.Logger.Info("DB Insertion", zap.Error(err))
+		h.logger.Info("DB Insertion", zap.Error(err))
 		return documentop.NewCreateDocumentInternalServerError()
 	} else if verrs.HasAny() {
-		h.Logger.Error("Could not save document", zap.String("errors", verrs.Error()))
+		h.logger.Error("Could not save document", zap.String("errors", verrs.Error()))
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	h.Logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
+	h.logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
 	documentPayload, err := payloadForDocumentModel(h.Storage, newDocument)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
@@ -81,17 +81,17 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
-	document, err := models.FetchDocument(h.Db, session, documentID)
+	document, err := models.FetchDocument(h.db, session, documentID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.Storage, document)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)

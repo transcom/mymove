@@ -89,21 +89,21 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.Db, session, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
-	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.Db)
+	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.db)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.Storage, doc)
 		if err != nil {
-			return utils.ResponseForError(h.Logger, err)
+			return utils.ResponseForError(h.logger, err)
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
@@ -122,9 +122,9 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
 	// Fetch move document from move id
-	moveDoc, err := models.FetchMoveDocument(h.Db, session, moveDocID)
+	moveDoc, err := models.FetchMoveDocument(h.db, session, moveDocID)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 
 	payload := params.UpdateMoveDocument
@@ -143,18 +143,18 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	if newStatus != moveDoc.Status {
 		err = moveDoc.AttemptTransition(newStatus)
 		if err != nil {
-			return utils.ResponseForError(h.Logger, err)
+			return utils.ResponseForError(h.logger, err)
 		}
 
 		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
 			if moveDoc.PersonallyProcuredMoveID == nil {
-				return utils.ResponseForError(h.Logger, errors.New("No PPM loaded for Approved Move Doc"))
+				return utils.ResponseForError(h.logger, errors.New("No PPM loaded for Approved Move Doc"))
 			}
 
 			ppm := &moveDoc.PersonallyProcuredMove
 			err := ppm.Complete()
 			if err != nil {
-				return utils.ResponseForError(h.Logger, err)
+				return utils.ResponseForError(h.logger, err)
 			}
 		}
 	}
@@ -190,14 +190,14 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		}
 	}
 
-	verrs, err := models.SaveMoveDocument(h.Db, moveDoc, saveAction)
+	verrs, err := models.SaveMoveDocument(h.db, moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.Logger, verrs, err)
+		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	moveDocPayload, err := payloadForMoveDocument(h.Storage, *moveDoc)
 	if err != nil {
-		return utils.ResponseForError(h.Logger, err)
+		return utils.ResponseForError(h.logger, err)
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }

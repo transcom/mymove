@@ -15,7 +15,7 @@ import (
 )
 
 func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
-	document := testdatagen.MakeDefaultDocument(suite.Db)
+	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	params := uploadop.NewCreateUploadParams()
 	params.DocumentID = utils.FmtUUID(document.ID)
@@ -30,7 +30,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
 	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 
 	uploadPayload := createdResponse.Payload
 	upload := models.Upload{}
-	err := suite.Db.Find(&upload, uploadPayload.ID)
+	err := suite.db.Find(&upload, uploadPayload.ID)
 	if err != nil {
 		t.Fatalf("Couldn't find expected upload.")
 	}
@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	_, params := createPrereqs(suite)
 
 	// Create a user that is not associated with the move
-	otherUser := testdatagen.MakeDefaultServiceMember(suite.Db)
+	otherUser := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	response := makeRequest(suite, params, otherUser, fakeS3)
 	suite.Assertions.IsType(&utils.ErrResponse{}, response)
@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 
 	suite.Assertions.Equal(http.StatusForbidden, errResponse.Code)
 
-	count, err := suite.Db.Count(&models.Upload{})
+	count, err := suite.db.Count(&models.Upload{})
 
 	if err != nil {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 
 	suite.Assertions.Equal(http.StatusNotFound, errResponse.Code)
 
-	count, err := suite.Db.Count(&models.Upload{})
+	count, err := suite.db.Count(&models.Upload{})
 
 	if err != nil {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
@@ -127,7 +127,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 		t.Fatalf("Wrong response type. Expected CreateUploadBadRequest, got %T", response)
 	}
 
-	count, err := suite.Db.Count(&models.Upload{})
+	count, err := suite.db.Count(&models.Upload{})
 
 	if err != nil {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
@@ -149,7 +149,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 		t.Fatalf("Wrong response type. Expected CreateUploadInternalServerError, got %T", response)
 	}
 
-	count, err := suite.Db.Count(&models.Upload{})
+	count, err := suite.db.Count(&models.Upload{})
 
 	if err != nil {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	upload := testdatagen.MakeDefaultUpload(suite.Db)
+	upload := testdatagen.MakeDefaultUpload(suite.db)
 
 	file := suite.Fixture("test.pdf")
 	fakeS3.Store(upload.StorageKey, file.Data, "somehash")
@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, upload.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
 	handler := DeleteUploadHandler(context)
 	response := handler.Handle(params)
@@ -184,14 +184,14 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
-	err := suite.Db.Find(&queriedUpload, upload.ID)
+	err := suite.db.Find(&queriedUpload, upload.ID)
 	suite.NotNil(err)
 }
 
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	upload1 := testdatagen.MakeDefaultUpload(suite.Db)
+	upload1 := testdatagen.MakeDefaultUpload(suite.db)
 
 	upload2Assertions := testdatagen.Assertions{
 		Upload: models.Upload{
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 			DocumentID: &upload1.Document.ID,
 		},
 	}
-	upload2 := testdatagen.MakeUpload(suite.Db, upload2Assertions)
+	upload2 := testdatagen.MakeUpload(suite.db, upload2Assertions)
 
 	file := suite.Fixture("test.pdf")
 	fakeS3.Store(upload1.StorageKey, file.Data, "somehash")
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, upload1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := utils.NewHandlerContext(suite.Db, suite.Logger)
+	context := utils.NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
 	handler := DeleteUploadsHandler(context)
 	response := handler.Handle(params)
@@ -224,6 +224,6 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
-	err := suite.Db.Find(&queriedUpload, upload1.ID)
+	err := suite.db.Find(&queriedUpload, upload1.ID)
 	suite.NotNil(err)
 }
