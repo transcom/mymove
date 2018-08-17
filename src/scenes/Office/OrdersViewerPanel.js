@@ -10,10 +10,13 @@ import {
   Field,
 } from 'redux-form';
 
-import editablePanel from './editablePanel';
 import { updateOrdersInfo } from './ducks.js';
 import { formatDate, formatDateTime } from 'shared/formatters';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  editablePanelify,
+} from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
@@ -214,7 +217,7 @@ const OrdersViewerEdit = props => {
 
 const formName = 'orders_document_viewer';
 
-let OrdersViewerPanel = editablePanel(OrdersViewerDisplay, OrdersViewerEdit);
+let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
 function mapStateToProps(state) {
@@ -235,7 +238,7 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'office.officeServiceMember', {}),
     move: get(state, 'office.officeMove', {}),
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);

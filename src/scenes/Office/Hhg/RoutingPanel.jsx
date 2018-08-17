@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
 
-import editablePanel from '../editablePanel';
 import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   PanelField,
   PanelSwaggerField,
   SwaggerValue,
+  editablePanelify,
 } from 'shared/EditablePanel';
 
 // TODO: add shipment_type
@@ -72,7 +72,7 @@ const RoutingPanelEdit = props => {
 const formName = 'office_shipment_routing';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let RoutingPanel = editablePanel(
+let RoutingPanel = editablePanelify(
   RoutingPanelDisplay,
   RoutingPanelEdit,
   editEnabled,
@@ -93,7 +93,7 @@ function mapStateToProps(state) {
     shipment: shipment,
     isUpdating: state.office.shipmentIsUpdating,
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);

@@ -4,8 +4,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
-import editablePanel from '../editablePanel';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  editablePanelify,
+} from 'shared/EditablePanel';
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
@@ -143,7 +146,7 @@ const EstimatesEdit = props => {
 
 const formName = 'ppm_estimate_and_details';
 
-let PPMEstimatesPanel = editablePanel(EstimatesDisplay, EstimatesEdit);
+let PPMEstimatesPanel = editablePanelify(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
 function mapStateToProps(state) {
@@ -167,7 +170,7 @@ function mapStateToProps(state) {
     isUpdating: false,
     entitlement: loadEntitlements(state),
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       if (

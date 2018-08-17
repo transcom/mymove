@@ -11,7 +11,6 @@ import {
 } from 'redux-form';
 import { Link } from 'react-router-dom';
 
-import editablePanel from './editablePanel';
 import { loadEntitlements, updateOrdersInfo } from './ducks';
 import { formatDate } from 'shared/formatters';
 
@@ -19,6 +18,7 @@ import {
   PanelSwaggerField,
   PanelField,
   SwaggerValue,
+  editablePanelify,
 } from 'shared/EditablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -174,7 +174,7 @@ const OrdersEdit = props => {
 
 const formName = 'office_move_info_orders';
 
-let OrdersPanel = editablePanel(OrdersDisplay, OrdersEdit);
+let OrdersPanel = editablePanelify(OrdersDisplay, OrdersEdit);
 OrdersPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -203,7 +203,7 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'office.officeServiceMember', {}),
     move: get(state, 'office.officeMove', {}),
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       return [
