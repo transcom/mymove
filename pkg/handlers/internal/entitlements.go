@@ -14,7 +14,7 @@ import (
 )
 
 // ValidateEntitlementHandler validates a weight estimate based on entitlement
-type ValidateEntitlementHandler utils.HandlerContext
+type ValidateEntitlementHandler HandlerContext
 
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {

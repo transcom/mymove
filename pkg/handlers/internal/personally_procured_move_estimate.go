@@ -13,11 +13,11 @@ import (
 )
 
 // ShowPPMEstimateHandler returns PPM SIT estimate for a weight, move date,
-type ShowPPMEstimateHandler utils.HandlerContext
+type ShowPPMEstimateHandler HandlerContext
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
-	engine := rateengine.NewRateEngine(h.db, h.logger, h.Planner)
+	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 
 	lhDiscount, _, err := PPMDiscountFetch(h.db,
 		h.logger,

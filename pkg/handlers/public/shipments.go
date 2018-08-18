@@ -57,7 +57,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 }
 
 // IndexShipmentsHandler returns a list of shipments
-type IndexShipmentsHandler utils.HandlerContext
+type IndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
 func (h IndexShipmentsHandler) Handle(params shipmentop.IndexShipmentsParams) middleware.Responder {
@@ -95,7 +95,7 @@ func (h IndexShipmentsHandler) Handle(params shipmentop.IndexShipmentsParams) mi
 }
 
 // GetShipmentHandler returns a particular shipment
-type GetShipmentHandler utils.HandlerContext
+type GetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
@@ -131,7 +131,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 }
 
 // CreateShipmentAcceptHandler allows a TSP to accept a particular shipment
-type CreateShipmentAcceptHandler utils.HandlerContext
+type CreateShipmentAcceptHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcceptParams) middleware.Responder {
@@ -139,7 +139,7 @@ func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcce
 }
 
 // CreateShipmentRejectHandler allows a TSP to refuse a particular shipment
-type CreateShipmentRejectHandler utils.HandlerContext
+type CreateShipmentRejectHandler HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateShipmentRejectHandler) Handle(params shipmentop.CreateShipmentRejectParams) middleware.Responder {
@@ -180,7 +180,7 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment
-type PatchShipmentHandler utils.HandlerContext
+type PatchShipmentHandler HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
@@ -220,7 +220,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 }
 
 // GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
-type GetShipmentContactDetailsHandler utils.HandlerContext
+type GetShipmentContactDetailsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h GetShipmentContactDetailsHandler) Handle(p shipmentop.GetShipmentContactDetailsParams) middleware.Responder {
@@ -228,7 +228,7 @@ func (h GetShipmentContactDetailsHandler) Handle(p shipmentop.GetShipmentContact
 }
 
 // GetShipmentClaimsHandler allows a TSP to accept a particular shipment
-type GetShipmentClaimsHandler utils.HandlerContext
+type GetShipmentClaimsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h GetShipmentClaimsHandler) Handle(p shipmentop.GetShipmentClaimsParams) middleware.Responder {
@@ -236,7 +236,7 @@ func (h GetShipmentClaimsHandler) Handle(p shipmentop.GetShipmentClaimsParams) m
 }
 
 // GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
-type GetShipmentDocumentsHandler utils.HandlerContext
+type GetShipmentDocumentsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h GetShipmentDocumentsHandler) Handle(p shipmentop.GetShipmentDocumentsParams) middleware.Responder {
@@ -244,7 +244,7 @@ func (h GetShipmentDocumentsHandler) Handle(p shipmentop.GetShipmentDocumentsPar
 }
 
 // CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
-type CreateShipmentDocumentHandler utils.HandlerContext
+type CreateShipmentDocumentHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateShipmentDocumentHandler) Handle(p shipmentop.CreateShipmentDocumentParams) middleware.Responder {

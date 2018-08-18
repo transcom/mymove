@@ -15,7 +15,7 @@ import (
 )
 
 // ShowPPMIncentiveHandler returns PPM SIT estimate for a weight, move date,
-type ShowPPMIncentiveHandler utils.HandlerContext
+type ShowPPMIncentiveHandler HandlerContext
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
@@ -24,7 +24,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
-	engine := rateengine.NewRateEngine(h.db, h.logger, h.Planner)
+	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 
 	lhDiscount, _, err := PPMDiscountFetch(h.db,
 		h.logger,

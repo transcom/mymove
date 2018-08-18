@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
-	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -58,7 +57,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.db, suite.logger))
+		showHandler := ShowQueueHandler(NewHandlerContext(suite.db, suite.logger))
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 200 status code
@@ -90,7 +89,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler(utils.NewHandlerContext(suite.db, suite.logger))
+		showHandler := ShowQueueHandler(NewHandlerContext(suite.db, suite.logger))
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 403 status code

@@ -32,7 +32,7 @@ func payloadForTransportationOfficeModel(office models.TransportationOffice) *in
 }
 
 // ShowDutyStationTransportationOfficeHandler returns the transportation office for a duty station ID
-type ShowDutyStationTransportationOfficeHandler utils.HandlerContext
+type ShowDutyStationTransportationOfficeHandler HandlerContext
 
 // Handle retrieves the transportation office in the system for a given duty station ID
 func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyStationTransportationOfficeParams) middleware.Responder {

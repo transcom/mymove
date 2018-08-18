@@ -52,7 +52,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 }
 
 // CreateMoveHandler creates a new move via POST /move
-type CreateMoveHandler utils.HandlerContext
+type CreateMoveHandler HandlerContext
 
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
@@ -72,7 +72,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		}
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
-	movePayload, err := payloadForMoveModel(h.Storage, orders, *move)
+	movePayload, err := payloadForMoveModel(h.storage, orders, *move)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -80,7 +80,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 }
 
 // ShowMoveHandler returns a move for a user and move ID
-type ShowMoveHandler utils.HandlerContext
+type ShowMoveHandler HandlerContext
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
@@ -100,7 +100,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	movePayload, err := payloadForMoveModel(h.Storage, orders, *move)
+	movePayload, err := payloadForMoveModel(h.storage, orders, *move)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -108,7 +108,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 }
 
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
-type PatchMoveHandler utils.HandlerContext
+type PatchMoveHandler HandlerContext
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
@@ -141,7 +141,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil || verrs.HasAny() {
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
-	movePayload, err := payloadForMoveModel(h.Storage, orders, *move)
+	movePayload, err := payloadForMoveModel(h.storage, orders, *move)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -149,7 +149,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 }
 
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
-type SubmitMoveHandler utils.HandlerContext
+type SubmitMoveHandler HandlerContext
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
@@ -183,7 +183,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	movePayload, err := payloadForMoveModel(h.Storage, move.Orders, *move)
+	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}

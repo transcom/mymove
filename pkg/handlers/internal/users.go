@@ -13,7 +13,7 @@ import (
 )
 
 // ShowLoggedInUserHandler returns the logged in user
-type ShowLoggedInUserHandler utils.HandlerContext
+type ShowLoggedInUserHandler HandlerContext
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
@@ -92,7 +92,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            utils.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.Storage, serviceMember),
+		ServiceMember: payloadForServiceMemberModel(h.storage, serviceMember),
 	}
 	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 }

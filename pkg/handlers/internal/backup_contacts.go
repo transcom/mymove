@@ -24,7 +24,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 }
 
 // CreateBackupContactHandler creates a new backup contact
-type CreateBackupContactHandler utils.HandlerContext
+type CreateBackupContactHandler HandlerContext
 
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
@@ -51,7 +51,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 }
 
 // IndexBackupContactsHandler returns a list of all backup contacts for a service member
-type IndexBackupContactsHandler utils.HandlerContext
+type IndexBackupContactsHandler HandlerContext
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
@@ -76,7 +76,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 }
 
 // ShowBackupContactHandler returns a backup contact for a user and backup contact ID
-type ShowBackupContactHandler utils.HandlerContext
+type ShowBackupContactHandler HandlerContext
 
 // Handle retrieves a backup contact in the system belonging to the logged in user given backup contact ID
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
@@ -94,7 +94,7 @@ func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackup
 }
 
 // UpdateBackupContactHandler updates a backup contact with a new one
-type UpdateBackupContactHandler utils.HandlerContext
+type UpdateBackupContactHandler HandlerContext
 
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {

@@ -59,7 +59,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 }
 
 // CreateServiceMemberHandler creates a new service member via POST /serviceMember
-type CreateServiceMemberHandler utils.HandlerContext
+type CreateServiceMemberHandler HandlerContext
 
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
@@ -135,13 +135,13 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.Storage, newServiceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, newServiceMember)
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-	return utils.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret, h.NoSessionTimeout, h.logger, responder)
+	return utils.NewCookieUpdateResponder(params.HTTPRequest, h.cookieSecret, h.noSessionTimeout, h.logger, responder)
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
-type ShowServiceMemberHandler utils.HandlerContext
+type ShowServiceMemberHandler HandlerContext
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
@@ -153,12 +153,12 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.Storage, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
 // PatchServiceMemberHandler patches a serviceMember via PATCH /serviceMembers/{serviceMemberId}
-type PatchServiceMemberHandler utils.HandlerContext
+type PatchServiceMemberHandler HandlerContext
 
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
@@ -178,7 +178,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.Storage, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -264,7 +264,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 }
 
 // ShowServiceMemberOrdersHandler returns latest orders for a serviceMember
-type ShowServiceMemberOrdersHandler utils.HandlerContext
+type ShowServiceMemberOrdersHandler HandlerContext
 
 // Handle retrieves orders for a service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
@@ -281,7 +281,7 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.Storage, order)
+	orderPayload, err := payloadForOrdersModel(h.storage, order)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}

@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 		MoveID:      *utils.FmtUUID(move.ID),
 	}
 
-	handler := IndexSignedCertificationsHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 	// Now test that a limit works
 	params.Limit = utils.FmtInt64(1)
 
-	handler = IndexSignedCertificationsHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler = IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
 	response = handler.Handle(params)
 
 	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)

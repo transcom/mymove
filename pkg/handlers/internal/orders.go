@@ -52,7 +52,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 }
 
 // CreateOrdersHandler creates new orders via POST /orders
-type CreateOrdersHandler utils.HandlerContext
+type CreateOrdersHandler HandlerContext
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
@@ -98,7 +98,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
-	orderPayload, err := payloadForOrdersModel(h.Storage, newOrder)
+	orderPayload, err := payloadForOrdersModel(h.storage, newOrder)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -106,7 +106,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 }
 
 // ShowOrdersHandler returns orders for a user and order ID
-type ShowOrdersHandler utils.HandlerContext
+type ShowOrdersHandler HandlerContext
 
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
@@ -118,7 +118,7 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.Storage, order)
+	orderPayload, err := payloadForOrdersModel(h.storage, order)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -126,7 +126,7 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 }
 
 // UpdateOrdersHandler updates an order via PUT /orders/{orderId}
-type UpdateOrdersHandler utils.HandlerContext
+type UpdateOrdersHandler HandlerContext
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
@@ -171,7 +171,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.Storage, order)
+	orderPayload, err := payloadForOrdersModel(h.storage, order)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}

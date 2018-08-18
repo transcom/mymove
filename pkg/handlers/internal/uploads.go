@@ -31,7 +31,7 @@ func payloadForUploadModel(upload models.Upload, url string) *internalmessages.U
 }
 
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
-type CreateUploadHandler utils.HandlerContext
+type CreateUploadHandler HandlerContext
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
@@ -64,7 +64,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	// Read the incoming data into a new afero.File for consumption
-	aFile, err := h.Storage.FileSystem().Create(file.Header.Filename)
+	aFile, err := h.storage.FileSystem().Create(file.Header.Filename)
 	if err != nil {
 		h.logger.Error("Error opening afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
@@ -76,7 +76,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.Storage)
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
 	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, aFile)
 	if err != nil {
 		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
@@ -99,7 +99,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 }
 
 // DeleteUploadHandler deletes an upload
-type DeleteUploadHandler utils.HandlerContext
+type DeleteUploadHandler HandlerContext
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
@@ -111,7 +111,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.Storage)
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
 	if err = uploader.DeleteUpload(&upload); err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -120,13 +120,13 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 }
 
 // DeleteUploadsHandler deletes a collection of uploads
-type DeleteUploadsHandler utils.HandlerContext
+type DeleteUploadsHandler HandlerContext
 
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.Storage)
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
 
 	for _, uploadID := range params.UploadIds {
 		uuid, _ := uuid.FromString(uploadID.String())

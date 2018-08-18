@@ -21,7 +21,7 @@ var moveDocumentAttachmentsTypes = []models.MoveDocumentType{
 }
 
 // CreatePersonallyProcuredMoveAttachmentsHandler creates a PPM Attachments PDF
-type CreatePersonallyProcuredMoveAttachmentsHandler utils.HandlerContext
+type CreatePersonallyProcuredMoveAttachmentsHandler HandlerContext
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
@@ -50,7 +50,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader := uploader.NewUploader(h.db, h.logger, h.Storage)
+	loader := uploader.NewUploader(h.db, h.logger, h.storage)
 	generator, err := paperwork.NewGenerator(h.db, h.logger, loader)
 	if err != nil {
 		h.logger.Error("failed to initialize generator", zap.Error(err))

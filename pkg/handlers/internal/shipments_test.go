@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 		HTTPRequest: req,
 	}
 
-	handler := CreateShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := CreateShipmentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
@@ -106,7 +106,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 		HTTPRequest: req,
 	}
 
-	handler := CreateShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := CreateShipmentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	market := "dHHG"
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 		Shipment:    &payload,
 	}
 
-	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchShipmentParams)
 
 	// assert we got back the 200 response
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 		Shipment:    &payload,
 	}
 
-	handler := PatchShipmentHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchShipmentParams)
 
 	// assert we got back the badrequest response

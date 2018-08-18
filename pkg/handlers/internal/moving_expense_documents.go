@@ -37,7 +37,7 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 }
 
 // CreateMovingExpenseDocumentHandler creates a MovingExpenseDocument
-type CreateMovingExpenseDocumentHandler utils.HandlerContext
+type CreateMovingExpenseDocumentHandler HandlerContext
 
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
@@ -101,7 +101,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	newPayload, err := payloadForMovingExpenseDocumentModel(h.Storage, *newMovingExpenseDocument)
+	newPayload, err := payloadForMovingExpenseDocumentModel(h.storage, *newMovingExpenseDocument)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}

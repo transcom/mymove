@@ -65,7 +65,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 }
 
 // CreatePersonallyProcuredMoveHandler creates a PPM
-type CreatePersonallyProcuredMoveHandler utils.HandlerContext
+type CreatePersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
@@ -105,7 +105,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	ppmPayload, err := payloadForPPMModel(h.Storage, *newPPM)
+	ppmPayload, err := payloadForPPMModel(h.storage, *newPPM)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -113,7 +113,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 }
 
 // IndexPersonallyProcuredMovesHandler returns a list of all the PPMs associated with this move.
-type IndexPersonallyProcuredMovesHandler utils.HandlerContext
+type IndexPersonallyProcuredMovesHandler HandlerContext
 
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
@@ -132,7 +132,7 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 	ppms := move.PersonallyProcuredMoves
 	ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
 	for i, ppm := range ppms {
-		ppmPayload, err := payloadForPPMModel(h.Storage, ppm)
+		ppmPayload, err := payloadForPPMModel(h.storage, ppm)
 		if err != nil {
 			return utils.ResponseForError(h.logger, err)
 		}
@@ -204,7 +204,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 }
 
 // PatchPersonallyProcuredMoveHandler Patches a PPM
-type PatchPersonallyProcuredMoveHandler utils.HandlerContext
+type PatchPersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
@@ -241,7 +241,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	ppmPayload, err := payloadForPPMModel(h.Storage, *ppm)
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -328,7 +328,7 @@ func dateForComparison(previousValue, newValue *time.Time) (value time.Time, val
 }
 
 func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove) error {
-	re := rateengine.NewRateEngine(h.db, h.logger, h.Planner)
+	re := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)
@@ -370,7 +370,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 }
 
 // RequestPPMPaymentHandler requests a payment for a PPM
-type RequestPPMPaymentHandler utils.HandlerContext
+type RequestPPMPaymentHandler HandlerContext
 
 // Handle is the handler
 func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) middleware.Responder {
@@ -394,7 +394,7 @@ func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) m
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	ppmPayload, err := payloadForPPMModel(h.Storage, *ppm)
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -467,7 +467,7 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 }
 
 // RequestPPMExpenseSummaryHandler requests
-type RequestPPMExpenseSummaryHandler utils.HandlerContext
+type RequestPPMExpenseSummaryHandler HandlerContext
 
 // Handle is the handler
 func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSummaryParams) middleware.Responder {

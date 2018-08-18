@@ -32,7 +32,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 }
 
 // ShowQueueHandler returns a list of all MoveQueueItems in the moves queue
-type ShowQueueHandler utils.HandlerContext
+type ShowQueueHandler HandlerContext
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {

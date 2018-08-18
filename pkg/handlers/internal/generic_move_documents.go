@@ -33,7 +33,7 @@ func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument 
 }
 
 // CreateGenericMoveDocumentHandler creates a MoveDocument
-type CreateGenericMoveDocumentHandler utils.HandlerContext
+type CreateGenericMoveDocumentHandler HandlerContext
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
@@ -92,7 +92,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	newPayload, err := payloadForGenericMoveDocumentModel(h.Storage, *newMoveDocument)
+	newPayload, err := payloadForGenericMoveDocumentModel(h.storage, *newMoveDocument)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}

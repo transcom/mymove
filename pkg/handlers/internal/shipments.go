@@ -54,7 +54,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 }
 
 // CreateShipmentHandler creates a Shipment
-type CreateShipmentHandler utils.HandlerContext
+type CreateShipmentHandler HandlerContext
 
 // Handle is the handler
 func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) middleware.Responder {
@@ -185,7 +185,7 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 }
 
 // PatchShipmentHandler Patchs an HHG
-type PatchShipmentHandler utils.HandlerContext
+type PatchShipmentHandler HandlerContext
 
 // Handle is the handler
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
@@ -218,7 +218,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 }
 
 // GetShipmentHandler Returns an HHG
-type GetShipmentHandler utils.HandlerContext
+type GetShipmentHandler HandlerContext
 
 // Handle is the handler
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {

@@ -29,7 +29,7 @@ func payloadForDutyStationModel(station models.DutyStation) *internalmessages.Du
 }
 
 // SearchDutyStationsHandler returns a list of all issues
-type SearchDutyStationsHandler utils.HandlerContext
+type SearchDutyStationsHandler HandlerContext
 
 // Handle returns a list of stations based on the search query
 func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsParams) middleware.Responder {

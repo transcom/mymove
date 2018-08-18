@@ -34,7 +34,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 }
 
 // CreateDocumentHandler creates a new document via POST /documents/
-type CreateDocumentHandler utils.HandlerContext
+type CreateDocumentHandler HandlerContext
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
@@ -65,7 +65,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	h.logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
-	documentPayload, err := payloadForDocumentModel(h.Storage, newDocument)
+	documentPayload, err := payloadForDocumentModel(h.storage, newDocument)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -73,7 +73,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 }
 
 // ShowDocumentHandler shows a document via GETT /documents/:document_id
-type ShowDocumentHandler utils.HandlerContext
+type ShowDocumentHandler HandlerContext
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
@@ -89,7 +89,7 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	documentPayload, err := payloadForDocumentModel(h.Storage, document)
+	documentPayload, err := payloadForDocumentModel(h.storage, document)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}

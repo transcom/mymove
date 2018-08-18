@@ -4,11 +4,10 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	tspsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/tsps"
-	"github.com/transcom/mymove/pkg/handlers/utils"
 )
 
 // TspsIndexTSPsHandler returns a list of all the TSPs
-type TspsIndexTSPsHandler utils.HandlerContext
+type TspsIndexTSPsHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h TspsIndexTSPsHandler) Handle(params tspsop.IndexTSPsParams) middleware.Responder {
@@ -16,7 +15,7 @@ func (h TspsIndexTSPsHandler) Handle(params tspsop.IndexTSPsParams) middleware.R
 }
 
 // TspsGetTspShipmentsHandler lists all the shipments that belong to a tsp
-type TspsGetTspShipmentsHandler utils.HandlerContext
+type TspsGetTspShipmentsHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h TspsGetTspShipmentsHandler) Handle(params tspsop.GetTspShipmentsParams) middleware.Responder {
@@ -24,7 +23,7 @@ func (h TspsGetTspShipmentsHandler) Handle(params tspsop.GetTspShipmentsParams) 
 }
 
 // TspsGetTspBlackoutsHandler lists all the shipments that belong to a tsp
-type TspsGetTspBlackoutsHandler utils.HandlerContext
+type TspsGetTspBlackoutsHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h TspsGetTspBlackoutsHandler) Handle(params tspsop.GetTspShipmentsParams) middleware.Responder {

@@ -208,7 +208,7 @@ func TestHandlerSuite(t *testing.T) {
 	hs := &HandlerSuite{
 		db:                 db,
 		logger:             logger,
-		notificationSender: notifications.NewStubnotificationSender(logger),
+		notificationSender: notifications.NewStubNotificationSender(logger),
 	}
 
 	suite.Run(t, hs)

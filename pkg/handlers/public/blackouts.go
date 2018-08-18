@@ -3,11 +3,10 @@ package public
 import (
 	"github.com/go-openapi/runtime/middleware"
 	blackoutsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/blackouts"
-	"github.com/transcom/mymove/pkg/handlers/utils"
 )
 
 // BlackoutIndexHandler returns a list of all the Blackouts
-type BlackoutIndexHandler utils.HandlerContext
+type BlackoutIndexHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h BlackoutIndexHandler) Handle(params blackoutsop.IndexBlackoutsParams) middleware.Responder {
@@ -15,7 +14,7 @@ func (h BlackoutIndexHandler) Handle(params blackoutsop.IndexBlackoutsParams) mi
 }
 
 // CreateBlackoutHandler returns a list of all the Blackouts
-type CreateBlackoutHandler utils.HandlerContext
+type CreateBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h CreateBlackoutHandler) Handle(params blackoutsop.CreateBlackoutParams) middleware.Responder {
@@ -23,7 +22,7 @@ func (h CreateBlackoutHandler) Handle(params blackoutsop.CreateBlackoutParams) m
 }
 
 // DeleteBlackoutHandler returns a list of all the Blackouts
-type DeleteBlackoutHandler utils.HandlerContext
+type DeleteBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h DeleteBlackoutHandler) Handle(params blackoutsop.DeleteBlackoutParams) middleware.Responder {
@@ -31,7 +30,7 @@ func (h DeleteBlackoutHandler) Handle(params blackoutsop.DeleteBlackoutParams) m
 }
 
 // GetBlackoutHandler returns a list of all the Blackouts
-type GetBlackoutHandler utils.HandlerContext
+type GetBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h GetBlackoutHandler) Handle(params blackoutsop.GetBlackoutParams) middleware.Responder {
@@ -39,7 +38,7 @@ func (h GetBlackoutHandler) Handle(params blackoutsop.GetBlackoutParams) middlew
 }
 
 // UpdateBlackoutHandler returns a list of all the Blackouts
-type UpdateBlackoutHandler utils.HandlerContext
+type UpdateBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
 func (h UpdateBlackoutHandler) Handle(params blackoutsop.UpdateBlackoutParams) middleware.Responder {

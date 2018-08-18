@@ -27,7 +27,7 @@ func payloadForIssueModel(issue models.Issue) internalmessages.IssuePayload {
 }
 
 // CreateIssueHandler creates a new issue via POST /issue
-type CreateIssueHandler utils.HandlerContext
+type CreateIssueHandler HandlerContext
 
 // Handle creates a new Issue from a request payload
 func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.Responder {
@@ -50,7 +50,7 @@ func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.
 }
 
 // IndexIssuesHandler returns a list of all issues
-type IndexIssuesHandler utils.HandlerContext
+type IndexIssuesHandler HandlerContext
 
 // Handle retrieves a list of all issues in the system
 func (h IndexIssuesHandler) Handle(params issueop.IndexIssuesParams) middleware.Responder {

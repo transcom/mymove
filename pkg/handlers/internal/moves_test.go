@@ -8,7 +8,6 @@ import (
 
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -31,7 +30,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 		HTTPRequest:       req,
 	}
 	// Then: we expect a move to have been created based on orders
-	handler := CreateMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
@@ -58,7 +57,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 	// And: a move is patched
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -90,7 +89,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -117,7 +116,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -138,7 +137,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
@@ -161,7 +160,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: show Move is queried
-	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -188,7 +187,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: Show move is queried
-	showHandler := ShowMoveHandler(utils.NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
 	suite.CheckResponseForbidden(showResponse)
@@ -209,8 +208,8 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is submitted
-	context := utils.NewHandlerContext(suite.db, suite.logger)
-	context.SetnotificationSender(notifications.NewStubnotificationSender(suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.logger))
 	handler := SubmitMoveHandler(context)
 	response := handler.Handle(params)
 

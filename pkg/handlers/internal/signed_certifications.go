@@ -25,7 +25,7 @@ func payloadForSignedCertificationModel(cert models.SignedCertification) *intern
 }
 
 // CreateSignedCertificationHandler creates a new issue via POST /issue
-type CreateSignedCertificationHandler utils.HandlerContext
+type CreateSignedCertificationHandler HandlerContext
 
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
@@ -48,7 +48,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 }
 
 // IndexSignedCertificationsHandler creates a new issue via POST /issue
-type IndexSignedCertificationsHandler utils.HandlerContext
+type IndexSignedCertificationsHandler HandlerContext
 
 // Handle returns a SignedCertification for a given moveID
 func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationsParams) middleware.Responder {

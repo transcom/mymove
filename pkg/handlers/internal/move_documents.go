@@ -79,7 +79,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 }
 
 // IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
-type IndexMoveDocumentsHandler utils.HandlerContext
+type IndexMoveDocumentsHandler HandlerContext
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
@@ -101,7 +101,7 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 
 	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocs))
 	for i, doc := range moveDocs {
-		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.Storage, doc)
+		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.storage, doc)
 		if err != nil {
 			return utils.ResponseForError(h.logger, err)
 		}
@@ -113,7 +113,7 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 }
 
 // UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
-type UpdateMoveDocumentHandler utils.HandlerContext
+type UpdateMoveDocumentHandler HandlerContext
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
@@ -195,7 +195,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		return utils.ResponseForVErrors(h.logger, verrs, err)
 	}
 
-	moveDocPayload, err := payloadForMoveDocument(h.Storage, *moveDoc)
+	moveDocPayload, err := payloadForMoveDocument(h.storage, *moveDoc)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}

@@ -31,8 +31,8 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 	suite.Equal(2, ctx.PageCount)
 }
 
-func (suite *HandlerSuite) createHandlerContext() utils.HandlerContext {
-	context := utils.NewHandlerContext(suite.db, suite.logger)
+func (suite *HandlerSuite) createHandlerContext() HandlerContext {
+	context := NewHandlerContext(suite.db, suite.logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 
@@ -67,11 +67,11 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 
 	// Backfill the uploaded orders file in filesystem
 	uploadedOrdersUpload := ppm.Move.Orders.UploadedOrders.Uploads[0]
-	_, err = context.Storage.Store(uploadedOrdersUpload.StorageKey, f, uploadedOrdersUpload.Checksum)
+	_, err = context.storage.Store(uploadedOrdersUpload.StorageKey, f, uploadedOrdersUpload.Checksum)
 	suite.NoError(err)
 
 	// Create upload for expense document model
-	loader := uploader.NewUploader(suite.db, suite.logger, context.Storage)
+	loader := uploader.NewUploader(suite.db, suite.logger, context.storage)
 	loader.CreateUpload(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, f)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
@@ -94,9 +94,9 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	attachmentsURL := string(*createdPDFPayload.URL)
 	uploadKey := uploadKeyRe.FindStringSubmatch(attachmentsURL)[1]
 
-	merged, err := context.Storage.Fetch(uploadKey)
+	merged, err := context.storage.Fetch(uploadKey)
 	suite.NoError(err)
 	mergedFile := merged.(afero.File)
 
-	suite.assertPDFPageCount(2, mergedFile, context.Storage)
+	suite.assertPDFPageCount(2, mergedFile, context.storage)
 }

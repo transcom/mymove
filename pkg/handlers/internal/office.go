@@ -13,7 +13,7 @@ import (
 )
 
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
-type ApproveMoveHandler utils.HandlerContext
+type ApproveMoveHandler HandlerContext
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
@@ -50,7 +50,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 
 	// TODO: Save and/or update the move association status' (PPM, Reimbursement, Orders) a la Cancel handler
 
-	movePayload, err := payloadForMoveModel(h.Storage, move.Orders, *move)
+	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -58,7 +58,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 }
 
 // CancelMoveHandler cancels a move via POST /moves/{moveId}/cancel
-type CancelMoveHandler utils.HandlerContext
+type CancelMoveHandler HandlerContext
 
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
@@ -97,7 +97,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	movePayload, err := payloadForMoveModel(h.Storage, move.Orders, *move)
+	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -105,7 +105,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 }
 
 // ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
-type ApprovePPMHandler utils.HandlerContext
+type ApprovePPMHandler HandlerContext
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
@@ -141,7 +141,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return utils.ResponseForError(h.logger, err)
 	}
 
-	ppmPayload, err := payloadForPPMModel(h.Storage, *ppm)
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
 	if err != nil {
 		return utils.ResponseForError(h.logger, err)
 	}
@@ -149,7 +149,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 }
 
 // ApproveReimbursementHandler approves a move via POST /reimbursement/{reimbursementId}/approve
-type ApproveReimbursementHandler utils.HandlerContext
+type ApproveReimbursementHandler HandlerContext
 
 // Handle ... approves a Reimbursement from a request payload
 func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
