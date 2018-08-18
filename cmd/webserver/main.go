@@ -28,8 +28,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"github.com/transcom/mymove/pkg/handlers/ordersapi"
+	"github.com/transcom/mymove/pkg/handlers/publicapi"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -186,10 +187,16 @@ func main() {
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
-	handlerContext := utils.NewHandlerContext(dbConnection, logger)
-	handlerContext.SetCookieSecret(*clientAuthSecretKey)
+	internalHandlerContext := internalapi.NewHandlerContext(dbConnection, logger)
+	ordersHandlerContext := ordersapi.NewHandlerContext(dbConnection, logger)
+	publicHandlerContext := publicapi.NewHandlerContext(dbConnection, logger)
+	internalHandlerContext.SetCookieSecret(*clientAuthSecretKey)
+	ordersHandlerContext.SetCookieSecret(*clientAuthSecretKey)
+	publicHandlerContext.SetCookieSecret(*clientAuthSecretKey)
 	if *noSessionTimeout {
-		handlerContext.SetNoSessionTimeout()
+		internalHandlerContext.SetNoSessionTimeout()
+		ordersHandlerContext.SetNoSessionTimeout()
+		publicHandlerContext.SetNoSessionTimeout()
 	}
 
 	if *emailBackend == "ses" {
@@ -203,11 +210,21 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(
+		internalHandlerContext.SetNotificationSender(
+			notifications.NewNotificationSender(sesService, logger),
+		)
+		ordersHandlerContext.SetNotificationSender(
+			notifications.NewNotificationSender(sesService, logger),
+		)
+		publicHandlerContext.SetNotificationSender(
 			notifications.NewNotificationSender(sesService, logger),
 		)
 	} else {
-		handlerContext.SetNotificationSender(
+		internalHandlerContext.SetNotificationSender(
+			notifications.NewStubNotificationSender(logger))
+		ordersHandlerContext.SetNotificationSender(
+			notifications.NewStubNotificationSender(logger))
+		publicHandlerContext.SetNotificationSender(
 			notifications.NewStubNotificationSender(logger))
 	}
 
@@ -217,7 +234,9 @@ func main() {
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
 	routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
-	handlerContext.SetPlanner(routePlanner)
+	internalHandlerContext.SetPlanner(routePlanner)
+	ordersHandlerContext.SetPlanner(routePlanner)
+	publicHandlerContext.SetPlanner(routePlanner)
 
 	var storer storage.FileStorer
 	if *storageBackend == "s3" {
@@ -241,7 +260,9 @@ func main() {
 		fsParams := storage.DefaultFilesystemParams(logger)
 		storer = storage.NewFilesystem(fsParams)
 	}
-	handlerContext.SetFileStorer(storer)
+	internalHandlerContext.SetFileStorer(storer)
+	ordersHandlerContext.SetFileStorer(storer)
+	publicHandlerContext.SetFileStorer(storer)
 
 	// Base routes
 	site := goji.NewMux()
@@ -267,7 +288,7 @@ func main() {
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
 	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
-	ordersMux.Handle(pat.New("/*"), handlers.NewOrdersAPIHandler(handlerContext))
+	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(ordersHandlerContext))
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
 
 	root := goji.NewMux()
@@ -287,7 +308,7 @@ func main() {
 	externalAPIMux := goji.SubMux()
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
+	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(publicHandlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
@@ -299,7 +320,7 @@ func main() {
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
-	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
+	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(internalHandlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
