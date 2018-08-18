@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
+		PlannedMoveDate: *handlers.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		Weight:          7500,
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
+		PlannedMoveDate: *handlers.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		Weight:          7500,
@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
+		PlannedMoveDate: *handlers.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		Weight:          600,

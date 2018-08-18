@@ -10,16 +10,16 @@ import (
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func payloadForIssueModel(issue models.Issue) internalmessages.IssuePayload {
 	issuePayload := internalmessages.IssuePayload{
-		CreatedAt:    utils.FmtDateTime(issue.CreatedAt),
+		CreatedAt:    handlers.FmtDateTime(issue.CreatedAt),
 		Description:  swag.String(issue.Description),
-		ID:           utils.FmtUUID(issue.ID),
-		UpdatedAt:    utils.FmtDateTime(issue.UpdatedAt),
+		ID:           handlers.FmtUUID(issue.ID),
+		UpdatedAt:    handlers.FmtDateTime(issue.UpdatedAt),
 		ReporterName: issue.ReporterName,
 		DueDate:      (*strfmt.Date)(issue.DueDate),
 	}

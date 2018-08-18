@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 )
@@ -51,17 +51,17 @@ func (suite *HandlerSuite) mustSave(model interface{}) {
 
 // isNotErrResponse enforces handler does not return an error response
 func (suite *HandlerSuite) isNotErrResponse(response middleware.Responder) {
-	r, ok := response.(*utils.ErrResponse)
+	r, ok := response.(*handlers.ErrResponse)
 	if ok {
 		suite.logger.Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
 		// Formally lodge a complaint
-		suite.IsType(&utils.ErrResponse{}, response)
+		suite.IsType(&handlers.ErrResponse{}, response)
 	}
 }
 
 // checkErrorResponse verifies error response is what is expected
 func (suite *HandlerSuite) checkErrorResponse(resp middleware.Responder, code int, name string) {
-	errResponse, ok := resp.(*utils.ErrResponse)
+	errResponse, ok := resp.(*handlers.ErrResponse)
 	if !ok || errResponse.Code != code {
 		suite.T().Fatalf("Expected %s Response: %v", name, resp)
 		debug.PrintStack()

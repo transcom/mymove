@@ -7,7 +7,7 @@ import (
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -26,7 +26,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		time.Time(params.PlannedMoveDate),
 	)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	cost, err := engine.ComputePPM(unit.Pound(params.WeightEstimate),
@@ -39,7 +39,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 	)
 
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	min := cost.GCC.MultiplyFloat64(0.95)

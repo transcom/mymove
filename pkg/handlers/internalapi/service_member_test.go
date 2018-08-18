@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -62,8 +62,8 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := showHandler.Handle(showServiceMemberParams)
 
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	suite.Assertions.Equal(http.StatusForbidden, errResponse.Code)
 }
@@ -102,8 +102,8 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&utils.CookieUpdateResponder{}, response)
-	unwrappedResponse := response.(*utils.CookieUpdateResponder).Responder
+	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
+	unwrappedResponse := response.(*handlers.CookieUpdateResponder).Responder
 	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
 
 	// Then: we expect a servicemember to have been created for the user
@@ -139,8 +139,8 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&utils.CookieUpdateResponder{}, response)
-	unwrappedResponse := response.(*utils.CookieUpdateResponder).Responder
+	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
+	unwrappedResponse := response.(*handlers.CookieUpdateResponder).Responder
 	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
 	okResponse := unwrappedResponse.(*servicememberop.CreateServiceMemberCreated)
 
@@ -177,7 +177,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	affiliation := internalmessages.AffiliationARMY
 	rank := internalmessages.ServiceMemberRankE1
-	ssn := utils.FmtSSN("555-55-5555")
+	ssn := handlers.FmtSSN("555-55-5555")
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
@@ -264,8 +264,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	suite.Assertions.Equal(http.StatusForbidden, errResponse.Code)
 }
@@ -294,8 +294,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	suite.Assertions.Equal(http.StatusNotFound, errResponse.Code)
 }

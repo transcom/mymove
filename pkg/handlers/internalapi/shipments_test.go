@@ -9,7 +9,7 @@ import (
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -154,9 +154,9 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 		HasDeliveryAddress:           false,
 		HasPartialSITDeliveryAddress: true,
 		PartialSITDeliveryAddress:    &addressPayload,
-		WeightEstimate:               utils.PoundPtrFromInt64Ptr(swag.Int64(4500)),
-		ProgearWeightEstimate:        utils.PoundPtrFromInt64Ptr(swag.Int64(325)),
-		SpouseProgearWeightEstimate:  utils.PoundPtrFromInt64Ptr(swag.Int64(120)),
+		WeightEstimate:               handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
+		ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(swag.Int64(325)),
+		SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(swag.Int64(120)),
 		ServiceMemberID:              sm.ID,
 	}
 	suite.mustSave(&shipment1)
@@ -217,9 +217,9 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 		HasDeliveryAddress:           false,
 		HasPartialSITDeliveryAddress: true,
 		PartialSITDeliveryAddress:    &addressPayload,
-		WeightEstimate:               utils.PoundPtrFromInt64Ptr(swag.Int64(4500)),
-		ProgearWeightEstimate:        utils.PoundPtrFromInt64Ptr(swag.Int64(325)),
-		SpouseProgearWeightEstimate:  utils.PoundPtrFromInt64Ptr(swag.Int64(120)),
+		WeightEstimate:               handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
+		ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(swag.Int64(325)),
+		SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(swag.Int64(120)),
 		ServiceMemberID:              sm.ID,
 	}
 	suite.mustSave(&shipment1)

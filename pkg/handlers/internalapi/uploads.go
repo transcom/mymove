@@ -13,20 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
 func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
 	return &internalmessages.UploadPayload{
-		ID:          utils.FmtUUID(upload.ID),
+		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
 		ContentType: swag.String(upload.ContentType),
-		URL:         utils.FmtURI(url),
+		URL:         handlers.FmtURI(url),
 		Bytes:       &upload.Bytes,
-		CreatedAt:   utils.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   utils.FmtDateTime(upload.UpdatedAt),
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
 	}
 }
 
@@ -58,7 +58,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		// Fetch document to ensure user has access to it
 		document, docErr := models.FetchDocument(h.db, session, documentID)
 		if docErr != nil {
-			return utils.ResponseForError(h.logger, docErr)
+			return handlers.ResponseForError(h.logger, docErr)
 		}
 		docID = &document.ID
 	}
@@ -85,7 +85,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("Failed to create upload", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	} else if verrs.HasAny() {
-		payload := utils.CreateFailedValidationPayload(verrs)
+		payload := handlers.CreateFailedValidationPayload(verrs)
 		return uploadop.NewCreateUploadBadRequest().WithPayload(payload)
 	}
 
@@ -108,12 +108,12 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 	uploadID, _ := uuid.FromString(params.UploadID.String())
 	upload, err := models.FetchUpload(h.db, session, uploadID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
 	if err = uploader.DeleteUpload(&upload); err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	return uploadop.NewDeleteUploadNoContent()
@@ -132,11 +132,11 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 		uuid, _ := uuid.FromString(uploadID.String())
 		upload, err := models.FetchUpload(h.db, session, uuid)
 		if err != nil {
-			return utils.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.logger, err)
 		}
 
 		if err = uploader.DeleteUpload(&upload); err != nil {
-			return utils.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.logger, err)
 		}
 	}
 

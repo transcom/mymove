@@ -7,7 +7,7 @@ import (
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 )
 
 func (suite *HandlerSuite) TestSubmitIssueHandler() {
@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 	t := suite.T()
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
-	testDate := utils.FmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC))
+	testDate := handlers.FmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC))
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 

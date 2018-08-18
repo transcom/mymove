@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/afero"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	request = suite.authenticateOfficeRequest(request, officeUser)
 
 	params := ppmop.CreatePPMAttachmentsParams{
-		PersonallyProcuredMoveID: *utils.FmtUUID(ppm.ID),
+		PersonallyProcuredMoveID: *handlers.FmtUUID(ppm.ID),
 		HTTPRequest:              request,
 	}
 

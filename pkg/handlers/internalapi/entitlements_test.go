@@ -8,7 +8,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -64,8 +64,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409() {
 	response := handler.Handle(params)
 
 	// Then: expect a 409 status code
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	// Then: expect a 409 status code
 	suite.Assertions.Equal(http.StatusConflict, errResponse.Code)
@@ -114,8 +114,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	// Then: expect a 404 status code
 	suite.Assertions.Equal(http.StatusNotFound, errResponse.Code)

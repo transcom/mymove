@@ -10,7 +10,7 @@ import (
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	indexPPMPayload := okResponse.Payload
 
 	for _, ppm := range indexPPMPayload {
-		if *ppm.ID == *utils.FmtUUID(otherPPM.ID) {
+		if *ppm.ID == *handlers.FmtUUID(otherPPM.ID) {
 			t.Error("We should only have got back ppms associated with this move")
 		}
 	}
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:                    &newSize,
 		WeightEstimate:          newWeight,
-		PlannedMoveDate:         utils.FmtDatePtr(&newMoveDate),
+		PlannedMoveDate:         handlers.FmtDatePtr(&newMoveDate),
 		HasAdditionalPostalCode: newHasAdditionalPostalCode,
 		PickupPostalCode:        newPickupPostalCode,
 		DestinationPostalCode:   newDestinationPostalCode,
@@ -314,7 +314,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:            &newSize,
 		WeightEstimate:  newWeight,
-		PlannedMoveDate: utils.FmtDatePtr(&newMoveDate),
+		PlannedMoveDate: handlers.FmtDatePtr(&newMoveDate),
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{

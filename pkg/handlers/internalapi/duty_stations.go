@@ -7,15 +7,15 @@ import (
 
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
 	payload := internalmessages.DutyStationPayload{
-		ID:          utils.FmtUUID(station.ID),
-		CreatedAt:   utils.FmtDateTime(station.CreatedAt),
-		UpdatedAt:   utils.FmtDateTime(station.UpdatedAt),
+		ID:          handlers.FmtUUID(station.ID),
+		CreatedAt:   handlers.FmtDateTime(station.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(station.UpdatedAt),
 		Name:        swag.String(station.Name),
 		Affiliation: &station.Affiliation,
 		Address:     payloadForAddressModel(&station.Address),

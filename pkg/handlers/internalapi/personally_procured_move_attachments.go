@@ -7,7 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -32,12 +32,12 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	err = h.db.Load(ppm, "Move.Orders.UploadedOrders.Uploads")
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	// Fetch move documents with matching types
@@ -78,7 +78,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Upload merged PDF to S3 and return Upload object
 	pdfUpload, verrs, err := loader.CreateUpload(nil, session.UserID, mergedPdf)
 	if verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	url, err := loader.PresignedURL(pdfUpload)

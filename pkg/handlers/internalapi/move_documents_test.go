@@ -8,7 +8,7 @@ import (
 
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -26,17 +26,17 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	})
 	upload.DocumentID = nil
 	suite.mustSave(&upload)
-	uploadIds := []strfmt.UUID{*utils.FmtUUID(upload.ID)}
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:                uploadIds,
-		PersonallyProcuredMoveID: utils.FmtUUID(ppm.ID),
+		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
 		MoveDocumentType:         internalmessages.MoveDocumentTypeOTHER,
-		Title:                    utils.FmtString("awesome_document.pdf"),
-		Notes:                    utils.FmtString("Some notes here"),
+		Title:                    handlers.FmtString("awesome_document.pdf"),
+		Notes:                    handlers.FmtString("Some notes here"),
 	}
 
 	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{
@@ -147,10 +147,10 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 
 	// And: the title and status are updated
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
-		ID:               utils.FmtUUID(moveDocument.ID),
-		MoveID:           utils.FmtUUID(move.ID),
-		Title:            utils.FmtString("super_awesome.pdf"),
-		Notes:            utils.FmtString("This document is super awesome."),
+		ID:               handlers.FmtUUID(moveDocument.ID),
+		MoveID:           handlers.FmtUUID(move.ID),
+		Title:            handlers.FmtString("super_awesome.pdf"),
+		Notes:            handlers.FmtString("This document is super awesome."),
 		Status:           internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
 	}
@@ -204,9 +204,9 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 
 	// And: the title and status are updated
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
-		ID:               utils.FmtUUID(moveDocument.ID),
-		MoveID:           utils.FmtUUID(move.ID),
-		Title:            utils.FmtString(moveDocument.Title),
+		ID:               handlers.FmtUUID(moveDocument.ID),
+		MoveID:           handlers.FmtUUID(move.ID),
+		Title:            handlers.FmtString(moveDocument.Title),
 		Notes:            moveDocument.Notes,
 		Status:           internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,

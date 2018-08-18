@@ -8,7 +8,7 @@ import (
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -26,8 +26,8 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 	}
 
 	documentPayload := &internalmessages.DocumentPayload{
-		ID:              utils.FmtUUID(document.ID),
-		ServiceMemberID: utils.FmtUUID(document.ServiceMemberID),
+		ID:              handlers.FmtUUID(document.ID),
+		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
 		Uploads:         uploads,
 	}
 	return documentPayload, nil
@@ -42,13 +42,13 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	// Fetch to check auth
 	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	newDocument := models.Document{
@@ -67,7 +67,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	h.logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
 	documentPayload, err := payloadForDocumentModel(h.storage, newDocument)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
@@ -81,17 +81,17 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	document, err := models.FetchDocument(h.db, session, documentID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.storage, document)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)

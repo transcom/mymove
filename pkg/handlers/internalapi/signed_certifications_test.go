@@ -11,7 +11,7 @@ import (
 
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID: *utils.FmtUUID(move.ID),
+		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	}
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID: *utils.FmtUUID(move.ID),
+		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
 	// Uses a different user than is on the move object
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 	req := httptest.NewRequest("GET", "/moves/id/signed_certifications", nil)
 	params := certop.IndexSignedCertificationsParams{
 		HTTPRequest: suite.authenticateRequest(req, move.Orders.ServiceMember),
-		MoveID:      *utils.FmtUUID(move.ID),
+		MoveID:      *handlers.FmtUUID(move.ID),
 	}
 
 	handler := IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
@@ -169,7 +169,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 	suite.Require().Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
 
 	// Now test that a limit works
-	params.Limit = utils.FmtInt64(1)
+	params.Limit = handlers.FmtInt64(1)
 
 	handler = IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
 	response = handler.Handle(params)

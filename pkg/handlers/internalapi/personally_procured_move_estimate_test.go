@@ -5,7 +5,7 @@ import (
 
 	"github.com/gobuffalo/uuid"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -24,7 +24,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
+		PlannedMoveDate: *handlers.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		WeightEstimate:  7500,
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(scenario.May15_2018),
+		PlannedMoveDate: *handlers.FmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		WeightEstimate:  600,

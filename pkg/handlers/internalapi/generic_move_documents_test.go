@@ -8,7 +8,7 @@ import (
 
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -25,7 +25,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	})
 	upload.DocumentID = nil
 	suite.mustSave(&upload)
-	uploadIds := []strfmt.UUID{*utils.FmtUUID(upload.ID)}
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
@@ -33,8 +33,8 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:        uploadIds,
 		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
-		Title:            utils.FmtString("awesome_document.pdf"),
-		Notes:            utils.FmtString("Some notes here"),
+		Title:            handlers.FmtString("awesome_document.pdf"),
+		Notes:            handlers.FmtString("Some notes here"),
 	}
 
 	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{

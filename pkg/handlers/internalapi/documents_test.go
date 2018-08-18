@@ -9,7 +9,7 @@ import (
 
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
-		ServiceMemberID: *utils.FmtUUID(serviceMember.ID),
+		ServiceMemberID: *handlers.FmtUUID(serviceMember.ID),
 	}
 
 	req := &http.Request{}

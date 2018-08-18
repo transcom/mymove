@@ -7,7 +7,7 @@ import (
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -30,12 +30,12 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		time.Time(params.PlannedMoveDate),
 	)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
 
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	// Swagger returns int64 when using the integer type

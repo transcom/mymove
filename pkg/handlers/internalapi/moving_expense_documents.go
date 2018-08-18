@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
@@ -21,8 +21,8 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 	}
 
 	movingExpenseDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID:                   utils.FmtUUID(movingExpenseDocument.MoveDocument.ID),
-		MoveID:               utils.FmtUUID(movingExpenseDocument.MoveDocument.MoveID),
+		ID:                   handlers.FmtUUID(movingExpenseDocument.MoveDocument.ID),
+		MoveID:               handlers.FmtUUID(movingExpenseDocument.MoveDocument.MoveID),
 		Document:             documentPayload,
 		Title:                &movingExpenseDocument.MoveDocument.Title,
 		MoveDocumentType:     internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
@@ -48,7 +48,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	payload := params.CreateMovingExpenseDocumentPayload
@@ -64,7 +64,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		converted := uuid.Must(uuid.FromString(id.String()))
 		upload, err := models.FetchUpload(h.db, session, converted)
 		if err != nil {
-			return utils.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.logger, err)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -76,7 +76,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		// Enforce that the ppm's move_id matches our move
 		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
 		if err != nil {
-			return utils.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.logger, err)
 		}
 		if !uuid.Equal(ppm.MoveID, moveID) {
 			return movedocop.NewCreateMovingExpenseDocumentBadRequest()
@@ -98,12 +98,12 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	)
 
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	newPayload, err := payloadForMovingExpenseDocumentModel(h.storage, *newMovingExpenseDocument)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 	return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
 }

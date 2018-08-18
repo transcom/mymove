@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -33,7 +33,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		time.Time(params.PlannedMoveDate),
 	)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	cost, err := engine.ComputePPM(unit.Pound(params.Weight),
@@ -46,7 +46,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	)
 
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	gcc := cost.GCC

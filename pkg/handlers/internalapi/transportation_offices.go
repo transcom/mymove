@@ -7,7 +7,7 @@ import (
 
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -20,9 +20,9 @@ func payloadForTransportationOfficeModel(office models.TransportationOffice) *in
 	}
 
 	payload := &internalmessages.TransportationOffice{
-		ID:         utils.FmtUUID(office.ID),
-		CreatedAt:  utils.FmtDateTime(office.CreatedAt),
-		UpdatedAt:  utils.FmtDateTime(office.UpdatedAt),
+		ID:         handlers.FmtUUID(office.ID),
+		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
+		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
 		Name:       swag.String(office.Name),
 		Gbloc:      office.Gbloc,
 		Address:    payloadForAddressModel(&office.Address),
@@ -39,7 +39,7 @@ func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportation
 	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
 	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, dutyStationID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 	transportationOfficePayload := payloadForTransportationOfficeModel(transportationOffice)
 

@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
 		HTTPRequest:   req,
-		DutyStationID: *utils.FmtUUID(station.ID),
+		DutyStationID: *handlers.FmtUUID(station.ID),
 	}
 	showHandler := ShowDutyStationTransportationOfficeHandler(NewHandlerContext(suite.db, suite.logger))
 	response := showHandler.Handle(params)
@@ -43,13 +43,13 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffic
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
 		HTTPRequest:   req,
-		DutyStationID: *utils.FmtUUID(station.ID),
+		DutyStationID: *handlers.FmtUUID(station.ID),
 	}
 	showHandler := ShowDutyStationTransportationOfficeHandler(NewHandlerContext(suite.db, suite.logger))
 	response := showHandler.Handle(params)
 
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	suite.Assertions.Equal(http.StatusNotFound, errResponse.Code)
 }

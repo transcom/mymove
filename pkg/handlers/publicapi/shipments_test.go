@@ -10,7 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -63,10 +63,10 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
-		PmSurveyPackDate:                    utils.FmtDatePtr(&genericDate),
-		PmSurveyPickupDate:                  utils.FmtDatePtr(&genericDate),
-		PmSurveyEarliestDeliveryDate:        utils.FmtDatePtr(&genericDate),
-		PmSurveyLatestDeliveryDate:          utils.FmtDatePtr(&genericDate),
+		PmSurveyPackDate:                    handlers.FmtDatePtr(&genericDate),
+		PmSurveyPickupDate:                  handlers.FmtDatePtr(&genericDate),
+		PmSurveyEarliestDeliveryDate:        handlers.FmtDatePtr(&genericDate),
+		PmSurveyLatestDeliveryDate:          handlers.FmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),
 		PmSurveyProgearWeightEstimate:       swag.Int64(53),
 		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
@@ -117,10 +117,10 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
-		PmSurveyPackDate:                    utils.FmtDatePtr(&genericDate),
-		PmSurveyPickupDate:                  utils.FmtDatePtr(&genericDate),
-		PmSurveyEarliestDeliveryDate:        utils.FmtDatePtr(&genericDate),
-		PmSurveyLatestDeliveryDate:          utils.FmtDatePtr(&genericDate),
+		PmSurveyPackDate:                    handlers.FmtDatePtr(&genericDate),
+		PmSurveyPickupDate:                  handlers.FmtDatePtr(&genericDate),
+		PmSurveyEarliestDeliveryDate:        handlers.FmtDatePtr(&genericDate),
+		PmSurveyLatestDeliveryDate:          handlers.FmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),
 		PmSurveyProgearWeightEstimate:       swag.Int64(53),
 		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),

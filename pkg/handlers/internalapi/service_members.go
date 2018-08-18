@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -30,10 +30,10 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 	}
 
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
-		ID:                      utils.FmtUUID(serviceMember.ID),
-		CreatedAt:               utils.FmtDateTime(serviceMember.CreatedAt),
-		UpdatedAt:               utils.FmtDateTime(serviceMember.UpdatedAt),
-		UserID:                  utils.FmtUUID(serviceMember.UserID),
+		ID:                      handlers.FmtUUID(serviceMember.ID),
+		CreatedAt:               handlers.FmtDateTime(serviceMember.CreatedAt),
+		UpdatedAt:               handlers.FmtDateTime(serviceMember.UpdatedAt),
+		UserID:                  handlers.FmtUUID(serviceMember.UserID),
 		Edipi:                   serviceMember.Edipi,
 		Orders:                  orders,
 		Affiliation:             serviceMember.Affiliation,
@@ -51,8 +51,8 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
 		BackupContacts:          contactPayloads,
-		HasSocialSecurityNumber: utils.FmtBool(serviceMember.SocialSecurityNumberID != nil),
-		IsProfileComplete:       utils.FmtBool(serviceMember.IsProfileComplete()),
+		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
+		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          dutyStationPayload,
 	}
 	return &serviceMemberPayload
@@ -73,7 +73,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		var err error
 		ssn, verrs, err = models.BuildSocialSecurityNumber(ssnString.String())
 		if err != nil {
-			return utils.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.logger, err)
 		}
 		// if there are any validation errors, they will get rolled up with the rest of them.
 	}
@@ -83,11 +83,11 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	if params.CreateServiceMemberPayload.CurrentStationID != nil {
 		id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentStationID.String())
 		if err != nil {
-			return utils.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.logger, err)
 		}
 		s, err := models.FetchDutyStation(h.db, id)
 		if err != nil {
-			return utils.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.logger, err)
 		}
 		stationID = &id
 		station = s
@@ -121,7 +121,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	smVerrs, err := models.SaveServiceMember(h.db, &newServiceMember)
 	verrs.Append(smVerrs)
 	if verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.logger, verrs, err)
 	}
 	// Update session info
 	session.ServiceMemberID = newServiceMember.ID
@@ -137,7 +137,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	// And return
 	serviceMemberPayload := payloadForServiceMemberModel(h.storage, newServiceMember)
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-	return utils.NewCookieUpdateResponder(params.HTTPRequest, h.cookieSecret, h.noSessionTimeout, h.logger, responder)
+	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.cookieSecret, h.noSessionTimeout, h.logger, responder)
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
@@ -150,7 +150,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
@@ -167,15 +167,15 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	payload := params.PatchServiceMemberPayload
 	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.logger, verrs, err)
 	}
 	if verrs, err := models.SaveServiceMember(h.db, &serviceMember); verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
@@ -273,17 +273,17 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	order, err := serviceMember.FetchLatestOrder(h.db)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.storage, order)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
 }

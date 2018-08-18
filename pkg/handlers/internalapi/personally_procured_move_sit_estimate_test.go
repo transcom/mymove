@@ -5,7 +5,7 @@ import (
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",
@@ -160,7 +160,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",
@@ -221,7 +221,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *utils.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",

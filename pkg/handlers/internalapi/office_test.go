@@ -7,7 +7,7 @@ import (
 
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -17,10 +17,10 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
 	assertions := testdatagen.Assertions{
 		Order: models.Order{
-			OrdersNumber:        utils.FmtString("1234"),
+			OrdersNumber:        handlers.FmtString("1234"),
 			OrdersTypeDetail:    &hhgPermitted,
-			TAC:                 utils.FmtString("1234"),
-			DepartmentIndicator: utils.FmtString("17 - United States Marines"),
+			TAC:                 handlers.FmtString("1234"),
+			DepartmentIndicator: handlers.FmtString("17 - United States Marines"),
 		},
 	}
 	move := testdatagen.MakeMove(suite.db, assertions)

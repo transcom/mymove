@@ -9,18 +9,18 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func payloadForSignedCertificationModel(cert models.SignedCertification) *internalmessages.SignedCertificationPayload {
 	return &internalmessages.SignedCertificationPayload{
-		ID:                utils.FmtUUID(cert.ID),
-		CreatedAt:         utils.FmtDateTime(cert.CreatedAt),
-		UpdatedAt:         utils.FmtDateTime(cert.UpdatedAt),
-		CertificationText: utils.FmtString(cert.CertificationText),
-		Signature:         utils.FmtString(cert.Signature),
-		Date:              utils.FmtDate(cert.Date),
+		ID:                handlers.FmtUUID(cert.ID),
+		CreatedAt:         handlers.FmtDateTime(cert.CreatedAt),
+		UpdatedAt:         handlers.FmtDateTime(cert.UpdatedAt),
+		CertificationText: handlers.FmtString(cert.CertificationText),
+		Signature:         handlers.FmtString(cert.Signature),
+		Date:              handlers.FmtDate(cert.Date),
 	}
 }
 
@@ -35,13 +35,13 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 
 	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	payload := params.CreateSignedCertificationPayload
 	_, verrs, err := move.CreateSignedCertification(h.db, session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
 	if verrs.HasAny() || err != nil {
-		return utils.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	return certop.NewCreateSignedCertificationCreated()
@@ -58,7 +58,7 @@ func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertif
 
 	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		return utils.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.logger, err)
 	}
 
 	certs := move.SignedCertifications

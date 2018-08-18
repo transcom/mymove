@@ -8,7 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -18,7 +18,7 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	params := uploadop.NewCreateUploadParams()
-	params.DocumentID = utils.FmtUUID(document.ID)
+	params.DocumentID = handlers.FmtUUID(document.ID)
 	params.File = suite.fixture("test.pdf")
 
 	return document, params
@@ -71,8 +71,8 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	otherUser := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	response := makeRequest(suite, params, otherUser, fakeS3)
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	suite.Assertions.Equal(http.StatusForbidden, errResponse.Code)
 
@@ -94,11 +94,11 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	document, params := createPrereqs(suite)
 
 	// Make a document ID that is not actually associated with a document
-	params.DocumentID = utils.FmtUUID(uuid.Must(uuid.NewV4()))
+	params.DocumentID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
-	suite.Assertions.IsType(&utils.ErrResponse{}, response)
-	errResponse := response.(*utils.ErrResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
 
 	suite.Assertions.Equal(http.StatusNotFound, errResponse.Code)
 

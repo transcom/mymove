@@ -11,46 +11,46 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
-		ID: *utils.FmtUUID(s.ID),
+		ID: *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
-		PickupDate:                          *utils.FmtDateTimePtr(s.PickupDate),
-		DeliveryDate:                        *utils.FmtDateTimePtr(s.DeliveryDate),
+		PickupDate:                          *handlers.FmtDateTimePtr(s.PickupDate),
+		DeliveryDate:                        *handlers.FmtDateTimePtr(s.DeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                         apimessages.GBLOC(*s.SourceGBLOC),
 		DestinationGbloc:                    apimessages.GBLOC(*s.DestinationGBLOC),
 		Market:                              apimessages.ShipmentMarket(*s.Market),
-		BookDate:                            *utils.FmtDatePtr(s.BookDate),
-		RequestedPickupDate:                 *utils.FmtDateTimePtr(s.RequestedPickupDate),
+		BookDate:                            *handlers.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:                 *handlers.FmtDateTimePtr(s.RequestedPickupDate),
 		Move:                                payloadForMoveModel(s.Move),
 		Status:                              apimessages.ShipmentStatus(s.Status),
-		EstimatedPackDays:                   utils.FmtInt64(*s.EstimatedPackDays),
-		EstimatedTransitDays:                utils.FmtInt64(*s.EstimatedTransitDays),
+		EstimatedPackDays:                   handlers.FmtInt64(*s.EstimatedPackDays),
+		EstimatedTransitDays:                handlers.FmtInt64(*s.EstimatedTransitDays),
 		PickupAddress:                       payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:           *utils.FmtBool(s.HasSecondaryPickupAddress),
+		HasSecondaryPickupAddress:           *handlers.FmtBool(s.HasSecondaryPickupAddress),
 		SecondaryPickupAddress:              payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:                  *utils.FmtBool(s.HasDeliveryAddress),
+		HasDeliveryAddress:                  *handlers.FmtBool(s.HasDeliveryAddress),
 		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress:        *utils.FmtBool(s.HasPartialSITDeliveryAddress),
+		HasPartialSitDeliveryAddress:        *handlers.FmtBool(s.HasPartialSITDeliveryAddress),
 		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:                      utils.FmtInt64(s.WeightEstimate.Int64()),
-		ProgearWeightEstimate:               utils.FmtInt64(s.ProgearWeightEstimate.Int64()),
-		SpouseProgearWeightEstimate:         utils.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
-		PmSurveyPackDate:                    utils.FmtDatePtr(s.PmSurveyPackDate),
-		PmSurveyPickupDate:                  utils.FmtDatePtr(s.PmSurveyPickupDate),
-		PmSurveyLatestPickupDate:            utils.FmtDatePtr(s.PmSurveyLatestPickupDate),
-		PmSurveyEarliestDeliveryDate:        utils.FmtDatePtr(s.PmSurveyEarliestDeliveryDate),
-		PmSurveyLatestDeliveryDate:          utils.FmtDatePtr(s.PmSurveyLatestDeliveryDate),
-		PmSurveyWeightEstimate:              utils.FmtPoundPtr(s.PmSurveyWeightEstimate),
-		PmSurveyProgearWeightEstimate:       utils.FmtPoundPtr(s.PmSurveyProgearWeightEstimate),
-		PmSurveySpouseProgearWeightEstimate: utils.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
+		WeightEstimate:                      handlers.FmtInt64(s.WeightEstimate.Int64()),
+		ProgearWeightEstimate:               handlers.FmtInt64(s.ProgearWeightEstimate.Int64()),
+		SpouseProgearWeightEstimate:         handlers.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		PmSurveyPackDate:                    handlers.FmtDatePtr(s.PmSurveyPackDate),
+		PmSurveyPickupDate:                  handlers.FmtDatePtr(s.PmSurveyPickupDate),
+		PmSurveyLatestPickupDate:            handlers.FmtDatePtr(s.PmSurveyLatestPickupDate),
+		PmSurveyEarliestDeliveryDate:        handlers.FmtDatePtr(s.PmSurveyEarliestDeliveryDate),
+		PmSurveyLatestDeliveryDate:          handlers.FmtDatePtr(s.PmSurveyLatestDeliveryDate),
+		PmSurveyWeightEstimate:              handlers.FmtPoundPtr(s.PmSurveyWeightEstimate),
+		PmSurveyProgearWeightEstimate:       handlers.FmtPoundPtr(s.PmSurveyProgearWeightEstimate),
+		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 	}
 	return shipmentpayload
@@ -168,13 +168,13 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	}
 
 	if payload.PmSurveyProgearWeightEstimate != nil {
-		shipment.PmSurveyProgearWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
+		shipment.PmSurveyProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
 	}
 	if payload.PmSurveySpouseProgearWeightEstimate != nil {
-		shipment.PmSurveySpouseProgearWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
+		shipment.PmSurveySpouseProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
 	}
 	if payload.PmSurveyWeightEstimate != nil {
-		shipment.PmSurveyWeightEstimate = utils.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
+		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
 
 }
@@ -212,7 +212,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	verrs, err := models.SaveShipmentAndAddresses(h.db, shipment)
 
 	if err != nil || verrs.HasAny() {
-		return utils.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.logger, verrs, err)
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)

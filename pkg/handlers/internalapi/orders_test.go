@@ -9,7 +9,7 @@ import (
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -27,13 +27,13 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:    utils.FmtBool(hasDependents),
-		SpouseHasProGear: utils.FmtBool(spouseHasProGear),
-		IssueDate:        utils.FmtDate(issueDate),
-		ReportByDate:     utils.FmtDate(reportByDate),
+		HasDependents:    handlers.FmtBool(hasDependents),
+		SpouseHasProGear: handlers.FmtBool(spouseHasProGear),
+		IssueDate:        handlers.FmtDate(issueDate),
+		ReportByDate:     handlers.FmtDate(reportByDate),
 		OrdersType:       ordersType,
-		NewDutyStationID: utils.FmtUUID(station.ID),
-		ServiceMemberID:  utils.FmtUUID(sm.ID),
+		NewDutyStationID: handlers.FmtUUID(station.ID),
+		ServiceMemberID:  handlers.FmtUUID(sm.ID),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 
 	params := ordersop.ShowOrdersParams{
 		HTTPRequest: req,
-		OrdersID:    *utils.FmtUUID(order.ID),
+		OrdersID:    *handlers.FmtUUID(order.ID),
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
@@ -95,23 +95,23 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	otherServiceMemberUUID := uuid.Must(uuid.NewV4())
 
 	payload := &internalmessages.CreateUpdateOrders{
-		OrdersNumber:        utils.FmtString("123456"),
-		HasDependents:       utils.FmtBool(order.HasDependents),
-		SpouseHasProGear:    utils.FmtBool(order.SpouseHasProGear),
-		IssueDate:           utils.FmtDate(order.IssueDate),
-		ReportByDate:        utils.FmtDate(order.ReportByDate),
+		OrdersNumber:        handlers.FmtString("123456"),
+		HasDependents:       handlers.FmtBool(order.HasDependents),
+		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
+		IssueDate:           handlers.FmtDate(order.IssueDate),
+		ReportByDate:        handlers.FmtDate(order.ReportByDate),
 		OrdersType:          newOrdersType,
 		OrdersTypeDetail:    &newOrdersTypeDetail,
-		NewDutyStationID:    utils.FmtUUID(order.NewDutyStationID),
+		NewDutyStationID:    handlers.FmtUUID(order.NewDutyStationID),
 		Tac:                 order.TAC,
 		DepartmentIndicator: &departmentIndicator,
 		// Attempt to assign to another service member
-		ServiceMemberID: utils.FmtUUID(otherServiceMemberUUID),
+		ServiceMemberID: handlers.FmtUUID(otherServiceMemberUUID),
 	}
 
 	params := ordersop.UpdateOrdersParams{
 		HTTPRequest:  req,
-		OrdersID:     *utils.FmtUUID(order.ID),
+		OrdersID:     *handlers.FmtUUID(order.ID),
 		UpdateOrders: payload,
 	}
 
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
-	suite.Assertions.Equal(utils.FmtString("123456"), okResponse.Payload.OrdersNumber)
+	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
 	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)

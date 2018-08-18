@@ -10,7 +10,7 @@ import (
 
 	contactop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers/utils"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 
 	params := contactop.CreateServiceMemberBackupContactParams{
 		CreateBackupContactPayload: &newContactPayload,
-		ServiceMemberID:            *utils.FmtUUID(serviceMember.ID),
+		ServiceMemberID:            *handlers.FmtUUID(serviceMember.ID),
 	}
 
 	params.HTTPRequest = suite.authenticateRequest(req, serviceMember)
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	req := httptest.NewRequest("GET", indexPath, nil)
 
 	params := contactop.IndexServiceMemberBackupContactsParams{
-		ServiceMemberID: *utils.FmtUUID(contact.ServiceMember.ID),
+		ServiceMemberID: *handlers.FmtUUID(contact.ServiceMember.ID),
 	}
 	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	req := httptest.NewRequest("GET", indexPath, nil)
 
 	params := contactop.IndexServiceMemberBackupContactsParams{
-		ServiceMemberID: *utils.FmtUUID(contact.ServiceMember.ID),
+		ServiceMemberID: *handlers.FmtUUID(contact.ServiceMember.ID),
 	}
 	// Logged in as other user
 	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	handler := IndexBackupContactsHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	errResponse := response.(*utils.ErrResponse)
+	errResponse := response.(*handlers.ErrResponse)
 	code := errResponse.Code
 
 	if code != http.StatusForbidden {
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	req := httptest.NewRequest("GET", showPath, nil)
 
 	params := contactop.ShowServiceMemberBackupContactParams{
-		BackupContactID: *utils.FmtUUID(contact.ID),
+		BackupContactID: *handlers.FmtUUID(contact.ID),
 	}
 	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
@@ -144,7 +144,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	req := httptest.NewRequest("GET", showPath, nil)
 
 	params := contactop.ShowServiceMemberBackupContactParams{
-		BackupContactID: *utils.FmtUUID(contact.ID),
+		BackupContactID: *handlers.FmtUUID(contact.ID),
 	}
 	// Logged in as other user
 	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	handler := ShowBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	errResponse := response.(*utils.ErrResponse)
+	errResponse := response.(*handlers.ErrResponse)
 	code := errResponse.Code
 
 	if code != http.StatusForbidden {
@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	}
 
 	params := contactop.UpdateServiceMemberBackupContactParams{
-		BackupContactID:                         *utils.FmtUUID(contact.ID),
+		BackupContactID:                         *handlers.FmtUUID(contact.ID),
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
 	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
@@ -209,7 +209,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	}
 
 	params := contactop.UpdateServiceMemberBackupContactParams{
-		BackupContactID:                         *utils.FmtUUID(contact.ID),
+		BackupContactID:                         *handlers.FmtUUID(contact.ID),
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
 	// Logged in as other user
@@ -218,7 +218,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	handler := UpdateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	errResponse := response.(*utils.ErrResponse)
+	errResponse := response.(*handlers.ErrResponse)
 	code := errResponse.Code
 
 	if code != http.StatusForbidden {
