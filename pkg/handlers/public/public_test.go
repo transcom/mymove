@@ -27,7 +27,7 @@ type HandlerSuite struct {
 	db                 *pop.Connection
 	logger             *zap.Logger
 	filesToClose       []*runtime.File
-	notificationSender notifications.notificationSender
+	notificationSender notifications.NotificationSender
 }
 
 // SetupTest is the DB setup
