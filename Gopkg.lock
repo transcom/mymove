@@ -147,6 +147,30 @@
   revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
 
 [[projects]]
+  branch = "master"
+  digest = "1:88b37f144a80737f9e5cd50c887c00c2f3c7211257f884b8b80ce97e61ed1ccb"
+  name = "github.com/facebookgo/clock"
+  packages = ["."]
+  pruneopts = ""
+  revision = "600d898af40aa09a7a93ecb9265d87b0504b6f03"
+
+[[projects]]
+  branch = "master"
+  digest = "1:6930cf0ed08691a27eec5fbdc4e9766867ad5f1694b780b5e2cef8ce601a6604"
+  name = "github.com/facebookgo/limitgroup"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6abd8d71ec01451d7f1929eacaa263bbe2935d05"
+
+[[projects]]
+  branch = "master"
+  digest = "1:4ab698691b394194bdd1bf44f140ddd5f822dfac321d00d925611a2e4ba72224"
+  name = "github.com/facebookgo/muster"
+  packages = ["."]
+  pruneopts = ""
+  revision = "fd3d7953fd52354a74b9f6b3d70d0c9650c4ec2a"
+
+[[projects]]
   digest = "1:e988ed0ca0d81f4d28772760c02ee95084961311291bdfefc1b04617c178b722"
   name = "github.com/fatih/color"
   packages = ["."]
@@ -432,6 +456,14 @@
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:c1d7e883c50a26ea34019320d8ae40fad86c9e5d56e63a1ba2cb618cef43e986"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
+
+[[projects]]
   digest = "1:66d63ec7b6035984dced87ad37066e5f4ad277c60234a9d9925537248e983200"
   name = "github.com/gorilla/handlers"
   packages = ["."]
@@ -457,6 +489,28 @@
   ]
   pruneopts = ""
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
+
+[[projects]]
+  digest = "1:9e3ac020d096502e1199238a35b384141ab82b68f613ba6b59fa91870c7e087b"
+  name = "github.com/honeycombio/beeline-go"
+  packages = [
+    ".",
+    "internal",
+    "timer",
+    "wrappers/hnygoji",
+    "wrappers/hnynethttp",
+  ]
+  pruneopts = ""
+  revision = "1b6a542ada4bafe957b31fd955de895a72aa4840"
+  version = "v0.1.0"
+
+[[projects]]
+  digest = "1:cd507d3e666790a625f34d59d5b0c314ce18b914e1ce3a73d0305b96914d66ae"
+  name = "github.com/honeycombio/libhoney-go"
+  packages = ["."]
+  pruneopts = ""
+  revision = "741c87cf6e228e5c509705847b67a3245bc79b8b"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:302c6eb8e669c997bec516a138b8fc496018faa1ece4c13e445a2749fbe079bb"
@@ -967,6 +1021,7 @@
   packages = [
     ".",
     "internal",
+    "middleware",
     "pat",
     "pattern",
   ]
@@ -1102,6 +1157,14 @@
   revision = "2caba252f4dc53eaf6b553000885530023f54623"
 
 [[projects]]
+  digest = "1:73ebcbf8b130be886f04e5b928308604a36620e53343b833926a3aa4f2582abd"
+  name = "gopkg.in/alexcesaro/statsd.v2"
+  packages = ["."]
+  pruneopts = ""
+  revision = "7fea3f0d2fab1ad973e641e51dba45443a311a90"
+  version = "v2.0.0"
+
+[[projects]]
   branch = "v2"
   digest = "1:f54ba71a035aac92ced3e902d2bff3734a15d1891daff73ec0f90ef236750139"
   name = "gopkg.in/mgo.v2"
@@ -1160,6 +1223,9 @@
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/golang/lint/golint",
+    "github.com/honeycombio/beeline-go",
+    "github.com/honeycombio/beeline-go/wrappers/hnygoji",
+    "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
     "github.com/jung-kurt/gofpdf",

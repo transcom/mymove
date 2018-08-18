@@ -3,15 +3,19 @@ package testdatagen
 import (
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"reflect"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/imdario/mergo"
+	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // Assertions defines assertions about what the data contains
@@ -35,6 +39,7 @@ type Assertions struct {
 	TransportationServiceProvider models.TransportationServiceProvider
 	TspUser                       models.TspUser
 	Upload                        models.Upload
+	Uploader                      *uploader.Uploader
 	User                          models.User
 }
 
@@ -91,6 +96,23 @@ func mergeModels(dst, src interface{}) {
 	noErr(
 		mergo.Merge(dst, src, mergo.WithOverride, mergo.WithTransformers(customTransformer{})),
 	)
+}
+
+func fixture(name string) afero.File {
+	fixtureDir := "testdata"
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to get current directory: %s", err))
+	}
+
+	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
+	// #nosec This will only be using test data
+	file, err := os.Open(fixturePath)
+	if err != nil {
+		log.Panic(fmt.Errorf("Error opening local file: %v", err))
+	}
+
+	return file
 }
 
 // customTransformer handles testing for zero values in structs that mergo can't normally deal with

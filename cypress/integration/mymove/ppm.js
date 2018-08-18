@@ -20,7 +20,7 @@ describe.skip('completing the ppm flow', function() {
     cy
       .get('input[placeholder="Date"]')
       .first()
-      .type('2018-9-2{enter}')
+      .type('9/2/2018{enter}')
       .blur();
     cy
       .get('input[name="pickup_postal_code"]')
