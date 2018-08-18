@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffic
 	station := testdatagen.MakeDefaultDutyStation(suite.db)
 	station.TransportationOffice = models.TransportationOffice{}
 	station.TransportationOfficeID = nil
-	suite.MustSave(&station)
+	suite.mustSave(&station)
 
 	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)

@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 
 	params := shipmentop.GetShipmentParams{
 		HTTPRequest:  req,
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 
 	// And: the context contains the auth values for the wrong tsp
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, otherTspUser)
+	req = suite.authenticateTspRequest(req, otherTspUser)
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
@@ -206,7 +206,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 
 	// Test query with first user
 	req1 := httptest.NewRequest("GET", "/shipments", nil)
-	req1 = suite.AuthenticateTspRequest(req1, tspUser1)
+	req1 = suite.authenticateTspRequest(req1, tspUser1)
 	params1 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req1,
 		Limit:       &limit,
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 
 	// Test query with second user
 	req2 := httptest.NewRequest("GET", "/shipments", nil)
-	req2 = suite.AuthenticateTspRequest(req2, tspUser2)
+	req2 = suite.authenticateTspRequest(req2, tspUser2)
 	params2 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req2,
 		Limit:       &limit,
@@ -248,7 +248,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -348,7 +348,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -397,7 +397,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -449,7 +449,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      status,
@@ -478,7 +478,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
+	req = suite.authenticateTspRequest(req, tspUser)
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      statusFilter,

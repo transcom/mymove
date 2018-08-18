@@ -20,7 +20,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
@@ -51,10 +51,10 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.MustSave(&user)
+	suite.mustSave(&user)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.AuthenticateUserRequest(req, user)
+	req = suite.authenticateUserRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,

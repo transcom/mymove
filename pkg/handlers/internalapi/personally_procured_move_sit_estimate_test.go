@@ -24,8 +24,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	}) // Victoria, TX to Salina, KS
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
 	}
-	suite.MustSave(&originServiceArea)
+	suite.mustSave(&originServiceArea)
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
 	}
-	suite.MustSave(&destServiceArea)
+	suite.mustSave(&destServiceArea)
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
@@ -65,13 +65,13 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
-	suite.MustSave(&tspPerformance)
+	suite.mustSave(&tspPerformance)
 
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
@@ -109,8 +109,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	}) // Victoria, TX to Salina, KS
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
 	}
-	suite.MustSave(&originServiceArea)
+	suite.mustSave(&originServiceArea)
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
 	}
-	suite.MustSave(&destServiceArea)
+	suite.mustSave(&destServiceArea)
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
@@ -150,13 +150,13 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
-	suite.MustSave(&tspPerformance)
+	suite.mustSave(&tspPerformance)
 
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
@@ -184,8 +184,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	// Given: A PPM Estimate request with all relevant records except TSP performance
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
 	}
-	suite.MustSave(&originServiceArea)
+	suite.mustSave(&originServiceArea)
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
@@ -211,13 +211,13 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
 	}
-	suite.MustSave(&destServiceArea)
+	suite.mustSave(&destServiceArea)
 
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains required auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
@@ -232,5 +232,5 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect bad request response
-	suite.CheckResponseNotFound(showResponse)
+	suite.checkResponseNotFound(showResponse)
 }

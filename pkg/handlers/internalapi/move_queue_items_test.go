@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			OrdersID: order.ID,
 			Status:   models.MoveStatus(status),
 		}
-		suite.MustSave(&newMove)
+		suite.mustSave(&newMove)
 
 		// Make a PPM
 		newMove.CreatePPM(suite.db,
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
 		req := httptest.NewRequest("GET", path, nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		req = suite.authenticateOfficeRequest(req, officeUser)
 
 		params := queueop.ShowQueueParams{
 			HTTPRequest: req,
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
 		req := httptest.NewRequest("GET", path, nil)
-		req = suite.AuthenticateRequest(req, user)
+		req = suite.authenticateRequest(req, user)
 
 		params := queueop.ShowQueueParams{
 			HTTPRequest: req,

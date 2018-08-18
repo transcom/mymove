@@ -35,8 +35,8 @@ func (suite *HandlerSuite) SetupTest() {
 	suite.db.TruncateAll()
 }
 
-// MustSave requires saving without errors
-func (suite *HandlerSuite) MustSave(model interface{}) {
+// mustSave requires saving without errors
+func (suite *HandlerSuite) mustSave(model interface{}) {
 	t := suite.T()
 	t.Helper()
 
@@ -49,8 +49,8 @@ func (suite *HandlerSuite) MustSave(model interface{}) {
 	}
 }
 
-// IsNotErrResponse enforces handler does not return an error response
-func (suite *HandlerSuite) IsNotErrResponse(response middleware.Responder) {
+// isNotErrResponse enforces handler does not return an error response
+func (suite *HandlerSuite) isNotErrResponse(response middleware.Responder) {
 	r, ok := response.(*utils.ErrResponse)
 	if ok {
 		suite.logger.Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
@@ -59,8 +59,8 @@ func (suite *HandlerSuite) IsNotErrResponse(response middleware.Responder) {
 	}
 }
 
-// CheckErrorResponse verifies error response is what is expected
-func (suite *HandlerSuite) CheckErrorResponse(resp middleware.Responder, code int, name string) {
+// checkErrorResponse verifies error response is what is expected
+func (suite *HandlerSuite) checkErrorResponse(resp middleware.Responder, code int, name string) {
 	errResponse, ok := resp.(*utils.ErrResponse)
 	if !ok || errResponse.Code != code {
 		suite.T().Fatalf("Expected %s Response: %v", name, resp)
@@ -68,38 +68,38 @@ func (suite *HandlerSuite) CheckErrorResponse(resp middleware.Responder, code in
 	}
 }
 
-// CheckResponseBadRequest looks at BadRequest errors
-func (suite *HandlerSuite) CheckResponseBadRequest(resp middleware.Responder) {
-	suite.CheckErrorResponse(resp, http.StatusBadRequest, "BadRequest")
+// checkResponseBadRequest looks at BadRequest errors
+func (suite *HandlerSuite) checkResponseBadRequest(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusBadRequest, "BadRequest")
 }
 
-// CheckResponseUnauthorized looks at Unauthorized errors
-func (suite *HandlerSuite) CheckResponseUnauthorized(resp middleware.Responder) {
-	suite.CheckErrorResponse(resp, http.StatusUnauthorized, "Unauthorized")
+// checkResponseUnauthorized looks at Unauthorized errors
+func (suite *HandlerSuite) checkResponseUnauthorized(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusUnauthorized, "Unauthorized")
 }
 
-// CheckResponseForbidden looks at Forbidden errors
-func (suite *HandlerSuite) CheckResponseForbidden(resp middleware.Responder) {
-	suite.CheckErrorResponse(resp, http.StatusForbidden, "Forbidden")
+// checkResponseForbidden looks at Forbidden errors
+func (suite *HandlerSuite) checkResponseForbidden(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusForbidden, "Forbidden")
 }
 
-// CheckResponseNotFound looks at NotFound errors
-func (suite *HandlerSuite) CheckResponseNotFound(resp middleware.Responder) {
-	suite.CheckErrorResponse(resp, http.StatusNotFound, "NotFound")
+// checkResponseNotFound looks at NotFound errors
+func (suite *HandlerSuite) checkResponseNotFound(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusNotFound, "NotFound")
 }
 
-// CheckResponseInternalServerError looks at InternalServerError errors
-func (suite *HandlerSuite) CheckResponseInternalServerError(resp middleware.Responder) {
-	suite.CheckErrorResponse(resp, http.StatusInternalServerError, "InternalServerError")
+// checkResponseInternalServerError looks at InternalServerError errors
+func (suite *HandlerSuite) checkResponseInternalServerError(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusInternalServerError, "InternalServerError")
 }
 
-// CheckResponseTeapot enforces that response come from a Teapot
-func (suite *HandlerSuite) CheckResponseTeapot(resp middleware.Responder) {
-	suite.CheckErrorResponse(resp, http.StatusTeapot, "Teapot")
+// checkResponseTeapot enforces that response come from a Teapot
+func (suite *HandlerSuite) checkResponseTeapot(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusTeapot, "Teapot")
 }
 
-// AuthenticateRequest Request authenticated with a service member
-func (suite *HandlerSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
+// authenticateRequest Request authenticated with a service member
+func (suite *HandlerSuite) authenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          serviceMember.UserID,
@@ -110,8 +110,8 @@ func (suite *HandlerSuite) AuthenticateRequest(req *http.Request, serviceMember 
 	return req.WithContext(ctx)
 }
 
-// AuthenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
-func (suite *HandlerSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
+// authenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
+func (suite *HandlerSuite) authenticateUserRequest(req *http.Request, user models.User) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          user.ID,
@@ -121,8 +121,8 @@ func (suite *HandlerSuite) AuthenticateUserRequest(req *http.Request, user model
 	return req.WithContext(ctx)
 }
 
-// AuthenticateOfficeRequest authenticates Office users
-func (suite *HandlerSuite) AuthenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
+// authenticateOfficeRequest authenticates Office users
+func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          *user.UserID,
@@ -133,8 +133,8 @@ func (suite *HandlerSuite) AuthenticateOfficeRequest(req *http.Request, user mod
 	return req.WithContext(ctx)
 }
 
-// AuthenticateTspRequest authenticates TSP users
-func (suite *HandlerSuite) AuthenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
+// authenticateTspRequest authenticates TSP users
+func (suite *HandlerSuite) authenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          *user.UserID,
@@ -145,8 +145,8 @@ func (suite *HandlerSuite) AuthenticateTspRequest(req *http.Request, user models
 	return req.WithContext(ctx)
 }
 
-// Fixture allows us to include a fixture like a PDF in the test
-func (suite *HandlerSuite) Fixture(name string) *runtime.File {
+// fixture allows us to include a fixture like a PDF in the test
+func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
 	cwd, err := os.Getwd()
 	if err != nil {

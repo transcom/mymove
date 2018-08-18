@@ -12,7 +12,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	unknownUser := testdatagen.MakeDefaultUser(suite.db)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.AuthenticateUserRequest(req, unknownUser)
+	req = suite.authenticateUserRequest(req, unknownUser)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	})
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.authenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
@@ -63,10 +63,10 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	// Remove transportation office info from current station
 	station := sm.DutyStation
 	station.TransportationOfficeID = nil
-	suite.MustSave(&station)
+	suite.mustSave(&station)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.authenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,

@@ -25,11 +25,11 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 		},
 	})
 	upload.DocumentID = nil
-	suite.MustSave(&upload)
+	suite.mustSave(&upload)
 	uploadIds := []strfmt.UUID{*utils.FmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, sm)
+	request = suite.authenticateRequest(request, sm)
 
 	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
 		UploadIds:            uploadIds,
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	handler := CreateMovingExpenseDocumentHandler(context)
 	response := handler.Handle(newMovingExpenseDocParams)
 	// assert we got back the 201 response
-	suite.IsNotErrResponse(response)
+	suite.isNotErrResponse(response)
 	createdResponse := response.(*movedocop.CreateMovingExpenseDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
@@ -69,15 +69,15 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.db)
-	request = suite.AuthenticateRequest(request, wrongUser)
+	request = suite.authenticateRequest(request, wrongUser)
 	newMovingExpenseDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newMovingExpenseDocParams)
-	suite.CheckResponseForbidden(badUserResponse)
+	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	newMovingExpenseDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMovingExpenseDocParams)
-	suite.CheckResponseNotFound(badMoveResponse)
+	suite.checkResponseNotFound(badMoveResponse)
 
 }

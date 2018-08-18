@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.MustSave(&user)
+	suite.mustSave(&user)
 
 	address := models.Address{
 		StreetAddress1: "some address",
@@ -27,21 +27,21 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		State:          "state",
 		PostalCode:     "12345",
 	}
-	suite.MustSave(&address)
+	suite.mustSave(&address)
 
 	station1 := models.DutyStation{
 		Name:        "First Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.MustSave(&station1)
+	suite.mustSave(&station1)
 
 	station2 := models.DutyStation{
 		Name:        "Second Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.MustSave(&station2)
+	suite.mustSave(&station2)
 
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
 

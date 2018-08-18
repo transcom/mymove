@@ -26,7 +26,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, serviceMember)
+	req = suite.authenticateRequest(req, serviceMember)
 	params.HTTPRequest = req
 
 	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
@@ -74,7 +74,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	params.DocumentID = strfmt.UUID(documentID.String())
 
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, document.ServiceMember)
+	req = suite.authenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)

@@ -31,11 +31,11 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	err := move.Submit()
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
-	suite.MustSave(&move)
+	suite.mustSave(&move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
@@ -63,11 +63,11 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	err := move.Submit()
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
-	suite.MustSave(&move)
+	suite.mustSave(&move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
@@ -123,13 +123,13 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	err = orders.Submit()
 	suite.Nil(err)
 	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
-	suite.MustSave(&orders)
+	suite.mustSave(&orders)
 	move.Orders = orders
-	suite.MustSave(move)
+	suite.mustSave(move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	// And params include the cancel reason
 	reason := "Orders revoked."
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	// And params include the cancel reason
 	reason := "Orders revoked."
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
@@ -224,7 +224,7 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
@@ -248,7 +248,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
 		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
@@ -273,7 +273,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
 		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),

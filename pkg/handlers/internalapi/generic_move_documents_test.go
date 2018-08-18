@@ -24,11 +24,11 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 		},
 	})
 	upload.DocumentID = nil
-	suite.MustSave(&upload)
+	suite.mustSave(&upload)
 	uploadIds := []strfmt.UUID{*utils.FmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, sm)
+	request = suite.authenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:        uploadIds,
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	handler := CreateGenericMoveDocumentHandler(context)
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
-	suite.IsNotErrResponse(response)
+	suite.isNotErrResponse(response)
 	createdResponse := response.(*movedocop.CreateGenericMoveDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
@@ -62,14 +62,14 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.db)
-	request = suite.AuthenticateRequest(request, wrongUser)
+	request = suite.authenticateRequest(request, wrongUser)
 	newMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newMoveDocParams)
-	suite.CheckResponseForbidden(badUserResponse)
+	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	newMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMoveDocParams)
-	suite.CheckResponseNotFound(badMoveResponse)
+	suite.checkResponseNotFound(badMoveResponse)
 }

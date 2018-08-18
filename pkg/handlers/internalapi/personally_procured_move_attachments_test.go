@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	loader.CreateUpload(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, f)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	request = suite.authenticateOfficeRequest(request, officeUser)
 
 	params := ppmop.CreatePPMAttachmentsParams{
 		PersonallyProcuredMoveID: *utils.FmtUUID(ppm.ID),
@@ -85,7 +85,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	handler := CreatePersonallyProcuredMoveAttachmentsHandler(context)
 	response := handler.Handle(params)
 	// assert we got back the 201 response
-	suite.IsNotErrResponse(response)
+	suite.isNotErrResponse(response)
 	createdResponse := response.(*ppmop.CreatePPMAttachmentsOK)
 	createdPDFPayload := createdResponse.Payload
 	suite.NotNil(createdPDFPayload.URL)

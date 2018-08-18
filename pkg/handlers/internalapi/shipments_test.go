@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	}
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.authenticateRequest(req, sm)
 
 	params := shipmentop.CreateShipmentParams{
 		Shipment:    &newShipment,
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	sm := move.Orders.ServiceMember
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.authenticateRequest(req, sm)
 
 	newShipment := internalmessages.Shipment{}
 	params := shipmentop.CreateShipmentParams{
@@ -159,10 +159,10 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 		SpouseProgearWeightEstimate:  utils.PoundPtrFromInt64Ptr(swag.Int64(120)),
 		ServiceMemberID:              sm.ID,
 	}
-	suite.MustSave(&shipment1)
+	suite.mustSave(&shipment1)
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment/shipment_id", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.authenticateRequest(req, sm)
 
 	newAddress := otherFakeAddressPayload()
 
@@ -222,10 +222,10 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 		SpouseProgearWeightEstimate:  utils.PoundPtrFromInt64Ptr(swag.Int64(120)),
 		ServiceMemberID:              sm.ID,
 	}
-	suite.MustSave(&shipment1)
+	suite.mustSave(&shipment1)
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment/shipment_id", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.authenticateRequest(req, sm)
 
 	newAddress := otherFakeAddressPayload()
 

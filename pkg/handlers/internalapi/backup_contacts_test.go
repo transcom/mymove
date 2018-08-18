@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 		ServiceMemberID:            *utils.FmtUUID(serviceMember.ID),
 	}
 
-	params.HTTPRequest = suite.AuthenticateRequest(req, serviceMember)
+	params.HTTPRequest = suite.authenticateRequest(req, serviceMember)
 
 	handler := CreateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	params := contactop.IndexServiceMemberBackupContactsParams{
 		ServiceMemberID: *utils.FmtUUID(contact.ServiceMember.ID),
 	}
-	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
+	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
 	handler := IndexBackupContactsHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 		ServiceMemberID: *utils.FmtUUID(contact.ServiceMember.ID),
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
+	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
 
 	handler := IndexBackupContactsHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -121,7 +121,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	params := contactop.ShowServiceMemberBackupContactParams{
 		BackupContactID: *utils.FmtUUID(contact.ID),
 	}
-	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
+	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
 	handler := ShowBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -147,7 +147,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 		BackupContactID: *utils.FmtUUID(contact.ID),
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
+	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
 
 	handler := ShowBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 		BackupContactID:                         *utils.FmtUUID(contact.ID),
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
-	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
+	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
 	handler := UpdateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -213,7 +213,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
+	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
 
 	handler := UpdateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)

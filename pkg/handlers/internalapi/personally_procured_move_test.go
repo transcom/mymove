@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	suite.Nil(locErr)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, orders.ServiceMember)
+	request = suite.authenticateRequest(request, orders.ServiceMember)
 
 	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{
 		WeightEstimate:   swag.Int64(12),
@@ -49,16 +49,16 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	suite.NotNil(createdIssuePayload.ID)
 
 	// Next try the wrong user
-	request = suite.AuthenticateRequest(request, user1)
+	request = suite.authenticateRequest(request, user1)
 	newPPMParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newPPMParams)
-	suite.CheckResponseForbidden(badUserResponse)
+	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	newPPMParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newPPMParams)
-	suite.CheckResponseNotFound(badMoveResponse)
+	suite.checkResponseNotFound(badMoveResponse)
 
 }
 
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	}
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move1.Orders.ServiceMember)
 
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
 		MoveID:      strfmt.UUID(move1.ID.String()),
@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		ServiceMember:   move.Orders.ServiceMember,
 		ServiceMemberID: move.Orders.ServiceMemberID,
 	}
-	suite.MustSave(&newAdvanceWorksheet)
+	suite.mustSave(&newAdvanceWorksheet)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                     move.ID,
@@ -173,10 +173,10 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		Status:           models.PPMStatusDRAFT,
 		AdvanceWorksheet: newAdvanceWorksheet,
 	}
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:                    &newSize,
@@ -235,10 +235,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		DestinationPostalCode: destinationPostalCode,
 		Status:                models.PPMStatusDRAFT,
 	}
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := &internalmessages.PatchPersonallyProcuredMovePayload{
 		WeightEstimate: weight,
@@ -306,10 +306,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		PlannedMoveDate: &initialMoveDate,
 		Status:          models.PPMStatusDRAFT,
 	}
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("PATCH", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, user2)
+	req = suite.authenticateRequest(req, user2)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:            &newSize,
@@ -327,7 +327,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
-	suite.CheckResponseForbidden(response)
+	suite.checkResponseForbidden(response)
 }
 
 // TODO: no response is returned when the moveid doesn't match. How did this ever work?
@@ -359,10 +359,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		WeightEstimate: initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, orders.ServiceMember)
+	req = suite.authenticateRequest(req, orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:           &newSize,
@@ -378,7 +378,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
-	suite.CheckResponseForbidden(response)
+	suite.checkResponseForbidden(response)
 
 }
 
@@ -401,10 +401,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		WeightEstimate: initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:           &newSize,
@@ -443,10 +443,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		WeightEstimate: initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	// First, create an advance
 	truth := true
@@ -516,10 +516,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 		WeightEstimate: initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	// First, try and set has_requested_advance without passing in an advance
 	truth := true
@@ -537,7 +537,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
-	suite.CheckResponseBadRequest(response)
+	suite.checkResponseBadRequest(response)
 
 	// Then, try and create an advance without setting has requested advance
 	var initialAmount int64
@@ -583,7 +583,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		t.Fatal("Should transition.")
 	}
 
-	suite.MustSave(&move)
+	suite.mustSave(&move)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
@@ -601,10 +601,10 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		t.Fatal("Should transition.")
 	}
 
-	suite.MustSave(&ppm1)
+	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	requestPaymentParams := ppmop.RequestPPMPaymentParams{
 		HTTPRequest:              req,
@@ -647,7 +647,7 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.authenticateRequest(req, sm)
 
 	requestExpenseSumParams := ppmop.RequestPPMExpenseSummaryParams{
 		HTTPRequest:              req,

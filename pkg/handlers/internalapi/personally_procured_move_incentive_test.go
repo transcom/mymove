@@ -18,7 +18,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,

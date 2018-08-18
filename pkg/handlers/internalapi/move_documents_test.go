@@ -25,11 +25,11 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		},
 	})
 	upload.DocumentID = nil
-	suite.MustSave(&upload)
+	suite.mustSave(&upload)
 	uploadIds := []strfmt.UUID{*utils.FmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, sm)
+	request = suite.authenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:                uploadIds,
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	handler := CreateGenericMoveDocumentHandler(context)
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
-	suite.IsNotErrResponse(response)
+	suite.isNotErrResponse(response)
 	createdResponse := response.(*movedocop.CreateGenericMoveDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
@@ -64,16 +64,16 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.db)
-	request = suite.AuthenticateRequest(request, wrongUser)
+	request = suite.authenticateRequest(request, wrongUser)
 	newMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newMoveDocParams)
-	suite.CheckResponseForbidden(badUserResponse)
+	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	newMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMoveDocParams)
-	suite.CheckResponseNotFound(badMoveResponse)
+	suite.checkResponseNotFound(badMoveResponse)
 }
 
 func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	})
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, sm)
+	request = suite.authenticateRequest(request, sm)
 
 	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
 		HTTPRequest: request,
@@ -115,16 +115,16 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.db)
-	request = suite.AuthenticateRequest(request, wrongUser)
+	request = suite.authenticateRequest(request, wrongUser)
 	indexMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(indexMoveDocParams)
-	suite.CheckResponseForbidden(badUserResponse)
+	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	indexMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(indexMoveDocParams)
-	suite.CheckResponseNotFound(badMoveResponse)
+	suite.checkResponseNotFound(badMoveResponse)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		},
 	})
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, sm)
+	request = suite.authenticateRequest(request, sm)
 
 	// And: the title and status are updated
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
@@ -165,7 +165,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
-	suite.IsNotErrResponse(response)
+	suite.isNotErrResponse(response)
 	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
 	updatePayload := updateResponse.Payload
 	suite.NotNil(updatePayload)
@@ -200,7 +200,7 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 		},
 	})
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, sm)
+	request = suite.authenticateRequest(request, sm)
 
 	// And: the title and status are updated
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
@@ -222,7 +222,7 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
-	suite.IsNotErrResponse(response)
+	suite.isNotErrResponse(response)
 	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
 	updatePayload := updateResponse.Payload
 	suite.NotNil(updatePayload)

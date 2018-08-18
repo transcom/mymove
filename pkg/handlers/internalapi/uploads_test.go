@@ -19,14 +19,14 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 
 	params := uploadop.NewCreateUploadParams()
 	params.DocumentID = utils.FmtUUID(document.ID)
-	params.File = suite.Fixture("test.pdf")
+	params.File = suite.fixture("test.pdf")
 
 	return document, params
 }
 
 func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, serviceMember)
+	req = suite.authenticateRequest(req, serviceMember)
 
 	params.HTTPRequest = req
 
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	document, params := createPrereqs(suite)
 
-	params.File = suite.Fixture("empty.pdf")
+	params.File = suite.fixture("empty.pdf")
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadBadRequest)
@@ -165,14 +165,14 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 
 	upload := testdatagen.MakeDefaultUpload(suite.db)
 
-	file := suite.Fixture("test.pdf")
+	file := suite.fixture("test.pdf")
 	fakeS3.Store(upload.StorageKey, file.Data, "somehash")
 
 	params := uploadop.NewDeleteUploadParams()
 	params.UploadID = strfmt.UUID(upload.ID.String())
 
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, upload.Document.ServiceMember)
+	req = suite.authenticateRequest(req, upload.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	}
 	upload2 := testdatagen.MakeUpload(suite.db, upload2Assertions)
 
-	file := suite.Fixture("test.pdf")
+	file := suite.fixture("test.pdf")
 	fakeS3.Store(upload1.StorageKey, file.Data, "somehash")
 	fakeS3.Store(upload2.StorageKey, file.Data, "somehash")
 
@@ -212,7 +212,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	}
 
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, upload1.Document.ServiceMember)
+	req = suite.authenticateRequest(req, upload1.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)

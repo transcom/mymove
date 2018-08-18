@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
 
@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 		LoginGovUUID:  userUUID2,
 		LoginGovEmail: "email2@example.com",
 	}
-	suite.MustSave(&user2)
+	suite.mustSave(&user2)
 	move := testdatagen.MakeDefaultMove(suite.db)
 
 	date := time.Now()
@@ -77,14 +77,14 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	// Uses a different user than is on the move object
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.AuthenticateUserRequest(req, user2)
+	req = suite.authenticateUserRequest(req, user2)
 
 	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.CheckResponseForbidden(response)
+	suite.checkResponseForbidden(response)
 
 	certs := []models.SignedCertification{}
 	suite.db.All(&certs)
@@ -113,14 +113,14 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	// Uses a different user than is on the move object
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.CheckResponseNotFound(response)
+	suite.checkResponseNotFound(response)
 
 	var certs []models.SignedCertification
 	suite.db.All(&certs)
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 		Signature:         "name",
 		Date:              time1,
 	}
-	suite.MustSave(&cert1)
+	suite.mustSave(&cert1)
 
 	time2 := time.Date(2018, time.February, 1, 1, 1, 1, 1, time.UTC)
 	cert2 := models.SignedCertification{
@@ -151,11 +151,11 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 		Signature:         "name",
 		Date:              time2,
 	}
-	suite.MustSave(&cert2)
+	suite.mustSave(&cert2)
 
 	req := httptest.NewRequest("GET", "/moves/id/signed_certifications", nil)
 	params := certop.IndexSignedCertificationsParams{
-		HTTPRequest: suite.AuthenticateRequest(req, move.Orders.ServiceMember),
+		HTTPRequest: suite.authenticateRequest(req, move.Orders.ServiceMember),
 		MoveID:      *utils.FmtUUID(move.ID),
 	}
 

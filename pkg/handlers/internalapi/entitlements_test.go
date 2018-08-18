@@ -20,11 +20,11 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is under entitlement of 10500
 	ppm.WeightEstimate = swag.Int64(10000)
-	suite.MustSave(&ppm)
+	suite.mustSave(&ppm)
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,
@@ -48,11 +48,11 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409() {
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is over entitlement of 10500
 	ppm.WeightEstimate = swag.Int64(14000)
-	suite.MustSave(&ppm)
+	suite.mustSave(&ppm)
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpm() {
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,
@@ -100,7 +100,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, serviceMember)
+	request = suite.authenticateRequest(request, serviceMember)
 
 	badMoveID := uuid.Must(uuid.NewV4())
 
@@ -129,14 +129,14 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is under entitlement of 10500
 	ppm.WeightEstimate = swag.Int64(10000)
-	suite.MustSave(&ppm)
+	suite.mustSave(&ppm)
 
 	move.Orders.ServiceMember.Rank = nil
-	suite.MustSave(&move.Orders.ServiceMember)
+	suite.mustSave(&move.Orders.ServiceMember)
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,

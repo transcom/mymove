@@ -17,7 +17,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 
 	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
-	req = suite.AuthenticateRequest(req, orders.ServiceMember)
+	req = suite.authenticateRequest(req, orders.ServiceMember)
 
 	// When: a new Move is posted
 	var selectedType = internalmessages.SelectedMoveTypePPM
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.AuthenticateRequest(req, anotherUser)
+	req = suite.authenticateRequest(req, anotherUser)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -92,7 +92,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.CheckResponseForbidden(response)
+	suite.checkResponseForbidden(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
@@ -103,7 +103,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 
 	// And: the context contains a logged in user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.authenticateRequest(req, user)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.CheckResponseNotFound(response)
+	suite.checkResponseNotFound(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	patchPayload := internalmessages.PatchMovePayload{}
 	params := moveop.PatchMoveParams{
@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.ShowMoveParams{
 		HTTPRequest: req,
@@ -180,7 +180,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.AuthenticateRequest(req, anotherUser)
+	req = suite.authenticateRequest(req, anotherUser)
 
 	showMoveParams := moveop.ShowMoveParams{
 		HTTPRequest: req,
@@ -190,7 +190,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
-	suite.CheckResponseForbidden(showResponse)
+	suite.checkResponseForbidden(showResponse)
 
 }
 
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.SubmitMoveForApprovalParams{
 		HTTPRequest: req,
