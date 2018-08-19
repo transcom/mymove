@@ -240,6 +240,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 	patchShipmentWithPayload(shipment, params.Shipment)
 
+	// Premove survey info can only be edited by office users or TSPs
 	if session.IsOfficeUser() {
 		patchShipmentWithPremoveSurveyFields(shipment, params.Shipment)
 	}
