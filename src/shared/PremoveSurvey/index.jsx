@@ -193,8 +193,8 @@ function mapStateToProps(state, props) {
 
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
 
-    hasError: false,
-    // errorMessage: get(state, 'office.error'),
+    hasError: !!props.error,
+    errorMessage: props.error,
     isUpdating: false,
 
     // editablePanelify

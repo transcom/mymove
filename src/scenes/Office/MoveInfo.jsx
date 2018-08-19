@@ -91,6 +91,7 @@ const HHGTabContent = props => {
           title="Premove Survey"
           shipment={props.officeShipment}
           update={props.patchShipment}
+          error={props.surveyError}
         />
       )}
     </div>
@@ -355,6 +356,9 @@ class MoveInfo extends Component {
                     officeShipment={this.props.officeShipment}
                     patchShipment={this.props.patchShipment}
                     moveId={this.props.match.params.moveId}
+                    surveyError={
+                      this.props.shipmentPatchError && this.props.errorMessage
+                    }
                   />
                 </PrivateRoute>
               </Switch>
@@ -475,7 +479,9 @@ const mapStateToProps = state => ({
   ),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
+  shipmentPatchError: get(state, 'office.shipmentPatchError'),
   approveMoveHasError: get(state, 'office.moveHasApproveError'),
+  errorMessage: get(state, 'office.error'),
 });
 
 const mapDispatchToProps = dispatch =>
