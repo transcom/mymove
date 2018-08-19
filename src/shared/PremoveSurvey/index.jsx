@@ -3,29 +3,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import isMobile from 'is-mobile';
-import { Link } from 'react-router-dom';
-import { concat, get, pick, reject, every, includes } from 'lodash';
-import {
-  reduxForm,
-  Field,
-  FormSection,
-  getFormValues,
-  isValid,
-} from 'redux-form';
+import { get, pick } from 'lodash';
+import { reduxForm, FormSection, getFormValues, isValid } from 'redux-form';
 
-import {
-  PanelSwaggerField,
-  PanelField,
-  SwaggerValue,
-  editablePanelify,
-} from 'shared/EditablePanel';
-import { formatDate } from 'shared/formatters';
+import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 import './index.css';
 

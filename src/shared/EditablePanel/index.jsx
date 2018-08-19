@@ -63,6 +63,7 @@ export const PanelSwaggerField = props => {
     </PanelField>
   );
 
+  /* eslint-disable security/detect-object-injection */
   if (nullWarning && !values[fieldName]) {
     component = (
       <PanelField title={title} className="missing">
@@ -71,6 +72,7 @@ export const PanelSwaggerField = props => {
       </PanelField>
     );
   }
+  /* eslint-enable security/detect-object-injection */
 
   return component;
 };

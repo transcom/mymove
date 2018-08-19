@@ -2,7 +2,7 @@ import { denormalize, normalize } from 'normalizr';
 
 import { shipments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
-import { getClient, getPublicClient, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/api';
 
 export const STATE_KEY = 'shipments';
 
