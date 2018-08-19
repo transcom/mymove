@@ -48,6 +48,66 @@ jobs:
             bin/circleci-announce-broken-branch
           when: on_fail
 
+  integration_tests:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: postgres:latest
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep
+            - client-deps-cache-{{ checksum "yarn.lock" }}
+
+      - run:
+          # This is needed to use `psql` to test DB connectivity, until the app
+          # itself starts making database connections.
+          name: Install postgres client
+          command: |
+            sudo apt-get -qq update
+            sudo apt-get -qq -y install postgresql-client-9.4
+      - run:
+          name: Install dep
+          command: |
+            go get -u github.com/golang/dep/cmd/dep
+            echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run:
+          name: Cypress deps
+          command: |
+            sudo apt-get -qq -y install xvfb libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
+      - run:
+          name: Install cypress
+          command: npm install cypress@~3.1.0
+      - run:
+          name: make e2e_test_ci
+          command: make e2e_test_ci
+          environment:
+              # Env vars needed by the `bin/apply-secure-migrations.sh` script
+              DB_PASSWORD: mysecretpassword
+              DB_USER: postgres
+              DB_HOST: localhost
+              DB_PORT: 5432
+              DB_NAME: test_db
+              SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
+              SECURE_MIGRATION_SOURCE: local
+
+      - save_cache:
+          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/pkg/dep
+      - save_cache:
+          key: client-deps-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache
+      - run: *announce_failure
+
   build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
@@ -205,22 +265,6 @@ jobs:
       - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
     steps: *deploy_app_steps
 
-  integration_tests:
-    docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-
-      - run: make e2e_test
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-      - run: *announce_failure
-
   update_dependencies:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
@@ -259,6 +303,7 @@ workflows:
   app:
     jobs:
       - pre_test
+      - integration_tests
       - build_app
       - build_migrations
 
