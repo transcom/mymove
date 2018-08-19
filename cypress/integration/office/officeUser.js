@@ -207,7 +207,7 @@ function officeUserApprovesMoveAndVerifiesPPM() {
   });
 
   // Verify that the Estimates section contains expected data
-  cy.get('span').contains('8000');
+  cy.get('span').contains('8,000');
 
   // Approve PPM
   cy
