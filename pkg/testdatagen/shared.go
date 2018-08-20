@@ -32,6 +32,7 @@ type Assertions struct {
 	Order                         models.Order
 	PersonallyProcuredMove        models.PersonallyProcuredMove
 	Reimbursement                 models.Reimbursement
+	ServiceAgent                  models.ServiceAgent
 	ServiceMember                 models.ServiceMember
 	Shipment                      models.Shipment
 	ShipmentOffer                 models.ShipmentOffer
