@@ -121,6 +121,16 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	}
 }
 
+func (suite *ModelSuite) TestShipmentStateMachine() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	suite.Equal(ShipmentStatusDRAFT, shipment.Status, "expected Draft")
+	// Can submit shipment
+	err := shipment.Submit()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
+}
+
 func equalShipmentsSlice(a []ShipmentWithOffer, b []ShipmentWithOffer) bool {
 	if len(a) != len(b) {
 		return false

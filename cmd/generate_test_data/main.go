@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
+	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/storage"
@@ -72,7 +73,7 @@ func main() {
 		numTspUsers := 2
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
-		status := []string{"DRAFT", "AWARDED"}
+		status := []models.ShipmentStatus{"DRAFT", "AWARDED"}
 		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 		if err != nil {
 			log.Panic(err)
