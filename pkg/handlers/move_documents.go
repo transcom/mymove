@@ -146,11 +146,11 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		}
 
 		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
-			if len(moveDoc.Move.PersonallyProcuredMoves) == 0 {
+			if moveDoc.PersonallyProcuredMoveID == nil {
 				return responseForError(h.logger, errors.New("No PPM loaded for Approved Move Doc"))
 			}
 
-			ppm := &moveDoc.Move.PersonallyProcuredMoves[0]
+			ppm := &moveDoc.PersonallyProcuredMove
 			err := ppm.Complete()
 			if err != nil {
 				return responseForError(h.logger, err)

@@ -11,6 +11,7 @@ import {
   ApprovePPM,
   ApproveReimbursement,
   CancelMove,
+  DownloadPPMAttachments,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -31,6 +32,7 @@ const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
+const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 
@@ -77,6 +79,10 @@ export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
   approveReimbursementType,
+);
+
+export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(
+  downloadPPMAttachmentsType,
 );
 
 // MULTIPLE-RESOURCE ACTION TYPES
@@ -153,6 +159,11 @@ export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
   approveReimbursementType,
   ApproveReimbursement,
+);
+
+export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
+  downloadPPMAttachmentsType,
+  DownloadPPMAttachments,
 );
 
 export const cancelMove = (moveId, changeReason) => {
@@ -289,12 +300,14 @@ const initialState = {
   serviceMemberHasUpdateSuccess: false,
   backupContactsHaveLoadError: null,
   backupContactsHaveLoadSuccess: false,
+  downloadAttachmentsHasError: null,
   ppmsHaveLoadError: null,
   ppmsHaveLoadSuccess: false,
   ppmHasUpdateError: null,
   ppmHasUpdateSuccess: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
+  moveHasApproveError: false,
   moveHasCancelError: false,
   moveHasCancelSuccess: false,
   flashMessage: false,
@@ -496,16 +509,19 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_BASICS.start:
       return Object.assign({}, state, {
         basicsIsApproving: true,
+        moveHasApproveError: false,
       });
     case APPROVE_BASICS.success:
       return Object.assign({}, state, {
         basicsIsApproving: false,
         officeMove: action.payload,
+        moveHasApproveError: false,
       });
     case APPROVE_BASICS.failure:
       return Object.assign({}, state, {
         basicsIsApproving: false,
         error: action.error.message,
+        moveHasApproveError: true,
       });
     case CANCEL_MOVE.start:
       return Object.assign({}, state, {
@@ -623,6 +639,16 @@ export function officeReducer(state = initialState, action) {
         loadDependenciesHasSuccess: false,
         loadDependenciesHasError: true,
         error: action.error.message,
+      });
+
+    // PPM ATTACHMENTS GENERATOR
+    case DOWNLOAD_ATTACHMENTS.start:
+      return Object.assign({}, state, {
+        downloadAttachmentsHasError: null,
+      });
+    case DOWNLOAD_ATTACHMENTS.failure:
+      return Object.assign({}, state, {
+        downloadAttachmentsHasError: action.error,
       });
     default:
       return state;

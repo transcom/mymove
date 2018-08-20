@@ -225,8 +225,8 @@ if err != nil {
 Some errors are predictable, such as those from the database that Pop returns to us. This gives you the option to use those predictable errors to give yourself and fellow maintainers of code more detail than you might get otherwise, like so:
 
 ```golang
-// FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
- func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+// FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
+ func FetchServiceMemberForUser(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
   var serviceMember ServiceMember
   err := db.Eager().Find(&serviceMember, id)
   if err != nil {

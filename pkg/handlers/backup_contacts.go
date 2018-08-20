@@ -31,7 +31,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -58,7 +58,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

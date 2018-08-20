@@ -10,12 +10,27 @@ import (
 )
 
 // MakeTDL finds or makes a single traffic_distribution_list record
-func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models.TrafficDistributionList, error) {
+func MakeTDL(db *pop.Connection, assertions Assertions) models.TrafficDistributionList {
 
-	// Find an existing record against unique constraint
+	source := assertions.TrafficDistributionList.SourceRateArea
+	if source == "" {
+		source = DefaultSrcRateArea
+	}
+	dest := assertions.TrafficDistributionList.DestinationRegion
+	if dest == "" {
+		dest = DefaultDstRegion
+	}
+	cos := assertions.TrafficDistributionList.CodeOfService
+	if cos == "" {
+		cos = DefaultCOS
+	}
+
 	tdls := []models.TrafficDistributionList{}
 	query := db.Where(fmt.Sprintf("source_rate_area = '%s' AND destination_region = '%s' AND code_of_service = '%s'", source, dest, cos))
 	err := query.All(&tdls)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	// Create a new record if none are found
 	if len(tdls) == 0 {
@@ -32,16 +47,38 @@ func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models
 		if err != nil {
 			log.Panic(err)
 		}
-		return tdl, err
+		return tdl
 	}
+	return tdls[0]
+}
 
-	return tdls[0], err
+// MakeDefaultTDL makes a TDL with default values
+func MakeDefaultTDL(db *pop.Connection) models.TrafficDistributionList {
+	return MakeTDL(db, Assertions{})
 }
 
 // MakeTDLData creates three TDL records
 func MakeTDLData(db *pop.Connection) {
 	// It would be nice to make this less repetitive
-	MakeTDL(db, "US1", "2", "2")
-	MakeTDL(db, "US10", "9", "2")
-	MakeTDL(db, "US4964400", "4", "D")
+	MakeTDL(db, Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US1",
+			DestinationRegion: "2",
+			CodeOfService:     "2",
+		},
+	})
+	MakeTDL(db, Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US10",
+			DestinationRegion: "9",
+			CodeOfService:     "2",
+		},
+	})
+	MakeTDL(db, Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US4964400",
+			DestinationRegion: "4",
+			CodeOfService:     "D",
+		},
+	})
 }

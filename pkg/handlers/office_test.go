@@ -12,8 +12,17 @@ import (
 )
 
 func (suite *HandlerSuite) TestApproveMoveHandler() {
-	// Given: a set of orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.db)
+	// Given: a set of complete orders, a move, office user and servicemember user
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	assertions := testdatagen.Assertions{
+		Order: models.Order{
+			OrdersNumber:        fmtString("1234"),
+			OrdersTypeDetail:    &hhgPermitted,
+			TAC:                 fmtString("1234"),
+			DepartmentIndicator: fmtString("17 - United States Marines"),
+		},
+	}
+	move := testdatagen.MakeMove(suite.db, assertions)
 	// Given: an office User
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
@@ -41,6 +50,34 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 	// And: Returned query to have an approved status
 	suite.Assertions.Equal(internalmessages.MoveStatusAPPROVED, okResponse.Payload.Status)
+}
+
+func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
+	// Given: a set of incomplete orders, a move, office user and servicemember user
+	move := testdatagen.MakeDefaultMove(suite.db)
+	// Given: an office User
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+
+	// Move is submitted and saved
+	err := move.Submit()
+	suite.Nil(err)
+	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.mustSave(&move)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
+	req = suite.authenticateOfficeRequest(req, officeUser)
+
+	params := officeop.ApproveMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+	// And: move handler is hit
+	handler := ApproveMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&officeop.ApprovePPMBadRequest{}, response)
 }
 
 func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
@@ -153,6 +190,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 			Status: models.PPMStatusSUBMITTED,
 		},
 	})
+
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 	// And: the context contains the auth values

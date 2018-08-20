@@ -69,9 +69,9 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 	return validate.NewErrors(), nil
 }
 
-// FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+// FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMember(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
@@ -95,6 +95,23 @@ func FetchServiceMember(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	}
 	if serviceMember.SocialSecurityNumberID == nil {
 		serviceMember.SocialSecurityNumber = nil
+	}
+
+	return serviceMember, nil
+}
+
+// FetchServiceMember returns a service member by id REGARDLESS OF USER.
+// Does not fetch nested models.
+// DO NOT USE IF YOU NEED USER AUTH
+func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Q().Find(&serviceMember, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return ServiceMember{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return ServiceMember{}, err
 	}
 
 	return serviceMember, nil

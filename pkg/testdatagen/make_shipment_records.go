@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,29 +14,42 @@ import (
 func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	requestedPickupDate := assertions.Shipment.RequestedPickupDate
+	if requestedPickupDate == nil {
+		requestedPickupDate = models.TimePointer(PerformancePeriodStart)
+	}
 	pickupDate := assertions.Shipment.PickupDate
+	if pickupDate == nil {
+		pickupDate = models.TimePointer(DateInsidePerformancePeriod)
+	}
 	deliveryDate := assertions.Shipment.DeliveryDate
-	tdl := assertions.Shipment.TrafficDistributionList
-	if tdl == nil {
-		// TODO: Fix TDL
-		// tdl = MakeDefaultTDL(db)
+	if deliveryDate == nil {
+		deliveryDate = models.TimePointer(DateOutsidePerformancePeriod)
 	}
 
-	defaultGBLOC := "OHAI"
+	tdl := assertions.Shipment.TrafficDistributionList
+	if tdl == nil {
+		newTDL := MakeDefaultTDL(db)
+		tdl = &newTDL
+	}
+
 	sourceGBLOC := assertions.Shipment.SourceGBLOC
 	if sourceGBLOC == nil {
-		sourceGBLOC = &defaultGBLOC
+		sourceGBLOC = &DefaultSrcGBLOC
 	}
 	destinationGBLOC := assertions.Shipment.DestinationGBLOC
 	if destinationGBLOC == nil {
-		destinationGBLOC = &defaultGBLOC
+		destinationGBLOC = &DefaultSrcGBLOC
 	}
 
 	market := assertions.Shipment.Market
+	if market == nil {
+		market = &DefaultMarket
+	}
 
 	move := assertions.Shipment.Move
-	if move == nil {
-		newMove := MakeDefaultMove(db)
+	// ID is required because it must be populated for Eager saving to work.
+	if isZeroUUID(assertions.Shipment.MoveID) {
+		newMove := MakeMove(db, assertions)
 		move = &newMove
 	}
 
@@ -47,14 +61,18 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	codeOfService := assertions.Shipment.CodeOfService
 	if codeOfService == nil {
-		newCodeOfService := "D"
-		codeOfService = &newCodeOfService
+		codeOfService = &DefaultCOS
 	}
 
 	pickupAddress := assertions.Shipment.PickupAddress
 	if pickupAddress == nil {
 		newPickupAddress := MakeAddress(db, Assertions{})
 		pickupAddress = &newPickupAddress
+	}
+
+	status := assertions.Shipment.Status
+	if status == "" {
+		status = models.ShipmentStatusDRAFT
 	}
 
 	shipment := models.Shipment{
@@ -72,7 +90,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		RequestedPickupDate:          timePointer(*requestedPickupDate),
 		MoveID:                       move.ID,
 		Move:                         move,
-		Status:                       "DEFAULT",
+		Status:                       status,
 		EstimatedPackDays:            models.Int64Pointer(2),
 		EstimatedTransitDays:         models.Int64Pointer(3),
 		PickupAddressID:              &pickupAddress.ID,

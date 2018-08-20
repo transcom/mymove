@@ -132,6 +132,7 @@ The following commands will get mymove running on your machine for the first tim
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
+* Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Also, using this hook is much faster than attempting to create your own with `pre-commit run -a`.
 
 ### Setup: Database
 
@@ -339,6 +340,19 @@ In development, we use [direnv](https://direnv.net/) to setup environment variab
     # Specify that an environment variable must be defined in .envrc.local
     require NEW_ENV_VAR "Look for info on this value in Google Drive"
     ```
+
+For per-tier environment variables (that are not secret), simply add the variables to the relevant `config/env/[experimental|staging|prod].env` file with the format `NAME=VALUE` on each line.  Then add the relevant section to `config/app.container-definition.json`.  The deploy process uses Go's [template package](https://golang.org/pkg/text/template/) for rendering the container definition.  For example,
+
+```bash
+MY_SPECIAL_TOKEN=abcxyz
+```
+
+```json
+{
+  "name": "MY_SPECIAL_TOKEN",
+  "value": "{{ .MY_SPECIAL_TOKEN }}"
+},
+```
 
 ### Documentation
 

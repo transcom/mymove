@@ -15,6 +15,7 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 	}
 
 	address := assertions.DutyStation.Address
+	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.DutyStation.AddressID) {
 		address = MakeAddress(db, assertions)
 	}
