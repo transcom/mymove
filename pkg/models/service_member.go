@@ -261,9 +261,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.DutyStationID == nil {
 		return false
 	}
-	if len(s.BackupContacts) == 0 {
-		return false
-	}
 	// All required fields have a set value
 	return true
 }

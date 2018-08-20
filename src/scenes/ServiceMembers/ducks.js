@@ -8,6 +8,7 @@ import {
   IndexBackupContactsAPI,
   CreateBackupContactAPI,
   UpdateBackupContactAPI,
+  DeleteBackupContactAPI,
 } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -33,6 +34,7 @@ export const createServiceMember = ReduxHelpers.generateAsyncActionCreator(
 const createBackupContactType = 'CREATE_BACKUP_CONTACT';
 const indexBackupContactsType = 'INDEX_BACKUP_CONTACTS';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
+const deleteBackupContactType = 'DELETE_BACKUP_CONTACT';
 
 export const CREATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
   createBackupContactType,
@@ -44,6 +46,10 @@ export const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(
 
 export const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
   updateBackupContactType,
+);
+
+export const DELETE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
+  deleteBackupContactType,
 );
 
 export const createBackupContact = ReduxHelpers.generateAsyncActionCreator(
@@ -59,6 +65,11 @@ export const indexBackupContacts = ReduxHelpers.generateAsyncActionCreator(
 export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
   updateBackupContactType,
   UpdateBackupContactAPI,
+);
+
+export const deleteBackupContact = ReduxHelpers.generateAsyncActionCreator(
+  deleteBackupContactType,
+  DeleteBackupContactAPI,
 );
 
 // Action creation
@@ -123,6 +134,7 @@ const initialState = {
   hasSubmitSuccess: false,
   createBackupContactSuccess: false,
   updateBackupContactSuccess: false,
+  deleteBackupContactSuccess: false,
 };
 const reshape = sm => {
   if (!sm) return null;
@@ -246,6 +258,22 @@ export function serviceMemberReducer(state = initialState, action) {
       return Object.assign({}, state, {
         indexBackupContactsSuccess: false,
         indexBackupContactsError: true,
+        error: action.error,
+      });
+    case DELETE_BACKUP_CONTACT.start:
+      return Object.assign({}, state, {
+        deleteBackupContactSuccess: false,
+      });
+    case DELETE_BACKUP_CONTACT.success:
+      return {
+        ...upsertBackUpContact(null, state),
+        deleteBackupContactSuccess: true,
+        deleteBackupContactError: false,
+      };
+    case DELETE_BACKUP_CONTACT.failure:
+      return Object.assign({}, state, {
+        deleteBackupContactSuccess: false,
+        deleteBackupContactError: true,
         error: action.error,
       });
     default:

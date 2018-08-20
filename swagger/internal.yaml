@@ -3534,6 +3534,32 @@ paths:
           description: backup contact not found
         500:
           description: internal server error
+    delete:
+      summary: Delets an existing backup contact
+      description: Delets an existing backup contact
+      operationId: deleteServiceMemberBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: path
+          name: backupContactId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member backup contact
+      responses:
+        204:
+          description: deleted instance of backup contact
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
+        500:
+          description: internal server error
   /duty_stations:
     get:
       summary: Returns the duty stations matching the search query

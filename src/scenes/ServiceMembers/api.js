@@ -70,6 +70,20 @@ export async function IndexBackupContactsAPI(serviceMemberId) {
   return response.body;
 }
 
+export async function DeleteBackupContactAPI(backupContactId) {
+  const client = await getClient();
+  const response = await client.apis.backup_contacts.deleteServiceMemberBackupContact(
+    {
+      backupContactId,
+    },
+  );
+  checkResponse(
+    response,
+    'failed to delete backup contacts due to server error',
+  );
+  return response.body;
+}
+
 export async function UpdateBackupContactAPI(
   backupContactId,
   backupContactPayload,

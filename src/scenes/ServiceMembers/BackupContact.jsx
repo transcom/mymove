@@ -8,14 +8,11 @@ import {
   updateServiceMember,
   createBackupContact,
   updateBackupContact,
+  deleteBackupContact,
 } from './ducks';
-import {
-  renderField,
-  recursivelyAnnotateRequiredFields,
-} from 'shared/JsonSchemaForm';
-import { reduxForm } from 'redux-form';
-import { no_op } from 'shared/utils';
-import WizardPage from 'shared/WizardPage';
+
+import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './BackupContact.css';
 
@@ -96,70 +93,26 @@ const NonePermission = 'NONE';
 
 const formName = 'service_member_backup_contact';
 
-class ContactForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
+function hasEmptyValues(values) {
+  if (!values) {
+    return true;
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const { valid, dirty, updateValidDirty } = nextProps;
-    updateValidDirty(valid, dirty);
-
-    return prevState;
-  }
-
-  render() {
-    const { schema } = this.props;
-    recursivelyAnnotateRequiredFields(schema);
-    const fields = schema.properties || {};
-
-    return (
-      <form>
-        <h1 className="sm-heading">Backup Contact</h1>
-        <p>
-          If we can't reach you, who can we contact (such as spouse or parent)?
-        </p>
-
-        {renderField('name', fields, '')}
-        {renderField('email', fields, '')}
-        {renderField('telephone', fields, '')}
-
-        {/* TODO: Uncomment line below after backup contact auth is implemented.  */}
-        {/* <Field name="permission" component={permissionsField} /> */}
-      </form>
-    );
-  }
-}
-
-const validateContact = (values, form) => {
-  let requiredErrors = {};
-  /* eslint-disable security/detect-object-injection */
-  ['name', 'email'].forEach(requiredFieldName => {
-    if (
-      values[requiredFieldName] === undefined ||
-      values[requiredFieldName] === ''
-    ) {
-      requiredErrors[requiredFieldName] = 'Required.';
+  const emptyableFields = ['name', 'email', 'telephone'];
+  let allZero = true;
+  emptyableFields.forEach(fieldName => {
+    const value = values[fieldName]; // eslint-disable-line security/detect-object-injection
+    if (value !== undefined && value !== '' && value !== null) {
+      allZero = false;
     }
   });
-  /* eslint-enable security/detect-object-injection */
-  return requiredErrors;
-};
 
-ContactForm = reduxForm({ form: formName, validate: validateContact })(
-  ContactForm,
-);
+  return allZero;
+}
+
+const BackupContactWizardForm = reduxifyWizardForm(formName);
 
 export class BackupContact extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isValid: true,
-      isDirty: false,
-    };
-  }
-
   handleSubmit = () => {
     const pendingValues = this.props.values;
 
@@ -171,7 +124,7 @@ export class BackupContact extends Component {
       pendingValues.permission = NonePermission;
     }
 
-    if (pendingValues) {
+    if (pendingValues && !hasEmptyValues(pendingValues)) {
       if (this.props.currentBackupContacts.length > 0) {
         // update existing
         const oldOne = this.props.currentBackupContacts[0];
@@ -183,19 +136,21 @@ export class BackupContact extends Component {
         );
       }
     }
-  };
 
-  updateValidDirty = (isValid, isDirty) => {
-    this.setState({
-      isValid,
-      isDirty,
-    });
+    // If we have empty values and an existing BC, delete it.
+    if (
+      hasEmptyValues(pendingValues) &&
+      this.props.currentBackupContacts.length > 0
+    ) {
+      const oldOne = this.props.currentBackupContacts[0];
+      return this.props.deleteBackupContact(oldOne.id);
+    }
   };
 
   render() {
-    const { pages, pageKey, error } = this.props;
-    const isValid = this.state.isValid;
-    const isDirty = this.state.isDirty;
+    const { pages, pageKey, error, schema } = this.props;
+
+    const isSkippable = hasEmptyValues(this.props.values);
 
     // eslint-disable-next-line
     var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
@@ -206,22 +161,34 @@ export class BackupContact extends Component {
       : null;
 
     return (
-      <WizardPage
+      <BackupContactWizardForm
         handleSubmit={this.handleSubmit}
+        className={formName}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={isValid}
-        dirty={isDirty}
-        error={error}
+        serverError={error}
+        initialValues={firstInitialValues}
+        skippable={isSkippable}
       >
-        <ContactForm
-          ref="currentForm"
-          updateValidDirty={this.updateValidDirty}
-          initialValues={firstInitialValues}
-          handleSubmit={no_op}
-          schema={this.props.schema}
-        />
-      </WizardPage>
+        <h1 className="sm-heading">
+          Backup Contact (Trusted Agents){' '}
+          <span className="optional">optional</span>
+        </h1>
+        <p>
+          If we can't reach you, who can we contact (such as spouse or parent)*?
+        </p>
+
+        <SwaggerField fieldName="name" swagger={schema} required />
+        <SwaggerField fieldName="email" swagger={schema} required />
+        <SwaggerField fieldName="telephone" swagger={schema} />
+
+        {/* TODO: Uncomment line below after backup contact auth is implemented.  */}
+        {/* <Field name="permission" component={permissionsField} /> */}
+        <p>
+          * Any person you assign as a backup or trusted agent must be 18 years
+          of age or older.
+        </p>
+      </BackupContactWizardForm>
     );
   }
 }
@@ -238,6 +205,7 @@ function mapDispatchToProps(dispatch) {
       updateServiceMember,
       createBackupContact,
       updateBackupContact,
+      deleteBackupContact,
     },
     dispatch,
   );

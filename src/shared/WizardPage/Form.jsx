@@ -82,8 +82,9 @@ export class WizardFormPage extends Component {
       serverError,
       valid,
       dirty,
+      skippable,
     } = this.props;
-    const canMoveForward = valid;
+    const canMoveForward = valid || skippable;
     const canMoveBackward =
       (valid || !dirty) && !isFirstPage(pageList, pageKey);
     return (

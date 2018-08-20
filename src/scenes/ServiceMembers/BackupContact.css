@@ -2,3 +2,8 @@
 label.disabled {
   color: #d6d7d9;
 }
+
+.optional {
+  font-size: 0.75em;
+  color: #777;
+}

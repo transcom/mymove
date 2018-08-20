@@ -118,3 +118,24 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contactPayload := payloadForBackupContactModel(contact)
 	return backupop.NewUpdateServiceMemberBackupContactCreated().WithPayload(&contactPayload)
 }
+
+// DeleteBackupContactHandler deletes a backup contact
+type DeleteBackupContactHandler HandlerContext
+
+// Handle ... updates a BackupContact from a request payload
+func (h DeleteBackupContactHandler) Handle(params backupop.DeleteServiceMemberBackupContactParams) middleware.Responder {
+	// User should always be populated by middleware
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	/* #nosec UUID is pattern matched by swagger which checks the format */
+	contactID, _ := uuid.FromString(params.BackupContactID.String())
+	contact, err := models.FetchBackupContact(h.db, session, contactID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	if err := h.db.Destroy(&contact); err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	return backupop.NewDeleteServiceMemberBackupContactNoContent()
+}
