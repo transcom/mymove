@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
-	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
-	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)

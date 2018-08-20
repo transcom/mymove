@@ -1409,8 +1409,7 @@ definitions:
         title: Code of service
         readOnly: true
       status:
-        type: string
-        readOnly: true
+        $ref: '#/definitions/ShipmentStatus'
       book_date:
         type: string
         format: date
@@ -1798,9 +1797,22 @@ definitions:
       APPROVED: Approved
       COMPLETED: Completed
       CANCELED: Canceled
+  ShipmentStatus:
+    type: string
+    title: Shipment status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - AWARDED
+      - APPROVED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      AWARDED: Awarded
+      APPROVED: Approved
   PPMStatus:
     type: string
-    title: Move status
+    title: PPM status
     enum:
       - DRAFT
       - SUBMITTED
