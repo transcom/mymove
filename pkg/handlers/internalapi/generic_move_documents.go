@@ -33,7 +33,9 @@ func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument 
 }
 
 // CreateGenericMoveDocumentHandler creates a MoveDocument
-type CreateGenericMoveDocumentHandler HandlerContext
+type CreateGenericMoveDocumentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
@@ -42,9 +44,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	payload := params.CreateGenericMoveDocumentPayload
@@ -58,9 +60,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.db, session, converted)
+		upload, err := models.FetchUpload(h.DB(), session, converted)
 		if err != nil {
-			return handlers.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -70,9 +72,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
 		// Enforce that the ppm's move_id matches our move
-		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
+		ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, id)
 		if err != nil {
-			return handlers.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		if !uuid.Equal(ppm.MoveID, moveID) {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()
@@ -81,7 +83,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		ppmID = &id
 	}
 
-	newMoveDocument, verrs, err := move.CreateMoveDocument(h.db,
+	newMoveDocument, verrs, err := move.CreateMoveDocument(h.DB(),
 		uploads,
 		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
@@ -89,12 +91,12 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		payload.Notes)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	newPayload, err := payloadForGenericMoveDocumentModel(h.storage, *newMoveDocument)
+	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }

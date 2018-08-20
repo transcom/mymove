@@ -21,7 +21,9 @@ var moveDocumentAttachmentsTypes = []models.MoveDocumentType{
 }
 
 // CreatePersonallyProcuredMoveAttachmentsHandler creates a PPM Attachments PDF
-type CreatePersonallyProcuredMoveAttachmentsHandler HandlerContext
+type CreatePersonallyProcuredMoveAttachmentsHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
@@ -30,18 +32,18 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	err = h.db.Load(ppm, "Move.Orders.UploadedOrders.Uploads")
+	err = h.DB().Load(ppm, "Move.Orders.UploadedOrders.Uploads")
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	// Fetch move documents with matching types
-	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.db, moveDocumentAttachmentsTypes)
+	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.DB(), moveDocumentAttachmentsTypes)
 	if err != nil {
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
@@ -50,10 +52,10 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader := uploader.NewUploader(h.db, h.logger, h.storage)
-	generator, err := paperwork.NewGenerator(h.db, h.logger, loader)
+	loader := uploader.NewUploader(h.DB(), h.Logger(), h.FileStorer())
+	generator, err := paperwork.NewGenerator(h.DB(), h.Logger(), loader)
 	if err != nil {
-		h.logger.Error("failed to initialize generator", zap.Error(err))
+		h.Logger().Error("failed to initialize generator", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 
@@ -71,19 +73,19 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Convert to PDF and merge into single PDF
 	mergedPdf, err := generator.CreateMergedPDFUpload(uploads)
 	if err != nil {
-		h.logger.Error("failed to merge PDF files", zap.Error(err))
+		h.Logger().Error("failed to merge PDF files", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsUnprocessableEntity()
 	}
 
 	// Upload merged PDF to S3 and return Upload object
 	pdfUpload, verrs, err := loader.CreateUpload(nil, session.UserID, mergedPdf)
 	if verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	url, err := loader.PresignedURL(pdfUpload)
 	if err != nil {
-		h.logger.Error("failed to get presigned url", zap.Error(err))
+		h.Logger().Error("failed to get presigned url", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 

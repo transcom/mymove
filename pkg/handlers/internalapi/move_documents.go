@@ -79,7 +79,9 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 }
 
 // IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
-type IndexMoveDocumentsHandler HandlerContext
+type IndexMoveDocumentsHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
@@ -89,21 +91,21 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.db)
+	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB())
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocs))
 	for i, doc := range moveDocs {
-		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.storage, doc)
+		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {
-			return handlers.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
@@ -113,7 +115,9 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 }
 
 // UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
-type UpdateMoveDocumentHandler HandlerContext
+type UpdateMoveDocumentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
@@ -122,9 +126,9 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
 	// Fetch move document from move id
-	moveDoc, err := models.FetchMoveDocument(h.db, session, moveDocID)
+	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	payload := params.UpdateMoveDocument
@@ -143,18 +147,18 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	if newStatus != moveDoc.Status {
 		err = moveDoc.AttemptTransition(newStatus)
 		if err != nil {
-			return handlers.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 
 		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
 			if moveDoc.PersonallyProcuredMoveID == nil {
-				return handlers.ResponseForError(h.logger, errors.New("No PPM loaded for Approved Move Doc"))
+				return handlers.ResponseForError(h.Logger(), errors.New("No PPM loaded for Approved Move Doc"))
 			}
 
 			ppm := &moveDoc.PersonallyProcuredMove
 			err := ppm.Complete()
 			if err != nil {
-				return handlers.ResponseForError(h.logger, err)
+				return handlers.ResponseForError(h.Logger(), err)
 			}
 		}
 	}
@@ -190,14 +194,14 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		}
 	}
 
-	verrs, err := models.SaveMoveDocument(h.db, moveDoc, saveAction)
+	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	moveDocPayload, err := payloadForMoveDocument(h.storage, *moveDoc)
+	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }

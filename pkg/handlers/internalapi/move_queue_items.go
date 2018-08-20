@@ -32,7 +32,9 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 }
 
 // ShowQueueHandler returns a list of all MoveQueueItems in the moves queue
-type ShowQueueHandler HandlerContext
+type ShowQueueHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
@@ -44,10 +46,10 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	lifecycleState := params.QueueType
 
-	MoveQueueItems, err := models.GetMoveQueueItems(h.db, lifecycleState)
+	MoveQueueItems, err := models.GetMoveQueueItems(h.DB(), lifecycleState)
 	if err != nil {
-		h.logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return handlers.ResponseForError(h.logger, err)
+		h.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))

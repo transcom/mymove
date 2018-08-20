@@ -25,7 +25,9 @@ func payloadForSignedCertificationModel(cert models.SignedCertification) *intern
 }
 
 // CreateSignedCertificationHandler creates a new issue via POST /issue
-type CreateSignedCertificationHandler HandlerContext
+type CreateSignedCertificationHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
@@ -33,22 +35,24 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	// User should always be populated by middleware
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.db, session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	payload := params.CreateSignedCertificationPayload
-	_, verrs, err := move.CreateSignedCertification(h.db, session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
+	_, verrs, err := move.CreateSignedCertification(h.DB(), session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
 	if verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	return certop.NewCreateSignedCertificationCreated()
 }
 
 // IndexSignedCertificationsHandler creates a new issue via POST /issue
-type IndexSignedCertificationsHandler HandlerContext
+type IndexSignedCertificationsHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle returns a SignedCertification for a given moveID
 func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationsParams) middleware.Responder {
@@ -56,9 +60,9 @@ func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertif
 	// #nosec Format of UUID is checked by swagger
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.db, session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	certs := move.SignedCertifications

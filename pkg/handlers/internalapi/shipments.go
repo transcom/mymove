@@ -54,7 +54,9 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 }
 
 // CreateShipmentHandler creates a Shipment
-type CreateShipmentHandler HandlerContext
+type CreateShipmentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle is the handler
 func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) middleware.Responder {
@@ -63,9 +65,9 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	payload := params.Shipment
@@ -104,10 +106,10 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		CodeOfService: &codeOfService,
 	}
 
-	verrs, err := models.SaveShipmentAndAddresses(h.db, &newShipment)
+	verrs, err := models.SaveShipmentAndAddresses(h.DB(), &newShipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	shipmentPayload := payloadForShipmentModel(newShipment)
@@ -185,7 +187,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 }
 
 // PatchShipmentHandler Patchs an HHG
-type PatchShipmentHandler HandlerContext
+type PatchShipmentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle is the handler
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
@@ -196,21 +200,21 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	shipment, err := models.FetchShipment(h.db, session, shipmentID)
+	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	if shipment.MoveID != moveID {
-		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
+		h.Logger().Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
 		return shipmentop.NewPatchShipmentBadRequest()
 	}
 	patchShipmentWithPayload(shipment, params.Shipment)
 
-	verrs, err := models.SaveShipmentAndAddresses(h.db, shipment)
+	verrs, err := models.SaveShipmentAndAddresses(h.DB(), shipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
@@ -218,7 +222,9 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 }
 
 // GetShipmentHandler Returns an HHG
-type GetShipmentHandler HandlerContext
+type GetShipmentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle is the handler
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
@@ -229,13 +235,13 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	shipment, err := models.FetchShipment(h.db, session, shipmentID)
+	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	if shipment.MoveID != moveID {
-		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
+		h.Logger().Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
 		return shipmentop.NewGetShipmentBadRequest()
 	}
 

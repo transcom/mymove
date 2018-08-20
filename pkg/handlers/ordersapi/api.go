@@ -8,10 +8,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi"
 	ordersops "github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
+	"github.com/transcom/mymove/pkg/handlers"
 )
 
 // NewOrdersAPIHandler returns a handler for the Orders API
-func NewOrdersAPIHandler(context HandlerContext) http.Handler {
+func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	// Wire up the handlers to the ordersAPIMux
 	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")
@@ -20,9 +21,9 @@ func NewOrdersAPIHandler(context HandlerContext) http.Handler {
 	}
 
 	ordersAPI := ordersops.NewMymoveAPI(ordersSpec)
-	ordersAPI.GetOrdersHandler = GetOrdersHandler(context)
-	ordersAPI.IndexOrdersHandler = IndexOrdersHandler(context)
-	ordersAPI.PostRevisionHandler = PostRevisionHandler(context)
-	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler(context)
+	ordersAPI.GetOrdersHandler = GetOrdersHandler{context}
+	ordersAPI.IndexOrdersHandler = IndexOrdersHandler{context}
+	ordersAPI.PostRevisionHandler = PostRevisionHandler{context}
+	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler{context}
 	return ordersAPI.Serve(nil)
 }

@@ -15,7 +15,9 @@ import (
 )
 
 // ShowPPMIncentiveHandler returns PPM SIT estimate for a weight, move date,
-type ShowPPMIncentiveHandler HandlerContext
+type ShowPPMIncentiveHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
@@ -24,16 +26,16 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
-	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 
-	lhDiscount, _, err := PPMDiscountFetch(h.db,
-		h.logger,
+	lhDiscount, _, err := PPMDiscountFetch(h.DB(),
+		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,
 		time.Time(params.PlannedMoveDate),
 	)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	cost, err := engine.ComputePPM(unit.Pound(params.Weight),
@@ -46,7 +48,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	)
 
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	gcc := cost.GCC

@@ -2,12 +2,14 @@ package ordersapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
+	"github.com/transcom/mymove/pkg/handlers"
 )
 
 // GetOrdersHandler returns Orders by uuid
-type GetOrdersHandler HandlerContext
+type GetOrdersHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middleware.Responder {
@@ -15,7 +17,9 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 }
 
 // IndexOrdersHandler returns a list of Orders matching the provided search parameters
-type IndexOrdersHandler HandlerContext
+type IndexOrdersHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h IndexOrdersHandler) Handle(params ordersoperations.IndexOrdersParams) middleware.Responder {
@@ -23,7 +27,9 @@ func (h IndexOrdersHandler) Handle(params ordersoperations.IndexOrdersParams) mi
 }
 
 // PostRevisionHandler adds a Revision to Orders matching the provided search parameters
-type PostRevisionHandler HandlerContext
+type PostRevisionHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) middleware.Responder {
@@ -31,7 +37,9 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 }
 
 // PostRevisionToOrdersHandler adds a Revision to Orders by uuid
-type PostRevisionToOrdersHandler HandlerContext
+type PostRevisionToOrdersHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevisionToOrdersParams) middleware.Responder {

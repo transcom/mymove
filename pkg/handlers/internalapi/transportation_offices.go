@@ -32,14 +32,16 @@ func payloadForTransportationOfficeModel(office models.TransportationOffice) *in
 }
 
 // ShowDutyStationTransportationOfficeHandler returns the transportation office for a duty station ID
-type ShowDutyStationTransportationOfficeHandler HandlerContext
+type ShowDutyStationTransportationOfficeHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle retrieves the transportation office in the system for a given duty station ID
 func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyStationTransportationOfficeParams) middleware.Responder {
 	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
-	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, dutyStationID)
+	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.DB(), dutyStationID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 	transportationOfficePayload := payloadForTransportationOfficeModel(transportationOffice)
 

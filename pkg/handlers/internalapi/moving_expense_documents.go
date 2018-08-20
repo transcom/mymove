@@ -37,7 +37,9 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 }
 
 // CreateMovingExpenseDocumentHandler creates a MovingExpenseDocument
-type CreateMovingExpenseDocumentHandler HandlerContext
+type CreateMovingExpenseDocumentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
@@ -46,9 +48,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	payload := params.CreateMovingExpenseDocumentPayload
@@ -62,9 +64,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.db, session, converted)
+		upload, err := models.FetchUpload(h.DB(), session, converted)
 		if err != nil {
-			return handlers.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -74,9 +76,9 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
 		// Enforce that the ppm's move_id matches our move
-		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
+		ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, id)
 		if err != nil {
-			return handlers.ResponseForError(h.logger, err)
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		if !uuid.Equal(ppm.MoveID, moveID) {
 			return movedocop.NewCreateMovingExpenseDocumentBadRequest()
@@ -86,7 +88,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	}
 
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
-		h.db,
+		h.DB(),
 		uploads,
 		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
@@ -98,12 +100,12 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.logger, verrs, err)
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	newPayload, err := payloadForMovingExpenseDocumentModel(h.storage, *newMovingExpenseDocument)
+	newPayload, err := payloadForMovingExpenseDocumentModel(h.FileStorer(), *newMovingExpenseDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 	return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
 }

@@ -34,7 +34,9 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 }
 
 // CreateDocumentHandler creates a new document via POST /documents/
-type CreateDocumentHandler HandlerContext
+type CreateDocumentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
@@ -42,38 +44,40 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMemberForUser(h.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	newDocument := models.Document{
 		ServiceMemberID: serviceMember.ID,
 	}
 
-	verrs, err := h.db.ValidateAndCreate(&newDocument)
+	verrs, err := h.DB().ValidateAndCreate(&newDocument)
 	if err != nil {
-		h.logger.Info("DB Insertion", zap.Error(err))
+		h.Logger().Info("DB Insertion", zap.Error(err))
 		return documentop.NewCreateDocumentInternalServerError()
 	} else if verrs.HasAny() {
-		h.logger.Error("Could not save document", zap.String("errors", verrs.Error()))
+		h.Logger().Error("Could not save document", zap.String("errors", verrs.Error()))
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	h.logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
-	documentPayload, err := payloadForDocumentModel(h.storage, newDocument)
+	h.Logger().Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
+	documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
 
 // ShowDocumentHandler shows a document via GETT /documents/:document_id
-type ShowDocumentHandler HandlerContext
+type ShowDocumentHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
@@ -81,17 +85,17 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	document, err := models.FetchDocument(h.db, session, documentID)
+	document, err := models.FetchDocument(h.DB(), session, documentID)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	documentPayload, err := payloadForDocumentModel(h.storage, document)
+	documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
 	if err != nil {
-		return handlers.ResponseForError(h.logger, err)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)

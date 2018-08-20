@@ -3,10 +3,13 @@ package publicapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	blackoutsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/blackouts"
+	"github.com/transcom/mymove/pkg/handlers"
 )
 
 // BlackoutIndexHandler returns a list of all the Blackouts
-type BlackoutIndexHandler HandlerContext
+type BlackoutIndexHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h BlackoutIndexHandler) Handle(params blackoutsop.IndexBlackoutsParams) middleware.Responder {
@@ -14,7 +17,9 @@ func (h BlackoutIndexHandler) Handle(params blackoutsop.IndexBlackoutsParams) mi
 }
 
 // CreateBlackoutHandler returns a list of all the Blackouts
-type CreateBlackoutHandler HandlerContext
+type CreateBlackoutHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h CreateBlackoutHandler) Handle(params blackoutsop.CreateBlackoutParams) middleware.Responder {
@@ -22,7 +27,9 @@ func (h CreateBlackoutHandler) Handle(params blackoutsop.CreateBlackoutParams) m
 }
 
 // DeleteBlackoutHandler returns a list of all the Blackouts
-type DeleteBlackoutHandler HandlerContext
+type DeleteBlackoutHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h DeleteBlackoutHandler) Handle(params blackoutsop.DeleteBlackoutParams) middleware.Responder {
@@ -30,7 +37,9 @@ func (h DeleteBlackoutHandler) Handle(params blackoutsop.DeleteBlackoutParams) m
 }
 
 // GetBlackoutHandler returns a list of all the Blackouts
-type GetBlackoutHandler HandlerContext
+type GetBlackoutHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h GetBlackoutHandler) Handle(params blackoutsop.GetBlackoutParams) middleware.Responder {
@@ -38,7 +47,9 @@ func (h GetBlackoutHandler) Handle(params blackoutsop.GetBlackoutParams) middlew
 }
 
 // UpdateBlackoutHandler returns a list of all the Blackouts
-type UpdateBlackoutHandler HandlerContext
+type UpdateBlackoutHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle simply returns a NotImplementedError
 func (h UpdateBlackoutHandler) Handle(params blackoutsop.UpdateBlackoutParams) middleware.Responder {
