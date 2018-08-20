@@ -1046,7 +1046,7 @@ paths:
     patch:
       summary: Updates a particular shipment
       description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
-      operationId: updateShipment
+      operationId: patchShipment
       tags:
         - shipments
       parameters:
