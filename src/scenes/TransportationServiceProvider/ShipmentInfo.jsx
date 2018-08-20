@@ -7,7 +7,11 @@ import { NavLink } from 'react-router-dom';
 
 import { withContext } from 'shared/AppContext';
 
-import { loadShipmentDependencies } from './ducks';
+import {
+  loadShipmentDependencies,
+  acceptShipment,
+  rejectShipment,
+} from './ducks';
 import { formatDate } from 'shared/formatters';
 
 class ShipmentInfo extends Component {
