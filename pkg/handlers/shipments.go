@@ -29,7 +29,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		DestinationGbloc:             s.DestinationGBLOC,
 		Market:                       s.Market,
 		CodeOfService:                s.CodeOfService,
-		Status:                       s.Status,
+		Status:                       internalmessages.ShipmentStatus(s.Status),
 		BookDate:                     fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
 		PickupDate:                   fmtDatePtr(s.PickupDate),
@@ -85,7 +85,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		ServiceMemberID:              session.ServiceMemberID,
-		Status:                       "DRAFT",
+		Status:                       models.ShipmentStatusDRAFT,
 		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,

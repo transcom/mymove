@@ -72,7 +72,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	status := assertions.Shipment.Status
 	if status == "" {
-		status = "DEFAULT"
+		status = models.ShipmentStatusDRAFT
 	}
 
 	shipment := models.Shipment{
