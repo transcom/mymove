@@ -1,6 +1,6 @@
 /* global cy */
 
-describe.skip('completing the ppm flow', function() {
+describe('completing the ppm flow', function() {
   beforeEach(() => {
     //profile@comple.te
     cy.signInAsUser('13F3949D-0D53-4BE4-B1B1-AE4314793F34');
@@ -18,7 +18,7 @@ describe.skip('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
     cy
-      .get('input[placeholder="Date"]')
+      .get('input[name="planned_move_date"]')
       .first()
       .type('9/2/2018{enter}')
       .blur();
