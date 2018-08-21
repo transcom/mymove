@@ -65,6 +65,7 @@ Cypress.Commands.add('resetDb', () =>
     .its('code')
     .should('eq', 0),
 );
+
 //from https://github.com/cypress-io/cypress/issues/669
 //Cypress doesn't give the right File constructor, so we grab the window's File
 Cypress.Commands.add('upload_file', (selector, fileUrl) => {
@@ -85,4 +86,82 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
         return cy.get(selector).trigger('drop', event);
       });
   });
+});
+
+Cypress.Commands.add('testPremoveSurvey', () => {
+  // Click on edit Premove Survey
+  cy
+    .get('.editable-panel-header')
+    .contains('Premove')
+    .siblings()
+    .click();
+
+  // Enter details in form and save orders
+  cy
+    .get('input[name="survey.pm_survey_pack_date"]')
+    .first()
+    .type('8/1/2018')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_pickup_date"]')
+    .first()
+    .type('8/2/2018')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_latest_pickup_date"]')
+    .first()
+    .type('8/3/2018')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_earliest_delivery_date"]')
+    .first()
+    .type('8/4/2018')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_latest_delivery_date"]')
+    .first()
+    .type('8/5/2018')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_weight_estimate"]')
+    .first()
+    .type('6000')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_progear_weight_estimate"]')
+    .first()
+    .type('7000')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_spouse_progear_weight_estimate"]')
+    .first()
+    .type('8000')
+    .blur();
+  cy
+    .get('input[name="survey.pm_survey_notes"]')
+    .first()
+    .type('Notes notes notes')
+    .blur();
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  // Verify data has been saved in the UI
+  cy.get('span').contains('7,000 lbs');
+
+  // Refresh browser and make sure changes persist
+  cy.reload();
+
+  // This is mostly just to let the page fully load
+  cy.get('.editable-panel-header').contains('Premove');
+
+  cy.get('span').contains('7,000 lbs');
+  cy.get('span').contains('Notes notes notes');
 });

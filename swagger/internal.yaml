@@ -364,6 +364,7 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
+        x-formatting: weight
       mileage:
         type: integer
         title: Distance between origin and destination in miles
