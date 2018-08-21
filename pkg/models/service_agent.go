@@ -1,12 +1,15 @@
 package models
 
 import (
+	"time"
+
 	"encoding/json"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	"time"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 // Role represents the type of agent being recorded
@@ -71,4 +74,28 @@ func (s *ServiceAgent) ValidateCreate(tx *pop.Connection) (*validate.Errors, err
 // This method is not required and may be deleted.
 func (s *ServiceAgent) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// CreateServiceAgent creates a ServiceAgent model from payload and queried fields.
+func CreateServiceAgent(tx *pop.Connection, shipmentID uuid.UUID, role Role, pointOfContact string, email *string, phoneNumber *string) (ServiceAgent, *validate.Errors, error) {
+	newServiceAgent := ServiceAgent{
+		ShipmentID:     shipmentID,
+		Role:           role,
+		PointOfContact: pointOfContact,
+		Email:          email,
+		PhoneNumber:    phoneNumber,
+	}
+	verrs, err := tx.ValidateAndCreate(&newServiceAgent)
+	if err != nil || verrs.HasAny() {
+		newServiceAgent = ServiceAgent{}
+	}
+	verrs, err = tx.ValidateAndSave(&newServiceAgent)
+	if err != nil {
+		zap.L().Error("DB insertion error", zap.Error(err))
+		return ServiceAgent{}, verrs, err
+	} else if verrs.HasAny() {
+		zap.L().Error("Validation errors", zap.Error(verrs))
+		return ServiceAgent{}, verrs, errors.New("Validation error on Service Agent")
+	}
+	return newServiceAgent, verrs, err
 }
