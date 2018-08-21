@@ -18,7 +18,7 @@ func (suite *HandlerSuite) TestSubmitIssueHandler() {
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -69,16 +69,16 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handlerContext := NewHandlerContext(suite.db, suite.logger)
+	handlerContext := handlers.NewHandlerContext(suite.db, suite.logger)
 
-	handler := CreateIssueHandler(handlerContext)
+	handler := CreateIssueHandler{handlerContext}
 	createResponse := handler.Handle(newIssueParams)
 	// Assert we got back the 201 response
 	_ = createResponse.(*issueop.CreateIssueCreated)
 
 	// And: All issues are queried
 	indexIssuesParams := issueop.NewIndexIssuesParams()
-	indexHandler := IndexIssuesHandler(handlerContext)
+	indexHandler := IndexIssuesHandler{handlerContext}
 	indexResponse := indexHandler.Handle(indexIssuesParams)
 
 	// Then: Expect a 200 status code

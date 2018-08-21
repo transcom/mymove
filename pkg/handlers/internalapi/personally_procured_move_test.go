@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		HTTPRequest:                         request,
 	}
 
-	handler := CreatePersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreatePersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(newPPMParams)
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := IndexPersonallyProcuredMovesHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexPersonallyProcuredMovesHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(indexPPMParams)
 
 	// assert we got back the 201 response
@@ -195,8 +195,8 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
-	handler.planner = route.NewTestingPlanner(900)
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler.SetPlanner(route.NewTestingPlanner(900))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -251,8 +251,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		PatchPersonallyProcuredMovePayload: payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
-	handler.planner = route.NewTestingPlanner(900)
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler.SetPlanner(route.NewTestingPlanner(900))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(patchPPMParams)
 
 	suite.checkResponseForbidden(response)
@@ -376,7 +376,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(patchPPMParams)
 	suite.checkResponseForbidden(response)
 
@@ -418,7 +418,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the badrequest response
@@ -470,7 +470,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(patchPPMParams)
 
 	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
@@ -534,7 +534,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(patchPPMParams)
 
 	suite.checkResponseBadRequest(response)
@@ -611,7 +611,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
-	handler := RequestPPMPaymentHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := RequestPPMPaymentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(requestPaymentParams)
 
 	created, ok := response.(*ppmop.RequestPPMPaymentOK)
@@ -654,7 +654,7 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
-	handler := RequestPPMExpenseSummaryHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := RequestPPMExpenseSummaryHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(requestExpenseSumParams)
 
 	expenseSummary, ok := response.(*ppmop.RequestPPMExpenseSummaryOK)

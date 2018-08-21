@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	suite.checkResponseForbidden(response)
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	suite.checkResponseNotFound(response)
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 		MoveID:      *handlers.FmtUUID(move.ID),
 	}
 
-	handler := IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 	// Now test that a limit works
 	params.Limit = handlers.FmtInt64(1)
 
-	handler = IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler = IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response = handler.Handle(params)
 
 	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)

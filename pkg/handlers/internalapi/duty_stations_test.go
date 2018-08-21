@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -58,7 +59,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

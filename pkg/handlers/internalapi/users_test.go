@@ -4,6 +4,7 @@ import (
 	"net/http/httptest"
 
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -18,7 +19,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 
 	response := handler.Handle(params)
 
@@ -42,7 +43,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 
 	response := handler.Handle(params)
 
@@ -72,7 +73,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 
 	response := handler.Handle(params)
 

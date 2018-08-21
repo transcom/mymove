@@ -30,9 +30,9 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		WeightEstimate:  7500,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMEstimateHandler(context)
+	showHandler := ShowPPMEstimateHandler{context}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
@@ -64,9 +64,9 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		WeightEstimate:  600,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMEstimateHandler(context)
+	showHandler := ShowPPMEstimateHandler{context}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)

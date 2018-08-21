@@ -28,9 +28,9 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		Weight:          7500,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMIncentiveHandler(context)
+	showHandler := ShowPPMIncentiveHandler{context}
 	showResponse := showHandler.Handle(params)
 	suite.Assertions.IsType(&ppmop.ShowPPMIncentiveForbidden{}, showResponse)
 }
@@ -53,9 +53,9 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		Weight:          7500,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMIncentiveHandler(context)
+	showHandler := ShowPPMIncentiveHandler{context}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
@@ -82,9 +82,9 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 		Weight:          600,
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMIncentiveHandler(context)
+	showHandler := ShowPPMIncentiveHandler{context}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)

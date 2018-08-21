@@ -43,10 +43,10 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.db, suite.logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
-	handler := CreateGenericMoveDocumentHandler(context)
+	handler := CreateGenericMoveDocumentHandler{context}
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
 	suite.isNotErrResponse(response)

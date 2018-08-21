@@ -153,7 +153,7 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 		suite.T().Error(err)
 	}
 
-	fixturePath := path.Join(cwd, fixtureDir, name)
+	fixturePath := path.Join(cwd, "..", fixtureDir, name)
 
 	// #nosec never comes from user input
 	file, err := os.Open(fixturePath)

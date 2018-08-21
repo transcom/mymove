@@ -35,7 +35,7 @@ type handlerContext struct {
 	notificationSender notifications.NotificationSender
 }
 
-// NewHandlerContext returns a new HandlerContext with its required private fields set.
+// NewHandlerContext returns a new handlerContext with its required private fields set.
 func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return &handlerContext{
 		db:     db,

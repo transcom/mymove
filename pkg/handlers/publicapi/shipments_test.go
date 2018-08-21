@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := GetShipmentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	}
 
 	// And: patch shipment is returned
-	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 	}
 
 	// And: patch shipment is returned
-	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 400 status code
@@ -164,7 +164,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -202,7 +202,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	offset := int64(1)
 
 	// Handler to Test
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 
 	// Test query with first user
 	req1 := httptest.NewRequest("GET", "/shipments", nil)
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -312,7 +312,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -361,7 +361,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -410,7 +410,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -445,7 +445,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
@@ -473,7 +473,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	statusFilter := []string{"NOTASTATUS"}
 
 	// Test query with first user

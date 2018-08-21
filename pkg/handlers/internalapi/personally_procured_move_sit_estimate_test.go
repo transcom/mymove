@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		WeightEstimate:  3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
-	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -167,7 +167,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		WeightEstimate:  3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
-	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -228,7 +228,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		WeightEstimate:  3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
-	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect bad request response
