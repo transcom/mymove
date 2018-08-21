@@ -14,17 +14,17 @@ import (
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.TestDB())
 	move := ppm.Move
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is under entitlement of 10500
 	ppm.WeightEstimate = swag.Int64(10000)
-	suite.mustSave(&ppm)
+	suite.MustSave(&ppm)
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,
@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -42,17 +42,17 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.TestDB())
 	move := ppm.Move
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is over entitlement of 10500
 	ppm.WeightEstimate = swag.Int64(14000)
-	suite.mustSave(&ppm)
+	suite.MustSave(&ppm)
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,
@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409() {
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 409 status code
@@ -73,12 +73,12 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409() {
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpm() {
 	// Given: a set of orders, a move, user, servicemember but NO ppm
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,
@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpm() {
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -95,12 +95,12 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpm() {
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrders() {
 	// Given: a user, servicemember but NO Move
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.authenticateRequest(request, serviceMember)
+	request = suite.AuthenticateRequest(request, serviceMember)
 
 	badMoveID := uuid.Must(uuid.NewV4())
 
@@ -110,7 +110,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -123,20 +123,20 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.TestDB())
 	move := ppm.Move
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is under entitlement of 10500
 	ppm.WeightEstimate = swag.Int64(10000)
-	suite.mustSave(&ppm)
+	suite.MustSave(&ppm)
 
 	move.Orders.ServiceMember.Rank = nil
-	suite.mustSave(&move.Orders.ServiceMember)
+	suite.MustSave(&move.Orders.ServiceMember)
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.authenticateRequest(request, move.Orders.ServiceMember)
+	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
 		HTTPRequest: request,
@@ -144,7 +144,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code

@@ -18,7 +18,7 @@ func (suite *HandlerSuite) TestSubmitIssueHandler() {
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handlerContext := handlers.NewHandlerContext(suite.db, suite.logger)
+	handlerContext := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 
 	handler := CreateIssueHandler{handlerContext}
 	createResponse := handler.Handle(newIssueParams)

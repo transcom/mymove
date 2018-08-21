@@ -23,26 +23,26 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 			DepartmentIndicator: handlers.FmtString("17 - United States Marines"),
 		},
 	}
-	move := testdatagen.MakeMove(suite.db, assertions)
+	move := testdatagen.MakeMove(suite.TestDB(), assertions)
 	// Given: an office User
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 	// Move is submitted and saved
 	err := move.Submit()
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
-	suite.mustSave(&move)
+	suite.MustSave(&move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
-	req = suite.authenticateOfficeRequest(req, officeUser)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
-	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -55,26 +55,26 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	// Given: a set of incomplete orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 	// Given: an office User
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 	// Move is submitted and saved
 	err := move.Submit()
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
-	suite.mustSave(&move)
+	suite.MustSave(&move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
-	req = suite.authenticateOfficeRequest(req, officeUser)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: move handler is hit
-	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 400 status code
@@ -83,20 +83,20 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 
 func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 	// Given: an non-office User
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
-	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: response is Forbidden
@@ -105,13 +105,13 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
 	// Orders has service member with transportation office and phone nums
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.TestDB())
 
 	var selectedType = internalmessages.SelectedMoveTypePPM
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.TestDB(), &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 	suite.Nil(err)
 
 	// Move is submitted
@@ -123,13 +123,13 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	err = orders.Submit()
 	suite.Nil(err)
 	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
-	suite.mustSave(&orders)
+	suite.MustSave(&orders)
 	move.Orders = orders
-	suite.mustSave(move)
+	suite.MustSave(move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
-	req = suite.authenticateOfficeRequest(req, officeUser)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	// And params include the cancel reason
 	reason := "Orders revoked."
@@ -143,8 +143,8 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	}
 
 	// And: a move is canceled
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
-	context.SetNotificationSender(suite.notificationSender)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := CancelMoveHandler{context}
 	response := handler.Handle(params)
 
@@ -157,13 +157,13 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 }
 func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 	// Given: an non-office User
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 
 	// And params include the cancel reason
 	reason := "Orders revoked."
@@ -176,8 +176,8 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 		CancelMove:  reasonPayload,
 	}
 	// And: a move is canceled
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
-	context.SetNotificationSender(suite.notificationSender)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := CancelMoveHandler{context}
 	response := handler.Handle(params)
 
@@ -186,17 +186,17 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 }
 func (suite *HandlerSuite) TestApprovePPMHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+	ppm := testdatagen.MakePPM(suite.TestDB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			Status: models.PPMStatusSUBMITTED,
 		},
 	})
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
-	req = suite.authenticateOfficeRequest(req, officeUser)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
@@ -204,8 +204,8 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	}
 
 	// And: a ppm is approved
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
-	context.SetNotificationSender(suite.notificationSender)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := ApprovePPMHandler{context}
 	response := handler.Handle(params)
 
@@ -219,12 +219,12 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 
 func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.db)
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.TestDB())
+	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:              req,
@@ -232,8 +232,8 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	}
 
 	// And: a ppm is approved
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
-	context.SetNotificationSender(suite.notificationSender)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := ApprovePPMHandler{context}
 	response := handler.Handle(params)
 
@@ -243,19 +243,19 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
-	req = suite.authenticateOfficeRequest(req, officeUser)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
 		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
 	}
 
 	// And: a reimbursement is approved
-	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -268,19 +268,19 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 
 func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	// Given: a set of orders, a move, user and servicemember
-	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.TestDB())
+	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
 		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
 	}
 
 	// And: a reimbursement is approved
-	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect Forbidden response

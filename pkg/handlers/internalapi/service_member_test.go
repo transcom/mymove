@@ -20,22 +20,22 @@ import (
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	// Given: A servicemember and a user
-	user := testdatagen.MakeDefaultUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.TestDB())
 
 	newServiceMember := models.ServiceMember{
 		UserID: user.ID,
 	}
-	suite.mustSave(&newServiceMember)
+	suite.MustSave(&newServiceMember)
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-	req = suite.authenticateRequest(req, newServiceMember)
+	req = suite.AuthenticateRequest(req, newServiceMember)
 
 	params := servicememberop.ShowServiceMemberParams{
 		HTTPRequest:     req,
 		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 	}
 	// And: show ServiceMember is queried
-	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -48,18 +48,18 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	// Given: Servicemember trying to load another
-	notLoggedInUser := testdatagen.MakeDefaultServiceMember(suite.db)
-	loggedInUser := testdatagen.MakeDefaultServiceMember(suite.db)
+	notLoggedInUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	loggedInUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/service_members/%s", notLoggedInUser.ID.String()), nil)
-	req = suite.authenticateRequest(req, loggedInUser)
+	req = suite.AuthenticateRequest(req, loggedInUser)
 
 	showServiceMemberParams := servicememberop.ShowServiceMemberParams{
 		HTTPRequest:     req,
 		ServiceMemberID: strfmt.UUID(notLoggedInUser.ID.String()),
 	}
 	// And: Show servicemember is queried
-	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	showHandler := ShowServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := showHandler.Handle(showServiceMemberParams)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// Given: A logged-in user
-	user := testdatagen.MakeDefaultUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.TestDB())
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
@@ -92,14 +92,14 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-	req = suite.authenticateUserRequest(req, user)
+	req = suite.AuthenticateUserRequest(req, user)
 
 	params := servicememberop.CreateServiceMemberParams{
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
 
-	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
@@ -107,7 +107,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
 
 	// Then: we expect a servicemember to have been created for the user
-	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
+	query := suite.TestDB().Where(fmt.Sprintf("user_id='%v'", user.ID))
 	var serviceMembers models.ServiceMembers
 	query.All(&serviceMembers)
 
@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	// Given: A logged-in user
-	user := testdatagen.MakeDefaultUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.TestDB())
 	session := &auth.Session{
 		UserID:          user.ID,
 		ApplicationName: auth.MyApp,
@@ -129,14 +129,14 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-	req = suite.authenticateUserRequest(req, user)
+	req = suite.AuthenticateUserRequest(req, user)
 
 	params := servicememberop.CreateServiceMemberParams{
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
 
-	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
@@ -147,7 +147,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	suite.Assertions.True(*okResponse.Payload.HasSocialSecurityNumber)
 
 	// Then: we expect a ServiceMember to have been created for the user
-	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
+	query := suite.TestDB().Where(fmt.Sprintf("user_id='%v'", user.ID))
 	var serviceMembers models.ServiceMembers
 	query.All(&serviceMembers)
 
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
 
 	session.ServiceMemberID = serviceMemberID
-	serviceMember, err := models.FetchServiceMemberForUser(suite.db, session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(suite.TestDB(), session, serviceMemberID)
 	suite.Assertions.NoError(err)
 
 	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))
@@ -164,7 +164,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.TestDB())
 
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
@@ -173,7 +173,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		UserID: user.ID,
 		Edipi:  &origEdipi,
 	}
-	suite.mustSave(&newServiceMember)
+	suite.MustSave(&newServiceMember)
 
 	affiliation := internalmessages.AffiliationARMY
 	rank := internalmessages.ServiceMemberRankE1
@@ -200,7 +200,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	req = suite.authenticateRequest(req, newServiceMember)
+	req = suite.AuthenticateRequest(req, newServiceMember)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
@@ -225,19 +225,19 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
-	suite.db.All(&addresses)
+	suite.TestDB().All(&addresses)
 	suite.Assertions.Len(addresses, 2)
 
 	// Then: we expect a SSN to have been created
 	ssns := models.SocialSecurityNumbers{}
-	suite.db.All(&ssns)
+	suite.TestDB().All(&ssns)
 	suite.Assertions.Len(ssns, 1)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.db)
-	user2 := testdatagen.MakeDefaultUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.TestDB())
+	user2 := testdatagen.MakeDefaultUser(suite.TestDB())
 
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
@@ -245,7 +245,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 		UserID: user.ID,
 		Edipi:  &origEdipi,
 	}
-	suite.mustSave(&newServiceMember)
+	suite.MustSave(&newServiceMember)
 
 	patchPayload := internalmessages.PatchServiceMemberPayload{
 		Edipi: &newEdipi,
@@ -253,7 +253,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	req = suite.authenticateUserRequest(req, user2)
+	req = suite.AuthenticateUserRequest(req, user2)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -272,7 +272,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.TestDB())
 
 	servicememberUUID := uuid.Must(uuid.NewV4())
 
@@ -283,7 +283,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	req = suite.authenticateUserRequest(req, user)
+	req = suite.AuthenticateUserRequest(req, user)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
@@ -291,7 +291,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -302,19 +302,19 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	// Given: a logged in user with a servicemember
-	user := testdatagen.MakeDefaultUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.TestDB())
 
 	var origEdipi = "4444444444"
 	newServiceMember := models.ServiceMember{
 		UserID: user.ID,
 		Edipi:  &origEdipi,
 	}
-	suite.mustSave(&newServiceMember)
+	suite.MustSave(&newServiceMember)
 
 	patchPayload := internalmessages.PatchServiceMemberPayload{}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	req = suite.authenticateRequest(req, newServiceMember)
+	req = suite.AuthenticateRequest(req, newServiceMember)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
@@ -322,24 +322,24 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
 }
 
 func (suite *HandlerSuite) TestShowServiceMemberOrders() {
-	order1 := testdatagen.MakeDefaultOrder(suite.db)
+	order1 := testdatagen.MakeDefaultOrder(suite.TestDB())
 	order2Assertions := testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMember:   order1.ServiceMember,
 			ServiceMemberID: order1.ServiceMemberID,
 		},
 	}
-	order2 := testdatagen.MakeOrder(suite.db, order2Assertions)
+	order2 := testdatagen.MakeOrder(suite.TestDB(), order2Assertions)
 
 	req := httptest.NewRequest("GET", "/service_members/some_id/current_orders", nil)
-	req = suite.authenticateRequest(req, order1.ServiceMember)
+	req = suite.AuthenticateRequest(req, order1.ServiceMember)
 
 	params := servicememberop.ShowServiceMemberOrdersParams{
 		HTTPRequest:     req,
@@ -347,7 +347,7 @@ func (suite *HandlerSuite) TestShowServiceMemberOrders() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 	handler := ShowServiceMemberOrdersHandler{context}
 

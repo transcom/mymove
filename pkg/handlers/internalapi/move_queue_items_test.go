@@ -18,22 +18,22 @@ var statusToQueueMap = map[string]string{
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	for status, queueType := range statusToQueueMap {
 
-		suite.db.TruncateAll()
+		suite.TestDB().TruncateAll()
 
 		// Given: An office user
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 		//  A set of orders and a move belonging to those orders
-		order := testdatagen.MakeDefaultOrder(suite.db)
+		order := testdatagen.MakeDefaultOrder(suite.TestDB())
 
 		newMove := models.Move{
 			OrdersID: order.ID,
 			Status:   models.MoveStatus(status),
 		}
-		suite.mustSave(&newMove)
+		suite.MustSave(&newMove)
 
 		// Make a PPM
-		newMove.CreatePPM(suite.db,
+		newMove.CreatePPM(suite.TestDB(),
 			nil,
 			models.Int64Pointer(8000),
 			models.TimePointer(testdatagen.DateInsidePeakRateCycle),
@@ -51,14 +51,14 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
 		req := httptest.NewRequest("GET", path, nil)
-		req = suite.authenticateOfficeRequest(req, officeUser)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := queueop.ShowQueueParams{
 			HTTPRequest: req,
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 200 status code
@@ -78,19 +78,19 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 	for _, queueType := range statusToQueueMap {
 
 		// Given: A non-office user
-		user := testdatagen.MakeDefaultServiceMember(suite.db)
+		user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
 		req := httptest.NewRequest("GET", path, nil)
-		req = suite.authenticateRequest(req, user)
+		req = suite.AuthenticateRequest(req, user)
 
 		params := queueop.ShowQueueParams{
 			HTTPRequest: req,
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 403 status code

@@ -18,7 +18,7 @@ import (
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
@@ -26,10 +26,10 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, serviceMember)
+	req = suite.AuthenticateRequest(req, serviceMember)
 	params.HTTPRequest = req
 
-	handler := CreateDocumentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := CreateDocumentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	document := models.Document{}
-	err := suite.db.Find(&document, documentPayload.ID)
+	err := suite.TestDB().Find(&document, documentPayload.ID)
 	if err != nil {
 		t.Errorf("Couldn't find expected document.")
 	}
@@ -60,12 +60,12 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 func (suite *HandlerSuite) TestShowDocumentHandler() {
 	t := suite.T()
 
-	upload := testdatagen.MakeDefaultUpload(suite.db)
+	upload := testdatagen.MakeDefaultUpload(suite.TestDB())
 
 	documentID := upload.DocumentID
 	var document models.Document
 
-	err := suite.db.Eager("ServiceMember.User").Find(&document, documentID)
+	err := suite.TestDB().Eager("ServiceMember.User").Find(&document, documentID)
 	if err != nil {
 		t.Fatalf("could not load document: %s", err)
 	}
@@ -74,10 +74,10 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	params.DocumentID = strfmt.UUID(documentID.String())
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, document.ServiceMember)
+	req = suite.AuthenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := ShowDocumentHandler{context}

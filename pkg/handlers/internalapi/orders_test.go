@@ -15,11 +15,11 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	sm := testdatagen.MakeDefaultServiceMember(suite.db)
-	station := testdatagen.MakeDefaultDutyStation(suite.db)
+	sm := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	station := testdatagen.MakeDefaultDutyStation(suite.TestDB())
 
 	req := httptest.NewRequest("POST", "/orders", nil)
-	req = suite.authenticateRequest(req, sm)
+	req = suite.AuthenticateRequest(req, sm)
 
 	hasDependents := true
 	spouseHasProGear := true
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 	createHandler := CreateOrdersHandler{context}
 
@@ -57,11 +57,11 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.db)
+	order := testdatagen.MakeDefaultOrder(suite.TestDB())
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
-	req = suite.authenticateRequest(req, order.ServiceMember)
+	req = suite.AuthenticateRequest(req, order.ServiceMember)
 
 	params := ordersop.ShowOrdersParams{
 		HTTPRequest: req,
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler{context}
 
@@ -83,11 +83,11 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.db)
+	order := testdatagen.MakeDefaultOrder(suite.TestDB())
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)
-	req = suite.authenticateRequest(req, order.ServiceMember)
+	req = suite.AuthenticateRequest(req, order.ServiceMember)
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	newOrdersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 	updateHandler := UpdateOrdersHandler{context}
 

@@ -13,14 +13,14 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestDB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		WeightEstimate:  7500,
 	}
 
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler{context}
 	showResponse := showHandler.Handle(params)
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.TestDB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
@@ -51,10 +51,10 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.mustSave(&user)
+	suite.MustSave(&user)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
-	req = suite.authenticateUserRequest(req, user)
+	req = suite.AuthenticateUserRequest(req, user)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		WeightEstimate:  600,
 	}
 
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMEstimateHandler{context}
 	showResponse := showHandler.Handle(params)

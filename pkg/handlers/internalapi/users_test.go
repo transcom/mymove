@@ -10,16 +10,16 @@ import (
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
-	unknownUser := testdatagen.MakeDefaultUser(suite.db)
+	unknownUser := testdatagen.MakeDefaultUser(suite.TestDB())
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.authenticateUserRequest(req, unknownUser)
+	req = suite.AuthenticateUserRequest(req, unknownUser)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 
@@ -30,20 +30,20 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.TestDB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
 	})
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.authenticateRequest(req, sm)
+	req = suite.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.db, testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.TestDB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
@@ -64,16 +64,16 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	// Remove transportation office info from current station
 	station := sm.DutyStation
 	station.TransportationOfficeID = nil
-	suite.mustSave(&station)
+	suite.MustSave(&station)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
-	req = suite.authenticateRequest(req, sm)
+	req = suite.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 

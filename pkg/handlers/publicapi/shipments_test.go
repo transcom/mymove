@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []string{"DRAFT"}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	params := shipmentop.GetShipmentParams{
 		HTTPRequest:  req,
@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := GetShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []string{"AWARDED"}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	}
 
 	// And: patch shipment is returned
-	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -104,16 +104,16 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []string{"AWARDED"}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	shipment := shipments[0]
 
-	otherTspUser := testdatagen.MakeDefaultTspUser(suite.db)
+	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
 
 	// And: the context contains the auth values for the wrong tsp
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, otherTspUser)
+	req = suite.AuthenticateTspRequest(req, otherTspUser)
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 	}
 
 	// And: patch shipment is returned
-	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 400 status code
@@ -147,7 +147,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []string{"DRAFT"}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -157,14 +157,14 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	numShipments := 25
 	numShipmentOfferSplit := []int{15, 10}
 	status := []string{"DRAFT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -202,11 +202,11 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	offset := int64(1)
 
 	// Handler to Test
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	// Test query with first user
 	req1 := httptest.NewRequest("GET", "/shipments", nil)
-	req1 = suite.authenticateTspRequest(req1, tspUser1)
+	req1 = suite.AuthenticateTspRequest(req1, tspUser1)
 	params1 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req1,
 		Limit:       &limit,
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 
 	// Test query with second user
 	req2 := httptest.NewRequest("GET", "/shipments", nil)
-	req2 = suite.authenticateTspRequest(req2, tspUser2)
+	req2 = suite.AuthenticateTspRequest(req2, tspUser2)
 	params2 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req2,
 		Limit:       &limit,
@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -248,7 +248,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -290,7 +290,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -312,7 +312,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -341,14 +341,14 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -361,7 +361,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -390,14 +390,14 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []string{"DRAFT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	limit := int64(25)
 	offset := int64(1)
@@ -410,7 +410,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	}
 
 	// And: an index of shipments is returned
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -439,17 +439,17 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DRAFT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      status,
@@ -467,18 +467,18 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
 	status := []string{"DRAFT"}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 
 	// Handler to Test
-	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	statusFilter := []string{"NOTASTATUS"}
 
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
-	req = suite.authenticateTspRequest(req, tspUser)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
 		Status:      statusFilter,

@@ -15,10 +15,10 @@ import (
 
 func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	// Given: a set of orders, user and servicemember
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.TestDB())
 
 	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
-	req = suite.authenticateRequest(req, orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, orders.ServiceMember)
 
 	// When: a new Move is posted
 	var selectedType = internalmessages.SelectedMoveTypePPM
@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 		HTTPRequest:       req,
 	}
 	// Then: we expect a move to have been created based on orders
-	handler := CreateMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := CreateMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
@@ -42,11 +42,11 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 	// And: a move is patched
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -71,13 +71,13 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, anotherUser)
+	req = suite.AuthenticateRequest(req, anotherUser)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -90,21 +90,21 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.checkResponseForbidden(response)
+	suite.CheckResponseForbidden(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
 	// And: the context contains a logged in user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, user)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -117,19 +117,19 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.checkResponseNotFound(response)
+	suite.CheckResponseNotFound(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	patchPayload := internalmessages.PatchMovePayload{}
 	params := moveop.PatchMoveParams{
@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
@@ -150,18 +150,18 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.ShowMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: show Move is queried
-	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -175,42 +175,42 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, anotherUser)
+	req = suite.AuthenticateRequest(req, anotherUser)
 
 	showMoveParams := moveop.ShowMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: Show move is queried
-	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.db, suite.logger)}
+	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
-	suite.checkResponseForbidden(showResponse)
+	suite.CheckResponseForbidden(showResponse)
 
 }
 
 func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.TestDB())
 	move := ppm.Move
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.SubmitMoveForApprovalParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is submitted
-	context := handlers.NewHandlerContext(suite.db, suite.logger)
-	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.logger))
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
 	handler := SubmitMoveHandler{context}
 	response := handler.Handle(params)
 
