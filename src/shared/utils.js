@@ -73,7 +73,7 @@ export function formatPayload(payload, def) {
 }
 
 export const convertDollarsToCents = dollars =>
-  Math.round(parseFloat(dollars) * 100);
+  Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
 
 export function renderStatusIcon(status) {
   if (!status) {
