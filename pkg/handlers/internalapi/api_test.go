@@ -17,12 +17,12 @@ type HandlerSuite struct {
 	handlers.BaseTestSuite
 }
 
-// SetupTest is the DB setup
+// SetupTest sets up the test suite by preparing the DB
 func (suite *HandlerSuite) SetupTest() {
 	suite.TestDB().TruncateAll()
 }
 
-// AfterTest tries to close open files
+// AfterTest completes tests by trying to close open files
 func (suite *HandlerSuite) AfterTest() {
 	for _, file := range suite.TestFilesToClose() {
 		file.Data.Close()
