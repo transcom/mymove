@@ -55,7 +55,7 @@ export const PanelSwaggerField = props => {
     props.title || get(schema, `properties.${fieldName}.title`, fieldName);
 
   let component = (
-    <PanelField title={title}>
+    <PanelField title={title} className={fieldName}>
       <SwaggerValue {...props} />
       {props.children}
     </PanelField>

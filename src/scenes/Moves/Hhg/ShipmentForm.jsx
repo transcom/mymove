@@ -48,11 +48,12 @@ export class ShipmentForm extends Component {
   }
 
   handleSubmit = () => {
+    const moveId = this.props.match.params.moveId;
     const shipment = this.props.formValues;
     const currentShipmentId = get(this.props, 'currentShipment.id');
 
     return this.props
-      .createOrUpdateShipment(shipment, currentShipmentId)
+      .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(data => {
         return this.props.setCurrentShipment(data.body);
       })

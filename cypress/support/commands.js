@@ -159,9 +159,9 @@ Cypress.Commands.add('testPremoveSurvey', () => {
   // Refresh browser and make sure changes persist
   cy.reload();
 
-  // This is mostly just to let the page fully load
-  cy.get('.editable-panel-header').contains('Premove');
-
-  cy.get('span').contains('7,000 lbs');
-  cy.get('span').contains('Notes notes notes');
+  cy
+    .get('div.pm_survey_earliest_delivery_date')
+    .get('span')
+    .contains('7,000 lbs');
+  cy.get('div.pm_survey_notes').contains('Notes notes notes');
 });
