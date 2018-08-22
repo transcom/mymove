@@ -118,12 +118,17 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 	// Create PPM on this move
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
-	suite.False(verrs.HasAny())
+	ppm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Move:      *move,
+			MoveID:    move.ID,
+			Status:    PPMStatusDRAFT,
+			Advance:   &advance,
+			AdvanceID: &advance.ID,
+		},
+	})
+	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
-	ppm.Status = PPMStatusDRAFT // NEVER do this outside of a test.
-	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
 	// Create hhg (shipment) on this move
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
@@ -141,10 +146,10 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
+			Status:                  ShipmentStatusDRAFT,
 		},
 	})
 
-	shipment.Status = ShipmentStatusDRAFT // NEVER do this outside of a test.
 	move.Shipments = append(move.Shipments, shipment)
 
 	// Once submitted
