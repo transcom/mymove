@@ -21,16 +21,26 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
 	}
-
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
-
 	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
+	// Don't approve Move if orders are incomplete
+	orders, ordersErr := models.FetchOrder(h.db, move.OrdersID)
+	if ordersErr != nil {
+		return responseForError(h.logger, ordersErr)
+	}
+	if orders.IsComplete() != true {
+		return officeop.NewApprovePPMBadRequest()
+	}
 
-	move.Approve()
+	err = move.Approve()
+	if err != nil {
+		h.logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+		return responseForError(h.logger, err)
+	}
 
 	verrs, err := h.db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
@@ -110,9 +120,12 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-
 	moveID := ppm.MoveID
-	ppm.Status = models.PPMStatusAPPROVED
+	err = ppm.Approve()
+	if err != nil {
+		h.logger.Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
+		return responseForError(h.logger, err)
+	}
 
 	verrs, err := h.db.ValidateAndUpdate(ppm)
 	if err != nil || verrs.HasAny() {

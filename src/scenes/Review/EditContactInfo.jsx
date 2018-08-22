@@ -72,13 +72,26 @@ let EditContactForm = props => {
           required
         />
         <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
-        <SwaggerField fieldName="city" swagger={addressSchema} required />
-        <SwaggerField fieldName="state" swagger={addressSchema} required />
-        <SwaggerField
-          fieldName="postal_code"
-          swagger={addressSchema}
-          required
-        />
+        <div className="address_inline">
+          <SwaggerField
+            fieldName="city"
+            swagger={addressSchema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="state"
+            swagger={addressSchema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="postal_code"
+            swagger={addressSchema}
+            className="city_state_zip"
+            required
+          />
+        </div>
       </FormSection>
       <hr className="spacer" />
       <FormSection name="backupAddress">
@@ -89,13 +102,26 @@ let EditContactForm = props => {
           required
         />
         <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
-        <SwaggerField fieldName="city" swagger={addressSchema} required />
-        <SwaggerField fieldName="state" swagger={addressSchema} required />
-        <SwaggerField
-          fieldName="postal_code"
-          swagger={addressSchema}
-          required
-        />
+        <div className="address_inline">
+          <SwaggerField
+            fieldName="city"
+            swagger={addressSchema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="state"
+            swagger={addressSchema}
+            className="city_state_zip"
+            required
+          />
+          <SwaggerField
+            fieldName="postal_code"
+            swagger={addressSchema}
+            className="city_state_zip"
+            required
+          />
+        </div>
       </FormSection>
       <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>

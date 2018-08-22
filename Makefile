@@ -157,6 +157,9 @@ server_test_coverage: server_deps server_generate db_dev_run db_test_reset
 e2e_test: server_deps server_generate client_build db_e2e_init
 	$(AWS_VAULT) ./bin/run-e2e-test
 
+db_populate_e2e: db_dev_reset db_dev_migrate tools_build
+	bin/generate-test-data -named-scenario="e2e_basic"
+
 db_dev_run:
 	# The version of the postgres container should match production as closely
 	# as possible.

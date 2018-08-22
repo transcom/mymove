@@ -22,12 +22,24 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 	t := suite.T()
 
-	foundTDL, _ := testdatagen.MakeTDL(suite.db, "US14", "3", "2")
-	foundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	foundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US14",
+			DestinationRegion: "3",
+			CodeOfService:     "2",
+		},
+	})
+	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
 
-	notFoundTDL, _ := testdatagen.MakeTDL(suite.db, "US14", "5", "2")
-	notFoundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	notFoundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US14",
+			DestinationRegion: "5",
+			CodeOfService:     "2",
+		},
+	})
+	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
 
 	tdls, err := FetchTDLsAwaitingBandAssignment(suite.db)
@@ -47,8 +59,14 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 	t := suite.T()
 
-	foundTDL, _ := testdatagen.MakeTDL(suite.db, "US28", "4", "2")
-	foundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	foundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US28",
+			DestinationRegion: "4",
+			CodeOfService:     "2",
+		},
+	})
+	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
@@ -84,8 +102,13 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 func (suite *ModelSuite) Test_TDLUniqueChannelCOS() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "US28", "4", "2")
-
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US28",
+			DestinationRegion: "4",
+			CodeOfService:     "2",
+		},
+	})
 	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
 	if err != nil {
 		t.Errorf("Something went wrong fetching the test object: %s\n", err)

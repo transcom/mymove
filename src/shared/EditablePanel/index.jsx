@@ -36,6 +36,11 @@ export const SwaggerValue = props => {
   if (swaggerProps.format === 'cents') {
     value = formatCents(value);
   }
+  if (swaggerProps.type === 'integer') {
+    if (fieldName === 'weight_estimate') {
+      value = value.toLocaleString() + ' lbs';
+    }
+  }
   /* eslint-enable security/detect-object-injection */
   return <React.Fragment>{value || null}</React.Fragment>;
 };

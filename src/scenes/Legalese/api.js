@@ -1,5 +1,6 @@
 import { getClient, checkResponse } from 'shared/api';
 import * as legalese from './legaleseText';
+import { formatPayload } from 'shared/utils';
 
 // This function will be an API call one day. For now loads a sample.
 export async function GetCertificationText(hasSIT, hasAdvance) {
@@ -22,8 +23,9 @@ export async function GetCertifications(moveId, limit) {
 
 export async function CreateCertification(certificationRequest) {
   const client = await getClient();
+  const payloadDef = client.spec.definitions.CreateSignedCertificationPayload;
   const response = await client.apis.certification.createSignedCertification(
-    certificationRequest,
+    formatPayload(certificationRequest, payloadDef),
   );
   checkResponse(response, 'failed to create issue due to server error');
 }

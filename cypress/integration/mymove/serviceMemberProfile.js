@@ -50,7 +50,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   //duty station
   cy.get('button.next').should('be.disabled');
   cy
-    .get('.duty-input-box__input input')
+    .get('.duty-input-box #react-select-2-input')
     .first()
     .type('Ft Carson{downarrow}{enter}', { force: true, delay: 150 });
 

@@ -3,8 +3,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
-import editablePanel from './editablePanel';
 
+import editablePanel from './editablePanel';
+import { addressElementDisplay, addressElementEdit } from './AddressElement';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
@@ -75,23 +76,7 @@ const CustomerInfoDisplay = props => {
             </span>
           )}
         </PanelField>
-        <PanelField title="Current Address">
-          {address.street_address_1}
-          <br />
-          {address.street_address_2 && (
-            <span>
-              {address.street_address_2}
-              <br />
-            </span>
-          )}
-          {address.street_address_3 && (
-            <span>
-              {address.street_address_3}
-              <br />
-            </span>
-          )}
-          {address.city}, {address.state} {address.postal_code}
-        </PanelField>
+        {addressElementDisplay(address, 'Current Address')}
       </div>
     </React.Fragment>
   );
@@ -99,7 +84,10 @@ const CustomerInfoDisplay = props => {
 
 const CustomerInfoEdit = props => {
   const schema = props.serviceMemberSchema;
-  const addressSwagger = props.addressSchema;
+  let addressProps = {
+    swagger: props.addressSchema,
+    values: props.initialValues.address,
+  };
 
   return (
     <React.Fragment>
@@ -148,26 +136,7 @@ const CustomerInfoEdit = props => {
 
         <div className="editable-panel-column">
           <FormSection name="address">
-            <div className="panel-subhead">Current Residence Address</div>
-            <SwaggerField
-              fieldName="street_address_1"
-              swagger={addressSwagger}
-            />
-            <SwaggerField
-              fieldName="street_address_2"
-              swagger={addressSwagger}
-            />
-            <SwaggerField
-              fieldName="street_address_3"
-              swagger={addressSwagger}
-            />
-            <SwaggerField fieldName="city" swagger={addressSwagger} />
-            <div className="half-width">
-              <SwaggerField fieldName="state" swagger={addressSwagger} />
-            </div>
-            <div className="half-width">
-              <SwaggerField fieldName="postal_code" swagger={addressSwagger} />
-            </div>
+            {addressElementEdit(addressProps, 'Current Residence Address')}
           </FormSection>
         </div>
       </div>

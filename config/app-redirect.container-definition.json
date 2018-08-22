@@ -1,5 +1,5 @@
 {
-  "name": "app-redirect-{{environment}}",
+  "name": "app-redirect-{{ .environment }}",
   "image": "923914045601.dkr.ecr.us-west-2.amazonaws.com/https-redirect",
   "portMappings": [
     {
@@ -15,7 +15,7 @@
   "logConfiguration": {
     "logDriver": "awslogs",
     "options": {
-      "awslogs-group": "ecs-tasks-app-redirect-{{environment}}",
+      "awslogs-group": "ecs-tasks-app-redirect-{{ .environment }}",
       "awslogs-region": "us-west-2",
       "awslogs-stream-prefix": "app-redirect"
     }

@@ -143,7 +143,7 @@ describe('SchemaField tests', () => {
         ['-1', -1, null],
         ['100', 100, null],
         ['', null, null],
-        ['a2', 'a2', 'Must be a number.'],
+        ['a2', 'a2', 'Must be a number'],
         ['22.2', 22.2, null],
         ['1.3', 1.3, null],
       ];

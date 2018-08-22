@@ -1,6 +1,6 @@
 {
-  "name": "app-{{environment}}",
-  "image": "{{image}}",
+  "name": "app-{{ .environment }}",
+  "image": "{{ .image }}",
   "portMappings": [
     {
       "containerPort": 8443,
@@ -12,7 +12,7 @@
   "entryPoint": [
     "/bin/chamber",
     "exec",
-    "app-{{environment}}",
+    "app-{{ .environment }}",
     "--",
     "/bin/mymove-server"
   ],
@@ -24,11 +24,11 @@
   "environment": [
     {
       "name": "ENVIRONMENT",
-      "value": "{{environment}}"
+      "value": "{{ .environment }}"
     },
     {
       "name": "DB_HOST",
-      "value": "{{db_host}}"
+      "value": "{{ .db_host }}"
     },
     {
       "name": "DB_PORT",
@@ -52,23 +52,23 @@
     },
     {
       "name": "HTTP_MY_SERVER_NAME",
-      "value": "my.{{domain}}"
+      "value": "my.{{ .domain }}"
     },
     {
       "name": "HTTP_OFFICE_SERVER_NAME",
-      "value": "office.{{domain}}"
+      "value": "office.{{ .domain }}"
     },
     {
       "name": "HTTP_TSP_SERVER_NAME",
-      "value": "tsp.{{domain}}"
+      "value": "tsp.{{ .domain }}"
     },
     {
       "name": "HTTP_ORDERS_SERVER_NAME",
-      "value": "orders.{{domain}}"
+      "value": "orders.{{ .domain }}"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",
-      "value": "transcom-ppp-app-{{environment}}-us-west-2"
+      "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     },
     {
       "name": "AWS_S3_REGION",
@@ -96,17 +96,29 @@
     },
     {
       "name": "AWS_SES_DOMAIN",
-      "value": "{{domain}}"
+      "value": "{{ .domain }}"
     },
     {
       "name": "AWS_SES_REGION",
       "value": "us-west-2"
+    },
+    {
+      "name": "LOGIN_GOV_HOSTNAME",
+      "value": "{{ .LOGIN_GOV_HOSTNAME }}"
+    },
+    {
+      "name": "HONEYCOMB_ENABLED",
+      "value": "{{ .HONEYCOMB_ENABLED }}"
+    },
+    {
+      "name": "HONEYCOMB_DATASET",
+      "value": "{{ .HONEYCOMB_DATASET }}"
     }
   ],
   "logConfiguration": {
     "logDriver": "awslogs",
     "options": {
-      "awslogs-group": "ecs-tasks-app-{{environment}}",
+      "awslogs-group": "ecs-tasks-app-{{ .environment }}",
       "awslogs-region": "us-west-2",
       "awslogs-stream-prefix": "app"
     }

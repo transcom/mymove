@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -22,6 +21,9 @@ import (
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
+
+	"github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
@@ -108,6 +110,7 @@ func main() {
 	hereRouteEndpoint := flag.String("here_maps_routing_endpoint", "", "URL for the HERE maps routing endpoint")
 	hereAppID := flag.String("here_maps_app_id", "", "HERE maps App ID for this application")
 	hereAppCode := flag.String("here_maps_app_code", "", "HERE maps App API code")
+
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	emailBackend := flag.String("email_backend", "local", "Email backend to use, either SES or local")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
@@ -118,6 +121,11 @@ func main() {
 	newRelicApplicationID := flag.String("new_relic_application_id", "", "App ID for New Relic Browser")
 	newRelicLicenseKey := flag.String("new_relic_license_key", "", "License key for New Relic Browser")
 
+	honeycombEnabled := flag.Bool("honeycomb_enabled", false, "Honeycomb enabled")
+	honeycombAPIKey := flag.String("honeycomb_api_key", "", "API Key for Honeycomb")
+	honeycombDataset := flag.String("honeycomb_dataset", "", "Dataset for Honeycomb")
+	honeycombDebug := flag.Bool("honeycomb_debug", false, "Debug honeycomb using stdout.")
+
 	flag.Parse()
 
 	logger, err := logging.Config(*env, *debugLogging)
@@ -125,6 +133,22 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
+
+	// Honeycomb
+	useHoneycomb := false
+	if honeycombEnabled != nil && honeycombAPIKey != nil && honeycombDataset != nil && *honeycombEnabled && len(*honeycombAPIKey) > 0 && len(*honeycombDataset) > 0 {
+		useHoneycomb = true
+	}
+	if useHoneycomb {
+		zap.L().Debug("Honeycomb Integration enabled")
+		beeline.Init(beeline.Config{
+			WriteKey: *honeycombAPIKey,
+			Dataset:  *honeycombDataset,
+			Debug:    *honeycombDebug,
+		})
+	} else {
+		zap.L().Debug("Honeycomb Integration disabled")
+	}
 
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
@@ -212,13 +236,8 @@ func main() {
 		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
 	} else {
 		zap.L().Info("Using filesystem storage backend")
-		absTmpPath, err := filepath.Abs("tmp")
-		if err != nil {
-			log.Fatalln(errors.New("could not get absolute path for tmp"))
-		}
-		storagePath := path.Join(absTmpPath, "storage")
-		webRoot := "/" + "storage"
-		storer = storage.NewFilesystem(storagePath, webRoot, logger)
+		fsParams := storage.DefaultFilesystemParams(logger)
+		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
 
@@ -302,6 +321,13 @@ func main() {
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(*build, *newRelicApplicationID, *newRelicLicenseKey, logger))
 
+	var httpHandler http.Handler
+	if useHoneycomb {
+		httpHandler = hnynethttp.WrapHandler(site)
+	} else {
+		httpHandler = site
+	}
+
 	// Start http/https listener(s)
 	errChan := make(chan error)
 	go func() { // start http listener
@@ -309,7 +335,7 @@ func main() {
 		zap.L().Info("Starting http server listening", zap.String("address", addr))
 		s := &http.Server{
 			Addr:           addr,
-			Handler:        site,
+			Handler:        httpHandler,
 			MaxHeaderBytes: maxHeaderSize,
 		}
 		errChan <- s.ListenAndServe()
@@ -317,7 +343,7 @@ func main() {
 	go func() { // start https listener
 		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpsPort)
 		zap.L().Info("Starting https server listening", zap.String("address", addr))
-		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), site)
+		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), httpHandler)
 	}()
 	log.Fatal(<-errChan)
 }
