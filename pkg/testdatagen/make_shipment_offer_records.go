@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
@@ -31,7 +30,7 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 		ShipmentID:                      shipmentID,
 		TransportationServiceProviderID: tspID,
 		AdministrativeShipment:          false,
-		Accepted:                        swag.Bool(true),
+		Accepted:                        nil, // This is a Tri-state and new offers are always nil until accepted
 		RejectionReason:                 nil,
 	}
 
@@ -70,7 +69,7 @@ func MakeShipmentOfferData(db *pop.Connection) {
 				ShipmentID:                      shipment.ID,
 				TransportationServiceProviderID: tspList[rand.Intn(len(tspList))].ID,
 				AdministrativeShipment:          false,
-				Accepted:                        swag.Bool(true),
+				Accepted:                        nil, // See note about Tri-state above
 				RejectionReason:                 nil,
 			},
 		}

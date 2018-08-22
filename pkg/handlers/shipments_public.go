@@ -145,7 +145,7 @@ func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.Create
 		return publicshipmentop.NewGetShipmentForbidden()
 	}
 
-	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
 	// See original commits in https://github.com/transcom/mymove/pull/802
 	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
@@ -154,6 +154,7 @@ func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.Create
 		return publicshipmentop.NewGetShipmentForbidden()
 	}
 
+	// Get the shipment
 	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
@@ -182,7 +183,7 @@ func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.Create
 	// Accept the Shipment Offer
 	err = shipmentOffer.Accept()
 	if err != nil {
-		h.logger.Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipmentOffer_accepted", *shipmentOffer.Accepted))
+		h.logger.Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
 		return responseForError(h.logger, err)
 	}
 
@@ -191,7 +192,7 @@ func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.Create
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	// Do we need to update Move status???
+	// TODO: cgilmer Do we need to update Move status???
 
 	sp := publicPayloadForShipmentModel(*shipment)
 	return publicshipmentop.NewCreateShipmentAcceptOK().WithPayload(sp)
