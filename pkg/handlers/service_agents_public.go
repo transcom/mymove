@@ -51,13 +51,14 @@ func (h PublicCreateServiceAgentHandler) Handle(params publicserviceagentop.Crea
 		return publicserviceagentop.NewCreateServiceAgentForbidden()
 	}
 
+	// TODO (rebecca): Find a way to check Shipment belongs to TSP without 2 queries
 	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicserviceagentop.NewCreateServiceAgentForbidden()
 	}
 
-	shipment, err := models.FetchShipmentByTSPUser(h.db, tspUser.ID, shipmentID)
+	shipment, err := models.FetchShipmentByTSPUser(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicserviceagentop.NewCreateServiceAgentBadRequest()

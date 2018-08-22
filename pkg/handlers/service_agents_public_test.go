@@ -13,16 +13,15 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{})
-
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
+	shipment := shipments[0]
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/shipments/shipment_id/service_agents", nil)
