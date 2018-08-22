@@ -77,13 +77,24 @@ func (s *ServiceAgent) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 }
 
 // CreateServiceAgent creates a ServiceAgent model from payload and queried fields.
-func CreateServiceAgent(tx *pop.Connection, shipmentID uuid.UUID, role Role, pointOfContact string, email *string, phoneNumber *string) (ServiceAgent, *validate.Errors, error) {
+func CreateServiceAgent(tx *pop.Connection,
+	shipmentID uuid.UUID,
+	role Role,
+	pointOfContact string,
+	email *string,
+	phoneNumber *string,
+	emailIsPreferred *bool,
+	phoneIsPreferred *bool,
+	notes *string) (ServiceAgent, *validate.Errors, error) {
 	newServiceAgent := ServiceAgent{
-		ShipmentID:     shipmentID,
-		Role:           role,
-		PointOfContact: pointOfContact,
-		Email:          email,
-		PhoneNumber:    phoneNumber,
+		ShipmentID:       shipmentID,
+		Role:             role,
+		PointOfContact:   pointOfContact,
+		Email:            email,
+		PhoneNumber:      phoneNumber,
+		EmailIsPreferred: emailIsPreferred,
+		PhoneIsPreferred: phoneIsPreferred,
+		Notes:            notes,
 	}
 	verrs, err := tx.ValidateAndCreate(&newServiceAgent)
 	if err != nil || verrs.HasAny() {

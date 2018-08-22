@@ -124,7 +124,7 @@ func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentPara
 		return publicshipmentop.NewGetShipmentForbidden()
 	}
 
-	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	shipment, err := models.FetchShipmentByTSPUser(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewGetShipmentBadRequest()
@@ -206,7 +206,7 @@ func (h PublicPatchShipmentHandler) Handle(params publicshipmentop.PatchShipment
 		return publicshipmentop.NewPatchShipmentForbidden()
 	}
 
-	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	shipment, err := models.FetchShipmentByTSPUser(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewPatchShipmentBadRequest()

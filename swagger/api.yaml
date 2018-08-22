@@ -568,11 +568,6 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      shipment_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
       shipment:
         $ref: '#/definitions/Shipment'
         x-nullable: true
@@ -619,7 +614,6 @@ definitions:
         type: string
         format: date-time
     required:
-      - shipment_id
       - role
       - point_of_contact
   ShipmentReject:

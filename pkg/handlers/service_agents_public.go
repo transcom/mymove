@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -20,7 +21,6 @@ import (
 func publicPayloadForServiceAgentModel(s models.ServiceAgent) *apimessages.ServiceAgent {
 	serviceAgentPayload := &apimessages.ServiceAgent{
 		ID:               *fmtUUID(s.ID),
-		ShipmentID:       *fmtUUID(s.ShipmentID),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 		Role:             apimessages.ServiceAgentRole(s.Role),
@@ -41,17 +41,41 @@ type PublicCreateServiceAgentHandler HandlerContext
 // Handle ... creates a new ServiceAgent from a request payload - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PublicCreateServiceAgentHandler) Handle(params publicserviceagentop.CreateServiceAgentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	shipment, err := models.FetchShipment(h.db, session, shipmentID)
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicserviceagentop.NewCreateServiceAgentForbidden()
+	}
+
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
 	if err != nil {
-		return responseForError(h.logger, err)
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicserviceagentop.NewCreateServiceAgentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSPUser(h.db, tspUser.ID, shipmentID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicserviceagentop.NewCreateServiceAgentBadRequest()
 	}
 
 	payload := params.ServiceAgent
 
 	serviceAgentRole := models.Role(payload.Role)
-	newServiceAgent, verrs, err := models.CreateServiceAgent(h.db, shipment.ID, serviceAgentRole, *payload.PointOfContact, payload.Email, payload.PhoneNumber)
+	newServiceAgent, verrs, err := models.CreateServiceAgent(
+		h.db,
+		shipment.ID,
+		serviceAgentRole,
+		*payload.PointOfContact,
+		payload.Email,
+		payload.PhoneNumber,
+		payload.EmailIsPreferred,
+		payload.PhoneIsPreferred,
+		payload.Notes)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
