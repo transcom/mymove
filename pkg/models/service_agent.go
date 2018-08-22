@@ -97,10 +97,6 @@ func CreateServiceAgent(tx *pop.Connection,
 		Notes:            notes,
 	}
 	verrs, err := tx.ValidateAndCreate(&newServiceAgent)
-	if err != nil || verrs.HasAny() {
-		newServiceAgent = ServiceAgent{}
-	}
-	verrs, err = tx.ValidateAndSave(&newServiceAgent)
 	if err != nil {
 		zap.L().Error("DB insertion error", zap.Error(err))
 		return ServiceAgent{}, verrs, err
