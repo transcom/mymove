@@ -79,9 +79,8 @@ server_deps: go_version .server_deps.stamp
 	go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
-server_generate_live: server_deps
-	touch .server_generate.stamp
-	find ./swagger -type f -name "*.yaml" | entr -c ./bin/gen_server.sh
+server_generate_and_run:
+	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run
 server_generate: server_deps .server_generate.stamp
 .server_generate.stamp: $(shell find swagger -type f -name *.yaml)
 	bin/gen_server.sh
