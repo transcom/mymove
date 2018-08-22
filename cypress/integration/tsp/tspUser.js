@@ -1,3 +1,5 @@
+import testPremoveSurvey from '../../support/testPremoveSurvey';
+
 /* global cy */
 describe('tsp user', function() {
   beforeEach(() => {
@@ -37,5 +39,5 @@ function tspUserEntersPremoveSurvey() {
     expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
   });
 
-  cy.testPremoveSurvey();
+  testPremoveSurvey();
 }
