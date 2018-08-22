@@ -149,13 +149,11 @@ const SurveyEdit = props => {
             fieldName="pm_survey_progear_weight_estimate"
             swagger={schema}
             className="half-width"
-            required
           />
           <SwaggerField
             fieldName="pm_survey_spouse_progear_weight_estimate"
             swagger={schema}
             className="half-width"
-            required
           />
         </div>
         <SwaggerField

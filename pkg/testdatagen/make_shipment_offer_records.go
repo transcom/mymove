@@ -15,7 +15,7 @@ import (
 // MakeShipmentOffer creates a single shipment offer record
 func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.ShipmentOffer {
 
-	// Test for ShipmentID first before creating a new Shipment
+	// Test for Shipment first before creating a new Shipment
 	shipment := assertions.ShipmentOffer.Shipment
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
 		shipment = MakeShipment(db, assertions)
