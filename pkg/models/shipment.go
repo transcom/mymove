@@ -313,6 +313,54 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	return &shipments[0], err
 }
 
+// AcceptShipmentForTSP accepts a shipment and shipment_offer
+func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, *validate.Errors, error) {
+
+	// Get the Shipment and Shipment Offer
+	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, err
+	}
+
+	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, err
+	}
+
+	// Accept the Shipment and Shipment Offer
+	err = shipment.Accept()
+	if err != nil {
+		return shipment, nil, err
+	}
+
+	err = shipmentOffer.Accept()
+	if err != nil {
+		return shipment, nil, err
+	}
+
+	responseVErrors := validate.NewErrors()
+	var responseError error
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		// Validate and update the Shipment and Shipment Offer
+		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error changing shipment status to ACCEPTED")
+			return transactionError
+		}
+		if verrs, err := db.ValidateAndUpdate(shipmentOffer); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error changing shipment offer status to ACCEPTED")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return shipment, responseVErrors, responseError
+}
+
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
 func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
