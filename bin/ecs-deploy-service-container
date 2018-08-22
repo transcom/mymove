@@ -72,13 +72,13 @@ update_service() {
 # get current task definiton (for rollback)
 blue_task_def_arn=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].taskDefinition' | jq -r .)
 
-# get the DB address
+# Get the database host using the instance identifier
 echo "* Looking up DB host"
 db_host=$(aws rds describe-db-instances --db-instance-identifier "$rds" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
 readonly db_host
 
-# create the container definition from the json template
-container_definition_json=$(perl -pe "s|{{db_host}}|$db_host|g; s|{{domain}}|$domain|g; s|{{environment}}|$environment|g; s|{{image}}|$image|g;" "$template")
+# $DIR/../cmd/renderer/main.go builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
+container_definition_json=$(go run $DIR/../cmd/renderer/main.go -t $template -v $DIR/../config/env/${environment}.env environment=$environment image=$image db_host=$db_host domain=$domain)
 readonly container_definition_json
 
 # create new task definition with the given image

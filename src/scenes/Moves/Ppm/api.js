@@ -1,4 +1,5 @@
 import { getClient, checkResponse } from 'shared/api';
+import { formatPayload, formatDateString } from 'shared/utils';
 
 export async function GetPpm(moveId) {
   const client = await getClient();
@@ -14,9 +15,11 @@ export async function CreatePpm(
   payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
 ) {
   const client = await getClient();
+  const payloadDef =
+    client.spec.definitions.CreatePersonallyProcuredMovePayload;
   const response = await client.apis.ppm.createPersonallyProcuredMove({
     moveId,
-    createPersonallyProcuredMovePayload: payload,
+    createPersonallyProcuredMovePayload: formatPayload(payload, payloadDef),
   });
   checkResponse(response, 'failed to create ppm due to server error');
   return response.body;
@@ -28,10 +31,11 @@ export async function UpdatePpm(
   payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
 ) {
   const client = await getClient();
+  const payloadDef = client.spec.definitions.PatchPersonallyProcuredMovePayload;
   const response = await client.apis.ppm.patchPersonallyProcuredMove({
     moveId,
     personallyProcuredMoveId,
-    patchPersonallyProcuredMovePayload: payload,
+    patchPersonallyProcuredMovePayload: formatPayload(payload, payloadDef),
   });
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;
@@ -45,7 +49,7 @@ export async function GetPpmWeightEstimate(
 ) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMEstimate({
-    planned_move_date: moveDate,
+    planned_move_date: formatDateString(moveDate),
     origin_zip: originZip,
     destination_zip: destZip,
     weight_estimate: weightEstimate,
@@ -63,7 +67,7 @@ export async function GetPpmSitEstimate(
 ) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMSitEstimate({
-    planned_move_date: moveDate,
+    planned_move_date: formatDateString(moveDate),
     days_in_storage: sitDays,
     origin_zip: originZip,
     destination_zip: destZip,

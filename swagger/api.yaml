@@ -492,6 +492,59 @@ definitions:
         minimum: 0
         example: 200
         x-nullable: true
+      pm_survey_pack_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Pack date"
+        x-nullable: true
+      pm_survey_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Pickup date"
+        x-nullable: true
+      pm_survey_latest_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Latest pickup date"
+        x-nullable: true
+      pm_survey_earliest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Earliest delivery date"
+        x-nullable: true
+      pm_survey_latest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Latest delivery date"
+        x-nullable: true
+      pm_survey_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Weight
+        x-nullable: true
+      pm_survey_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Pro-Gear Weight
+        x-nullable: true
+      pm_survey_spouse_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Spouse's Pro-Gear
+        x-nullable: true
+      pm_survey_notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
   IndexServiceAgents:
     type: array
     items:
@@ -993,7 +1046,7 @@ paths:
     patch:
       summary: Updates a particular shipment
       description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
-      operationId: updateShipment
+      operationId: patchShipment
       tags:
         - shipments
       parameters:

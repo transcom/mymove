@@ -41,11 +41,7 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 
@@ -88,11 +84,7 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 
@@ -127,6 +119,16 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	} else if len(shipments) != 1 {
 		t.Errorf("Returned too many shipments. Expected %v, got %v", shipment2.ID, shipments)
 	}
+}
+
+func (suite *ModelSuite) TestShipmentStateMachine() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	suite.Equal(ShipmentStatusDRAFT, shipment.Status, "expected Draft")
+	// Can submit shipment
+	err := shipment.Submit()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
 }
 
 func equalShipmentsSlice(a []ShipmentWithOffer, b []ShipmentWithOffer) bool {

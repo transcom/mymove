@@ -8,7 +8,12 @@ import (
 
 func TestPresignedURL(t *testing.T) {
 	logger := zap.NewNop()
-	fs := NewFilesystem("/home/username", "https://example.text/files", logger)
+	fsParams := FilesystemParams{
+		root:    "/home/username",
+		webRoot: "https://example.text/files",
+		logger:  logger,
+	}
+	fs := NewFilesystem(fsParams)
 
 	url, err := fs.PresignedURL("key/to/file/12345", "image/jpeg")
 	if err != nil {

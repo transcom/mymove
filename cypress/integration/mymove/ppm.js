@@ -1,8 +1,9 @@
 /* global cy */
 
-describe.skip('completing the ppm flow', function() {
+describe('completing the ppm flow', function() {
   beforeEach(() => {
     //profile@comple.te
+    // cy.resetDb();
     cy.signInAsUser('13F3949D-0D53-4BE4-B1B1-AE4314793F34');
   });
 
@@ -18,9 +19,9 @@ describe.skip('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
     cy
-      .get('input[placeholder="Date"]')
+      .get('input[name="planned_move_date"]')
       .first()
-      .type('2018-9-2{enter}')
+      .type('9/2/2018{enter}')
       .blur();
     cy
       .get('input[name="pickup_postal_code"]')
@@ -47,13 +48,17 @@ describe.skip('completing the ppm flow', function() {
 
     cy.get('.incentive').contains('$');
 
+    cy.get('input[type="radio"]').check('yes', { force: true });
+    cy.get('input[name="requested_amount"]').type('1,333.91');
+    cy.get('select[name="method_of_receipt"]').select('MilPay');
     cy.nextPage();
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
     });
 
-    //todo: should probably have test suite for review and edit screens
+    // //todo: should probably have test suite for review and edit screens
+    cy.contains('$1,333.91'); // Verify that the advance matches what was input
 
     cy.nextPage();
 

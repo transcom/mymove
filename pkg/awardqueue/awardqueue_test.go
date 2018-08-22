@@ -21,7 +21,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
@@ -80,7 +80,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
@@ -159,7 +159,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 	// Creates a TSP and TDL with a blackout date connected to both.
 	testTSP1 := testdatagen.MakeDefaultTSP(suite.db)
-	testTDL, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
+	testTDL := testdatagen.MakeDefaultTDL(suite.db)
 
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
@@ -272,7 +272,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	pickupDate := testdatagen.DateInsidePeakRateCycle
@@ -324,7 +324,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	pickupDate := testdatagen.DateInsidePeakRateCycle
@@ -371,7 +371,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	shipmentsToMake := 10
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
@@ -423,7 +423,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	shipmentsToMake := 17
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
@@ -495,10 +495,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 	tspsToMake := 5
 
-	tdl, err := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
-	if err != nil {
-		t.Errorf("Failed to create TDL: %v", err)
-	}
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.db)
@@ -508,7 +505,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
 	}
 
-	err = queue.assignPerformanceBands()
+	err := queue.assignPerformanceBands()
 
 	if err != nil {
 		t.Errorf("Failed to assign to performance bands: %v", err)
@@ -541,7 +538,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	twoMonths, _ := time.ParseDuration("2 months")
 	twoMonthsLater := testdatagen.PerformancePeriodStart.Add(twoMonths)
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
 	// Make Peak TSP and Shipment
 	tspPeak := testdatagen.MakeDefaultTSP(suite.db)

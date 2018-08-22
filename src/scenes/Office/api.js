@@ -136,3 +136,13 @@ export async function CancelMove(moveId, cancelReason) {
   );
   return response.body;
 }
+
+// PPM attachments
+export async function DownloadPPMAttachments(ppmId) {
+  const client = await getClient();
+  const response = await client.apis.ppm.createPPMAttachments({
+    personallyProcuredMoveId: ppmId,
+  });
+  checkResponse(response, 'failed to create PPM attachments PDF');
+  return response.body;
+}
