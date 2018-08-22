@@ -113,6 +113,14 @@
     {
       "name": "HONEYCOMB_DATASET",
       "value": "{{ .HONEYCOMB_DATASET }}"
+    },
+    {
+      "name": "NEW_RELIC_APPLICATION_ID",
+      "value": "{{ .NEW_RELIC_APPLICATION_ID }}"
+    },
+    {
+      "name": "NEW_RELIC_LICENSE_KEY",
+      "value": "{{ .NEW_RELIC_LICENSE_KEY }}"
     }
   ],
   "logConfiguration": {
