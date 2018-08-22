@@ -154,45 +154,42 @@ func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.Create
 		return publicshipmentop.NewGetShipmentForbidden()
 	}
 
-	// Get the shipment
+	// Get the Shipment and Shipment Offer
 	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewGetShipmentBadRequest()
 	}
 
-	// Accept the shipment
-	err = shipment.Accept()
-	if err != nil {
-		h.logger.Info("Attempted to accept shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
-		return responseForError(h.logger, err)
-	}
-
-	verrs, err := h.db.ValidateAndUpdate(shipment)
-	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.logger, verrs, err)
-	}
-
-	// Get the Shipment Offer
 	shipmentOffer, err := models.FetchShipmentOfferByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewGetShipmentBadRequest()
 	}
 
-	// Accept the Shipment Offer
+	// Accept the Shipment and Shipment Offer
+	err = shipment.Accept()
+	if err != nil {
+		h.logger.Info("Attempted to accept shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+		return publicshipmentop.NewCreateShipmentAcceptConflict()
+	}
+
 	err = shipmentOffer.Accept()
 	if err != nil {
 		h.logger.Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
-		return responseForError(h.logger, err)
+		return publicshipmentop.NewCreateShipmentAcceptConflict()
+	}
+
+	// Validate and update the Shipment and Shipment Offer
+	verrs, err := h.db.ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
 	}
 
 	verrs, err = h.db.ValidateAndUpdate(shipmentOffer)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
-
-	// TODO: cgilmer Do we need to update Move status???
 
 	sp := publicPayloadForShipmentModel(*shipment)
 	return publicshipmentop.NewCreateShipmentAcceptOK().WithPayload(sp)
