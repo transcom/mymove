@@ -273,8 +273,8 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	return &shipment, nil
 }
 
-// FetchShipmentByTSPUser looks up a shipments belonging to a TSP ID by Shipment ID
-func FetchShipmentByTSPUser(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
+// FetchShipmentByTSP looks up a shipments belonging to a TSP ID by Shipment ID
+func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
 
 	shipments := []Shipment{}
 

@@ -58,7 +58,7 @@ func (h PublicCreateServiceAgentHandler) Handle(params publicserviceagentop.Crea
 		return publicserviceagentop.NewCreateServiceAgentForbidden()
 	}
 
-	shipment, err := models.FetchShipmentByTSPUser(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicserviceagentop.NewCreateServiceAgentBadRequest()
