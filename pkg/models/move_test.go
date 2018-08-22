@@ -146,10 +146,11 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 	shipment.Status = ShipmentStatusDRAFT // NEVER do this outside of a test.
 	move.Shipments = append(move.Shipments, shipment)
-	suite.db.Reload(move)
 
 	// Once submitted
 	err = move.Submit()
+	suite.mustSave(move)
+	suite.db.Reload(move)
 	suite.Nil(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
