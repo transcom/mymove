@@ -26,7 +26,7 @@ type ShipmentOffer struct {
 
 // String is not required by pop and may be deleted
 func (so ShipmentOffer) String() string {
-	ja, _ := json.Marshal(a)
+	ja, _ := json.Marshal(so)
 	return string(ja)
 }
 
@@ -35,15 +35,15 @@ type ShipmentOffers []ShipmentOffer
 
 // String is not required by pop and may be deleted
 func (so ShipmentOffers) String() string {
-	ja, _ := json.Marshal(a)
+	ja, _ := json.Marshal(so)
 	return string(ja)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (so *ShipmentOffer) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: a.ShipmentID, Name: "ShipmentID"},
-		&validators.UUIDIsPresent{Field: a.TransportationServiceProviderID, Name: "TransportationServiceProviderID"},
+		&validators.UUIDIsPresent{Field: so.ShipmentID, Name: "ShipmentID"},
+		&validators.UUIDIsPresent{Field: so.TransportationServiceProviderID, Name: "TransportationServiceProviderID"},
 	), nil
 }
 
