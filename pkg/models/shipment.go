@@ -26,6 +26,9 @@ const (
 	// ShipmentStatusAWARDED captures enum value "AWARDED"
 	// Using AWARDED for TSP Queue work, not yet in office/SM flow
 	ShipmentStatusAWARDED ShipmentStatus = "AWARDED"
+	// ShipmentStatusACCEPTED captures enum value "ACCEPTED"
+	// Using ACCEPTED for TSP Queue work, not yet in office/SM flow
+	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
 )
@@ -125,8 +128,16 @@ func (s *Shipment) Submit() error {
 	if s.Status != ShipmentStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
-
 	s.Status = ShipmentStatusSUBMITTED
+	return nil
+}
+
+// Accept marks the Shipment request as Accepted. Must be in an Awarded state.
+func (s *Shipment) Accept() error {
+	if s.Status != ShipmentStatusAWARDED {
+		return errors.Wrap(ErrInvalidTransition, "Accept")
+	}
+	s.Status = ShipmentStatusACCEPTED
 	return nil
 }
 

@@ -13,12 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
-
 func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentPayload := &apimessages.Shipment{
 		ID: *fmtUUID(s.ID),
@@ -139,7 +133,68 @@ type PublicCreateShipmentAcceptHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
-	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentBadRequest()
+	}
+
+	// Accept the shipment
+	err = shipment.Accept()
+	if err != nil {
+		h.logger.Info("Attempted to accept shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+		return responseForError(h.logger, err)
+	}
+
+	verrs, err := h.db.ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	// Get the Shipment Offer
+	shipmentOffer, err := models.FetchShipmentOfferByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentBadRequest()
+	}
+
+	// Accept the Shipment Offer
+	err = shipmentOffer.Accept()
+	if err != nil {
+		h.logger.Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipmentOffer_accepted", *shipmentOffer.Accepted))
+		return responseForError(h.logger, err)
+	}
+
+	verrs, err = h.db.ValidateAndUpdate(shipmentOffer)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	// Do we need to update Move status???
+
+	sp := publicPayloadForShipmentModel(*shipment)
+	return publicshipmentop.NewCreateShipmentAcceptOK().WithPayload(sp)
 }
 
 // PublicCreateShipmentRejectHandler allows a TSP to refuse a particular shipment
