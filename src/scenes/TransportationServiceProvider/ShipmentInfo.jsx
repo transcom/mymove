@@ -13,7 +13,7 @@ import { loadShipmentDependencies } from './ducks';
 import { formatDate } from 'shared/formatters';
 
 class AcceptShipmentPanel extends Component {
-  state = { displayState: 'Awarded' };
+  state = { displayState: 'Awarded', acceptError: false };
 
   rejectShipment = () => {
     this.setState({ displayState: 'Rejected' });
@@ -23,7 +23,7 @@ class AcceptShipmentPanel extends Component {
   acceptShipment = () => {
     AcceptShipment(this.props.shipmentId)
       .then(shipment => {
-        this.setState({ displayState: 'Accepted' });
+        this.setState({ displayState: 'Accepted', acceptError: false });
       })
       .catch(err => {
         console.log(err);
@@ -36,7 +36,7 @@ class AcceptShipmentPanel extends Component {
       return (
         <div>
           {this.state.acceptError ? (
-            <Alert type="error" heading="Unable to accept" />
+            <Alert type="error" heading="Unable to accept shipment" />
           ) : null}
           <button className="usa-button-primary" onClick={this.acceptShipment}>
             Accept Shipment
