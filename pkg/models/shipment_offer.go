@@ -88,20 +88,6 @@ func CreateShipmentOffer(tx *pop.Connection,
 	return &shipmentOffer, err
 }
 
-// FetchShipmentOffer Fetches and Validates a ShipmentOffer model
-func FetchShipmentOffer(db *pop.Connection, id uuid.UUID) (*ShipmentOffer, error) {
-	var shipmentOffer ShipmentOffer
-	err := db.Eager().Find(&shipmentOffer, id)
-	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return nil, ErrFetchNotFound
-		}
-		// Otherwise, it's an unexpected err so we return that.
-		return nil, err
-	}
-	return &shipmentOffer, nil
-}
-
 // FetchShipmentOfferByTSP Fetches a shipment belonging to a TSP ID by Shipment ID
 func FetchShipmentOfferByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*ShipmentOffer, error) {
 
