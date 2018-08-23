@@ -8,6 +8,7 @@ import { NavLink } from 'react-router-dom';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert'; // eslint-disable-line
 
+import { AcceptShipment } from './api.js';
 import { loadShipmentDependencies } from './ducks';
 import { formatDate } from 'shared/formatters';
 
@@ -20,22 +21,31 @@ class AcceptShipmentPanel extends Component {
   };
 
   acceptShipment = () => {
-    this.setState({ displayState: 'Accepted' });
-    // TODO (rebecca): post acceptance
+    AcceptShipment(this.props.shipmentId)
+      .then(shipment => {
+        this.setState({ displayState: 'Accepted' });
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({ displayState: 'Awarded', acceptError: true });
+      });
   };
 
   render() {
     if (this.state.displayState === 'Awarded') {
       return (
         <div>
+          {this.state.acceptError ? (
+            <Alert type="error" heading="Unable to accept" />
+          ) : null}
           <button className="usa-button-primary" onClick={this.acceptShipment}>
-            Accept
+            Accept Shipment
           </button>
           <button
             className="usa-button-secondary"
             onClick={this.rejectShipment}
           >
-            Reject
+            Reject Shipment
           </button>
         </div>
       );
@@ -99,7 +109,9 @@ class ShipmentInfo extends Component {
         </div>
         <div className="usa-grid grid-wide tabs">
           <div className="usa-width-two-thirds">
-            <AcceptShipmentPanel />
+            {this.props.shipment.status === 'AWARDED' ? (
+              <AcceptShipmentPanel shipmentId={this.props.shipment.id} />
+            ) : null}
           </div>
           <div className="usa-width-one-third" />
         </div>
