@@ -1,9 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,42 +16,17 @@ func MakeServiceAgent(db *pop.Connection, assertions Assertions) models.ServiceA
 		shipmentID = shipment.ID
 	}
 
-	// Manage the role
-	role := assertions.ServiceAgent.Role
-	if role == models.Role("") {
-		role = models.RoleORIGIN
-	}
-
-	poc := assertions.ServiceAgent.PointOfContact
-	if poc == "" {
-		poc = "Jenny at ACME Movers"
-	}
-
-	phone := assertions.ServiceAgent.PhoneNumber
-	if phone == nil {
-		phone = stringPointer("303-867-5309")
-	}
-
-	email := assertions.ServiceAgent.Email
-	if email == nil {
-		email = stringPointer("jenny_acme@example.com")
-	}
-
 	serviceAgent := models.ServiceAgent{
 		ShipmentID:     shipmentID,
-		Role:           role,
-		PointOfContact: poc,
-		PhoneNumber:    phone,
-		Email:          email,
+		Role:           models.RoleORIGIN,
+		PointOfContact: "Jenny at ACME Movers",
+		PhoneNumber:    stringPointer("303-867-5309"),
+		Email:          stringPointer("jenny_acme@example.com"),
 	}
 
-	verrs, err := db.ValidateAndSave(&serviceAgent)
-	if verrs.HasAny() {
-		err = fmt.Errorf("serviceAgent validation errors: %v", verrs)
-	}
-	if err != nil {
-		log.Panic(err)
-	}
+	mergeModels(&serviceAgent, assertions.ServiceAgent)
+
+	mustCreate(db, &serviceAgent)
 
 	return serviceAgent
 }
