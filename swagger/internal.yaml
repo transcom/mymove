@@ -1508,23 +1508,23 @@ definitions:
         title: Spouse's Pro-Gear
         x-nullable: true
         x-formatting: weight
-      pm_survey_pack_date:
+      pm_survey_planned_pack_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Pack date"
+        title: "Planned pack date"
         x-nullable: true
-      pm_survey_pickup_date:
+      pm_survey_planned_pickup_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Pickup date"
+        title: "Planned pickup date"
         x-nullable: true
-      pm_survey_latest_pickup_date:
+      pm_survey_planned_delivery_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Latest pickup date"
+        title: "Planned delivery date"
         x-nullable: true
       pm_survey_earliest_delivery_date:
         type: string
@@ -1564,6 +1564,17 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      pm_survey_method:
+        type: string
+        x-nullable: true
+        enum:
+          - IN_PERSON
+          - PHONE
+          - VIDEO
+        x-display-value:
+          IN_PERSON: In person
+          PHONE: Phone
+          VIDEO: Video
       created_at:
         type: string
         format: date-time

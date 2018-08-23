@@ -47,11 +47,9 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		WeightEstimate:                      fmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:               fmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate:         fmtPoundPtr(s.SpouseProgearWeightEstimate),
-		PmSurveyPackDate:                    fmtDatePtr(s.PmSurveyPackDate),
-		PmSurveyPickupDate:                  fmtDatePtr(s.PmSurveyPickupDate),
-		PmSurveyLatestPickupDate:            fmtDatePtr(s.PmSurveyLatestPickupDate),
-		PmSurveyEarliestDeliveryDate:        fmtDatePtr(s.PmSurveyEarliestDeliveryDate),
-		PmSurveyLatestDeliveryDate:          fmtDatePtr(s.PmSurveyLatestDeliveryDate),
+		PmSurveyPlannedPackDate:             fmtDatePtr(s.PmSurveyPlannedPackDate),
+		PmSurveyPlannedPickupDate:           fmtDatePtr(s.PmSurveyPlannedPickupDate),
+		PmSurveyPlannedDeliveryDate:         fmtDatePtr(s.PmSurveyPlannedDeliveryDate),
 		PmSurveyWeightEstimate:              fmtPoundPtr(s.PmSurveyWeightEstimate),
 		PmSurveyProgearWeightEstimate:       fmtPoundPtr(s.PmSurveyProgearWeightEstimate),
 		PmSurveySpouseProgearWeightEstimate: fmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
@@ -123,17 +121,16 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 func patchShipmentWithPremoveSurveyFields(shipment *models.Shipment, payload *internalmessages.Shipment) {
 	// Premove Survey values entered by TSP agent
-	requiredValue := payload.PmSurveyPackDate
+	requiredValue := payload.PmSurveyPlannedPackDate
 
 	// If any PmSurvey data was sent, update all fields
 	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
 	if requiredValue != nil {
-		shipment.PmSurveyEarliestDeliveryDate = (*time.Time)(payload.PmSurveyEarliestDeliveryDate)
-		shipment.PmSurveyLatestDeliveryDate = (*time.Time)(payload.PmSurveyLatestDeliveryDate)
-		shipment.PmSurveyLatestPickupDate = (*time.Time)(payload.PmSurveyLatestPickupDate)
+		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
+		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
 		shipment.PmSurveyNotes = payload.PmSurveyNotes
-		shipment.PmSurveyPackDate = (*time.Time)(payload.PmSurveyPackDate)
-		shipment.PmSurveyPickupDate = (*time.Time)(payload.PmSurveyPickupDate)
+		shipment.PmSurveyMethod = payload.PmSurveyMethod
 		shipment.PmSurveyProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
 		shipment.PmSurveySpouseProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
 		shipment.PmSurveyWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
