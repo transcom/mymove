@@ -317,15 +317,6 @@ definitions:
       HHG: Household Goods Move
       PPM: Personal Procured Move
       COMBO: Both HHG and PPM
-  ServiceAgentRole:
-    type: string
-    title: Service Agent Role
-    enum:
-      - ORIGIN
-      - DESTINATION
-    x-display-value:
-      ORIGIN: Origin
-      DESTINATION: Destination
   ServiceMember:
     type: object
     properties:
@@ -418,11 +409,9 @@ definitions:
       pickup_date:
         type: string
         format: date-time
-        example: 2018-04-21T17:32:28Z
       delivery_date:
         type: string
         format: date-time
-        example: 2018-04-27T17:32:28Z
       created_at:
         type: string
         format: date-time
@@ -442,11 +431,10 @@ definitions:
       book_date:
         type: string
         format: date
-        example: "2018-03-15"
+        example: 2018-03-15
       requested_pickup_date:
         type: string
         format: date-time
-        example: 2018-04-19T17:32:28Z
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
@@ -470,18 +458,19 @@ definitions:
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
-        title: 'Do you have household goods at any other pickup location?'
+        example: false
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_delivery_address:
         type: boolean
-        title: 'Do you know the delivery address at destination yet?'
+        example: false
       delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_partial_sit_delivery_address:
         type: boolean
+        example: false
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
@@ -567,12 +556,18 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      shipment:
-        $ref: '#/definitions/Shipment'
-        x-nullable: true
+      shipment_uuid:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       role:
-        $ref: '#/definitions/ServiceAgentRole'
+        type: string
+        enum:
+          - ORIGIN
+          - Destination
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
       point_of_contact:
         type: string
         example: John Doe at Acme Shipping
@@ -607,13 +602,8 @@ definitions:
         type: string
         x-nullable: true
         example: This service agent is available at all hours
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
     required:
+      - shipment_uuid
       - role
       - point_of_contact
   ShipmentReject:
@@ -1086,15 +1076,15 @@ paths:
           description: shipment UUID not found in system
         500:
           description: server error
-  /shipments/{shipmentId}/service_agents:
+  /shipments/{shipment_uuid}/service_agents:
     get:
       summary: Gets service agents for shipment
       description: Allows a user to retrieve a list of service agents for a shipment.
       operationId: indexServiceAgents
       tags:
-        - service_agents
+        - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
@@ -1120,15 +1110,15 @@ paths:
       description: Creates a new Service Agent associated with a shipment
       operationId: createServiceAgent
       tags:
-        - service_agents
+        - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
           required: true
           description: UUID of the shipment
-        - name: serviceAgent
+        - name: payload
           in: body
           required: true
           description: Service Agent information
@@ -1147,21 +1137,21 @@ paths:
           description: not authorized to add documents to this shipment
         500:
           description: server error
-  /shipments/{shipmentId}/service_agents/{serviceAgentId}:
+  /shipments/{shipment_uuid}/service_agents/{service_agent_uuid}:
     patch:
       summary: Updates a particular service agent
       description: Takes a partial service agent object and replaces the fields in the DB with the ones passed int he body
       operationId: updateServiceAgent
       tags:
-        - service_agents
+        - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
           required: true
           description: UUID of the shipment
-        - name: serviceAgentId
+        - name: service_agent_uuid
           in: path
           type: string
           format: uuid
@@ -1192,16 +1182,16 @@ paths:
       summary: delete the service agent related to the shipment
       operationId: deleteServiceAgent
       tags:
-        - service_agents
+        - blackouts
       parameters:
         - in: path
-          name: shipmentId
+          name: shipment_uuid
           type: string
           format: uuid
           required: true
           description: the unique identifier for the shipment
         - in: path
-          name: serviceAgentId
+          name: service_agent_uuid
           type: string
           format: uuid
           required: true
@@ -1219,7 +1209,7 @@ paths:
           description: no service agent found with that UUID
         500:
           description: server error
-  /shipments/{shipmentId}/accept:
+  /shipments/{shipment_uuid}/accept:
     post:
       summary: Accepts an awarded shipment
       description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED.
@@ -1227,7 +1217,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
@@ -1250,14 +1240,14 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
-  /shipments/{shipmentId}/claims:
+  /shipments/{shipment_uuid}/claims:
     get:
       summary: Gets the list of claims associated with a shipment
       operationId: getShipmentClaims
       tags:
         - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
@@ -1278,7 +1268,7 @@ paths:
           description: not authorized to access this shipment
         500:
           description: server error
-  /shipments/{shipmentId}/contact_details:
+  /shipments/{shipment_uuid}/contact_details:
     get:
       summary: Gets the detailed contact information for a move
       description: Accepts a shipment awarded to a TSP
@@ -1286,7 +1276,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
@@ -1305,14 +1295,14 @@ paths:
           description: not authorized to access this shipment
         500:
           description: server error
-  /shipments/{shipmentId}/documents:
+  /shipments/{shipment_uuid}/documents:
     get:
       summary: Gets the list of documents associated with a Shipment
       operationId: getShipmentDocuments
       tags:
         - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
@@ -1338,7 +1328,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
@@ -1363,7 +1353,7 @@ paths:
           description: not authorized to add documents to this shipment
         500:
           description: server error
-  /shipments/{shipmentId}/reject:
+  /shipments/{shipment_uuid}/reject:
     post:
       summary: Rejects an awarded shipment
       description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
@@ -1371,7 +1361,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipmentId
+        - name: shipment_uuid
           in: path
           type: string
           format: uuid
