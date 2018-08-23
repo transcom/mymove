@@ -98,6 +98,13 @@ repos:
 
   - repo: local
     hooks:
+      - id: dep-version
+        name: dep version
+        entry: bin/check_dep_version
+        language: script
+
+  - repo: local
+    hooks:
       - id: dep-status
         name: dep status
         entry: dep status -v
