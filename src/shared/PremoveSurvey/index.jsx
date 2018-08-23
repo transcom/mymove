@@ -12,15 +12,16 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './index.css';
 
 const surveyFields = [
-  'pm_survey_pack_date',
-  'pm_survey_pickup_date',
+  'pm_survey_planned_pack_date',
+  'pm_survey_planned_pickup_date',
   'pm_survey_latest_pickup_date',
   'pm_survey_earliest_delivery_date',
-  'pm_survey_latest_delivery_date',
+  'pm_survey_planned_delivery_date',
   'pm_survey_weight_estimate',
   'pm_survey_progear_weight_estimate',
   'pm_survey_spouse_progear_weight_estimate',
   'pm_survey_notes',
+  'pm_survey_method',
 ];
 
 const SurveyDisplay = props => {
@@ -33,34 +34,20 @@ const SurveyDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-3-column">
         <PanelSwaggerField
-          title="Pack Date"
-          fieldName="pm_survey_pack_date"
+          title="Planned Pack Date"
+          fieldName="pm_survey_planned_pack_date"
           nullWarning
           {...fieldProps}
         />
         <PanelSwaggerField
-          title="Pickup Date"
-          fieldName="pm_survey_pickup_date"
+          title="Planned Pickup Date"
+          fieldName="pm_survey_planned_pickup_date"
           nullWarning
           {...fieldProps}
         />
         <PanelSwaggerField
-          title="Latest Pickup Date"
-          fieldName="pm_survey_latest_pickup_date"
-          nullWarning
-          {...fieldProps}
-        />
-      </div>
-      <div className="editable-panel-3-column">
-        <PanelSwaggerField
-          title="Earliest Pickup Date"
-          fieldName="pm_survey_earliest_delivery_date"
-          nullWarning
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Latest Delivery Date"
-          fieldName="pm_survey_latest_delivery_date"
+          title="Planned Delivery Date"
+          fieldName="pm_survey_planned_delivery_date"
           nullWarning
           {...fieldProps}
         />
@@ -85,10 +72,16 @@ const SurveyDisplay = props => {
           {...fieldProps}
         />
       </div>
-      <div className="editable-panel-column">
+      <div className="editable-panel-3-column">
         <PanelSwaggerField
           title="Notes"
           fieldName="pm_survey_notes"
+          nullWarning
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Method"
+          fieldName="pm_survey_method"
           nullWarning
           {...fieldProps}
         />
@@ -102,65 +95,41 @@ const SurveyEdit = props => {
   return (
     <React.Fragment>
       <FormSection name="survey">
-        <div className="editable-panel-3-column">
+        <div className="editable-panel-column">
           <SwaggerField
-            fieldName="pm_survey_pack_date"
+            fieldName="pm_survey_planned_pack_date"
             swagger={schema}
-            className="half-width"
             required
           />
           <SwaggerField
-            fieldName="pm_survey_pickup_date"
+            fieldName="pm_survey_planned_pickup_date"
             swagger={schema}
-            className="half-width"
             required
           />
           <SwaggerField
-            fieldName="pm_survey_latest_pickup_date"
+            fieldName="pm_survey_planned_delivery_date"
             swagger={schema}
-            className="half-width"
             required
           />
         </div>
 
-        <div className="editable-panel-3-column">
-          <SwaggerField
-            fieldName="pm_survey_earliest_delivery_date"
-            swagger={schema}
-            className="half-width"
-            required
-          />
-          <SwaggerField
-            fieldName="pm_survey_latest_delivery_date"
-            swagger={schema}
-            className="half-width"
-            required
-          />
-        </div>
-
-        <div className="editable-panel-3-column">
+        <div className="editable-panel-column">
           <SwaggerField
             fieldName="pm_survey_weight_estimate"
             swagger={schema}
-            className="half-width"
             required
           />
           <SwaggerField
             fieldName="pm_survey_progear_weight_estimate"
             swagger={schema}
-            className="half-width"
           />
           <SwaggerField
             fieldName="pm_survey_spouse_progear_weight_estimate"
             swagger={schema}
-            className="half-width"
           />
         </div>
-        <SwaggerField
-          fieldName="pm_survey_notes"
-          swagger={schema}
-          className="half-width"
-        />
+        <SwaggerField fieldName="pm_survey_notes" swagger={schema} />
+        <SwaggerField fieldName="pm_survey_method" swagger={schema} />
       </FormSection>
     </React.Fragment>
   );

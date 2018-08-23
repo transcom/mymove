@@ -524,14 +524,14 @@ definitions:
         type: integer
         minimum: 0
         example: 10000
-        title: Pro-Gear Weight
+        title: Pro-Gear weight
         x-nullable: true
         x-formatting: weight
       pm_survey_spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 10000
-        title: Spouse's Pro-Gear
+        title: Spouse's pro-gear
         x-nullable: true
         x-formatting: weight
       pm_survey_notes:
@@ -542,6 +542,7 @@ definitions:
       pm_survey_method:
         type: string
         x-nullable: true
+        title: Survey method
         enum:
           - IN_PERSON
           - PHONE
