@@ -154,15 +154,18 @@ func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.Create
 		return publicshipmentop.NewGetShipmentForbidden()
 	}
 
-	shipment, verrs, err := models.AcceptShipmentForTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	// Accept the shipment
+	shipment, shipmentOffer, verrs, err := models.AcceptShipmentForTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil || verrs.HasAny() {
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("DB Query", zap.Error(err))
 			return publicshipmentop.NewGetShipmentBadRequest()
 		} else if err == models.ErrInvalidTransition {
 			h.logger.Info("Attempted to accept shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+			h.logger.Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
 			return publicshipmentop.NewCreateShipmentAcceptConflict()
 		} else {
+			h.logger.Error("Unknown Error", zap.Error(err))
 			return responseForVErrors(h.logger, verrs, err)
 		}
 	}
