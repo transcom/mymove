@@ -1556,11 +1556,11 @@
         <schema><![CDATA[public]]></schema>
         <location>
             <x>23.00</x>
-            <y>1388.00</y>
+            <y>1387.00</y>
         </location>
         <size>
             <width>440.00</width>
-            <height>780.00</height>
+            <height>760.00</height>
         </size>
         <zorder>14</zorder>
         <SQLField>
@@ -1807,27 +1807,17 @@
             <uid><![CDATA[E70C45A6-A1C6-480E-B3C2-6675E255EDF8]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[pm_survey_pack_date]]></name>
+            <name><![CDATA[pm_survey_planned_pack_date]]></name>
             <type><![CDATA[timestamp without time zone]]></type>
             <uid><![CDATA[91E342FC-4659-4EC1-821C-87D15C84B0D8]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[pm_survey_pickup_date]]></name>
+            <name><![CDATA[pm_survey_planned_pickup_date]]></name>
             <type><![CDATA[timestamp without time zone]]></type>
             <uid><![CDATA[2BC30B8C-56D8-4D2A-9005-14D352DF1771]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[pm_survey_latest_pickup_date]]></name>
-            <type><![CDATA[timestamp without time zone]]></type>
-            <uid><![CDATA[8C7D69D1-7650-4363-BC31-8C85E4940F78]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[pm_survey_earliest_delivery_date]]></name>
-            <type><![CDATA[timestamp without timezone]]></type>
-            <uid><![CDATA[576140C6-8155-472F-8F88-52170B0B9328]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[pm_survey_latest_delivery_date]]></name>
+            <name><![CDATA[pm_survey_planned_delivery_date]]></name>
             <type><![CDATA[timestamp without time zone]]></type>
             <uid><![CDATA[2DCAA711-9F0F-4360-A92C-C44DBE6DC0EC]]></uid>
         </SQLField>
@@ -1850,6 +1840,11 @@
             <name><![CDATA[pm_survey_notes]]></name>
             <type><![CDATA[TEXT]]></type>
             <uid><![CDATA[3040475E-ABFA-4EBF-8B8A-BF2804B45661]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[pm_survey_method]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[2D1FE455-CC16-4ABA-8BAF-657BC38B71D3]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -3189,7 +3184,7 @@
         <windowHeight><![CDATA[835.000000]]></windowHeight>
         <windowLocationX><![CDATA[2.000000]]></windowLocationX>
         <windowLocationY><![CDATA[42.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{444, 1190.5}]]></windowScrollOrigin>
+        <windowScrollOrigin><![CDATA[{0, 1216.5}]]></windowScrollOrigin>
         <windowWidth><![CDATA[1440.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
