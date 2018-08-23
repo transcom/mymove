@@ -23,7 +23,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Basic user with tsp access
 	email := "tspuser1@example.com"
-	testdatagen.MakeTspUser(db, testdatagen.Assertions{
+	tspUser := testdatagen.MakeTspUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("6cd03e5b-bee8-4e97-a340-fecb8f3d5465")),
 			LoginGovEmail: email,
@@ -211,20 +211,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Service member with uploaded orders and a new shipment move
 	email = "hhg@incomple.te"
-	uuidStr = "ebc176e0-bb34-47d4-ba37-ff13e2dd40b9"
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			ID:            uuid.Must(uuid.FromString("ebc176e0-bb34-47d4-ba37-ff13e2dd40b9")),
 			LoginGovEmail: email,
 		},
-	})
-
-	nowTime = time.Now()
-	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("0d719b18-81d6-474a-86aa-b87246fff65c"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
 			FirstName:     models.StringPointer("HHG"),
 			LastName:      models.StringPointer("Submitted"),
 			Edipi:         models.StringPointer("4444567890"),
@@ -245,4 +239,42 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg0.Move.Submit()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, hhg0.Move)
+
+	// Service member with uploaded orders and an approved shipment
+	email = "hhg@award.ed"
+
+	offer1 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("7980f0cf-63e3-4722-b5aa-ba46f8f7ac64")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("8a66beef-1cdf-4117-9db2-aad548f54430"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("56b8ef45-8145-487b-9b59-0e30d0d465fa"),
+			Locator:          "KBACON",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("776b5a23-2830-4de0-bb6a-7698a25865cb"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAWARDED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+	hhg1 := offer1.Shipment
+	hhg1.Move.Submit()
+	// Save move and dependencies
+	models.SaveMoveDependencies(db, hhg1.Move)
 }

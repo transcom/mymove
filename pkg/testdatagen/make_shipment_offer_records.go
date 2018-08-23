@@ -15,11 +15,10 @@ import (
 // MakeShipmentOffer creates a single shipment offer record
 func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.ShipmentOffer {
 
-	// Test for ShipmentID first before creating a new Shipment
-	shipmentID := assertions.ShipmentOffer.ShipmentID
+	// Test for Shipment first before creating a new Shipment
+	shipment := assertions.ShipmentOffer.Shipment
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
-		shipment := MakeDefaultShipment(db)
-		shipmentID = shipment.ID
+		shipment = MakeShipment(db, assertions)
 	}
 
 	// Test for TSP ID first before creating a new TSP
@@ -28,7 +27,8 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 		// TODO: Make TSP and get ID
 	}
 	shipmentOffer := models.ShipmentOffer{
-		ShipmentID:                      shipmentID,
+		ShipmentID:                      shipment.ID,
+		Shipment:                        shipment,
 		TransportationServiceProviderID: tspID,
 		AdministrativeShipment:          false,
 		Accepted:                        swag.Bool(true),

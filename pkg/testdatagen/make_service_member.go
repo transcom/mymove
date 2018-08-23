@@ -67,12 +67,9 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 
 	mergeModels(&smDefaults, assertions.ServiceMember)
 
-	serviceMemberAssertions := Assertions{
-		User:          assertions.User,
-		ServiceMember: smDefaults,
-	}
+	assertions.ServiceMember = smDefaults
 
-	serviceMember := MakeServiceMember(db, serviceMemberAssertions)
+	serviceMember := MakeServiceMember(db, assertions)
 
 	contactAssertions := Assertions{
 		BackupContact: models.BackupContact{

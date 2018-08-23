@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -23,31 +22,40 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	shipmentPayload := &internalmessages.Shipment{
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
-		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
-		ServiceMemberID:              strfmt.UUID(s.ServiceMemberID.String()),
-		SourceGbloc:                  s.SourceGBLOC,
-		DestinationGbloc:             s.DestinationGBLOC,
-		Market:                       s.Market,
-		CodeOfService:                s.CodeOfService,
-		Status:                       internalmessages.ShipmentStatus(s.Status),
-		BookDate:                     fmtDatePtr(s.BookDate),
-		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
-		PickupDate:                   fmtDatePtr(s.PickupDate),
-		DeliveryDate:                 fmtDatePtr(s.DeliveryDate),
-		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
-		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
-		EstimatedPackDays:            s.EstimatedPackDays,
-		EstimatedTransitDays:         s.EstimatedTransitDays,
-		PickupAddress:                payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:    s.HasSecondaryPickupAddress,
-		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:           s.HasDeliveryAddress,
-		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress: s.HasPartialSITDeliveryAddress,
-		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:               fmtPoundPtr(s.WeightEstimate),
-		ProgearWeightEstimate:        fmtPoundPtr(s.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate:  fmtPoundPtr(s.SpouseProgearWeightEstimate),
+		TrafficDistributionListID:           fmtUUIDPtr(s.TrafficDistributionListID),
+		ServiceMemberID:                     strfmt.UUID(s.ServiceMemberID.String()),
+		SourceGbloc:                         s.SourceGBLOC,
+		DestinationGbloc:                    s.DestinationGBLOC,
+		Market:                              s.Market,
+		CodeOfService:                       s.CodeOfService,
+		Status:                              internalmessages.ShipmentStatus(s.Status),
+		BookDate:                            fmtDatePtr(s.BookDate),
+		RequestedPickupDate:                 fmtDatePtr(s.RequestedPickupDate),
+		PickupDate:                          fmtDatePtr(s.PickupDate),
+		DeliveryDate:                        fmtDatePtr(s.DeliveryDate),
+		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
+		EstimatedPackDays:                   s.EstimatedPackDays,
+		EstimatedTransitDays:                s.EstimatedTransitDays,
+		PickupAddress:                       payloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:           s.HasSecondaryPickupAddress,
+		SecondaryPickupAddress:              payloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:                  s.HasDeliveryAddress,
+		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress:        s.HasPartialSITDeliveryAddress,
+		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:                      fmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:               fmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:         fmtPoundPtr(s.SpouseProgearWeightEstimate),
+		PmSurveyPackDate:                    fmtDatePtr(s.PmSurveyPackDate),
+		PmSurveyPickupDate:                  fmtDatePtr(s.PmSurveyPickupDate),
+		PmSurveyLatestPickupDate:            fmtDatePtr(s.PmSurveyLatestPickupDate),
+		PmSurveyEarliestDeliveryDate:        fmtDatePtr(s.PmSurveyEarliestDeliveryDate),
+		PmSurveyLatestDeliveryDate:          fmtDatePtr(s.PmSurveyLatestDeliveryDate),
+		PmSurveyWeightEstimate:              fmtPoundPtr(s.PmSurveyWeightEstimate),
+		PmSurveyProgearWeightEstimate:       fmtPoundPtr(s.PmSurveyProgearWeightEstimate),
+		PmSurveySpouseProgearWeightEstimate: fmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
+		PmSurveyNotes:                       s.PmSurveyNotes,
 	}
 	return shipmentPayload
 }
@@ -111,6 +119,25 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 	shipmentPayload := payloadForShipmentModel(newShipment)
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
+}
+
+func patchShipmentWithPremoveSurveyFields(shipment *models.Shipment, payload *internalmessages.Shipment) {
+	// Premove Survey values entered by TSP agent
+	requiredValue := payload.PmSurveyPackDate
+
+	// If any PmSurvey data was sent, update all fields
+	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
+	if requiredValue != nil {
+		shipment.PmSurveyEarliestDeliveryDate = (*time.Time)(payload.PmSurveyEarliestDeliveryDate)
+		shipment.PmSurveyLatestDeliveryDate = (*time.Time)(payload.PmSurveyLatestDeliveryDate)
+		shipment.PmSurveyLatestPickupDate = (*time.Time)(payload.PmSurveyLatestPickupDate)
+		shipment.PmSurveyNotes = payload.PmSurveyNotes
+		shipment.PmSurveyPackDate = (*time.Time)(payload.PmSurveyPackDate)
+		shipment.PmSurveyPickupDate = (*time.Time)(payload.PmSurveyPickupDate)
+		shipment.PmSurveyProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
+		shipment.PmSurveySpouseProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
+		shipment.PmSurveyWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
+	}
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessages.Shipment) {
@@ -191,8 +218,6 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	shipment, err := models.FetchShipment(h.db, session, shipmentID)
@@ -200,11 +225,12 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 		return responseForError(h.logger, err)
 	}
 
-	if shipment.MoveID != moveID {
-		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
-		return shipmentop.NewPatchShipmentBadRequest()
-	}
 	patchShipmentWithPayload(shipment, params.Shipment)
+
+	// Premove survey info can only be edited by office users or TSPs
+	if session.IsOfficeUser() {
+		patchShipmentWithPremoveSurveyFields(shipment, params.Shipment)
+	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.db, shipment)
 
@@ -224,18 +250,11 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	shipment, err := models.FetchShipment(h.db, session, shipmentID)
 	if err != nil {
 		return responseForError(h.logger, err)
-	}
-
-	if shipment.MoveID != moveID {
-		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
-		return shipmentop.NewGetShipmentBadRequest()
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
