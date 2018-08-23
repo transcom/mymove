@@ -541,7 +541,6 @@ definitions:
         title: Notes
       pm_survey_method:
         type: string
-        x-nullable: true
         title: Survey method
         enum:
           - IN_PERSON

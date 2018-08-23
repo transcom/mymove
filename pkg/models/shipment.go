@@ -78,7 +78,7 @@ type Shipment struct {
 	PmSurveyProgearWeightEstimate       *unit.Pound              `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
 	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
 	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
-	PmSurveyMethod                      *string                  `json:"pm_survey_method" db:"pm_survey_method"`
+	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.

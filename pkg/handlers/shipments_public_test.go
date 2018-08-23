@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandler() {
 		PmSurveyProgearWeightEstimate:       swag.Int64(53),
 		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
 		PmSurveyNotes:                       swag.String("Unsure about pickup date."),
-		PmSurveyMethod:                      swag.String("PHONE"),
+		PmSurveyMethod:                      "PHONE",
 	}
 
 	params := publicshipmentop.PatchShipmentParams{
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandler() {
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
 	suite.Equal(*UpdatePayload.PmSurveyNotes, *okResponse.Payload.PmSurveyNotes)
-	suite.Equal(*UpdatePayload.PmSurveyMethod, *okResponse.Payload.PmSurveyMethod)
+	suite.Equal(UpdatePayload.PmSurveyMethod, okResponse.Payload.PmSurveyMethod)
 	suite.Equal(int64(54), *okResponse.Payload.PmSurveySpouseProgearWeightEstimate)
 	suite.Equal(int64(53), *okResponse.Payload.PmSurveyProgearWeightEstimate)
 	suite.Equal(int64(33), *okResponse.Payload.PmSurveyWeightEstimate)
@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandlerWrongTSP() {
 		PmSurveyProgearWeightEstimate:       swag.Int64(53),
 		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
 		PmSurveyNotes:                       swag.String("Unsure about pickup date."),
-		PmSurveyMethod:                      swag.String("PHONE"),
+		PmSurveyMethod:                      "PHONE",
 	}
 
 	params := publicshipmentop.PatchShipmentParams{

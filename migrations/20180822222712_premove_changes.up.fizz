@@ -5,5 +5,5 @@ rename_column("shipments", "pm_survey_latest_delivery_date", "pm_survey_planned_
 rename_column("shipments", "pm_survey_pack_date", "pm_survey_planned_pack_date")
 rename_column("shipments", "pm_survey_pickup_date", "pm_survey_planned_pickup_date")
 
-add_column("shipments", "pm_survey_method", "text", {"null": true})
+add_column("shipments", "pm_survey_method", "text")
 

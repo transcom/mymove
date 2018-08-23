@@ -157,9 +157,8 @@ func publicPatchShipmentWithPayload(shipment *models.Shipment, payload *apimessa
 	if payload.PmSurveyNotes != nil {
 		shipment.PmSurveyNotes = payload.PmSurveyNotes
 	}
-	if payload.PmSurveyMethod != nil {
-		shipment.PmSurveyMethod = payload.PmSurveyMethod
-	}
+	shipment.PmSurveyMethod = payload.PmSurveyMethod
+
 	if payload.PmSurveyPlannedPackDate != nil {
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
 	}

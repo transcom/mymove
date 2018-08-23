@@ -60,7 +60,7 @@ const SurveyDisplay = props => {
         <PanelSwaggerField
           title="Progear Weight Estimate"
           fieldName="pm_survey_progear_weight_estimate"
-          nullWarning
+          nullWarning="false"
           {...fieldProps}
         />
         <PanelSwaggerField
@@ -127,7 +127,7 @@ const SurveyEdit = props => {
           />
         </div>
         <SwaggerField fieldName="pm_survey_notes" swagger={schema} />
-        <SwaggerField fieldName="pm_survey_method" swagger={schema} />
+        <SwaggerField fieldName="pm_survey_method" swagger={schema} required />
       </FormSection>
     </React.Fragment>
   );
