@@ -103,7 +103,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
-		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
+		email := fmt.Sprintf("leo_spaceman_tsp_%d@example.com", i)
 		tspUserAssertions := Assertions{
 			User: models.User{
 				LoginGovEmail: email,
