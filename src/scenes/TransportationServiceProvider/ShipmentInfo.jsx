@@ -6,9 +6,54 @@ import { get, capitalize } from 'lodash';
 import { NavLink } from 'react-router-dom';
 
 import { withContext } from 'shared/AppContext';
+import Alert from 'shared/Alert'; // eslint-disable-line
 
 import { loadShipmentDependencies } from './ducks';
 import { formatDate } from 'shared/formatters';
+
+class AcceptShipmentPanel extends Component {
+  state = { displayState: 'Awarded' };
+
+  rejectShipment = () => {
+    this.setState({ displayState: 'Rejected' });
+    // TODO (rebecca): Add rejection flow
+  };
+
+  acceptShipment = () => {
+    this.setState({ displayState: 'Accepted' });
+    // TODO (rebecca): post acceptance
+  };
+
+  render() {
+    if (this.state.displayState === 'Awarded') {
+      return (
+        <div>
+          <button className="usa-button-primary" onClick={this.acceptShipment}>
+            Accept
+          </button>
+          <button
+            className="usa-button-secondary"
+            onClick={this.rejectShipment}
+          >
+            Reject
+          </button>
+        </div>
+      );
+    } else if (this.state.displayState === 'Accepted') {
+      return (
+        <div>
+          <Alert type="info" heading="Shipment accepted" />
+        </div>
+      );
+    } else if (this.state.displayState === 'Rejected') {
+      return (
+        <div>
+          <Alert type="error" heading="Shipment rejected" />
+        </div>
+      );
+    }
+  }
+}
 
 class ShipmentInfo extends Component {
   componentDidMount() {
@@ -54,10 +99,7 @@ class ShipmentInfo extends Component {
         </div>
         <div className="usa-grid grid-wide tabs">
           <div className="usa-width-two-thirds">
-            <p>
-              <button className="usa-button-primary">Accept</button>
-              <button className="usa-button-secondary">Reject</button>
-            </p>
+            <AcceptShipmentPanel />
           </div>
           <div className="usa-width-one-third" />
         </div>
