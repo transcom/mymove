@@ -32,14 +32,12 @@ func MakeServiceAgent(db *pop.Connection, assertions Assertions) models.ServiceA
 
 	phone := assertions.ServiceAgent.PhoneNumber
 	if phone == nil {
-		newPhone := "303-867-5309"
-		phone = &newPhone
+		phone = stringPointer("303-867-5309")
 	}
 
 	email := assertions.ServiceAgent.Email
 	if email == nil {
-		newEmail := "jenny_acme@example.com"
-		email = &newEmail
+		email = stringPointer("jenny_acme@example.com")
 	}
 
 	serviceAgent := models.ServiceAgent{
