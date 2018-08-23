@@ -54,6 +54,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		PmSurveyProgearWeightEstimate:       fmtPoundPtr(s.PmSurveyProgearWeightEstimate),
 		PmSurveySpouseProgearWeightEstimate: fmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
+		PmSurveyMethod:                      s.PmSurveyMethod,
 	}
 	return shipmentPayload
 }

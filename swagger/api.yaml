@@ -541,6 +541,7 @@ definitions:
         title: Notes
       pm_survey_method:
         type: string
+        x-nullable: true
         enum:
           - IN_PERSON
           - PHONE

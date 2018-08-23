@@ -54,7 +54,7 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		PmSurveyProgearWeightEstimate:       fmtPoundPtr(s.PmSurveyProgearWeightEstimate),
 		PmSurveySpouseProgearWeightEstimate: fmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
-		// PmSurveyMethod:						 s.PmSurveyMethod,
+		PmSurveyMethod:                      s.PmSurveyMethod,
 	}
 	return shipmentPayload
 }
@@ -156,6 +156,9 @@ func publicPatchShipmentWithPayload(shipment *models.Shipment, payload *apimessa
 	}
 	if payload.PmSurveyNotes != nil {
 		shipment.PmSurveyNotes = payload.PmSurveyNotes
+	}
+	if payload.PmSurveyMethod != nil {
+		shipment.PmSurveyMethod = payload.PmSurveyMethod
 	}
 	if payload.PmSurveyPlannedPackDate != nil {
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
