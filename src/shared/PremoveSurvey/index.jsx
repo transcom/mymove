@@ -14,8 +14,6 @@ import './index.css';
 const surveyFields = [
   'pm_survey_planned_pack_date',
   'pm_survey_planned_pickup_date',
-  'pm_survey_latest_pickup_date',
-  'pm_survey_earliest_delivery_date',
   'pm_survey_planned_delivery_date',
   'pm_survey_weight_estimate',
   'pm_survey_progear_weight_estimate',
@@ -80,7 +78,7 @@ const SurveyDisplay = props => {
           {...fieldProps}
         />
         <PanelSwaggerField
-          title="Method"
+          title="Survey Method"
           fieldName="pm_survey_method"
           nullWarning
           {...fieldProps}
