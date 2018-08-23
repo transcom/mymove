@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { get } from 'lodash';
 
-import { formatCents } from 'shared/formatters';
+import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
 
 import './index.css';
@@ -30,14 +30,17 @@ export const SwaggerValue = props => {
   /* eslint-disable security/detect-object-injection */
   const swaggerProps = schema.properties[fieldName];
 
-  let value = values[fieldName];
+  let value = values[fieldName] || '';
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
   }
   if (swaggerProps.format === 'cents') {
     value = formatCents(value);
   }
-  if (swaggerProps['x-formatting'] === 'weight') {
+  if (swaggerProps.format === 'date') {
+    value = formatDate(value);
+  }
+  if (value && swaggerProps['x-formatting'] === 'weight') {
     value = value.toLocaleString() + ' lbs';
   }
   /* eslint-enable security/detect-object-injection */

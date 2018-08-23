@@ -66,7 +66,6 @@ const SurveyDisplay = props => {
         <PanelSwaggerField
           title="Spouse Progear Weight Estimate"
           fieldName="pm_survey_spouse_progear_weight_estimate"
-          nullWarning
           {...fieldProps}
         />
       </div>
@@ -74,7 +73,6 @@ const SurveyDisplay = props => {
         <PanelSwaggerField
           title="Notes"
           fieldName="pm_survey_notes"
-          nullWarning
           {...fieldProps}
         />
         <PanelSwaggerField

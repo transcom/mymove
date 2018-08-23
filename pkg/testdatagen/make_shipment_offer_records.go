@@ -135,13 +135,17 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		},
 	}
 	if len(statuses) == 0 {
-		statuses = []models.ShipmentStatus{models.ShipmentStatusDRAFT, models.ShipmentStatusAWARDED}
+		statuses = []models.ShipmentStatus{
+			models.ShipmentStatusDRAFT,
+			models.ShipmentStatusAWARDED,
+			models.ShipmentStatusACCEPTED}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
 		nowPlusTwo := now.Add(oneWeek * 2)
 		move := MakeMove(db, moveAssertions)
+		status := statuses[rand.Intn(len(statuses))]
 		shipmentAssertions := Assertions{
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
@@ -152,11 +156,30 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				Market:                  &market,
 				Move:                    &move,
 				MoveID:                  move.ID,
-				Status:                  statuses[rand.Intn(len(statuses))],
+				Status:                  status,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
 		shipmentList = append(shipmentList, shipment)
+
+		// Accepted shipments must have an OSA and DSA
+		// This does not cover making any SA's for shipments that have statuses after Accepted (like Approved)
+		if status == models.ShipmentStatusACCEPTED {
+			originServiceAgentAssertions := Assertions{
+				ServiceAgent: models.ServiceAgent{
+					ShipmentID: shipment.ID,
+					Role:       models.RoleORIGIN,
+				},
+			}
+			MakeServiceAgent(db, originServiceAgentAssertions)
+			destinationServiceAgentAssertions := Assertions{
+				ServiceAgent: models.ServiceAgent{
+					ShipmentID: shipment.ID,
+					Role:       models.RoleDESTINATION,
+				},
+			}
+			MakeServiceAgent(db, destinationServiceAgentAssertions)
+		}
 		time.Sleep(100 * time.Millisecond)
 	}
 
