@@ -28,6 +28,9 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"github.com/transcom/mymove/pkg/handlers/ordersapi"
+	"github.com/transcom/mymove/pkg/handlers/publicapi"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -201,12 +204,9 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(
-			notifications.NewNotificationSender(sesService, logger),
-		)
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
 	} else {
-		handlerContext.SetNotificationSender(
-			notifications.NewStubNotificationSender(logger))
+		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(logger))
 	}
 
 	// Serves files out of build folder
@@ -265,7 +265,7 @@ func main() {
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
 	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
-	ordersMux.Handle(pat.New("/*"), handlers.NewOrdersAPIHandler(handlerContext))
+	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
 
 	root := goji.NewMux()
@@ -282,7 +282,7 @@ func main() {
 	externalAPIMux := goji.SubMux()
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
+	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
@@ -294,7 +294,7 @@ func main() {
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
-	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
+	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()

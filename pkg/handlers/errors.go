@@ -13,29 +13,31 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-type errResponse struct {
-	code int
-	err  error
+// ErrResponse collect errors and error codes
+type ErrResponse struct {
+	Code int
+	Err  error
 }
 
 type clientMessage struct {
 	Message string `json:"message"`
 }
 
-// errResponse creates errResponse with default headers values
-func newErrResponse(code int, err error) *errResponse {
-	return &errResponse{code: code, err: err}
+// ErrResponse creates ErrResponse with default headers values
+func newErrResponse(code int, err error) *ErrResponse {
+	return &ErrResponse{Code: code, Err: err}
 }
 
 // WriteResponse to the client
-func (o *errResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
-	rw.WriteHeader(o.code)
-	json.NewEncoder(rw).Encode(clientMessage{o.err.Error()})
+	rw.WriteHeader(o.Code)
+	json.NewEncoder(rw).Encode(clientMessage{o.Err.Error()})
 }
 
-func responseForError(logger *zap.Logger, err error) middleware.Responder {
+// ResponseForError logs an error and returns the expected error type
+func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
 		logger.Debug("not found", zap.Error(err))
@@ -55,7 +57,8 @@ func responseForError(logger *zap.Logger, err error) middleware.Responder {
 	}
 }
 
-func responseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
+// ResponseForVErrors checks for validation errors
+func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
 	if verrs.HasAny() {
 		logger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
 		if err == nil {
@@ -63,10 +66,11 @@ func responseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 		}
 		return newErrResponse(http.StatusBadRequest, err)
 	}
-	return responseForError(logger, err)
+	return ResponseForError(logger, err)
 }
 
-func responseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
+// ResponseForConflictErrors checks for conflict errors
+func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
 	logger.Error("Encountered conflict error", zap.Error(err))
 
 	return newErrResponse(http.StatusConflict, err)
