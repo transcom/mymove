@@ -208,19 +208,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Service member with uploaded orders and a new shipment move
 	email = "hhg@incomple.te"
-	uuidStr = "ebc176e0-bb34-47d4-ba37-ff13e2dd40b9"
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovEmail: email,
-		},
-	})
 
 	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("ebc176e0-bb34-47d4-ba37-ff13e2dd40b9")),
+			LoginGovEmail: email,
+		},
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("0d719b18-81d6-474a-86aa-b87246fff65c"),
-			UserID:        uuid.FromStringOrNil("ebc176e0-bb34-47d4-ba37-ff13e2dd40b9"),
 			FirstName:     models.StringPointer("HHG"),
 			LastName:      models.StringPointer("Submitted"),
 			Edipi:         models.StringPointer("4444567890"),
@@ -238,25 +233,21 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			CodeOfService:     "D",
 		},
 	})
+
 	hhg0.Move.Submit()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, hhg0.Move)
 
 	// Service member with uploaded orders and an approved shipment
 	email = "hhg@award.ed"
-	uuidStr = "7980f0cf-63e3-4722-b5aa-ba46f8f7ac64"
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovEmail: email,
-		},
-	})
 
 	offer1 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("7980f0cf-63e3-4722-b5aa-ba46f8f7ac64")),
+			LoginGovEmail: email,
+		},
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("8a66beef-1cdf-4117-9db2-aad548f54430"),
-			UserID:        uuid.FromStringOrNil("7980f0cf-63e3-4722-b5aa-ba46f8f7ac64"),
 			FirstName:     models.StringPointer("HHG"),
 			LastName:      models.StringPointer("Submitted"),
 			Edipi:         models.StringPointer("4444567890"),
@@ -280,6 +271,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 		},
 	})
+
 	hhg1 := offer1.Shipment
 	hhg1.Move.Submit()
 	// Save move and dependencies

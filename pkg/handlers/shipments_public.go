@@ -151,31 +151,20 @@ func (h PublicCreateShipmentRejectHandler) Handle(params publicshipmentop.Create
 
 func publicPatchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
 	// Premove Survey values entered by TSP agent
-	if payload.PmSurveyPlannedDeliveryDate != nil {
+	requiredValue := payload.PmSurveyPlannedPackDate
+
+	// If any PmSurvey data was sent, update all fields
+	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
+	if requiredValue != nil {
 		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
-	}
-	if payload.PmSurveyNotes != nil {
 		shipment.PmSurveyNotes = payload.PmSurveyNotes
-	}
-	shipment.PmSurveyMethod = payload.PmSurveyMethod
-
-	if payload.PmSurveyPlannedPackDate != nil {
+		shipment.PmSurveyMethod = payload.PmSurveyMethod
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
-	}
-	if payload.PmSurveyPlannedPickupDate != nil {
 		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
-	}
-
-	if payload.PmSurveyProgearWeightEstimate != nil {
 		shipment.PmSurveyProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
-	}
-	if payload.PmSurveySpouseProgearWeightEstimate != nil {
 		shipment.PmSurveySpouseProgearWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
-	}
-	if payload.PmSurveyWeightEstimate != nil {
 		shipment.PmSurveyWeightEstimate = poundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
-
 }
 
 // PublicPatchShipmentHandler allows a TSP to patch a particular shipment
