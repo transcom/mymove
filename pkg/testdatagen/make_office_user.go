@@ -9,8 +9,17 @@ import (
 // MakeOfficeUser creates a single office user and associated TransportOffice
 func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
 	user := assertions.OfficeUser.User
+	email := "leo_spaceman_office@example.com"
+
 	if assertions.OfficeUser.UserID == nil || isZeroUUID(*assertions.OfficeUser.UserID) {
+		if assertions.User.LoginGovEmail == "" {
+			assertions.User.LoginGovEmail = email
+		}
 		user = MakeUser(db, assertions)
+	}
+
+	if assertions.User.LoginGovEmail != "" {
+		email = assertions.User.LoginGovEmail
 	}
 
 	office := MakeTransportationOffice(db)
@@ -22,7 +31,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 		TransportationOfficeID: office.ID,
 		FirstName:              "Leo",
 		LastName:               "Spaceman",
-		Email:                  "leo_spaceman@example.com",
+		Email:                  email,
 		Telephone:              "415-555-1212",
 	}
 

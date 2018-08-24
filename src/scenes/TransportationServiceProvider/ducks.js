@@ -1,9 +1,10 @@
-import { LoadShipment } from './api.js';
+import { LoadShipment, PatchShipment } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadShipmentType = 'LOAD_SHIPMENT';
+const patchShipmentType = 'PATCH_SHIPMENT';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
@@ -11,6 +12,7 @@ const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 // SINGLE RESOURCE ACTION TYPES
 
 const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
+const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
@@ -23,6 +25,11 @@ const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
   loadShipmentType,
   LoadShipment,
+);
+
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
+  patchShipmentType,
+  PatchShipment,
 );
 
 // MULTIPLE-RESOURCE ACTION CREATORS
@@ -57,21 +64,37 @@ export function tspReducer(state = initialState, action) {
     case LOAD_SHIPMENT.start:
       return Object.assign({}, state, {
         shipmentIsLoading: true,
-        shipmentHasLoadSucces: false,
+        shipmentHasLoadSuccess: false,
       });
     case LOAD_SHIPMENT.success:
       return Object.assign({}, state, {
         shipmentIsLoading: false,
-        shipmentHasLoadSucces: true,
+        shipmentHasLoadSuccess: true,
         shipmentHasLoadError: false,
         shipment: action.payload,
       });
     case LOAD_SHIPMENT.failure:
       return Object.assign({}, state, {
         shipmentIsLoading: false,
-        shipmentHasLoadSucces: false,
+        shipmentHasLoadSuccess: false,
         shipmentHasLoadError: null,
         shipment: null,
+        error: action.error.message,
+      });
+    case PATCH_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentPatchSuccess: false,
+      });
+    case PATCH_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentPatchSuccess: true,
+        shipmentPatchError: false,
+        shipment: action.payload,
+      });
+    case PATCH_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentPatchSuccess: false,
+        shipmentPatchError: null,
         error: action.error.message,
       });
 

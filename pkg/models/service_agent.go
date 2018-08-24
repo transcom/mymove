@@ -1,15 +1,12 @@
 package models
 
 import (
-	"time"
-
 	"encoding/json"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
+	"time"
 )
 
 // Role represents the type of agent being recorded

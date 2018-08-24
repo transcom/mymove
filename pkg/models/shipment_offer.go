@@ -17,6 +17,7 @@ type ShipmentOffer struct {
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
 	ShipmentID                      uuid.UUID `json:"shipment_id" db:"shipment_id"`
+	Shipment                        Shipment  `belongs_to:"shipments"`
 	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
 	AdministrativeShipment          bool      `json:"administrative_shipment" db:"administrative_shipment"`
 	Accepted                        *bool     `json:"accepted" db:"accepted"`
