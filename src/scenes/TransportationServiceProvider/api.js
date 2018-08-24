@@ -1,4 +1,5 @@
 import { getPublicClient, checkResponse } from 'shared/api';
+import { formatPayload } from 'shared/utils';
 
 // SHIPMENT QUEUE
 export async function RetrieveShipmentsForTSP(queueType) {
@@ -28,6 +29,17 @@ export async function LoadShipment(shipmentId) {
   const client = await getPublicClient();
   const response = await client.apis.shipments.getShipment({
     shipment_uuid: shipmentId,
+  });
+  checkResponse(response, 'failed to load shipment due to server error');
+  return response.body;
+}
+
+export async function PatchShipment(shipmentId, shipment) {
+  const client = await getPublicClient();
+  const payloadDef = client.spec.definitions.Shipment;
+  const response = await client.apis.shipments.patchShipment({
+    shipment_uuid: shipmentId,
+    update: formatPayload(shipment, payloadDef),
   });
   checkResponse(response, 'failed to load shipment due to server error');
   return response.body;

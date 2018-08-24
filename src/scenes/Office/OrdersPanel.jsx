@@ -11,7 +11,6 @@ import {
 } from 'redux-form';
 import { Link } from 'react-router-dom';
 
-import editablePanel from './editablePanel';
 import { loadEntitlements, updateOrdersInfo } from './ducks';
 import { formatDate } from 'shared/formatters';
 
@@ -19,6 +18,7 @@ import {
   PanelSwaggerField,
   PanelField,
   SwaggerValue,
+  editablePanelify,
 } from 'shared/EditablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -59,7 +59,8 @@ const OrdersDisplay = props => {
         {props.orders.orders_number ? (
           <PanelField title="Orders Number">
             <Link to={`/moves/${props.move.id}/orders`} target="_blank">
-              <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
+              <SwaggerValue fieldName="orders_number" {...fieldProps} />
+              &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
             </Link>
           </PanelField>
@@ -76,13 +77,11 @@ const OrdersDisplay = props => {
           value={formatDate(props.orders.issue_date)}
         />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
-        {props.orders.orders_type_detail ? (
-          <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
-        ) : (
-          <PanelField title="Orders type detail" className="missing">
-            missing
-          </PanelField>
-        )}
+        <PanelSwaggerField
+          fieldName="orders_type_detail"
+          nullWarning
+          {...fieldProps}
+        />
         <PanelField
           title="Report by"
           value={formatDate(props.orders.report_by_date)}
@@ -174,7 +173,7 @@ const OrdersEdit = props => {
 
 const formName = 'office_move_info_orders';
 
-let OrdersPanel = editablePanel(OrdersDisplay, OrdersEdit);
+let OrdersPanel = editablePanelify(OrdersDisplay, OrdersEdit);
 OrdersPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -203,7 +202,7 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'office.officeServiceMember', {}),
     move: get(state, 'office.officeMove', {}),
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       return [
