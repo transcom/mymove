@@ -10,6 +10,8 @@ import { withContext } from 'shared/AppContext';
 import { loadShipmentDependencies } from './ducks';
 import { formatDate } from 'shared/formatters';
 
+import ServiceAgents from './ServiceAgents';
+
 class ShipmentInfo extends Component {
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
@@ -61,6 +63,7 @@ class ShipmentInfo extends Component {
           </div>
           <div className="usa-width-one-third" />
         </div>
+        <ServiceAgents title="ServiceAgents" shipment={this.props.shipment} />
       </div>
     );
   }

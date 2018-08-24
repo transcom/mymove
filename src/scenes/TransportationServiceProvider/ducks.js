@@ -1,9 +1,13 @@
-import { LoadShipment } from './api.js';
+import { LoadShipment, CreateServiceAgent, IndexServiceAgents } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadShipmentType = 'LOAD_SHIPMENT';
+
+const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
+
+const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
@@ -11,6 +15,14 @@ const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 // SINGLE RESOURCE ACTION TYPES
 
 const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
+
+const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
+  indexServiceAgentsType,
+);
+
+const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
+  createServiceAgentsType,
+);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
@@ -23,6 +35,16 @@ const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
   loadShipmentType,
   LoadShipment,
+);
+
+export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
+  indexServiceAgentsType,
+  IndexServiceAgents,
+);
+
+export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(
+  createServiceAgentsType,
+  CreateServiceAgent,
 );
 
 // MULTIPLE-RESOURCE ACTION CREATORS
@@ -47,7 +69,9 @@ export function loadShipmentDependencies(shipmentId) {
 // Selectors
 
 // Reducer
-const initialState = {};
+const initialState = {
+  serviceAgents: [],
+};
 
 export function tspReducer(state = initialState, action) {
   switch (action.type) {
@@ -72,6 +96,49 @@ export function tspReducer(state = initialState, action) {
         shipmentHasLoadSucces: false,
         shipmentHasLoadError: null,
         shipment: null,
+        error: action.error.message,
+      });
+
+    // SERVICE AGENTS
+    case INDEX_SERVICE_AGENTS.start:
+      return Object.assign({}, state, {
+        serviceAgentsAreLoading: true,
+        serviceAgentsHasLoadSucces: false,
+      });
+    case INDEX_SERVICE_AGENTS.success:
+      return Object.assign({}, state, {
+        serviceAgentsAreLoading: false,
+        serviceAgentsHasLoadSucces: true,
+        serviceAgentsHasLoadError: false,
+        serviceAgents: action.payload,
+      });
+    case INDEX_SERVICE_AGENTS.failure:
+      return Object.assign({}, state, {
+        serviceAgentsAreLoading: false,
+        serviceAgentsHasLoadSucces: false,
+        serviceAgentsHasLoadError: null,
+        serviceAgents: [],
+        error: action.error.message,
+      });
+
+    case CREATE_SERVICE_AGENTS.start:
+      return Object.assign({}, state, {
+        serviceAgentIsCreating: true,
+        serviceAgentHasCreatedSucces: false,
+      });
+    case CREATE_SERVICE_AGENTS.success:
+      return Object.assign({}, state, {
+        serviceAgentIsCreating: false,
+        serviceAgentHasCreatedSucces: true,
+        serviceAgentHasCreatedError: false,
+        serviceAgents: state.serviceAgents.append(action.payload),
+      });
+    case CREATE_SERVICE_AGENTS.failure:
+      return Object.assign({}, state, {
+        serviceAgentIsCreating: false,
+        serviceAgentHasCreatedSucces: false,
+        serviceAgentHasCreatedError: null,
+        serviceAgents: [],
         error: action.error.message,
       });
 

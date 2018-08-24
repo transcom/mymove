@@ -564,7 +564,7 @@ definitions:
         type: string
         enum:
           - ORIGIN
-          - Destination
+          - DESTINATION
         x-display-value:
           ORIGIN: Origin
           DESTINATION: Destination
@@ -603,7 +603,6 @@ definitions:
         x-nullable: true
         example: This service agent is available at all hours
     required:
-      - shipment_uuid
       - role
       - point_of_contact
   ShipmentReject:
