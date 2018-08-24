@@ -15,11 +15,10 @@ import (
 // MakeShipmentOffer creates a single shipment offer record
 func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.ShipmentOffer {
 
-	// Test for ShipmentID first before creating a new Shipment
-	shipmentID := assertions.ShipmentOffer.ShipmentID
+	// Test for Shipment first before creating a new Shipment
+	shipment := assertions.ShipmentOffer.Shipment
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
-		shipment := MakeDefaultShipment(db)
-		shipmentID = shipment.ID
+		shipment = MakeShipment(db, assertions)
 	}
 
 	// Test for TSP ID first before creating a new TSP
@@ -28,7 +27,8 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 		// TODO: Make TSP and get ID
 	}
 	shipmentOffer := models.ShipmentOffer{
-		ShipmentID:                      shipmentID,
+		ShipmentID:                      shipment.ID,
+		Shipment:                        shipment,
 		TransportationServiceProviderID: tspID,
 		AdministrativeShipment:          false,
 		Accepted:                        swag.Bool(true),
@@ -81,7 +81,7 @@ func MakeShipmentOfferData(db *pop.Connection) {
 // CreateShipmentOfferData creates a list of TSP Users, Shipments, and Shipment Offers
 // Must pass in the number of tsp users to create and number of shipments.
 // The split of shipment offers should be the length of TSP users and the sum should equal the number of shipments
-func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int, statuses []string) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
+func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int, statuses []models.ShipmentStatus) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
 	var tspUserList []models.TspUser
 	var shipmentList []models.Shipment
 	var shipmentOfferList []models.ShipmentOffer
@@ -103,7 +103,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
-		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
+		email := fmt.Sprintf("leo_spaceman_tsp_%d@example.com", i)
 		tspUserAssertions := Assertions{
 			User: models.User{
 				LoginGovEmail: email,
@@ -135,14 +135,23 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		},
 	}
 	if len(statuses) == 0 {
-		statuses = []string{"DRAFT", "AWARDED"}
+		statuses = []models.ShipmentStatus{
+			models.ShipmentStatusDRAFT,
+			models.ShipmentStatusAWARDED,
+			models.ShipmentStatusACCEPTED}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
 		nowPlusTwo := now.Add(oneWeek * 2)
+		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
+		moveAssertions.User.LoginGovEmail = smEmail
 		move := MakeMove(db, moveAssertions)
+		status := statuses[rand.Intn(len(statuses))]
 		shipmentAssertions := Assertions{
+			User: models.User{
+				LoginGovEmail: smEmail,
+			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
 				PickupDate:              &nowPlusOne,
@@ -152,11 +161,30 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				Market:                  &market,
 				Move:                    &move,
 				MoveID:                  move.ID,
-				Status:                  statuses[rand.Intn(len(statuses))],
+				Status:                  status,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
 		shipmentList = append(shipmentList, shipment)
+
+		// Accepted shipments must have an OSA and DSA
+		// This does not cover making any SA's for shipments that have statuses after Accepted (like Approved)
+		if status == models.ShipmentStatusACCEPTED {
+			originServiceAgentAssertions := Assertions{
+				ServiceAgent: models.ServiceAgent{
+					ShipmentID: shipment.ID,
+					Role:       models.RoleORIGIN,
+				},
+			}
+			MakeServiceAgent(db, originServiceAgentAssertions)
+			destinationServiceAgentAssertions := Assertions{
+				ServiceAgent: models.ServiceAgent{
+					ShipmentID: shipment.ID,
+					Role:       models.RoleDESTINATION,
+				},
+			}
+			MakeServiceAgent(db, destinationServiceAgentAssertions)
+		}
 		time.Sleep(100 * time.Millisecond)
 	}
 

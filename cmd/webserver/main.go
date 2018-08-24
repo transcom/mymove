@@ -23,7 +23,6 @@ import (
 	"goji.io/pat"
 
 	"github.com/honeycombio/beeline-go"
-	"github.com/honeycombio/beeline-go/wrappers/hnygoji"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -276,9 +275,6 @@ func main() {
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
-	if useHoneycomb {
-		apiMux.Use(hnygoji.Middleware)
-	}
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
 	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))

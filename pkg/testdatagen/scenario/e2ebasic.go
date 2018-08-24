@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -21,30 +22,33 @@ var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Basic user with tsp access
-	testdatagen.MakeTspUser(db, testdatagen.Assertions{
+	email := "tspuser1@example.com"
+	tspUser := testdatagen.MakeTspUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID: uuid.Must(uuid.FromString("6cd03e5b-bee8-4e97-a340-fecb8f3d5465")),
+			ID:            uuid.Must(uuid.FromString("6cd03e5b-bee8-4e97-a340-fecb8f3d5465")),
+			LoginGovEmail: email,
 		},
 		TspUser: models.TspUser{
 			ID:    uuid.FromStringOrNil("1fb58b82-ab60-4f55-a654-0267200473a4"),
-			Email: "tspuser1@example.com",
+			Email: email,
 		},
 	})
 
 	// Basic user with office access
+	email = "officeuser1@example.com"
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
-			LoginGovEmail: "officeuser1@example.com",
+			LoginGovEmail: email,
 		},
 		OfficeUser: models.OfficeUser{
 			ID:    uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-			Email: "officeuser1@example.com",
+			Email: email,
 		},
 	})
 
 	// Service member with uploaded orders and a new ppm
-	email := "ppm@incomple.te"
+	email = "ppm@incomple.te"
 	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
@@ -118,6 +122,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 	futureTime := time.Now().AddDate(0, 0, 10)
+	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm2 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("9ce5a930-2446-48ec-a9c0-17bc65e8522d"),
@@ -126,6 +131,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			LastName:      models.StringPointer("Approved"),
 			Edipi:         models.StringPointer("7617033988"),
 			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
@@ -138,6 +150,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
+	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
+	ppm2.Move.PersonallyProcuredMoves[0].Submit()
+	ppm2.Move.PersonallyProcuredMoves[0].Approve()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
@@ -196,20 +211,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Service member with uploaded orders and a new shipment move
 	email = "hhg@incomple.te"
-	uuidStr = "ebc176e0-bb34-47d4-ba37-ff13e2dd40b9"
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			ID:            uuid.Must(uuid.FromString("ebc176e0-bb34-47d4-ba37-ff13e2dd40b9")),
 			LoginGovEmail: email,
 		},
-	})
-
-	nowTime = time.Now()
-	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("0d719b18-81d6-474a-86aa-b87246fff65c"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
 			FirstName:     models.StringPointer("HHG"),
 			LastName:      models.StringPointer("Submitted"),
 			Edipi:         models.StringPointer("4444567890"),
@@ -227,7 +236,47 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			CodeOfService:     "D",
 		},
 	})
+
 	hhg0.Move.Submit()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, hhg0.Move)
+
+	// Service member with uploaded orders and an approved shipment
+	email = "hhg@award.ed"
+
+	offer1 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("7980f0cf-63e3-4722-b5aa-ba46f8f7ac64")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("8a66beef-1cdf-4117-9db2-aad548f54430"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("56b8ef45-8145-487b-9b59-0e30d0d465fa"),
+			Locator:          "KBACON",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("776b5a23-2830-4de0-bb6a-7698a25865cb"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAWARDED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg1 := offer1.Shipment
+	hhg1.Move.Submit()
+	// Save move and dependencies
+	models.SaveMoveDependencies(db, hhg1.Move)
 }

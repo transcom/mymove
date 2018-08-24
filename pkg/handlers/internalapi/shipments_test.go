@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -13,12 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-/*
- * ------------------------------------------
- * The code below is for the INTERNAL REST API.
- * ------------------------------------------
- */
 
 func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessages.Address) {
 	suite.T().Helper()
@@ -71,7 +64,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
-	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
@@ -120,7 +113,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
-	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)
@@ -176,7 +169,6 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 
 	patchShipmentParams := shipmentop.PatchShipmentParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
 		ShipmentID:  strfmt.UUID(shipment1.ID.String()),
 		Shipment:    &payload,
 	}
@@ -196,60 +188,4 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 
 	suite.Equal(*patchShipmentPayload.EstimatedPackDays, int64(15), "EstimatedPackDays should have been set to 15")
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")
-}
-
-func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
-	t := suite.T()
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
-	sm := move.Orders.ServiceMember
-	badMoveID := uuid.Must(uuid.NewV4())
-
-	addressPayload := testdatagen.MakeAddress(suite.TestDB(), testdatagen.Assertions{})
-
-	shipment1 := models.Shipment{
-		MoveID:                       move.ID,
-		Status:                       "DRAFT",
-		EstimatedPackDays:            swag.Int64(2),
-		EstimatedTransitDays:         swag.Int64(5),
-		PickupAddress:                &addressPayload,
-		HasSecondaryPickupAddress:    true,
-		SecondaryPickupAddress:       &addressPayload,
-		HasDeliveryAddress:           false,
-		HasPartialSITDeliveryAddress: true,
-		PartialSITDeliveryAddress:    &addressPayload,
-		WeightEstimate:               handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
-		ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(swag.Int64(325)),
-		SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(swag.Int64(120)),
-		ServiceMemberID:              sm.ID,
-	}
-	suite.MustSave(&shipment1)
-
-	req := httptest.NewRequest("POST", "/moves/move_id/shipment/shipment_id", nil)
-	req = suite.AuthenticateRequest(req, sm)
-
-	newAddress := otherFakeAddressPayload()
-
-	payload := internalmessages.Shipment{
-		EstimatedPackDays:           swag.Int64(15),
-		HasSecondaryPickupAddress:   false,
-		HasDeliveryAddress:          true,
-		DeliveryAddress:             newAddress,
-		SpouseProgearWeightEstimate: swag.Int64(100),
-	}
-
-	patchShipmentParams := shipmentop.PatchShipmentParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(badMoveID.String()),
-		ShipmentID:  strfmt.UUID(shipment1.ID.String()),
-		Shipment:    &payload,
-	}
-
-	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-	response := handler.Handle(patchShipmentParams)
-
-	// assert we got back the badrequest response
-	_, ok := response.(*shipmentop.PatchShipmentBadRequest)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
 }

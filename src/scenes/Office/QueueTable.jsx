@@ -71,7 +71,8 @@ class QueueTable extends Component {
           <Alert type="success" heading="Success">
             Move #{this.props.moveLocator} for {this.props.lastName},{' '}
             {this.props.firstName} has been canceled <br />
-            An email confirmation has been sent to the customer.<br />
+            An email confirmation has been sent to the customer.
+            <br />
           </Alert>
         ) : null}
         <h1>Queue: {titles[this.props.queueType]}</h1>

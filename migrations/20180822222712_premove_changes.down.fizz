@@ -1,0 +1,11 @@
+add_column("shipments", "pm_survey_latest_pickup_date", "datetime", {"null": true})
+add_column("shipments", "pm_survey_earliest_delivery_date", "datetime", {"null": true})
+
+rename_column("shipments", "pm_survey_planned_delivery_date", "pm_survey_latest_delivery_date")
+
+rename_column("shipments", "pm_survey_planned_pack_date", "pm_survey_pack_date")
+
+rename_column("shipments", "pm_survey_planned_pickup_date", "pm_survey_pickup_date")
+
+drop_column("shipments", "pm_survey_method")
+

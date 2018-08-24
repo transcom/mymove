@@ -33,6 +33,9 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsCreateShipmentAcceptHandler = CreateShipmentAcceptHandler{context}
 	publicAPI.ShipmentsCreateShipmentRejectHandler = CreateShipmentRejectHandler{context}
 
+	// Service Agents
+	publicAPI.ServiceAgentsCreateServiceAgentHandler = CreateServiceAgentHandler{context}
+
 	// TSPs
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}

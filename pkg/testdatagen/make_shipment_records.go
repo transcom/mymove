@@ -55,8 +55,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	serviceMember := assertions.Shipment.ServiceMember
 	if serviceMember == nil {
-		newServiceMember := MakeDefaultServiceMember(db)
-		serviceMember = &newServiceMember
+		serviceMember = &move.Orders.ServiceMember
 	}
 
 	codeOfService := assertions.Shipment.CodeOfService
@@ -72,7 +71,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	status := assertions.Shipment.Status
 	if status == "" {
-		status = "DEFAULT"
+		status = models.ShipmentStatusDRAFT
 	}
 
 	shipment := models.Shipment{

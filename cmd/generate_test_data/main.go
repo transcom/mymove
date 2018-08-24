@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
+	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/storage"
@@ -72,7 +73,7 @@ func main() {
 		numTspUsers := 2
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
-		status := []string{"DRAFT", "AWARDED"}
+		status := []models.ShipmentStatus{"DRAFT", "AWARDED", "ACCEPTED"}
 		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 		if err != nil {
 			log.Panic(err)
@@ -83,6 +84,9 @@ func main() {
 		log.Print("Success! Created e2e test data.")
 	} else {
 		// Can this be less repetitive without being overly clever?
+		testdatagen.MakeDefaultServiceMember(db)
+		testdatagen.MakeDefaultOfficeUser(db)
+		testdatagen.MakeDefaultTspUser(db)
 		testdatagen.MakeTDLData(db)
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)

@@ -364,6 +364,7 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
+        x-formatting: weight
       mileage:
         type: integer
         title: Distance between origin and destination in miles
@@ -1409,8 +1410,7 @@ definitions:
         title: Code of service
         readOnly: true
       status:
-        type: string
-        readOnly: true
+        $ref: '#/definitions/ShipmentStatus'
       book_date:
         type: string
         format: date
@@ -1493,18 +1493,88 @@ definitions:
         example: 10000
         title: Weight
         x-nullable: true
+        x-formatting: weight
       progear_weight_estimate:
         type: integer
         minimum: 0
         example: 500
         title: Pro-Gear Weight
         x-nullable: true
+        x-formatting: weight
       spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 200
         title: Spouse's Pro-Gear
         x-nullable: true
+        x-formatting: weight
+      pm_survey_planned_pack_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Planned pack date"
+        x-nullable: true
+      pm_survey_planned_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Planned pickup date"
+        x-nullable: true
+      pm_survey_planned_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Planned delivery date"
+        x-nullable: true
+      pm_survey_earliest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Earliest delivery date"
+        x-nullable: true
+      pm_survey_latest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Latest delivery date"
+        x-nullable: true
+      pm_survey_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Weight
+        x-nullable: true
+        x-formatting: weight
+      pm_survey_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Pro-Gear weight
+        x-nullable: true
+        x-formatting: weight
+      pm_survey_spouse_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Spouse's pro-gear
+        x-nullable: true
+        x-formatting: weight
+      pm_survey_notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+      pm_survey_method:
+        type: string
+        title: Survey method
+        enum:
+          - IN_PERSON
+          - PHONE
+          - VIDEO
+        x-display-value:
+          IN_PERSON: In person
+          PHONE: Phone
+          VIDEO: Video
       created_at:
         type: string
         format: date-time
@@ -1739,9 +1809,22 @@ definitions:
       APPROVED: Approved
       COMPLETED: Completed
       CANCELED: Canceled
+  ShipmentStatus:
+    type: string
+    title: Shipment status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - AWARDED
+      - APPROVED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      AWARDED: Awarded
+      APPROVED: Approved
   PPMStatus:
     type: string
-    title: Move status
+    title: PPM status
     enum:
       - DRAFT
       - SUBMITTED
@@ -2704,7 +2787,7 @@ paths:
           description: move not found
         500:
           description: server error
-  /moves/{moveId}/shipment/{shipmentId}:
+  /shipment/{shipmentId}:
     patch:
       summary: Updates a Shipment for the given move
       description: Update a Shipment tied to the move ID
@@ -2712,12 +2795,6 @@ paths:
       tags:
         - shipments
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this Shipment is associated with
         - in: path
           name: shipmentId
           type: string
@@ -2751,12 +2828,6 @@ paths:
       tags:
         - shipments
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this Shipment is associated with
         - in: path
           name: shipmentId
           type: string
