@@ -80,16 +80,21 @@ func (s *ServiceAgent) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 func CreateServiceAgent(tx *pop.Connection,
 	shipmentID uuid.UUID,
 	role Role,
-	pointOfContact string,
+	pointOfContact *string,
 	email *string,
 	phoneNumber *string,
 	emailIsPreferred *bool,
 	phoneIsPreferred *bool,
 	notes *string) (ServiceAgent, *validate.Errors, error) {
+
+	var stringPointOfContact string
+	if pointOfContact != nil {
+		stringPointOfContact = string(*pointOfContact)
+	}
 	newServiceAgent := ServiceAgent{
 		ShipmentID:       shipmentID,
 		Role:             role,
-		PointOfContact:   pointOfContact,
+		PointOfContact:   stringPointOfContact,
 		Email:            email,
 		PhoneNumber:      phoneNumber,
 		EmailIsPreferred: emailIsPreferred,

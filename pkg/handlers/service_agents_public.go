@@ -12,12 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-/*
- * ------------------------------------------
- * The code below is for the PUBLIC REST API.
- * ------------------------------------------
- */
-
 func publicPayloadForServiceAgentModel(s models.ServiceAgent) *apimessages.ServiceAgent {
 	serviceAgentPayload := &apimessages.ServiceAgent{
 		ID:               *fmtUUID(s.ID),
@@ -71,7 +65,7 @@ func (h PublicCreateServiceAgentHandler) Handle(params publicserviceagentop.Crea
 		h.db,
 		shipment.ID,
 		serviceAgentRole,
-		*payload.PointOfContact,
+		payload.PointOfContact,
 		payload.Email,
 		payload.PhoneNumber,
 		payload.EmailIsPreferred,
