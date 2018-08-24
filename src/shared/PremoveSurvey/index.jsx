@@ -60,7 +60,6 @@ const SurveyDisplay = props => {
         <PanelSwaggerField
           title="Progear Weight Estimate"
           fieldName="pm_survey_progear_weight_estimate"
-          nullWarning="false"
           {...fieldProps}
         />
         <PanelSwaggerField
