@@ -48,6 +48,10 @@
   padding: 0 2em;
 }
 
+.panels-body {
+  margin-top: 2em;
+}
+
 .move-info-header-meta {
   list-style: none outside;
   border-top: solid 1px rgb(222, 222, 222);
