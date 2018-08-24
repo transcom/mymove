@@ -59,7 +59,8 @@ const OrdersDisplay = props => {
         {props.orders.orders_number ? (
           <PanelField title="Orders Number">
             <Link to={`/moves/${props.move.id}/orders`} target="_blank">
-              <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
+              <SwaggerValue fieldName="orders_number" {...fieldProps} />
+              &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
             </Link>
           </PanelField>

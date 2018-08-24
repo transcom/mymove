@@ -203,8 +203,8 @@ class MoveInfo extends Component {
       ) {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />Move
-            pending
+            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
+            Move pending
           </span>
         );
       } else {

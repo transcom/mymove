@@ -130,7 +130,8 @@ class PaymentsTable extends Component {
                 <tr>
                   <td className="payment-table-column-content">Advance </td>
                   <td className="payment-table-column-content">
-                    ${formatCents(
+                    $
+                    {formatCents(
                       get(advance, 'requested_amount'),
                     ).toLocaleString()}
                   </td>

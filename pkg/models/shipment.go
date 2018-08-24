@@ -74,15 +74,14 @@ type Shipment struct {
 	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
 	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
-	PmSurveyPackDate                    *time.Time               `json:"pm_survey_pack_date" db:"pm_survey_pack_date"`
-	PmSurveyPickupDate                  *time.Time               `json:"pm_survey_pickup_date" db:"pm_survey_pickup_date"`
-	PmSurveyLatestPickupDate            *time.Time               `json:"pm_survey_latest_pickup_date" db:"pm_survey_latest_pickup_date"`
-	PmSurveyEarliestDeliveryDate        *time.Time               `json:"pm_survey_earliest_delivery_date" db:"pm_survey_earliest_delivery_date"`
-	PmSurveyLatestDeliveryDate          *time.Time               `json:"pm_survey_latest_delivery_date" db:"pm_survey_latest_delivery_date"`
+	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
+	PmSurveyPlannedPickupDate           *time.Time               `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
+	PmSurveyPlannedDeliveryDate         *time.Time               `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
 	PmSurveyWeightEstimate              *unit.Pound              `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
 	PmSurveyProgearWeightEstimate       *unit.Pound              `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
 	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
 	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
+	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.
@@ -128,8 +127,16 @@ func (s *Shipment) Submit() error {
 	if s.Status != ShipmentStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
-
 	s.Status = ShipmentStatusSUBMITTED
+	return nil
+}
+
+// Accept marks the Shipment request as Accepted. Must be in an Awarded state.
+func (s *Shipment) Accept() error {
+	if s.Status != ShipmentStatusAWARDED {
+		return errors.Wrap(ErrInvalidTransition, "Accept")
+	}
+	s.Status = ShipmentStatusACCEPTED
 	return nil
 }
 
@@ -303,6 +310,55 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	}
 
 	return &shipments[0], err
+}
+
+// AcceptShipmentForTSP accepts a shipment and shipment_offer
+func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
+
+	// Get the Shipment and Shipment Offer
+	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
+
+	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	// Accept the Shipment and Shipment Offer
+	err = shipment.Accept()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	err = shipmentOffer.Accept()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	// Validate and update the Shipment and Shipment Offer
+	// wrapped in a transaction because if one fails this actions should roll back.
+	responseVErrors := validate.NewErrors()
+	var responseError error
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error changing shipment status to ACCEPTED")
+			return transactionError
+		}
+		if verrs, err := db.ValidateAndUpdate(shipmentOffer); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error changing shipment offer status to ACCEPTED")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return shipment, shipmentOffer, responseVErrors, responseError
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.

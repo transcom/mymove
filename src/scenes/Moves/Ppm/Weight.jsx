@@ -78,9 +78,8 @@ class RequestAdvanceForm extends Component {
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
               <div className="ppmquestion">
-                Would you like an advance of up to 60% of your PPM incentive? (${formatCents(
-                  maxAdvance,
-                )})
+                Would you like an advance of up to 60% of your PPM incentive? ($
+                {formatCents(maxAdvance)})
               </div>
               <div className="ppmmuted">
                 We recommend paying for expenses with your government travel
@@ -120,7 +119,8 @@ class RequestAdvanceForm extends Component {
                 do that{' '}
                 <a href="https://www.move.mil/resources/weight-estimator">
                   here
-                </a>.
+                </a>
+                .
               </Alert>
               <SwaggerField
                 fieldName="requested_amount"
