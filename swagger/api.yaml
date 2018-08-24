@@ -506,35 +506,23 @@ definitions:
         example: 200
         x-nullable: true
         x-formatting: weight
-      pm_survey_pack_date:
+      pm_survey_planned_pack_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Pack date"
+        title: "Planned pack date"
         x-nullable: true
-      pm_survey_pickup_date:
+      pm_survey_planned_pickup_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Pickup date"
+        title: "Planned pickup date"
         x-nullable: true
-      pm_survey_latest_pickup_date:
+      pm_survey_planned_delivery_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Latest pickup date"
-        x-nullable: true
-      pm_survey_earliest_delivery_date:
-        type: string
-        format: date
-        example: "2018-04-26"
-        title: "Earliest delivery date"
-        x-nullable: true
-      pm_survey_latest_delivery_date:
-        type: string
-        format: date
-        example: "2018-04-26"
-        title: "Latest delivery date"
+        title: "Planned delivery date"
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
@@ -547,14 +535,14 @@ definitions:
         type: integer
         minimum: 0
         example: 10000
-        title: Pro-Gear Weight
+        title: Pro-Gear weight
         x-nullable: true
         x-formatting: weight
       pm_survey_spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 10000
-        title: Spouse's Pro-Gear
+        title: Spouse's pro-gear
         x-nullable: true
         x-formatting: weight
       pm_survey_notes:
@@ -562,6 +550,17 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      pm_survey_method:
+        type: string
+        title: Survey method
+        enum:
+          - IN_PERSON
+          - PHONE
+          - VIDEO
+        x-display-value:
+          IN_PERSON: In person
+          PHONE: Phone
+          VIDEO: Video
   IndexServiceAgents:
     type: array
     items:

@@ -68,14 +68,14 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandler() {
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
-		PmSurveyPackDate:                    fmtDatePtr(&genericDate),
-		PmSurveyPickupDate:                  fmtDatePtr(&genericDate),
-		PmSurveyEarliestDeliveryDate:        fmtDatePtr(&genericDate),
-		PmSurveyLatestDeliveryDate:          fmtDatePtr(&genericDate),
+		PmSurveyPlannedPackDate:             fmtDatePtr(&genericDate),
+		PmSurveyPlannedPickupDate:           fmtDatePtr(&genericDate),
+		PmSurveyPlannedDeliveryDate:         fmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),
 		PmSurveyProgearWeightEstimate:       swag.Int64(53),
 		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
 		PmSurveyNotes:                       swag.String("Unsure about pickup date."),
+		PmSurveyMethod:                      "PHONE",
 	}
 
 	params := publicshipmentop.PatchShipmentParams{
@@ -95,13 +95,13 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandler() {
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
 	suite.Equal(*UpdatePayload.PmSurveyNotes, *okResponse.Payload.PmSurveyNotes)
+	suite.Equal(UpdatePayload.PmSurveyMethod, okResponse.Payload.PmSurveyMethod)
 	suite.Equal(int64(54), *okResponse.Payload.PmSurveySpouseProgearWeightEstimate)
 	suite.Equal(int64(53), *okResponse.Payload.PmSurveyProgearWeightEstimate)
 	suite.Equal(int64(33), *okResponse.Payload.PmSurveyWeightEstimate)
-	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyLatestDeliveryDate))
-	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyEarliestDeliveryDate))
-	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPickupDate))
-	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPackDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedDeliveryDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedPickupDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedPackDate))
 }
 
 func (suite *HandlerSuite) TestPublicPatchShipmentHandlerWrongTSP() {
@@ -122,14 +122,14 @@ func (suite *HandlerSuite) TestPublicPatchShipmentHandlerWrongTSP() {
 
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
-		PmSurveyPackDate:                    fmtDatePtr(&genericDate),
-		PmSurveyPickupDate:                  fmtDatePtr(&genericDate),
-		PmSurveyEarliestDeliveryDate:        fmtDatePtr(&genericDate),
-		PmSurveyLatestDeliveryDate:          fmtDatePtr(&genericDate),
+		PmSurveyPlannedPackDate:             fmtDatePtr(&genericDate),
+		PmSurveyPlannedPickupDate:           fmtDatePtr(&genericDate),
+		PmSurveyPlannedDeliveryDate:         fmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),
 		PmSurveyProgearWeightEstimate:       swag.Int64(53),
 		PmSurveySpouseProgearWeightEstimate: swag.Int64(54),
 		PmSurveyNotes:                       swag.String("Unsure about pickup date."),
+		PmSurveyMethod:                      "PHONE",
 	}
 
 	params := publicshipmentop.PatchShipmentParams{
