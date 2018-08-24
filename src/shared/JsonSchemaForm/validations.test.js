@@ -55,11 +55,14 @@ describe('SchemaField tests', () => {
         let values = storeData.values;
         let errors = storeData.syncErrors;
 
-        if (expectedValue != null) {
+        if (expectedValue === undefined) {
+          expect(values).toBeUndefined();
+        } else if (expectedValue === null) {
+          expect(values).not.toBeUndefined();
+          expect(values.test_field).toBeNull();
+        } else {
           expect(values).not.toBeUndefined();
           expect(values.test_field).toEqual(expectedValue);
-        } else {
-          expect(values).toBeUndefined();
         }
 
         if (expectedError) {

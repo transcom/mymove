@@ -9,7 +9,8 @@ import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert'; // eslint-disable-line
 
 import { AcceptShipment } from './api.js';
-import { loadShipmentDependencies } from './ducks';
+import { loadShipmentDependencies, patchShipment } from './ducks';
+import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
 
 class AcceptShipmentPanel extends Component {
@@ -107,6 +108,15 @@ class ShipmentInfo extends Component {
             </ul>
           </div>
         </div>
+        {this.props.loadTspDependenciesHasSuccess && (
+          <div className="office-tab">
+            <PremoveSurvey
+              title="Premove Survey"
+              shipment={this.props.shipment}
+              update={this.props.patchShipment}
+            />
+          </div>
+        )}
         <div className="usa-grid grid-wide tabs">
           <div className="usa-width-two-thirds">
             {this.props.shipment.status === 'AWARDED' ? (
@@ -134,6 +144,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadShipmentDependencies,
+      patchShipment,
     },
     dispatch,
   );
