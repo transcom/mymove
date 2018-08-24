@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import editablePanel from 'scenes/Office/editablePanel';
+import { editablePanelify } from 'shared/EditablePanel';
 import { createServiceAgent } from './ducks';
 
 import { PanelSwaggerField } from 'shared/EditablePanel';
@@ -55,7 +55,7 @@ const ServiceAgentEdit = props => {
 
 const formName = 'service_agents_panel';
 
-let ServiceAgentPanel = editablePanel(ServiceAgentDisplay, ServiceAgentEdit);
+let ServiceAgentPanel = editablePanelify(ServiceAgentDisplay, ServiceAgentEdit);
 ServiceAgentPanel = reduxForm({
   form: formName,
   enableReinitialize: true,

@@ -294,6 +294,16 @@ java
 155076695
 ADR
 hardcode
+Snyk
+Twistlock
+CVEs
+rearchitecting
+cron
+SonarQube
+Sonatype
+repos
+pjdufour-truss
+dynamike
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md
  - docs/backend.md

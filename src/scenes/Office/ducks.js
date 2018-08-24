@@ -12,6 +12,7 @@ import {
   ApproveReimbursement,
   CancelMove,
   DownloadPPMAttachments,
+  PatchShipment,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -23,6 +24,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
+const patchShipmentType = 'PATCH_SHIPMENT';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
@@ -48,6 +50,8 @@ const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
 
 const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
+
+const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
 const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   loadServiceMemberType,
@@ -114,6 +118,11 @@ export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
 export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
   updateOrdersType,
   UpdateOrders,
+);
+
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
+  patchShipmentType,
+  PatchShipment,
 );
 
 export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
@@ -327,6 +336,7 @@ export function officeReducer(state = initialState, action) {
       return Object.assign({}, state, {
         moveIsLoading: false,
         officeMove: action.payload,
+        officeShipment: get(action.payload, 'shipments.0', null),
         moveHasLoadSuccess: true,
         moveHasLoadError: false,
       });
@@ -334,6 +344,7 @@ export function officeReducer(state = initialState, action) {
       return Object.assign({}, state, {
         moveIsLoading: false,
         officeMove: null,
+        officeShipment: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
         error: action.error.message,
@@ -377,6 +388,27 @@ export function officeReducer(state = initialState, action) {
         ordersAreUpdating: false,
         ordersHaveUpdateSuccess: false,
         ordersHaveUpdateError: true,
+        error: action.error.message,
+      });
+
+    // SHIPMENT
+    case PATCH_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: true,
+        shipmentPatchSuccess: false,
+      });
+    case PATCH_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: false,
+        officeShipment: action.payload,
+        shipmentPatchSuccess: true,
+        shipmentPatchError: false,
+      });
+    case PATCH_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: false,
+        shipmentPatchSuccess: false,
+        shipmentPatchError: true,
         error: action.error.message,
       });
 

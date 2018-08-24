@@ -26,6 +26,9 @@ const (
 	// ShipmentStatusAWARDED captures enum value "AWARDED"
 	// Using AWARDED for TSP Queue work, not yet in office/SM flow
 	ShipmentStatusAWARDED ShipmentStatus = "AWARDED"
+	// ShipmentStatusACCEPTED captures enum value "ACCEPTED"
+	// Using ACCEPTED for TSP Queue work, not yet in office/SM flow
+	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
 )

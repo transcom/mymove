@@ -98,6 +98,14 @@ func (m *Move) Submit() error {
 		}
 	}
 
+	// Update HHG (Shipment) status too
+	for i := range m.Shipments {
+		err := m.Shipments[i].Submit()
+		if err != nil {
+			return err
+		}
+	}
+
 	for _, ppm := range m.PersonallyProcuredMoves {
 		if ppm.Advance != nil {
 			err := ppm.Advance.Request()
