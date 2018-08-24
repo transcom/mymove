@@ -17,5 +17,5 @@ required = [
   branch = "master"
 
  [[constraint]]
-  name = "github.com/pjdufour-truss/pdfcpu"
-  branch = "fs"
+  name = "github.com/trussworks/pdfcpu"
+  branch = "afero"
