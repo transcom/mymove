@@ -103,7 +103,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
-		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
+		email := fmt.Sprintf("leo_spaceman_tsp_%d@example.com", i)
 		tspUserAssertions := Assertions{
 			User: models.User{
 				LoginGovEmail: email,
@@ -144,9 +144,14 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
 		nowPlusTwo := now.Add(oneWeek * 2)
+		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
+		moveAssertions.User.LoginGovEmail = smEmail
 		move := MakeMove(db, moveAssertions)
 		status := statuses[rand.Intn(len(statuses))]
 		shipmentAssertions := Assertions{
+			User: models.User{
+				LoginGovEmail: smEmail,
+			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
 				PickupDate:              &nowPlusOne,

@@ -22,30 +22,33 @@ var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	// Basic user with tsp access
+	email := "tspuser1@example.com"
 	tspUser := testdatagen.MakeTspUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID: uuid.Must(uuid.FromString("6cd03e5b-bee8-4e97-a340-fecb8f3d5465")),
+			ID:            uuid.Must(uuid.FromString("6cd03e5b-bee8-4e97-a340-fecb8f3d5465")),
+			LoginGovEmail: email,
 		},
 		TspUser: models.TspUser{
 			ID:    uuid.FromStringOrNil("1fb58b82-ab60-4f55-a654-0267200473a4"),
-			Email: "tspuser1@example.com",
+			Email: email,
 		},
 	})
 
 	// Basic user with office access
+	email = "officeuser1@example.com"
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
-			LoginGovEmail: "officeuser1@example.com",
+			LoginGovEmail: email,
 		},
 		OfficeUser: models.OfficeUser{
 			ID:    uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-			Email: "officeuser1@example.com",
+			Email: email,
 		},
 	})
 
 	// Service member with uploaded orders and a new ppm
-	email := "ppm@incomple.te"
+	email = "ppm@incomple.te"
 	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
