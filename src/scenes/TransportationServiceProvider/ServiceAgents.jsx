@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid } from 'redux-form';
+import { reduxForm, getFormValues } from 'redux-form';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { editablePanelify } from 'shared/EditablePanel';
@@ -112,7 +112,6 @@ function mapStateToProps(state, props) {
     serviceAgents,
 
     // editablePanel
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       return [get(props, 'shipment.id'), formValues];
     },

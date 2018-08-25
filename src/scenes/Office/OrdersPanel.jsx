@@ -2,13 +2,7 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import {
-  reduxForm,
-  Field,
-  FormSection,
-  getFormValues,
-  isValid,
-} from 'redux-form';
+import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import { loadEntitlements, updateOrdersInfo } from './ducks';
@@ -202,7 +196,6 @@ function mapStateToProps(state) {
     move: get(state, 'office.officeMove', {}),
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       return [
         get(state, 'office.officeOrders.id'),
