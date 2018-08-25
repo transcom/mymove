@@ -62,6 +62,11 @@ class ShipmentInfo extends Component {
               shipment={this.props.shipment}
               update={this.props.patchShipment}
             />
+            <ServiceAgents
+              title="ServiceAgents"
+              shipment={this.props.shipment}
+              serviceAgents={this.props.serviceAgents}
+            />
           </div>
         )}
         <div className="usa-grid grid-wide tabs">
@@ -73,7 +78,6 @@ class ShipmentInfo extends Component {
           </div>
           <div className="usa-width-one-third" />
         </div>
-        <ServiceAgents title="ServiceAgents" shipment={this.props.shipment} />
       </div>
     );
   }
@@ -82,6 +86,7 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
+  serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,
     'tsp.loadTspDependenciesHasSuccess',

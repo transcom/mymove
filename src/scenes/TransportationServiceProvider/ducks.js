@@ -70,7 +70,10 @@ export function loadShipmentDependencies(shipmentId) {
   return async function(dispatch, getState) {
     dispatch(actions.start());
     try {
-      await dispatch(loadShipment(shipmentId));
+      await Promise.all([
+        dispatch(loadShipment(shipmentId)),
+        dispatch(indexServiceAgents(shipmentId)),
+      ]);
       return dispatch(actions.success());
     } catch (ex) {
       return dispatch(actions.error(ex));

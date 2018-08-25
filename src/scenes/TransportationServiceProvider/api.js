@@ -58,7 +58,7 @@ export async function CreateServiceAgent(shipmentId, payload) {
 
 export async function IndexServiceAgents(shipmentId) {
   const client = await getPublicClient();
-  const response = await client.apis.shipments.indexServiceAgent({
+  const response = await client.apis.shipments.indexServiceAgents({
     shipment_uuid: shipmentId,
   });
   checkResponse(response, 'failed to load shipment due to server error');
