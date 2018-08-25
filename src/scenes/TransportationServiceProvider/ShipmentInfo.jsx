@@ -55,29 +55,29 @@ class ShipmentInfo extends Component {
             </ul>
           </div>
         </div>
-        {this.props.loadTspDependenciesHasSuccess && (
-          <div className="office-tab">
-            <PremoveSurvey
-              title="Premove Survey"
-              shipment={this.props.shipment}
-              update={this.props.patchShipment}
-            />
-            <ServiceAgents
-              title="ServiceAgents"
-              shipment={this.props.shipment}
-              serviceAgents={this.props.serviceAgents}
-            />
-          </div>
-        )}
         <div className="usa-grid grid-wide tabs">
-          <div className="usa-width-two-thirds">
+          {this.props.loadTspDependenciesHasSuccess && (
+            <div className=" office-tab usa-width-three-fourths">
+              <PremoveSurvey
+                title="Premove Survey"
+                shipment={this.props.shipment}
+                update={this.props.patchShipment}
+              />
+              <ServiceAgents
+                title="ServiceAgents"
+                shipment={this.props.shipment}
+                serviceAgents={this.props.serviceAgents}
+              />
+            </div>
+          )}
+          <div className="usa-width-one-fourth">
             <p>
               <button className="usa-button-primary">Accept</button>
               <button className="usa-button-secondary">Reject</button>
             </p>
           </div>
-          <div className="usa-width-one-third" />
         </div>
+        <div className="usa-width-one-third" />
       </div>
     );
   }

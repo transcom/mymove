@@ -84,6 +84,9 @@ func main() {
 		log.Print("Success! Created e2e test data.")
 	} else {
 		// Can this be less repetitive without being overly clever?
+		testdatagen.MakeDefaultServiceMember(db)
+		testdatagen.MakeDefaultOfficeUser(db)
+		testdatagen.MakeDefaultTspUser(db)
 		testdatagen.MakeTDLData(db)
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)

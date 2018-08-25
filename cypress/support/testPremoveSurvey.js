@@ -9,27 +9,17 @@ export default function testPremoveSurvey() {
 
   // Enter details in form and save orders
   cy
-    .get('input[name="survey.pm_survey_pack_date"]')
+    .get('input[name="survey.pm_survey_planned_pack_date"]')
     .first()
     .type('8/1/2018')
     .blur();
   cy
-    .get('input[name="survey.pm_survey_pickup_date"]')
+    .get('input[name="survey.pm_survey_planned_pickup_date"]')
     .first()
     .type('8/2/2018')
     .blur();
   cy
-    .get('input[name="survey.pm_survey_latest_pickup_date"]')
-    .first()
-    .type('8/3/2018')
-    .blur();
-  cy
-    .get('input[name="survey.pm_survey_earliest_delivery_date"]')
-    .first()
-    .type('8/4/2018')
-    .blur();
-  cy
-    .get('input[name="survey.pm_survey_latest_delivery_date"]')
+    .get('input[name="survey.pm_survey_planned_delivery_date"]')
     .first()
     .type('8/5/2018')
     .blur();
@@ -53,6 +43,7 @@ export default function testPremoveSurvey() {
     .first()
     .type('Notes notes notes')
     .blur();
+  cy.get('select[name="survey.pm_survey_method"]').select('PHONE');
 
   cy
     .get('button')
@@ -71,7 +62,7 @@ export default function testPremoveSurvey() {
   cy.reload();
 
   cy
-    .get('div.pm_survey_earliest_delivery_date')
+    .get('div.pm_survey_planned_delivery_date')
     .get('span')
     .contains('7,000 lbs');
   cy.get('div.pm_survey_notes').contains('Notes notes notes');
