@@ -76,7 +76,6 @@ export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(
 // need to be made in response to a user action.
 
 export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
-  console.log('CREATING OR UPDATING', serviceAgent);
   return async function(dispatch, getState) {
     if (serviceAgent.id) {
       return dispatch(updateServiceAgent(serviceAgent));
