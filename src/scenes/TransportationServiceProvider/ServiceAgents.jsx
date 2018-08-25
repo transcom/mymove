@@ -6,7 +6,7 @@ import { reduxForm, getFormValues } from 'redux-form';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { editablePanelify } from 'shared/EditablePanel';
-import { createServiceAgent } from './ducks';
+import { createOrUpdateServiceAgent } from './ducks';
 
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
@@ -132,7 +132,7 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: createServiceAgent,
+      update: createOrUpdateServiceAgent,
     },
     dispatch,
   );

@@ -56,6 +56,16 @@ export async function CreateServiceAgent(shipmentId, payload) {
   return response.body;
 }
 
+export async function UpdateServiceAgent(payload) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.updateServiceAgents({
+    shipment_uuid: payload.id,
+    payload,
+  });
+  checkResponse(response, 'failed to update shipment due to server error');
+  return response.body;
+}
+
 export async function IndexServiceAgents(shipmentId) {
   const client = await getPublicClient();
   const response = await client.apis.shipments.indexServiceAgents({

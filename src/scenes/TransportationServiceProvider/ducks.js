@@ -3,6 +3,7 @@ import {
   PatchShipment,
   CreateServiceAgent,
   IndexServiceAgents,
+  UpdateServiceAgent,
 } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -12,8 +13,8 @@ const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
-
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
+const updateServiceAgentsType = 'UPDATE_SERVICE_AGENTS';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
@@ -31,6 +32,10 @@ const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
   createServiceAgentsType,
 );
 
+const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
+  updateServiceAgentsType,
+);
+
 // MULTIPLE-RESOURCE ACTION TYPES
 
 const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
@@ -44,6 +49,11 @@ export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
   LoadShipment,
 );
 
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
+  patchShipmentType,
+  PatchShipment,
+);
+
 export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
   indexServiceAgentsType,
   IndexServiceAgents,
@@ -54,9 +64,9 @@ export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(
   CreateServiceAgent,
 );
 
-export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
-  patchShipmentType,
-  PatchShipment,
+export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(
+  updateServiceAgentsType,
+  UpdateServiceAgent,
 );
 
 // MULTIPLE-RESOURCE ACTION CREATORS
@@ -64,6 +74,17 @@ export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
 // These action types typically dispatch to other actions above to
 // perform their work and exist to encapsulate when multiple requests
 // need to be made in response to a user action.
+
+export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
+  console.log('CREATING OR UPDATING', serviceAgent);
+  return async function(dispatch, getState) {
+    if (serviceAgent.id) {
+      return dispatch(updateServiceAgent(serviceAgent));
+    } else {
+      return dispatch(createServiceAgent(shipmentId, serviceAgent));
+    }
+  };
+}
 
 export function loadShipmentDependencies(shipmentId) {
   const actions = ReduxHelpers.generateAsyncActions(loadTspDependenciesType);
@@ -169,6 +190,46 @@ export function tspReducer(state = initialState, action) {
         serviceAgentIsCreating: false,
         serviceAgentHasCreatedSucces: false,
         serviceAgentHasCreatedError: null,
+        serviceAgents: [],
+        error: action.error.message,
+      });
+
+    case UPDATE_SERVICE_AGENTS.start:
+      return Object.assign({}, state, {
+        serviceAgentIsUpdating: true,
+        serviceAgentHasUpdatedSucces: false,
+      });
+    case UPDATE_SERVICE_AGENTS.success:
+      const updatedAgent = action.payload;
+      const updatedAgents = [];
+      let extant = false;
+      state.serviceAgents.forEach(agent => {
+        if (agent.id === updatedAgent.id) {
+          extant = true;
+          updatedAgents.push(updatedAgent);
+        } else {
+          updatedAgents.push(agent);
+        }
+      });
+      if (!extant) {
+        console.log(
+          'WARNING: An updated Agent did not exist before updating: ',
+          updatedAgent.id,
+        );
+        updatedAgents.push(updatedAgent);
+      }
+
+      return Object.assign({}, state, {
+        serviceAgentIsUpdating: false,
+        serviceAgentHasUpdatedSucces: true,
+        serviceAgentHasUpdatedError: false,
+        serviceAgents: state.serviceAgents.append(action.payload),
+      });
+    case UPDATE_SERVICE_AGENTS.failure:
+      return Object.assign({}, state, {
+        serviceAgentIsUpdating: false,
+        serviceAgentHasUpdatedSucces: false,
+        serviceAgentHasUpdatedError: null,
         serviceAgents: [],
         error: action.error.message,
       });
