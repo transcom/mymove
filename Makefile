@@ -153,7 +153,7 @@ server_test_coverage: server_deps server_generate db_dev_run db_test_reset
 	go test -coverprofile=coverage.out -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 	go tool cover -html=coverage.out
 
-e2e_test: server_deps server_generate client_build db_e2e_init
+e2e_test: server_build client_build db_e2e_init
 	$(AWS_VAULT) ./bin/run-e2e-test
 
 db_populate_e2e: db_dev_reset db_dev_migrate tools_build
