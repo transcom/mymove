@@ -56,7 +56,6 @@ type Shipment struct {
 	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
 	Move                                *Move                    `belongs_to:"move"`
 	Status                              ShipmentStatus           `json:"status" db:"status"`
-	CodeOfService                       *string                  `json:"code_of_service" db:"code_of_service"`
 	EstimatedPackDays                   *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays                *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
 	PickupAddressID                     *uuid.UUID               `json:"pickup_address_id" db:"pickup_address_id"`
@@ -97,7 +96,6 @@ type ShipmentWithOffer struct {
 	SourceGBLOC                     *string    `db:"source_gbloc"`
 	DestinationGBLOC                *string    `db:"destination_gbloc"`
 	Market                          *string    `db:"market"`
-	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
 	Accepted                        *bool      `db:"accepted"`
 	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
@@ -160,7 +158,6 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.source_gbloc,
 				shipments.destination_gbloc,
 				shipments.market,
-				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,
 				shipment_offers.administrative_shipment
 			FROM shipments
@@ -179,7 +176,6 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.source_gbloc,
 				shipments.destination_gbloc,
 				shipments.market,
-				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,
 				shipment_offers.administrative_shipment
 			FROM shipments
