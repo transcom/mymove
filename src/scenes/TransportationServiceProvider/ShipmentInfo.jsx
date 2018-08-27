@@ -8,8 +8,11 @@ import { NavLink } from 'react-router-dom';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert'; // eslint-disable-line
 
-import { AcceptShipment } from './api.js';
-import { loadShipmentDependencies, patchShipment } from './ducks';
+import {
+  loadShipmentDependencies,
+  patchShipment,
+  acceptShipment,
+} from './ducks';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
 
@@ -22,14 +25,8 @@ class AcceptShipmentPanel extends Component {
   };
 
   acceptShipment = () => {
-    AcceptShipment(this.props.shipmentId)
-      .then(shipment => {
-        this.setState({ displayState: 'Accepted', acceptError: false });
-      })
-      .catch(err => {
-        console.log(err);
-        this.setState({ displayState: 'Awarded', acceptError: true });
-      });
+    this.props.acceptShipment();
+    this.setState({ displayState: 'Accepted' });
   };
 
   render() {
@@ -71,10 +68,15 @@ class ShipmentInfo extends Component {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
   }
 
+  acceptShipment = () => {
+    this.props.acceptShipment(this.props.shipment.id);
+  };
+
   render() {
     var last_name = get(this.props.shipment, 'service_member.last_name');
     var first_name = get(this.props.shipment, 'service_member.first_name');
     var locator = get(this.props.shipment, 'move.locator');
+
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -123,7 +125,7 @@ class ShipmentInfo extends Component {
             </div>
             <div className="usa-width-one-third">
               {this.props.shipment.status === 'AWARDED' && (
-                <AcceptShipmentPanel shipmentId={this.props.shipment.id} />
+                <AcceptShipmentPanel acceptShipment={this.acceptShipment} />
               )}
             </div>
           </div>
@@ -135,6 +137,7 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
+  flashMessage: get(state, 'flashMessage', false),
   shipment: get(state, 'tsp.shipment', {}),
   loadTspDependenciesHasSuccess: get(
     state,
@@ -148,6 +151,7 @@ const mapDispatchToProps = dispatch =>
     {
       loadShipmentDependencies,
       patchShipment,
+      acceptShipment,
     },
     dispatch,
   );
