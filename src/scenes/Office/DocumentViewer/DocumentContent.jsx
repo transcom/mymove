@@ -9,7 +9,8 @@ const DocumentContent = props => {
         This PDF can be{' '}
         <a target="_blank" href={props.url}>
           viewed here
-        </a>.
+        </a>
+        .
       </div>
     );
   } else {
