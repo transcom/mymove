@@ -477,7 +477,7 @@
         </location>
         <size>
             <width>318.00</width>
-            <height>340.00</height>
+            <height>320.00</height>
         </size>
         <zorder>15</zorder>
         <SQLField>
@@ -568,11 +568,6 @@
             <name><![CDATA[market]]></name>
             <type><![CDATA[TEXT]]></type>
             <uid><![CDATA[33A9E527-BCE2-4EDB-AC86-76F58711889E]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[code_of_service]]></name>
-            <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[0C9C4B30-7780-439B-8E6A-27F80127EBBD]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[book_date]]></name>
@@ -1556,7 +1551,7 @@
         <schema><![CDATA[public]]></schema>
         <location>
             <x>23.00</x>
-            <y>1387.00</y>
+            <y>1388.00</y>
         </location>
         <size>
             <width>440.00</width>
@@ -1786,11 +1781,6 @@
             <name><![CDATA[spouse_progear_weight_estimate]]></name>
             <type><![CDATA[INTEGER]]></type>
             <uid><![CDATA[F9948CB3-DD81-4D46-AB9B-E83FD55BB299]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[code_of_service]]></name>
-            <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[59FB2E5F-B8AC-4F93-B54F-76031395687A]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[service_member_0]]></name>
