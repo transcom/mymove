@@ -1,80 +1,64 @@
-import { denormalize, normalize } from 'normalizr';
+import { denormalize } from 'normalizr';
+import { get } from 'lodash';
 
 import { shipments } from '../schema';
-import { ADD_ENTITIES, addEntities } from '../actions';
-import { getClient, checkResponse } from 'shared/api';
+import { swaggerRequest } from 'shared/api';
 
-export const STATE_KEY = 'shipments';
-
-export default function reducer(state = {}, action) {
-  switch (action.type) {
-    case ADD_ENTITIES:
-      return {
-        ...state,
-        ...action.payload.shipments,
-      };
-
-    default:
-      return state;
-  }
-}
-
-export function createOrUpdateShipment(moveId, shipment, id) {
+export function createOrUpdateShipment(label, moveId, shipment, id) {
   if (id) {
-    return updateShipment(moveId, id, shipment);
+    return updateShipment(label, moveId, id, shipment);
   } else {
-    return createShipment(moveId, shipment);
+    return createShipment(label, moveId, shipment);
   }
 }
 
-export function getShipment(moveId, shipmentId) {
-  return async function(dispatch, getState, { schema }) {
-    const client = await getClient();
-    const response = await client.apis.shipments.getShipment({
-      moveId,
-      shipmentId,
-    });
-    checkResponse(response, 'failed to get shipment due to server error');
-    const data = normalize(response.body, schema.shipment);
-    dispatch(addEntities(data.entities));
-    return response;
-  };
+export function getShipment(label, shipmentId, moveId) {
+  return swaggerRequest(
+    'shipments.getShipment',
+    { moveId, shipmentId },
+    {
+      label,
+      schemaKey: 'shipment',
+    },
+  );
 }
 
 export function createShipment(
+  label,
   moveId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
-  return async function(dispatch, getState, { schema }) {
-    const client = await getClient();
-    const response = await client.apis.shipments.createShipment({
+  return swaggerRequest(
+    'shipments.createShipment',
+    {
       moveId,
       shipment,
-    });
-    checkResponse(response, 'failed to create shipment due to server error');
-    const data = normalize(response.body, schema.shipment);
-    dispatch(addEntities(data.entities));
-    return response;
-  };
+    },
+    {
+      label,
+      schemaKey: 'shipment',
+    },
+  );
 }
 
 export function updateShipment(
+  label,
   moveId,
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
-  return async function(dispatch, getState, { schema }) {
-    const client = await getClient();
-    const response = await client.apis.shipments.patchShipment({
+  return swaggerRequest(
+    'shipments.patchShipment',
+    {
       moveId,
       shipmentId,
       shipment,
-    });
-    checkResponse(response, 'failed to update shipment due to server error');
-    const data = normalize(response.body, schema.shipment);
-    dispatch(addEntities(data.entities));
-    return response;
-  };
+    },
+    {
+      label,
+      schemaKey: 'shipment',
+    },
+  );
 }
 
 export function selectShipment(state, id) {

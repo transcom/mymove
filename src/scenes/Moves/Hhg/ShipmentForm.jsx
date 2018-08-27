@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
-import { request } from 'shared/api';
 import { lastError } from 'shared/Swagger/ducks';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -22,7 +21,9 @@ import {
 import './ShipmentForm.css';
 
 const formName = 'shipment_form';
-const requestLabel = 'ShipmentForm.loadShipment';
+const getRequestLabel = 'ShipmentForm.getShipment';
+const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 
 export class ShipmentForm extends Component {
@@ -40,13 +41,13 @@ export class ShipmentForm extends Component {
   }
 
   loadShipment() {
-    const currentID = get(this.props, 'currentShipment.id');
-    if (currentID) {
-      const args = {
-        moveId: this.props.currentShipment.move_id,
-        shipmentId: currentID,
-      };
-      this.props.request(requestLabel, 'shipments.getShipment', args);
+    const shipmentID = get(this.props, 'currentShipment.id');
+    if (shipmentID) {
+      this.props.getShipment(
+        getRequestLabel,
+        shipmentID,
+        this.props.currentShipment.move_id,
+      );
     }
   }
 
@@ -56,7 +57,12 @@ export class ShipmentForm extends Component {
     const currentShipmentId = get(this.props, 'currentShipment.id');
 
     return this.props
-      .createOrUpdateShipment(moveId, shipment, currentShipmentId)
+      .createOrUpdateShipment(
+        createOrUpdateRequestLabel,
+        moveId,
+        shipment,
+        currentShipmentId,
+      )
       .then(data => {
         return this.props.setCurrentShipment(data.body);
       })
@@ -132,7 +138,7 @@ ShipmentForm.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment, getShipment, request },
+    { createOrUpdateShipment, setCurrentShipment, getShipment },
     dispatch,
   );
 }
@@ -144,7 +150,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
-    error: lastError(state, requestLabel),
+    error: lastError(state, getRequestLabel),
   };
   return props;
 }
