@@ -1,10 +1,40 @@
 # Improved Swagger/Redux collaboration
 
-**User Story:** *[ticket/issue-number]* <!-- optional -->
+**User Story:** _[ticket/issue-number]_ <!-- optional -->
 
 ## Accessing models by ID
 
-All data access should be done through selectors and not by directly accessing the global Redux state. Here's an example of a fictitious `ShipmentDisplay` component fetching a specific shipment using its ID (which may have been extracted from a URL):
+All data access should be done through selectors and not by directly accessing the global Redux state. Here's an example of a fictitious `ShipmentDisplay` component fetching a specific shipment using its ID (which may have been extracted from a URL).
+
+Define an action creator function in `shared/Entities/modules/shipment.js` to connect
+
+```js
+export function getShipment(label, shipmentId, moveId) {
+  return swaggerRequest(
+    'shipments.getShipment',
+    { moveId, shipmentId },
+    { label },
+  );
+}
+```
+
+This is also where action creators that need to delegate to multiple other actions live. Here is an example that either updates or creates a shipment based on if `id` is provided:
+
+```js
+export function createOrUpdateShipment(label, moveId, shipment, id) {
+  if (id) {
+    return updateShipment(label, moveId, id, shipment);
+  } else {
+    return createShipment(label, moveId, shipment);
+  }
+}
+```
+
+Action creator functions should take a `label` argument, which will be used to allow the calling component to determine the status of any requests with that label.
+
+`swaggerRequest` returns a promise, so it is possible to chain behavior onto its result, for example to perform a few requests in sequence.
+
+Here is an example of a component using `getShipment` as defined above:
 
 ```jsx
 // import { get } from 'lodash';
@@ -15,7 +45,7 @@ All data access should be done through selectors and not by directly accessing t
 
 import { request } from 'shared/api';
 import { lastError } from 'shared/Swagger/ducks';
-import { selectShipment } from 'shared/Entities/modules/shipments';
+import { getShipment } from 'shared/Entities/modules/shipments';
 
 // This value is used to identify requests made by this component, since the
 // same Swagger operation may be called from multiple components.
@@ -27,7 +57,7 @@ export class ShipmentDisplay extends Component {
         const id = get(this.props, 'shipmentID');
         if (!id) return;
 
-        this.props.request(requestLabel, 'shipments.getShipment', {shipmentId: id});
+        this.props.getShipment(requestLabel, id);
     }
 
     render {
@@ -50,7 +80,7 @@ ShipmentDisplay.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ request }, dispatch);
+  return bindActionCreators({ request, getShipment }, dispatch);
 }
 
 function mapStateToProps(state, props) {
@@ -63,18 +93,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, mapDispatchToProps)(ShipmentForm);
 ```
 
-`request` returns a promise, so manual work can also be done within the component to handle a failed request:
-
-```javascript
-    componentDidMount() {
-        const id = get(this.props, 'shipmentID');
-        if (!id) return;
-
-        this.props.request(requestLabel, 'shipments.getShipment', {shipmentId: id}).catch(error => {
-            // handle the error as you see fit
-        });
-    }
-```
+Note the use of `REQUEST_LABEL` to allow for notification of any errors to requests.
 
 ## Storing UI state
 
@@ -103,7 +122,7 @@ export class ShipmentList extends Component {
         this.props.request(requestLabel, 'shipments.listShipment');
     }
 
-    selectShipment = (id) => {
+    shipmentClicked = (id) => {
        this.props.setCurrentShipmentID(id);
     }
 
@@ -116,7 +135,7 @@ export class ShipmentList extends Component {
 
                 <ul>
                     { shipments.map(shipment => (<li>
-                        <button onClick={this.selectShipment.bind(shipment.id)}> { shipment.id } </button>
+                        <button onClick={this.shipmentClicked.bind(shipment.id)}> { shipment.id } </button>
                       </li>))}
                 </ul>
 
@@ -154,9 +173,10 @@ to this structure directly.
 {
     entities: {
         shipments: {
-            byID: {
-                '123e4567-e89b-12d3-a456-426655440000': { /* shipment properties */ },
-            }
+            '123e4567-e89b-12d3-a456-426655440000': { /* shipment properties */ },
+        },
+        addresses: {
+            '123e4567-e89b-12d3-a456-426655440000': { /* address properties */ },
         }
     },
     requests: {

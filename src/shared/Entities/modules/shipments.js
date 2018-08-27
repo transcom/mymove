@@ -16,10 +16,7 @@ export function getShipment(label, shipmentId, moveId) {
   return swaggerRequest(
     'shipments.getShipment',
     { moveId, shipmentId },
-    {
-      label,
-      schemaKey: 'shipment',
-    },
+    { label },
   );
 }
 
@@ -30,14 +27,8 @@ export function createShipment(
 ) {
   return swaggerRequest(
     'shipments.createShipment',
-    {
-      moveId,
-      shipment,
-    },
-    {
-      label,
-      schemaKey: 'shipment',
-    },
+    { moveId, shipment },
+    { label },
   );
 }
 
@@ -49,15 +40,8 @@ export function updateShipment(
 ) {
   return swaggerRequest(
     'shipments.patchShipment',
-    {
-      moveId,
-      shipmentId,
-      shipment,
-    },
-    {
-      label,
-      schemaKey: 'shipment',
-    },
+    { moveId, shipmentId, shipment },
+    { label },
   );
 }
 
