@@ -574,7 +574,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       shipment_id:
-        description: ID of the shipment serviced by this agent
+        type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       role:
