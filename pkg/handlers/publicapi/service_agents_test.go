@@ -93,3 +93,91 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	suite.Nil(err, "could not count service agents")
 	suite.Equal(1, count)
 }
+
+func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgent := serviceAgents[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	UpdatePayload := apimessages.ServiceAgent{
+		PointOfContact: models.StringPointer("Not Jenny at ACME"),
+		Email:          models.StringPointer("notjenny@example.com"),
+		PhoneNumber:    models.StringPointer("3039035768"),
+		Notes:          models.StringPointer("Some notes"),
+	}
+
+	params := serviceagentop.PatchServiceAgentParams{
+		HTTPRequest:    req,
+		ShipmentID:     strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
+		Update:         &UpdatePayload,
+	}
+
+	// And: patch service agent is returned
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&serviceagentop.PatchServiceAgentOK{}, response)
+	okResponse := response.(*serviceagentop.PatchServiceAgentOK)
+
+	// And: Payload has new values
+	suite.Equal(strfmt.UUID(serviceAgent.ID.String()), okResponse.Payload.ID)
+	suite.Equal(*UpdatePayload.PointOfContact, *okResponse.Payload.PointOfContact)
+	suite.Equal(*UpdatePayload.Email, *okResponse.Payload.Email)
+	suite.Equal(*UpdatePayload.PhoneNumber, *okResponse.Payload.PhoneNumber)
+	suite.Equal(UpdatePayload.Notes, okResponse.Payload.Notes)
+}
+
+func (suite *HandlerSuite) TestPatchServiceAgentHandlerWrongTSP() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgent := serviceAgents[0]
+
+	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req = suite.AuthenticateTspRequest(req, otherTspUser)
+
+	UpdatePayload := apimessages.ServiceAgent{
+		PointOfContact: models.StringPointer("Not Jenny at ACME"),
+		Email:          models.StringPointer("notjenny@example.com"),
+		PhoneNumber:    models.StringPointer("3039035768"),
+		Notes:          models.StringPointer("Some notes"),
+	}
+
+	params := serviceagentop.PatchServiceAgentParams{
+		HTTPRequest:    req,
+		ShipmentID:     strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
+		Update:         &UpdatePayload,
+	}
+
+	// And: patch service agent is returned
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&serviceagentop.PatchServiceAgentBadRequest{}, response)
+}
