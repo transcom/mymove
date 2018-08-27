@@ -85,5 +85,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
 
+	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
+
 	return internalAPI.Serve(nil)
 }

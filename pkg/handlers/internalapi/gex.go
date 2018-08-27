@@ -1,4 +1,4 @@
-package handlers
+package internalapi
 
 import (
 	"bytes"
@@ -13,10 +13,13 @@ import (
 
 	gexop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/gex"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 )
 
 // SendGexRequestHandler sends a request to GEX
-type SendGexRequestHandler HandlerContext
+type SendGexRequestHandler struct {
+	handlers.HandlerContext
+}
 
 // Handle sends a request to GEX
 func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middleware.Responder {
@@ -33,7 +36,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 		strings.NewReader(transactionBody),
 	)
 	if err != nil {
-		h.logger.Error("Creating GEX POST request", zap.Error(err))
+		h.Logger().Error("Creating GEX POST request", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
 	}
 
@@ -43,7 +46,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 
 	config, err := getTLSConfig()
 	if err != nil {
-		h.logger.Error("Creating TLS config", zap.Error(err))
+		h.Logger().Error("Creating TLS config", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
 	}
 
@@ -51,7 +54,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(request)
 	if err != nil {
-		h.logger.Error("Sending GEX POST request", zap.Error(err))
+		h.Logger().Error("Sending GEX POST request", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
 	}
 
