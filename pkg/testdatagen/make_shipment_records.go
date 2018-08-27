@@ -55,8 +55,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	serviceMember := assertions.Shipment.ServiceMember
 	if serviceMember == nil {
-		newServiceMember := MakeDefaultServiceMember(db)
-		serviceMember = &newServiceMember
+		serviceMember = &move.Orders.ServiceMember
 	}
 
 	pickupAddress := assertions.Shipment.PickupAddress

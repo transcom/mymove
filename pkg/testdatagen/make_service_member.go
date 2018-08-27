@@ -9,9 +9,17 @@ import (
 // MakeServiceMember creates a single ServiceMember with associated data.
 func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	user := assertions.ServiceMember.User
+	email := "leo_spaceman_sm@example.com"
+
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.ServiceMember.UserID) {
+		if assertions.User.LoginGovEmail == "" {
+			assertions.User.LoginGovEmail = email
+		}
 		user = MakeUser(db, assertions)
+	}
+	if assertions.User.LoginGovEmail != "" {
+		email = assertions.User.LoginGovEmail
 	}
 
 	serviceMember := models.ServiceMember{
@@ -19,7 +27,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		User:          user,
 		FirstName:     models.StringPointer("Leo"),
 		LastName:      models.StringPointer("Spacemen"),
-		PersonalEmail: models.StringPointer("leo@example.com"),
+		PersonalEmail: models.StringPointer(email),
 	}
 
 	// Overwrite values with those from assertions
@@ -59,11 +67,9 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 
 	mergeModels(&smDefaults, assertions.ServiceMember)
 
-	serviceMemberAssertions := Assertions{
-		ServiceMember: smDefaults,
-	}
+	assertions.ServiceMember = smDefaults
 
-	serviceMember := MakeServiceMember(db, serviceMemberAssertions)
+	serviceMember := MakeServiceMember(db, assertions)
 
 	contactAssertions := Assertions{
 		BackupContact: models.BackupContact{
