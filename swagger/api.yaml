@@ -883,7 +883,7 @@ paths:
           description: server error
     patch:
       summary: update the associated blackout
-      operationId: updateBlackout
+      operationId: patchBlackout
       tags:
         - blackouts
       parameters:
@@ -1157,7 +1157,7 @@ paths:
     patch:
       summary: Updates a particular service agent
       description: Takes a partial service agent object and replaces the fields in the DB with the ones passed int he body
-      operationId: updateServiceAgent
+      operationId: patchServiceAgent
       tags:
         - service_agents
       parameters:
@@ -1173,10 +1173,9 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: payload
-          in: body
+        - in: body
+          name: update
           required: true
-          description: Service Agent information
           schema:
             $ref: '#/definitions/ServiceAgent'
       responses:

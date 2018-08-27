@@ -90,6 +90,29 @@ func FetchServiceAgentsByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uui
 	return serviceAgents, err
 }
 
+// FetchServiceAgentByTSP looks up all service agents beloning to a TSP and a shipment
+func FetchServiceAgentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, serviceAgentID uuid.UUID) (*ServiceAgent, error) {
+
+	serviceAgents := []ServiceAgent{}
+
+	err := tx.
+		Where("service_agents.id = $1 AND shipments.id = $2 AND shipment_offers.transportation_service_provider_id = $3", serviceAgentID, shipmentID, tspID).
+		LeftJoin("shipments", "service_agents.shipment_id=shipments.id").
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		All(&serviceAgents)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Unlikely that we see more than one but to be safe this will error.
+	if len(serviceAgents) != 1 {
+		return nil, ErrFetchNotFound
+	}
+
+	return &serviceAgents[0], err
+}
+
 // CreateServiceAgent creates a ServiceAgent model from payload and queried fields.
 func CreateServiceAgent(tx *pop.Connection,
 	shipmentID uuid.UUID,

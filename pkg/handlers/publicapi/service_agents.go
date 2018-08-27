@@ -125,3 +125,52 @@ func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAge
 	serviceAgentPayload := payloadForServiceAgentModel(newServiceAgent)
 	return serviceagentop.NewCreateServiceAgentOK().WithPayload(serviceAgentPayload)
 }
+
+// PatchServiceAgentHandler allows a user to update a service agent
+type PatchServiceAgentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle updates the service agent - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgentParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	serviceAgentID, _ := uuid.FromString(params.ServiceAgentID.String())
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.Logger().Error("Missing TSP User ID")
+		return serviceagentop.NewPatchServiceAgentForbidden()
+	}
+
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return serviceagentop.NewPatchServiceAgentForbidden()
+	}
+
+	serviceAgent, err := models.FetchServiceAgentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, serviceAgentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return serviceagentop.NewPatchServiceAgentBadRequest()
+	}
+
+	// Update the Service Agent
+	payload := params.Update
+	serviceAgent.PointOfContact = *payload.PointOfContact
+	serviceAgent.Email = payload.Email
+	serviceAgent.PhoneNumber = payload.PhoneNumber
+	serviceAgent.Notes = payload.Notes
+
+	verrs, err := h.DB().ValidateAndSave(serviceAgent)
+
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	serviceAgentPayload := payloadForServiceAgentModel(*serviceAgent)
+	return serviceagentop.NewPatchServiceAgentOK().WithPayload(serviceAgentPayload)
+}
