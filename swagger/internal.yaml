@@ -1868,6 +1868,14 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -1876,7 +1884,13 @@ definitions:
         format: date-time
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -1934,9 +1948,23 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'

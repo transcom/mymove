@@ -41,8 +41,11 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		SpouseHasProGear:    fmtBool(order.SpouseHasProGear),
 		UploadedOrders:      documentPayload,
 		OrdersNumber:        order.OrdersNumber,
+		ParagraphNumber:     order.ParagraphNumber,
+		OrdersIssuingAgency: order.OrdersIssuingAgency,
 		Moves:               moves,
 		Tac:                 order.TAC,
+		Sac:                 order.SAC,
 		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 		Status:              internalmessages.OrdersStatus(order.Status),
 	}
@@ -151,6 +154,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	}
 
 	order.OrdersNumber = payload.OrdersNumber
+	order.ParagraphNumber = payload.ParagraphNumber
+	order.OrdersIssuingAgency = payload.OrdersIssuingAgency
 	order.IssueDate = time.Time(*payload.IssueDate)
 	order.ReportByDate = time.Time(*payload.ReportByDate)
 	order.OrdersType = payload.OrdersType
@@ -160,6 +165,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.NewDutyStationID = dutyStation.ID
 	order.NewDutyStation = dutyStation
 	order.TAC = payload.Tac
+	order.SAC = payload.Sac
 
 	if payload.DepartmentIndicator != nil {
 		order.DepartmentIndicator = fmtString(string(*payload.DepartmentIndicator))
