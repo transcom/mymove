@@ -31,8 +31,8 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	params := shipmentop.GetShipmentParams{
-		HTTPRequest:  req,
-		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
 	// And: get shipment is returned
@@ -75,9 +75,9 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	}
 
 	params := shipmentop.PatchShipmentParams{
-		HTTPRequest:  req,
-		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
-		Update:       &UpdatePayload,
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Update:      &UpdatePayload,
 	}
 
 	// And: patch shipment is returned
@@ -129,9 +129,9 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 	}
 
 	params := shipmentop.PatchShipmentParams{
-		HTTPRequest:  req,
-		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
-		Update:       &UpdatePayload,
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Update:      &UpdatePayload,
 	}
 
 	// And: patch shipment is returned
