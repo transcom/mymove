@@ -48,3 +48,25 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 		t.Fatalf("could not find shipmentOffer: %v", err)
 	}
 }
+
+func (suite *ModelSuite) TestShipmentOfferStateMachine() {
+	// Try to accept an offer
+	shipmentOffer := testdatagen.MakeDefaultShipmentOffer(suite.db)
+	suite.Nil(shipmentOffer.Accepted)
+	suite.Nil(shipmentOffer.RejectionReason)
+
+	err := shipmentOffer.Accept()
+	suite.Nil(err)
+	suite.True(*shipmentOffer.Accepted)
+	suite.Nil(shipmentOffer.RejectionReason)
+
+	// Try to Reject an offer
+	shipmentOffer = testdatagen.MakeDefaultShipmentOffer(suite.db)
+	suite.Nil(shipmentOffer.Accepted)
+	suite.Nil(shipmentOffer.RejectionReason)
+
+	err = shipmentOffer.Reject("DO NOT WANT")
+	suite.Nil(err)
+	suite.False(*shipmentOffer.Accepted)
+	suite.Equal("DO NOT WANT", *shipmentOffer.RejectionReason)
+}
