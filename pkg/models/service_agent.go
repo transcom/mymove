@@ -86,6 +86,9 @@ func FetchServiceAgentsByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uui
 		LeftJoin("shipments", "service_agents.shipment_id=shipments.id").
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&serviceAgents)
+	if err != nil {
+		return nil, err
+	}
 
 	return serviceAgents, err
 }
