@@ -7,7 +7,9 @@ const FailWhale = () => (
         <img src={sadComputer} width="200" height="200" alt="" />
       </p>
       <h2>
-        Oops!<br />Something went wrong.
+        Oops!
+        <br />
+        Something went wrong.
       </h2>
       <p>Please try again in a few moments.</p>
       <br />

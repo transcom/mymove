@@ -236,6 +236,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			CodeOfService:     "D",
 		},
 	})
+
 	hhg0.Move.Submit()
 	// Save move and dependencies
 	models.SaveMoveDependencies(db, hhg0.Move)
@@ -273,6 +274,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 		},
 	})
+
 	hhg1 := offer1.Shipment
 	hhg1.Move.Submit()
 	// Save move and dependencies
