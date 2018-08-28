@@ -282,6 +282,7 @@ func main() {
 	externalAPIMux := goji.SubMux()
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
+	externalAPIMux.Use(userAuthMiddleware)
 	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()

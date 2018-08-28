@@ -1,13 +1,4 @@
 #!/bin/bash
 
-set -eu -o pipefail
-
-db_password="mysecretpassword"
-
-command="${*:-}"
-
-if [ -n "${command[*]}" ]; then
-  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:${db_password}@localhost/dev_db -c "${command}"
-else
-  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:${db_password}@localhost/dev_db
-fi
+export DB_NAME=dev_db
+. $(dirname "$0")/psql
