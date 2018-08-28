@@ -46,12 +46,12 @@ func (h GetBlackoutHandler) Handle(params blackoutsop.GetBlackoutParams) middlew
 	return middleware.NotImplemented("operation .getBlackout has not yet been implemented")
 }
 
-// UpdateBlackoutHandler returns a list of all the Blackouts
-type UpdateBlackoutHandler struct {
+// PatchBlackoutHandler returns a list of all the Blackouts
+type PatchBlackoutHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle simply returns a NotImplementedError
-func (h UpdateBlackoutHandler) Handle(params blackoutsop.UpdateBlackoutParams) middleware.Responder {
-	return middleware.NotImplemented("operation .updateBlackout has not yet been implemented")
+func (h PatchBlackoutHandler) Handle(params blackoutsop.PatchBlackoutParams) middleware.Responder {
+	return middleware.NotImplemented("operation .patchBlackout has not yet been implemented")
 }
