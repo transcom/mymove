@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
@@ -15,23 +14,24 @@ import (
 // MakeShipmentOffer creates a single shipment offer record
 func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.ShipmentOffer {
 
-	// Test for ShipmentID first before creating a new Shipment
-	shipmentID := assertions.ShipmentOffer.ShipmentID
+	// Test for Shipment first before creating a new Shipment
+	shipment := assertions.ShipmentOffer.Shipment
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
-		shipment := MakeDefaultShipment(db)
-		shipmentID = shipment.ID
+		shipment = MakeShipment(db, assertions)
 	}
 
 	// Test for TSP ID first before creating a new TSP
 	tspID := assertions.ShipmentOffer.TransportationServiceProviderID
 	if isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
-		// TODO: Make TSP and get ID
+		tsp := MakeTSP(db, assertions)
+		tspID = tsp.ID
 	}
 	shipmentOffer := models.ShipmentOffer{
-		ShipmentID:                      shipmentID,
+		ShipmentID:                      shipment.ID,
+		Shipment:                        shipment,
 		TransportationServiceProviderID: tspID,
 		AdministrativeShipment:          false,
-		Accepted:                        swag.Bool(true),
+		Accepted:                        nil, // This is a Tri-state and new offers are always nil until accepted
 		RejectionReason:                 nil,
 	}
 
@@ -70,7 +70,7 @@ func MakeShipmentOfferData(db *pop.Connection) {
 				ShipmentID:                      shipment.ID,
 				TransportationServiceProviderID: tspList[rand.Intn(len(tspList))].ID,
 				AdministrativeShipment:          false,
-				Accepted:                        swag.Bool(true),
+				Accepted:                        nil, // See note about Tri-state above
 				RejectionReason:                 nil,
 			},
 		}
@@ -103,7 +103,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
-		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
+		email := fmt.Sprintf("leo_spaceman_tsp_%d@example.com", i)
 		tspUserAssertions := Assertions{
 			User: models.User{
 				LoginGovEmail: email,
@@ -144,9 +144,14 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
 		nowPlusTwo := now.Add(oneWeek * 2)
+		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
+		moveAssertions.User.LoginGovEmail = smEmail
 		move := MakeMove(db, moveAssertions)
 		status := statuses[rand.Intn(len(statuses))]
 		shipmentAssertions := Assertions{
+			User: models.User{
+				LoginGovEmail: smEmail,
+			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
 				PickupDate:              &nowPlusOne,

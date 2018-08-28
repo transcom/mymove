@@ -7,7 +7,8 @@ import { NavLink } from 'react-router-dom';
 
 import { withContext } from 'shared/AppContext';
 
-import { loadShipmentDependencies } from './ducks';
+import { loadShipmentDependencies, patchShipment } from './ducks';
+import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
 
 class ShipmentInfo extends Component {
@@ -53,14 +54,23 @@ class ShipmentInfo extends Component {
           </div>
         </div>
         <div className="usa-grid grid-wide tabs">
-          <div className="usa-width-two-thirds">
+          {this.props.loadTspDependenciesHasSuccess && (
+            <div className=" office-tab usa-width-three-fourths">
+              <PremoveSurvey
+                title="Premove Survey"
+                shipment={this.props.shipment}
+                update={this.props.patchShipment}
+              />
+            </div>
+          )}
+          <div className="usa-width-one-fourth">
             <p>
               <button className="usa-button-primary">Accept</button>
               <button className="usa-button-secondary">Reject</button>
             </p>
           </div>
-          <div className="usa-width-one-third" />
         </div>
+        <div className="usa-width-one-third" />
       </div>
     );
   }
@@ -80,6 +90,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadShipmentDependencies,
+      patchShipment,
     },
     dispatch,
   );

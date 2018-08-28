@@ -21,7 +21,7 @@ export default function reducer(state = {}, action) {
 
 export function createOrUpdateShipment(moveId, shipment, id) {
   if (id) {
-    return updateShipment(moveId, id, shipment);
+    return updateShipment(id, shipment);
   } else {
     return createShipment(moveId, shipment);
   }
@@ -59,14 +59,12 @@ export function createShipment(
 }
 
 export function updateShipment(
-  moveId,
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.shipments.patchShipment({
-      moveId,
       shipmentId,
       shipment,
     });

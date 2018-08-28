@@ -4,11 +4,11 @@
         <name><![CDATA[public.orders]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>1028.00</x>
+            <x>1030.00</x>
             <y>3.00</y>
         </location>
         <size>
-            <width>299.00</width>
+            <width>300.00</width>
             <height>400.00</height>
         </size>
         <zorder>19</zorder>
@@ -130,24 +130,24 @@
             <uid><![CDATA[481E6D30-CC47-4D2B-9D37-7FFAEFAE015E]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[sac]]></name>
-            <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[414812BD-A037-4183-8066-6644B752F0E6]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[orders_issuing_agency]]></name>
-            <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[376E56EC-C484-43C5-BDEF-8136F701EA32]]></uid>
-        </SQLField>
-        <SQLField>
             <name><![CDATA[paragraph_number]]></name>
             <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[5E796488-DAE5-4B48-9766-396342B13FB9]]></uid>
+            <uid><![CDATA[362B18ED-9A61-42A7-BF53-BA05D1C8C584]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[orders_issuing_number]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[9D1587ED-EE08-4A75-8651-4B11CCD70DAB]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[sac]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[4C08FF3B-1959-4A68-8A18-1B0D9CEAEAF8]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[tac]]></name>
             <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[68A4A79B-0C75-4251-97FA-25DB8F9FE286]]></uid>
+            <uid><![CDATA[A5A33D68-2F8D-444A-B7CD-CD5D51E541A8]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[28]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -497,7 +497,7 @@
         </location>
         <size>
             <width>318.00</width>
-            <height>340.00</height>
+            <height>320.00</height>
         </size>
         <zorder>15</zorder>
         <SQLField>
@@ -588,11 +588,6 @@
             <name><![CDATA[market]]></name>
             <type><![CDATA[TEXT]]></type>
             <uid><![CDATA[33A9E527-BCE2-4EDB-AC86-76F58711889E]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[code_of_service]]></name>
-            <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[0C9C4B30-7780-439B-8E6A-27F80127EBBD]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[book_date]]></name>
@@ -1580,7 +1575,7 @@
         </location>
         <size>
             <width>440.00</width>
-            <height>780.00</height>
+            <height>760.00</height>
         </size>
         <zorder>14</zorder>
         <SQLField>
@@ -1808,11 +1803,6 @@
             <uid><![CDATA[F9948CB3-DD81-4D46-AB9B-E83FD55BB299]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[code_of_service]]></name>
-            <type><![CDATA[TEXT]]></type>
-            <uid><![CDATA[59FB2E5F-B8AC-4F93-B54F-76031395687A]]></uid>
-        </SQLField>
-        <SQLField>
             <name><![CDATA[service_member_0]]></name>
             <type><![CDATA[uuid]]></type>
             <referencesField>id</referencesField>
@@ -1827,27 +1817,17 @@
             <uid><![CDATA[E70C45A6-A1C6-480E-B3C2-6675E255EDF8]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[pm_survey_pack_date]]></name>
+            <name><![CDATA[pm_survey_planned_pack_date]]></name>
             <type><![CDATA[timestamp without time zone]]></type>
             <uid><![CDATA[91E342FC-4659-4EC1-821C-87D15C84B0D8]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[pm_survey_pickup_date]]></name>
+            <name><![CDATA[pm_survey_planned_pickup_date]]></name>
             <type><![CDATA[timestamp without time zone]]></type>
             <uid><![CDATA[2BC30B8C-56D8-4D2A-9005-14D352DF1771]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[pm_survey_latest_pickup_date]]></name>
-            <type><![CDATA[timestamp without time zone]]></type>
-            <uid><![CDATA[8C7D69D1-7650-4363-BC31-8C85E4940F78]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[pm_survey_earliest_delivery_date]]></name>
-            <type><![CDATA[timestamp without timezone]]></type>
-            <uid><![CDATA[576140C6-8155-472F-8F88-52170B0B9328]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[pm_survey_latest_delivery_date]]></name>
+            <name><![CDATA[pm_survey_planned_delivery_date]]></name>
             <type><![CDATA[timestamp without time zone]]></type>
             <uid><![CDATA[2DCAA711-9F0F-4360-A92C-C44DBE6DC0EC]]></uid>
         </SQLField>
@@ -1870,6 +1850,11 @@
             <name><![CDATA[pm_survey_notes]]></name>
             <type><![CDATA[TEXT]]></type>
             <uid><![CDATA[3040475E-ABFA-4EBF-8B8A-BF2804B45661]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[pm_survey_method]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[2D1FE455-CC16-4ABA-8BAF-657BC38B71D3]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -3209,7 +3194,7 @@
         <windowHeight><![CDATA[947.000000]]></windowHeight>
         <windowLocationX><![CDATA[0.000000]]></windowLocationX>
         <windowLocationY><![CDATA[80.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{654, 0}]]></windowScrollOrigin>
+        <windowScrollOrigin><![CDATA[{422, 0}]]></windowScrollOrigin>
         <windowWidth><![CDATA[1680.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>

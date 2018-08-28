@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
-import editablePanel from '../editablePanel';
+import { editablePanelify } from 'shared/EditablePanel';
 import { addressElementDisplay, addressElementEdit } from '../AddressElement';
 import { no_op } from 'shared/utils';
 
@@ -72,7 +72,7 @@ const LocationsEdit = props => {
 const formName = 'office_shipment_info_locations';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let LocationsPanel = editablePanel(
+let LocationsPanel = editablePanelify(
   LocationsDisplay,
   LocationsEdit,
   editEnabled,

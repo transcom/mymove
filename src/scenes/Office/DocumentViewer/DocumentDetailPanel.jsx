@@ -4,10 +4,13 @@ import { connect } from 'react-redux';
 import { get, omit } from 'lodash';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
-import editablePanel from '../editablePanel';
 import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
 import { formatDate, formatCents } from 'shared/formatters';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  editablePanelify,
+} from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
 import {
@@ -117,7 +120,7 @@ const DocumentDetailEdit = props => {
 
 const formName = 'move_document_viewer';
 
-let DocumentDetailPanel = editablePanel(
+let DocumentDetailPanel = editablePanelify(
   DocumentDetailDisplay,
   DocumentDetailEdit,
 );
@@ -149,7 +152,7 @@ function mapStateToProps(state, props) {
     isUpdating: false,
     moveDocument: moveDocument,
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       // Make a copy of values to not modify moveDocument

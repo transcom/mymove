@@ -172,7 +172,11 @@ func (m *Move) Cancel(reason string) error {
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document", "Shipments").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
+		"SignedCertifications",
+		"Orders",
+		"MoveDocuments.Document",
+		"Shipments.TrafficDistributionList").Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
