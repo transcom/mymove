@@ -1943,10 +1943,12 @@ definitions:
         type: string
         title: Paragraph Number
         x-nullable: true
+        example: "RI-JP"
       orders_issuing_agency:
         type: string
         title: Orders Issuing Agency
         x-nullable: true
+        example: "COMNAVPERSCOM MILLINGTON"
       created_at:
         type: string
         format: date-time
