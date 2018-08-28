@@ -41,13 +41,6 @@ func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAge
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return serviceagentop.NewCreateServiceAgentForbidden()
-	}
-
 	// TODO (rebecca): Find a way to check Shipment belongs to TSP without 2 queries
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
