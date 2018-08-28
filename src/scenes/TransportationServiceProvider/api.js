@@ -34,6 +34,16 @@ export async function LoadShipment(shipmentId) {
   return response.body;
 }
 
+// SHIPMENT ACCEPT
+export async function AcceptShipment(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.createShipmentAccept({
+    shipmentId: shipmentId,
+  });
+  checkResponse(response, 'failed to accept shipment due to server error');
+  return response.body;
+}
+
 export async function PatchShipment(shipmentId, shipment) {
   const client = await getPublicClient();
   const payloadDef = client.spec.definitions.Shipment;
