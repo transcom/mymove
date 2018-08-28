@@ -64,13 +64,6 @@ func (h IndexShipmentsHandler) Handle(params shipmentop.IndexShipmentsParams) mi
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return shipmentop.NewIndexShipmentsForbidden()
-	}
-
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
 	// See original commits in https://github.com/transcom/mymove/pull/802
@@ -105,13 +98,6 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
-
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return shipmentop.NewGetShipmentForbidden()
-	}
 
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
@@ -218,13 +204,6 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
-
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return shipmentop.NewGetShipmentForbidden()
-	}
 
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
