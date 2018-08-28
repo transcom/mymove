@@ -120,7 +120,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyStation.Address",
 		"UploadedOrders.Uploads",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.Shipments",
+		"Moves.Shipments.TrafficDistributionList",
 		"Moves.SignedCertifications").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {

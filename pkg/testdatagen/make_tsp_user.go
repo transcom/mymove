@@ -9,8 +9,17 @@ import (
 // MakeTspUser creates a single TSP user and associated Transportation Service Provider
 func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 	user := assertions.TspUser.User
+	email := "leo_spaceman_tsp@example.com"
+
 	if assertions.TspUser.UserID == nil || isZeroUUID(*assertions.TspUser.UserID) {
+		if assertions.User.LoginGovEmail == "" {
+			assertions.User.LoginGovEmail = email
+		}
 		user = MakeUser(db, assertions)
+	}
+
+	if assertions.User.LoginGovEmail != "" {
+		email = assertions.User.LoginGovEmail
 	}
 
 	tsp := MakeDefaultTSP(db)
@@ -22,7 +31,7 @@ func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 		TransportationServiceProviderID: tsp.ID,
 		FirstName:                       "Leo",
 		LastName:                        "Spaceman",
-		Email:                           "leo_spaceman@example.com",
+		Email:                           email,
 		Telephone:                       "415-555-1212",
 	}
 

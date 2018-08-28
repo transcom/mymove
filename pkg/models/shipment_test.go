@@ -121,14 +121,25 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	}
 }
 
+// TestShipmentStateMachine takes the shipment through valid state transitions
 func (suite *ModelSuite) TestShipmentStateMachine() {
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
-
 	suite.Equal(ShipmentStatusDRAFT, shipment.Status, "expected Draft")
+
 	// Can submit shipment
 	err := shipment.Submit()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
+
+	// Can award shipment
+	err = shipment.Award()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
+
+	// Can submit shipment
+	err = shipment.Accept()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 }
 
 func equalShipmentsSlice(a []ShipmentWithOffer, b []ShipmentWithOffer) bool {
@@ -141,4 +152,29 @@ func equalShipmentsSlice(a []ShipmentWithOffer, b []ShipmentWithOffer) bool {
 		}
 	}
 	return true
+}
+
+// TestAcceptShipmentForTSP tests that a shipment and shipment offer is correctly accepted
+func (suite *ModelSuite) TestAcceptShipmentForTSP() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []ShipmentStatus{ShipmentStatusAWARDED}
+	tspUsers, shipments, shipmentOffers, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+	shipmentOffer := shipmentOffers[0]
+
+	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
+	suite.Nil(shipmentOffer.Accepted)
+	suite.Nil(shipmentOffer.RejectionReason)
+
+	newShipment, newShipmentOffer, _, err := AcceptShipmentForTSP(suite.db, tspUser.TransportationServiceProviderID, shipment.ID)
+	suite.NoError(err)
+
+	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Awarded")
+	suite.True(*newShipmentOffer.Accepted)
+	suite.Nil(newShipmentOffer.RejectionReason)
 }

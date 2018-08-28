@@ -65,6 +65,7 @@ Cypress.Commands.add('resetDb', () =>
     .its('code')
     .should('eq', 0),
 );
+
 //from https://github.com/cypress-io/cypress/issues/669
 //Cypress doesn't give the right File constructor, so we grab the window's File
 Cypress.Commands.add('upload_file', (selector, fileUrl) => {
