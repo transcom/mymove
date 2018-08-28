@@ -305,6 +305,7 @@ Unidoc
 poppler
 pdfcpu
 Reportlab
+nonpeak
 Snyk
 Twistlock
 CVEs
@@ -320,8 +321,10 @@ fillable
  - docs/data/tspp-data-creation.md
  - docs/backend.md
  - docs/adr/0007-swagger-client.md
- - docs/adr/0026-pdf-generation.md
+ - docs/adr/0027-pdf-generation.md
  - README.md
  - docs/frontend.md
  - ./docs/frontend.md
- - ./docs/adr/0027-pdf-generation.md
+_Regenerate
+ - ./README.md
+ - ./docs/data/tspp-data-creation.md
