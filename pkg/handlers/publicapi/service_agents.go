@@ -67,11 +67,11 @@ func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgen
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	isap := make(apimessages.IndexServiceAgents, len(serviceAgents))
-	for i, sa := range serviceAgents {
-		isap[i] = payloadForServiceAgentModel(sa)
+	serviceAgentPayloadList := make(apimessages.IndexServiceAgents, len(serviceAgents))
+	for i, serviceAgent := range serviceAgents {
+		serviceAgentPayloadList[i] = payloadForServiceAgentModel(serviceAgent)
 	}
-	return serviceagentop.NewIndexServiceAgentsOK().WithPayload(isap)
+	return serviceagentop.NewIndexServiceAgentsOK().WithPayload(serviceAgentPayloadList)
 }
 
 // CreateServiceAgentHandler creates a new service agent on a shipment via POST /shipments/{shipmentId}/service_agents
@@ -84,13 +84,6 @@ func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAge
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return serviceagentop.NewCreateServiceAgentForbidden()
-	}
 
 	// TODO (rebecca): Find a way to check Shipment belongs to TSP without 2 queries
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
