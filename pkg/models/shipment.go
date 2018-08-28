@@ -129,6 +129,15 @@ func (s *Shipment) Submit() error {
 	return nil
 }
 
+// Award marks the Shipment request as Awarded. Must be in an Submitted state.
+func (s *Shipment) Award() error {
+	if s.Status != ShipmentStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Award")
+	}
+	s.Status = ShipmentStatusAWARDED
+	return nil
+}
+
 // Accept marks the Shipment request as Accepted. Must be in an Awarded state.
 func (s *Shipment) Accept() error {
 	if s.Status != ShipmentStatusAWARDED {
