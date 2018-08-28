@@ -4,11 +4,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
 
-import editablePanel from '../editablePanel';
 import { no_op } from 'shared/utils';
 import { formatNumber } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelField } from 'shared/EditablePanel';
+import { PanelField, editablePanelify } from 'shared/EditablePanel';
 
 const WeightAndInventoryDisplay = props => {
   const fieldProps = {
@@ -50,7 +49,7 @@ const WeightAndInventoryEdit = props => {
 const formName = 'office_shipment_info_weight_and_inventory';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let WeightAndInventoryPanel = editablePanel(
+let WeightAndInventoryPanel = editablePanelify(
   WeightAndInventoryDisplay,
   WeightAndInventoryEdit,
   editEnabled,
@@ -71,7 +70,7 @@ function mapStateToProps(state) {
     shipment: shipment,
     isUpdating: state.office.shipmentIsUpdating,
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);

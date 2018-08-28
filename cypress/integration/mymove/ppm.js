@@ -71,7 +71,7 @@ describe('completing the ppm flow', function() {
     cy.nextPage();
     cy.contains('Success');
     cy.contains('Next Step: Awaiting approval');
-    cy.contains('Weight (est.): 6006 lbs');
+    cy.contains('Advance Requested: $1,333.91');
     cy.resetDb();
   });
 });

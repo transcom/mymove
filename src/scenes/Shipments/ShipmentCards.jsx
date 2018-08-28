@@ -25,8 +25,12 @@ const ShipmentCards = ({ shipments }) => {
 
     return (
       <div key={shipment.id} className={className}>
-        <b>Shipment: {shipment.id.substr(0, 6)}...</b>
-        TDL: {tdlID}...
+        <b>
+          Shipment: {shipment.id.substr(0, 6)}
+          ...
+        </b>
+        TDL: {tdlID}
+        ...
         <br />
         <br />
         Status: <b>{awardedStatus}</b>

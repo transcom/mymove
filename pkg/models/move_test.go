@@ -116,11 +116,50 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	reason := ""
 	move.Orders = orders
 
+	// Create PPM on this move
+	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+	ppm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Move:      *move,
+			MoveID:    move.ID,
+			Status:    PPMStatusDRAFT,
+			Advance:   &advance,
+			AdvanceID: &advance.ID,
+		},
+	})
+	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+
+	// Create hhg (shipment) on this move
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			MoveID:                  move.ID,
+			Move:                    move,
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+			Status:                  ShipmentStatusDRAFT,
+		},
+	})
+
+	move.Shipments = append(move.Shipments, shipment)
+
 	// Once submitted
 	err = move.Submit()
+	suite.mustSave(move)
+	suite.db.Reload(move)
 	suite.Nil(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
-
+	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
+	suite.Equal(ShipmentStatusSUBMITTED, move.Shipments[0].Status, "expected Submitted")
 	// Can cancel move
 	err = move.Cancel(reason)
 	suite.Nil(err)

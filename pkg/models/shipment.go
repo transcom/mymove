@@ -26,6 +26,9 @@ const (
 	// ShipmentStatusAWARDED captures enum value "AWARDED"
 	// Using AWARDED for TSP Queue work, not yet in office/SM flow
 	ShipmentStatusAWARDED ShipmentStatus = "AWARDED"
+	// ShipmentStatusACCEPTED captures enum value "ACCEPTED"
+	// Using ACCEPTED for TSP Queue work, not yet in office/SM flow
+	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
 )
@@ -53,7 +56,6 @@ type Shipment struct {
 	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
 	Move                                *Move                    `belongs_to:"move"`
 	Status                              ShipmentStatus           `json:"status" db:"status"`
-	CodeOfService                       *string                  `json:"code_of_service" db:"code_of_service"`
 	EstimatedPackDays                   *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays                *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
 	PickupAddressID                     *uuid.UUID               `json:"pickup_address_id" db:"pickup_address_id"`
@@ -71,15 +73,14 @@ type Shipment struct {
 	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
 	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
-	PmSurveyPackDate                    *time.Time               `json:"pm_survey_pack_date" db:"pm_survey_pack_date"`
-	PmSurveyPickupDate                  *time.Time               `json:"pm_survey_pickup_date" db:"pm_survey_pickup_date"`
-	PmSurveyLatestPickupDate            *time.Time               `json:"pm_survey_latest_pickup_date" db:"pm_survey_latest_pickup_date"`
-	PmSurveyEarliestDeliveryDate        *time.Time               `json:"pm_survey_earliest_delivery_date" db:"pm_survey_earliest_delivery_date"`
-	PmSurveyLatestDeliveryDate          *time.Time               `json:"pm_survey_latest_delivery_date" db:"pm_survey_latest_delivery_date"`
+	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
+	PmSurveyPlannedPickupDate           *time.Time               `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
+	PmSurveyPlannedDeliveryDate         *time.Time               `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
 	PmSurveyWeightEstimate              *unit.Pound              `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
 	PmSurveyProgearWeightEstimate       *unit.Pound              `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
 	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
 	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
+	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.
@@ -95,7 +96,6 @@ type ShipmentWithOffer struct {
 	SourceGBLOC                     *string    `db:"source_gbloc"`
 	DestinationGBLOC                *string    `db:"destination_gbloc"`
 	Market                          *string    `db:"market"`
-	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
 	Accepted                        *bool      `db:"accepted"`
 	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
@@ -150,7 +150,6 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.source_gbloc,
 				shipments.destination_gbloc,
 				shipments.market,
-				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,
 				shipment_offers.administrative_shipment
 			FROM shipments
@@ -169,7 +168,6 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.source_gbloc,
 				shipments.destination_gbloc,
 				shipments.market,
-				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,
 				shipment_offers.administrative_shipment
 			FROM shipments

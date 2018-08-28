@@ -55,13 +55,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	serviceMember := assertions.Shipment.ServiceMember
 	if serviceMember == nil {
-		newServiceMember := MakeDefaultServiceMember(db)
-		serviceMember = &newServiceMember
-	}
-
-	codeOfService := assertions.Shipment.CodeOfService
-	if codeOfService == nil {
-		codeOfService = &DefaultCOS
+		serviceMember = &move.Orders.ServiceMember
 	}
 
 	pickupAddress := assertions.Shipment.PickupAddress
@@ -85,7 +79,6 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		SourceGBLOC:                  stringPointer(*sourceGBLOC),
 		DestinationGBLOC:             stringPointer(*destinationGBLOC),
 		Market:                       market,
-		CodeOfService:                codeOfService,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),
 		RequestedPickupDate:          timePointer(*requestedPickupDate),
 		MoveID:                       move.ID,
