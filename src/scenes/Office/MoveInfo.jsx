@@ -24,6 +24,7 @@ import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
+import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -31,6 +32,7 @@ import {
   approveBasics,
   approvePPM,
   cancelMove,
+  patchShipment,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import {
@@ -51,7 +53,7 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 const BasicsTabContent = props => {
   return (
     <div className="office-tab">
-      <OrdersPanel title="Orders" moveId={props.match.params.moveId} />
+      <OrdersPanel title="Orders" />
       <CustomerInfoPanel
         title="Customer Info"
         moveId={props.match.params.moveId}
@@ -84,6 +86,14 @@ const HHGTabContent = props => {
         title="Weight & Inventory"
         moveId={props.moveId}
       />
+      {props.officeShipment && (
+        <PremoveSurvey
+          title="Premove Survey"
+          shipment={props.officeShipment}
+          update={props.patchShipment}
+          error={props.surveyError}
+        />
+      )}
     </div>
   );
 };
@@ -193,8 +203,8 @@ class MoveInfo extends Component {
       ) {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />Move
-            pending
+            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
+            Move pending
           </span>
         );
       } else {
@@ -343,7 +353,12 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
+                    officeShipment={this.props.officeShipment}
+                    patchShipment={this.props.patchShipment}
                     moveId={this.props.match.params.moveId}
+                    surveyError={
+                      this.props.shipmentPatchError && this.props.errorMessage
+                    }
                   />
                 </PrivateRoute>
               </Switch>
@@ -451,6 +466,7 @@ MoveInfo.propTypes = {
 const mapStateToProps = state => ({
   swaggerError: get(state, 'swagger.hasErrored'),
   officeMove: get(state, 'office.officeMove', {}),
+  officeShipment: get(state, 'office.officeShipment', {}),
   officeOrders: get(state, 'office.officeOrders', {}),
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
@@ -463,7 +479,9 @@ const mapStateToProps = state => ({
   ),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
+  shipmentPatchError: get(state, 'office.shipmentPatchError'),
   approveMoveHasError: get(state, 'office.moveHasApproveError'),
+  errorMessage: get(state, 'office.error'),
 });
 
 const mapDispatchToProps = dispatch =>
@@ -474,6 +492,7 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       cancelMove,
+      patchShipment,
     },
     dispatch,
   );

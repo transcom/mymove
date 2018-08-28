@@ -197,7 +197,8 @@ export class Summary extends Component {
                 <tbody>
                   <tr>
                     <th>
-                      Orders{moveIsApproved && '*'}
+                      Orders
+                      {moveIsApproved && '*'}
                       {!moveIsApproved && (
                         <span className="align-right">
                           <Link to={editOrdersAddress}>Edit</Link>

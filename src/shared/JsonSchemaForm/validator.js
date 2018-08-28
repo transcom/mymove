@@ -1,4 +1,6 @@
-import { memoize } from 'lodash';
+import { isFinite, isInteger as rawIsInteger, memoize } from 'lodash';
+import { defaultDateFormat } from 'shared/utils';
+import moment from 'moment';
 
 const isRequired = value => (value ? undefined : 'Required');
 // Why Memoize? Please see https://github.com/erikras/redux-form/issues/3288
@@ -29,16 +31,25 @@ const minimum = memoize(minimum => value => {
 
 const isNumber = value => {
   if (value) {
-    if (isNaN(parseFloat(value))) {
-      return 'Must be a number.';
+    if (!isFinite(parseFloat(value))) {
+      return 'Must be a number';
     }
   }
 };
 
 const isInteger = value => {
   if (value) {
-    if (!Number.isInteger(value)) {
+    if (!rawIsInteger(value)) {
       return 'Must be an integer';
+    }
+  }
+};
+
+const isDate = value => {
+  if (value) {
+    let parsed = moment(value, defaultDateFormat);
+    if (!parsed.isValid()) {
+      return 'Must be a valid date';
     }
   }
 };
@@ -116,6 +127,7 @@ export default {
   isRequired,
   isNumber,
   isInteger,
+  isDate,
   normalizePhone,
   normalizeSSN,
   normalizeZip,

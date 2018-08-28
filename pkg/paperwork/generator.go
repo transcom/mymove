@@ -192,7 +192,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		pdf.ImageOptions(image.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
 	}
 
-	if err = pdf.OutputAndClose(outputFile.(afero.File)); err != nil {
+	if err = pdf.OutputAndClose(outputFile); err != nil {
 		return "", errors.Wrap(err, "could not write PDF to outputfile")
 	}
 	return outputFile.Name(), nil

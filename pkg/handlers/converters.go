@@ -11,43 +11,51 @@ import (
 
 // These functions facilitate converting from the go types the db uses
 // into the strfmt types that go-swagger uses for payloads.
-func fmtUUID(u uuid.UUID) *strfmt.UUID {
+
+// FmtUUID converts pop type to go-swagger type
+func FmtUUID(u uuid.UUID) *strfmt.UUID {
 	fmtUUID := strfmt.UUID(u.String())
 	return &fmtUUID
 }
 
-func fmtUUIDPtr(u *uuid.UUID) *strfmt.UUID {
+// FmtUUIDPtr converts pop type to go-swagger type
+func FmtUUIDPtr(u *uuid.UUID) *strfmt.UUID {
 	if u == nil {
 		return nil
 	}
-	return fmtUUID(*u)
+	return FmtUUID(*u)
 }
 
-func fmtDateTime(dateTime time.Time) *strfmt.DateTime {
+// FmtDateTime converts pop type to go-swagger type
+func FmtDateTime(dateTime time.Time) *strfmt.DateTime {
 	fmtDateTime := strfmt.DateTime(dateTime)
 	return &fmtDateTime
 }
 
-func fmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
+// FmtDateTimePtr converts pop type to go-swagger type
+func FmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
 	if dateTime == nil {
 		return nil
 	}
 	return (*strfmt.DateTime)(dateTime)
 }
 
-func fmtDate(date time.Time) *strfmt.Date {
+// FmtDate converts pop type to go-swagger type
+func FmtDate(date time.Time) *strfmt.Date {
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
 }
 
-func fmtDatePtr(date *time.Time) *strfmt.Date {
+// FmtDatePtr converts pop type to go-swagger type
+func FmtDatePtr(date *time.Time) *strfmt.Date {
 	if date == nil {
 		return nil
 	}
 	return (*strfmt.Date)(date)
 }
 
-func fmtPoundPtr(weight *unit.Pound) *int64 {
+// FmtPoundPtr converts pop type to go-swagger type
+func FmtPoundPtr(weight *unit.Pound) *int64 {
 	if weight == nil {
 		return nil
 	}
@@ -55,7 +63,8 @@ func fmtPoundPtr(weight *unit.Pound) *int64 {
 	return &value
 }
 
-func poundPtrFromInt64Ptr(num *int64) *unit.Pound {
+// PoundPtrFromInt64Ptr converts pop type to go-swagger type
+func PoundPtrFromInt64Ptr(num *int64) *unit.Pound {
 	if num == nil {
 		return nil
 	}
@@ -64,32 +73,38 @@ func poundPtrFromInt64Ptr(num *int64) *unit.Pound {
 	return &pound
 }
 
-func fmtURI(uri string) *strfmt.URI {
+// FmtURI converts pop type to go-swagger type
+func FmtURI(uri string) *strfmt.URI {
 	fmtURI := strfmt.URI(uri)
 	return &fmtURI
 }
 
-func fmtInt64(i int64) *int64 {
+// FmtInt64 converts pop type to go-swagger type
+func FmtInt64(i int64) *int64 {
 	return &i
 }
 
-func fmtBool(b bool) *bool {
+// FmtBool converts pop type to go-swagger type
+func FmtBool(b bool) *bool {
 	return &b
 }
 
-func fmtEmail(email string) *strfmt.Email {
+// FmtEmail converts pop type to go-swagger type
+func FmtEmail(email string) *strfmt.Email {
 	fmtEmail := strfmt.Email(email)
 	return &fmtEmail
 }
 
-func fmtEmailPtr(email *string) *strfmt.Email {
+// FmtEmailPtr converts pop type to go-swagger type
+func FmtEmailPtr(email *string) *strfmt.Email {
 	if email == nil {
 		return nil
 	}
-	return fmtEmail(*email)
+	return FmtEmail(*email)
 }
 
-func stringFromEmail(email *strfmt.Email) *string {
+// StringFromEmail converts pop type to go-swagger type
+func StringFromEmail(email *strfmt.Email) *string {
 	if email == nil {
 		return nil
 	}
@@ -97,16 +112,19 @@ func stringFromEmail(email *strfmt.Email) *string {
 	return &emailString
 }
 
-func fmtString(s string) *string {
+// FmtString converts pop type to go-swagger type
+func FmtString(s string) *string {
 	return &s
 }
 
-func fmtSSN(s string) *strfmt.SSN {
+// FmtSSN converts pop type to go-swagger type
+func FmtSSN(s string) *strfmt.SSN {
 	ssn := strfmt.SSN(s)
 	return &ssn
 }
 
-func stringFromSSN(ssn *strfmt.SSN) *string {
+// StringFromSSN converts pop type to go-swagger type
+func StringFromSSN(ssn *strfmt.SSN) *string {
 	var stringPointer *string
 	if ssn != nil {
 		plainString := ssn.String()

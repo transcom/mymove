@@ -5,8 +5,13 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
+	"github.com/transcom/mymove/pkg/models"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	tdgs "github.com/transcom/mymove/pkg/testdatagen/scenario"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // Hey, refactoring self: you can pull the UUIDs from the objects rather than
@@ -20,8 +25,10 @@ func main() {
 	namedScenario := flag.String("named-scenario", "", "It's like a scenario, but more descriptive.")
 	flag.Parse()
 
+	logger, err := zap.NewDevelopment()
+
 	//DB connection
-	err := pop.AddLookupPaths(*config)
+	err = pop.AddLookupPaths(*config)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -29,6 +36,12 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	// Initialize storage and uploader
+	zap.L().Info("Using filesystem storage backend")
+	fsParams := storage.DefaultFilesystemParams(logger)
+	storer := storage.NewFilesystem(fsParams)
+	loader := uploader.NewUploader(db, logger, storer)
 
 	if *scenario == 1 {
 		tdgs.RunAwardQueueScenario1(db)
@@ -60,16 +73,20 @@ func main() {
 		numTspUsers := 2
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
-		status := []string{"DEFAULT", "AWARDED"}
+		status := []models.ShipmentStatus{"DRAFT", "AWARDED", "ACCEPTED"}
 		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 		if err != nil {
 			log.Panic(err)
 		}
+		log.Print("Success! Created TSP test data.")
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
-		tdgs.E2eBasicScenario.Run(db)
+		tdgs.E2eBasicScenario.Run(db, loader)
 		log.Print("Success! Created e2e test data.")
 	} else {
 		// Can this be less repetitive without being overly clever?
+		testdatagen.MakeDefaultServiceMember(db)
+		testdatagen.MakeDefaultOfficeUser(db)
+		testdatagen.MakeDefaultTspUser(db)
 		testdatagen.MakeTDLData(db)
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)
