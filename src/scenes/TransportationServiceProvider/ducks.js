@@ -6,7 +6,6 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
-const REMOVE_BANNER = 'REMOVE_BANNER';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
@@ -36,26 +35,22 @@ export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
   PatchShipment,
 );
 
-export const acceptShipment = shipmentId => {
-  const actions = ReduxHelpers.generateAsyncActions(acceptShipmentType);
-  return async function(dispatch, getState) {
-    dispatch(actions.start());
-    return AcceptShipment(shipmentId)
-      .then(
-        item => dispatch(actions.success(item)),
-        error => dispatch(actions.error(error)),
-      )
-      .then(() => {
-        setTimeout(() => dispatch(removeBanner()), 10000);
-      });
-  };
-};
+export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(
+  acceptShipmentType,
+  AcceptShipment,
+);
 
-export const removeBanner = () => {
-  return {
-    type: REMOVE_BANNER,
-  };
-};
+// export const acceptShipment = shipmentId => {
+//   const actions = ReduxHelpers.generateAsyncActions(acceptShipmentType);
+//   return async function(dispatch, getState) {
+//     dispatch(actions.start());
+//     return AcceptShipment(shipmentId)
+//       .then(
+//         item => dispatch(actions.success(item)),
+//         error => dispatch(actions.error(error)),
+//       )
+//   };
+// };
 
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
@@ -138,7 +133,6 @@ export function tspReducer(state = initialState, action) {
         shipmentHasAcceptSuccess: true,
         shipmentHasAcceptError: false,
         shipment: action.payload,
-        flashMessage: true,
       });
     case ACCEPT_SHIPMENT.failure:
       return Object.assign({}, state, {
@@ -146,11 +140,6 @@ export function tspReducer(state = initialState, action) {
         shipmentHasAcceptSuccess: false,
         shipmentHasAcceptError: null,
         error: action.error.message,
-        flashMessage: false,
-      });
-    case REMOVE_BANNER:
-      return Object.assign({}, state, {
-        flashMessage: false,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES

@@ -17,8 +17,6 @@ import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
 
 class AcceptShipmentPanel extends Component {
-  state = { displayState: 'Awarded', acceptError: false };
-
   rejectShipment = () => {
     this.setState({ displayState: 'Rejected' });
     // TODO (rebecca): Add rejection flow
@@ -26,16 +24,12 @@ class AcceptShipmentPanel extends Component {
 
   acceptShipment = () => {
     this.props.acceptShipment();
-    this.setState({ displayState: 'Accepted' });
   };
 
   render() {
-    if (this.state.displayState === 'Awarded') {
+    if (this.props.shipmentStatus === 'AWARDED') {
       return (
         <div>
-          {this.state.acceptError ? (
-            <Alert type="error" heading="Unable to accept shipment" />
-          ) : null}
           <button className="usa-button-primary" onClick={this.acceptShipment}>
             Accept Shipment
           </button>
@@ -45,18 +39,6 @@ class AcceptShipmentPanel extends Component {
           >
             Reject Shipment
           </button>
-        </div>
-      );
-    } else if (this.state.displayState === 'Accepted') {
-      return (
-        <div>
-          <Alert type="info" heading="Shipment accepted" />
-        </div>
-      );
-    } else if (this.state.displayState === 'Rejected') {
-      return (
-        <div>
-          <Alert type="error" heading="Shipment rejected" />
         </div>
       );
     }
@@ -69,7 +51,7 @@ class ShipmentInfo extends Component {
   }
 
   acceptShipment = () => {
-    this.props.acceptShipment(this.props.shipment.id);
+    return this.props.acceptShipment(this.props.shipment.id);
   };
 
   render() {
@@ -125,7 +107,10 @@ class ShipmentInfo extends Component {
             </div>
             <div className="usa-width-one-third">
               {this.props.shipment.status === 'AWARDED' && (
-                <AcceptShipmentPanel acceptShipment={this.acceptShipment} />
+                <AcceptShipmentPanel
+                  acceptShipment={this.acceptShipment}
+                  shipmentStatus={this.props.shipment.status}
+                />
               )}
             </div>
           </div>
@@ -137,13 +122,13 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
-  flashMessage: get(state, 'flashMessage', false),
   shipment: get(state, 'tsp.shipment', {}),
   loadTspDependenciesHasSuccess: get(
     state,
     'tsp.loadTspDependenciesHasSuccess',
   ),
   loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
+  acceptError: get(state, 'tsp.shipmentHasAcceptError'),
 });
 
 const mapDispatchToProps = dispatch =>
