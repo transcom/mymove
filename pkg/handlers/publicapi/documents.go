@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// CreateDocumentUploadHandler creates a new document upload via POST /document/{document_id}/uploads
+// CreateDocumentUploadHandler creates a new document upload via POST /document/{documentId}/uploads
 type CreateDocumentUploadHandler struct {
 	handlers.HandlerContext
 }
