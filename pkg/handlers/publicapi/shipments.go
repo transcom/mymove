@@ -125,7 +125,37 @@ type CreateShipmentAcceptHandler struct {
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcceptParams) middleware.Responder {
-	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewGetShipmentForbidden()
+	}
+
+	// Accept the shipment
+	shipment, shipmentOffer, verrs, err := models.AcceptShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil || verrs.HasAny() {
+		if err == models.ErrFetchNotFound {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewGetShipmentBadRequest()
+		} else if err == models.ErrInvalidTransition {
+			h.Logger().Info("Attempted to accept shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+			h.Logger().Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
+			return shipmentop.NewCreateShipmentAcceptConflict()
+		} else {
+			h.Logger().Error("Unknown Error", zap.Error(err))
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+	}
+
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewCreateShipmentAcceptOK().WithPayload(sp)
 }
 
 // CreateShipmentRejectHandler allows a TSP to refuse a particular shipment
