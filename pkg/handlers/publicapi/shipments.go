@@ -129,13 +129,6 @@ func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcce
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return shipmentop.NewGetShipmentForbidden()
-	}
-
 	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
 	// See original commits in https://github.com/transcom/mymove/pull/802
