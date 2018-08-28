@@ -67,11 +67,11 @@ func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgen
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	isap := make(apimessages.IndexServiceAgents, len(serviceAgents))
-	for i, sa := range serviceAgents {
-		isap[i] = payloadForServiceAgentModel(sa)
+	serviceAgentPayloadList := make(apimessages.IndexServiceAgents, len(serviceAgents))
+	for i, serviceAgent := range serviceAgents {
+		serviceAgentPayloadList[i] = payloadForServiceAgentModel(serviceAgent)
 	}
-	return serviceagentop.NewIndexServiceAgentsOK().WithPayload(isap)
+	return serviceagentop.NewIndexServiceAgentsOK().WithPayload(serviceAgentPayloadList)
 }
 
 // CreateServiceAgentHandler creates a new service agent on a shipment via POST /shipments/{shipmentId}/service_agents
