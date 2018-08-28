@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { compact, get } from 'lodash';
+import qs from 'query-string';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
@@ -50,6 +51,9 @@ class DocumentViewer extends Component {
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
 
+    // Parse query string parameters
+    const queryValues = qs.parse(this.props.location.search);
+
     const defaultTabIndex =
       this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
     if (
@@ -80,7 +84,15 @@ class DocumentViewer extends Component {
               <PrivateRoute
                 path={newPath}
                 moveId={move.id}
-                render={() => <DocumentUploader moveId={move.id} />}
+                render={() => {
+                  return (
+                    <DocumentUploader
+                      moveId={move.id}
+                      moveDocumentType={queryValues.move_document_type}
+                      location={this.props.location}
+                    />
+                  );
+                }}
               />
               <PrivateRoute
                 path={documentPath}

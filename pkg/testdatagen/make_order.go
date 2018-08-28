@@ -41,6 +41,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 				Document:   document,
 				UploaderID: sm.UserID,
 			},
+			Uploader: assertions.Uploader,
 		})
 		document.Uploads = append(document.Uploads, u)
 	}

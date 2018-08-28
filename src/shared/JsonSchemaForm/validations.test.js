@@ -55,11 +55,14 @@ describe('SchemaField tests', () => {
         let values = storeData.values;
         let errors = storeData.syncErrors;
 
-        if (expectedValue != null) {
+        if (expectedValue === undefined) {
+          expect(values).toBeUndefined();
+        } else if (expectedValue === null) {
+          expect(values).not.toBeUndefined();
+          expect(values.test_field).toBeNull();
+        } else {
           expect(values).not.toBeUndefined();
           expect(values.test_field).toEqual(expectedValue);
-        } else {
-          expect(values).toBeUndefined();
         }
 
         if (expectedError) {
@@ -143,7 +146,7 @@ describe('SchemaField tests', () => {
         ['-1', -1, null],
         ['100', 100, null],
         ['', null, null],
-        ['a2', 'a2', 'Must be a number.'],
+        ['a2', 'a2', 'Must be a number'],
         ['22.2', 22.2, null],
         ['1.3', 1.3, null],
       ];

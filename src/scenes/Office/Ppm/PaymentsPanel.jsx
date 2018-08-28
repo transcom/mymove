@@ -1,19 +1,67 @@
 import { get, isEmpty } from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 
-import { approveReimbursement } from '../ducks';
+import { approveReimbursement, downloadPPMAttachments } from '../ducks';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
+import Alert from 'shared/Alert';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
+import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
+
+import './PaymentsPanel.css';
+
+const attachmentsErrorMessages = {
+  422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
+  424: 'Could not find any receipts for this PPM',
+  500: 'An unexpected error has occurred',
+};
 
 class PaymentsTable extends Component {
+  state = {
+    showPaperwork: false,
+    disableDownload: false,
+  };
+
   approveReimbursement = () => {
     this.props.approveReimbursement(this.props.advance.id);
+  };
+
+  togglePaperwork = () => {
+    this.setState({ showPaperwork: !this.state.showPaperwork });
+  };
+
+  startDownload = () => {
+    this.setState({ disableDownload: true });
+    this.props.downloadPPMAttachments(this.props.ppm.id).then(response => {
+      if (response.payload) {
+        // Taken from https://mathiasbynens.github.io/rel-noopener/
+        let win = window.open();
+        // win can be null if a pop-up blocker is used
+        if (win) {
+          win.opener = null;
+          win.location = response.payload.url;
+        }
+      }
+      this.setState({ disableDownload: false });
+    });
+  };
+
+  documentUpload = () => {
+    const move = this.props.move;
+    this.props.push(
+      `/moves/${move.id}/documents/new?move_document_type=SHIPMENT_SUMMARY`,
+    );
+  };
+
+  downloadShipmentSummary = () => {
+    window.open('/downloads/shipment_summary_worksheet.pdf');
   };
 
   renderAdvanceAction = () => {
@@ -53,7 +101,11 @@ class PaymentsTable extends Component {
   };
 
   render() {
+    const attachmentsError = this.props.attachmentsError;
     const advance = this.props.advance;
+    const paperworkIcon = this.state.showPaperwork
+      ? faMinusSquare
+      : faPlusSquare;
 
     return (
       <div className="payment-panel">
@@ -78,7 +130,8 @@ class PaymentsTable extends Component {
                 <tr>
                   <td className="payment-table-column-content">Advance </td>
                   <td className="payment-table-column-content">
-                    ${formatCents(
+                    $
+                    {formatCents(
                       get(advance, 'requested_amount'),
                     ).toLocaleString()}
                   </td>
@@ -115,26 +168,6 @@ class PaymentsTable extends Component {
                     <span className="tooltip">
                       {this.renderAdvanceAction()}
                     </span>
-                    {/* Disabling unimplemented feature for now.
-                    <span className="tooltip">
-                      <FontAwesomeIcon
-                        aria-hidden
-                        className="icon payment-action"
-                        title="Delete"
-                        icon={faTimes}
-                      />
-                      <span className="tooltiptext">Delete</span>
-                    </span>
-                    <span className="tooltip">
-                      <FontAwesomeIcon
-                        aria-hidden
-                        title="Edit"
-                        className="icon payment-action"
-                        icon={faPencil}
-                      />
-                      <span className="tooltiptext">Edit</span>
-                    </span>
-                    */}
                   </td>
                 </tr>
               </React.Fragment>
@@ -147,6 +180,78 @@ class PaymentsTable extends Component {
             )}
           </tbody>
         </table>
+
+        <div className="paperwork">
+          <a onClick={this.togglePaperwork}>
+            <FontAwesomeIcon
+              aria-hidden
+              className="icon"
+              icon={paperworkIcon}
+            />
+            Create payment paperwork
+          </a>
+          {this.state.showPaperwork && (
+            <Fragment>
+              {attachmentsError && (
+                <Alert type="error" heading="An error occurred">
+                  {attachmentsErrorMessages[attachmentsError.statusCode] ||
+                    'Something went wrong contacting the server.'}
+                </Alert>
+              )}
+              <p>
+                Complete the following steps in order to generate and file
+                paperwork for payment:
+              </p>
+              <div className="paperwork">
+                <div className="paperwork-step">
+                  <div>
+                    <p>Download Shipment Summary Worksheet</p>
+                    <p>
+                      Download and complete the worksheet, which is a fill-in
+                      PDF form.
+                    </p>
+                  </div>
+                  <button onClick={this.downloadShipmentSummary}>
+                    Download Worksheet (PDF)
+                  </button>
+                </div>
+
+                <hr />
+
+                <div className="paperwork-step">
+                  <div>
+                    <p>Download attachments</p>
+                    <p>
+                      Download bundle of PPM receipts and attach it to the
+                      completed Shipment Summary Worksheet.
+                    </p>
+                  </div>
+                  <button
+                    disabled={this.state.disableDownload}
+                    onClick={this.startDownload}
+                  >
+                    Download Attachments (PDF)
+                  </button>
+                </div>
+
+                <hr />
+
+                <div className="paperwork-step">
+                  <div>
+                    <p>Upload completed packet</p>
+                    <p>
+                      Save the worksheet and attachments together as one PDF.
+                      Then upload the completed packet for customer and Finance.
+                    </p>
+                  </div>
+                  <button onClick={this.documentUpload}>
+                    Upload Completed Packet
+                  </button>
+                </div>
+              </div>
+            </Fragment>
+          )}
+        </div>
       </div>
     );
   }
@@ -154,12 +259,22 @@ class PaymentsTable extends Component {
 
 const mapStateToProps = state => ({
   ppm: get(state, 'office.officePPMs[0]', {}),
+  move: get(state, 'office.officeMove', {}),
   advance: get(state, 'office.officePPMs[0].advance', {}),
   hasError: false,
   errorMessage: state.office.error,
+  attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ approveReimbursement, update: no_op }, dispatch);
+  bindActionCreators(
+    {
+      approveReimbursement,
+      update: no_op,
+      downloadPPMAttachments,
+      push,
+    },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentsTable);

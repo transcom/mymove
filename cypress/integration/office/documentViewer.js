@@ -1,3 +1,5 @@
+import { fileUploadTimeout } from '../../support/constants';
+
 /* global cy, Cypress */
 describe('The document viewer', function() {
   beforeEach(() => {
@@ -30,7 +32,7 @@ describe('The document viewer', function() {
 
     cy.upload_file('.filepond--root', 'top-secret.png');
     cy
-      .get('button.submit')
+      .get('button.submit', { timeout: fileUploadTimeout })
       .should('not.be.disabled')
       .click();
   });
@@ -58,7 +60,7 @@ describe('The document viewer', function() {
 
     cy.upload_file('.filepond--root', 'top-secret.png');
     cy
-      .get('button.submit')
+      .get('button.submit', { timeout: fileUploadTimeout })
       .should('not.be.disabled')
       .click();
   });

@@ -11,6 +11,8 @@ import {
   ApprovePPM,
   ApproveReimbursement,
   CancelMove,
+  DownloadPPMAttachments,
+  PatchShipment,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -22,6 +24,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
+const patchShipmentType = 'PATCH_SHIPMENT';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
@@ -31,6 +34,7 @@ const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
+const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 
@@ -46,6 +50,8 @@ const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
 
 const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
+
+const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
 const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   loadServiceMemberType,
@@ -79,6 +85,10 @@ export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
   approveReimbursementType,
 );
 
+export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(
+  downloadPPMAttachmentsType,
+);
+
 // MULTIPLE-RESOURCE ACTION TYPES
 
 const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
@@ -108,6 +118,11 @@ export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
 export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
   updateOrdersType,
   UpdateOrders,
+);
+
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
+  patchShipmentType,
+  PatchShipment,
 );
 
 export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
@@ -153,6 +168,11 @@ export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
   approveReimbursementType,
   ApproveReimbursement,
+);
+
+export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
+  downloadPPMAttachmentsType,
+  DownloadPPMAttachments,
 );
 
 export const cancelMove = (moveId, changeReason) => {
@@ -289,6 +309,7 @@ const initialState = {
   serviceMemberHasUpdateSuccess: false,
   backupContactsHaveLoadError: null,
   backupContactsHaveLoadSuccess: false,
+  downloadAttachmentsHasError: null,
   ppmsHaveLoadError: null,
   ppmsHaveLoadSuccess: false,
   ppmHasUpdateError: null,
@@ -315,6 +336,7 @@ export function officeReducer(state = initialState, action) {
       return Object.assign({}, state, {
         moveIsLoading: false,
         officeMove: action.payload,
+        officeShipment: get(action.payload, 'shipments.0', null),
         moveHasLoadSuccess: true,
         moveHasLoadError: false,
       });
@@ -322,6 +344,7 @@ export function officeReducer(state = initialState, action) {
       return Object.assign({}, state, {
         moveIsLoading: false,
         officeMove: null,
+        officeShipment: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
         error: action.error.message,
@@ -365,6 +388,27 @@ export function officeReducer(state = initialState, action) {
         ordersAreUpdating: false,
         ordersHaveUpdateSuccess: false,
         ordersHaveUpdateError: true,
+        error: action.error.message,
+      });
+
+    // SHIPMENT
+    case PATCH_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: true,
+        shipmentPatchSuccess: false,
+      });
+    case PATCH_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: false,
+        officeShipment: action.payload,
+        shipmentPatchSuccess: true,
+        shipmentPatchError: false,
+      });
+    case PATCH_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: false,
+        shipmentPatchSuccess: false,
+        shipmentPatchError: true,
         error: action.error.message,
       });
 
@@ -627,6 +671,16 @@ export function officeReducer(state = initialState, action) {
         loadDependenciesHasSuccess: false,
         loadDependenciesHasError: true,
         error: action.error.message,
+      });
+
+    // PPM ATTACHMENTS GENERATOR
+    case DOWNLOAD_ATTACHMENTS.start:
+      return Object.assign({}, state, {
+        downloadAttachmentsHasError: null,
+      });
+    case DOWNLOAD_ATTACHMENTS.failure:
+      return Object.assign({}, state, {
+        downloadAttachmentsHasError: action.error,
       });
     default:
       return state;

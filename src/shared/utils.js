@@ -1,9 +1,13 @@
 import React from 'react';
-import { get, includes, find } from 'lodash';
+import { get, includes, find, mapValues } from 'lodash';
+import moment from 'moment';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+
+export const swaggerDateFormat = 'YYYY-MM-DD';
+export const defaultDateFormat = 'M/D/YYYY';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
@@ -42,8 +46,34 @@ export function fetchActive(foos) {
   );
 }
 
+export function formatDateString(dateString) {
+  let parsed = moment(dateString, defaultDateFormat);
+  if (parsed.isValid()) {
+    return parsed.format(swaggerDateFormat);
+  }
+
+  return dateString;
+}
+
+// Formats payload values according to Swagger spec type
+export function formatPayload(payload, def) {
+  return mapValues(payload, (val, key) => {
+    const prop = get(def.properties, key);
+    const propType = get(prop, 'type');
+    const propFormat = get(prop, 'format');
+
+    if (propType === 'string') {
+      if (propFormat === 'date') {
+        return formatDateString(val);
+      }
+    }
+
+    return val;
+  });
+}
+
 export const convertDollarsToCents = dollars =>
-  Math.round(parseFloat(dollars) * 100);
+  Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
 
 export function renderStatusIcon(status) {
   if (!status) {

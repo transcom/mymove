@@ -2,6 +2,7 @@ package storage
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -22,14 +23,37 @@ type Filesystem struct {
 	fs      *afero.Afero
 }
 
+// FilesystemParams contains parameter for instantiating a Filesystem storage backend
+type FilesystemParams struct {
+	root    string
+	webRoot string
+	logger  *zap.Logger
+}
+
+// DefaultFilesystemParams returns default values for FilesystemParams
+func DefaultFilesystemParams(logger *zap.Logger) FilesystemParams {
+	absTmpPath, err := filepath.Abs("tmp")
+	if err != nil {
+		log.Fatalln(errors.New("could not get absolute path for tmp"))
+	}
+	storagePath := path.Join(absTmpPath, "storage")
+	webRoot := "/" + "storage"
+
+	return FilesystemParams{
+		root:    storagePath,
+		webRoot: webRoot,
+		logger:  logger,
+	}
+}
+
 // NewFilesystem creates a new S3 using the provided AWS session.
-func NewFilesystem(root string, webRoot string, logger *zap.Logger) *Filesystem {
+func NewFilesystem(params FilesystemParams) *Filesystem {
 	var fs = afero.NewMemMapFs()
 
 	return &Filesystem{
-		root:    root,
-		webRoot: webRoot,
-		logger:  logger,
+		root:    params.root,
+		webRoot: params.webRoot,
+		logger:  params.logger,
 		fs:      &afero.Afero{Fs: fs},
 	}
 }

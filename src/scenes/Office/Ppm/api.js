@@ -1,9 +1,10 @@
 import { getClient, checkResponse } from 'shared/api';
+import { formatDateString } from 'shared/utils';
 
 export async function GetPpmIncentive(moveDate, originZip, destZip, weight) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMIncentive({
-    planned_move_date: moveDate,
+    planned_move_date: formatDateString(moveDate),
     origin_zip: originZip,
     destination_zip: destZip,
     weight: weight,

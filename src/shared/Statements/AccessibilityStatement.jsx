@@ -22,7 +22,8 @@ function PrivacyPolicy() {
             rel="noopener noreferrer"
           >
             Section 508 of the Rehabilitation Act (29 U.S.C. 794d)
-          </a>, as amended in 1998.
+          </a>
+          , as amended in 1998.
         </p>
         <p>
           For persons with disabilities experiencing difficulties accessing
@@ -33,7 +34,8 @@ function PrivacyPolicy() {
             rel="noopener noreferrer"
           >
             DoD Section 508 Form
-          </a>. In this form, please indicate the nature of your accessibility
+          </a>
+          . In this form, please indicate the nature of your accessibility
           issue/problem and your contact information so we can address your
           issue or question.
         </p>

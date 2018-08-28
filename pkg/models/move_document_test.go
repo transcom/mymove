@@ -135,3 +135,54 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 		suite.Equal(moveDocOfficeUser.MoveID, moveDoc.MoveID)
 	}
 }
+
+func (suite *ModelSuite) TestMoveDocumentStatuses() {
+	// When: there is a move and move document
+	move := testdatagen.MakeDefaultMove(suite.db)
+	sm := move.Orders.ServiceMember
+
+	moveDocument := testdatagen.MakeMoveDocument(suite.db, testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID: move.ID,
+			Move:   move,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	})
+
+	suite.Equal(moveDocument.Status, MoveDocumentStatusAWAITINGREVIEW)
+
+	err := moveDocument.Approve()
+	suite.NoError(err)
+
+	err = moveDocument.Reject()
+	suite.NoError(err)
+
+	err = moveDocument.Approve()
+	suite.NoError(err)
+
+	err = moveDocument.Approve()
+	suite.Error(err)
+
+	// JUST for testing, resetting Status by hand.
+	moveDocument.Status = MoveDocumentStatusAWAITINGREVIEW
+
+	err = moveDocument.AttemptTransition(MoveDocumentStatusOK)
+	suite.NoError(err)
+	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
+
+	err = moveDocument.AttemptTransition(MoveDocumentStatusHASISSUE)
+	suite.NoError(err)
+	suite.Equal(moveDocument.Status, MoveDocumentStatusHASISSUE)
+
+	err = moveDocument.AttemptTransition(MoveDocumentStatusOK)
+	suite.NoError(err)
+	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
+
+	err = moveDocument.AttemptTransition(MoveDocumentStatusOK)
+	suite.NoError(err)
+	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
+
+}

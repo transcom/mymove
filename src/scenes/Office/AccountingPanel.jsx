@@ -3,12 +3,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
-import editablePanel from './editablePanel';
 
 import { updateOrders } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  editablePanelify,
+} from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
   const fieldProps = {
@@ -70,7 +73,7 @@ const AccountingEdit = props => {
 
 const formName = 'office_move_info_accounting';
 
-let AccountingPanel = editablePanel(AccountingDisplay, AccountingEdit);
+let AccountingPanel = editablePanelify(AccountingDisplay, AccountingEdit);
 AccountingPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -93,7 +96,7 @@ function mapStateToProps(state) {
     orders: orders,
     isUpdating: state.office.ordersAreUpdating,
 
-    // editablePanel
+    // editablePanelify
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
