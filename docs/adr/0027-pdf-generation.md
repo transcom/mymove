@@ -12,8 +12,9 @@ using data in the application's database.
   * JavaScript
   * (as a last resort) Python 3
 * The generated PDFs should not be editable using standard software. Specifically, any form elements
-  in the PDF should not be editable.
+  in the PDF should not be editable. _(It emerged later on that we might want to be able to generate PDFs containing fillable forms.)_
 * PDFs will also need to be created as a compilation of existing PDFs and images that have been uploaded as documentation.
+* Any libraries we adopt need to be actively maintained.
 
 In the service of identifying solutions that would satisfy these requirements (and recognizing that the combination of two
 specialized tools might be required), we divided the problem into two parts:
@@ -51,6 +52,7 @@ Chosen alternative: Draw the PDF form manually using [gofpdf](https://github.com
 * `+` Does not require a deep understanding of the PDF format
 * `+` Does not require immediate infrastructure changes to run in production
 * `+` Open source
+* `-` Requires learning a new drawing API unique to this library
 * `-` Can require a lot of code for a large PDF
 * `-` Changes to the form design will require code changes
 
