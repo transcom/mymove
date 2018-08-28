@@ -32,7 +32,7 @@ export async function beforeTransition(func, shouldHandleSubmit = true) {
 
   // Good to go to the next page
   if (gotoNext) {
-    // Fetch the pageList here in case handleSubmit causes the pageList to changeß
+    // Fetch the pageList here in case handleSubmit causes the pageList to change
     const path = func(this.props.pageList, this.props.pageKey);
     if (path !== undefined) {
       this.goto(path);
