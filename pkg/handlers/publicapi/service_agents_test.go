@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -13,11 +14,40 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *HandlerSuite) TestIndexServiceAgentsHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// And: the context contains the auth values
+	path := fmt.Sprintf("/shipments/%s/service_agents", shipment.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params := serviceagentop.IndexServiceAgentsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	handler := IndexServiceAgentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&serviceagentop.IndexServiceAgentsOK{}, response)
+	okResponse := response.(*serviceagentop.IndexServiceAgentsOK)
+
+	suite.Equal(2, len(okResponse.Payload))
+}
+
 func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
