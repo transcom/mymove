@@ -153,10 +153,18 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 
 	// Update the Service Agent
 	payload := params.Update
-	serviceAgent.PointOfContact = *payload.PointOfContact
-	serviceAgent.Email = payload.Email
-	serviceAgent.PhoneNumber = payload.PhoneNumber
-	serviceAgent.Notes = payload.Notes
+	if payload.PointOfContact != nil {
+		serviceAgent.PointOfContact = *payload.PointOfContact
+	}
+	if payload.Email != nil {
+		serviceAgent.Email = payload.Email
+	}
+	if payload.PhoneNumber != nil {
+		serviceAgent.PhoneNumber = payload.PhoneNumber
+	}
+	if payload.Notes != nil {
+		serviceAgent.Notes = payload.Notes
+	}
 
 	verrs, err := h.DB().ValidateAndSave(serviceAgent)
 
