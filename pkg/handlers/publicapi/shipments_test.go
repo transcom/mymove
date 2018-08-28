@@ -501,7 +501,8 @@ func (suite *HandlerSuite) TestCreateShipmentAcceptHandler() {
 	handler := CreateShipmentAcceptHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	// Test query with first user
-	req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/accept", shipment.ID.String()), nil)
+	path := fmt.Sprintf("/shipments/%s/accept", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 	params := shipmentop.CreateShipmentAcceptParams{
 		HTTPRequest: req,

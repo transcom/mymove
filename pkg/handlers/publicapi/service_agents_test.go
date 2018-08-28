@@ -55,7 +55,8 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	shipment := shipments[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/shipments/shipment_id/service_agents", nil)
+	path := fmt.Sprintf("/shipments/%s/service_agents", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	pointOfContact := "Pete and Repeat"
