@@ -26,21 +26,16 @@ class AcceptShipmentPanel extends Component {
   };
 
   render() {
-    if (this.props.shipmentStatus === 'AWARDED') {
-      return (
-        <div>
-          <button className="usa-button-primary" onClick={this.acceptShipment}>
-            Accept Shipment
-          </button>
-          <button
-            className="usa-button-secondary"
-            onClick={this.rejectShipment}
-          >
-            Reject Shipment
-          </button>
-        </div>
-      );
-    }
+    return (
+      <div>
+        <button className="usa-button-primary" onClick={this.acceptShipment}>
+          Accept Shipment
+        </button>
+        <button className="usa-button-secondary" onClick={this.rejectShipment}>
+          Reject Shipment
+        </button>
+      </div>
+    );
   }
 }
 
