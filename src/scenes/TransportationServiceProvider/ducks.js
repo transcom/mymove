@@ -40,18 +40,6 @@ export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(
   AcceptShipment,
 );
 
-// export const acceptShipment = shipmentId => {
-//   const actions = ReduxHelpers.generateAsyncActions(acceptShipmentType);
-//   return async function(dispatch, getState) {
-//     dispatch(actions.start());
-//     return AcceptShipment(shipmentId)
-//       .then(
-//         item => dispatch(actions.success(item)),
-//         error => dispatch(actions.error(error)),
-//       )
-//   };
-// };
-
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
 // These action types typically dispatch to other actions above to

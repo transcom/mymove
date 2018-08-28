@@ -6,7 +6,6 @@ import { get, capitalize } from 'lodash';
 import { NavLink } from 'react-router-dom';
 
 import { withContext } from 'shared/AppContext';
-import Alert from 'shared/Alert'; // eslint-disable-line
 
 import {
   loadShipmentDependencies,
