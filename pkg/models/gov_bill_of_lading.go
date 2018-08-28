@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
