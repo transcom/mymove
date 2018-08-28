@@ -70,11 +70,11 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: o.ServiceMemberID, Name: "ServiceMemberID"},
 		&validators.UUIDIsPresent{Field: o.NewDutyStationID, Name: "NewDutyStationID"},
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
-		&StringIsNilOrNotBlank{Field: o.TAC, Name: "Transportation Accounting Code"},
-		&StringIsNilOrNotBlank{Field: o.SAC, Name: "Something Accounting Code"},
-		&StringIsNilOrNotBlank{Field: o.OrdersIssuingAgency, Name: "Orders Issuing Agency"},
-		&StringIsNilOrNotBlank{Field: o.ParagraphNumber, Name: "Paragraph Number"},
-		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "Department Indicator"},
+		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
+		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
+		&StringIsNilOrNotBlank{Field: o.OrdersIssuingAgency, Name: "OrdersIssuingAgency"},
+		&StringIsNilOrNotBlank{Field: o.ParagraphNumber, Name: "ParagraphNumber"},
+		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 	), nil
 }

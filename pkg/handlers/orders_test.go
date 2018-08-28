@@ -25,14 +25,21 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	deptIndicator := internalmessages.DeptIndicatorAIRFORCE
 	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:    fmtBool(hasDependents),
-		SpouseHasProGear: fmtBool(spouseHasProGear),
-		IssueDate:        fmtDate(issueDate),
-		ReportByDate:     fmtDate(reportByDate),
-		OrdersType:       ordersType,
-		NewDutyStationID: fmtUUID(station.ID),
-		ServiceMemberID:  fmtUUID(sm.ID),
+		HasDependents:       fmtBool(hasDependents),
+		SpouseHasProGear:    fmtBool(spouseHasProGear),
+		IssueDate:           fmtDate(issueDate),
+		ReportByDate:        fmtDate(reportByDate),
+		OrdersType:          ordersType,
+		NewDutyStationID:    fmtUUID(station.ID),
+		ServiceMemberID:     fmtUUID(sm.ID),
+		OrdersNumber:        fmtString("123456"),
+		ParagraphNumber:     fmtString("123"),
+		OrdersIssuingAgency: fmtString("Test Agency"),
+		Tac:                 fmtString("TacNumber"),
+		Sac:                 fmtString("SacNumber"),
+		DepartmentIndicator: &deptIndicator,
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -53,6 +60,12 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
 	suite.Assertions.Len(okResponse.Payload.Moves, 1)
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(fmtString("123456"), okResponse.Payload.OrdersNumber)
+	suite.Assertions.Equal(fmtString("123"), okResponse.Payload.ParagraphNumber)
+	suite.Assertions.Equal(fmtString("Test Agency"), okResponse.Payload.OrdersIssuingAgency)
+	suite.Assertions.Equal(fmtString("TacNumber"), okResponse.Payload.Tac)
+	suite.Assertions.Equal(fmtString("SacNumber"), okResponse.Payload.Sac)
+	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
@@ -103,6 +116,9 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 		OrdersTypeDetail:    &newOrdersTypeDetail,
 		NewDutyStationID:    fmtUUID(order.NewDutyStationID),
 		Tac:                 order.TAC,
+		Sac:                 fmtString("N3TEST"),
+		OrdersIssuingAgency: fmtString("TEST AGENCY"),
+		ParagraphNumber:     fmtString("123456"),
 		DepartmentIndicator: &departmentIndicator,
 		// Attempt to assign to another service member
 		ServiceMemberID: fmtUUID(otherServiceMemberUUID),
@@ -128,4 +144,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
 	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
+	suite.Assertions.Equal(fmtString("N3TEST"), okResponse.Payload.Sac)
+	suite.Assertions.Equal(fmtString("TEST AGENCY"), okResponse.Payload.OrdersIssuingAgency)
+	suite.Assertions.Equal(fmtString("123456"), okResponse.Payload.ParagraphNumber)
 }

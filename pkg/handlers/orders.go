@@ -80,6 +80,12 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
+	var deptIndicator *string
+	if payload.DepartmentIndicator != nil {
+		converted := string(*payload.DepartmentIndicator)
+		deptIndicator = &converted
+	}
+
 	newOrder, verrs, err := serviceMember.CreateOrder(
 		h.db,
 		time.Time(*payload.IssueDate),
@@ -87,7 +93,13 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		payload.OrdersType,
 		*payload.HasDependents,
 		*payload.SpouseHasProGear,
-		dutyStation)
+		dutyStation,
+		payload.OrdersNumber,
+		payload.ParagraphNumber,
+		payload.OrdersIssuingAgency,
+		payload.Tac,
+		payload.Sac,
+		deptIndicator)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
