@@ -31,8 +31,8 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	params := shipmentop.GetShipmentParams{
-		HTTPRequest:  req,
-		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
 	// And: get shipment is returned
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	shipment := shipments[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	genericDate := time.Now()
@@ -75,9 +75,9 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	}
 
 	params := shipmentop.PatchShipmentParams{
-		HTTPRequest:  req,
-		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
-		Update:       &UpdatePayload,
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Update:      &UpdatePayload,
 	}
 
 	// And: patch shipment is returned
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
 
 	// And: the context contains the auth values for the wrong tsp
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, otherTspUser)
 
 	genericDate := time.Now()
@@ -129,9 +129,9 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 	}
 
 	params := shipmentop.PatchShipmentParams{
-		HTTPRequest:  req,
-		ShipmentUUID: strfmt.UUID(shipment.ID.String()),
-		Update:       &UpdatePayload,
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Update:      &UpdatePayload,
 	}
 
 	// And: patch shipment is returned
@@ -501,7 +501,8 @@ func (suite *HandlerSuite) TestCreateShipmentAcceptHandler() {
 	handler := CreateShipmentAcceptHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	// Test query with first user
-	req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/accept", shipment.ID.String()), nil)
+	path := fmt.Sprintf("/shipments/%s/accept", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 	params := shipmentop.CreateShipmentAcceptParams{
 		HTTPRequest: req,

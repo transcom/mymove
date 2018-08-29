@@ -82,7 +82,7 @@ beforeEach(() => {
 
 it('renders without crashing', () => {
   // eslint-disable-next-line
-  expect(wrapper.exists(<form className="default" />)).toBe(true);
+  expect(wrapper.exists('form.default')).toBe(true);
 });
 
 it('renders 6 Field components', () => {
