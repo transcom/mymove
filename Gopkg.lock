@@ -751,9 +751,9 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "fs"
+  branch = "afero"
   digest = "1:5b968cbe9db51f3d51d7e30cf100a5f6d2f407c6013f4525f1491ea0cc7ebaea"
-  name = "github.com/pjdufour-truss/pdfcpu"
+  name = "github.com/trussworks/pdfcpu"
   packages = [
     "pkg/api",
     "pkg/compress/lzw",
@@ -762,7 +762,7 @@
     "pkg/pdfcpu",
   ]
   pruneopts = ""
-  revision = "abe08471ef6525706474e93517b0a1a95ab588ab"
+  revision = "a53781a43f9d90ab7f5e0bc28f1b178db2ec6b5f"
 
 [[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
