@@ -42,8 +42,11 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:      documentPayload,
 		OrdersNumber:        order.OrdersNumber,
+		ParagraphNumber:     order.ParagraphNumber,
+		OrdersIssuingAgency: order.OrdersIssuingAgency,
 		Moves:               moves,
 		Tac:                 order.TAC,
+		Sac:                 order.SAC,
 		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 		Status:              internalmessages.OrdersStatus(order.Status),
 	}
@@ -80,6 +83,12 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
+	var deptIndicator *string
+	if payload.DepartmentIndicator != nil {
+		converted := string(*payload.DepartmentIndicator)
+		deptIndicator = &converted
+	}
+
 	newOrder, verrs, err := serviceMember.CreateOrder(
 		h.DB(),
 		time.Time(*payload.IssueDate),
@@ -87,7 +96,13 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		payload.OrdersType,
 		*payload.HasDependents,
 		*payload.SpouseHasProGear,
-		dutyStation)
+		dutyStation,
+		payload.OrdersNumber,
+		payload.ParagraphNumber,
+		payload.OrdersIssuingAgency,
+		payload.Tac,
+		payload.Sac,
+		deptIndicator)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
@@ -158,6 +173,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	}
 
 	order.OrdersNumber = payload.OrdersNumber
+	order.ParagraphNumber = payload.ParagraphNumber
+	order.OrdersIssuingAgency = payload.OrdersIssuingAgency
 	order.IssueDate = time.Time(*payload.IssueDate)
 	order.ReportByDate = time.Time(*payload.ReportByDate)
 	order.OrdersType = payload.OrdersType
@@ -167,6 +184,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.NewDutyStationID = dutyStation.ID
 	order.NewDutyStation = dutyStation
 	order.TAC = payload.Tac
+	order.SAC = payload.Sac
 
 	if payload.DepartmentIndicator != nil {
 		order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))

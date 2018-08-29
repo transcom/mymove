@@ -59,6 +59,7 @@ The client application (i.e. website) makes outbound requests to the following d
 
 * S3 for document downloads; exact domains TBD.
 * New Relic for browser performance monitoring; specifically `bam.nr-data.net` and `js-agent.newrelic.*`. [More info and IPs are listed here](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/networks#agents).
+* Honeycomb for server-side debugging and observability. Currently being tested in staging and experimental environments.
 
 ## Development
 

@@ -573,32 +573,33 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      shipment:
-        $ref: '#/definitions/Shipment'
-        x-nullable: true
+      shipment_id:
+        type: string
+        format: uuid
+        readOnly: true
       role:
         $ref: '#/definitions/ServiceAgentRole'
       point_of_contact:
         type: string
-        example: John Doe at Acme Shipping
+        example: Jenny at ACME Movers
       email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email used to contact shipping agent
-        example: jackson_flies@gmail.com
+        example: jenny_acme@example.com
         x-nullable: true
       phone_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
+        example: 303-867-5309
         x-nullable: true
       fax_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
+        example: 303-867-5310
         x-nullable: true
       email_is_preferred:
         type: boolean
@@ -882,7 +883,7 @@ paths:
           description: server error
     patch:
       summary: update the associated blackout
-      operationId: updateBlackout
+      operationId: patchBlackout
       tags:
         - blackouts
       parameters:
@@ -1156,7 +1157,7 @@ paths:
     patch:
       summary: Updates a particular service agent
       description: Takes a partial service agent object and replaces the fields in the DB with the ones passed int he body
-      operationId: updateServiceAgent
+      operationId: patchServiceAgent
       tags:
         - service_agents
       parameters:
@@ -1172,10 +1173,9 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: payload
-          in: body
+        - in: body
+          name: update
           required: true
-          description: Service Agent information
           schema:
             $ref: '#/definitions/ServiceAgent'
       responses:
