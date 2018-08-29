@@ -157,6 +157,21 @@ jobs:
           command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
 
+  deploy_experimental_migrations:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "experimental"
+    steps: *deploy_migrations_steps
+
+  deploy_experimental_app:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "experimental"
+      - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
+    steps: *deploy_app_steps
+
   deploy_prod_migrations:
     docker:
       - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
@@ -226,6 +241,22 @@ workflows:
       - pre_test
       - build_app
       - build_migrations
+
+      - deploy_experimental_migrations:
+          requires:
+            - pre_test
+            - build_app
+            - build_migrations
+          filters:
+            branches:
+              only: mk-disable-redirect
+
+      - deploy_experimental_app:
+          requires:
+            - deploy_experimental_migrations
+          filters:
+            branches:
+              only: mk-disable-redirect
 
       - deploy_staging_migrations:
           requires:
