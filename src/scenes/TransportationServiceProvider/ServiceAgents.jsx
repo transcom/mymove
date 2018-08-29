@@ -109,7 +109,7 @@ const ServiceAgents = props => {
 
 function mapStateToProps(state, props) {
   let originFormValues = getFormValues('origin_service_agent')(state);
-  let destFormValues = getFormValues('destinatino_service_agent')(state);
+  let destFormValues = getFormValues('destination_service_agent')(state);
 
   return {
     // reduxForm
