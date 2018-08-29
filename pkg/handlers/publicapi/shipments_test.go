@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	shipment := shipments[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	genericDate := time.Now()
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
 	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
 
 	// And: the context contains the auth values for the wrong tsp
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, otherTspUser)
 
 	genericDate := time.Now()
