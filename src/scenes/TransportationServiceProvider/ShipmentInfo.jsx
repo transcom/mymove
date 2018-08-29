@@ -91,7 +91,7 @@ class ShipmentInfo extends Component {
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
               {this.props.loadTspDependenciesHasSuccess && (
-                <div className="office-tab usa-width-two-thirds">
+                <div className="office-tab">
                   <PremoveSurvey
                     title="Premove Survey"
                     shipment={this.props.shipment}
