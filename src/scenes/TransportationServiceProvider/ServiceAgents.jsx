@@ -13,7 +13,7 @@ import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const ServiceAgentDisplay = props => {
-  let serviceAgent = props.initialValues || {};
+  let serviceAgent = props.initialValues;
 
   const fieldProps = {
     schema: props.schema,
@@ -114,6 +114,7 @@ function mapStateToProps(state, props) {
   return {
     // reduxForm
     schema: get(state, 'swagger.spec.definitions.ServiceAgent', null),
+    initialValues: {},
 
     hasError: false,
     errorMessage: state.tsp.error,
