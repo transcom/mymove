@@ -34,7 +34,19 @@ Action creator functions should take a `label` argument, which will be used to a
 
 `swaggerRequest` returns a promise, so it is possible to chain behavior onto its result, for example to perform a few requests in sequence.
 
-Here is an example of a component using `getShipment` as defined above:
+To access the value after it has been fetched and stored in Redux, we'll need to also create a selector:
+
+```js
+// Return a shipment identified by its ID
+export function selectShipment(state, id) {
+  if (!id) {
+    return null;
+  }
+  return denormalize([id], shipments, state.entities)[0];
+}
+```
+
+Here is an example of a component using `getShipment` and `selectShipment` as defined above:
 
 ```jsx
 // import { get } from 'lodash';
