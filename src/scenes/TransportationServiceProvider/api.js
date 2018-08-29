@@ -58,19 +58,24 @@ export async function PatchShipment(shipmentId, shipment) {
 // ServiceAgents
 export async function CreateServiceAgent(shipmentId, payload) {
   const client = await getPublicClient();
-  const response = await client.apis.shipments.createServiceAgent({
-    shipment_uuid: shipmentId,
-    payload,
+  const response = await client.apis.service_agents.createServiceAgent({
+    shipmentId,
+    serviceAgent: payload,
   });
-  checkResponse(response, 'failed to load service agent due to server error');
+  checkResponse(response, 'failed to create service agent due to server error');
   return response.body;
 }
 
 export async function UpdateServiceAgent(payload) {
   const client = await getPublicClient();
-  const response = await client.apis.shipments.updateServiceAgents({
-    shipment_uuid: payload.id,
-    payload,
+  const response = await client.apis.service_agents.patchServiceAgents({
+    shipmentId: payload.shipment_id,
+    serviceAgentId: payload.id,
+    patchServiceAgentPayload: {
+      point_of_contact: payload.point_of_contact,
+      email: payload.email,
+      phone_number: payload.phone_number,
+    },
   });
   checkResponse(response, 'failed to update service agent due to server error');
   return response.body;
@@ -78,9 +83,9 @@ export async function UpdateServiceAgent(payload) {
 
 export async function IndexServiceAgents(shipmentId) {
   const client = await getPublicClient();
-  const response = await client.apis.shipments.indexServiceAgents({
-    shipment_uuid: shipmentId,
+  const response = await client.apis.service_agents.indexServiceAgents({
+    shipmentId,
   });
-  checkResponse(response, 'failed to load service agent due to server error');
+  checkResponse(response, 'failed to load service agents due to server error');
   return response.body;
 }
