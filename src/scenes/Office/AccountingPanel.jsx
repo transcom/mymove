@@ -33,6 +33,14 @@ const AccountingDisplay = props => {
             missing
           </PanelField>
         )}
+
+        {props.orders.sac ? (
+          <PanelSwaggerField title="SAC" fieldName="sac" {...fieldProps} />
+        ) : (
+          <PanelField title="SAC" className="missing">
+            missing
+          </PanelField>
+        )}
       </div>
       <div className="editable-panel-column">
         {props.orders.tac ? (
@@ -63,6 +71,14 @@ const AccountingEdit = props => {
         <SwaggerField
           title="TAC"
           fieldName="tac"
+          swagger={ordersSchema}
+          required
+        />
+      </div>
+      <div className="editable-panel-column">
+        <SwaggerField
+          title="SAC"
+          fieldName="sac"
           swagger={ordersSchema}
           required
         />
