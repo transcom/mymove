@@ -1173,8 +1173,8 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - in: body
-          name: update
+        - name: patchServiceAgentPayload
+          in: body
           required: true
           schema:
             $ref: '#/definitions/ServiceAgent'
