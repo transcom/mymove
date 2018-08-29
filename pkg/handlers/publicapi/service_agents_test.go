@@ -55,7 +55,8 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	shipment := shipments[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/shipments/shipment_id/service_agents", nil)
+	path := fmt.Sprintf("/shipments/%s/service_agents", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	pointOfContact := "Pete and Repeat"
@@ -108,7 +109,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId/service_agents/serviceAgentsId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
@@ -155,7 +156,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPOC() {
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId/service_agents/serviceAgentsId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
@@ -199,7 +200,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyEmail() {
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId/service_agents/serviceAgentsId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
@@ -243,7 +244,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPhoneNumber() {
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId/service_agents/serviceAgentsId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
@@ -287,7 +288,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyNotes() {
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId/service_agents/serviceAgentsId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
@@ -333,7 +334,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerWrongTSP() {
 	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/shipments/shipment_id/service_agents/service_agents_id", nil)
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId/service_agents/serviceAgentsId", nil)
 	req = suite.AuthenticateTspRequest(req, otherTspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{

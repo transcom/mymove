@@ -97,7 +97,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
@@ -196,7 +196,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
