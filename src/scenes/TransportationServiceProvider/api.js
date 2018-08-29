@@ -52,7 +52,7 @@ export async function CreateServiceAgent(shipmentId, payload) {
     shipment_uuid: shipmentId,
     payload,
   });
-  checkResponse(response, 'failed to load shipment due to server error');
+  checkResponse(response, 'failed to load service agent due to server error');
   return response.body;
 }
 
@@ -62,7 +62,7 @@ export async function UpdateServiceAgent(payload) {
     shipment_uuid: payload.id,
     payload,
   });
-  checkResponse(response, 'failed to update shipment due to server error');
+  checkResponse(response, 'failed to update service agent due to server error');
   return response.body;
 }
 
@@ -71,6 +71,6 @@ export async function IndexServiceAgents(shipmentId) {
   const response = await client.apis.shipments.indexServiceAgents({
     shipment_uuid: shipmentId,
   });
-  checkResponse(response, 'failed to load shipment due to server error');
+  checkResponse(response, 'failed to load service agent due to server error');
   return response.body;
 }
