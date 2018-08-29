@@ -13,7 +13,7 @@ import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const ServiceAgentDisplay = props => {
-  let serviceAgent = props.initialValues;
+  let serviceAgent = props.initialValues || {};
 
   const fieldProps = {
     schema: props.schema,
@@ -70,6 +70,7 @@ const ServiceAgents = props => {
   let originAgent = { role: 'ORIGIN' };
   let destinationAgent = { role: 'DESTINATION' };
 
+  // This returns the last value. Currently there should only be one record for each role.
   props.serviceAgents.forEach(agent => {
     if (agent.role === 'ORIGIN') {
       originAgent = agent;
@@ -82,8 +83,6 @@ const ServiceAgents = props => {
 
   return (
     <Fragment>
-      <h1>Service Agents!</h1>
-
       <ServiceAgentPanel
         form="origin_service_agent"
         title="Origin Service Agent"
@@ -114,7 +113,6 @@ function mapStateToProps(state, props) {
   return {
     // reduxForm
     schema: get(state, 'swagger.spec.definitions.ServiceAgent', null),
-    initialValues: {},
 
     hasError: false,
     errorMessage: state.tsp.error,

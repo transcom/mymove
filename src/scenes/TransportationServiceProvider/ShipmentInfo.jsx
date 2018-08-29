@@ -96,7 +96,7 @@ class ShipmentInfo extends Component {
                 update={this.props.patchShipment}
               />
               <ServiceAgents
-                title="ServiceAgents"
+                title="Service Agents"
                 shipment={this.props.shipment}
                 serviceAgents={this.props.serviceAgents}
               />
