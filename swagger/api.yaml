@@ -94,7 +94,7 @@ definitions:
         description: unique id of the blackout in the system
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      tspId:
+      tsp_id:
         type: string
         description: ID of the TSP filing this blackout
         format: uuid
@@ -210,7 +210,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipmentId:
+      shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -274,7 +274,7 @@ definitions:
     properties:
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
-      ordersId:
+      orders_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -288,7 +288,7 @@ definitions:
         example: "Change of orders"
         x-nullable: true
     required:
-      - ordersId
+      - orders_id
       - locator
   MoveStatus:
     type: string
