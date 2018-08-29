@@ -5,9 +5,9 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/pjdufour-truss/pdfcpu/pkg/api"
-	"github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/afero"
+	"github.com/trussworks/pdfcpu/pkg/api"
+	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"

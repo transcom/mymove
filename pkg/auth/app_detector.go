@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 )
 
@@ -54,6 +55,7 @@ func DetectorMiddleware(logger *zap.Logger, myHostname string, officeHostname st
 			}
 			session.ApplicationName = appName
 			session.Hostname = strings.ToLower(parts[0])
+			beeline.AddField(r.Context(), "application_name", appName)
 			next.ServeHTTP(w, r)
 			return
 		}

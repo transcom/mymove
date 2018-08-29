@@ -210,7 +210,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_uuid:
+      shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -573,32 +573,33 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      shipment:
-        $ref: '#/definitions/Shipment'
-        x-nullable: true
+      shipment_id:
+        type: string
+        format: uuid
+        readOnly: true
       role:
         $ref: '#/definitions/ServiceAgentRole'
       point_of_contact:
         type: string
-        example: John Doe at Acme Shipping
+        example: Jenny at ACME Movers
       email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email used to contact shipping agent
-        example: jackson_flies@gmail.com
+        example: jenny_acme@example.com
         x-nullable: true
       phone_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
+        example: 303-867-5309
         x-nullable: true
       fax_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
+        example: 303-867-5310
         x-nullable: true
       email_is_preferred:
         type: boolean
@@ -852,7 +853,7 @@ paths:
           description: not authorized to create blackouts
         500:
           description: server error
-  /blackouts/{blackout_uuid}:
+  /blackouts/{blackoutId}:
     get:
       summary: retrieve the details of a blackout period
       operationId: getBlackout
@@ -860,7 +861,7 @@ paths:
         - blackouts
       parameters:
         - in: path
-          name: blackout_uuid
+          name: blackoutId
           type: string
           format: uuid
           required: true
@@ -882,12 +883,12 @@ paths:
           description: server error
     patch:
       summary: update the associated blackout
-      operationId: updateBlackout
+      operationId: patchBlackout
       tags:
         - blackouts
       parameters:
         - in: path
-          name: blackout_uuid
+          name: blackoutId
           type: string
           format: uuid
           required: true
@@ -919,7 +920,7 @@ paths:
         - blackouts
       parameters:
         - in: path
-          name: blackout_uuid
+          name: blackoutId
           type: string
           format: uuid
           required: true
@@ -937,7 +938,7 @@ paths:
           description: no blackout found with that UUID
         500:
           description: server error
-  /documents/{document_uuid}/uploads:
+  /documents/{documentId}/uploads:
     post:
       summary: Adds a new upload to a document
       description: Uploads represent a single digital file, such as a JPEG or PDF.
@@ -948,7 +949,7 @@ paths:
         - multipart/form-data
       parameters:
         - in: path
-          name: document_uuid
+          name: documentId
           type: string
           format: uuid
           required: true
@@ -1029,7 +1030,7 @@ paths:
           description: cannot process request with given information
         500:
           description: server error
-  /shipments/{shipment_uuid}:
+  /shipments/{shipmentId}:
     get:
       summary: Gets a particular shipment
       description: Allows a user to retrieve the details of a particular shipment
@@ -1037,7 +1038,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1065,7 +1066,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1156,7 +1157,7 @@ paths:
     patch:
       summary: Updates a particular service agent
       description: Takes a partial service agent object and replaces the fields in the DB with the ones passed int he body
-      operationId: updateServiceAgent
+      operationId: patchServiceAgent
       tags:
         - service_agents
       parameters:
@@ -1172,10 +1173,9 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: payload
-          in: body
+        - in: body
+          name: update
           required: true
-          description: Service Agent information
           schema:
             $ref: '#/definitions/ServiceAgent'
       responses:
@@ -1426,7 +1426,7 @@ paths:
           description: must be authenticated to access this endpoint
         500:
           description: server error
-  /tsps/{tsp_uuid}/shipments:
+  /tsps/{tspId}/shipments:
     get:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
@@ -1436,7 +1436,7 @@ paths:
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
-          name: tsp_uuid
+          name: tspId
           type: string
           format: uuid
           required: true
@@ -1480,7 +1480,7 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
-  /tsps/{tsp_uuid}/blackouts:
+  /tsps/{tspId}/blackouts:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
       description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
@@ -1490,7 +1490,7 @@ paths:
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
-          name: tsp_uuid
+          name: tspId
           type: string
           format: uuid
           required: true
