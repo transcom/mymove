@@ -20,6 +20,14 @@ import (
  * ------------------------------------------
  */
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
+	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
+	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
+	// TODO: closely match the database structure.
+	var codeOfService *string
+	if s.TrafficDistributionList != nil {
+		codeOfService = &s.TrafficDistributionList.CodeOfService
+	}
+
 	shipmentPayload := &internalmessages.Shipment{
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
@@ -28,7 +36,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		SourceGbloc:                         s.SourceGBLOC,
 		DestinationGbloc:                    s.DestinationGBLOC,
 		Market:                              s.Market,
-		CodeOfService:                       s.CodeOfService,
+		CodeOfService:                       codeOfService,
 		Status:                              internalmessages.ShipmentStatus(s.Status),
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
@@ -84,7 +92,6 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
 	market := "dHHG"
-	codeOfService := "D"
 
 	var requestedPickupDate *time.Time
 	if payload.RequestedPickupDate != nil {
@@ -92,6 +99,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		requestedPickupDate = &date
 	}
 
+	// TODO: Set code of service in the TDL linked to from the Shipment model.
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		ServiceMemberID:              session.ServiceMemberID,
@@ -109,8 +117,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
-		Market:        &market,
-		CodeOfService: &codeOfService,
+		Market: &market,
 	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), &newShipment)

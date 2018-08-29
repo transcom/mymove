@@ -1,6 +1,7 @@
 import {
   LoadShipment,
   PatchShipment,
+  AcceptShipment,
   CreateServiceAgent,
   IndexServiceAgents,
   UpdateServiceAgent,
@@ -11,6 +12,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 // SINGLE RESOURCE ACTION TYPES
 const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
+const acceptShipmentType = 'ACCEPT_SHIPMENT';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
@@ -20,9 +22,11 @@ const updateServiceAgentsType = 'UPDATE_SERVICE_AGENTS';
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
-
 const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
+const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  acceptShipmentType,
+);
 
 const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
   indexServiceAgentsType,
@@ -52,6 +56,11 @@ export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
 export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
   patchShipmentType,
   PatchShipment,
+);
+
+export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(
+  acceptShipmentType,
+  AcceptShipment,
 );
 
 export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
@@ -105,6 +114,10 @@ export function loadShipmentDependencies(shipmentId) {
 
 // Reducer
 const initialState = {
+  shipmentIsAccepting: false,
+  shipmentHasAcceptError: null,
+  shipmentHasAcceptSuccess: false,
+  flashMessage: false,
   serviceAgents: [],
 };
 
@@ -147,6 +160,25 @@ export function tspReducer(state = initialState, action) {
       return Object.assign({}, state, {
         shipmentPatchSuccess: false,
         shipmentPatchError: null,
+        error: action.error.message,
+      });
+    case ACCEPT_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsAccepting: true,
+        shipmentHasAcceptSuccess: false,
+      });
+    case ACCEPT_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsAccepting: false,
+        shipmentHasAcceptSuccess: true,
+        shipmentHasAcceptError: false,
+        shipment: action.payload,
+      });
+    case ACCEPT_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsAccepting: false,
+        shipmentHasAcceptSuccess: false,
+        shipmentHasAcceptError: null,
         error: action.error.message,
       });
 

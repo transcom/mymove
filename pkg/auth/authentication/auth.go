@@ -9,6 +9,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -41,6 +42,13 @@ func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+
+			// Include session office, service member, tsp and user IDs to the beeline event
+			beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
+			beeline.AddField(r.Context(), "session.service_member_id", session.ServiceMemberID)
+			beeline.AddField(r.Context(), "session.tsp_user_id", session.TspUserID)
+			beeline.AddField(r.Context(), "session.user_id", session.UserID)
+
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -209,8 +217,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err == nil { // Someone we know already
 
 		session.UserID = userIdentity.ID
+		beeline.AddField(r.Context(), "session.user_id", session.UserID)
 		if userIdentity.ServiceMemberID != nil {
 			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+			beeline.AddField(r.Context(), "session.service_member_id", session.ServiceMemberID)
 		}
 
 		if userIdentity.OfficeUserID != nil {
@@ -228,6 +238,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.OfficeUserID = officeUser.ID
+			beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {
@@ -252,6 +263,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.TspUserID = tspUser.ID
+			beeline.AddField(r.Context(), "session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &userIdentity.ID
 			err = h.db.Save(tspUser)
 			if err != nil {
@@ -297,12 +309,15 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil { // Successfully created the user
 			session.UserID = user.ID
+			beeline.AddField(r.Context(), "session.user_id", session.UserID)
 			if officeUser != nil {
 				session.OfficeUserID = officeUser.ID
+				beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
 				officeUser.UserID = &user.ID
 				err = h.db.Save(officeUser)
 			} else if tspUser != nil {
 				session.TspUserID = tspUser.ID
+				beeline.AddField(r.Context(), "session.tsp_user_id", session.TspUserID)
 				tspUser.UserID = &user.ID
 				err = h.db.Save(tspUser)
 			}
