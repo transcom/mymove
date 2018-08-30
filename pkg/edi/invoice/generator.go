@@ -42,22 +42,22 @@ func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, erro
 		FunctionalIdentifierCode: "SI", // Shipment Information (858)
 		ApplicationSendersCode:   senderCode,
 		ApplicationReceiversCode: receiverCode,
-		Date:                  currentTime.Format(dateFormat),
-		Time:                  currentTime.Format(timeFormat),
-		GroupControlNumber:    1,
-		ResponsibleAgencyCode: "X", // Accredited Standards Committee X12
-		Version:               "004010",
+		Date:                     currentTime.Format(dateFormat),
+		Time:                     currentTime.Format(timeFormat),
+		GroupControlNumber:       1,
+		ResponsibleAgencyCode:    "X", // Accredited Standards Committee X12
+		Version:                  "004010",
 	}
 	transaction := isa.String(delimiter) + gs.String(delimiter)
 
 	for index, shipment := range shipments {
 		shipment, err := models.FetchShipmentForInvoice(db, shipment.ID)
 		if err != nil {
-			return transaction, err
+			return "", err
 		}
 		shipment858c, err := generate858CShipment(shipment, index+1)
 		if err != nil {
-			return transaction, err
+			return "", err
 		}
 		transaction += shipment858c
 	}
@@ -200,16 +200,16 @@ func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment
 		},
 		// Origin installation information
 		&edisegment.N1{
-			EntityIdentifierCode: "RG",   // Issuing office name qualifier
-			Name:                 "LKNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27", // GBLOC
+			EntityIdentifierCode:        "RG",   // Issuing office name qualifier
+			Name:                        "LKNQ", // TODO: pull from TransportationOffice
+			IdentificationCodeQualifier: "27",   // GBLOC
 			IdentificationCode:          "LKNQ",
 		},
 		// Destination installation information
 		&edisegment.N1{
-			EntityIdentifierCode: "RH",   // Destination name qualifier
-			Name:                 "MLNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27", // GBLOC
+			EntityIdentifierCode:        "RH",   // Destination name qualifier
+			Name:                        "MLNQ", // TODO: pull from TransportationOffice
+			IdentificationCodeQualifier: "27",   // GBLOC
 			IdentificationCode:          "MLNQ",
 		},
 		// Accounting info
@@ -243,9 +243,9 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0,
-			RateValueQualifier: "RC", // Rate
-			Charge:             7580.54,
+			FreightRate:              0,
+			RateValueQualifier:       "RC", // Rate
+			Charge:                   7580.54,
 			SpecialChargeDescription: "LHS", // Linehaul
 		},
 		// Full pack / unpack
@@ -260,9 +260,9 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77,
-			RateValueQualifier: "RC", // Rate
-			Charge:             2551.92,
+			FreightRate:              65.77,
+			RateValueQualifier:       "RC", // Rate
+			Charge:                   2551.92,
 			SpecialChargeDescription: "105A", // Full pack / unpack
 		},
 		// Origin service charge
@@ -277,9 +277,9 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07,
-			RateValueQualifier: "RC", // Rate
-			Charge:             145.32,
+			FreightRate:              4.07,
+			RateValueQualifier:       "RC", // Rate
+			Charge:                   145.32,
 			SpecialChargeDescription: "135A", // Origin service charge
 		},
 		// Fuel surcharge - linehaul
@@ -293,9 +293,9 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0.03,
-			RateValueQualifier: "RC", // Rate
-			Charge:             227.42,
+			FreightRate:              0.03,
+			RateValueQualifier:       "RC", // Rate
+			Charge:                   227.42,
 			SpecialChargeDescription: "16A", // Fuel surchage - linehaul
 		},
 	}, nil
