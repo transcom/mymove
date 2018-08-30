@@ -53,7 +53,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
+		ID:                              shipment.ID,
 		TrafficDistributionListID:       &tdl.ID,
 		RequestedPickupDate:             &pickupDate,
 		PickupDate:                      &pickupDate,
@@ -206,7 +206,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 
 	// Two shipments with offers, using the shipments above
 	shipmentWithOfferBetween := models.ShipmentWithOffer{
-		ID: testShipmentBetween.ID,
+		ID:                              testShipmentBetween.ID,
 		TrafficDistributionListID:       &testTDL.ID,
 		PickupDate:                      &testPickupDateBetween,
 		TransportationServiceProviderID: nil,
@@ -217,7 +217,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	shipmentWithOfferAfter := models.ShipmentWithOffer{
-		ID: testShipmentAfter.ID,
+		ID:                              testShipmentAfter.ID,
 		TrafficDistributionListID:       &testTDL.ID,
 		PickupDate:                      &testPickupDateAfter,
 		TransportationServiceProviderID: nil,
@@ -295,7 +295,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
+		ID:                              shipment.ID,
 		TrafficDistributionListID:       &tdl.ID,
 		PickupDate:                      &pickupDate,
 		RequestedPickupDate:             &pickupDate,
@@ -343,7 +343,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
+		ID:                              shipment.ID,
 		TrafficDistributionListID:       &tdl.ID,
 		PickupDate:                      &pickupDate,
 		RequestedPickupDate:             &pickupDate,

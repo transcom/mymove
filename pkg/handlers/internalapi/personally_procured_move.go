@@ -39,11 +39,11 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		HasSit:                        personallyProcuredMove.HasSit,
 		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
 		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
-		Status:              internalmessages.PPMStatus(personallyProcuredMove.Status),
-		HasRequestedAdvance: &personallyProcuredMove.HasRequestedAdvance,
-		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
-		AdvanceWorksheet:    documentPayload,
-		Mileage:             personallyProcuredMove.Mileage,
+		Status:                        internalmessages.PPMStatus(personallyProcuredMove.Status),
+		HasRequestedAdvance:           &personallyProcuredMove.HasRequestedAdvance,
+		Advance:                       payloadForReimbursementModel(personallyProcuredMove.Advance),
+		AdvanceWorksheet:              documentPayload,
+		Mileage:                       personallyProcuredMove.Mileage,
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
