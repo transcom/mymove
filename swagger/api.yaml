@@ -582,6 +582,7 @@ definitions:
       point_of_contact:
         type: string
         example: Jenny at ACME Movers
+        title: Point of Contact
       email:
         type: string
         format: x-email
@@ -589,30 +590,34 @@ definitions:
         description: Email used to contact shipping agent
         example: jenny_acme@example.com
         x-nullable: true
+        title: Email
       phone_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 303-867-5309
         x-nullable: true
+        title: Phone Number
       fax_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 303-867-5310
         x-nullable: true
+        title: Fax Number
       email_is_preferred:
         type: boolean
         x-nullable: true
-        title: Email
+        title: Email Is Preferred
       phone_is_preferred:
         type: boolean
         x-nullable: true
-        title: Telephone
+        title: Phone Is Preferred
       notes:
         type: string
         x-nullable: true
         example: This service agent is available at all hours
+        title: Notes
       created_at:
         type: string
         format: date-time
