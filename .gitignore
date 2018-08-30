@@ -36,6 +36,12 @@ __snapshots__
 /bin/gin
 /bin/gosec
 
+# pdf artifacts
+/cmd/generate_pdf_form/*.pdf
+/cmd/generate_pdf_form/*.png
+/cmd/generate_pdf_form/*.jpg
+/cmd/generate_pdf_form/*.jpeg
+
 #debugging
 /cmd/webserver/debug
 
