@@ -19,6 +19,9 @@ describe('service agents', function() {
     tspUserEntersServiceAgent('Destination');
     tspUserSavesServiceAgent('Destination');
   });
+  it('tsp user accepts a shipment', function() {
+    tspUserAcceptsShipment();
+  });
 });
 
 function getFixture(role) {
@@ -147,4 +150,43 @@ function tspUserSavesServiceAgent(role) {
     .get('div.phone_number')
     .get('span')
     .contains(fixture.Phone);
+}
+
+function tspUserAcceptsShipment() {
+  // Open new shipments queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // Find shipment and open it
+  cy
+    .get('div')
+    .contains('KBACON')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+  });
+
+  // Status should be Awarded
+  cy
+    .get('li')
+    .get('b')
+    .contains('Awarded');
+
+  cy
+    .get('button')
+    .contains('Accept Shipment')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Accept Shipment')
+    .click();
+
+  // Status should be Accepted
+  cy
+    .get('li')
+    .get('b')
+    .contains('Accepted');
 }
