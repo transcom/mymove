@@ -239,7 +239,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 
 	hhg0.Move.Submit()
 	// Save move and dependencies
-	models.SaveMoveDependencies(db, hhg0.Move)
+	models.SaveMoveDependencies(db, &hhg0.Move)
 
 	// Service member with uploaded orders and an approved shipment
 	email = "hhg@award.ed"
@@ -278,5 +278,5 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg1 := offer1.Shipment
 	hhg1.Move.Submit()
 	// Save move and dependencies
-	models.SaveMoveDependencies(db, hhg1.Move)
+	models.SaveMoveDependencies(db, &hhg1.Move)
 }
