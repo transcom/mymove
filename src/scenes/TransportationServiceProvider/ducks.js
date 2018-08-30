@@ -254,7 +254,7 @@ export function tspReducer(state = initialState, action) {
         serviceAgentIsUpdating: false,
         serviceAgentHasUpdatedSucces: true,
         serviceAgentHasUpdatedError: false,
-        serviceAgents: state.serviceAgents.append(action.payload),
+        serviceAgents: updatedAgents,
       });
     case UPDATE_SERVICE_AGENTS.failure:
       return Object.assign({}, state, {

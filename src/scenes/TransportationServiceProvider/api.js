@@ -68,10 +68,11 @@ export async function CreateServiceAgent(shipmentId, payload) {
 
 export async function UpdateServiceAgent(payload) {
   const client = await getPublicClient();
-  const response = await client.apis.service_agents.patchServiceAgents({
+  const response = await client.apis.service_agents.patchServiceAgent({
     shipmentId: payload.shipment_id,
     serviceAgentId: payload.id,
     patchServiceAgentPayload: {
+      role: payload.role,
       point_of_contact: payload.point_of_contact,
       email: payload.email,
       phone_number: payload.phone_number,

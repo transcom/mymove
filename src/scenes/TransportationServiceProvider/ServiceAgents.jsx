@@ -67,29 +67,14 @@ const ServiceAgents = props => {
     return <LoadingPlaceholder />;
   }
 
-  let originAgent = { role: 'ORIGIN' };
-  let destinationAgent = { role: 'DESTINATION' };
-
-  // This returns the last value. Currently there should only be one record for each role.
-  props.serviceAgents.forEach(agent => {
-    if (agent.role === 'ORIGIN') {
-      originAgent = agent;
-    } else if (agent.role === 'DESTINATION') {
-      destinationAgent = agent;
-    } else {
-      console.error('Unknown Agent Role: ', agent);
-    }
-  });
-
   return (
     <Fragment>
       <ServiceAgentPanel
         form="origin_service_agent"
         title="Origin Service Agent"
         update={props.update}
-        agentRole="ORIGIN"
         schema={props.schema}
-        initialValues={originAgent}
+        initialValues={props.initialValues.ORIGIN}
         getUpdateArgs={props.getOriginUpdateArgs}
       />
 
@@ -97,9 +82,8 @@ const ServiceAgents = props => {
         form="destination_service_agent"
         title="Destination Service Agent"
         update={props.update}
-        agentRole="DESTINATION"
         schema={props.schema}
-        initialValues={destinationAgent}
+        initialValues={props.initialValues.DESTINATION}
         getUpdateArgs={props.getDestinationUpdateArgs}
       />
     </Fragment>
@@ -109,10 +93,15 @@ const ServiceAgents = props => {
 function mapStateToProps(state, props) {
   let originFormValues = getFormValues('origin_service_agent')(state);
   let destFormValues = getFormValues('destination_service_agent')(state);
+  let serviceAgents = get(state, 'tsp.serviceAgents', []);
+  let initialValues = {};
+  // This returns the last value. Currently there should only be one record for each role.
+  serviceAgents.forEach(agent => (initialValues[agent.role] = agent));
 
   return {
     // reduxForm
     schema: get(state, 'swagger.spec.definitions.ServiceAgent', null),
+    initialValues,
 
     hasError: false,
     errorMessage: state.tsp.error,
