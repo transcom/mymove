@@ -52,19 +52,19 @@ func NewFieldPos(xPos, yPos, width float64) FieldPos {
 	}
 }
 
-// Form is a fillable pdf form
-type Form struct {
+// FormFiller is a fillable pdf form
+type FormFiller struct {
 	pdf       *gofpdf.Fpdf
 	fields    map[string]FieldPos
 	useBorder bool
 }
 
-// NewTemplateForm turns a template image and fields mapping into a Form instance
-func NewTemplateForm(templateImage io.ReadSeeker, fields map[string]FieldPos) (Form, error) {
+// NewTemplateForm turns a template image and fields mapping into a FormFiller instance
+func NewTemplateForm(templateImage io.ReadSeeker, fields map[string]FieldPos) (FormFiller, error) {
 	// Determine image type
 	_, format, err := image.DecodeConfig(templateImage)
 	if err != nil {
-		return Form{}, err
+		return FormFiller{}, err
 	}
 	templateImage.Seek(0, io.SeekStart)
 
@@ -73,14 +73,16 @@ func NewTemplateForm(templateImage io.ReadSeeker, fields map[string]FieldPos) (F
 	pdf.AddPage()
 
 	// Use provided image as document background
-	var opt gofpdf.ImageOptions
-	opt.ImageType = format
-	pdf.RegisterImageReader("form_template", format, templateImage)
-	pdf.ImageOptions("form_template", imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, opt, imageLink, imageLinkURL)
+	opt := gofpdf.ImageOptions{
+		ImageType: format,
+		ReadDpi:   true,
+	}
+	pdf.RegisterImageOptionsReader("form_template", opt, templateImage)
+	pdf.Image("form_template", imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, format, imageLink, imageLinkURL)
 
 	pdf.SetFont(fontFamily, fontStyle, fontSize)
 
-	newForm := Form{
+	newForm := FormFiller{
 		pdf:    pdf,
 		fields: fields,
 	}
@@ -89,12 +91,12 @@ func NewTemplateForm(templateImage io.ReadSeeker, fields map[string]FieldPos) (F
 }
 
 // UseBorders draws boxes around each form field
-func (f *Form) UseBorders() {
+func (f *FormFiller) UseBorders() {
 	f.useBorder = true
 }
 
 // DrawData draws the provided data set onto the form using the fields mapping
-func (f *Form) DrawData(data interface{}) error {
+func (f *FormFiller) DrawData(data interface{}) error {
 	borderStr := ""
 	if f.useBorder {
 		borderStr = "1"
@@ -147,6 +149,6 @@ func (f *Form) DrawData(data interface{}) error {
 }
 
 // Output outputs the form to the provided file
-func (f *Form) Output(output io.WriteCloser) error {
+func (f *FormFiller) Output(output io.WriteCloser) error {
 	return f.pdf.OutputAndClose(output)
 }

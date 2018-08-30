@@ -42,7 +42,7 @@
   version = "v9"
 
 [[projects]]
-  digest = "1:6d116dd56ed2240a93708e36e4d13d99d66f4ad198cd87e49ba4d32f20b17b30"
+  digest = "1:174e893894d5d9a24b89e863df45838c2a9f39e9d4e0467b6e211744c40644ac"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -220,7 +220,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f729ab4863cde69a2afe8703ed0f12050eb2f46d3a18e972dd953e42b118217a"
+  digest = "1:bcf497dd7623124901410ba0426816e615bf8937470ca076f60f1e37d25fa862"
   name = "github.com/go-openapi/analysis"
   packages = [
     ".",
@@ -231,7 +231,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ee273c95c1414ef11bd4da259b40e83f41c1d5a6bee7d1b54a05ef5f3565fd92"
+  digest = "1:af5146750cfab1952c8419a6be879ecd140892016de876d5ae72d2ceec375ba9"
   name = "github.com/go-openapi/errors"
   packages = ["."]
   pruneopts = ""
@@ -263,7 +263,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c4a8c916364abeda1c5cf36684320298bbf4d87718b0b2bd9c4ca663157fdc75"
+  digest = "1:41942acf4af317ecf6e6e4208eeeee9f970fcb064f5d5a1dcbb8da3559dcf4b3"
   name = "github.com/go-openapi/loads"
   packages = [
     ".",
@@ -274,10 +274,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:192fee0d231cd2f1f8529d5e92a230e5996850de327ffd2e5c6d635f5c6004ac"
+  digest = "1:45a10a2ee3fbe962b61ed7c85527580a59064c50e7389c95c895a599b7a3118e"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
+    "flagext",
     "logger",
     "middleware",
     "middleware/denco",
@@ -290,7 +291,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:222a38a6f9a0bac95fa14fb97b0bf4734dd652a3341306aa79dda33980d91f42"
+  digest = "1:ec77e8ec51a709ab446bcf3e7b5ae066220526cfe08635c9e54669acc6105298"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = ""
@@ -298,7 +299,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:32d6da338ccfca190791b4c0e9f924c4ea738f2b29e1121567ec93ca0cd98ff1"
+  digest = "1:f673468a91e5727c6cde9601c527331d861784bc6f2a39c062be725b63afac46"
   name = "github.com/go-openapi/strfmt"
   packages = ["."]
   pruneopts = ""
@@ -306,7 +307,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a8255150a79fa9cc785561966bacda7ff5b386abed1b5f5a9a784660407df836"
+  digest = "1:a4c52ae4df96d1b9183cb28a9b7dbb64ca7e987e966af3142c12375b6f185954"
   name = "github.com/go-openapi/swag"
   packages = ["."]
   pruneopts = ""
@@ -314,7 +315,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1aa909166ceb33ae1236c70e5b67e4776aa9ae19aabcce3eef19cfdb69492305"
+  digest = "1:a7b612573104e8d501759fb9696f8cd7e9969236135817f4795cf0036e51d840"
   name = "github.com/go-openapi/validate"
   packages = ["."]
   pruneopts = ""
@@ -330,7 +331,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:90860e6caf947e9fdf46918b817db19dd95fe764287c3cf2e84faf0316403d87"
+  digest = "1:4c6b6784313ee44c43a2241dccbed21db62412a76733ac40be46e7b47ccd5daf"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     "cmd/swagger",
@@ -379,7 +380,7 @@
   version = "v1.1.4"
 
 [[projects]]
-  digest = "1:7d5e46831bc9ca243eaf323d10ba3edff7bc0ac980c6a737881241f416c09741"
+  digest = "1:a2a9202db81e716a847804a58632c9522a4fa13c78e90e7cafce40a4137c7816"
   name = "github.com/gobuffalo/packr"
   packages = ["."]
   pruneopts = ""
@@ -401,7 +402,7 @@
   version = "v3.7.16"
 
 [[projects]]
-  digest = "1:89f835ad6e369a577ba527175c45ba727c39d8104e144ee9be1e503c37ed9c4d"
+  digest = "1:63cdcfd3e2d2084970bcf544cc66956f6c3d2bbb4d29fd1b944d8664d1a68025"
   name = "github.com/gobuffalo/pop"
   packages = [
     ".",
@@ -420,7 +421,7 @@
   version = "v4.7.0"
 
 [[projects]]
-  digest = "1:8968d82118a85c52523c008016576ab93d117fc4eb99f517325d776af1a5e099"
+  digest = "1:7aa680b6534f8eaf2cfa4b19968b5c48dd7112dc870205d1a49e8bb0c429b752"
   name = "github.com/gobuffalo/tags"
   packages = [
     ".",
@@ -483,8 +484,7 @@
   version = "v1.4.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:9b7c5846d70f425d7fe279595e32a20994c6075e87be03b5c367ed07280877c5"
+  digest = "1:d14365c51dd1d34d5c79833ec91413bfbb166be978724f15701e17080dc06dec"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
@@ -609,8 +609,7 @@
   version = "v0.1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:5d2bcf1e0dafcbc31a811ff89fda75b1a03a365b377c65454944f4c9642f423f"
+  digest = "1:29145d7af4adafd72a79df5e41456ac9e232d5a28c1cd4dacf3ff008a217fc10"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -630,7 +629,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e977ed7b0619844e394c4e725d008ade0840f1882c500a66e797b98bde70cf87"
+  digest = "1:212bebc561f4f654a653225868b2a97353cd5e160dc0b0bbc7232b06608474ec"
   name = "github.com/mailru/easyjson"
   packages = [
     "buffer",
@@ -751,20 +750,6 @@
   pruneopts = ""
   revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
   version = "v1.2.0"
-
-[[projects]]
-  branch = "fs"
-  digest = "1:1d5697ed01ba127e9f3176edfb76b51d2aefe4821b2caeb521e57de9667e4b40"
-  name = "github.com/pjdufour-truss/pdfcpu"
-  packages = [
-    "pkg/api",
-    "pkg/compress/lzw",
-    "pkg/filter",
-    "pkg/log",
-    "pkg/pdfcpu",
-  ]
-  pruneopts = ""
-  revision = "a53781a43f9d90ab7f5e0bc28f1b178db2ec6b5f"
 
 [[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
@@ -980,6 +965,20 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "afero"
+  digest = "1:43f6d0202ff0d872db3b8091c060d1ae7f9e9de5083d5aec8148acde04a9a582"
+  name = "github.com/trussworks/pdfcpu"
+  packages = [
+    "pkg/api",
+    "pkg/compress/lzw",
+    "pkg/filter",
+    "pkg/log",
+    "pkg/pdfcpu",
+  ]
+  pruneopts = ""
+  revision = "a53781a43f9d90ab7f5e0bc28f1b178db2ec6b5f"
+
+[[projects]]
   digest = "1:74f86c458e82e1c4efbab95233e0cf51b7cc02dc03193be9f62cd81224e10401"
   name = "go.uber.org/atomic"
   packages = ["."]
@@ -1044,7 +1043,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7a1f3a425a5c3cbef7ff19f11aeef1b3c057a71b4df7f396af5c62cd220ba120"
+  digest = "1:7dd0f1b8c8bd70dbae4d3ed3fbfaec224e2b27bcc0fc65882d6f1dba5b1f6e22"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -1052,6 +1051,7 @@
     "html",
     "html/atom",
     "idna",
+    "netutil",
   ]
   pruneopts = ""
   revision = "8a410e7b638dca158bf9e766925842f6651ff828"
@@ -1077,7 +1077,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:54d1b4c40f05586ddc168fc0f94ceebe85bdb285613ae4a5dafd5e43b52b4d0f"
+  digest = "1:7a5f7a1206de6b90f67cb465e489eac3298e95afa7262813b542df4fab38952f"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
@@ -1109,7 +1109,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:35e49a83df2b1bc056a1bf1c724d5966b17cbf12660644bf53637d04079a639c"
+  digest = "1:3b1b5e1c7268796692c39157a243d247073db39928c2cfdde66e686c522a335c"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -1208,11 +1208,16 @@
     "github.com/dustin/go-humanize",
     "github.com/felixge/httpsnoop",
     "github.com/go-gomail/gomail",
+    "github.com/go-openapi/errors",
     "github.com/go-openapi/loads",
     "github.com/go-openapi/runtime",
+    "github.com/go-openapi/runtime/flagext",
     "github.com/go-openapi/runtime/middleware",
+    "github.com/go-openapi/runtime/security",
+    "github.com/go-openapi/spec",
     "github.com/go-openapi/strfmt",
     "github.com/go-openapi/swag",
+    "github.com/go-openapi/validate",
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/gobuffalo/pop",
     "github.com/gobuffalo/pop/soda",
@@ -1223,6 +1228,7 @@
     "github.com/honeycombio/beeline-go",
     "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
+    "github.com/jessevdk/go-flags",
     "github.com/jung-kurt/gofpdf",
     "github.com/markbates/goth",
     "github.com/markbates/goth/providers/openidConnect",
@@ -1239,6 +1245,7 @@
     "goji.io",
     "goji.io/pat",
     "golang.org/x/crypto/bcrypt",
+    "golang.org/x/net/netutil",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

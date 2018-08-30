@@ -37,10 +37,7 @@ __snapshots__
 /bin/gosec
 
 # pdf artifacts
-/cmd/generate_pdf_form/*.pdf
-/cmd/generate_pdf_form/*.png
-/cmd/generate_pdf_form/*.jpg
-/cmd/generate_pdf_form/*.jpeg
+/cmd/generate_1203_form/*.pdf
 
 #debugging
 /cmd/webserver/debug
