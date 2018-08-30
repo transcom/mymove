@@ -159,7 +159,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
-				Move:                    &move,
+				Move:                    move,
 				MoveID:                  move.ID,
 				Status:                  status,
 			},
