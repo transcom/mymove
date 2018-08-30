@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -44,6 +46,9 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		document.Uploads = append(document.Uploads, u)
 	}
 
+	ordersNumber := "ORDER" + strconv.Itoa(rand.Intn(100))
+	TAC := "tac-placeholder"
+
 	order := models.Order{
 		ServiceMember:    sm,
 		ServiceMemberID:  sm.ID,
@@ -54,9 +59,11 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		IssueDate:        time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
 		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
 		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:     &ordersNumber,
 		HasDependents:    true,
 		SpouseHasProGear: true,
 		Status:           models.OrderStatusDRAFT,
+		TAC:              &TAC,
 	}
 
 	// Overwrite values with those from assertions
