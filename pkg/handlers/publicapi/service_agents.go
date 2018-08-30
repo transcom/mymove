@@ -16,6 +16,7 @@ import (
 func payloadForServiceAgentModel(s models.ServiceAgent) *apimessages.ServiceAgent {
 	serviceAgentPayload := &apimessages.ServiceAgent{
 		ID:               *handlers.FmtUUID(s.ID),
+		ShipmentID:       *handlers.FmtUUID(s.ShipmentID),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 		Role:             apimessages.ServiceAgentRole(s.Role),
@@ -30,12 +31,48 @@ func payloadForServiceAgentModel(s models.ServiceAgent) *apimessages.ServiceAgen
 	return serviceAgentPayload
 }
 
-// CreateServiceAgentHandler ... creates a new service agent on a shipment via POST /shipment/{shipmentId}/serviceAgent
+// IndexServiceAgentsHandler returns a list of service agents via GET /shipments/{shipmentId}/service_agents
+type IndexServiceAgentsHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle returns a list of service agents - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgentsParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO (2018_08_27 cgilmer): Find a way to check Shipment belongs to TSP without 2 queries
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return serviceagentop.NewIndexServiceAgentsForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return serviceagentop.NewIndexServiceAgentsBadRequest()
+	}
+
+	serviceAgents, err := models.FetchServiceAgentsByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	serviceAgentPayloadList := make(apimessages.IndexServiceAgents, len(serviceAgents))
+	for i, serviceAgent := range serviceAgents {
+		serviceAgentPayloadList[i] = payloadForServiceAgentModel(serviceAgent)
+	}
+	return serviceagentop.NewIndexServiceAgentsOK().WithPayload(serviceAgentPayloadList)
+}
+
+// CreateServiceAgentHandler creates a new service agent on a shipment via POST /shipments/{shipmentId}/service_agents
 type CreateServiceAgentHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle ... creates a new ServiceAgent from a request payload - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+// Handle creates a new ServiceAgent from a request payload - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAgentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -73,4 +110,54 @@ func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAge
 
 	serviceAgentPayload := payloadForServiceAgentModel(newServiceAgent)
 	return serviceagentop.NewCreateServiceAgentOK().WithPayload(serviceAgentPayload)
+}
+
+// PatchServiceAgentHandler allows a user to update a service agent
+type PatchServiceAgentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle updates the service agent - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgentParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	serviceAgentID, _ := uuid.FromString(params.ServiceAgentID.String())
+
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return serviceagentop.NewPatchServiceAgentForbidden()
+	}
+
+	serviceAgent, err := models.FetchServiceAgentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, serviceAgentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return serviceagentop.NewPatchServiceAgentBadRequest()
+	}
+
+	// Update the Service Agent
+	payload := params.Update
+	if payload.PointOfContact != nil {
+		serviceAgent.PointOfContact = *payload.PointOfContact
+	}
+	if payload.Email != nil {
+		serviceAgent.Email = payload.Email
+	}
+	if payload.PhoneNumber != nil {
+		serviceAgent.PhoneNumber = payload.PhoneNumber
+	}
+	if payload.Notes != nil {
+		serviceAgent.Notes = payload.Notes
+	}
+
+	verrs, err := h.DB().ValidateAndSave(serviceAgent)
+
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	serviceAgentPayload := payloadForServiceAgentModel(*serviceAgent)
+	return serviceagentop.NewPatchServiceAgentOK().WithPayload(serviceAgentPayload)
 }

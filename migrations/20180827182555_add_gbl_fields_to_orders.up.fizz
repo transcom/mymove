@@ -1,0 +1,3 @@
+add_column("orders", "orders_issuing_agency", "text", {"null": true})
+add_column("orders", "paragraph_number", "text", {"null": true})
+add_column("orders", "sac", "text", {"null": true})
