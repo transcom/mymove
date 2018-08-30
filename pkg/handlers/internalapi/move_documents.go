@@ -156,9 +156,14 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			}
 
 			ppm := &moveDoc.PersonallyProcuredMove
-			err := ppm.Complete()
-			if err != nil {
-				return handlers.ResponseForError(h.Logger(), err)
+			// If the status has already been completed
+			// (because the document has been toggled between OK and HAS_ISSUE and back)
+			// then don't complete it again.
+			if ppm.Status != models.PPMStatusCOMPLETED {
+				err := ppm.Complete()
+				if err != nil {
+					return handlers.ResponseForError(h.Logger(), err)
+				}
 			}
 		}
 	}

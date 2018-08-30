@@ -191,7 +191,13 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	ordersType internalmessages.OrdersType,
 	hasDependents bool,
 	spouseHasProGear bool,
-	newDutyStation DutyStation) (Order, *validate.Errors, error) {
+	newDutyStation DutyStation,
+	ordersNumber *string,
+	paragraphNumber *string,
+	ordersIssuingAgency *string,
+	tac *string,
+	sac *string,
+	departmentIndicator *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -211,18 +217,24 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 		}
 
 		newOrders = Order{
-			ServiceMemberID:  s.ID,
-			ServiceMember:    s,
-			IssueDate:        issueDate,
-			ReportByDate:     reportByDate,
-			OrdersType:       ordersType,
-			HasDependents:    hasDependents,
-			SpouseHasProGear: spouseHasProGear,
-			NewDutyStationID: newDutyStation.ID,
-			NewDutyStation:   newDutyStation,
-			UploadedOrders:   uploadedOrders,
-			UploadedOrdersID: uploadedOrders.ID,
-			Status:           OrderStatusDRAFT,
+			ServiceMemberID:     s.ID,
+			ServiceMember:       s,
+			IssueDate:           issueDate,
+			ReportByDate:        reportByDate,
+			OrdersType:          ordersType,
+			HasDependents:       hasDependents,
+			SpouseHasProGear:    spouseHasProGear,
+			NewDutyStationID:    newDutyStation.ID,
+			NewDutyStation:      newDutyStation,
+			UploadedOrders:      uploadedOrders,
+			UploadedOrdersID:    uploadedOrders.ID,
+			Status:              OrderStatusDRAFT,
+			OrdersNumber:        ordersNumber,
+			ParagraphNumber:     paragraphNumber,
+			OrdersIssuingAgency: ordersIssuingAgency,
+			TAC:                 tac,
+			SAC:                 sac,
+			DepartmentIndicator: departmentIndicator,
 		}
 
 		verrs, err = db.ValidateAndCreate(&newOrders)
