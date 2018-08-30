@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	}
 
 	newPPMParams := ppmop.CreatePersonallyProcuredMoveParams{
-		MoveID:                              strfmt.UUID(move.ID.String()),
+		MoveID: strfmt.UUID(move.ID.String()),
 		CreatePersonallyProcuredMovePayload: &newPPMPayload,
 		HTTPRequest:                         request,
 	}
@@ -168,10 +168,10 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PlannedMoveDate:            &initialMoveDate,
 		HasAdditionalPostalCode:    hasAdditionalPostalCode,
 		AdditionalPickupPostalCode: additionalPickupPostalCode,
-		HasSit:                     hasSit,
-		DaysInStorage:              daysInStorage,
-		Status:                     models.PPMStatusDRAFT,
-		AdvanceWorksheet:           newAdvanceWorksheet,
+		HasSit:           hasSit,
+		DaysInStorage:    daysInStorage,
+		Status:           models.PPMStatusDRAFT,
+		AdvanceWorksheet: newAdvanceWorksheet,
 	}
 	suite.MustSave(&ppm1)
 
@@ -189,8 +189,8 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
@@ -245,8 +245,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: payload,
 	}
@@ -318,8 +318,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
@@ -370,8 +370,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
@@ -412,8 +412,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(badMoveID.String()),
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(badMoveID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
@@ -464,8 +464,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
@@ -528,8 +528,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
@@ -631,11 +631,11 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 
 	assertions := testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
+			MoveID: ppm.Move.ID,
+			Move:   ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   "OK",
-			MoveDocumentType:         "EXPENSE",
+			Status:           "OK",
+			MoveDocumentType: "EXPENSE",
 		},
 		Document: models.Document{
 			ServiceMemberID: sm.ID,

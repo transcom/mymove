@@ -195,8 +195,8 @@ func main() {
 			for _, jsonEmail := range office.EmailAddresses {
 				email := models.OfficeEmail{
 					TransportationOfficeID: transportationOffice.ID,
-					Email:                  strings.TrimSpace(jsonEmail.EmailAddress),
-					Label:                  jsonEmail.Note,
+					Email: strings.TrimSpace(jsonEmail.EmailAddress),
+					Label: jsonEmail.Note,
 				}
 				err = validated(db.ValidateAndCreate(&email))
 				if err != nil {

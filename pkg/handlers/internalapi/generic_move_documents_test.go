@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{
 		HTTPRequest:                      request,
 		CreateGenericMoveDocumentPayload: &newMoveDocPayload,
-		MoveID:                           strfmt.UUID(move.ID.String()),
+		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())

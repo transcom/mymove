@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	newMovingExpenseDocParams := movedocop.CreateMovingExpenseDocumentParams{
 		HTTPRequest:                        request,
 		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
-		MoveID:                             strfmt.UUID(move.ID.String()),
+		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())

@@ -16,7 +16,7 @@ import (
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
-		ID:                                  *handlers.FmtUUID(s.ID),
+		ID: *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
 		PickupDate:                          *handlers.FmtDateTimePtr(s.PickupDate),

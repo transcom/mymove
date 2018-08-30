@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{
 		HTTPRequest:                      request,
 		CreateGenericMoveDocumentPayload: &newMoveDocPayload,
-		MoveID:                           strfmt.UUID(move.ID.String()),
+		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
@@ -83,8 +83,8 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.TestDB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID:                   move.ID,
-			Move:                     move,
+			MoveID: move.ID,
+			Move:   move,
 			PersonallyProcuredMoveID: &ppm.ID,
 		},
 	})

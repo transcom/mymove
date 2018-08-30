@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:                           *handlers.FmtUUID(move.ID),
+		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	}
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:                           *handlers.FmtUUID(move.ID),
+		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
 	// Uses a different user than is on the move object
@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	badMoveID := strfmt.UUID("3511d4d6-019d-4031-9c27-8a553e055543")
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:                           badMoveID,
+		MoveID: badMoveID,
 	}
 
 	// Uses a different user than is on the move object

@@ -22,8 +22,8 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:                       handlers.FmtUUID(moveDoc.ID),
-		MoveID:                   handlers.FmtUUID(moveDoc.MoveID),
+		ID:     handlers.FmtUUID(moveDoc.ID),
+		MoveID: handlers.FmtUUID(moveDoc.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(moveDoc.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &moveDoc.Title,
@@ -62,8 +62,8 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:                       handlers.FmtUUID(docExtractor.ID),
-		MoveID:                   handlers.FmtUUID(docExtractor.MoveID),
+		ID:     handlers.FmtUUID(docExtractor.ID),
+		MoveID: handlers.FmtUUID(docExtractor.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(docExtractor.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &docExtractor.Title,

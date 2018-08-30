@@ -30,11 +30,11 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 
 	assertions := testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
+			MoveID: ppm.Move.ID,
+			Move:   ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   "OK",
-			MoveDocumentType:         "EXPENSE",
+			Status:           "OK",
+			MoveDocumentType: "EXPENSE",
 		},
 		Document: models.Document{
 			ServiceMemberID: sm.ID,

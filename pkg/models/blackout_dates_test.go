@@ -35,7 +35,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
 	shipmentWithOfferWithDomesticMarket := models.ShipmentWithOffer{
-		ID:                              uuid.Must(uuid.NewV4()),
+		ID: uuid.Must(uuid.NewV4()),
 		TrafficDistributionListID:       &tdl.ID,
 		PickupDate:                      &pickupDate,
 		TransportationServiceProviderID: nil,
@@ -46,7 +46,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	}
 
 	shipmentWithOfferWithInternationalMarket := models.ShipmentWithOffer{
-		ID:                              uuid.Must(uuid.NewV4()),
+		ID: uuid.Must(uuid.NewV4()),
 		TrafficDistributionListID:       &tdl.ID,
 		PickupDate:                      &pickupDate,
 		TransportationServiceProviderID: nil,
@@ -97,7 +97,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
 	shipmentWithOfferInGBLOC1 := models.ShipmentWithOffer{
-		ID:                        uuid.Must(uuid.NewV4()),
+		ID: uuid.Must(uuid.NewV4()),
 		TrafficDistributionListID: &tdl.ID,
 		PickupDate:                &pickupDate,
 		SourceGBLOC:               &sourceGBLOC1,
@@ -107,7 +107,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	}
 
 	shipmentWithOfferInGBLOC2 := models.ShipmentWithOffer{
-		ID:                        uuid.Must(uuid.NewV4()),
+		ID: uuid.Must(uuid.NewV4()),
 		TrafficDistributionListID: &tdl.ID,
 		PickupDate:                &pickupDate,
 		SourceGBLOC:               &sourceGBLOC2,
