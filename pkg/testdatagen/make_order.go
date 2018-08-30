@@ -47,6 +47,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	}
 
 	ordersNumber := "ORDER" + strconv.Itoa(rand.Intn(100))
+	TAC := "tac-placeholder"
 
 	order := models.Order{
 		ServiceMember:    sm,
@@ -62,6 +63,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		HasDependents:    true,
 		SpouseHasProGear: true,
 		Status:           models.OrderStatusDRAFT,
+		TAC:              &TAC,
 	}
 
 	// Overwrite values with those from assertions
