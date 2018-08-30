@@ -131,10 +131,16 @@ function mapStateToProps(state, props) {
 
     // editablePanel
     getOriginUpdateArgs: function() {
-      return [get(props, 'shipment.id'), originFormValues];
+      return [
+        get(props, 'shipment.id'),
+        Object.assign({}, originFormValues, { role: 'ORIGIN' }),
+      ];
     },
     getDestinationUpdateArgs: function() {
-      return [get(props, 'shipment.id'), destFormValues];
+      return [
+        get(props, 'shipment.id'),
+        Object.assign({}, destFormValues, { role: 'DESTINATION' }),
+      ];
     },
   };
 }
