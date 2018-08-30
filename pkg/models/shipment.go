@@ -54,7 +54,7 @@ type Shipment struct {
 	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
 	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
 	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
-	Move                                *Move                    `belongs_to:"move"`
+	Move                                Move                     `belongs_to:"move"`
 	Status                              ShipmentStatus           `json:"status" db:"status"`
 	EstimatedPackDays                   *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays                *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
@@ -201,7 +201,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 func FetchShipmentForInvoice(db *pop.Connection, shipmentID uuid.UUID) (Shipment, error) {
 	var shipment Shipment
 	err := db.Q().Eager(
-		"Move",
+		"Move.Orders",
 		"PickupAddress",
 		"ServiceMember",
 	).Find(&shipment, shipmentID)

@@ -16,7 +16,7 @@ import (
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
-		ID: *handlers.FmtUUID(s.ID),
+		ID:                                  *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
 		PickupDate:                          *handlers.FmtDateTimePtr(s.PickupDate),
@@ -28,7 +28,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		Market:                              apimessages.ShipmentMarket(*s.Market),
 		BookDate:                            *handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 *handlers.FmtDateTimePtr(s.RequestedPickupDate),
-		Move:                                payloadForMoveModel(s.Move),
+		Move:                                payloadForMoveModel(&s.Move),
 		Status:                              apimessages.ShipmentStatus(s.Status),
 		EstimatedPackDays:                   handlers.FmtInt64(*s.EstimatedPackDays),
 		EstimatedTransitDays:                handlers.FmtInt64(*s.EstimatedTransitDays),
