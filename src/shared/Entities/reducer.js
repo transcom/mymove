@@ -17,6 +17,9 @@ const initialState = {
   shipments: {},
 };
 
+// Actions of either of these types will be merged into the store:
+//   @@swagger/tag.operationId/SUCCESS
+//   ADD_ENTITIES
 export function entitiesReducer(state = initialState, action) {
   if (action.type === ADD_ENTITIES) {
     return mergeEntities(state, action.entities);

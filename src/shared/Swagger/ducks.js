@@ -67,7 +67,18 @@ export function requestsReducer(state = initialState, action) {
   return state;
 }
 
-export function lastRequest(state, label) {
+// Selectors
+
+// Return a convenient object that contains commonly needed info about
+// the requests for a label
+export function getRequestStatus(state, label) {
+  return {
+    error: getLastError(state, label),
+    isLoading: getLastRequestIsLoading(state, label),
+  };
+}
+
+export function getLastRequest(state, label) {
   const requests = filter(state.requests.byID, function(value, key) {
     return value.label === label;
   });
@@ -75,6 +86,19 @@ export function lastRequest(state, label) {
   return last(sorted);
 }
 
-export function lastError(state, label) {
+export function getLastRequestIsLoading(state, label) {
+  const requests = filter(state.requests.byID, function(value, key) {
+    return value.label === label;
+  });
+  if (requests.length > 0) {
+    const sorted = sortBy(requests, ['start']);
+    return last(sorted).isLoading;
+  } else {
+    return false;
+  }
+}
+
+// Return the last error for a given label
+export function getLastError(state, label) {
   return state.requests.lastErrors[label];
 }

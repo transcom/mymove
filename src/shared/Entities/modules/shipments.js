@@ -1,5 +1,4 @@
 import { denormalize } from 'normalizr';
-import { get } from 'lodash';
 
 import { shipments } from '../schema';
 import { swaggerRequest } from 'shared/api';
