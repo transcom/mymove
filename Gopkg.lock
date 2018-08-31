@@ -402,7 +402,7 @@
   version = "v3.7.16"
 
 [[projects]]
-  digest = "1:63cdcfd3e2d2084970bcf544cc66956f6c3d2bbb4d29fd1b944d8664d1a68025"
+  digest = "1:4065b0d5610226af921b8c92d16caeec2715164977483d392b5f2b9e4689f781"
   name = "github.com/gobuffalo/pop"
   packages = [
     ".",
@@ -417,8 +417,8 @@
     "soda/cmd/schema",
   ]
   pruneopts = ""
-  revision = "2b6e2a4c979e204a9e61b95ed419780493940079"
-  version = "v4.7.0"
+  revision = "4d73fa680c4eb1a0b67d3c237a9b2f0d1e6f506d"
+  version = "v4.7.2"
 
 [[projects]]
   digest = "1:7aa680b6534f8eaf2cfa4b19968b5c48dd7112dc870205d1a49e8bb0c429b752"
@@ -752,20 +752,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "afero"
-  digest = "1:1d5697ed01ba127e9f3176edfb76b51d2aefe4821b2caeb521e57de9667e4b40"
-  name = "github.com/trussworks/pdfcpu"
-  packages = [
-    "pkg/api",
-    "pkg/compress/lzw",
-    "pkg/filter",
-    "pkg/log",
-    "pkg/pdfcpu",
-  ]
-  pruneopts = ""
-  revision = "a53781a43f9d90ab7f5e0bc28f1b178db2ec6b5f"
-
-[[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
   name = "github.com/pkg/errors"
   packages = ["."]
@@ -977,6 +963,20 @@
   pruneopts = ""
   revision = "3232c91b8ede8ca86e8962981d881af78875542f"
   version = "v1.1.0"
+
+[[projects]]
+  branch = "afero"
+  digest = "1:43f6d0202ff0d872db3b8091c060d1ae7f9e9de5083d5aec8148acde04a9a582"
+  name = "github.com/trussworks/pdfcpu"
+  packages = [
+    "pkg/api",
+    "pkg/compress/lzw",
+    "pkg/filter",
+    "pkg/log",
+    "pkg/pdfcpu",
+  ]
+  pruneopts = ""
+  revision = "a53781a43f9d90ab7f5e0bc28f1b178db2ec6b5f"
 
 [[projects]]
   digest = "1:74f86c458e82e1c4efbab95233e0cf51b7cc02dc03193be9f62cd81224e10401"
