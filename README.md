@@ -182,6 +182,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     `127.0.0.1 tsplocal`
 2. Ensure that you have a test account which can log into the TSP site...
     * `make tools_build` to build the tools
+    * run `./bin/generate-test-data -scenario=7` to load test data
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
@@ -228,6 +229,7 @@ Currently, scenarios have the following numbers:
 * `-scenario=4` for PPM or PPM SIT Estimate Scenario (can also use Rate Engine Scenarios for Estimates)
 * `-scenario=5` for Rate Engine Scenario 1
 * `-scenario=6` for Rate Engine Scenario 2
+* `-scenario=7` for TSP test data
 
 ### API / Swagger
 
