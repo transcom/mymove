@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
 	"html/template"
 	"io/ioutil"
@@ -89,8 +90,8 @@ func main() {
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
 
-	mutualTLSPort := flag.String("mutual_tls_port", "9443", "the `port` to listen on.")
-	dodSWCA38Cert := flag.String("dod_sw_ca_38_cert", "", "the DOD SW CA-38 cerfiticate.")
+	httpsClientAuthPort := flag.String("https_client_auth_port", "9443", "The `port` for the HTTPS listener requiring client authentication.")
+	httpsClientAuthCACert := flag.String("https_client_auth_ca_cert", "", "the CA certificate for the HTTPS listener requiring client authentication.")
 
 	httpsPort := flag.String("https_port", "8443", "the `port` to listen on.")
 	httpsCert := flag.String("https_cert", "", "TLS certificate.")
@@ -334,7 +335,7 @@ func main() {
 		KeyPEMBlock:  []byte(*httpsKey),
 	}
 	go func() {
-		httpServer := server.HTTPServer{
+		httpServer := server.Server{
 			ListenAddress: *listenInterface,
 			HTTPHandler:   httpHandler,
 			Logger:        logger,
@@ -343,25 +344,27 @@ func main() {
 		errChan <- httpServer.ListenAndServe()
 	}()
 	go func() {
-		tlsServer := server.TLSServer{
-			ListenAddress: *listenInterface,
-			HTTPHandler:   httpHandler,
-			Logger:        logger,
-			Port:          *httpsPort,
-			TLSCerts:      []server.TLSCert{localCert},
+		tlsServer := server.Server{
+			ClientAuthType: tls.NoClientCert,
+			ListenAddress:  *listenInterface,
+			HTTPHandler:    httpHandler,
+			Logger:         logger,
+			Port:           *httpsPort,
+			TLSCerts:       []server.TLSCert{localCert},
 		}
 		errChan <- tlsServer.ListenAndServeTLS()
 	}()
 	go func() {
-		mutualTLSServer := server.MutualTLSServer{
-			CACertPEMBlock: []byte(*dodSWCA38Cert),
+		mutualTLSServer := server.Server{
+			ClientAuthType: tls.RequireAndVerifyClientCert,
+			CACertPEMBlock: []byte(*httpsClientAuthCACert),
 			ListenAddress:  *listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
-			Port:           *mutualTLSPort,
+			Port:           *httpsClientAuthPort,
 			TLSCerts:       []server.TLSCert{localCert},
 		}
-		errChan <- mutualTLSServer.ListenAndServeMutualTLS()
+		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()
 	logger.Fatal("listener error", zap.Error(<-errChan))
 }
