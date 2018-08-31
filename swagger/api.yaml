@@ -509,30 +509,30 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Spouse Progear Weight Estimate
-      actual_weight_estimate:
+      actual_weight:
         type: integer
         description: Actual weight of the shipment in lbs
         minimum: 0
         example: 10000
         x-nullable: true
         x-formatting: weight
-        title: Actual Weight Estimate
-      actual_progear_weight_estimate:
+        title: Actual Weight
+      actual_progear_weight:
         type: integer
         description: Actual weight of the progear in lbs
         minimum: 0
         example: 500
         x-nullable: true
         x-formatting: weight
-        title: Actual Progear Weight Estimate
-      actual_spouse_progear_weight_estimate:
+        title: Actual Progear Weight
+      actual_spouse_progear_weight:
         type: integer
         description: Actual weight of the spouse progear in lbs
         minimum: 0
         example: 200
         x-nullable: true
         x-formatting: weight
-        title: Actual Spouse Progear Weight Estimate
+        title: Actual Spouse Progear Weight
       pm_survey_planned_pack_date:
         type: string
         format: date
