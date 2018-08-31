@@ -5,19 +5,35 @@ describe('service agents', function() {
   });
   it('tsp user enters and cancels origin service agent', function() {
     tspUserEntersServiceAgent('Origin');
+    tspUserInputsServiceAgent('Origin');
     tspUserCancelsServiceAgent('Origin');
   });
   it('tsp user enters and cancels destination service agent', function() {
     tspUserEntersServiceAgent('Destination');
+    tspUserInputsServiceAgent('Destination');
     tspUserCancelsServiceAgent('Destination');
   });
   it('tsp user enters origin service agent', function() {
     tspUserEntersServiceAgent('Origin');
+    tspUserInputsServiceAgent('Origin');
     tspUserSavesServiceAgent('Origin');
   });
   it('tsp user enters destination service agent', function() {
     tspUserEntersServiceAgent('Destination');
+    tspUserInputsServiceAgent('Destination');
     tspUserSavesServiceAgent('Destination');
+  });
+  it('tsp user updates origin service agent', function() {
+    tspUserEntersServiceAgent('Origin');
+    tspUserClearsServiceAgent('Origin');
+    tspUserInputsServiceAgent('OriginUpdate');
+    tspUserSavesServiceAgent('OriginUpdate');
+  });
+  it('tsp user updates destination service agent', function() {
+    tspUserEntersServiceAgent('Destination');
+    tspUserClearsServiceAgent('Destination');
+    tspUserInputsServiceAgent('DestinationUpdate');
+    tspUserSavesServiceAgent('DestinationUpdate');
   });
   it('tsp user accepts a shipment', function() {
     tspUserAcceptsShipment();
@@ -31,17 +47,25 @@ function getFixture(role) {
       Email: 'jenny_acme@example.com',
       Phone: '303-867-5309',
     },
+    OriginUpdate: {
+      PointOfContact: 'Jen at ACME Movers',
+      Email: 'jen_acme@example.com',
+      Phone: '303-867-5308',
+    },
     Destination: {
       PointOfContact: 'Alice at ACME Movers',
       Email: 'alice_acme@example.com',
       Phone: '303-867-5310',
     },
+    DestinationUpdate: {
+      PointOfContact: 'Bob at ACME Movers',
+      Email: 'bob_acme@example.com',
+      Phone: '303-867-5311',
+    },
   }[role];
 }
 
 function tspUserEntersServiceAgent(role) {
-  const fixture = getFixture(role);
-
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -63,8 +87,12 @@ function tspUserEntersServiceAgent(role) {
     .contains(role)
     .siblings()
     .click();
+}
 
-  // Enter details in form and save orders
+function tspUserInputsServiceAgent(role) {
+  const fixture = getFixture(role);
+
+  // Enter details in form
   cy
     .get('input[name="point_of_contact"]')
     .first()
@@ -79,6 +107,24 @@ function tspUserEntersServiceAgent(role) {
     .get('input[name="phone_number"]')
     .first()
     .type(fixture.Phone)
+    .blur();
+}
+
+function tspUserClearsServiceAgent(role) {
+  const fixture = getFixture(role);
+
+  // Clear details in form
+  cy
+    .get('input[name="point_of_contact"]')
+    .clear()
+    .blur();
+  cy
+    .get('input[name="email"]')
+    .clear()
+    .blur();
+  cy
+    .get('input[name="phone_number"]')
+    .clear()
     .blur();
 }
 
@@ -189,4 +235,6 @@ function tspUserAcceptsShipment() {
     .get('li')
     .get('b')
     .contains('Accepted');
+
+  // TODO: (cgilmer 2018/08/31) - This needs to also check that the queue link has changed
 }
