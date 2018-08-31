@@ -170,18 +170,8 @@ function mapStateToProps(state, props) {
         ]);
       }
       if (get(values.moveDocument, 'move_document_type', '') === 'EXPENSE') {
-        values.moveDocument.requested_amount_cents = parseFloat(
-          values.moveDocument.requested_amount_cents,
-        );
-      }
-      let requested_amount = get(
-        values.moveDocument,
-        'requested_amount_cents',
-        '',
-      );
-      if (requested_amount) {
         values.moveDocument.requested_amount_cents = convertDollarsToCents(
-          requested_amount,
+          values.moveDocument.requested_amount_cents,
         );
       }
       return [

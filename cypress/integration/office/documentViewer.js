@@ -53,7 +53,7 @@ describe('The document viewer', function() {
     cy.get('select[name="move_document_type"]').select('Expense');
     cy.get('input[name="title"]').type('expense document');
     cy.get('select[name="moving_expense_type"]').select('Contracted Expense');
-    cy.get('input[name="requested_amount_cents"]').type('12');
+    cy.get('input[name="requested_amount_cents"]').type('4,000.92');
     cy.get('select[name="payment_method"]').select('Other account');
 
     cy.get('button.submit').should('be.disabled');
@@ -75,9 +75,14 @@ describe('The document viewer', function() {
 
     cy.contains('expense document').click();
     cy.contains('Details').click();
-    cy.contains('Other account');
-    cy.contains('Edit').click();
 
+    // Verify values have been stored correctly
+    cy.contains('4,000.92');
+    cy.contains('Contracted Expense');
+    cy.contains('Other account');
+
+    // Edit payment method
+    cy.contains('Edit').click();
     cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
     cy.get('select[name="moveDocument.status"]').select('OK');
 
@@ -138,7 +143,9 @@ describe('The document viewer', function() {
     cy
       .get('select[name="moveDocument.moving_expense_type"]')
       .select('Contracted Expense');
-    cy.get('input[name="moveDocument.requested_amount_cents"]').type('12');
+    cy
+      .get('input[name="moveDocument.requested_amount_cents"]')
+      .type('4,999.92');
     cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
     cy.get('select[name="moveDocument.status"]').select('OK');
 
@@ -149,6 +156,7 @@ describe('The document viewer', function() {
       .click();
 
     cy.contains('Expense');
+    cy.contains('4,999.92');
     cy.contains('GTCC');
   });
 });
