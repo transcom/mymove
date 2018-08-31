@@ -210,11 +210,13 @@ export function tspReducer(state = initialState, action) {
         serviceAgentHasCreatedSucces: false,
       });
     case CREATE_SERVICE_AGENTS.success:
+      const serviceAgents = state.serviceAgents;
+      serviceAgents.push(action.payload);
       return Object.assign({}, state, {
         serviceAgentIsCreating: false,
         serviceAgentHasCreatedSucces: true,
         serviceAgentHasCreatedError: false,
-        serviceAgents: state.serviceAgents.append(action.payload),
+        serviceAgents,
       });
     case CREATE_SERVICE_AGENTS.failure:
       return Object.assign({}, state, {
@@ -254,7 +256,7 @@ export function tspReducer(state = initialState, action) {
         serviceAgentIsUpdating: false,
         serviceAgentHasUpdatedSucces: true,
         serviceAgentHasUpdatedError: false,
-        serviceAgents: state.serviceAgents.append(action.payload),
+        serviceAgents: updatedAgents,
       });
     case UPDATE_SERVICE_AGENTS.failure:
       return Object.assign({}, state, {
