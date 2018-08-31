@@ -53,6 +53,7 @@ class ShipmentInfo extends Component {
     const last_name = get(this.props.shipment, 'service_member.last_name');
     const first_name = get(this.props.shipment, 'service_member.first_name');
     const locator = get(this.props.shipment, 'move.locator');
+    const awarded = this.props.shipment.status === 'AWARDED';
 
     return (
       <div>
@@ -63,9 +64,16 @@ class ShipmentInfo extends Component {
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
-            <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New Shipments Queue</span>
-            </NavLink>
+            {awarded && (
+              <NavLink to="/queues/new" activeClassName="usa-current">
+                <span>New Shipments Queue</span>
+              </NavLink>
+            )}
+            {!awarded && (
+              <NavLink to="/queues/all" activeClassName="usa-current">
+                <span>All Shipments Queue</span>
+              </NavLink>
+            )}
           </div>
         </div>
         <div className="usa-grid grid-wide">
@@ -106,7 +114,7 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {this.props.shipment.status === 'AWARDED' && (
+              {awarded && (
                 <AcceptShipmentPanel
                   acceptShipment={this.acceptShipment}
                   shipmentStatus={this.props.shipment.status}
