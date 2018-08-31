@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import {
   PanelSwaggerField,
@@ -171,7 +171,6 @@ function mapStateToProps(state) {
     entitlement: loadEntitlements(state),
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       if (
         formValues.PPMEstimate.additional_pickup_postal_code !== '' &&

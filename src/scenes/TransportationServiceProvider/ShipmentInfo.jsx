@@ -14,6 +14,7 @@ import {
 } from './ducks';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
+import ServiceAgents from './ServiceAgents';
 
 class AcceptShipmentPanel extends Component {
   rejectShipment = () => {
@@ -96,6 +97,11 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
+                  <ServiceAgents
+                    title="ServiceAgents"
+                    shipment={this.props.shipment}
+                    serviceAgents={this.props.serviceAgents}
+                  />
                 </div>
               )}
             </div>
@@ -117,6 +123,7 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
+  serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,
     'tsp.loadTspDependenciesHasSuccess',
