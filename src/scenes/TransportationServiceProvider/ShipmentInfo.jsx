@@ -50,9 +50,9 @@ class ShipmentInfo extends Component {
   };
 
   render() {
-    var last_name = get(this.props.shipment, 'service_member.last_name');
-    var first_name = get(this.props.shipment, 'service_member.first_name');
-    var locator = get(this.props.shipment, 'move.locator');
+    const last_name = get(this.props.shipment, 'service_member.last_name');
+    const first_name = get(this.props.shipment, 'service_member.first_name');
+    const locator = get(this.props.shipment, 'move.locator');
 
     return (
       <div>
