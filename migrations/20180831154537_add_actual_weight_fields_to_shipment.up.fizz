@@ -1,0 +1,3 @@
+add_column("shipments", "actual_weight_estimate", "integer", {"null": true})
+add_column("shipments", "actual_progear_weight_estimate", "integer", {"null": true})
+add_column("shipments", "actual_spouse_progear_weight_estimate", "integer", {"null": true})
