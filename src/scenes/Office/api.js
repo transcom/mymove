@@ -151,10 +151,11 @@ export async function CancelMove(moveId, cancelReason) {
 }
 
 // PPM attachments
-export async function DownloadPPMAttachments(ppmId) {
+export async function DownloadPPMAttachments(ppmId, docTypes) {
   const client = await getClient();
   const response = await client.apis.ppm.createPPMAttachments({
     personallyProcuredMoveId: ppmId,
+    docTypes: docTypes,
   });
   checkResponse(response, 'failed to create PPM attachments PDF');
   return response.body;
