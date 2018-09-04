@@ -27,7 +27,7 @@ func stringPtr(s string) *string {
 
 func main() {
 	// This is the path to an image you want to use as a form template
-	templateImagePath := "./cmd/generate_1203_form/SF1203.png"
+	templateImagePath := "./cmd/generate_1203_form/FORM_1203.png"
 
 	f, err := os.Open(templateImagePath)
 	noErr(err)
