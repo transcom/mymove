@@ -121,8 +121,8 @@ class ContactForm extends Component {
           If we can't reach you, who can we contact (such as spouse or parent)?
         </p>
         <p>
-          Any person you assign as a backup or trusted agent must be 18 years of
-          age or older.
+          Any person you assign as a backup contact must be 18 years of age or
+          older.
         </p>
 
         {renderField('name', fields, '')}
