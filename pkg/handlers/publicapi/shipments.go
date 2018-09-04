@@ -43,8 +43,6 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		ProgearWeightEstimate:               handlers.FmtInt64(s.ProgearWeightEstimate.Int64()),
 		SpouseProgearWeightEstimate:         handlers.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
 		ActualWeight:                        handlers.FmtPoundPtr(s.ActualWeight),
-		ActualProgearWeight:                 handlers.FmtPoundPtr(s.ActualProgearWeight),
-		ActualSpouseProgearWeight:           handlers.FmtPoundPtr(s.ActualSpouseProgearWeight),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
