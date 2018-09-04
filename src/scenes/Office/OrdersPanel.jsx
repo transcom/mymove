@@ -100,7 +100,7 @@ const OrdersDisplay = props => {
             {...fieldProps}
           />
         ) : (
-          <PanelField title="Orders Issuing Agency" className="missing">
+          <PanelField title="Orders Issuing Agency" className="">
             missing
           </PanelField>
         )}
@@ -112,7 +112,7 @@ const OrdersDisplay = props => {
             {...fieldProps}
           />
         ) : (
-          <PanelField title="Paragraph Number" className="missing">
+          <PanelField title="Paragraph Number" className="">
             missing
           </PanelField>
         )}
@@ -178,14 +178,12 @@ const OrdersEdit = props => {
             fieldName="orders_issuing_agency"
             swagger={schema}
             className="half-width"
-            required
           />
 
           <SwaggerField
             fieldName="paragraph_number"
             swagger={schema}
             className="half-width"
-            required
           />
         </FormSection>
       </div>

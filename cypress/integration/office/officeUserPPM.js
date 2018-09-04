@@ -139,11 +139,11 @@ function officeUserVerifiesAccounting() {
     .get('button')
     .contains('Save')
     .click();
-  // need to wait a little after saving
-  cy.wait(100);
 
   // Verify data has been saved in the UI
-  cy.get('span').contains('6789');
+  // added '.tac' as an additional selector since
+  // '6789' is part of the DoD ID that was a false positive
+  cy.get('.tac > span').contains('6789');
   cy.get('span').contains('N002214CSW32Y9');
 
   // Refresh browser and make sure changes persist

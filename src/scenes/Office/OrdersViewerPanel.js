@@ -136,7 +136,7 @@ const OrdersViewerDisplay = props => {
             {...ordersFieldsProps}
           />
         ) : (
-          <PanelField title="Orders Issuing Agency" className="missing">
+          <PanelField title="Orders Issuing Agency" className="">
             missing
           </PanelField>
         )}
@@ -147,7 +147,7 @@ const OrdersViewerDisplay = props => {
             {...ordersFieldsProps}
           />
         ) : (
-          <PanelField title="Paragraph Number" className="missing">
+          <PanelField title="Paragraph Number" className="">
             missing
           </PanelField>
         )}
@@ -169,7 +169,7 @@ const OrdersViewerDisplay = props => {
             {...ordersFieldsProps}
           />
         ) : (
-          <PanelField title="SAC" className="missing">
+          <PanelField title="SAC" className="">
             missing
           </PanelField>
         )}
