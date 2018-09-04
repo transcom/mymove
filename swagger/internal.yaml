@@ -638,7 +638,8 @@ definitions:
   MoveDocumentType:
     type: string
     title: Document Type
-    enum:
+    example: EXPENSE
+    enum: &MOVEDOCUMENTTYPE
       - OTHER
       - WEIGHT_TICKET
       - STORAGE_EXPENSE
@@ -1939,6 +1940,16 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+        example: "RI-JP"
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
+        example: "COMNAVPERSCOM MILLINGTON"
       created_at:
         type: string
         format: date-time
@@ -1947,7 +1958,13 @@ definitions:
         format: date-time
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -2005,9 +2022,23 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -3139,6 +3170,15 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM to create an attachments PDF for
+        - name: docTypes
+          in: query
+          type: array
+          required: true
+          items:
+            type: string
+            enum: *MOVEDOCUMENTTYPE
+          collectionFormat: csv
+          description: Restrict the list to documents with matching docType.
       responses:
         200:
           description: returns a PPM attachments upload

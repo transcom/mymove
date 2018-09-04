@@ -28,9 +28,19 @@ export async function RetrieveShipmentsForTSP(queueType) {
 export async function LoadShipment(shipmentId) {
   const client = await getPublicClient();
   const response = await client.apis.shipments.getShipment({
-    shipment_uuid: shipmentId,
+    shipmentId,
   });
   checkResponse(response, 'failed to load shipment due to server error');
+  return response.body;
+}
+
+// SHIPMENT ACCEPT
+export async function AcceptShipment(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.createShipmentAccept({
+    shipmentId: shipmentId,
+  });
+  checkResponse(response, 'failed to accept shipment due to server error');
   return response.body;
 }
 
@@ -38,9 +48,40 @@ export async function PatchShipment(shipmentId, shipment) {
   const client = await getPublicClient();
   const payloadDef = client.spec.definitions.Shipment;
   const response = await client.apis.shipments.patchShipment({
-    shipment_uuid: shipmentId,
+    shipmentId,
     update: formatPayload(shipment, payloadDef),
   });
   checkResponse(response, 'failed to load shipment due to server error');
+  return response.body;
+}
+
+// ServiceAgents
+export async function CreateServiceAgent(shipmentId, payload) {
+  const client = await getPublicClient();
+  const response = await client.apis.service_agents.createServiceAgent({
+    shipmentId,
+    serviceAgent: payload,
+  });
+  checkResponse(response, 'failed to create service agent due to server error');
+  return response.body;
+}
+
+export async function UpdateServiceAgent(payload) {
+  const client = await getPublicClient();
+  const response = await client.apis.service_agents.patchServiceAgent({
+    shipmentId: payload.shipment_id,
+    serviceAgentId: payload.id,
+    patchServiceAgentPayload: payload,
+  });
+  checkResponse(response, 'failed to update service agent due to server error');
+  return response.body;
+}
+
+export async function IndexServiceAgents(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.service_agents.indexServiceAgents({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to load service agents due to server error');
   return response.body;
 }

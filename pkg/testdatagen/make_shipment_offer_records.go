@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
@@ -24,14 +23,15 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	// Test for TSP ID first before creating a new TSP
 	tspID := assertions.ShipmentOffer.TransportationServiceProviderID
 	if isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
-		// TODO: Make TSP and get ID
+		tsp := MakeTSP(db, assertions)
+		tspID = tsp.ID
 	}
 	shipmentOffer := models.ShipmentOffer{
 		ShipmentID:                      shipment.ID,
 		Shipment:                        shipment,
 		TransportationServiceProviderID: tspID,
 		AdministrativeShipment:          false,
-		Accepted:                        swag.Bool(true),
+		Accepted:                        nil, // This is a Tri-state and new offers are always nil until accepted
 		RejectionReason:                 nil,
 	}
 
@@ -70,7 +70,7 @@ func MakeShipmentOfferData(db *pop.Connection) {
 				ShipmentID:                      shipment.ID,
 				TransportationServiceProviderID: tspList[rand.Intn(len(tspList))].ID,
 				AdministrativeShipment:          false,
-				Accepted:                        swag.Bool(true),
+				Accepted:                        nil, // See note about Tri-state above
 				RejectionReason:                 nil,
 			},
 		}
@@ -159,7 +159,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
-				Move:                    &move,
+				Move:                    move,
 				MoveID:                  move.ID,
 				Status:                  status,
 			},

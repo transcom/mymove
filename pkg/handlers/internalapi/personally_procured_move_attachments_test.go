@@ -5,9 +5,9 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/pjdufour-truss/pdfcpu/pkg/api"
-	"github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/afero"
+	"github.com/trussworks/pdfcpu/pkg/api"
+	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -77,9 +77,11 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
+	docTypesToFetch := []string{"WEIGHT_TICKET", "EXPENSE", "OTHER", "STORAGE_EXPENSE"}
 	params := ppmop.CreatePPMAttachmentsParams{
 		PersonallyProcuredMoveID: *handlers.FmtUUID(ppm.ID),
 		HTTPRequest:              request,
+		DocTypes:                 docTypesToFetch,
 	}
 
 	handler := CreatePersonallyProcuredMoveAttachmentsHandler{context}

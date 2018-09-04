@@ -7,10 +7,10 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/jung-kurt/gofpdf"
-	"github.com/pjdufour-truss/pdfcpu/pkg/api"
-	"github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/trussworks/pdfcpu/pkg/api"
+	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
