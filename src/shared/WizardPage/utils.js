@@ -19,14 +19,23 @@ export function isLastPage(pageList, currentPage) {
 }
 
 export async function beforeTransition(func, shouldHandleSubmit = true) {
-  const { dirty, pageList, pageKey, handleSubmit } = this.props;
-  const path = func(pageList, pageKey);
-  if (dirty && handleSubmit && shouldHandleSubmit) {
-    const awaitSubmit = await handleSubmit();
-    if (!awaitSubmit || !awaitSubmit.error) {
+  // Check whether there is work to do before transitioning to next page
+  // If so, do it and make sure it succeeds before moving on
+  const handleSubmit = this.props.handleSubmit;
+  let gotoNext = true;
+  if (this.props.dirty && handleSubmit && shouldHandleSubmit) {
+    const awaitSubmit = await handleSubmit(); // may cause pagelist to change
+    if (awaitSubmit && awaitSubmit.error) {
+      gotoNext = false;
+    }
+  }
+
+  // Good to go to the next page
+  if (gotoNext) {
+    // Fetch the pageList here in case handleSubmit causes the pageList to change
+    const path = func(this.props.pageList, this.props.pageKey);
+    if (path !== undefined) {
       this.goto(path);
     }
-  } else {
-    this.goto(path);
   }
 }

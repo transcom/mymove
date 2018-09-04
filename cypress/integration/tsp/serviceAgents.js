@@ -220,6 +220,8 @@ function tspUserAcceptsShipment() {
     .get('b')
     .contains('Awarded');
 
+  cy.get('a').contains('New Shipments Queue');
+
   cy
     .get('button')
     .contains('Accept Shipment')
@@ -236,5 +238,5 @@ function tspUserAcceptsShipment() {
     .get('b')
     .contains('Accepted');
 
-  // TODO: (cgilmer 2018/08/31) - This needs to also check that the queue link has changed
+  cy.get('a').contains('All Shipments Queue');
 }
