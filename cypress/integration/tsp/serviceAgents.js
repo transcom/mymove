@@ -220,9 +220,7 @@ function tspUserAcceptsShipment() {
     .get('b')
     .contains('Awarded');
 
-  cy
-    .get('a')
-    .contains('New Shipments Queue')
+  cy.get('a').contains('New Shipments Queue');
 
   cy
     .get('button')
@@ -240,7 +238,5 @@ function tspUserAcceptsShipment() {
     .get('b')
     .contains('Accepted');
 
-  cy
-    .get('a')
-    .contains('All Shipments Queue')
+  cy.get('a').contains('All Shipments Queue');
 }
