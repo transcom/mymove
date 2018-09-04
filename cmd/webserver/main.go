@@ -330,7 +330,7 @@ func main() {
 	}
 
 	errChan := make(chan error)
-	localCert := server.TLSCert{
+	localhostCert := server.TLSCert{
 		CertPEMBlock: []byte(*httpsCert),
 		KeyPEMBlock:  []byte(*httpsKey),
 	}
@@ -350,19 +350,21 @@ func main() {
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
 			Port:           *httpsPort,
-			TLSCerts:       []server.TLSCert{localCert},
+			TLSCerts:       []server.TLSCert{localhostCert},
 		}
 		errChan <- tlsServer.ListenAndServeTLS()
 	}()
 	go func() {
 		mutualTLSServer := server.Server{
+			// Only allow certificates validated by the specified
+			// client certificate CA.
 			ClientAuthType: tls.RequireAndVerifyClientCert,
 			CACertPEMBlock: []byte(*httpsClientAuthCACert),
 			ListenAddress:  *listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
 			Port:           *httpsClientAuthPort,
-			TLSCerts:       []server.TLSCert{localCert},
+			TLSCerts:       []server.TLSCert{localhostCert},
 		}
 		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()
