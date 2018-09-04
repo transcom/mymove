@@ -2,7 +2,7 @@ import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { addressElementDisplay, addressElementEdit } from './AddressElement';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -179,7 +179,6 @@ function mapStateToProps(state) {
     isUpdating: false,
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       let serviceMember = values.serviceMember;

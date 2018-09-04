@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid } from 'redux-form';
+import { reduxForm, getFormValues } from 'redux-form';
 
 import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -94,7 +94,6 @@ function mapStateToProps(state) {
     isUpdating: state.office.shipmentIsUpdating,
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [shipment.id, values];
