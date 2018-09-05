@@ -100,9 +100,7 @@ const OrdersDisplay = props => {
             {...fieldProps}
           />
         ) : (
-          <PanelField title="Orders Issuing Agency" className="">
-            missing
-          </PanelField>
+          <PanelField title="Orders Issuing Agency">missing</PanelField>
         )}
 
         {props.orders.paragraph_number ? (
@@ -112,9 +110,7 @@ const OrdersDisplay = props => {
             {...fieldProps}
           />
         ) : (
-          <PanelField title="Paragraph Number" className="">
-            missing
-          </PanelField>
+          <PanelField title="Paragraph Number">missing</PanelField>
         )}
       </div>
       <div className="editable-panel-column">
