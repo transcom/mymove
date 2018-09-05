@@ -44,7 +44,12 @@ class QueueTable extends Component {
         });
       },
       response => {
-        // TODO: add error handling
+        // TODO: add error handling, for now just reset state
+        this.setState({
+          data: [],
+          pages: null,
+          loading: true,
+        });
       },
     );
   }
