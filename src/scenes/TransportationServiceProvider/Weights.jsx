@@ -8,11 +8,7 @@ import { reduxForm, FormSection, getFormValues } from 'redux-form';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-const weightsFields = [
-  'weight_estimate',
-  'progear_weight_estimate',
-  'spouse_progear_weight_estimate',
-];
+const weightsFields = ['actual_weight'];
 
 const WeightsDisplay = props => {
   const fieldProps = {
