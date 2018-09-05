@@ -4,12 +4,15 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
 )
 
@@ -40,42 +43,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger := zap.NewNop()                             //??
-	engine := rateengine.NewRateEngine(db, log, route) //route?
+	var logger = zap.NewNop() //??
 
-	type CostByShipment struct {
-		shipment models.Shipment
-		cost     CostComputation
-	}
+	var costsByShipments []ediinvoice.CostByShipment
 
-	// func HandleRunRateEngineOnShipment(shipment models.Shipment, engine *RateEngine) (CostByShipment, error) {
-	// 	// Apply rate engine to shipment
-	// 	var shipmentCost CostByShipment
-	//
-	// 	cost, err := engine.ComputeHHG(unit.Pounds(shipment.WeightEstimate),
-	// 		shipment.PickupAddress.PostalCode,   // how to get nested value?
-	// 		shipment.DeliveryAddress.PostalCode, // how to get nested value?
-	// 		time.Time(shipment.PickupDate),
-	// 		0,          // We don't want any SIT charges
-	// 		lhDiscount, // where to get this? same as PPMDiscountFetch?
-	// 		0.0,
-	// 	)
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	//
-	// 	shipmentCost = CostbyShipment{
-	// 		shipment,
-	// 		cost,
-	// 	}
-	// 	return shipmentCost, err
-	// }
-
-	var costsByShipments []models.Shipment
 	for _, shipment := range shipments {
-		engine := rateengine.NewRateEngine(db, log, route) //route?
-		costByShipment := HandleRunRateEngineOnShipment(shipment, engine)
-		costsByShipments += costByShipment
+		engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //route? can this go outside of loop?
+		costByShipment, err := HandleRunRateEngineOnShipment(shipment, engine)
+		costsByShipments = append(costsByShipments, costByShipment)
 	}
 
 	edi, err := ediinvoice.Generate858C(costsByShipments, db)
@@ -83,4 +58,28 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(edi)
+}
+
+// HandleRunRateEngineOnShipment runs the rate engine on a shipment and returns the shipment and cost
+func HandleRunRateEngineOnShipment(shipment models.Shipment, engine *rateengine.RateEngine) (ediinvoice.CostByShipment, error) {
+	// Apply rate engine to shipment
+	var shipmentCost ediinvoice.CostByShipment
+
+	cost, err := engine.ComputeShipment(unit.Pound(*shipment.WeightEstimate),
+		shipment.PickupAddress.PostalCode,   // how to get nested value?
+		shipment.DeliveryAddress.PostalCode, // how to get nested value?
+		time.Time(*shipment.PickupDate),
+		0,  // We don't want any SIT charges
+		.4, // placeholder: story to get actual linehaul discount
+		0.0,
+	)
+	if err != nil {
+		return ediinvoice.CostByShipment{}, err
+	}
+
+	shipmentCost = ediinvoice.CostByShipment{
+		Shipment: shipment,
+		Cost:     cost,
+	}
+	return shipmentCost, err
 }

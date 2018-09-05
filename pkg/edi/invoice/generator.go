@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
 )
 
 const delimiter = "~"
@@ -16,6 +17,12 @@ const dateFormat = "20060102"
 const timeFormat = "1504"
 const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
 const receiverCode = "8004171844" // Syncada
+
+// CostByShipment struct containing shipment and cost
+type CostByShipment struct {
+	Shipment models.Shipment
+	Cost     rateengine.CostComputation
+}
 
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, error) {
