@@ -3,7 +3,7 @@ describe('office user finds the move', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  after(() => {
+  before(() => {
     cy.resetDb();
   });
   it('office user views moves in queue new moves', function() {

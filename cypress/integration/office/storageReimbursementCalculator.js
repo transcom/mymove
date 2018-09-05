@@ -3,7 +3,7 @@ describe('office user finds the move', () => {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  after(() => {
+  before(() => {
     cy.resetDb();
   });
   it('office user uses calculator', () => {

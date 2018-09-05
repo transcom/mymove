@@ -4,7 +4,7 @@ describe('orders entry', function() {
   beforeEach(() => {
     cy.signInAsNewUser();
   });
-  after(() => {
+  before(() => {
     cy.resetDb();
   });
 

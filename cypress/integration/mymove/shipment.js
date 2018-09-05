@@ -5,7 +5,7 @@ describe('completing the hhg flow', function() {
     // sm_hhg@example.com
     cy.signInAsUser('4b389406-9258-4695-a091-0bf97b5a132f');
   });
-  after(() => {
+  before(() => {
     cy.resetDb();
   });
 

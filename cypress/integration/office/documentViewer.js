@@ -5,7 +5,7 @@ describe('The document viewer', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  after(() => {
+  before(() => {
     cy.resetDb();
   });
   it('redirects to sign in when not logged in', function() {
