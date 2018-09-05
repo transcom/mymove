@@ -9,6 +9,8 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"go.uber.org/zap"
 )
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go -moveID <UUID>
@@ -28,12 +30,55 @@ func main() {
 
 	moveID := uuid.Must(uuid.FromString(*moveIDString))
 	var shipments models.Shipments
-	err = db.Where("move_id = $1", &moveID).All(&shipments)
+	err = db.Where("move_id = $1", &moveID).Eager(
+		"Move.Orders",
+		"PickupAddress",
+		"DeliveryAddress",
+		"ServiceMember",
+	).All(&shipments)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	edi, err := ediinvoice.Generate858C(shipments, db)
+	logger := zap.NewNop()                             //??
+	engine := rateengine.NewRateEngine(db, log, route) //route?
+
+	type CostByShipment struct {
+		shipment models.Shipment
+		cost     CostComputation
+	}
+
+	// func HandleRunRateEngineOnShipment(shipment models.Shipment, engine *RateEngine) (CostByShipment, error) {
+	// 	// Apply rate engine to shipment
+	// 	var shipmentCost CostByShipment
+	//
+	// 	cost, err := engine.ComputeHHG(unit.Pounds(shipment.WeightEstimate),
+	// 		shipment.PickupAddress.PostalCode,   // how to get nested value?
+	// 		shipment.DeliveryAddress.PostalCode, // how to get nested value?
+	// 		time.Time(shipment.PickupDate),
+	// 		0,          // We don't want any SIT charges
+	// 		lhDiscount, // where to get this? same as PPMDiscountFetch?
+	// 		0.0,
+	// 	)
+	// 	if err != nil {
+	// 		return "", err
+	// 	}
+	//
+	// 	shipmentCost = CostbyShipment{
+	// 		shipment,
+	// 		cost,
+	// 	}
+	// 	return shipmentCost, err
+	// }
+
+	var costsByShipments []models.Shipment
+	for _, shipment := range shipments {
+		engine := rateengine.NewRateEngine(db, log, route) //route?
+		costByShipment := HandleRunRateEngineOnShipment(shipment, engine)
+		costsByShipments += costByShipment
+	}
+
+	edi, err := ediinvoice.Generate858C(costsByShipments, db)
 	if err != nil {
 		log.Fatal(err)
 	}
