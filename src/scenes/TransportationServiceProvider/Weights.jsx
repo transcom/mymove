@@ -22,19 +22,51 @@ const WeightsDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
+        <div class="section-header">
+          <div class="title">Weights</div>
+        </div>
+        <div class="section-subheader">Total weight</div>
         <PanelSwaggerField
           fieldName="weight_estimate"
           nullWarning
+          title="Customer estimate"
           {...fieldProps}
         />
+        <PanelSwaggerField
+          fieldName="pm_survey_weight_estimate"
+          nullWarning
+          title="TSP estimate"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          fieldName="actual_weight"
+          nullWarning
+          {...fieldProps}
+        />
+        <div class="section-subheader">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"
           nullWarning
+          title="Customer estimate"
           {...fieldProps}
         />
         <PanelSwaggerField
+          fieldName="pm_survey_progear_weight_estimate"
+          nullWarning
+          title="TSP estimate"
+          {...fieldProps}
+        />
+        <div class="section-subheader">Spouse pro-gear</div>
+        <PanelSwaggerField
           fieldName="spouse_progear_weight_estimate"
           nullWarning
+          title="Customer estimate"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          fieldName="pm_survey_spouse_progear_weight_estimate"
+          nullWarning
+          title="TSP estimate"
           {...fieldProps}
         />
       </div>
@@ -43,21 +75,57 @@ const WeightsDisplay = props => {
 };
 
 const WeightsEdit = props => {
+  const fieldProps = {
+    schema: props.shipmentSchema,
+    values: props.shipment,
+  };
   const schema = props.shipmentSchema;
   return (
     <React.Fragment>
       <FormSection name="weights">
         <div className="editable-panel-column">
-          <SwaggerField fieldName="weight_estimate" swagger={schema} required />
-          <SwaggerField
-            fieldName="progear_weight_estimate"
-            swagger={schema}
-            required
+          <div class="section-header">
+            <div class="title">Weights</div>
+          </div>
+          <div class="section-subheader">Total weight</div>
+          <PanelSwaggerField
+            fieldName="weight_estimate"
+            nullWarning
+            title="Customer estimate"
+            {...fieldProps}
           />
-          <SwaggerField
+          <PanelSwaggerField
+            fieldName="pm_survey_weight_estimate"
+            nullWarning
+            title="TSP estimate"
+            {...fieldProps}
+          />
+          <SwaggerField fieldName="actual_weight" swagger={schema} required />
+          <div class="section-subheader">Pro-gear</div>
+          <PanelSwaggerField
+            fieldName="progear_weight_estimate"
+            nullWarning
+            title="Customer estimate"
+            {...fieldProps}
+          />
+          <PanelSwaggerField
+            fieldName="pm_survey_progear_weight_estimate"
+            nullWarning
+            title="TSP estimate"
+            {...fieldProps}
+          />
+          <div class="section-subheader">Spouse pro-gear</div>
+          <PanelSwaggerField
             fieldName="spouse_progear_weight_estimate"
-            swagger={schema}
-            required
+            nullWarning
+            title="Customer estimate"
+            {...fieldProps}
+          />
+          <PanelSwaggerField
+            fieldName="pm_survey_spouse_progear_weight_estimate"
+            nullWarning
+            title="TSP estimate"
+            {...fieldProps}
           />
         </div>
       </FormSection>
