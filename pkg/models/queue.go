@@ -70,6 +70,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			WHERE moves.status = 'APPROVED'
 		`
 	} else if lifecycleState == "hhg_accepted" {
+		// Move date is the Requested Pickup Date because accepted shipments haven't yet gone through the
+		// premove survey to set the actual Pickup Date.
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,

@@ -2070,6 +2070,9 @@ definitions:
       ppm_status:
         type: string
         example: PAYMENT_REQUESTED
+      hhg_status:
+        type: string
+        example: ACCEPTED
       locator:
         type: string
         example: "12432"
@@ -2115,6 +2118,7 @@ definitions:
       - id
       - status
       - ppm_status
+      - hhg_status
       - locator
       - customer_name
       - edipi

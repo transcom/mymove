@@ -22,6 +22,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		Locator:          swag.String(MoveQueueItem.Locator),
 		Status:           swag.String(MoveQueueItem.Status),
 		PpmStatus:        MoveQueueItem.PpmStatus,
+		HhgStatus:        MoveQueueItem.HhgStatus,
 		OrdersType:       swag.String(MoveQueueItem.OrdersType),
 		MoveDate:         handlers.FmtDatePtr(MoveQueueItem.MoveDate),
 		CustomerDeadline: handlers.FmtDate(MoveQueueItem.CustomerDeadline),
