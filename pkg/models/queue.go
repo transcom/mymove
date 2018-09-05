@@ -29,7 +29,6 @@ type MoveQueueItem struct {
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
 func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueItem, error) {
 	var moveQueueItems []MoveQueueItem
-	// TODO: add clause `JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id`
 	var query string
 
 	if lifecycleState == "new" {
