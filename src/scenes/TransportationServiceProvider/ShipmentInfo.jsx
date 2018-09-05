@@ -15,7 +15,7 @@ import {
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
 import ServiceAgents from './ServiceAgents';
-import Weights from './Weights';
+import Contents from './Contents';
 
 class AcceptShipmentPanel extends Component {
   rejectShipment = () => {
@@ -111,8 +111,8 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <Weights
-                    title="Weights & Items"
+                  <Contents
+                    title="Contents"
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
