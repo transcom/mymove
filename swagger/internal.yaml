@@ -638,7 +638,8 @@ definitions:
   MoveDocumentType:
     type: string
     title: Document Type
-    enum:
+    example: EXPENSE
+    enum: &MOVEDOCUMENTTYPE
       - OTHER
       - WEIGHT_TICKET
       - STORAGE_EXPENSE
@@ -3169,6 +3170,15 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM to create an attachments PDF for
+        - name: docTypes
+          in: query
+          type: array
+          required: true
+          items:
+            type: string
+            enum: *MOVEDOCUMENTTYPE
+          collectionFormat: csv
+          description: Restrict the list to documents with matching docType.
       responses:
         200:
           description: returns a PPM attachments upload
