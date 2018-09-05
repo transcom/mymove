@@ -64,7 +64,7 @@ type Move struct {
 type Moves []Move
 
 // AfterLoad will use the Status field to inform FSM for the Move model
-func (m *Move) AfterLoad(tx *pop.Connection) error {
+func (m *Move) AfterLoad() error {
 	m.FSM = createMoveFSM(m)
 	err := m.FSM.Event(statusStateMap[m.Status])
 	if err != nil {
@@ -74,7 +74,7 @@ func (m *Move) AfterLoad(tx *pop.Connection) error {
 }
 
 // BeforeSave will save the FSM's current state to the move model
-func (m *Move) BeforeSave(tx *pop.Connection) {
+func (m *Move) BeforeSave() {
 	m.Status = MoveStatus(m.FSM.Current())
 }
 
