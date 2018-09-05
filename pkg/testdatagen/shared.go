@@ -36,6 +36,7 @@ type Assertions struct {
 	ServiceMember                 models.ServiceMember
 	Shipment                      models.Shipment
 	ShipmentOffer                 models.ShipmentOffer
+	Tariff400ngZip3               models.Tariff400ngZip3
 	TrafficDistributionList       models.TrafficDistributionList
 	TransportationServiceProvider models.TransportationServiceProvider
 	TspUser                       models.TspUser

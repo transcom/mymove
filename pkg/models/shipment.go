@@ -148,6 +148,40 @@ func (s *Shipment) Accept() error {
 	return nil
 }
 
+// BeforeSave will run before each create/update of a Shipment and will attempt to determine
+// and set the associated TDL given the pickup and destination zip codes.
+func (s *Shipment) BeforeSave(tx *pop.Connection) error {
+	var rateArea, region string
+	var err error
+
+	// Look up TDL and set if we can determine source rate area, region, and COS.
+	if s.PickupAddress != nil {
+		rateArea, err = FetchRateAreaForZip5(tx, s.PickupAddress.PostalCode)
+		if err != nil {
+			return errors.Wrap(err, "Could not fetch rate area")
+		}
+	}
+	if s.DeliveryAddress != nil {
+		region, err = FetchRegionForZip5(tx, s.DeliveryAddress.PostalCode)
+		if err != nil {
+			return errors.Wrap(err, "Could not fetch region")
+		}
+	}
+	codeOfService := "D" // Always hard-coded for now.
+
+	if rateArea != "" && region != "" && codeOfService != "" {
+		trafficDistributionList, err := FetchTDL(tx, rateArea, region, codeOfService)
+		if err != nil {
+			return errors.Wrapf(err, "Could not fetch TDL for rateArea=%s, region=%s, codeOfService=%s",
+				rateArea, region, codeOfService)
+		}
+		s.TrafficDistributionListID = &trafficDistributionList.ID
+		s.TrafficDistributionList = &trafficDistributionList
+	}
+
+	return nil
+}
+
 // FetchShipments looks up all shipments joined with their offer information in a
 // ShipmentWithOffer struct. Optionally, you can only query for unassigned
 // shipments with the `onlyUnassigned` parameter.
