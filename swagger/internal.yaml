@@ -3723,6 +3723,7 @@ paths:
           - new
           - troubleshooting
           - ppm
+          - hhg_accepted
           - all
           required: true
           description: Queue type to show
