@@ -22,10 +22,8 @@ const WeightsDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <div class="section-header">
-          <div class="title">Weights</div>
-        </div>
-        <div class="section-subheader">Total weight</div>
+        <div className="column-head">Weights</div>
+        <div className="column-subhead">Total weight</div>
         <PanelSwaggerField
           fieldName="weight_estimate"
           nullWarning
@@ -43,7 +41,7 @@ const WeightsDisplay = props => {
           nullWarning
           {...fieldProps}
         />
-        <div class="section-subheader">Pro-gear</div>
+        <div className="column-subhead">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"
           nullWarning
@@ -56,7 +54,7 @@ const WeightsDisplay = props => {
           title="TSP estimate"
           {...fieldProps}
         />
-        <div class="section-subheader">Spouse pro-gear</div>
+        <div className="column-subhead">Spouse pro-gear</div>
         <PanelSwaggerField
           fieldName="spouse_progear_weight_estimate"
           nullWarning
@@ -84,10 +82,8 @@ const WeightsEdit = props => {
     <React.Fragment>
       <FormSection name="weights">
         <div className="editable-panel-column">
-          <div class="section-header">
-            <div class="title">Weights</div>
-          </div>
-          <div class="section-subheader">Total weight</div>
+          <div className="column-head">Weights</div>
+          <div className="column-subhead">Total weight</div>
           <PanelSwaggerField
             fieldName="weight_estimate"
             nullWarning
@@ -101,7 +97,7 @@ const WeightsEdit = props => {
             {...fieldProps}
           />
           <SwaggerField fieldName="actual_weight" swagger={schema} required />
-          <div class="section-subheader">Pro-gear</div>
+          <div className="column-subhead">Pro-gear</div>
           <PanelSwaggerField
             fieldName="progear_weight_estimate"
             nullWarning
@@ -114,7 +110,7 @@ const WeightsEdit = props => {
             title="TSP estimate"
             {...fieldProps}
           />
-          <div class="section-subheader">Spouse pro-gear</div>
+          <div className="column-subhead">Spouse pro-gear</div>
           <PanelSwaggerField
             fieldName="spouse_progear_weight_estimate"
             nullWarning
