@@ -54,6 +54,7 @@ class QueueTable extends Component {
       new: 'New Moves',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
+      hhg_accepted: 'Accepted HHGs',
       all: 'All Moves',
     };
 
