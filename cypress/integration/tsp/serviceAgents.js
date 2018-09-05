@@ -1,5 +1,5 @@
 /* global cy */
-describe('service agents', function() {
+describe('TSP User enters and updates Service Agents', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
@@ -74,7 +74,7 @@ function tspUserEntersServiceAgent(role) {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('KBACON')
+    .contains('BACON2')
     .dblclick();
 
   cy.location().should(loc => {
@@ -207,7 +207,7 @@ function tspUserAcceptsShipment() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('KBACON')
+    .contains('BACON2')
     .dblclick();
 
   cy.location().should(loc => {

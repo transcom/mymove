@@ -1,5 +1,5 @@
 /* global cy */
-describe('The Home Page', function() {
+describe('TSP Home Page', function() {
   beforeEach(() => {
     Cypress.config('baseUrl', 'http://tsplocal:4000');
   });

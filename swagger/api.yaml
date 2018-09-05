@@ -492,6 +492,7 @@ definitions:
         example: 10000
         x-nullable: true
         x-formatting: weight
+        title: Weight Estimate
       progear_weight_estimate:
         type: integer
         description: Estimated weight of the progear in lbs
@@ -499,6 +500,7 @@ definitions:
         example: 500
         x-nullable: true
         x-formatting: weight
+        title: Progear Weight Estimate
       spouse_progear_weight_estimate:
         type: integer
         description: Estimated weight of the spouse progear in lbs
@@ -506,6 +508,15 @@ definitions:
         example: 200
         x-nullable: true
         x-formatting: weight
+        title: Spouse Progear Weight Estimate
+      actual_weight:
+        type: integer
+        description: Actual weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Actual Weight
       pm_survey_planned_pack_date:
         type: string
         format: date
