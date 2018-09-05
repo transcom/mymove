@@ -66,7 +66,7 @@ export const PanelSwaggerField = props => {
   /* eslint-disable security/detect-object-injection */
   if (nullWarning && !values[fieldName]) {
     component = (
-      <PanelField title={title} className="missing">
+      <PanelField title={title} className={'missing ' + fieldName}>
         missing
         {props.children}
       </PanelField>

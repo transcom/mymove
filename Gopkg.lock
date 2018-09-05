@@ -402,7 +402,7 @@
   version = "v3.7.16"
 
 [[projects]]
-  digest = "1:63cdcfd3e2d2084970bcf544cc66956f6c3d2bbb4d29fd1b944d8664d1a68025"
+  digest = "1:4065b0d5610226af921b8c92d16caeec2715164977483d392b5f2b9e4689f781"
   name = "github.com/gobuffalo/pop"
   packages = [
     ".",
@@ -417,8 +417,8 @@
     "soda/cmd/schema",
   ]
   pruneopts = ""
-  revision = "2b6e2a4c979e204a9e61b95ed419780493940079"
-  version = "v4.7.0"
+  revision = "4d73fa680c4eb1a0b67d3c237a9b2f0d1e6f506d"
+  version = "v4.7.2"
 
 [[projects]]
   digest = "1:7aa680b6534f8eaf2cfa4b19968b5c48dd7112dc870205d1a49e8bb0c429b752"

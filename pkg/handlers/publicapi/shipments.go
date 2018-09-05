@@ -42,6 +42,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		WeightEstimate:                      handlers.FmtInt64(s.WeightEstimate.Int64()),
 		ProgearWeightEstimate:               handlers.FmtInt64(s.ProgearWeightEstimate.Int64()),
 		SpouseProgearWeightEstimate:         handlers.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		ActualWeight:                        handlers.FmtPoundPtr(s.ActualWeight),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -183,6 +184,10 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 		shipment.PmSurveyProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
 		shipment.PmSurveySpouseProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
 		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
+	}
+
+	if payload.ActualWeight != nil {
+		shipment.ActualWeight = handlers.PoundPtrFromInt64Ptr(payload.ActualWeight)
 	}
 }
 

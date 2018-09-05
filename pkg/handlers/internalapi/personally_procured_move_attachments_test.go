@@ -77,9 +77,11 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
+	docTypesToFetch := []string{"WEIGHT_TICKET", "EXPENSE", "OTHER", "STORAGE_EXPENSE"}
 	params := ppmop.CreatePPMAttachmentsParams{
 		PersonallyProcuredMoveID: *handlers.FmtUUID(ppm.ID),
 		HTTPRequest:              request,
+		DocTypes:                 docTypesToFetch,
 	}
 
 	handler := CreatePersonallyProcuredMoveAttachmentsHandler{context}
