@@ -86,6 +86,26 @@ const OrdersDisplay = props => {
         <PanelField title="New Duty Station">
           {get(props.orders, 'new_duty_station.name', '')}
         </PanelField>
+
+        {props.orders.orders_issuing_agency ? (
+          <PanelSwaggerField
+            title="Orders Issuing Agency"
+            fieldName="orders_issuing_agency"
+            {...fieldProps}
+          />
+        ) : (
+          <PanelField title="Orders Issuing Agency">missing</PanelField>
+        )}
+
+        {props.orders.paragraph_number ? (
+          <PanelSwaggerField
+            title="Paragraph Number"
+            fieldName="paragraph_number"
+            {...fieldProps}
+          />
+        ) : (
+          <PanelField title="Paragraph Number">missing</PanelField>
+        )}
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(props.entitlements, props.orders)}
@@ -141,6 +161,20 @@ const OrdersEdit = props => {
               props={{ title: 'New Duty Station' }}
             />
           </div>
+        </FormSection>
+
+        <FormSection name="orders">
+          <SwaggerField
+            fieldName="orders_issuing_agency"
+            swagger={schema}
+            className="half-width"
+          />
+
+          <SwaggerField
+            fieldName="paragraph_number"
+            swagger={schema}
+            className="half-width"
+          />
         </FormSection>
       </div>
       <div className="editable-panel-column">
