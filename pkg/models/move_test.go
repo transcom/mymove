@@ -181,6 +181,72 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	suite.Nil(move.CancelReason)
 }
 
+func (suite *ModelSuite) TestMoveFiniteStateMachine() {
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
+	suite.mustSave(&orders)
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	move.Orders = orders
+
+	// Create PPM on this move
+	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+	ppm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Move:      *move,
+			MoveID:    move.ID,
+			Status:    PPMStatusDRAFT,
+			Advance:   &advance,
+			AdvanceID: &advance.ID,
+		},
+	})
+	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+
+	// Create hhg (shipment) on this move
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			MoveID:                  move.ID,
+			Move:                    *move,
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+			Status:                  ShipmentStatusDRAFT,
+		},
+	})
+
+	move.Shipments = append(move.Shipments, shipment)
+
+	// Once submitted
+	err = move.FSM.Event("submit")
+	// err = move.Submit()
+	suite.mustSave(move)
+	suite.db.Reload(move)
+	suite.Nil(err)
+	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
+	suite.Equal(ShipmentStatusSUBMITTED, move.Shipments[0].Status, "expected Submitted")
+	reason := "Orders changed"
+	err = move.FSM.Event("cancel", reason)
+
+	suite.Nil(err)
+	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
+	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
+}
+
 func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	// Given: A move with Orders, PPM and Move all in submitted state
 	orders := testdatagen.MakeDefaultOrder(suite.db)

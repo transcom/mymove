@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/looplab/fsm"
 	"github.com/pkg/errors"
 
 	"crypto/sha256"
@@ -33,6 +34,8 @@ const (
 	MoveStatusCANCELED MoveStatus = "CANCELED"
 )
 
+var statusStateMap = map[MoveStatus]string{MoveStatusDRAFT: "draft", MoveStatusSUBMITTED: "submit", MoveStatusAPPROVED: "approve", MoveStatusCANCELED: "cancel"}
+
 const maxLocatorAttempts = 3
 const locatorLength = 6
 
@@ -54,10 +57,26 @@ type Move struct {
 	Status                  MoveStatus              `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
+	FSM                     *fsm.FSM                `db:"-"`
 }
 
 // Moves is not required by pop and may be deleted
 type Moves []Move
+
+// AfterLoad will use the Status field to inform FSM for the Move model
+func (m *Move) AfterLoad(tx *pop.Connection) error {
+	m.FSM = createMoveFSM(m)
+	err := m.FSM.Event(statusStateMap[m.Status])
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// BeforeSave will save the FSM's current state to the move model
+func (m *Move) BeforeSave(tx *pop.Connection) {
+	m.Status = MoveStatus(m.FSM.Current())
+}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -462,6 +481,79 @@ func GenerateLocator() string {
 	return string(locatorRunes)
 }
 
+func (m *Move) submitMove(e *fsm.Event) error {
+
+	// Update PPM status too
+	for i := range m.PersonallyProcuredMoves {
+		err := m.PersonallyProcuredMoves[i].Submit()
+		if err != nil {
+			return err
+		}
+
+	}
+
+	// Update HHG (Shipment) status too
+	for i := range m.Shipments {
+		err := m.Shipments[i].Submit()
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, ppm := range m.PersonallyProcuredMoves {
+		if ppm.Advance != nil {
+			err := ppm.Advance.Request()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (m *Move) cancelMove(e *fsm.Event, reason string) error {
+	// If a reason was submitted, add it to the move record.
+	if reason != "" {
+		m.CancelReason = &reason
+	}
+
+	// This will work only if you use the PPM in question rather than a var representing it
+	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
+	for i := range m.PersonallyProcuredMoves {
+		err := m.PersonallyProcuredMoves[i].Cancel()
+		if err != nil {
+			return err
+		}
+	}
+
+	// TODO: Orders can exist after related moves are canceled
+	err := m.Orders.Cancel()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createMoveFSM(move *Move) *fsm.FSM {
+	moveFSM := fsm.NewFSM(
+		string(MoveStatusDRAFT),
+		fsm.Events{
+			{Name: "submit", Src: []string{string(MoveStatusDRAFT)}, Dst: string(MoveStatusSUBMITTED)},
+			{Name: "approve", Src: []string{string(MoveStatusSUBMITTED)}, Dst: string(MoveStatusAPPROVED)},
+			{Name: "cancel", Src: []string{string(MoveStatusSUBMITTED), string(MoveStatusDRAFT), string(MoveStatusAPPROVED)}, Dst: string(MoveStatusCANCELED)},
+		},
+		fsm.Callbacks{
+			"after_submit": func(e *fsm.Event) { move.submitMove(e) },
+			"enter_CANCELED": func(e *fsm.Event) {
+				cancelReason := e.Args[0].(string)
+				move.cancelMove(e, cancelReason)
+			},
+		},
+	)
+	return moveFSM
+}
+
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
 // retry with a new record locator.
 func createNewMove(db *pop.Connection,
@@ -480,6 +572,9 @@ func createNewMove(db *pop.Connection,
 			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
 		}
+
+		move.FSM = createMoveFSM(&move)
+
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
 			return nil, verrs, nil

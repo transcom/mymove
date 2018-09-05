@@ -620,6 +620,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:915c56ca290fa3512d4bdc6cc958e5da5c8be0f3f5ca87f98a5f520c122ed3c6"
+  name = "github.com/looplab/fsm"
+  packages = ["."]
+  pruneopts = ""
+  revision = "f980bdb68a8962823200eafe6c0aa99e917be0d7"
+
+[[projects]]
   digest = "1:961dc3b1d11f969370533390fdf203813162980c858e1dabe827b60940c909a5"
   name = "github.com/magiconair/properties"
   packages = ["."]
@@ -1230,6 +1238,7 @@
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
     "github.com/jung-kurt/gofpdf",
+    "github.com/looplab/fsm",
     "github.com/markbates/goth",
     "github.com/markbates/goth/providers/openidConnect",
     "github.com/namsral/flag",
