@@ -492,6 +492,7 @@ definitions:
         example: 10000
         x-nullable: true
         x-formatting: weight
+        title: Weight Estimate
       progear_weight_estimate:
         type: integer
         description: Estimated weight of the progear in lbs
@@ -499,6 +500,7 @@ definitions:
         example: 500
         x-nullable: true
         x-formatting: weight
+        title: Progear Weight Estimate
       spouse_progear_weight_estimate:
         type: integer
         description: Estimated weight of the spouse progear in lbs
@@ -506,6 +508,15 @@ definitions:
         example: 200
         x-nullable: true
         x-formatting: weight
+        title: Spouse Progear Weight Estimate
+      actual_weight:
+        type: integer
+        description: Actual weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Actual Weight
       pm_survey_planned_pack_date:
         type: string
         format: date
@@ -582,6 +593,7 @@ definitions:
       point_of_contact:
         type: string
         example: Jenny at ACME Movers
+        title: Point of Contact
       email:
         type: string
         format: x-email
@@ -589,30 +601,34 @@ definitions:
         description: Email used to contact shipping agent
         example: jenny_acme@example.com
         x-nullable: true
+        title: Email
       phone_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 303-867-5309
         x-nullable: true
+        title: Phone Number
       fax_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 303-867-5310
         x-nullable: true
+        title: Fax Number
       email_is_preferred:
         type: boolean
         x-nullable: true
-        title: Email
+        title: Email Is Preferred
       phone_is_preferred:
         type: boolean
         x-nullable: true
-        title: Telephone
+        title: Phone Is Preferred
       notes:
         type: string
         x-nullable: true
         example: This service agent is available at all hours
+        title: Notes
       created_at:
         type: string
         format: date-time
@@ -1173,8 +1189,8 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - in: body
-          name: update
+        - name: patchServiceAgentPayload
+          in: body
           required: true
           schema:
             $ref: '#/definitions/ServiceAgent'

@@ -22,6 +22,20 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 	suite.verifyValidationErrors(move, expErrors)
 }
 
+func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	var selectedType = internalmessages.SelectedMoveTypeHHG
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	// Verify valid items are in locator
+	suite.Regexp("^[346789BCDFGHJKMPQRTVWXY]+$", move.Locator)
+	// Verify invalid items are not in locator - this should produce "non-word" locators
+	suite.NotRegexp("[0125AEIOULNSZ]", move.Locator)
+}
+
 func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.db)
 	order2 := testdatagen.MakeDefaultOrder(suite.db)
@@ -55,7 +69,7 @@ func (suite *ModelSuite) TestFetchMove() {
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
 			ServiceMember:           &order1.ServiceMember,
-			Move:                    move,
+			Move:                    *move,
 			MoveID:                  move.ID,
 		},
 	})
@@ -139,7 +153,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			MoveID:                  move.ID,
-			Move:                    move,
+			Move:                    *move,
 			RequestedPickupDate:     &pickupDate,
 			PickupDate:              &pickupDate,
 			DeliveryDate:            &deliveryDate,
@@ -267,7 +281,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
 			ServiceMember:           &serviceMember,
-			Move:                    move,
+			Move:                    *move,
 			MoveID:                  move.ID,
 		},
 	})
