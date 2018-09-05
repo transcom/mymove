@@ -3,14 +3,12 @@ describe('office user finds the shipment', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  after(() => {
-    cy.resetDb();
-  });
   it('office user views hhg moves in queue new moves', function() {
     officeUserViewsMoves();
   });
   it('office user views accepted hhg moves in queue Accepted HHGs', function() {
     officeUserViewsAcceptedShipment();
+    cy.resetDb();
   });
 });
 
