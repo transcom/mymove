@@ -213,6 +213,9 @@ endif
 		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 			./soda -e test migrate -c ../config/database.yml -p ../migrations up
 
+1203_form:
+	find ./cmd/generate_1203_form -type f -name "main.go" | entr -c -r go run ./cmd/generate_1203_form/main.go
+
 adr_update:
 	yarn run adr-log
 

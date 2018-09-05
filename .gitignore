@@ -36,6 +36,9 @@ __snapshots__
 /bin/gin
 /bin/gosec
 
+# pdf artifacts
+/cmd/generate_1203_form/*.pdf
+
 #debugging
 /cmd/webserver/debug
 
