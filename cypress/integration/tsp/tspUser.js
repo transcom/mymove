@@ -3,6 +3,9 @@ describe('TSP User Views Shipment', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
+  after(() => {
+    cy.resetDb();
+  });
   it('tsp user views shipments in queue new shipments', function() {
     tspUserViewsShipments();
   });

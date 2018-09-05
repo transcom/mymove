@@ -4,6 +4,9 @@ describe('orders entry', function() {
   beforeEach(() => {
     cy.signInAsNewUser();
   });
+  after(() => {
+    cy.resetDb();
+  });
 
   it('will accept orders information', function() {
     createServiceMember().then(() => cy.visit('/'));

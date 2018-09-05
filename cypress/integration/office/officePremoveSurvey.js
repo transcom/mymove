@@ -5,9 +5,11 @@ describe('office user interacts with premove survey', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
+  after(() => {
+    cy.resetDb();
+  });
   it('office user enters premove survey', function() {
     officeUserEntersPreMoveSurvey();
-    cy.resetDb();
   });
 });
 

@@ -5,6 +5,9 @@ describe('completing the hhg flow', function() {
     // sm_hhg@example.com
     cy.signInAsUser('4b389406-9258-4695-a091-0bf97b5a132f');
   });
+  after(() => {
+    cy.resetDb();
+  });
 
   it('selects hhg and progresses thru form', function() {
     cy.contains('Continue Move Setup').click();
@@ -88,7 +91,5 @@ describe('completing the hhg flow', function() {
     cy.nextPage();
     cy.contains('Success');
     cy.contains('Next Step: Awaiting approval');
-
-    cy.resetDb();
   });
 });

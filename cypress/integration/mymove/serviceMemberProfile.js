@@ -3,6 +3,9 @@ describe('setting up service member profile', function() {
   beforeEach(() => {
     cy.signInAsNewUser();
   });
+  after(() => {
+    cy.resetDb();
+  });
   it('progresses thru forms', function() {
     serviceMemberProfile();
   });

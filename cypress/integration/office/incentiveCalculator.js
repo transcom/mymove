@@ -3,6 +3,9 @@ describe('office user finds the move', () => {
   beforeEach(() => {
     cy.signIntoOffice();
   });
+  after(() => {
+    cy.resetDb();
+  });
   it('office user uses calculator', () => {
     // Open move ppm tab
     cy.visit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc8/ppm');

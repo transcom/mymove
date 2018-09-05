@@ -3,6 +3,9 @@ describe('office user finds the move', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
+  after(() => {
+    cy.resetDb();
+  });
   it('office user views moves in queue new moves', function() {
     officeUserViewsMoves();
   });
@@ -14,7 +17,6 @@ describe('office user finds the move', function() {
   });
   it('office user approves move, verifies and approves PPM', function() {
     officeUserApprovesMoveAndVerifiesPPM();
-    cy.resetDb();
   });
 });
 
