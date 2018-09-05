@@ -305,6 +305,12 @@ definitions:
       APPROVED: Approved
       COMPLETED: Completed
       CANCELED: Canceled
+  MoveDocumentType:
+    type: string
+    title: Document Type
+    example: GOV_BILL_OF_LADING
+    enum: &MOVEDOCUMENTTYPE
+      - GOV_BILL_OF_LADING
   SelectedMoveType:
     type: string
     title: Selected Move Type
@@ -1376,6 +1382,31 @@ paths:
           description: returns updated document with UUID and create time set.
           schema:
             $ref: '#/definitions/Document'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to add documents to this shipment
+        500:
+          description: server error
+  /shipments/{shipmentId}/gov_bill_of_lading:
+    post:
+      summary: Creates a new government bill of lading (form 1203) document associated with a shipment
+      description: Creates a move document for a GBL and stores it
+      operationId: createGovBillOfLading
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: successfully created GBL move document for shipment
         400:
           description: invalid request
         401:
