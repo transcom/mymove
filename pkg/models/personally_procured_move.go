@@ -141,27 +141,27 @@ func (p *PersonallyProcuredMove) Cancel() error {
 }
 
 // FetchMoveDocumentsForTypes returns all the linked move documents with the given document types
-func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, docTypes []MoveDocumentType) (MoveDocuments, error) {
+func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, docTypes []string) (MoveDocuments, error) {
 	var moveDocs MoveDocuments
 
 	q := db.
 		Where("personally_procured_move_id = ?", p.ID).
 		Where("status = ?", MoveDocumentStatusOK)
 
-	// If we were given doc types, append that WHERE statement
-	if len(docTypes) > 0 {
-		convertedTypes := make([]interface{}, len(docTypes))
-		for i, t := range docTypes {
-			convertedTypes[i] = string(t)
-		}
-		q = q.Where("move_document_type in (?)", convertedTypes...)
+	if len(docTypes) <= 0 {
+		return MoveDocuments{}, nil
 	}
+	// If we were given doc types, append that WHERE statement
+	convertedTypes := make([]interface{}, len(docTypes))
+	for i, t := range docTypes {
+		convertedTypes[i] = t
+	}
+	q = q.Where("move_document_type in (?)", convertedTypes...)
 
 	err := q.Eager("Document.Uploads").All(&moveDocs)
 	if err != nil {
 		return MoveDocuments{}, nil
 	}
-
 	return moveDocs, nil
 }
 

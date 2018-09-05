@@ -120,10 +120,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
-		HTTPRequest:    req,
-		ShipmentID:     strfmt.UUID(shipment.ID.String()),
-		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
-		Update:         &UpdatePayload,
+		HTTPRequest:              req,
+		ShipmentID:               strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID:           strfmt.UUID(serviceAgent.ID.String()),
+		PatchServiceAgentPayload: &UpdatePayload,
 	}
 
 	// And: patch service agent is returned
@@ -164,10 +164,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPOC() {
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
-		HTTPRequest:    req,
-		ShipmentID:     strfmt.UUID(shipment.ID.String()),
-		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
-		Update:         &UpdatePayload,
+		HTTPRequest:              req,
+		ShipmentID:               strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID:           strfmt.UUID(serviceAgent.ID.String()),
+		PatchServiceAgentPayload: &UpdatePayload,
 	}
 
 	// And: patch service agent is returned
@@ -208,10 +208,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyEmail() {
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
-		HTTPRequest:    req,
-		ShipmentID:     strfmt.UUID(shipment.ID.String()),
-		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
-		Update:         &UpdatePayload,
+		HTTPRequest:              req,
+		ShipmentID:               strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID:           strfmt.UUID(serviceAgent.ID.String()),
+		PatchServiceAgentPayload: &UpdatePayload,
 	}
 
 	// And: patch service agent is returned
@@ -252,10 +252,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPhoneNumber() {
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
-		HTTPRequest:    req,
-		ShipmentID:     strfmt.UUID(shipment.ID.String()),
-		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
-		Update:         &UpdatePayload,
+		HTTPRequest:              req,
+		ShipmentID:               strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID:           strfmt.UUID(serviceAgent.ID.String()),
+		PatchServiceAgentPayload: &UpdatePayload,
 	}
 
 	// And: patch service agent is returned
@@ -296,10 +296,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyNotes() {
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
-		HTTPRequest:    req,
-		ShipmentID:     strfmt.UUID(shipment.ID.String()),
-		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
-		Update:         &UpdatePayload,
+		HTTPRequest:              req,
+		ShipmentID:               strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID:           strfmt.UUID(serviceAgent.ID.String()),
+		PatchServiceAgentPayload: &UpdatePayload,
 	}
 
 	// And: patch service agent is returned
@@ -345,10 +345,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerWrongTSP() {
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
-		HTTPRequest:    req,
-		ShipmentID:     strfmt.UUID(shipment.ID.String()),
-		ServiceAgentID: strfmt.UUID(serviceAgent.ID.String()),
-		Update:         &UpdatePayload,
+		HTTPRequest:              req,
+		ShipmentID:               strfmt.UUID(shipment.ID.String()),
+		ServiceAgentID:           strfmt.UUID(serviceAgent.ID.String()),
+		PatchServiceAgentPayload: &UpdatePayload,
 	}
 
 	// And: patch service agent is returned

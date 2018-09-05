@@ -114,9 +114,25 @@ export function loadShipmentDependencies(shipmentId) {
 
 // Reducer
 const initialState = {
+  shipmentIsLoading: false,
+  shipmentHasLoadSuccess: false,
+  shipmentHasLoadError: null,
+  shipmentPatchSuccess: false,
+  shipmentPatchError: null,
   shipmentIsAccepting: false,
   shipmentHasAcceptError: null,
   shipmentHasAcceptSuccess: false,
+  serviceAgentsAreLoading: false,
+  serviceAgentsHasLoadSucces: false,
+  serviceAgentsHasLoadError: null,
+  serviceAgentIsCreating: false,
+  serviceAgentHasCreatedSucces: false,
+  serviceAgentHasCreatedError: null,
+  serviceAgentIsUpdating: false,
+  serviceAgentHasUpdatedSucces: false,
+  serviceAgentHasUpdatedError: null,
+  loadTspDependenciesHasSuccess: false,
+  loadTspDependenciesHasError: null,
   flashMessage: false,
   serviceAgents: [],
 };
@@ -210,11 +226,13 @@ export function tspReducer(state = initialState, action) {
         serviceAgentHasCreatedSucces: false,
       });
     case CREATE_SERVICE_AGENTS.success:
+      const serviceAgents = state.serviceAgents;
+      serviceAgents.push(action.payload);
       return Object.assign({}, state, {
         serviceAgentIsCreating: false,
         serviceAgentHasCreatedSucces: true,
         serviceAgentHasCreatedError: false,
-        serviceAgents: state.serviceAgents.append(action.payload),
+        serviceAgents,
       });
     case CREATE_SERVICE_AGENTS.failure:
       return Object.assign({}, state, {
@@ -254,7 +272,7 @@ export function tspReducer(state = initialState, action) {
         serviceAgentIsUpdating: false,
         serviceAgentHasUpdatedSucces: true,
         serviceAgentHasUpdatedError: false,
-        serviceAgents: state.serviceAgents.append(action.payload),
+        serviceAgents: updatedAgents,
       });
     case UPDATE_SERVICE_AGENTS.failure:
       return Object.assign({}, state, {

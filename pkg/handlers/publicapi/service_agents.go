@@ -138,7 +138,7 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 	}
 
 	// Update the Service Agent
-	payload := params.Update
+	payload := params.PatchServiceAgentPayload
 	if payload.PointOfContact != nil {
 		serviceAgent.PointOfContact = *payload.PointOfContact
 	}
