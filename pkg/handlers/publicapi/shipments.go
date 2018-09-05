@@ -185,6 +185,10 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 		shipment.PmSurveySpouseProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
 		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
+
+	if payload.ActualWeight != nil {
+		shipment.ActualWeight = handlers.PoundPtrFromInt64Ptr(payload.ActualWeight)
+	}
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment
