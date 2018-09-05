@@ -71,22 +71,22 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 		`
 	} else if lifecycleState == "hhg_accepted" {
 		query = `
-			SELECT shipments.ID,
+			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-				move.locator as locator,
+				moves.locator as locator,
 				ord.orders_type as orders_type,
-				shipments.pickup_date as move_date,
-				shipments.created_at as created_at,
-				shipments.updated_at as last_modified_date,
-				move.status as status,
-				shipments.status as hhg_status
-			FROM shipments
-			JOIN moves as move ON shipments.move_id = move.id
-			JOIN orders as ord ON move.orders_id = ord.id
+				shipment.requested_pickup_date as move_date,
+				moves.created_at as created_at,
+				moves.updated_at as last_modified_date,
+				moves.status as status,
+				shipment.status as hhg_status
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			WHERE shipments.status = 'ACCEPTED'
+			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
+			WHERE shipment.status = 'ACCEPTED'
 		`
 	} else if lifecycleState == "all" {
 		query = `
