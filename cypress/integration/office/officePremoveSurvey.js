@@ -1,4 +1,4 @@
-import testPremoveSurvey from '../../support/testPremoveSurvey';
+import { testPremoveSurvey } from '../../support/testPremoveSurvey';
 
 /* global cy */
 describe('office user interacts with premove survey', function() {
