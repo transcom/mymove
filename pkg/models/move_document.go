@@ -38,6 +38,8 @@ const (
 	MoveDocumentTypeSHIPMENTSUMMARY MoveDocumentType = "SHIPMENT_SUMMARY"
 	// MoveDocumentTypeEXPENSE captures enum value "EXPENSE"
 	MoveDocumentTypeEXPENSE MoveDocumentType = "EXPENSE"
+	// MoveDocumentTypeGOVBILLOFLADING captures enum value "GOV_BILL_OF_LADING"
+	MoveDocumentTypeGOVBILLOFLADING MoveDocumentType = "GOV_BILL_OF_LADING"
 )
 
 // MoveDocumentSaveAction represents actions that can be taken during save
@@ -59,6 +61,8 @@ type MoveDocument struct {
 	Move                     Move                   `belongs_to:"moves"`
 	PersonallyProcuredMoveID *uuid.UUID             `json:"personally_procured_move_id" db:"personally_procured_move_id"`
 	PersonallyProcuredMove   PersonallyProcuredMove `belongs_to:"personally_procured_moves"`
+	ShipmentID               *uuid.UUID             `json:"shipment_id" db:"shipment_id"`
+	Shipment                 Shipment               `belongs_to:"shipments"`
 	Title                    string                 `json:"title" db:"title"`
 	Status                   MoveDocumentStatus     `json:"status" db:"status"`
 	MoveDocumentType         MoveDocumentType       `json:"move_document_type" db:"move_document_type"`

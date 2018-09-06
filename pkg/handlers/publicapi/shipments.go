@@ -226,6 +226,50 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
+// CreateGovBillOfLadingHandler creates a GBL move document and associates it to a shipment
+type CreateGovBillOfLadingHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
+func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLadingParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// Verify that the logged in TSP user exists
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingForbidden()
+	}
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	}
+	//  check that there are no gbls for shipment id, if so, return error. TODO: write this func in movedoc model
+	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
+	if extantGBLS == true {
+		h.Logger().Error("There are already GBLs for this shipment.")
+		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	}
+	// call func to create PDF from real data - value is the local file path to gbl?
+	// Create GBL move document associated to the shipment
+	newMoveDocument, verrs, err := move.CreateMoveDocument(h.DB(),
+		uploads, // these have to be created from the local pdf
+		shipmentID,
+		models.MoveDocumentTypeGOVBILLOFLADING,
+		strfmt("Government Bill Of Lading"),
+	)
+
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	return shipmentop.NewCreateGovBillOfLadingOK()
+
+}
+
 // GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
 type GetShipmentContactDetailsHandler struct {
 	handlers.HandlerContext
