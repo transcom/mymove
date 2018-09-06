@@ -38,7 +38,7 @@ func main() {
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
-	).All(&shipments)
+	).All(&shipments) //TODO include only shipments with ShipmentOffer state of "ACCEPTED"(?)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,12 +47,12 @@ func main() {
 
 	var costsByShipments []ediinvoice.CostByShipment
 
+	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: create the propper route/planner
 	for _, shipment := range shipments {
-		engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //route? can this go outside of loop?
-		costByShipment, _ := HandleRunRateEngineOnShipment(shipment, engine)
-		// if err != nil {
-		// 	return ediinvoice.CostByShipment, err
-		// }
+		costByShipment, err := HandleRunRateEngineOnShipment(shipment, engine)
+		if err != nil {
+			log.Fatal(err)
+		}
 		costsByShipments = append(costsByShipments, costByShipment)
 	}
 	edi, err := ediinvoice.Generate858C(costsByShipments, db)
@@ -72,7 +72,7 @@ func HandleRunRateEngineOnShipment(shipment models.Shipment, engine *rateengine.
 		shipment.DeliveryAddress.PostalCode, // how to get nested value?
 		time.Time(*shipment.PickupDate),
 		0,  // We don't want any SIT charges
-		.4, // placeholder: story to get actual linehaul discount
+		.4, // TODO: placeholder: story to get actual linehaul discount
 		0.0,
 	)
 	if err != nil {
