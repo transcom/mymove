@@ -337,7 +337,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	 */
 	email = "hhg@accept.ed"
 
-	offer3 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	offer5 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("6a39dd2a-a23f-4967-a035-3bc9987c6848")),
 			LoginGovEmail: email,
@@ -369,7 +369,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	hhg3 := offer3.Shipment
-	hhg3.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg3.Move)
+	hhg5 := offer5.Shipment
+	hhg5.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg5.Move)
 }
