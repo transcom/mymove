@@ -8,7 +8,6 @@ describe('office user finds the shipment', function() {
   });
   it('office user views accepted hhg moves in queue Accepted HHGs', function() {
     officeUserViewsAcceptedShipment();
-    cy.resetDb();
   });
 });
 
