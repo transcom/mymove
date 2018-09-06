@@ -23,6 +23,57 @@ func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
 	suite.verifyValidationErrors(moveDoc, expErrors)
 }
 
+func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
+	// When: There is a move, shipment, and move document of type GBL
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	sm := shipment.Move.Orders.ServiceMember
+
+	assertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:           shipment.Move.ID,
+			Move:             shipment.Move,
+			ShipmentID:       &shipment.ID,
+			Status:           "OK",
+			MoveDocumentType: "GOV_BILL_OF_LADING",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	testdatagen.MakeMoveDocument(suite.db, assertions)
+	testdatagen.MakeMoveDocument(suite.db, assertions)
+
+	// When: the logged in user is a TSP user
+	// TODO: Test that only the TSP user attached to the shipmentWithOffer can fetch move docs for shipment
+	tspUser := testdatagen.MakeDefaultTspUser(suite.db)
+	session := &auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser.UserID,
+		TspUserID:       tspUser.ID,
+	}
+
+	moveDocs, err := FetchMoveDocumentsByTypeForShipment(suite.db, session, MoveDocumentTypeGOVBILLOFLADING, shipment.ID)
+
+	if suite.NoError(err) {
+		suite.Equal(2, len(moveDocs))
+		for _, moveDoc := range moveDocs {
+			suite.Equal(moveDoc.MoveDocumentType, MoveDocumentTypeGOVBILLOFLADING)
+			suite.Equal(moveDoc.Status, MoveDocumentStatusOK)
+			suite.Equal(*moveDoc.ShipmentID, shipment.ID)
+			suite.Equal(moveDoc.MoveID, shipment.Move.ID)
+		}
+	}
+
+	// When: a document doesn't exist
+	nonExistantDocs, err := FetchMoveDocumentsByTypeForShipment(suite.db, session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
+	// No docs should be returned
+	if suite.NoError(err) {
+		suite.Equal(0, len(nonExistantDocs))
+	}
+}
+
 func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	// When: There is a move, ppm, move document and 2 expense docs
 	ppm := testdatagen.MakeDefaultPPM(suite.db)

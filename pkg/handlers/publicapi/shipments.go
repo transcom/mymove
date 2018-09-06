@@ -1,11 +1,11 @@
 package publicapi
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -238,7 +238,6 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 
 	// Verify that the logged in TSP user exists
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	fmt.Println("SDLFKJLSDKFJKLSDJF", session.TspUserID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingForbidden()
@@ -256,21 +255,23 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingForbidden()
 	}
 
-	//  Don't allow GBL generation for shipments that already have a GBL move document
-	// extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
-	// if len(extantGBLS) > 0 {
-	// 	h.Logger().Error("There are already GBLs for this shipment.")
-	// 	return shipmentop.NewCreateGovBillOfLadingBadRequest()
-	// }
+	// Don't allow GBL generation for shipments that already have a GBL move document
+	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
+	if len(extantGBLS) > 0 {
+		h.Logger().Error("There are already GBLs for this shipment.")
+		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	}
 
-	fmt.Println("GBL docs associated to shipment", extantGBLS)
-	// call func to create PDF from real data - value is the local file path to gbl?
-	// Create GBL move document associated to the shipment
-	newMoveDocument, verrs, err := move.CreateMoveDocument(h.DB(),
-		uploads, // these have to be created from the local pdf
-		shipmentID,
+	// TODO: call func to create PDF from real data and get path to pdf (or file object itself?) in local memory
+	var uploads []models.Upload
+
+	// Create GBL move document associated to the shipment, don't return it for now
+	_, verrs, err := shipment.Move.CreateMoveDocument(h.DB(),
+		uploads, // TODO: these should be created from the pdf that's generated with GBL data
+		&shipmentID,
 		models.MoveDocumentTypeGOVBILLOFLADING,
-		strfmt("Government Bill Of Lading"),
+		string("Government Bill Of Lading"),
+		swag.String(""),
 	)
 
 	if err != nil || verrs.HasAny() {

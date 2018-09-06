@@ -223,7 +223,7 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	}
 
 	var moveDocuments MoveDocuments
-	err := db.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $3", shipmentID.String()).All(&moveDocuments)
+	err := db.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
 	if err != nil {
 		if errors.Cause(err).Error() != recordNotFoundErrorString {
 			return nil, err
