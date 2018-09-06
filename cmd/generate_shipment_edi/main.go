@@ -49,10 +49,12 @@ func main() {
 
 	for _, shipment := range shipments {
 		engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //route? can this go outside of loop?
-		costByShipment, err := HandleRunRateEngineOnShipment(shipment, engine)
+		costByShipment, _ := HandleRunRateEngineOnShipment(shipment, engine)
+		// if err != nil {
+		// 	return ediinvoice.CostByShipment, err
+		// }
 		costsByShipments = append(costsByShipments, costByShipment)
 	}
-
 	edi, err := ediinvoice.Generate858C(costsByShipments, db)
 	if err != nil {
 		log.Fatal(err)

@@ -25,7 +25,7 @@ type CostByShipment struct {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, error) {
+func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (string, error) {
 	currentTime := time.Now()
 	isa := edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
@@ -57,7 +57,10 @@ func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, erro
 	}
 	transaction := isa.String(delimiter) + gs.String(delimiter)
 
-	for index, shipment := range shipments {
+	var shipments []models.Shipment
+
+	for index, shipmentAndCost := range shipmentsAndCosts {
+		shipment := shipmentAndCost.Shipment
 		shipment, err := models.FetchShipmentForInvoice(db, shipment.ID)
 		if err != nil {
 			return "", err
@@ -67,6 +70,7 @@ func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, erro
 			return "", err
 		}
 		transaction += shipment858c
+		shipments = append(shipments, shipment)
 	}
 
 	ge := edisegment.GE{
