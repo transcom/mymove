@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -107,4 +108,80 @@ type GovBillOfLadingExtractor struct {
 	CertOfTSPBillingCarrierOSD               *bool
 	CertOfTSPBillingDestinationCarrierName   *string
 	CertOfTSPBillingAuthorizedAgentSignature *SignedCertification
+}
+
+// FetchGovBillOfLadingExtractor fetches a single GovBillOfLadingExtractor for a given Shipment ID
+func (m *Move) FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (GovBillOfLadingExtractor, error) {
+	var gbl GovBillOfLadingExtractor
+	sql := `SELECT
+				s.book_date,
+				s.pm_survey_planned_pack_date,
+				s.pm_survey_planned_pickup_date,
+				s.pm_survey_planned_delivery_date,
+				s.secondary_pickup_address_id,
+				s.pickup_address_id,
+				s.destination_gbloc,
+				concat_ws(' ', sm.first_name, sm.middle_name, sm.last_name),
+				sm.edipi,
+				sm.rank,
+				sm.affiliation,
+				sm.residential_address_id,
+				o.issue_date,
+				concat_ws(' ', o.orders_number, o.paragraph_number, o.orders_issuing_agency),
+				CASE WHEN o.has_dependents THEN 'WD' ELSE 'WOD' END,
+				sa.point_of_contact,
+				tsp.standard_carrier_alpha_code,
+				tdl.code_of_service,
+				sourceTo.name,
+				concat_ws(' ', destTo.name),
+				sourceTo.name,
+				sourceTo.address_id
+			FROM
+				shipments s
+			LEFT JOIN
+				service_members sm
+			ON
+				s.service_member_id = sm.id
+			LEFT JOIN
+				moves m
+			ON
+				s.move_id = m.id
+			LEFT JOIN
+				orders o
+			ON
+				m.orders_id = o.id
+			LEFT JOIN
+				service_agents sa
+			ON
+				s.id = sa.shipment_id
+			LEFT JOIN
+				shipment_offers so
+			ON
+				s.id = so.shipment_id
+			LEFT JOIN
+				transportation_service_providers tsp
+			ON
+				so.transportation_service_provider_id = tsp.id
+			LEFT JOIN
+				traffic_distribution_lists tdl
+			ON
+				s.traffic_distribution_list_id = tdl.id
+			LEFT JOIN
+				transportation_offices destTo
+			ON
+				s.destination_gbloc = destTo.gbloc
+			LEFT JOIN
+				transportation_offices sourceTo
+			ON
+				s.source_gbloc = sourceTo.gbloc
+			WHERE
+				s.id = $1
+			`
+	// tdls := []TrafficDistributionList{}
+	err := db.RawQuery(sql, shipmentID).Eager("PickupAddress, SecondaryPickupAddress", "PickupAddress").First(&gbl)
+	if err != nil {
+		return gbl, err
+	}
+
+	return gbl, nil
 }
