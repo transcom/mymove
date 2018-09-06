@@ -68,11 +68,11 @@ const WeightsDisplay = props => {
 };
 
 const WeightsEdit = props => {
+  const schema = props.shipmentSchema;
   const fieldProps = {
-    schema: props.shipmentSchema,
+    schema,
     values: props.shipment,
   };
-  const schema = props.shipmentSchema;
   return (
     <React.Fragment>
       <FormSection name="weights">
