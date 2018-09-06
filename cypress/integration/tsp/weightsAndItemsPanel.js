@@ -5,9 +5,6 @@ describe('TSP Interacts With the Weights & Items Panel', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
-  before(() => {
-    cy.resetDb();
-  });
 
   it('tsp user enters actual weight', function() {
     tspUserEntersActualWeight();
@@ -69,7 +66,7 @@ function tspUserSeesEstimatedWeights() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('BACON1')
+    .contains('BACON3')
     .dblclick();
 
   cy.location().should(loc => {
@@ -111,7 +108,7 @@ function tspUserEntersActualWeight() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('BACON1')
+    .contains('BACON3')
     .dblclick();
 
   cy.location().should(loc => {
