@@ -1,5 +1,5 @@
 /* global cy */
-describe('service agents', function() {
+describe('TSP User enters and updates Service Agents', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
@@ -74,7 +74,7 @@ function tspUserEntersServiceAgent(role) {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('KBACON')
+    .contains('BACON2')
     .dblclick();
 
   cy.location().should(loc => {
@@ -207,7 +207,7 @@ function tspUserAcceptsShipment() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('KBACON')
+    .contains('BACON2')
     .dblclick();
 
   cy.location().should(loc => {
@@ -219,6 +219,8 @@ function tspUserAcceptsShipment() {
     .get('li')
     .get('b')
     .contains('Awarded');
+
+  cy.get('a').contains('New Shipments Queue');
 
   cy
     .get('button')
@@ -236,5 +238,5 @@ function tspUserAcceptsShipment() {
     .get('b')
     .contains('Accepted');
 
-  // TODO: (cgilmer 2018/08/31) - This needs to also check that the queue link has changed
+  cy.get('a').contains('All Shipments Queue');
 }

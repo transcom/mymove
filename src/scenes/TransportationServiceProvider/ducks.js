@@ -114,9 +114,25 @@ export function loadShipmentDependencies(shipmentId) {
 
 // Reducer
 const initialState = {
+  shipmentIsLoading: false,
+  shipmentHasLoadSuccess: false,
+  shipmentHasLoadError: null,
+  shipmentPatchSuccess: false,
+  shipmentPatchError: null,
   shipmentIsAccepting: false,
   shipmentHasAcceptError: null,
   shipmentHasAcceptSuccess: false,
+  serviceAgentsAreLoading: false,
+  serviceAgentsHasLoadSucces: false,
+  serviceAgentsHasLoadError: null,
+  serviceAgentIsCreating: false,
+  serviceAgentHasCreatedSucces: false,
+  serviceAgentHasCreatedError: null,
+  serviceAgentIsUpdating: false,
+  serviceAgentHasUpdatedSucces: false,
+  serviceAgentHasUpdatedError: null,
+  loadTspDependenciesHasSuccess: false,
+  loadTspDependenciesHasError: null,
   flashMessage: false,
   serviceAgents: [],
 };

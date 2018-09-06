@@ -1856,6 +1856,11 @@
             <type><![CDATA[TEXT]]></type>
             <uid><![CDATA[2D1FE455-CC16-4ABA-8BAF-657BC38B71D3]]></uid>
         </SQLField>
+        <SQLField>
+            <name><![CDATA[actual_weight]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[6C9E085B-956E-43EA-B186-15F8F1C0F9E1]]></uid>
+        </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[60AD4181-DF23-481F-A2FD-3A5C2632D852]]></uid>
@@ -3185,17 +3190,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[1246.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[947.000000]]></windowHeight>
-        <windowLocationX><![CDATA[0.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[80.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{422, 0}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[1680.000000]]></windowWidth>
+        <windowHeight><![CDATA[1548.000000]]></windowHeight>
+        <windowLocationX><![CDATA[760.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[119.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{0, 433}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[1869.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>
