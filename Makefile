@@ -99,7 +99,6 @@ server_run_default: server_deps server_generate db_dev_run
 		--port 8080 --appPort 8081 \
 		--excludeDir vendor --excludeDir node_modules \
 		-i --buildArgs "-i"
-# This is just an alais for backwards compatibility
 
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
