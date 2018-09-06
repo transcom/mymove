@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -237,23 +238,32 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 
 	// Verify that the logged in TSP user exists
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	fmt.Println("SDLFKJLSDKFJKLSDJF", session.TspUserID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingForbidden()
 	}
 
+	// Verify that that TSP user is authorized to generate GBL
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingBadRequest()
 	}
-	//  check that there are no gbls for shipment id, if so, return error. TODO: write this func in movedoc model
-	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
-	if extantGBLS == true {
-		h.Logger().Error("There are already GBLs for this shipment.")
-		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	if shipment.ID != shipmentID {
+		h.Logger().Error("TSP user is not authorized to generate a GBL for this move.")
+		return shipmentop.NewCreateGovBillOfLadingForbidden()
 	}
+
+	//  Don't allow GBL generation for shipments that already have a GBL move document
+	// extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
+	// if len(extantGBLS) > 0 {
+	// 	h.Logger().Error("There are already GBLs for this shipment.")
+	// 	return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	// }
+
+	fmt.Println("GBL docs associated to shipment", extantGBLS)
 	// call func to create PDF from real data - value is the local file path to gbl?
 	// Create GBL move document associated to the shipment
 	newMoveDocument, verrs, err := move.CreateMoveDocument(h.DB(),
