@@ -5,9 +5,6 @@ describe('TSP User Completes Premove Survey', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
-  before(() => {
-    cy.resetDb();
-  });
   it('tsp user enters premove survey', function() {
     tspUserEntersPremoveSurvey();
   });

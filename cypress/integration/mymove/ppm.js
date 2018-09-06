@@ -6,9 +6,6 @@ describe('completing the ppm flow', function() {
     // cy.resetDb();
     cy.signInAsUser('13F3949D-0D53-4BE4-B1B1-AE4314793F34');
   });
-  before(() => {
-    cy.resetDb();
-  });
 
   //tear down currently means doing this:
   //update moves set status='DRAFT';

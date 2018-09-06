@@ -3,9 +3,6 @@ describe('TSP User enters and updates Service Agents', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
-  before(() => {
-    cy.resetDb();
-  });
   it('tsp user enters and cancels origin service agent', function() {
     tspUserEntersServiceAgent('Origin');
     tspUserInputsServiceAgent('Origin');
