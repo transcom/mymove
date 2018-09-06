@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
@@ -161,8 +160,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(WeightsPanel);
+export default connect(mapStateToProps)(WeightsPanel);
