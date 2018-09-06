@@ -59,13 +59,10 @@ func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (strin
 
 	var shipments []models.Shipment
 
-	for index, shipmentAndCost := range shipmentsAndCosts {
-		shipment := shipmentAndCost.Shipment
-		shipment, err := models.FetchShipmentForInvoice(db, shipment.ID)
-		if err != nil {
-			return "", err
-		}
-		shipment858c, err := generate858CShipment(shipment, index+1)
+	for index, shipmentWithCost := range shipmentsAndCosts {
+		shipment := shipmentWithCost.Shipment
+
+		shipment858c, err := generate858CShipment(shipmentWithCost, index+1)
 		if err != nil {
 			return "", err
 		}
@@ -87,7 +84,7 @@ func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (strin
 	return transaction, nil
 }
 
-func generate858CShipment(shipment models.Shipment, sequenceNum int) (string, error) {
+func generate858CShipment(shipmentWithCost CostByShipment, sequenceNum int) (string, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -96,13 +93,13 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) (string, er
 		},
 	}
 
-	headingSegments, err := getHeadingSegments(shipment, sequenceNum)
+	headingSegments, err := getHeadingSegments(shipmentWithCost, sequenceNum)
 	if err != nil {
 		return "", err
 	}
 	segments = append(segments, headingSegments...)
 
-	lineItemSegments, err := getLineItemSegments(shipment)
+	lineItemSegments, err := getLineItemSegments(shipmentWithCost)
 	if err != nil {
 		return "", err
 	}
@@ -124,7 +121,8 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) (string, er
 	return transaction, nil
 }
 
-func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment.Segment, error) {
+func getHeadingSegments(shipmentWithCost CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
+	shipment := shipmentWithCost.Shipment
 	segments := []edisegment.Segment{}
 	/* for bx
 	if shipment.TransportationServiceProviderID == nil {
@@ -239,9 +237,11 @@ func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment
 	}, nil
 }
 
-func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error) {
+func getLineItemSegments(shipmentWithCost CostByShipment) ([]edisegment.Segment, error) {
 	// TODO: These are sample line items, need to pull actual line items from shipment
 	// that are ready to be invoiced
+	cost := shipmentWithCost.Cost
+
 	return []edisegment.Segment{
 		// Linehaul. Not sure why this uses the 303 code, but that's what I saw from DPS
 		&edisegment.HL{
@@ -256,7 +256,7 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 		&edisegment.L1{
 			FreightRate:        0,
 			RateValueQualifier: "RC", // Rate
-			Charge:             7580.54,
+			Charge:             cost.LinehaulCostComputation.LinehaulChargeTotal.ToDollarFloat(),
 			SpecialChargeDescription: "LHS", // Linehaul
 		},
 		// Full pack / unpack
@@ -273,7 +273,7 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 		&edisegment.L1{
 			FreightRate:        65.77,
 			RateValueQualifier: "RC", // Rate
-			Charge:             2551.92,
+			Charge:             (cost.NonLinehaulCostComputation.PackFee + cost.NonLinehaulCostComputation.UnpackFee).ToDollarFloat(),
 			SpecialChargeDescription: "105A", // Full pack / unpack
 		},
 		// Origin service charge
@@ -290,8 +290,25 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 		&edisegment.L1{
 			FreightRate:        4.07,
 			RateValueQualifier: "RC", // Rate
-			Charge:             145.32,
+			Charge:             cost.NonLinehaulCostComputation.OriginServiceFee.ToDollarFloat(),
 			SpecialChargeDescription: "135A", // Origin service charge
+		},
+		// Destination service charge
+		&edisegment.HL{
+			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
+			HierarchicalLevelCode: "SS",  // Services
+		},
+		&edisegment.L0{
+			LadingLineItemNumber: 1,
+			Weight:               108.2,
+			WeightQualifier:      "B", // Billed weight
+			WeightUnitCode:       "L", // Pounds
+		},
+		&edisegment.L1{
+			FreightRate:        4.07,
+			RateValueQualifier: "RC", // Rate
+			Charge:             cost.NonLinehaulCostComputation.DestinationServiceFee.ToDollarFloat(),
+			SpecialChargeDescription: "135A", // TODO: check if correct for Destination service charge
 		},
 		// Fuel surcharge - linehaul
 		&edisegment.HL{
@@ -305,8 +322,8 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 		},
 		&edisegment.L1{
 			FreightRate:        0.03,
-			RateValueQualifier: "RC", // Rate
-			Charge:             227.42,
+			RateValueQualifier: "RC",   // Rate
+			Charge:             227.42, // TODO: add a calculation of this value to rate engine
 			SpecialChargeDescription: "16A", // Fuel surchage - linehaul
 		},
 	}, nil
