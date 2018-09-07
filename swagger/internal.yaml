@@ -2886,31 +2886,35 @@ paths:
           description: server error
   /shipments/{shipmentId}/approve:
     post:
-      summary: Approves the Shipment
-      description: Sets the status of the Shipment to APPROVED.
+      summary: Approves an accepted shipment
+      description: Approves a shipment accepted by a TSP. The status of the Shipment will be updated to APPROVED.
       operationId: approveHHG
       tags:
         - shipments
       parameters:
-        - in: path
-          name: shipmentId
+        - name: shipmentId
+          in: path
           type: string
           format: uuid
           required: true
-          description: UUID of the Shipment being updated
+          description: UUID of the shipment
       responses:
         200:
-          description: updated shipment
+          description: returns updated (approved) shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
-          description: request requires user authentication
+          description: must be authenticated to use this endpoint
         403:
-          description: user is not authorized
+          description: not authorized to approve this shipment
+        409:
+          description: the shipment is not in a state to be approved
+          schema:
+            $ref: '#/definitions/Shipment'
         500:
-          description: internal server error
+          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
