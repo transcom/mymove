@@ -2822,7 +2822,7 @@ paths:
           description: move not found
         500:
           description: server error
-  /shipment/{shipmentId}:
+  /shipments/{shipmentId}:
     patch:
       summary: Updates a Shipment for the given move
       description: Update a Shipment tied to the move ID
@@ -2884,6 +2884,33 @@ paths:
           description: shipment not found
         500:
           description: server error
+  /shipments/{shipmentId}/approve:
+    post:
+      summary: Approves the Shipment
+      description: Sets the status of the Shipment to APPROVED.
+      operationId: approveHHG
+      tags:
+        - shipments
+      parameters:
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Shipment being updated
+      responses:
+        200:
+          description: updated shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
