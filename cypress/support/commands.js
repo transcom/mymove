@@ -59,11 +59,19 @@ Cypress.Commands.add('nextPage', () => {
     .click();
 });
 
-Cypress.Commands.add('resetDb', () =>
-  cy
-    .exec('make db_e2e_reset')
-    .its('code')
-    .should('eq', 0),
+Cypress.Commands.add(
+  'resetDb',
+  () => {},
+  /*
+   * Resetting the DB in this manner is slow and should be avoided.
+   * Instead of adding this to a test please create a new data record for your test in pkg/testdatagen/scenario/e2ebasic.go
+   * For development you can issue `make db_e2e_reset` if you need to clean up your data.
+   *
+   * cy
+   *   .exec('make db_e2e_reset')
+   *   .its('code')
+   *   .should('eq', 0),
+   */
 );
 
 //from https://github.com/cypress-io/cypress/issues/669
