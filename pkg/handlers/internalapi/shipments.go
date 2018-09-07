@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -271,4 +272,37 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
+}
+
+// ApproveHHGHandler approves an HHG
+type ApproveHHGHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle is the handler
+func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsOfficeUser() {
+		return shipmentop.NewApproveHHGForbidden()
+	}
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	err = shipment.Approve()
+	if err != nil {
+		h.Logger().Error("Attempted to approve HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	shipmentPayload := payloadForShipmentModel(*shipment)
+	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
 }
