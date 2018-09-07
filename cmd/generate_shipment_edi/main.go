@@ -38,7 +38,7 @@ func main() {
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
-	).All(&shipments) //TODO include only shipments with ShipmentOffer state of "ACCEPTED"(?)
+	).All(&shipments) //TODO include only shipments with ShipmentOffer state of accepted=True(?)
 	if err != nil {
 		log.Fatal(err)
 	}
