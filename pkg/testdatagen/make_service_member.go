@@ -1,10 +1,20 @@
 package testdatagen
 
 import (
+	"math/rand"
+	"strconv"
+
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
+
+// randomEdipi creates a random Edipi for a service member
+func randomEdipi() string {
+	low := 1000000000
+	high := 9999999999
+	return strconv.Itoa(low + rand.Intn(high-low))
+}
 
 // MakeServiceMember creates a single ServiceMember with associated data.
 func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
@@ -25,6 +35,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	serviceMember := models.ServiceMember{
 		UserID:        user.ID,
 		User:          user,
+		Edipi:         models.StringPointer(randomEdipi()),
 		FirstName:     models.StringPointer("Leo"),
 		LastName:      models.StringPointer("Spacemen"),
 		PersonalEmail: models.StringPointer(email),
@@ -55,6 +66,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	emailPreferred := true
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
+		Edipi:                  models.StringPointer(randomEdipi()),
 		Rank:                   &E1,
 		Affiliation:            &Army,
 		ResidentialAddressID:   &residentialAddress.ID,

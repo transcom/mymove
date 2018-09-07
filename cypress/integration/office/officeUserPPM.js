@@ -69,6 +69,9 @@ function officeUserVerifiesOrders() {
   cy.get('input[name="orders.orders_number"]').type('666666');
   cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
 
+  cy.get('input[name="orders.orders_issuing_agency"]').type('ISSUING AGENCY');
+  cy.get('input[name="orders.paragraph_number"]').type('FP-TP');
+
   cy
     .get('button')
     .contains('Save')
@@ -82,6 +85,9 @@ function officeUserVerifiesOrders() {
   // Verify data has been saved in the UI
   cy.get('span').contains('666666');
 
+  cy.get('span').contains('ISSUING AGENCY');
+  cy.get('span').contains('FP-TP');
+
   // Refresh browser and make sure changes persist
   cy.reload();
   cy
@@ -91,6 +97,9 @@ function officeUserVerifiesOrders() {
 
   cy.get('span').contains('666666');
   cy.get('span').contains('Delayed Approval 20 Weeks or More');
+
+  cy.get('span').contains('ISSUING AGENCY');
+  cy.get('span').contains('FP-TP');
 }
 
 function officeUserVerifiesAccounting() {
@@ -118,6 +127,7 @@ function officeUserVerifiesAccounting() {
 
   cy.get('input[name="tac"]').type('6789');
   cy.get('select[name="department_indicator"]').select('AIR_FORCE');
+  cy.get('input[name="sac"]').type('N002214CSW32Y9');
 
   cy
     .get('button')
@@ -130,7 +140,10 @@ function officeUserVerifiesAccounting() {
     .click();
 
   // Verify data has been saved in the UI
-  cy.get('span').contains('6789');
+  // added '.tac' as an additional selector since
+  // '6789' is part of the DoD ID that was a false positive
+  cy.get('.tac > span').contains('6789');
+  cy.get('span').contains('N002214CSW32Y9');
 
   // Refresh browser and make sure changes persist
   cy.reload();
@@ -141,6 +154,7 @@ function officeUserVerifiesAccounting() {
 
   cy.get('span').contains('6789');
   cy.get('span').contains('57 - United States Air Force');
+  cy.get('span').contains('N002214CSW32Y9');
 }
 
 function officeUserApprovesMoveAndVerifiesPPM() {

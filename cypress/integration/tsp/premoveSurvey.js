@@ -1,4 +1,4 @@
-import testPremoveSurvey from '../../support/testPremoveSurvey';
+import { testPremoveSurvey } from '../../support/testPremoveSurvey';
 
 /* global cy */
 describe('TSP User Completes Premove Survey', function() {
