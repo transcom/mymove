@@ -66,7 +66,7 @@ function tspUserSeesEstimatedWeights() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('BACON3')
+    .contains('BACON4')
     .dblclick();
 
   cy.location().should(loc => {
@@ -108,7 +108,7 @@ function tspUserEntersActualWeight() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('BACON3')
+    .contains('BACON4')
     .dblclick();
 
   cy.location().should(loc => {
