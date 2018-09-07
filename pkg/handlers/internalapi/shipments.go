@@ -15,11 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-/*
- * ------------------------------------------
- * The code below is for the INTERNAL REST API.
- * ------------------------------------------
- */
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
