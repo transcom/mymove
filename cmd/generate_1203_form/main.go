@@ -1,12 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
-	"time"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 )
@@ -26,6 +27,25 @@ func stringPtr(s string) *string {
 }
 
 func main() {
+	config := flag.String("config-dir", "config", "The location of server config files")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
+	shipmentID := flag.String("shipment", "", "The shipment ID to generate 1203 form for")
+	flag.Parse()
+
+	// DB connection
+	err := pop.AddLookupPaths(*config)
+	if err != nil {
+		log.Fatal(err)
+	}
+	db, err := pop.Connect(*env)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if *shipmentID == "" {
+		log.Fatal("Usage: paperwork -shipment <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+	}
+
 	// This is the path to an image you want to use as a form template
 	templateImagePath := "./cmd/generate_1203_form/FORM_1203.png"
 
@@ -36,30 +56,30 @@ func main() {
 	// Define your field positions here, it should be a mapping from a struct field name
 	// to a FieldPos, which encodes the x and y location, and width of a form field
 	var fields = map[string]paperwork.FieldPos{
-		"ServiceAgentName":         paperwork.NewFieldPos(28, 11, 79),
+		"ServiceAgentName":         paperwork.NewFieldPos(28, 12, 79),
 		"StandardCarrierAlphaCode": paperwork.NewFieldPos(109, 16, 19),
 		"CodeOfService":            paperwork.NewFieldPos(131, 16, 19),
 		"ShipmentNumber":           paperwork.NewFieldPos(152, 16, 19),
 		"DateIssued":               paperwork.NewFieldPos(173, 16, 40),
-		"RequestedPackDate":        paperwork.NewFieldPos(3, 29, 19),
-		"RequestedPickupDate":      paperwork.NewFieldPos(24, 29, 19),
-		"RequiredDeliveryDate":     paperwork.NewFieldPos(45, 29, 19),
-		"ServiceMemberFullName":    paperwork.NewFieldPos(109, 26, 30),
-		"ServiceMemberEdipi":       paperwork.NewFieldPos(140, 26, 25),
-		"ServiceMemberRank":        paperwork.NewFieldPos(165, 26, 50),
+		"RequestedPackDate":        paperwork.NewFieldPos(3, 29.5, 19),
+		"RequestedPickupDate":      paperwork.NewFieldPos(24, 29.5, 19),
+		"RequiredDeliveryDate":     paperwork.NewFieldPos(45, 29.5, 19),
+		"ServiceMemberFullName":    paperwork.NewFieldPos(109, 26.5, 30),
+		"ServiceMemberEdipi":       paperwork.NewFieldPos(140, 26.5, 25),
+		"ServiceMemberRank":        paperwork.NewFieldPos(165, 26.5, 50),
 
 		// "TSPName": paperwork.NewFieldPos(),
 		// "ServiceMemberStatus": paperwork.NewFieldPos(),
 		// "ServiceMemberDependentStatus": paperwork.NewFieldPos(),
 
-		"AuthorityForShipment":        paperwork.NewFieldPos(110, 37, 60),
-		"OrdersIssueDate":             paperwork.NewFieldPos(174, 37, 25),
+		"AuthorityForShipment":        paperwork.NewFieldPos(110, 37.5, 60),
+		"OrdersIssueDate":             paperwork.NewFieldPos(174, 37.5, 25),
 		"SecondaryPickupAddress":      paperwork.NewFieldPos(3, 39, 60),
 		"ServiceMemberAffiliation":    paperwork.NewFieldPos(110, 47, 60),
 		"TransportationControlNumber": paperwork.NewFieldPos(174, 47, 25),
 		"FullNameOfShipper":           paperwork.NewFieldPos(110, 58, 100),
 		"ConsigneeName":               paperwork.NewFieldPos(3, 75, 100),
-		"ConsigneeAddress":            paperwork.NewFieldPos(3, 79, 100),
+		"ConsigneeAddress":            paperwork.NewFieldPos(3, 78, 100),
 		"PickupAddress":               paperwork.NewFieldPos(110, 75, 100),
 
 		// "NTSDetails": paperwork.NewFieldPos(),
@@ -73,10 +93,10 @@ func main() {
 
 		"AppropriationsChargeable": paperwork.NewFieldPos(110, 109, 80),
 
-		// "Remarks": paperwork.NewFieldPos(),
+		"Remarks": paperwork.NewFieldPos(3, 125, 160),
 		// "PackagesNumber": paperwork.NewFieldPos(),
 		// "PackagesKind": paperwork.NewFieldPos(),
-		// "DescriptionOfShipment": paperwork.NewFieldPos(),
+		"DescriptionOfShipment": paperwork.NewFieldPos(45, 151, 60),
 		// "WeightGrossPounds": paperwork.NewFieldPos(),
 		// "WeightTarePounds": paperwork.NewFieldPos(),
 		// "WeightNetPounds": paperwork.NewFieldPos(),
@@ -111,59 +131,9 @@ func main() {
 
 	// Define the data here that you want to populate the form with. Data will only be populated
 	// in the form if the field name exist BOTH in the fields map and your data below
-	army := internalmessages.AffiliationARMY
-	data := models.GovBillOfLadingExtractor{
-		ServiceAgentName:             "Truss Van Lines International, Corp. (Some Agent)",
-		StandardCarrierAlphaCode:     "ATVN",
-		CodeOfService:                "4",
-		ShipmentNumber:               "1/2",
-		DateIssued:                   time.Date(2018, time.October, 1, 0, 0, 0, 0, time.UTC),
-		RequestedPackDate:            time.Date(2018, time.October, 2, 0, 0, 0, 0, time.UTC),
-		RequestedPickupDate:          time.Date(2018, time.October, 3, 0, 0, 0, 0, time.UTC),
-		RequiredDeliveryDate:         time.Date(2018, time.October, 4, 0, 0, 0, 0, time.UTC),
-		ServiceMemberFullName:        "SMITH, HAROLD",
-		ServiceMemberEdipi:           "XXX-XX-XXXX",
-		ServiceMemberRank:            internalmessages.ServiceMemberRankE9,
-		ServiceMemberStatus:          "status",
-		ServiceMemberDependentStatus: "dep status",
-		AuthorityForShipment:         "authority",
-		OrdersIssueDate:              time.Date(2018, time.September, 30, 0, 0, 0, 0, time.UTC),
-		// SecondaryPickupAddressID: ,
-		SecondaryPickupAddress: &models.Address{
-			StreetAddress1: "Some address",
-			City:           "some city",
-			State:          "NJ",
-			PostalCode:     "08648",
-		},
-		ServiceMemberAffiliation:    &army,
-		TransportationControlNumber: "TCN",
-		FullNameOfShipper:           "Shipper Name",
-		ConsigneeName:               "Consignee",
-		ConsigneeAddress: models.Address{
-			StreetAddress1: "Consignee address Rd",
-			City:           "Other city",
-			State:          "CA",
-			PostalCode:     "94111",
-		},
-		PickupAddress: models.Address{
-			StreetAddress1: "Pickup address Rd",
-			StreetAddress2: stringPtr("Apartment 2"),
-			City:           "Another city city",
-			State:          "AL",
-			PostalCode:     "12345",
-		},
-		// NTSDetails:                   "NTSDetails",
-		ResponsibleDestinationOffice: "Dest Office",
-		DestinationGbloc:             "ABCDEF",
-		BillChargesToName:            "Bill Name",
-		BillChargesToAddress: models.Address{
-			StreetAddress1: "Bill to address Blvd",
-			City:           "Somewhere",
-			State:          "MT",
-			PostalCode:     "54321",
-		},
-		AppropriationsChargeable: "AppropriationsChargeable",
-	}
+	parsedID := uuid.Must(uuid.FromString(*shipmentID))
+	gbl, err := models.FetchGovBillOfLadingExtractor(db, parsedID)
+	noErr(err)
 
 	// Build our form with a template image and field placement
 	form, err := paperwork.NewTemplateForm(f, fields)
@@ -174,7 +144,7 @@ func main() {
 	// form.UseBorders()
 
 	// Populate form fields with provided data
-	err = form.DrawData(data)
+	err = form.DrawData(gbl)
 	noErr(err)
 
 	output, _ := os.Create("./cmd/generate_1203_form/test-output.pdf")

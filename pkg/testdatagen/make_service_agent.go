@@ -10,14 +10,15 @@ import (
 func MakeServiceAgent(db *pop.Connection, assertions Assertions) models.ServiceAgent {
 
 	// Create a shipment if one wasn't already created
-	shipmentID := assertions.ServiceAgent.ShipmentID
-	if isZeroUUID(shipmentID) {
-		shipment := MakeDefaultShipment(db)
-		shipmentID = shipment.ID
+	shipment := assertions.ServiceAgent.Shipment
+	if isZeroUUID(shipment.ID) {
+		s := MakeDefaultShipment(db)
+		shipment = &s
 	}
 
 	serviceAgent := models.ServiceAgent{
-		ShipmentID:     shipmentID,
+		ShipmentID:     shipment.ID,
+		Shipment:       shipment,
 		Role:           models.RoleORIGIN,
 		PointOfContact: "Jenny at ACME Movers",
 		PhoneNumber:    stringPointer("303-867-5309"),

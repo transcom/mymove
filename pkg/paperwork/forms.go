@@ -21,8 +21,9 @@ const (
 	pageSize        string  = "letter"
 	fontFamily      string  = "Helvetica"
 	fontStyle       string  = ""
-	fontSize        float64 = 8
+	fontSize        float64 = 7
 	fontDir         string  = ""
+	lineHeight      float64 = 3
 	templateName    string  = "form_template"
 	imageXPos       float64 = 0
 	imageYPos       float64 = 0
@@ -142,7 +143,15 @@ func (f *FormFiller) DrawData(data interface{}) error {
 			fmt.Println(v)
 		}
 
-		f.pdf.MultiCell(layout.width, 4, displayValue, borderStr, "", false)
+		// TODO: not this.
+		tempLineHeight := lineHeight
+		f.pdf.SetFontSize(fontSize)
+		if k == "ConsigneeName" || k == "ConsigneeAddress" {
+			tempLineHeight = 2
+			f.pdf.SetFontSize(float64(5.5))
+		}
+
+		f.pdf.MultiCell(layout.width, tempLineHeight, displayValue, borderStr, "", false)
 	}
 
 	return f.pdf.Error()
