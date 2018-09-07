@@ -79,7 +79,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.Nil(err, "Expected to get moveResult back.")
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
 	suite.Equal(fetchedMove.Shipments[0].PickupAddressID, shipment.PickupAddressID)
-	suite.Equal(fetchedMove.FSM.Current(), MoveStatusDRAFT, "Expected DRAFT status")
+	suite.Equal(fetchedMove.FSM.Current(), string(MoveStatusDRAFT), "Expected DRAFT status")
 
 	// Bad Move
 	fetchedMove, err = FetchMove(suite.db, session, uuid.Must(uuid.NewV4()))
@@ -236,7 +236,7 @@ func (suite *ModelSuite) TestMoveFiniteStateMachine() {
 	suite.mustSave(move)
 	suite.db.Reload(move)
 	suite.Nil(err)
-	// suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
 	suite.Equal(ShipmentStatusSUBMITTED, move.Shipments[0].Status, "expected Submitted")
 	reason := "Orders changed"

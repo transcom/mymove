@@ -57,31 +57,28 @@ type Move struct {
 	Status                  MoveStatus              `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
-	FSM                     *fsm.FSM                `db:"-"`
+	State                   *fsm.FSM                `db:"-"`
 }
 
 // Moves is not required by pop and may be deleted
 type Moves []Move
 
-// AfterLoad will use the Status field to inform FSM for the Move model
-func (m *Move) AfterLoad() error {
-	m.FSM = createMoveFSM(m)
-	err := m.FSM.Event(statusStateMap[m.Status])
-	if err != nil {
-		return err
-	}
+// AfterFind will use the Status field to inform State (FSM) for the Move model
+func (m *Move) AfterFind(tx *pop.Connection) error {
+	m.State = createMoveState(m)
+	m.State.SetState(string(m.Status))
 	return nil
 }
 
 // BeforeSave will save the FSM's current state to the move model
-func (m *Move) BeforeSave() {
+func (m *Move) BeforeSave(tx *pop.Connection) error {
 	m.Status = MoveStatus(m.FSM.Current())
+	return nil
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	m.BeforeSave()
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
@@ -206,8 +203,6 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-
-	move.AfterLoad()
 
 	// Eager loading of nested has_many associations is broken
 	for i, moveDoc := range move.MoveDocuments {
@@ -538,7 +533,7 @@ func (m *Move) cancelMove(e *fsm.Event, reason string) error {
 	return nil
 }
 
-func createMoveFSM(move *Move) *fsm.FSM {
+func createMoveState(move *Move) *fsm.FSM {
 	moveFSM := fsm.NewFSM(
 		string(MoveStatusDRAFT),
 		fsm.Events{
@@ -576,7 +571,7 @@ func createNewMove(db *pop.Connection,
 			Status:           MoveStatusDRAFT,
 		}
 
-		move.FSM = createMoveFSM(&move)
+		move.FSM = createMoveState(&move)
 
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
