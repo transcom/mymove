@@ -13,13 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-var moveDocumentAttachmentsTypes = []models.MoveDocumentType{
-	models.MoveDocumentTypeOTHER,
-	models.MoveDocumentTypeWEIGHTTICKET,
-	models.MoveDocumentTypeSTORAGEEXPENSE,
-	models.MoveDocumentTypeEXPENSE,
-}
-
 // CreatePersonallyProcuredMoveAttachmentsHandler creates a PPM Attachments PDF
 type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 	handlers.HandlerContext
@@ -42,8 +35,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	// Fetch move documents with matching types
-	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.DB(), moveDocumentAttachmentsTypes)
+	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.DB(), params.DocTypes)
 	if err != nil {
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}

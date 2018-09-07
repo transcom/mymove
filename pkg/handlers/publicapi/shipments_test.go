@@ -47,7 +47,44 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
 }
 
-func (suite *HandlerSuite) TestPatchShipmentHandler() {
+func (suite *HandlerSuite) TestPatchShipmentHandlerActualWeight() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	UpdatePayload := apimessages.Shipment{
+		ActualWeight: swag.Int64(17500),
+	}
+
+	params := shipmentop.PatchShipmentParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Update:      &UpdatePayload,
+	}
+
+	// And: patch shipment is returned
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&shipmentop.PatchShipmentOK{}, response)
+	okResponse := response.(*shipmentop.PatchShipmentOK)
+
+	// And: Payload has new values
+	suite.Equal(int64(17500), *okResponse.Payload.ActualWeight)
+}
+
+func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -100,7 +137,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandler() {
 	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedPackDate))
 }
 
-func (suite *HandlerSuite) TestPatchShipmentHandlerWrongTSP() {
+func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurveyWrongTSP() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}

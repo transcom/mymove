@@ -66,7 +66,7 @@ export const PanelSwaggerField = props => {
   /* eslint-disable security/detect-object-injection */
   if (nullWarning && !values[fieldName]) {
     component = (
-      <PanelField title={title} className="missing">
+      <PanelField title={title} className={'missing ' + fieldName}>
         missing
         {props.children}
       </PanelField>
@@ -171,7 +171,7 @@ export function editablePanelify(
     }
 
     save = () => {
-      let isValid = this.props.formIsValid;
+      let isValid = this.props.valid;
       if (isValid) {
         let args = this.props.getUpdateArgs();
         this.props.update(...args);
@@ -211,7 +211,7 @@ export function editablePanelify(
             onCancel={this.cancel}
             isEditable={isEditable}
             editEnabled={editEnabled}
-            isValid={this.props.formIsValid}
+            isValid={this.props.valid}
           >
             <Content {...this.props} />
           </EditablePanel>
@@ -224,7 +224,6 @@ export function editablePanelify(
     update: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
     isUpdating: PropTypes.bool,
-    formIsValid: PropTypes.bool.isRequired,
   };
 
   return Wrapper;

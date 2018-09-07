@@ -54,7 +54,7 @@ type Shipment struct {
 	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
 	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
 	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
-	Move                                *Move                    `belongs_to:"move"`
+	Move                                Move                     `belongs_to:"move"`
 	Status                              ShipmentStatus           `json:"status" db:"status"`
 	EstimatedPackDays                   *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays                *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
@@ -72,6 +72,7 @@ type Shipment struct {
 	WeightEstimate                      *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
+	ActualWeight                        *unit.Pound              `json:"actual_weight" db:"actual_weight"`
 	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
 	PmSurveyPlannedPickupDate           *time.Time               `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
@@ -195,6 +196,17 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 	err := dbConnection.RawQuery(sql).All(&shipments)
 
 	return shipments, err
+}
+
+// FetchShipmentForInvoice fetches all the shipment information for generating an invoice
+func FetchShipmentForInvoice(db *pop.Connection, shipmentID uuid.UUID) (Shipment, error) {
+	var shipment Shipment
+	err := db.Q().Eager(
+		"Move.Orders",
+		"PickupAddress",
+		"ServiceMember",
+	).Find(&shipment, shipmentID)
+	return shipment, err
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID

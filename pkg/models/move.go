@@ -36,7 +36,8 @@ const (
 const maxLocatorAttempts = 3
 const locatorLength = 6
 
-var locatorLetters = []rune("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
+// This set of letters should produce 'non-word' type strings
+var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
 // Move is an object representing a move
 type Move struct {
