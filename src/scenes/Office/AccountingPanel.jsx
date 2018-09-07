@@ -37,7 +37,7 @@ const AccountingDisplay = props => {
         {props.orders.sac ? (
           <PanelSwaggerField title="SAC" fieldName="sac" {...fieldProps} />
         ) : (
-          <PanelField title="SAC">missing</PanelField>
+          <PanelField title="SAC" />
         )}
       </div>
       <div className="editable-panel-column">

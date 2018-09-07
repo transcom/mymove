@@ -130,9 +130,7 @@ const OrdersViewerDisplay = props => {
             {...ordersFieldsProps}
           />
         ) : (
-          <PanelField title="Orders Issuing Agency" className="">
-            missing
-          </PanelField>
+          <PanelField title="Orders Issuing Agency" />
         )}
         {orders.paragraph_number ? (
           <PanelSwaggerField
@@ -141,9 +139,7 @@ const OrdersViewerDisplay = props => {
             {...ordersFieldsProps}
           />
         ) : (
-          <PanelField title="Paragraph Number" className="">
-            missing
-          </PanelField>
+          <PanelField title="Paragraph Number" />
         )}
         {orders.tac ? (
           <PanelSwaggerField
@@ -163,9 +159,7 @@ const OrdersViewerDisplay = props => {
             {...ordersFieldsProps}
           />
         ) : (
-          <PanelField title="SAC" className="">
-            missing
-          </PanelField>
+          <PanelField title="SAC" />
         )}
       </div>
     </React.Fragment>
