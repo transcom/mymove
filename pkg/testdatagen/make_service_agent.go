@@ -11,7 +11,7 @@ func MakeServiceAgent(db *pop.Connection, assertions Assertions) models.ServiceA
 
 	// Create a shipment if one wasn't already created
 	shipment := assertions.ServiceAgent.Shipment
-	if isZeroUUID(shipment.ID) {
+	if shipment == nil {
 		s := MakeDefaultShipment(db)
 		shipment = &s
 	}

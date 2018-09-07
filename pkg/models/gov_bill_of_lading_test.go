@@ -8,8 +8,8 @@ import (
 )
 
 func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
-	SourceTransOffice := testdatagen.MakeTransportationOffice(suite.db)
-	DestinationTransOffice := testdatagen.MakeTransportationOffice(suite.db)
+	SourceTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.db)
+	DestinationTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.db)
 
 	packDate := time.Now()
 	pickupDate := time.Now().AddDate(0, 0, 1)
