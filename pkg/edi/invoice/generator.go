@@ -263,7 +263,7 @@ func getLineItemSegments(shipmentWithCost CostByShipment) ([]edisegment.Segment,
 			Charge:             cost.LinehaulCostComputation.LinehaulChargeTotal.ToDollarFloat(),
 			SpecialChargeDescription: "LHS", // Linehaul
 		},
-		// Full pack / unpack
+		// Full pack
 		&edisegment.HL{
 			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
 			HierarchicalLevelCode: "SS",  // Services
@@ -277,8 +277,25 @@ func getLineItemSegments(shipmentWithCost CostByShipment) ([]edisegment.Segment,
 		&edisegment.L1{
 			FreightRate:        65.77,
 			RateValueQualifier: "RC", // Rate
-			Charge:             (cost.NonLinehaulCostComputation.PackFee + cost.NonLinehaulCostComputation.UnpackFee).ToDollarFloat(),
-			SpecialChargeDescription: "105A", // Full pack / unpack
+			Charge:             cost.NonLinehaulCostComputation.PackFee.ToDollarFloat(),
+			SpecialChargeDescription: "105A", // Full pack
+		},
+		// Full unpack
+		&edisegment.HL{
+			HierarchicalIDNumber:  "304", // Accessorial services performed at destination
+			HierarchicalLevelCode: "SS",  // Services
+		},
+		&edisegment.L0{
+			LadingLineItemNumber: 1,
+			Weight:               108.2,
+			WeightQualifier:      "B", // Billed weight
+			WeightUnitCode:       "L", // Pounds
+		},
+		&edisegment.L1{
+			FreightRate:        65.77,
+			RateValueQualifier: "RC", // Rate
+			Charge:             cost.NonLinehaulCostComputation.UnpackFee.ToDollarFloat(),
+			SpecialChargeDescription: "105C", // unpack TODO: verify that GEX can recognize 105C (unpack used to be included with pack above)
 		},
 		// Origin service charge
 		&edisegment.HL{
