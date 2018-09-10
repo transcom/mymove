@@ -37,6 +37,10 @@ const (
 	imageLinkURL string = ""
 )
 
+func floatPtr(f float64) *float64 {
+	return &f
+}
+
 // FormLayout houses both a background image form template and the layout of individual fields
 type FormLayout struct {
 	TemplateImagePath string
@@ -45,17 +49,21 @@ type FormLayout struct {
 
 // FieldPos encapsulates the starting position and width of a form field
 type FieldPos struct {
-	xPos  float64
-	yPos  float64
-	width float64
+	xPos       float64
+	yPos       float64
+	width      float64
+	fontSize   *float64
+	lineHeight *float64
 }
 
-// NewFieldPos returns a new field position
-func NewFieldPos(xPos, yPos, width float64) FieldPos {
+// FormField returns a new field position
+func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64) FieldPos {
 	return FieldPos{
-		xPos:  xPos,
-		yPos:  yPos,
-		width: width,
+		xPos:       xPos,
+		yPos:       yPos,
+		width:      width,
+		fontSize:   fontSize,
+		lineHeight: lineHeight,
 	}
 }
 
@@ -114,8 +122,8 @@ func (f *FormFiller) DrawData(data interface{}) error {
 		fieldVal := reflect.Indirect(r).FieldByName(k)
 		val := fieldVal.Interface()
 
-		layout := f.fields[k]
-		f.pdf.MoveTo(layout.xPos, layout.yPos)
+		formField := f.fields[k]
+		f.pdf.MoveTo(formField.xPos, formField.yPos)
 
 		// Turn value into a display string depending on type, will need
 		// an explicit case for each type we're accommodating
@@ -149,15 +157,19 @@ func (f *FormFiller) DrawData(data interface{}) error {
 			fmt.Println(v)
 		}
 
-		// TODO: not this.
-		tempLineHeight := lineHeight
-		f.pdf.SetFontSize(fontSize)
-		if k == "ConsigneeName" || k == "ConsigneeAddress" {
-			tempLineHeight = 2
-			f.pdf.SetFontSize(float64(5.5))
+		// Apply custom formatting options
+		if formField.fontSize != nil {
+			f.pdf.SetFontSize(*formField.fontSize)
+		} else {
+			f.pdf.SetFontSize(fontSize)
 		}
 
-		f.pdf.MultiCell(layout.width, tempLineHeight, displayValue, borderStr, "", false)
+		tempLineHeight := lineHeight
+		if formField.lineHeight != nil {
+			tempLineHeight = *formField.lineHeight
+		}
+
+		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, borderStr, "", false)
 	}
 
 	return f.pdf.Error()
