@@ -41,9 +41,8 @@
 }
 
 .paperwork-step button, .paperwork-step Link {
-	margin-left: auto;
-	width: 300px;
-	height: 40px;
+	margin-left: 3rem;
+	width: 25rem;
 	align-self: center;
 }
 

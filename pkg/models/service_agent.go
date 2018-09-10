@@ -1,12 +1,15 @@
 package models
 
 import (
+	"time"
+
 	"encoding/json"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	"time"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 // Role represents the type of agent being recorded
@@ -71,4 +74,80 @@ func (s *ServiceAgent) ValidateCreate(tx *pop.Connection) (*validate.Errors, err
 // This method is not required and may be deleted.
 func (s *ServiceAgent) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchServiceAgentsByTSP looks up all service agents beloning to a TSP and a shipment
+func FetchServiceAgentsByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) ([]ServiceAgent, error) {
+
+	serviceAgents := []ServiceAgent{}
+
+	err := tx.
+		Where("shipments.id = $1 AND shipment_offers.transportation_service_provider_id = $2", shipmentID, tspID).
+		LeftJoin("shipments", "service_agents.shipment_id=shipments.id").
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		All(&serviceAgents)
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceAgents, err
+}
+
+// FetchServiceAgentByTSP looks up all service agents beloning to a TSP and a shipment
+func FetchServiceAgentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, serviceAgentID uuid.UUID) (*ServiceAgent, error) {
+
+	serviceAgents := []ServiceAgent{}
+
+	err := tx.
+		Where("service_agents.id = $1 AND shipments.id = $2 AND shipment_offers.transportation_service_provider_id = $3", serviceAgentID, shipmentID, tspID).
+		LeftJoin("shipments", "service_agents.shipment_id=shipments.id").
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		All(&serviceAgents)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Unlikely that we see more than one but to be safe this will error.
+	if len(serviceAgents) != 1 {
+		return nil, ErrFetchNotFound
+	}
+
+	return &serviceAgents[0], err
+}
+
+// CreateServiceAgent creates a ServiceAgent model from payload and queried fields.
+func CreateServiceAgent(tx *pop.Connection,
+	shipmentID uuid.UUID,
+	role Role,
+	pointOfContact *string,
+	email *string,
+	phoneNumber *string,
+	emailIsPreferred *bool,
+	phoneIsPreferred *bool,
+	notes *string) (ServiceAgent, *validate.Errors, error) {
+
+	var stringPointOfContact string
+	if pointOfContact != nil {
+		stringPointOfContact = string(*pointOfContact)
+	}
+	newServiceAgent := ServiceAgent{
+		ShipmentID:       shipmentID,
+		Role:             role,
+		PointOfContact:   stringPointOfContact,
+		Email:            email,
+		PhoneNumber:      phoneNumber,
+		EmailIsPreferred: emailIsPreferred,
+		PhoneIsPreferred: phoneIsPreferred,
+		Notes:            notes,
+	}
+	verrs, err := tx.ValidateAndCreate(&newServiceAgent)
+	if err != nil {
+		zap.L().Error("DB insertion error", zap.Error(err))
+		return ServiceAgent{}, verrs, err
+	} else if verrs.HasAny() {
+		zap.L().Error("Validation errors", zap.Error(verrs))
+		return ServiceAgent{}, verrs, errors.New("Validation error on Service Agent")
+	}
+	return newServiceAgent, verrs, err
 }

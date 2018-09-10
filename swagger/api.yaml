@@ -210,7 +210,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_uuid:
+      shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -317,6 +317,15 @@ definitions:
       HHG: Household Goods Move
       PPM: Personal Procured Move
       COMBO: Both HHG and PPM
+  ServiceAgentRole:
+    type: string
+    title: Service Agent Role
+    enum:
+      - ORIGIN
+      - DESTINATION
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
   ServiceMember:
     type: object
     properties:
@@ -409,9 +418,11 @@ definitions:
       pickup_date:
         type: string
         format: date-time
+        example: 2018-04-21T17:32:28Z
       delivery_date:
         type: string
         format: date-time
+        example: 2018-04-27T17:32:28Z
       created_at:
         type: string
         format: date-time
@@ -431,10 +442,11 @@ definitions:
       book_date:
         type: string
         format: date
-        example: 2018-03-15
+        example: "2018-03-15"
       requested_pickup_date:
         type: string
         format: date-time
+        example: 2018-04-19T17:32:28Z
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
@@ -458,19 +470,18 @@ definitions:
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
-        example: false
+        title: 'Do you have household goods at any other pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_delivery_address:
         type: boolean
-        example: false
+        title: 'Do you know the delivery address at destination yet?'
       delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_partial_sit_delivery_address:
         type: boolean
-        example: false
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
@@ -480,47 +491,49 @@ definitions:
         minimum: 0
         example: 10000
         x-nullable: true
+        x-formatting: weight
+        title: Weight Estimate
       progear_weight_estimate:
         type: integer
         description: Estimated weight of the progear in lbs
         minimum: 0
         example: 500
         x-nullable: true
+        x-formatting: weight
+        title: Progear Weight Estimate
       spouse_progear_weight_estimate:
         type: integer
         description: Estimated weight of the spouse progear in lbs
         minimum: 0
         example: 200
         x-nullable: true
-      pm_survey_pack_date:
-        type: string
-        format: date
-        example: "2018-04-26"
-        title: "Pack date"
+        x-formatting: weight
+        title: Spouse Progear Weight Estimate
+      actual_weight:
+        type: integer
+        description: Actual weight of the shipment in lbs
+        minimum: 0
+        example: 10000
         x-nullable: true
-      pm_survey_pickup_date:
+        x-formatting: weight
+        title: Actual Weight
+      pm_survey_planned_pack_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Pickup date"
+        title: "Planned pack date"
         x-nullable: true
-      pm_survey_latest_pickup_date:
+      pm_survey_planned_pickup_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Latest pickup date"
+        title: "Planned pickup date"
         x-nullable: true
-      pm_survey_earliest_delivery_date:
+      pm_survey_planned_delivery_date:
         type: string
         format: date
         example: "2018-04-26"
-        title: "Earliest delivery date"
-        x-nullable: true
-      pm_survey_latest_delivery_date:
-        type: string
-        format: date
-        example: "2018-04-26"
-        title: "Latest delivery date"
+        title: "Planned delivery date"
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
@@ -528,23 +541,37 @@ definitions:
         example: 10000
         title: Weight
         x-nullable: true
+        x-formatting: weight
       pm_survey_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 10000
-        title: Pro-Gear Weight
+        title: Pro-Gear weight
         x-nullable: true
+        x-formatting: weight
       pm_survey_spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 10000
-        title: Spouse's Pro-Gear
+        title: Spouse's pro-gear
         x-nullable: true
+        x-formatting: weight
       pm_survey_notes:
         type: string
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      pm_survey_method:
+        type: string
+        title: Survey method
+        enum:
+          - IN_PERSON
+          - PHONE
+          - VIDEO
+        x-display-value:
+          IN_PERSON: In person
+          PHONE: Phone
+          VIDEO: Video
   IndexServiceAgents:
     type: array
     items:
@@ -556,54 +583,59 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_uuid:
+        readOnly: true
+      shipment_id:
         type: string
         format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       role:
-        type: string
-        enum:
-          - ORIGIN
-          - Destination
-        x-display-value:
-          ORIGIN: Origin
-          DESTINATION: Destination
+        $ref: '#/definitions/ServiceAgentRole'
       point_of_contact:
         type: string
-        example: John Doe at Acme Shipping
+        example: Jenny at ACME Movers
+        title: Point of Contact
       email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email used to contact shipping agent
-        example: jackson_flies@gmail.com
+        example: jenny_acme@example.com
         x-nullable: true
+        title: Email
       phone_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
+        example: 303-867-5309
         x-nullable: true
+        title: Phone Number
       fax_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
+        example: 303-867-5310
         x-nullable: true
+        title: Fax Number
       email_is_preferred:
         type: boolean
         x-nullable: true
-        title: Email
+        title: Email Is Preferred
       phone_is_preferred:
         type: boolean
         x-nullable: true
-        title: Telephone
+        title: Phone Is Preferred
       notes:
         type: string
         x-nullable: true
         example: This service agent is available at all hours
+        title: Notes
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
     required:
-      - shipment_uuid
       - role
       - point_of_contact
   ShipmentReject:
@@ -837,7 +869,7 @@ paths:
           description: not authorized to create blackouts
         500:
           description: server error
-  /blackouts/{blackout_uuid}:
+  /blackouts/{blackoutId}:
     get:
       summary: retrieve the details of a blackout period
       operationId: getBlackout
@@ -845,7 +877,7 @@ paths:
         - blackouts
       parameters:
         - in: path
-          name: blackout_uuid
+          name: blackoutId
           type: string
           format: uuid
           required: true
@@ -867,12 +899,12 @@ paths:
           description: server error
     patch:
       summary: update the associated blackout
-      operationId: updateBlackout
+      operationId: patchBlackout
       tags:
         - blackouts
       parameters:
         - in: path
-          name: blackout_uuid
+          name: blackoutId
           type: string
           format: uuid
           required: true
@@ -904,7 +936,7 @@ paths:
         - blackouts
       parameters:
         - in: path
-          name: blackout_uuid
+          name: blackoutId
           type: string
           format: uuid
           required: true
@@ -922,7 +954,7 @@ paths:
           description: no blackout found with that UUID
         500:
           description: server error
-  /documents/{document_uuid}/uploads:
+  /documents/{documentId}/uploads:
     post:
       summary: Adds a new upload to a document
       description: Uploads represent a single digital file, such as a JPEG or PDF.
@@ -933,7 +965,7 @@ paths:
         - multipart/form-data
       parameters:
         - in: path
-          name: document_uuid
+          name: documentId
           type: string
           format: uuid
           required: true
@@ -1014,7 +1046,7 @@ paths:
           description: cannot process request with given information
         500:
           description: server error
-  /shipments/{shipment_uuid}:
+  /shipments/{shipmentId}:
     get:
       summary: Gets a particular shipment
       description: Allows a user to retrieve the details of a particular shipment
@@ -1022,7 +1054,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1050,7 +1082,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1076,15 +1108,15 @@ paths:
           description: shipment UUID not found in system
         500:
           description: server error
-  /shipments/{shipment_uuid}/service_agents:
+  /shipments/{shipmentId}/service_agents:
     get:
       summary: Gets service agents for shipment
       description: Allows a user to retrieve a list of service agents for a shipment.
       operationId: indexServiceAgents
       tags:
-        - shipments
+        - service_agents
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1110,15 +1142,15 @@ paths:
       description: Creates a new Service Agent associated with a shipment
       operationId: createServiceAgent
       tags:
-        - shipments
+        - service_agents
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
           required: true
           description: UUID of the shipment
-        - name: payload
+        - name: serviceAgent
           in: body
           required: true
           description: Service Agent information
@@ -1137,30 +1169,29 @@ paths:
           description: not authorized to add documents to this shipment
         500:
           description: server error
-  /shipments/{shipment_uuid}/service_agents/{service_agent_uuid}:
+  /shipments/{shipmentId}/service_agents/{serviceAgentId}:
     patch:
       summary: Updates a particular service agent
       description: Takes a partial service agent object and replaces the fields in the DB with the ones passed int he body
-      operationId: updateServiceAgent
+      operationId: patchServiceAgent
       tags:
-        - shipments
+        - service_agents
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
           required: true
           description: UUID of the shipment
-        - name: service_agent_uuid
+        - name: serviceAgentId
           in: path
           type: string
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: payload
+        - name: patchServiceAgentPayload
           in: body
           required: true
-          description: Service Agent information
           schema:
             $ref: '#/definitions/ServiceAgent'
       responses:
@@ -1182,16 +1213,16 @@ paths:
       summary: delete the service agent related to the shipment
       operationId: deleteServiceAgent
       tags:
-        - blackouts
+        - service_agents
       parameters:
         - in: path
-          name: shipment_uuid
+          name: shipmentId
           type: string
           format: uuid
           required: true
           description: the unique identifier for the shipment
         - in: path
-          name: service_agent_uuid
+          name: serviceAgentId
           type: string
           format: uuid
           required: true
@@ -1209,7 +1240,7 @@ paths:
           description: no service agent found with that UUID
         500:
           description: server error
-  /shipments/{shipment_uuid}/accept:
+  /shipments/{shipmentId}/accept:
     post:
       summary: Accepts an awarded shipment
       description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED.
@@ -1217,7 +1248,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1240,14 +1271,14 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
-  /shipments/{shipment_uuid}/claims:
+  /shipments/{shipmentId}/claims:
     get:
       summary: Gets the list of claims associated with a shipment
       operationId: getShipmentClaims
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1268,7 +1299,7 @@ paths:
           description: not authorized to access this shipment
         500:
           description: server error
-  /shipments/{shipment_uuid}/contact_details:
+  /shipments/{shipmentId}/contact_details:
     get:
       summary: Gets the detailed contact information for a move
       description: Accepts a shipment awarded to a TSP
@@ -1276,7 +1307,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1295,14 +1326,14 @@ paths:
           description: not authorized to access this shipment
         500:
           description: server error
-  /shipments/{shipment_uuid}/documents:
+  /shipments/{shipmentId}/documents:
     get:
       summary: Gets the list of documents associated with a Shipment
       operationId: getShipmentDocuments
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1328,7 +1359,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1353,7 +1384,7 @@ paths:
           description: not authorized to add documents to this shipment
         500:
           description: server error
-  /shipments/{shipment_uuid}/reject:
+  /shipments/{shipmentId}/reject:
     post:
       summary: Rejects an awarded shipment
       description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
@@ -1361,7 +1392,7 @@ paths:
       tags:
         - shipments
       parameters:
-        - name: shipment_uuid
+        - name: shipmentId
           in: path
           type: string
           format: uuid
@@ -1411,7 +1442,7 @@ paths:
           description: must be authenticated to access this endpoint
         500:
           description: server error
-  /tsps/{tsp_uuid}/shipments:
+  /tsps/{tspId}/shipments:
     get:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
@@ -1421,7 +1452,7 @@ paths:
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
-          name: tsp_uuid
+          name: tspId
           type: string
           format: uuid
           required: true
@@ -1465,7 +1496,7 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
-  /tsps/{tsp_uuid}/blackouts:
+  /tsps/{tspId}/blackouts:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
       description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
@@ -1475,7 +1506,7 @@ paths:
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
-          name: tsp_uuid
+          name: tspId
           type: string
           format: uuid
           required: true

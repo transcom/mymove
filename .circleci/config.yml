@@ -4,7 +4,7 @@ jobs:
   pre_test:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     steps:
       - checkout
       - restore_cache:
@@ -24,9 +24,6 @@ jobs:
           name: Install markdown-toc
           command: npm install markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run:
-          name: Install dep
-          command: go get -u github.com/golang/dep/cmd/dep
       - run:
           name: Run make server_generate
           command: make server_generate
@@ -51,7 +48,7 @@ jobs:
   build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
       - image: postgres:latest
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -74,12 +71,7 @@ jobs:
           name: Install postgres client
           command: |
             sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-9.4
-      - run:
-          name: Install dep
-          command: |
-            go get -u github.com/golang/dep/cmd/dep
-            echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+            sudo apt-get -qq -y install postgresql-client-9.6
 
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make deps
@@ -119,7 +111,7 @@ jobs:
 
   build_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     steps:
       - checkout
       - setup_remote_docker:
@@ -135,7 +127,7 @@ jobs:
 
   deploy_staging_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     environment:
       - APP_ENVIRONMENT: "staging"
     steps: &deploy_migrations_steps
@@ -148,26 +140,9 @@ jobs:
           command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - run: *announce_failure
 
-  deploy_staging_app_redirect:
-    docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
-    environment:
-      - APP_ENVIRONMENT: "staging"
-      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.staging.move.mil/"
-    steps: &deploy_app_redirect_steps
-      - checkout
-      - setup_remote_docker
-      - deploy:
-          name: Deploy https redirect service
-          command: bin/ecs-deploy-service-container app-redirect config/app-redirect.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/https-redirect $APP_ENVIRONMENT FARGATE
-      - run:
-          name: Health check https redirect
-          command: for retry in `seq 1 10`; do if [[ $(curl -f -sS -o /dev/null -w '%{http_code}' $APP_REDIRECT_HEALTH_CHECK_URL) -eq 301 ]]; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
-      - run: *announce_failure
-
   deploy_staging_app:
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     environment:
       - APP_ENVIRONMENT: "staging"
       - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
@@ -184,22 +159,14 @@ jobs:
 
   deploy_prod_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     environment:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_migrations_steps
 
-  deploy_prod_app_redirect:
-    docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
-    environment:
-      - APP_ENVIRONMENT: "prod"
-      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.move.mil/"
-    steps: *deploy_app_redirect_steps
-
   deploy_prod_app:
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     environment:
       - APP_ENVIRONMENT: "prod"
       - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
@@ -207,7 +174,7 @@ jobs:
 
   integration_tests:
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     steps:
       - checkout
       - restore_cache:
@@ -224,7 +191,7 @@ jobs:
   update_dependencies:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     steps:
       - checkout
       - restore_cache:
@@ -233,10 +200,8 @@ jobs:
             - v1-go-pkg-dep
 
       - run:
-          name: Install dep
-          command: |
-            go get -u github.com/golang/dep/cmd/dep
-            echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+          name: Add ~/go/bin to path for golint
+          command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: pre-commit autoupdate
       - run: make server_deps_update
       - run: make client_deps_update
@@ -271,12 +236,6 @@ workflows:
             branches:
               only: master
 
-      - deploy_staging_app_redirect:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
       - deploy_staging_app:
           requires:
             - deploy_staging_migrations
@@ -287,7 +246,6 @@ workflows:
       - approve_prod_deploy:
           type: approval
           requires:
-            - deploy_staging_app_redirect
             - deploy_staging_app
 
       - deploy_prod_migrations:
@@ -297,12 +255,6 @@ workflows:
             branches:
               only: master
 
-      - deploy_prod_app_redirect:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
       - deploy_prod_app:
           requires:
             - deploy_prod_migrations

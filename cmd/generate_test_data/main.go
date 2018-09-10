@@ -73,17 +73,22 @@ func main() {
 		numTspUsers := 2
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
-		status := []models.ShipmentStatus{"DRAFT", "AWARDED"}
+		status := []models.ShipmentStatus{"DRAFT", "AWARDED", "ACCEPTED"}
 		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 		if err != nil {
 			log.Panic(err)
 		}
+		// Create an office user
+		testdatagen.MakeDefaultOfficeUser(db)
 		log.Print("Success! Created TSP test data.")
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
 		tdgs.E2eBasicScenario.Run(db, loader)
 		log.Print("Success! Created e2e test data.")
 	} else {
 		// Can this be less repetitive without being overly clever?
+		testdatagen.MakeDefaultServiceMember(db)
+		testdatagen.MakeDefaultOfficeUser(db)
+		testdatagen.MakeDefaultTspUser(db)
 		testdatagen.MakeTDLData(db)
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)

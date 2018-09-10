@@ -1,5 +1,5 @@
 /* global cy */
-describe('tsp user', function() {
+describe('TSP User Views Shipment', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
@@ -14,11 +14,6 @@ function tspUserViewsShipments() {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
-  // Find shipment (requires HHG Move)
-  /*
-  cy
-    .get('div')
-    .contains('VGHEIS');
-    // TODO: (2018_08_01 cgilmer) Open shipment
-  */
+  // Find shipment
+  cy.get('div').contains('BACON1');
 }

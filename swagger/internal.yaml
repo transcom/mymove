@@ -364,6 +364,7 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
+        x-formatting: weight
       mileage:
         type: integer
         title: Distance between origin and destination in miles
@@ -637,7 +638,8 @@ definitions:
   MoveDocumentType:
     type: string
     title: Document Type
-    enum:
+    example: EXPENSE
+    enum: &MOVEDOCUMENTTYPE
       - OTHER
       - WEIGHT_TICKET
       - STORAGE_EXPENSE
@@ -1492,18 +1494,88 @@ definitions:
         example: 10000
         title: Weight
         x-nullable: true
+        x-formatting: weight
       progear_weight_estimate:
         type: integer
         minimum: 0
         example: 500
         title: Pro-Gear Weight
         x-nullable: true
+        x-formatting: weight
       spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 200
         title: Spouse's Pro-Gear
         x-nullable: true
+        x-formatting: weight
+      pm_survey_planned_pack_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Planned pack date"
+        x-nullable: true
+      pm_survey_planned_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Planned pickup date"
+        x-nullable: true
+      pm_survey_planned_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Planned delivery date"
+        x-nullable: true
+      pm_survey_earliest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Earliest delivery date"
+        x-nullable: true
+      pm_survey_latest_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        title: "Latest delivery date"
+        x-nullable: true
+      pm_survey_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Weight
+        x-nullable: true
+        x-formatting: weight
+      pm_survey_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Pro-Gear weight
+        x-nullable: true
+        x-formatting: weight
+      pm_survey_spouse_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Spouse's pro-gear
+        x-nullable: true
+        x-formatting: weight
+      pm_survey_notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+      pm_survey_method:
+        type: string
+        title: Survey method
+        enum:
+          - IN_PERSON
+          - PHONE
+          - VIDEO
+        x-display-value:
+          IN_PERSON: In person
+          PHONE: Phone
+          VIDEO: Video
       created_at:
         type: string
         format: date-time
@@ -1868,6 +1940,16 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+        example: "RI-JP"
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
+        example: "COMNAVPERSCOM MILLINGTON"
       created_at:
         type: string
         format: date-time
@@ -1876,7 +1958,13 @@ definitions:
         format: date-time
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -1934,9 +2022,23 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -1968,6 +2070,9 @@ definitions:
       ppm_status:
         type: string
         example: PAYMENT_REQUESTED
+      hhg_status:
+        type: string
+        example: ACCEPTED
       locator:
         type: string
         example: "12432"
@@ -2013,6 +2118,7 @@ definitions:
       - id
       - status
       - ppm_status
+      - hhg_status
       - locator
       - customer_name
       - edipi
@@ -2716,7 +2822,7 @@ paths:
           description: move not found
         500:
           description: server error
-  /moves/{moveId}/shipment/{shipmentId}:
+  /shipment/{shipmentId}:
     patch:
       summary: Updates a Shipment for the given move
       description: Update a Shipment tied to the move ID
@@ -2724,12 +2830,6 @@ paths:
       tags:
         - shipments
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this Shipment is associated with
         - in: path
           name: shipmentId
           type: string
@@ -2763,12 +2863,6 @@ paths:
       tags:
         - shipments
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this Shipment is associated with
         - in: path
           name: shipmentId
           type: string
@@ -3080,6 +3174,15 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM to create an attachments PDF for
+        - name: docTypes
+          in: query
+          type: array
+          required: true
+          items:
+            type: string
+            enum: *MOVEDOCUMENTTYPE
+          collectionFormat: csv
+          description: Restrict the list to documents with matching docType.
       responses:
         200:
           description: returns a PPM attachments upload
@@ -3624,6 +3727,7 @@ paths:
           - new
           - troubleshooting
           - ppm
+          - hhg_accepted
           - all
           required: true
           description: Queue type to show

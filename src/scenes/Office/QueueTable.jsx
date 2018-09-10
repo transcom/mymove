@@ -44,7 +44,12 @@ class QueueTable extends Component {
         });
       },
       response => {
-        // TODO: add error handling
+        // TODO: add error handling, for now just reset state
+        this.setState({
+          data: [],
+          pages: null,
+          loading: true,
+        });
       },
     );
   }
@@ -54,6 +59,7 @@ class QueueTable extends Component {
       new: 'New Moves',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
+      hhg_accepted: 'Accepted HHGs',
       all: 'All Moves',
     };
 
@@ -71,7 +77,8 @@ class QueueTable extends Component {
           <Alert type="success" heading="Success">
             Move #{this.props.moveLocator} for {this.props.lastName},{' '}
             {this.props.firstName} has been canceled <br />
-            An email confirmation has been sent to the customer.<br />
+            An email confirmation has been sent to the customer.
+            <br />
           </Alert>
         ) : null}
         <h1>Queue: {titles[this.props.queueType]}</h1>

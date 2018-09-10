@@ -5,7 +5,7 @@ import { swaggerRequest } from 'shared/api';
 
 export function createOrUpdateShipment(label, moveId, shipment, id) {
   if (id) {
-    return updateShipment(label, moveId, id, shipment);
+    return updateShipment(label, id, shipment);
   } else {
     return createShipment(label, moveId, shipment);
   }
@@ -33,13 +33,12 @@ export function createShipment(
 
 export function updateShipment(
   label,
-  moveId,
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
   return swaggerRequest(
     'shipments.patchShipment',
-    { moveId, shipmentId, shipment },
+    { shipmentId, shipment },
     { label },
   );
 }

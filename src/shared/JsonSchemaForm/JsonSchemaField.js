@@ -10,7 +10,10 @@ export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 // ---- Parsers -----
 
 const parseNumberField = value => {
-  if (!value || validator.isNumber(value)) {
+  // Empty string will fail Swagger validation, so return null
+  if (value === '') {
+    return null;
+  } else if (!value || validator.isNumber(value)) {
     return value;
   } else {
     return parseFloat(value);

@@ -2,13 +2,16 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid } from 'redux-form';
-import editablePanel from './editablePanel';
+import { reduxForm, getFormValues } from 'redux-form';
 
 import { updateOrders } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  editablePanelify,
+} from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
   const fieldProps = {
@@ -29,6 +32,12 @@ const AccountingDisplay = props => {
           <PanelField title="Department indicator" className="missing">
             missing
           </PanelField>
+        )}
+
+        {props.orders.sac ? (
+          <PanelSwaggerField title="SAC" fieldName="sac" {...fieldProps} />
+        ) : (
+          <PanelField title="SAC">missing</PanelField>
         )}
       </div>
       <div className="editable-panel-column">
@@ -64,13 +73,16 @@ const AccountingEdit = props => {
           required
         />
       </div>
+      <div className="editable-panel-column">
+        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} />
+      </div>
     </React.Fragment>
   );
 };
 
 const formName = 'office_move_info_accounting';
 
-let AccountingPanel = editablePanel(AccountingDisplay, AccountingEdit);
+let AccountingPanel = editablePanelify(AccountingDisplay, AccountingEdit);
 AccountingPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -93,8 +105,7 @@ function mapStateToProps(state) {
     orders: orders,
     isUpdating: state.office.ordersAreUpdating,
 
-    // editablePanel
-    formIsValid: isValid(formName)(state),
+    // editablePanelify
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       values.new_duty_station_id = values.new_duty_station.id;

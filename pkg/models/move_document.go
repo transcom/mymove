@@ -105,7 +105,7 @@ func (m *MoveDocument) AttemptTransition(targetStatus MoveDocumentStatus) error 
 
 // Approve marks the Document as OK
 func (m *MoveDocument) Approve() error {
-	if m.Status != MoveDocumentStatusAWAITINGREVIEW {
+	if m.Status == MoveDocumentStatusOK {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 
@@ -115,7 +115,7 @@ func (m *MoveDocument) Approve() error {
 
 // Reject marks the Document as HAS_ISSUE
 func (m *MoveDocument) Reject() error {
-	if m.Status != MoveDocumentStatusAWAITINGREVIEW {
+	if m.Status == MoveDocumentStatusHASISSUE {
 		return errors.Wrap(ErrInvalidTransition, "Reject")
 	}
 

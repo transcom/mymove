@@ -12,7 +12,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.12.0
+    rev: v0.13.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -95,6 +95,13 @@ repos:
             vendor/|
             docs/adr/index.md
           )$
+
+  - repo: local
+    hooks:
+      - id: dep-version
+        name: dep version
+        entry: bin/check_dep_version
+        language: script
 
   - repo: local
     hooks:

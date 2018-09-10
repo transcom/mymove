@@ -2,15 +2,14 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
-import editablePanel from './editablePanel';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { updateBackupInfo } from './ducks';
 
 import { addressElementDisplay, addressElementEdit } from './AddressElement';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelField } from 'shared/EditablePanel';
+import { PanelField, editablePanelify } from 'shared/EditablePanel';
 
 const BackupInfoDisplay = props => {
   const backupAddress = props.backupMailingAddress;
@@ -81,7 +80,7 @@ const BackupInfoEdit = props => {
 
 const formName = 'office_move_info_backup_info';
 
-let BackupInfoPanel = editablePanel(BackupInfoDisplay, BackupInfoEdit);
+let BackupInfoPanel = editablePanelify(BackupInfoDisplay, BackupInfoEdit);
 BackupInfoPanel = reduxForm({
   form: formName,
   validate: validateRequiredFields,
@@ -109,8 +108,7 @@ function mapStateToProps(state) {
     backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     backupContact: backupContact,
 
-    // editablePanel
-    formIsValid: isValid(formName)(state),
+    // editablePanelify
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [
