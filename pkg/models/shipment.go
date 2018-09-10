@@ -151,33 +151,51 @@ func (s *Shipment) Accept() error {
 // BeforeSave will run before each create/update of a Shipment and will attempt to determine
 // and set the associated TDL given the pickup and destination zip codes.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
-	var rateArea, region string
-	var err error
+	// If we already have a TDL set, we'll assume it's correct for now and just return.
+	if s.TrafficDistributionListID != nil {
+		return nil
+	}
 
-	// Look up TDL and set if we can determine source rate area, region, and COS.
-	if s.PickupAddress != nil {
-		rateArea, err = FetchRateAreaForZip5(tx, s.PickupAddress.PostalCode)
-		if err != nil {
-			return errors.Wrap(err, "Could not fetch rate area")
-		}
-	}
-	if s.DeliveryAddress != nil {
-		region, err = FetchRegionForZip5(tx, s.DeliveryAddress.PostalCode)
-		if err != nil {
-			return errors.Wrap(err, "Could not fetch region")
-		}
-	}
-	codeOfService := "D" // Always hard-coded for now.
+	// To look up a TDL, we need to try to determine the following:
+	// 1) source_rate_area: Find using the postal code of the pickup address.
+	// 2) destination_region: Find using the postal code of the destination duty station.
+	// 3) code_of_service: For now, always assume "D".
 
-	if rateArea != "" && region != "" && codeOfService != "" {
-		trafficDistributionList, err := FetchTDL(tx, rateArea, region, codeOfService)
-		if err != nil {
-			return errors.Wrapf(err, "Could not fetch TDL for rateArea=%s, region=%s, codeOfService=%s",
-				rateArea, region, codeOfService)
-		}
-		s.TrafficDistributionListID = &trafficDistributionList.ID
-		s.TrafficDistributionList = &trafficDistributionList
+	// The pickup address is an optional field, so return if we don't have it.  We don't consider
+	// this an error condition since the database allows it (maybe we're in draft mode?).
+	if s.PickupAddressID == nil {
+		return nil
 	}
+
+	// Pickup address postal code -> source rate area.
+	rateArea, err := FetchRateAreaForZip5(tx, s.PickupAddress.PostalCode)
+	if err != nil {
+		return errors.Wrap(err, "Could not fetch rate area")
+	}
+
+	// Destination duty station -> destination region
+	// Need to traverse shipments->moves->orders->duty_stations->address to get that.
+	var move Move
+	err = tx.Eager("Orders.NewDutyStation.Address").Find(&move, s.MoveID)
+	if err != nil {
+		return errors.Wrap(err, "Could not fetch destination duty station postal code")
+	}
+	region, err := FetchRegionForZip5(tx, move.Orders.NewDutyStation.Address.PostalCode)
+	if err != nil {
+		return errors.Wrap(err, "Could not fetch region")
+	}
+
+	// Code of service -> hard-coded for now.
+	codeOfService := "D"
+
+	// Fetch the TDL (or create it if it doesn't exist already).
+	trafficDistributionList, err := FetchOrCreateTDL(tx, rateArea, region, codeOfService)
+	if err != nil {
+		return errors.Wrapf(err, "Could not fetch TDL for rateArea=%s, region=%s, codeOfService=%s",
+			rateArea, region, codeOfService)
+	}
+	s.TrafficDistributionListID = &trafficDistributionList.ID
+	s.TrafficDistributionList = &trafficDistributionList
 
 	return nil
 }
