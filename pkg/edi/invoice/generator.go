@@ -238,6 +238,10 @@ func getHeadingSegments(shipmentWithCost CostByShipment, sequenceNum int) ([]edi
 }
 
 func getLineItemSegments(shipmentWithCost CostByShipment) ([]edisegment.Segment, error) {
+	// follows HL loop (p.13) in https://www.ustranscom.mil/cmd/associated/dteb/files/transportationics/dt858c41.pdf
+	// HL segment: p. 51
+	// L0 segment: p. 77
+	// L1 segment: p. 82
 	// TODO: These are sample line items, need to pull actual line items from shipment
 	// that are ready to be invoiced
 	cost := shipmentWithCost.Cost
@@ -295,7 +299,7 @@ func getLineItemSegments(shipmentWithCost CostByShipment) ([]edisegment.Segment,
 		},
 		// Destination service charge
 		&edisegment.HL{
-			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
+			HierarchicalIDNumber:  "304", // Accessorial services performed at destination
 			HierarchicalLevelCode: "SS",  // Services
 		},
 		&edisegment.L0{
@@ -308,7 +312,7 @@ func getLineItemSegments(shipmentWithCost CostByShipment) ([]edisegment.Segment,
 			FreightRate:        4.07,
 			RateValueQualifier: "RC", // Rate
 			Charge:             cost.NonLinehaulCostComputation.DestinationServiceFee.ToDollarFloat(),
-			SpecialChargeDescription: "135A", // TODO: check if correct for Destination service charge
+			SpecialChargeDescription: "135B", // TODO: check if correct for Destination service charge
 		},
 		// Fuel surcharge - linehaul
 		&edisegment.HL{
