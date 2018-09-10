@@ -333,11 +333,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	models.SaveMoveDependencies(db, &hhg2.Move)
 
 	/*
+	 * Service member with accepted shipment
+	 */
+	email = "hhg@accept.ed"
+
+	offer3 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("6a39dd2a-a23f-4967-a035-3bc9987c6848")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("6a39dd2a-a23f-4967-a035-3bc9987c6848"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForApprove"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("4752270d-4a6f-44ea-82f6-ae3cf3277c5d"),
+			Locator:          "BACON3",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("e09f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg3 := offer3.Shipment
+	hhg3.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg3.Move)
+
+	/*
 	 * Service member with uploaded orders and an approved shipment to have weight added
 	 */
 	email = "hhg@addweigh.ts"
 
-	offer3 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	offer4 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("bf022aeb-3f14-4429-94d7-fe759f493aed")),
 			LoginGovEmail: email,
@@ -351,7 +392,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("94739ee0-664c-47c5-afe9-0f5067a2e151"),
-			Locator:          "BACON3",
+			Locator:          "BACON4",
 			SelectedMoveType: models.StringPointer("HHG"),
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
@@ -368,7 +409,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	hhg3 := offer3.Shipment
-	hhg3.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg3.Move)
+	hhg4 := offer4.Shipment
+	hhg4.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg4.Move)
 }
