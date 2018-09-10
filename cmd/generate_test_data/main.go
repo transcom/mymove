@@ -78,6 +78,8 @@ func main() {
 		if err != nil {
 			log.Panic(err)
 		}
+		// Create an office user
+		testdatagen.MakeDefaultOfficeUser(db)
 		log.Print("Success! Created TSP test data.")
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
 		tdgs.E2eBasicScenario.Run(db, loader)

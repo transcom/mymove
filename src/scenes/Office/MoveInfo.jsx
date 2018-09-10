@@ -325,7 +325,7 @@ class MoveInfo extends Component {
                       className="icon approval-waiting"
                       icon={faClock}
                     />
-                    Placeholder Status
+                    {capitalize(hhg.status)}
                   </span>
                 </NavTab>
               )}
