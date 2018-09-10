@@ -243,7 +243,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingForbidden()
 	}
 
-	// Verify that that TSP user is authorized to generate GBL
+	// Verify that TSP user is authorized to generate GBL
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {

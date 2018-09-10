@@ -25,7 +25,9 @@ func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
 
 func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 	// When: There is a move, shipment, and move document of type GBL
+	tspUser := testdatagen.MakeDefaultTspUser(suite.db)
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
 	sm := shipment.Move.Orders.ServiceMember
 
 	assertions := testdatagen.Assertions{
@@ -40,14 +42,23 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			ID: tspUser.TransportationServiceProvider.ID,
+		},
+		Shipment: models.Shipment{
+			ID: shipment.ID,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Shipment:                        shipment,
+			ShipmentID:                      shipment.ID,
+		},
 	}
 
 	testdatagen.MakeMoveDocument(suite.db, assertions)
 	testdatagen.MakeMoveDocument(suite.db, assertions)
-
+	testdatagen.MakeShipmentOffer(suite.db, assertions)
 	// When: the logged in user is a TSP user
-	// TODO: Test that only the TSP user attached to the shipmentWithOffer can fetch move docs for shipment
-	tspUser := testdatagen.MakeDefaultTspUser(suite.db)
 	session := &auth.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          *tspUser.UserID,
@@ -68,10 +79,19 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 
 	// When: a document doesn't exist
 	nonExistantDocs, err := FetchMoveDocumentsByTypeForShipment(suite.db, session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
-	// No docs should be returned
+	// Then: No docs should be returned
 	if suite.NoError(err) {
 		suite.Equal(0, len(nonExistantDocs))
 	}
+	// When: a user without authority is logged in
+	session = &auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          sm.UserID,
+		TspUserID:       sm.ID,
+	}
+	_, err = FetchMoveDocumentsByTypeForShipment(suite.db, session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
+	// Then: FetchForbiddenError should be returned
+	suite.Equal("FETCH_NOT_FOUND", err.Error())
 }
 
 func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
