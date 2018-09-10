@@ -37,6 +37,12 @@ const (
 	imageLinkURL string = ""
 )
 
+// FormLayout houses both a background image form template and the layout of individual fields
+type FormLayout struct {
+	TemplateImagePath string
+	FieldsLayout      map[string]FieldPos
+}
+
 // FieldPos encapsulates the starting position and width of a form field
 type FieldPos struct {
 	xPos  float64
