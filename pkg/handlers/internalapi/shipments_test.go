@@ -193,3 +193,33 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	suite.Equal(*patchShipmentPayload.EstimatedPackDays, int64(15), "EstimatedPackDays should have been set to 15")
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")
 }
+
+func (suite *HandlerSuite) TestApproveHHGHandler() {
+	// Given: an office User
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	shipmentAssertions := testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status: "ACCEPTED",
+		},
+	}
+	shipment := testdatagen.MakeShipment(suite.TestDB(), shipmentAssertions)
+	suite.MustSave(&shipment)
+
+	handler := ApproveHHGHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := "/shipments/shipment_id/approve"
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := shipmentop.ApproveHHGParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	// assert we got back the 200 response
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.ApproveHHGOK{}, response)
+	okResponse := response.(*shipmentop.ApproveHHGOK)
+	suite.Equal("APPROVED", string(okResponse.Payload.Status))
+}

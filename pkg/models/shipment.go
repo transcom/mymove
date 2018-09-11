@@ -148,6 +148,15 @@ func (s *Shipment) Accept() error {
 	return nil
 }
 
+// Approve marks the Shipment request as Approved. Must be in an Accepted state.
+func (s *Shipment) Approve() error {
+	if s.Status != ShipmentStatusACCEPTED {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+	s.Status = ShipmentStatusAPPROVED
+	return nil
+}
+
 // FetchShipments looks up all shipments joined with their offer information in a
 // ShipmentWithOffer struct. Optionally, you can only query for unassigned
 // shipments with the `onlyUnassigned` parameter.
