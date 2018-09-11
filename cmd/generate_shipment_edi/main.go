@@ -33,17 +33,20 @@ func main() {
 
 	moveID := uuid.Must(uuid.FromString(*moveIDString))
 	var shipments models.Shipments
-	err = db.Where("move_id = $1", &moveID).Eager(
+
+	err = db.Eager(
 		"Move.Orders",
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
-	).All(&shipments) //TODO include only shipments with ShipmentOffer state of accepted=True(?)
+	).Where("shipment_offers.accepted=true").
+		Where("move_id = $1", &moveID).
+		LeftJoin("shipment_offers", "shipment_offers.shipment_id = shipments.id").
+		All(&shipments)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	var logger = zap.NewNop() //??
+	var logger = zap.NewNop()
 
 	var costsByShipments []ediinvoice.CostByShipment
 
@@ -66,10 +69,9 @@ func main() {
 func HandleRunRateEngineOnShipment(shipment models.Shipment, engine *rateengine.RateEngine) (ediinvoice.CostByShipment, error) {
 	// Apply rate engine to shipment
 	var shipmentCost ediinvoice.CostByShipment
-
 	cost, err := engine.ComputeShipment(unit.Pound(*shipment.WeightEstimate),
-		shipment.PickupAddress.PostalCode,   // how to get nested value?
-		shipment.DeliveryAddress.PostalCode, // how to get nested value?
+		shipment.PickupAddress.PostalCode,
+		shipment.DeliveryAddress.PostalCode,
 		time.Time(*shipment.PickupDate),
 		0,  // We don't want any SIT charges
 		.4, // TODO: placeholder: story to get actual linehaul discount
