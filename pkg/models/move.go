@@ -1,6 +1,7 @@
 package models
 
 import (
+	"crypto/sha256"
 	"strings"
 	"time"
 
@@ -9,8 +10,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-
-	"crypto/sha256"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
