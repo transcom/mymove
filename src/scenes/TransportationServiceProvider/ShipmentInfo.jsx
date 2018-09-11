@@ -5,17 +5,23 @@ import { get, capitalize } from 'lodash';
 
 import { NavLink } from 'react-router-dom';
 
+import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 
 import {
   loadShipmentDependencies,
   patchShipment,
   acceptShipment,
+  generateGBL,
 } from './ducks';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+
+const attachmentsErrorMessages = {
+  400: 'There is already a GBL for this shipment. ',
+};
 
 class AcceptShipmentPanel extends Component {
   rejectShipment = () => {
@@ -50,12 +56,15 @@ class ShipmentInfo extends Component {
     return this.props.acceptShipment(this.props.shipment.id);
   };
 
+  generateGBL = () => {
+    return this.props.generateGBL(this.props.shipment.id);
+  };
+
   render() {
     const last_name = get(this.props.shipment, 'service_member.last_name');
     const first_name = get(this.props.shipment, 'service_member.first_name');
     const locator = get(this.props.shipment, 'move.locator');
     const awarded = this.props.shipment.status === 'AWARDED';
-
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -123,9 +132,22 @@ class ShipmentInfo extends Component {
               {awarded && (
                 <AcceptShipmentPanel
                   acceptShipment={this.acceptShipment}
+                  generateGBL={this.generateGBL}
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
+              {this.props.generateGBLError && (
+                <Alert type="warning" heading="An error occurred">
+                  {attachmentsErrorMessages[this.props.error.statusCode] ||
+                    'Something went wrong contacting the server.'}
+                </Alert>
+              )}
+              <button
+                className="usa-button-secondary"
+                onClick={this.generateGBL}
+              >
+                Generate Bill of Lading
+              </button>
             </div>
           </div>
         </div>
@@ -144,6 +166,8 @@ const mapStateToProps = state => ({
   ),
   loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
   acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+  generateGBLError: get(state, 'tsp.generateGBLError'),
+  error: get(state, 'tsp.error'),
 });
 
 const mapDispatchToProps = dispatch =>
@@ -152,6 +176,7 @@ const mapDispatchToProps = dispatch =>
       loadShipmentDependencies,
       patchShipment,
       acceptShipment,
+      generateGBL,
     },
     dispatch,
   );
