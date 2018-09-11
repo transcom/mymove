@@ -64,6 +64,12 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		pickupAddress = &newPickupAddress
 	}
 
+	deliveryAddress := assertions.Shipment.DeliveryAddress
+	if deliveryAddress == nil {
+		newDeliveryAddress := MakeAddress(db, Assertions{})
+		deliveryAddress = &newDeliveryAddress
+	}
+
 	status := assertions.Shipment.Status
 	if status == "" {
 		status = models.ShipmentStatusDRAFT
@@ -91,9 +97,9 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		HasSecondaryPickupAddress:    false,
 		SecondaryPickupAddressID:     nil,
 		SecondaryPickupAddress:       nil,
-		HasDeliveryAddress:           false,
-		DeliveryAddressID:            nil,
-		DeliveryAddress:              nil,
+		HasDeliveryAddress:           true,
+		DeliveryAddressID:            &deliveryAddress.ID,
+		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: false,
 		PartialSITDeliveryAddressID:  nil,
 		PartialSITDeliveryAddress:    nil,
