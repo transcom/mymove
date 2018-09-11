@@ -95,6 +95,12 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 							// TODO: OfferCount is off by 1
 							aq.logger.Info("Shipment offered to TSP!", zap.Int("current_count", tspPerformance.OfferCount+1))
 							foundAvailableTSP = true
+
+							// Award the shipment
+							if err := models.AwardShipment(aq.db, shipment.ID); err != nil {
+								aq.logger.Error("Failed to set shipment as awarded",
+									zap.Stringer("shipment ID", shipment.ID), zap.Error(err))
+							}
 						}
 						return nil
 					}

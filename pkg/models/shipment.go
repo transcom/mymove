@@ -354,6 +354,27 @@ func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *Shipmen
 	return shipment, offer, responseVErrors, responseError
 }
 
+// AwardShipment sets the shipment as awarded.
+func AwardShipment(db *pop.Connection, shipmentID uuid.UUID) error {
+	var shipment Shipment
+	if err := db.Find(&shipment, shipmentID); err != nil {
+		return err
+	}
+
+	if err := shipment.Award(); err != nil {
+		return err
+	}
+
+	verrs, err := db.ValidateAndUpdate(&shipment)
+	if err != nil {
+		return err
+	} else if verrs.HasAny() {
+		return fmt.Errorf("Validation failure: %s", verrs)
+	}
+
+	return nil
+}
+
 // AcceptShipmentForTSP accepts a shipment and shipment_offer
 func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
 
