@@ -9,20 +9,34 @@ import Alert from 'shared/Alert';
 import './index.css';
 
 export const PanelField = props => {
-  const { title, value } = props;
+  const { title, value, nullWarning } = props;
   const classes = classNames('panel-field', props.className);
-  return (
+  let component = (
     <div className={classes}>
       <span className="field-title">{title}</span>
       <span className="field-value">{value || props.children}</span>
     </div>
   );
+
+  /* eslint-disable security/detect-object-injection */
+  if (nullWarning && !(value || props.children)) {
+    component = (
+      <div className={'missing ' + classes}>
+        <span className="field-title">{title}</span>
+        <span className="field-value">missing</span>
+      </div>
+    );
+  }
+  /* eslint-enable security/detect-object-injection */
+
+  return component;
 };
 PanelField.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.string,
   children: PropTypes.node,
   className: PropTypes.string,
+  nullWarning: PropTypes.bool,
 };
 
 export const SwaggerValue = props => {
