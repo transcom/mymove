@@ -1,22 +1,21 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
 import Alert from 'shared/Alert'; // eslint-disable-line
 
 export default class ConfirmWithReasonButton extends Component {
-  state = { displayState: 'Button', cancelReason: '' };
+  state = { displayState: 'BUTTON', cancelReason: '' };
 
   setConfirmState = () => {
-    this.setState({ displayState: 'Confirm' });
+    this.setState({ displayState: 'CONFIRM' });
   };
 
   setCancelState = () => {
     if (this.state.cancelReason !== '') {
-      this.setState({ displayState: 'Cancel' });
+      this.setState({ displayState: 'CANCEL' });
     }
   };
 
   setButtonState = () => {
-    this.setState({ displayState: 'Button' });
+    this.setState({ displayState: 'BUTTON' });
   };
 
   handleChange = event => {
@@ -26,7 +25,6 @@ export default class ConfirmWithReasonButton extends Component {
   cancel = event => {
     event.preventDefault();
     this.props.onConfirm(this.state.cancelReason);
-    this.setState({ displayState: 'Redirect' });
   };
 
   render() {
@@ -34,7 +32,7 @@ export default class ConfirmWithReasonButton extends Component {
 
     const reasonPresent = this.state.cancelReason !== '';
 
-    if (this.state.displayState === 'Cancel') {
+    if (this.state.displayState === 'CANCEL') {
       return (
         <div className="cancel-panel">
           <h2 className="extras usa-heading">{buttonTitle}</h2>
@@ -53,7 +51,7 @@ export default class ConfirmWithReasonButton extends Component {
           </div>
         </div>
       );
-    } else if (this.state.displayState === 'Confirm') {
+    } else if (this.state.displayState === 'CONFIRM') {
       return (
         <div className="cancel-panel">
           <h2 className="extras usa-heading">{buttonTitle}</h2>
@@ -73,14 +71,14 @@ export default class ConfirmWithReasonButton extends Component {
           </div>
         </div>
       );
-    } else if (this.state.displayState === 'Button') {
+    } else if (this.state.displayState === 'BUTTON') {
       return (
         <button className="usa-button-secondary" onClick={this.setConfirmState}>
           {buttonTitle}
         </button>
       );
-    } else if (this.state.displayState === 'Redirect') {
-      return <Redirect to="/" />;
+    } else {
+      console.error('Unknown State: ', this.state.displayState);
     }
   }
 }

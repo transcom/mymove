@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
 
 import { NavLink } from 'react-router-dom';
@@ -46,6 +47,10 @@ class AcceptShipmentPanel extends Component {
 }
 
 class ShipmentInfo extends Component {
+  state = {
+    redirectToHome: false,
+  };
+
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
   }
@@ -55,7 +60,11 @@ class ShipmentInfo extends Component {
   };
 
   rejectShipment = reason => {
-    return this.props.rejectShipment(this.props.shipment.id, reason);
+    return this.props
+      .rejectShipment(this.props.shipment.id, reason)
+      .then(() => {
+        this.setState({ redirectToHome: true });
+      });
   };
 
   render() {
@@ -63,6 +72,10 @@ class ShipmentInfo extends Component {
     const first_name = get(this.props.shipment, 'service_member.first_name');
     const locator = get(this.props.shipment, 'move.locator');
     const awarded = this.props.shipment.status === 'AWARDED';
+
+    if (this.state.redirectToHome) {
+      return <Redirect to="/" />;
+    }
 
     return (
       <div>

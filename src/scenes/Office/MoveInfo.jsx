@@ -100,6 +100,10 @@ const HHGTabContent = props => {
 };
 
 class MoveInfo extends Component {
+  state = {
+    redirectToHome: false,
+  };
+
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
@@ -114,7 +118,9 @@ class MoveInfo extends Component {
   };
 
   cancelMove = cancelReason => {
-    this.props.cancelMove(this.props.officeMove.id, cancelReason);
+    this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
+      this.setState({ redirectToHome: true });
+    });
   };
 
   renderPPMTabStatus = () => {
@@ -167,6 +173,11 @@ class MoveInfo extends Component {
       ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
       ppm.status,
     );
+
+    if (this.state.redirectToHome) {
+      return <Redirect to="/" />;
+    }
+
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
