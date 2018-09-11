@@ -41,10 +41,13 @@ func main() {
 		"ServiceMember",
 	).Where("shipment_offers.accepted=true").
 		Where("move_id = $1", &moveID).
-		LeftJoin("shipment_offers", "shipment_offers.shipment_id = shipments.id").
+		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
 		All(&shipments)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if len(shipments) == 0 {
+		log.Fatal("No accepted shipments found")
 	}
 	var logger = zap.NewNop()
 
