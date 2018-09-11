@@ -339,12 +339,13 @@ func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *Shipmen
 
 		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment status to ACCEPTED")
+			responseError = errors.Wrapf(err, "Error changing shipment status to %s", shipment.Status)
 			return transactionError
 		}
+
 		if verrs, err := db.ValidateAndUpdate(offer); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment offer status to ACCEPTED")
+			responseError = errors.Wrap(err, "Error changing shipment offer status %s", offer.Status)
 			return transactionError
 		}
 
