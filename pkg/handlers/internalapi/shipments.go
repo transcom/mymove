@@ -95,7 +95,6 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		requestedPickupDate = &date
 	}
 
-	// TODO: Set code of service in the TDL linked to from the Shipment model.
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		ServiceMemberID:              session.ServiceMemberID,
