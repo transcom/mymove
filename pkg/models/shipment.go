@@ -148,6 +148,15 @@ func (s *Shipment) Accept() error {
 	return nil
 }
 
+// Approve marks the Shipment request as Approved. Must be in an Accepted state.
+func (s *Shipment) Approve() error {
+	if s.Status != ShipmentStatusACCEPTED {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+	s.Status = ShipmentStatusAPPROVED
+	return nil
+}
+
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record
