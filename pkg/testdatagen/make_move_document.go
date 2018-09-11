@@ -20,15 +20,36 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 		move = MakeMove(db, assertions)
 	}
 
+	// We can't know in advance if a move document is for a PPM or a Shipment
+	// Better to force the user to choose and explicitly pass in the values
+	// than to make default versions of these structs.
+	ppmId := assertions.MoveDocument.PersonallyProcuredMoveID
+	ppm := assertions.MoveDocument.PersonallyProcuredMove
+	shipmentId := assertions.MoveDocument.ShipmentID
+	shipment := assertions.MoveDocument.Shipment
+
+	moveDocumentType := models.MoveDocumentTypeOTHER
+	if string(assertions.MoveDocument.MoveDocumentType) != "" {
+		moveDocumentType = assertions.MoveDocument.MoveDocumentType
+	}
+
+	title := assertions.MoveDocument.Title
+	if title == "" {
+		title = "My-very-special-document.pdf"
+	}
+
 	moveDocument := models.MoveDocument{
 		DocumentID: document.ID,
 		Document:   document,
 		MoveID:     move.ID,
 		Move:       move,
-		PersonallyProcuredMoveID: nil,
-		Status:           models.MoveDocumentStatusAWAITINGREVIEW,
-		MoveDocumentType: models.MoveDocumentTypeOTHER,
-		Title:            "My-very-special-document.pdf",
+		PersonallyProcuredMoveID: ppmId,
+		PersonallyProcuredMove:   ppm,
+		ShipmentID:               shipmentId,
+		Shipment:                 shipment,
+		Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
+		MoveDocumentType:         moveDocumentType,
+		Title:                    title,
 	}
 
 	// Overwrite values with those from assertions
