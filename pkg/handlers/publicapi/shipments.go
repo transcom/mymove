@@ -180,7 +180,7 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 		return shipmentop.NewRejectShipmentForbidden()
 	}
 
-	// Accept the shipment
+	// Reject the shipment
 	shipment, shipmentOffer, verrs, err := models.RejectShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, *params.Payload.Reason)
 	if err != nil || verrs.HasAny() {
 		if err == models.ErrFetchNotFound {
