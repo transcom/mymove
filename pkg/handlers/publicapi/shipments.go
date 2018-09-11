@@ -252,7 +252,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 	if shipment.ID != shipmentID {
 		h.Logger().Error("TSP user is not authorized to generate a GBL for this move.")
-		return shipmentop.NewCreateGovBillOfLadingForbidden()
+		return shipmentop.NewCreateGovBillOfLadingUnauthorized()
 	}
 
 	// Don't allow GBL generation for shipments that already have a GBL move document
