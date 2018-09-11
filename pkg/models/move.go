@@ -554,6 +554,9 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 				}
 				shipment.SourceGBLOC = &sourceGbloc
 
+				// Assign a new unique GBL number using source GBLOC
+				shipment.AssignGBLNumber(db)
+
 				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Shipment")
