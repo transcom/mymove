@@ -1,5 +1,5 @@
 /* global cy, Cypress*/
-export default function testPremoveSurvey() {
+export function fillAndSavePremoveSurvey() {
   // Click on edit Premove Survey
   cy
     .get('.editable-panel-header')
@@ -54,6 +54,10 @@ export default function testPremoveSurvey() {
     .get('button')
     .contains('Save')
     .click();
+}
+
+export function testPremoveSurvey() {
+  fillAndSavePremoveSurvey();
 
   // Verify data has been saved in the UI
   cy.get('span').contains('7,000 lbs');

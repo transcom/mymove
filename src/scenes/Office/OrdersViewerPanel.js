@@ -2,13 +2,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import {
-  reduxForm,
-  getFormValues,
-  isValid,
-  FormSection,
-  Field,
-} from 'redux-form';
+import { reduxForm, getFormValues, FormSection, Field } from 'redux-form';
 
 import { updateOrdersInfo } from './ducks.js';
 import { formatDate, formatDateTime } from 'shared/formatters';
@@ -129,6 +123,28 @@ const OrdersViewerDisplay = props => {
             missing
           </PanelField>
         )}
+        {orders.orders_issuing_agency ? (
+          <PanelSwaggerField
+            title="Orders Issuing Agency"
+            fieldName="orders_issuing_agency"
+            {...ordersFieldsProps}
+          />
+        ) : (
+          <PanelField title="Orders Issuing Agency" className="">
+            missing
+          </PanelField>
+        )}
+        {orders.paragraph_number ? (
+          <PanelSwaggerField
+            title="Paragraph Number"
+            fieldName="paragraph_number"
+            {...ordersFieldsProps}
+          />
+        ) : (
+          <PanelField title="Paragraph Number" className="">
+            missing
+          </PanelField>
+        )}
         {orders.tac ? (
           <PanelSwaggerField
             title="TAC"
@@ -137,6 +153,17 @@ const OrdersViewerDisplay = props => {
           />
         ) : (
           <PanelField title="TAC" className="missing">
+            missing
+          </PanelField>
+        )}
+        {orders.sac ? (
+          <PanelSwaggerField
+            title="SAC"
+            fieldName="sac"
+            {...ordersFieldsProps}
+          />
+        ) : (
+          <PanelField title="SAC" className="">
             missing
           </PanelField>
         )}
@@ -208,7 +235,18 @@ const OrdersViewerEdit = props => {
             fieldName="department_indicator"
             swagger={schema}
           />
+          <SwaggerField
+            title="Orders Issuing Agency"
+            fieldName="orders_issuing_agency"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Paragraph Number"
+            fieldName="paragraph_number"
+            swagger={schema}
+          />
           <SwaggerField title="TAC" fieldName="tac" swagger={schema} />
+          <SwaggerField title="SAC" fieldName="sac" swagger={schema} />
         </FormSection>
       </div>
     </React.Fragment>
@@ -239,7 +277,6 @@ function mapStateToProps(state) {
     move: get(state, 'office.officeMove', {}),
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [

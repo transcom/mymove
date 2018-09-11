@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -96,6 +97,23 @@ func (a *Address) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		encoder.AddString("country", *a.Country)
 	}
 	return nil
+}
+
+// Format returns the address in default US mailing address format
+func (a *Address) Format() string {
+	lines := []string{}
+	lines = append(lines, a.StreetAddress1)
+
+	if a.StreetAddress2 != nil && len(*a.StreetAddress2) > 0 {
+		lines = append(lines, *a.StreetAddress2)
+	}
+	if a.StreetAddress3 != nil && len(*a.StreetAddress3) > 0 {
+		lines = append(lines, *a.StreetAddress3)
+	}
+
+	lines = append(lines, fmt.Sprintf("%s, %s %s", a.City, a.State, a.PostalCode))
+
+	return strings.Join(lines, "\n")
 }
 
 // LineFormat returns the address as a string, formatted into a single line

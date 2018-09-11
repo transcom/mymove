@@ -14,6 +14,8 @@ import {
 } from './ducks';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
+import ServiceAgents from './ServiceAgents';
+import Weights from './Weights';
 
 class AcceptShipmentPanel extends Component {
   rejectShipment = () => {
@@ -49,9 +51,10 @@ class ShipmentInfo extends Component {
   };
 
   render() {
-    var last_name = get(this.props.shipment, 'service_member.last_name');
-    var first_name = get(this.props.shipment, 'service_member.first_name');
-    var locator = get(this.props.shipment, 'move.locator');
+    const last_name = get(this.props.shipment, 'service_member.last_name');
+    const first_name = get(this.props.shipment, 'service_member.first_name');
+    const locator = get(this.props.shipment, 'move.locator');
+    const awarded = this.props.shipment.status === 'AWARDED';
 
     return (
       <div>
@@ -62,9 +65,16 @@ class ShipmentInfo extends Component {
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
-            <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New Shipments Queue</span>
-            </NavLink>
+            {awarded && (
+              <NavLink to="/queues/new" activeClassName="usa-current">
+                <span>New Shipments Queue</span>
+              </NavLink>
+            )}
+            {!awarded && (
+              <NavLink to="/queues/all" activeClassName="usa-current">
+                <span>All Shipments Queue</span>
+              </NavLink>
+            )}
           </div>
         </div>
         <div className="usa-grid grid-wide">
@@ -96,11 +106,21 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
+                  <ServiceAgents
+                    title="ServiceAgents"
+                    shipment={this.props.shipment}
+                    serviceAgents={this.props.serviceAgents}
+                  />
+                  <Weights
+                    title="Weights & Items"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                 </div>
               )}
             </div>
             <div className="usa-width-one-third">
-              {this.props.shipment.status === 'AWARDED' && (
+              {awarded && (
                 <AcceptShipmentPanel
                   acceptShipment={this.acceptShipment}
                   shipmentStatus={this.props.shipment.status}
@@ -117,6 +137,7 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
+  serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,
     'tsp.loadTspDependenciesHasSuccess',
