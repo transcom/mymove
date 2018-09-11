@@ -148,14 +148,26 @@ func (s *Shipment) Accept() error {
 	return nil
 }
 
-// BeforeSave will run before each create/update of a Shipment and will attempt to determine
-// and set the associated TDL given the pickup and destination zip codes.
+// BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
-	// If we already have a TDL set, we'll assume it's correct for now and just return.
-	if s.TrafficDistributionListID != nil {
-		return nil
+	// To be safe, we will always try to determine the correct TDL anytime a shipment record
+	// is created/updated.
+	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
+	if err != nil {
+		return errors.Wrapf(err, "Could not determine TDL for shipment ID %s for move ID %s", s.ID, s.MoveID)
 	}
 
+	if trafficDistributionList != nil {
+		s.TrafficDistributionListID = &trafficDistributionList.ID
+		s.TrafficDistributionList = trafficDistributionList
+	}
+
+	return nil
+}
+
+// DetermineTrafficDistributionList attempts to find (or create) the TDL for a shipment.  Since some of
+// the fields needed to determine the TDL are optional, this may return a nil TDL in a non-error scenario.
+func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*TrafficDistributionList, error) {
 	// To look up a TDL, we need to try to determine the following:
 	// 1) source_rate_area: Find using the postal code of the pickup address.
 	// 2) destination_region: Find using the postal code of the destination duty station.
@@ -164,40 +176,48 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// The pickup address is an optional field, so return if we don't have it.  We don't consider
 	// this an error condition since the database allows it (maybe we're in draft mode?).
 	if s.PickupAddressID == nil {
-		return nil
+		return nil, nil
 	}
 
 	// Pickup address postal code -> source rate area.
-	rateArea, err := FetchRateAreaForZip5(tx, s.PickupAddress.PostalCode)
+	if s.PickupAddress == nil {
+		var pickupAddress Address
+		if err := db.Find(&pickupAddress, *s.PickupAddressID); err != nil {
+			return nil, errors.Wrapf(err, "Could not fetch pickup address ID %s", s.PickupAddressID.String())
+		}
+		s.PickupAddress = &pickupAddress
+	}
+	pickupZip := s.PickupAddress.PostalCode
+	rateArea, err := FetchRateAreaForZip5(db, pickupZip)
 	if err != nil {
-		return errors.Wrap(err, "Could not fetch rate area")
+		return nil, errors.Wrapf(err, "Could not fetch rate area for zip %s", pickupZip)
 	}
 
 	// Destination duty station -> destination region
 	// Need to traverse shipments->moves->orders->duty_stations->address to get that.
 	var move Move
-	err = tx.Eager("Orders.NewDutyStation.Address").Find(&move, s.MoveID)
+	err = db.Eager("Orders.NewDutyStation.Address").Find(&move, s.MoveID)
 	if err != nil {
-		return errors.Wrap(err, "Could not fetch destination duty station postal code")
+		return nil, errors.Wrapf(err, "Could not fetch destination duty station postal code for move ID %s",
+			s.MoveID)
 	}
-	region, err := FetchRegionForZip5(tx, move.Orders.NewDutyStation.Address.PostalCode)
+	destinationZip := move.Orders.NewDutyStation.Address.PostalCode
+	region, err := FetchRegionForZip5(db, destinationZip)
 	if err != nil {
-		return errors.Wrap(err, "Could not fetch region")
+		return nil, errors.Wrapf(err, "Could not fetch region for zip %s", destinationZip)
 	}
 
 	// Code of service -> hard-coded for now.
 	codeOfService := "D"
 
 	// Fetch the TDL (or create it if it doesn't exist already).
-	trafficDistributionList, err := FetchOrCreateTDL(tx, rateArea, region, codeOfService)
+	trafficDistributionList, err := FetchOrCreateTDL(db, rateArea, region, codeOfService)
 	if err != nil {
-		return errors.Wrapf(err, "Could not fetch TDL for rateArea=%s, region=%s, codeOfService=%s",
+		return nil, errors.Wrapf(err, "Could not fetch TDL for rateArea=%s, region=%s, codeOfService=%s",
 			rateArea, region, codeOfService)
 	}
-	s.TrafficDistributionListID = &trafficDistributionList.ID
-	s.TrafficDistributionList = &trafficDistributionList
 
-	return nil
+	return &trafficDistributionList, nil
 }
 
 // FetchShipments looks up all shipments joined with their offer information in a
