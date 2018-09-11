@@ -19,7 +19,7 @@ import './PaymentsPanel.css';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
-  424: 'Could not find any receipts for this PPM',
+  424: 'Could not find any receipts or documents for this PPM',
   500: 'An unexpected error has occurred',
 };
 
