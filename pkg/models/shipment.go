@@ -84,24 +84,6 @@ type Shipment struct {
 	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
-// ShipmentWithOffer represents a single offered shipment within a Service Member's move.
-type ShipmentWithOffer struct {
-	ID                              uuid.UUID  `db:"id"`
-	CreatedAt                       time.Time  `db:"created_at"`
-	UpdatedAt                       time.Time  `db:"updated_at"`
-	BookDate                        *time.Time `db:"book_date"`
-	PickupDate                      *time.Time `db:"pickup_date"`
-	RequestedPickupDate             *time.Time `db:"requested_pickup_date"`
-	TrafficDistributionListID       *uuid.UUID `db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
-	SourceGBLOC                     *string    `db:"source_gbloc"`
-	DestinationGBLOC                *string    `db:"destination_gbloc"`
-	Market                          *string    `db:"market"`
-	Accepted                        *bool      `db:"accepted"`
-	RejectionReason                 *string    `db:"rejection_reason"`
-	AdministrativeShipment          *bool      `db:"administrative_shipment"`
-}
-
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
 
@@ -157,52 +139,17 @@ func (s *Shipment) Approve() error {
 	return nil
 }
 
-// FetchShipments looks up all shipments joined with their offer information in a
-// ShipmentWithOffer struct. Optionally, you can only query for unassigned
-// shipments with the `onlyUnassigned` parameter.
-func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
-	shipments := []ShipmentWithOffer{}
-
-	var sql string
-
-	if onlyUnassigned {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id
-			WHERE shipment_offers.id IS NULL`
-	} else {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id`
+// FetchUnofferedShipments will return submitted shipments that do not already have a shipment offer.
+func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
+	var shipments Shipments
+	err := db.Q().
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		Where("shipments.status = ?", ShipmentStatusSUBMITTED).
+		Where("shipment_offers.id is null").
+		All(&shipments)
+	if err != nil {
+		return nil, err
 	}
-
-	err := dbConnection.RawQuery(sql).All(&shipments)
 
 	return shipments, err
 }

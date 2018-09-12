@@ -15,9 +15,9 @@ type GovBillOfLadingExtractor struct {
 	TSPName string
 	// TBD -from ServiceAgent
 	ServiceAgentName string
-	// From ShipmentWithOffer.TransportationServiceProvider.StandardCarrierAlphaCode
+	// From Shipment.TransportationServiceProvider.StandardCarrierAlphaCode
 	StandardCarrierAlphaCode string
-	// From ShipmentWithOffer.TrafficDistributionList.CodeOfService
+	// From Shipment.TrafficDistributionList.CodeOfService
 	CodeOfService string
 	// number of shipments for a move e.g. "1 of 1"
 	ShipmentNumber string
@@ -51,9 +51,9 @@ type GovBillOfLadingExtractor struct {
 	ConsigneeAddress Address
 	// From Shipment pickup address, or NTS address and details (weight, lot number, etc.)
 	PickupAddress Address
-	// From ShipmentWithOffer.DestinationGBLOC (look up Transportatoin office name from gbloc)
+	// From Shipment.DestinationGBLOC (look up Transportatoin office name from gbloc)
 	ResponsibleDestinationOffice string
-	// From ShipmentWithOffer.DestinationGBLOC
+	// From Shipment.DestinationGBLOC
 	DestinationGbloc string
 	// Hardcoded: "US Bank PowerTrack Minneapolis, MN 800-417-1844 PowerTrack@usbank.com". (TODO: there will be other options)
 	BillChargesToName    string
@@ -82,7 +82,7 @@ type GovBillOfLadingExtractor struct {
 	// ¿Officer in JPPSO/PPSO - the one who approved orders? leave blank for now
 	IssuingOfficerFullName string
 	IssuingOfficerTitle    string
-	// From ShipmentWithOffer.SourceGBLOC (look up Transportatoin office name from gbloc)
+	// From Shipment.SourceGBLOC (look up Transportatoin office name from gbloc)
 	IssuingOfficeName    string
 	IssuingOfficeAddress Address
 	IssuingOfficeGBLOC   string
