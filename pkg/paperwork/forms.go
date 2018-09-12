@@ -14,6 +14,31 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+var rankDisplayValue = map[internalmessages.ServiceMemberRank]string{
+	internalmessages.ServiceMemberRankE1:                     "E-1",
+	internalmessages.ServiceMemberRankE2:                     "E-2",
+	internalmessages.ServiceMemberRankE3:                     "E-3",
+	internalmessages.ServiceMemberRankE4:                     "E-4",
+	internalmessages.ServiceMemberRankE5:                     "E-5",
+	internalmessages.ServiceMemberRankE6:                     "E-6",
+	internalmessages.ServiceMemberRankE7:                     "E-7",
+	internalmessages.ServiceMemberRankE8:                     "E-8",
+	internalmessages.ServiceMemberRankE9:                     "E-9",
+	internalmessages.ServiceMemberRankO1W1ACADEMYGRADUATE:    "O-1/W-1/Service Academy Graduate",
+	internalmessages.ServiceMemberRankO2W2:                   "O-2/W-2",
+	internalmessages.ServiceMemberRankO3W3:                   "O-3/W-3",
+	internalmessages.ServiceMemberRankO4W4:                   "O-4/W-4",
+	internalmessages.ServiceMemberRankO5W5:                   "O-5/W-5",
+	internalmessages.ServiceMemberRankO6:                     "O-6",
+	internalmessages.ServiceMemberRankO7:                     "O-7",
+	internalmessages.ServiceMemberRankO8:                     "O-8",
+	internalmessages.ServiceMemberRankO9:                     "O-9",
+	internalmessages.ServiceMemberRankO10:                    "O-10",
+	internalmessages.ServiceMemberRankAVIATIONCADET:          "Aviation Cadet",
+	internalmessages.ServiceMemberRankCIVILIANEMPLOYEE:       "Civilian Employee",
+	internalmessages.ServiceMemberRankACADEMYCADETMIDSHIPMAN: "Service Academy Cadet/Midshipman",
+}
+
 // These are hardcoded for now
 const (
 	pageOrientation string  = "P"
@@ -134,12 +159,12 @@ func (f *FormFiller) DrawData(data interface{}) error {
 		case int64:
 			displayValue = strconv.FormatInt(v, 10)
 		case time.Time:
-			displayValue = v.Format("20060102")
+			displayValue = v.Format("01-Mon-2006")
 		case internalmessages.ServiceMemberRank:
-			displayValue = string(v)
+			displayValue = rankDisplayValue[v]
 		case *internalmessages.ServiceMemberRank:
 			if v != nil {
-				displayValue = string(*v)
+				displayValue = rankDisplayValue[*v]
 			}
 		case internalmessages.Affiliation:
 			displayValue = string(v)

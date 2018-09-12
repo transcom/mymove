@@ -26,6 +26,11 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 		ServiceMember: models.ServiceMember{
 			Edipi: &edipi,
 		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("123"),
+			SAC:                 models.StringPointer("456"),
+			TAC:                 models.StringPointer("78901234"),
+		},
 	})
 	testdatagen.MakeServiceAgent(suite.db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{

@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -12,6 +14,9 @@ import (
 
 // GovBillOfLadingExtractor is an object representing a GBL form 1203
 type GovBillOfLadingExtractor struct {
+	// GBL Number is in two places on the form
+	GBLNumber1 string `db:"gbl_number_1"`
+	GBLNumber2 string `db:"gbl_number_2"`
 	// TBD - from TSP
 	TSPName string `db:"tsp_name"`
 	// TBD -from ServiceAgent
@@ -65,7 +70,9 @@ type GovBillOfLadingExtractor struct {
 	// TSP enters
 	FreightBillNumber string
 	// Accounting info from orders - DI, TAC, and SAC (see description)
-	AppropriationsChargeable string `db:"appropriations_chargable"`
+	TAC                 string `db:"tac"`
+	SAC                 string `db:"sac"`
+	DepartmentIndicator string `db:"department_indicator"`
 	// (func to "getRemarks" with hardcoded values - See description - 16 cases account for. For now: "Direct Delivery Requested"). If any of ForUsePayingOffice... are true, must explain here
 	Remarks string `db:"remarks"`
 	// TGBL shipment case - see description ("LOT").
@@ -78,7 +85,7 @@ type GovBillOfLadingExtractor struct {
 	WeightTarePounds  *int64
 	WeightNetPounds   *int64
 	// TSP enters - see description
-	LineHaulTransportationRate     *int64
+	LineHaulTransportationRate     *float64 `db:"linehaul_transportation_rate"`
 	LineHaulTransportationCharges  *unit.Cents
 	PackingUnpackingCharges        *unit.Cents
 	OtherAccessorialServices       *unit.Cents
@@ -118,6 +125,9 @@ type GovBillOfLadingExtractor struct {
 func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (GovBillOfLadingExtractor, error) {
 	var gbl GovBillOfLadingExtractor
 	sql := `SELECT
+				-- TODO use new GBL number
+				'ABC123456' AS gbl_number_1,
+				'ABC123456' AS gbl_number_2,
 				s.book_date AS date_issued,
 				s.pm_survey_planned_pack_date AS requested_pack_date,
 				s.pm_survey_planned_pickup_date AS requested_pickup_date,
@@ -141,7 +151,11 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				concat_ws(' ', dest_to.name) AS responsible_destination_office,
 				source_to.name AS issuing_office_name,
 				source_to.address_id AS issuing_office_address_id,
-				s.source_gbloc AS issuing_office_gbloc
+				s.source_gbloc AS issuing_office_gbloc,
+				concat('DI: ', o.department_indicator) AS department_indicator,
+				concat('SAC: ', o.sac) AS sac,
+				concat('TAC: ', o.tac) AS tac,
+				perf.linehaul_rate AS linehaul_transportation_rate
 			FROM shipments s
 			INNER JOIN service_members sm
 				ON s.service_member_id = sm.id
@@ -159,6 +173,8 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				ON s.id = so.shipment_id
 			LEFT JOIN transportation_service_providers tsp
 				ON so.transportation_service_provider_id = tsp.id
+			LEFT JOIN transportation_service_provider_performances perf
+				ON tsp.id = perf.transportation_service_provider_id
 			LEFT JOIN traffic_distribution_lists tdl
 				ON s.traffic_distribution_list_id = tdl.id
 			WHERE s.id = $1
@@ -169,6 +185,9 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				AND s.pm_survey_planned_delivery_date IS NOT NULL
 				AND sm.edipi IS NOT NULL
 				AND sa.point_of_contact IS NOT NULL
+				AND o.department_indicator IS NOT NULL
+				AND o.sac IS NOT NULL
+				AND o.tac IS NOT NULL
 			`
 	err := db.RawQuery(sql, shipmentID).Eager().First(&gbl)
 	if err != nil {
@@ -182,6 +201,17 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 		"PowerTrack@usbank.com"
 	gbl.DescriptionOfShipment = "Household Goods. Containers: 0 Shipment is released at full replacement protection of $4.00 times the net weight in pounds of the shipment or $5,000, whichever is greater."
 	gbl.Remarks = "Direct Delivery Requested"
+	if gbl.LineHaulTransportationRate != nil {
+		// Field has the following format:
+		// Domestic shipments: "400NG-2006 15%" using the linehaul rate
+		// Intl shipments: "IT-2006 $100.00 cwt" using the single factor rate
+		// Note: Only handling domestic shipments for now
+		gbl.TariffOrSpecialRateAuthorities = "400NG-" +
+			strconv.Itoa(gbl.DateIssued.Year()) + " " +
+			fmt.Sprintf("%.2f%%", *gbl.LineHaulTransportationRate*100.0)
+	}
+	fmt.Println(gbl.LineHaulTransportationRate)
+	fmt.Println(gbl.TariffOrSpecialRateAuthorities)
 
 	return gbl, nil
 }
