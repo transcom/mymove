@@ -110,6 +110,11 @@ class MoveInfo extends Component {
     this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
   }
 
+  get currentTab() {
+    const pathnames = this.props.location.pathname.split('/');
+    return pathnames[pathnames.length - 1];
+  }
+
   approveBasics = () => {
     this.props.approveBasics(this.props.match.params.moveId);
   };
@@ -332,10 +337,15 @@ class MoveInfo extends Component {
               </button>
               <button
                 onClick={this.approveHHG}
-                disabled={hhgApproved || move.status !== 'APPROVED'}
+                disabled={
+                  hhgApproved ||
+                  move.status !== 'APPROVED' ||
+                  !ordersComplete ||
+                  this.currentTab !== 'hhg'
+                }
                 style={{ backgroundColor: hhgApproved && 'green' }}
               >
-                Approve Shipment
+                Approve Shipments
                 {hhgApproved && check}
               </button>
               <CancelPanel cancelMove={this.cancelMove} />

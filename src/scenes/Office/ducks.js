@@ -79,6 +79,8 @@ const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
+const APPROVE_HHG = ReduxHelpers.generateAsyncActionTypes(approveHHGType);
+
 export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
   cancelMoveType,
 );
@@ -596,6 +598,19 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_PPM.failure:
       return Object.assign({}, state, {
         ppmIsApproving: false,
+        error: action.error.message,
+      });
+
+    case APPROVE_HHG.success:
+      return Object.assign({}, state, {
+        officeMove: {
+          ...state.officeMove,
+          shipments: [action.payload],
+        },
+      });
+
+    case APPROVE_HHG.failure:
+      return Object.assign({}, state, {
         error: action.error.message,
       });
 
