@@ -261,8 +261,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingBadRequest()
 	}
 
-	// TODO: call func to create PDF from real data and get path to pdf (or file object itself?) in local memory
-
+	// Create PDF for GBL
 	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)
 	if err != nil {
 		h.Logger().Error("Failed retrieving the GBL data.")
@@ -276,7 +275,6 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		h.Logger().Error("Failure reading GBL template image file.")
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
-	// defer f.Close()
 
 	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
 	if err != nil {
@@ -291,9 +289,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	// output, _ := os.Create("./cmd/generate_1203_form/test-output.pdf")
 	aFile, err := h.FileStorer().FileSystem().Create("some name")
-	// aFile, err := h.FileStorer().FileSystem().TempFile("temp", "temp")
 	if err != nil {
 		h.Logger().Error("Error creating a new afero file for GBL form.")
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
@@ -313,19 +309,33 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 
 	uploads := []models.Upload{*upload}
 
-	// Create GBL move document associated to the shipment, don't return it for now
+	// Create GBL move document associated to the shipment
 	_, verrs, err = shipment.Move.CreateMoveDocument(h.DB(),
-		uploads, // TODO: these should be created from the pdf that's generated with GBL data
+		uploads,
 		&shipmentID,
 		models.MoveDocumentTypeGOVBILLOFLADING,
 		string("Government Bill Of Lading"),
 		swag.String(""),
 	)
-
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	return shipmentop.NewCreateGovBillOfLadingOK()
+	url, err := uploader.PresignedURL(upload)
+	if err != nil {
+		h.Logger().Error("failed to get presigned url", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	uploadPayload := &apimessages.UploadPayload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(uploadPayload)
 
 }
 

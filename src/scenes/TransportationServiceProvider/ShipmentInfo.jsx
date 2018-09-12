@@ -144,7 +144,7 @@ class ShipmentInfo extends Component {
               )}
               {this.props.generateGBLSuccess && (
                 <Alert type="success" heading="Success!">
-                  'GBL generated successfully.'
+                  GBL generated successfully.
                 </Alert>
               )}
               <button
