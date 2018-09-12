@@ -9,6 +9,7 @@ import {
   LoadPPMs,
   ApproveBasics,
   ApprovePPM,
+  ApproveHHG,
   ApproveReimbursement,
   CancelMove,
   DownloadPPMAttachments,
@@ -33,6 +34,7 @@ const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
+const approveHHGType = 'APPROVE_HHG';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
@@ -163,6 +165,11 @@ export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
 export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
   approvePPMType,
   ApprovePPM,
+);
+
+export const approveHHG = ReduxHelpers.generateAsyncActionCreator(
+  approveHHGType,
+  ApproveHHG,
 );
 
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(

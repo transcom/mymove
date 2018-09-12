@@ -32,6 +32,7 @@ import {
   loadMoveDependencies,
   approveBasics,
   approvePPM,
+  approveHHG,
   cancelMove,
   patchShipment,
 } from './ducks';
@@ -117,6 +118,10 @@ class MoveInfo extends Component {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
   };
 
+  approveHHG = () => {
+    this.props.approveHHG(this.props.officeShipment.id);
+  };
+
   cancelMove = cancelReason => {
     this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
       this.setState({ redirectToHome: true });
@@ -154,7 +159,7 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, officeShipment } = this.props;
+    const { moveDocuments } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
@@ -326,7 +331,7 @@ class MoveInfo extends Component {
                 {ppmApproved && check}
               </button>
               <button
-                // onClick={() => approveHHG(officeShipment.id)}
+                onClick={this.approveHHG}
                 disabled={hhgApproved || move.status !== 'APPROVED'}
                 style={{ backgroundColor: hhgApproved && 'green' }}
               >
@@ -437,6 +442,7 @@ const mapDispatchToProps = dispatch =>
       getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
+      approveHHG,
       cancelMove,
       patchShipment,
     },
