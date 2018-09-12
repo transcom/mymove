@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"encoding/json"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"

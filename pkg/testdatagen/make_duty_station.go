@@ -11,7 +11,7 @@ import (
 func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStation {
 	transportationOffice := assertions.DutyStation.TransportationOffice
 	if assertions.DutyStation.TransportationOfficeID == nil {
-		transportationOffice = MakeTransportationOffice(db)
+		transportationOffice = MakeTransportationOffice(db, assertions)
 	}
 
 	address := assertions.DutyStation.Address

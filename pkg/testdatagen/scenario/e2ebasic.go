@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -297,6 +299,19 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	 */
 	email = "hhg@fromawardedtoaccept.ed"
 
+	packDate := time.Now().AddDate(0, 0, 1)
+	pickupDate := time.Now().AddDate(0, 0, 5)
+	deliveryDate := time.Now().AddDate(0, 0, 10)
+	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ABCD",
+		},
+	})
+	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "QRED",
+		},
+	})
 	offer2 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("179598c5-a5ee-4da5-8259-29749f03a398")),
@@ -308,6 +323,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			LastName:      models.StringPointer("ReadyForAccept"),
 			Edipi:         models.StringPointer("4444567890"),
 			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("17"),
+			TAC:                 models.StringPointer("NTA4"),
+			SAC:                 models.StringPointer("1234567890 9876543210"),
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("849a7880-4a82-4f76-acb4-63cf481e786b"),
@@ -321,10 +341,36 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAWARDED,
+			ID:                          uuid.FromStringOrNil("53ebebef-be58-41ce-9635-a4930149190d"),
+			Status:                      models.ShipmentStatusAWARDED,
+			PmSurveyPlannedPackDate:     &packDate,
+			PmSurveyPlannedPickupDate:   &pickupDate,
+			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+		},
+	})
+
+	_, err := testdatagen.MakeTSPPerformance(db,
+		tspUser.TransportationServiceProvider,
+		*offer2.Shipment.TrafficDistributionList,
+		models.IntPointer(3),
+		0.40,
+		5,
+		unit.DiscountRate(0.50),
+		unit.DiscountRate(0.55))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer2.Shipment,
+			ShipmentID: offer2.ShipmentID,
 		},
 	})
 
