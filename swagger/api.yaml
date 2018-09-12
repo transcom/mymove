@@ -638,7 +638,7 @@ definitions:
     required:
       - role
       - point_of_contact
-  ShipmentReject:
+  RejectShipment:
     type: object
     properties:
       reason:
@@ -1244,7 +1244,7 @@ paths:
     post:
       summary: Accepts an awarded shipment
       description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED.
-      operationId: createShipmentAccept
+      operationId: acceptShipment
       tags:
         - shipments
       parameters:
@@ -1388,7 +1388,7 @@ paths:
     post:
       summary: Rejects an awarded shipment
       description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
-      operationId: createShipmentReject
+      operationId: rejectShipment
       tags:
         - shipments
       parameters:
@@ -1403,7 +1403,7 @@ paths:
           description: reason for refusing award
           required: true
           schema:
-            $ref: '#/definitions/ShipmentReject'
+            $ref: '#/definitions/RejectShipment'
       responses:
         200:
           description: returns updated (rejected) shipment object
