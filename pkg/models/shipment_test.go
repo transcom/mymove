@@ -136,10 +136,15 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
 
-	// Can submit shipment
+	// Can accept shipment
 	err = shipment.Accept()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
+
+	// Can approve shipment
+	err = shipment.Approve()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 }
 
 func equalShipmentsSlice(a []ShipmentWithOffer, b []ShipmentWithOffer) bool {
