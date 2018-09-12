@@ -1,21 +1,11 @@
 /* global cy, */
 describe('office user finds the move', () => {
   beforeEach(() => {
-    // We need to reset the test database because we're finding a move by a
-    // specific ID. If the test runs twice in a row, the move will be cancelled
-    // and unable to be canceled again.
-    cy.exec('make db_e2e_reset');
     cy.signIntoOffice();
   });
-  afterEach(() => {
-    // Reset the database for future tests that need this move to not be
-    // canceled.
-    cy.exec('make db_e2e_reset');
-  });
-
   it('office user cancels the move', () => {
     // Open the move
-    cy.visit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc8/ppm');
+    cy.visit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc9/ppm');
 
     // Find the Cancel Move button
     cy
@@ -37,6 +27,6 @@ describe('office user finds the move', () => {
       .click();
     cy
       .get('.usa-alert-success')
-      .contains('Move #VGHEIS for Submitted, PPM has been canceled');
+      .contains('Move #CANCEL for Submitted, PPM has been canceled');
   });
 });
