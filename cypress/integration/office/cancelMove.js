@@ -1,0 +1,30 @@
+/* global cy, */
+describe('office user finds the move', () => {
+  beforeEach(() => {
+    cy.signIntoOffice();
+    cy.resetDb();
+  });
+  it('office user cancels the move', () => {
+    // Open the move
+    cy.visit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc8/ppm');
+
+    // Find the Cancel Move button
+    cy
+      .get('button')
+      .contains('Cancel Move')
+      .click();
+
+    // Enter cancel reason
+    cy
+      .get('.cancel-panel textarea:first')
+      .type('Canceling this move as a test!');
+    cy
+      .get('.cancel-panel button')
+      .contains('Cancel entire move')
+      .click();
+    cy
+      .get('.cancel-panel button')
+      .contains('Yes, cancel move')
+      .click();
+  });
+});
