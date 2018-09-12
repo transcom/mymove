@@ -417,7 +417,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	 * Service member with uploaded orders and an approved shipment to have weight added
 	 * This shipment is rejected by the e2e test.
 	 */
-	email = "hhg@addweigh.ts"
+	email = "hhg@reject.ing"
 
 	offer5 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
