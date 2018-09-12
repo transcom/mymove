@@ -15,7 +15,7 @@ export default class ConfirmWithReasonButton extends Component {
   };
 
   setButtonState = () => {
-    this.setState({ displayState: 'BUTTON' });
+    this.setState({ displayState: 'BUTTON', cancelReason: '' });
   };
 
   handleChange = event => {
