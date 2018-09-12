@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"os"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -12,6 +13,8 @@ import (
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
+	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
 )
 
@@ -240,7 +243,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingForbidden()
+		return shipmentop.NewCreateGovBillOfLadingUnauthorized()
 	}
 
 	// Verify that TSP user is authorized to generate GBL
@@ -248,11 +251,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingBadRequest()
-	}
-	if shipment.ID != shipmentID {
-		h.Logger().Error("TSP user is not authorized to generate a GBL for this move.")
-		return shipmentop.NewCreateGovBillOfLadingUnauthorized()
+		return shipmentop.NewCreateGovBillOfLadingForbidden()
 	}
 
 	// Don't allow GBL generation for shipments that already have a GBL move document
@@ -263,10 +262,59 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	// TODO: call func to create PDF from real data and get path to pdf (or file object itself?) in local memory
-	var uploads []models.Upload
+
+	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)
+	if err != nil {
+		h.Logger().Error("Failed retrieving the GBL data.")
+		return shipmentop.NewCreateGovBillOfLadingExpectationFailed()
+	}
+
+	formLayout := paperwork.Form1203Layout
+
+	f, err := os.Open(formLayout.TemplateImagePath)
+	if err != nil {
+		h.Logger().Error("Failure reading GBL template image file.")
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+	// defer f.Close()
+
+	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	if err != nil {
+		h.Logger().Error("Error initializing GBL template form.")
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	// Populate form fields with GBL data
+	err = form.DrawData(gbl)
+	if err != nil {
+		h.Logger().Error("Failure writing GBL data to form.")
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	// output, _ := os.Create("./cmd/generate_1203_form/test-output.pdf")
+	aFile, err := h.FileStorer().FileSystem().Create("some name")
+	// aFile, err := h.FileStorer().FileSystem().TempFile("temp", "temp")
+	if err != nil {
+		h.Logger().Error("Error creating a new afero file for GBL form.")
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	err = form.Output(aFile)
+	if err != nil {
+		h.Logger().Error("Failure exporting GBL form to file.")
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
+	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment, don't return it for now
-	_, verrs, err := shipment.Move.CreateMoveDocument(h.DB(),
+	_, verrs, err = shipment.Move.CreateMoveDocument(h.DB(),
 		uploads, // TODO: these should be created from the pdf that's generated with GBL data
 		&shipmentID,
 		models.MoveDocumentTypeGOVBILLOFLADING,

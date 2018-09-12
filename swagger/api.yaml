@@ -12,6 +12,41 @@ consumes:
 produces:
   - application/json
 definitions:
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        format: string
+        example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      bytes:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - url
+      - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
   Address:
     type: object
     properties:
@@ -1405,14 +1440,18 @@ paths:
           required: true
           description: UUID of the shipment
       responses:
-        200:
+        201:
           description: successfully created GBL move document for shipment
+          schema:
+            $ref: '#/definitions/UploadPayload'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to add documents to this shipment
+        417:
+          description: failed to meet data requirements for GBL form to be built
         500:
           description: server error
   /shipments/{shipmentId}/reject:
