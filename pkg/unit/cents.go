@@ -44,3 +44,9 @@ func (c Cents) ToDollarString() string {
 	s := fmt.Sprintf("$%.2f", d)
 	return s
 }
+
+// ToDollarFloat returns a dollar string representation of this value
+func (c Cents) ToDollarFloat() float64 {
+	d := float64(c) / 100.0
+	return d
+}
