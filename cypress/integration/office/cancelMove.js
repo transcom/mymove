@@ -7,6 +7,12 @@ describe('office user finds the move', () => {
     cy.exec('make db_e2e_reset');
     cy.signIntoOffice();
   });
+  afterEach(() => {
+    // Reset the database for future tests that need this move to not be
+    // canceled.
+    cy.exec('make db_e2e_reset');
+  });
+
   it('office user cancels the move', () => {
     // Open the move
     cy.visit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc8/ppm');
