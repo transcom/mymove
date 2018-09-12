@@ -77,6 +77,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{context}
 	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
+	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
