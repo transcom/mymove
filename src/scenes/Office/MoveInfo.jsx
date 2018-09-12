@@ -154,12 +154,12 @@ class MoveInfo extends Component {
   };
 
   render() {
+    const { moveDocuments, officeShipment } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
-    const { moveDocuments } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
@@ -173,6 +173,7 @@ class MoveInfo extends Component {
       ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
       ppm.status,
     );
+    const hhgApproved = hhg.status === 'APPROVED';
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -319,13 +320,20 @@ class MoveInfo extends Component {
                 disabled={
                   ppmApproved || move.status !== 'APPROVED' || !ordersComplete
                 }
-                style={{
-                  backgroundColor: ppmApproved && 'green',
-                }}
+                style={{ backgroundColor: ppmApproved && 'green' }}
               >
                 Approve PPM
                 {ppmApproved && check}
               </button>
+              <button
+                // onClick={() => approveHHG(officeShipment.id)}
+                disabled={hhgApproved || move.status !== 'APPROVED'}
+                style={{ backgroundColor: hhgApproved && 'green' }}
+              >
+                Approve Shipment
+                {hhgApproved && check}
+              </button>
+              <CancelPanel cancelMove={this.cancelMove} />
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
                 reasonPrompt="Why is the move being canceled?"
