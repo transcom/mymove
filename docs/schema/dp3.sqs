@@ -2260,7 +2260,6 @@
         <SQLField>
             <name><![CDATA[point_of_contact]]></name>
             <type><![CDATA[TEXT]]></type>
-            <notNull><![CDATA[1]]></notNull>
             <uid><![CDATA[8F9C7048-84AA-4980-9256-7B1D824233E1]]></uid>
         </SQLField>
         <SQLField>
@@ -2292,6 +2291,12 @@
             <name><![CDATA[notes]]></name>
             <type><![CDATA[TEXT]]></type>
             <uid><![CDATA[98323A29-F4A7-4AD4-9D5A-DA4CE8CFCE72]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[company]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <notNull><![CDATA[1]]></notNull>
+            <uid><![CDATA[8F9C7048-84AA-4980-9256-7B1D824233E1]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[1]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
