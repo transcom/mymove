@@ -10,7 +10,7 @@ function findMatchingRoute(paths, operationPath) {
   const [tagName, operationId] = operationPath.split('.');
 
   let routeDefinition;
-  Object.values(getSpec().paths).some(function(path) {
+  Object.values(paths).some(function(path) {
     return Object.values(path).some(function(route) {
       if (route.operationId === operationId && route.tags[0] === tagName) {
         routeDefinition = route;
@@ -45,8 +45,7 @@ function successfulReturnType(routeDefinition, status) {
 // Call an operation defined in the Swagger API, dispatching
 // actions as its state changes.
 export function swaggerRequest(operationPath, params, options = {}) {
-  return async function(dispatch, getState, { schema }) {
-    const client = await getClient();
+  return async function(dispatch, getState, { schema, client }) {
     const operation = get(client, 'apis.' + operationPath);
 
     if (!operation) {
@@ -62,7 +61,7 @@ export function swaggerRequest(operationPath, params, options = {}) {
       start: new Date(),
       isLoading: true,
     };
-    store.dispatch({
+    dispatch({
       type: `@@swagger/${operationPath}/START`,
       label,
       request: requestLog,
@@ -105,20 +104,33 @@ export function swaggerRequest(operationPath, params, options = {}) {
           client.spec.paths,
           operationPath,
         );
+        if (!routeDefinition) {
+          throw new Error(
+            `Could not find routeDefinition for ${operationPath}`,
+          );
+        }
+
         const schemaKey = successfulReturnType(
           routeDefinition,
           response.status,
         );
+        if (!schemaKey) {
+          throw new Error(
+            `Could not find schemaKey for ${operationPath} status ${
+              response.status
+            }`,
+          );
+        }
 
         const payloadSchema = schema[schemaKey];
-        if (payloadSchema) {
-          action.entities = normalizePayload(
-            response.body,
-            payloadSchema,
-          ).entities;
-        } else {
-          console.warn(`Could not find a schema for ${schemaKey}`);
+        action.entities = normalizePayload(
+          response.body,
+          payloadSchema,
+        ).entities;
+        if (!payloadSchema) {
+          throw new Error(`Could not find a schema for ${schemaKey}`);
         }
+
         dispatch(action);
         return response;
       })
