@@ -21,6 +21,7 @@ import Weights from './Weights';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
+  417: 'Missing data required to generate a Bill of Lading.',
 };
 
 class AcceptShipmentPanel extends Component {
