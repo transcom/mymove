@@ -40,8 +40,8 @@ func main() {
 		"DeliveryAddress",
 		"ServiceMember",
 	).Where("shipment_offers.accepted=true").
-		Where("move_id = $1", &moveID).
 		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
+		Where("move_id = $1", &moveID).
 		All(&shipments)
 	if err != nil {
 		log.Fatal(err)
@@ -70,15 +70,18 @@ func main() {
 
 // HandleRunRateEngineOnShipment runs the rate engine on a shipment and returns the shipment and cost
 func HandleRunRateEngineOnShipment(shipment models.Shipment, engine *rateengine.RateEngine) (ediinvoice.CostByShipment, error) {
+	daysInSIT := 0
+	var sitDiscount unit.DiscountRate
+	sitDiscount = 0.0
 	// Apply rate engine to shipment
 	var shipmentCost ediinvoice.CostByShipment
 	cost, err := engine.ComputeShipment(unit.Pound(*shipment.WeightEstimate),
 		shipment.PickupAddress.PostalCode,
 		shipment.DeliveryAddress.PostalCode,
 		time.Time(*shipment.PickupDate),
-		0,  // We don't want any SIT charges
-		.4, // TODO: placeholder: story to get actual linehaul discount
-		0.0,
+		daysInSIT, // We don't want any SIT charges
+		.4,        // TODO: placeholder: need to get actual linehaul discount
+		sitDiscount,
 	)
 	if err != nil {
 		return ediinvoice.CostByShipment{}, err
