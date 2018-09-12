@@ -144,7 +144,7 @@ const initialState = {
   flashMessage: false,
   serviceAgents: [],
   generateGBLSuccess: false,
-  generateGBLHasError: null,
+  generateGBLError: null,
 };
 
 export function tspReducer(state = initialState, action) {

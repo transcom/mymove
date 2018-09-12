@@ -142,6 +142,11 @@ class ShipmentInfo extends Component {
                     'Something went wrong contacting the server.'}
                 </Alert>
               )}
+              {this.props.generateGBLSuccess && (
+                <Alert type="success" heading="Success!">
+                  'GBL generated successfully.'
+                </Alert>
+              )}
               <button
                 className="usa-button-secondary"
                 onClick={this.generateGBL}
@@ -167,6 +172,7 @@ const mapStateToProps = state => ({
   loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
   acceptError: get(state, 'tsp.shipmentHasAcceptError'),
   generateGBLError: get(state, 'tsp.generateGBLError'),
+  generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
   error: get(state, 'tsp.error'),
 });
 
