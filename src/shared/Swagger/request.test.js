@@ -50,7 +50,9 @@ function mockClient(operationMock) {
 
 describe('swaggerRequest', function() {
   describe('making a request', function() {
-    it('makes a successful request', function(done) {
+    it('makes a successful request', function() {
+      expect.assertions(3);
+
       const dispatch = jest.fn();
       const getState = jest.fn();
 
@@ -78,7 +80,7 @@ describe('swaggerRequest', function() {
         { label: 'testRequest' },
       );
 
-      action(dispatch, getState, { client, schema });
+      const result = action(dispatch, getState, { client, schema });
 
       expect(dispatch).toHaveBeenLastCalledWith(
         expect.objectContaining({
@@ -96,7 +98,7 @@ describe('swaggerRequest', function() {
 
       resolveCallback(response);
 
-      setTimeout(function() {
+      result.then(function(response) {
         expect(dispatch).toHaveBeenLastCalledWith(
           expect.objectContaining({
             type: '@@swagger/shipments.getShipment/SUCCESS',
@@ -112,16 +114,18 @@ describe('swaggerRequest', function() {
         );
       });
 
-      done();
+      return expect(result).resolves.toEqual(response);
     });
 
-    it('makes a failed request', function(done) {
+    it('makes a failed request', function() {
+      expect.assertions(3);
+
       const dispatch = jest.fn();
       const getState = jest.fn();
 
       const response = {
         ok: true,
-        status: 401,
+        status: 400,
         body: {
           shipment: {
             id: 'abcd-1234',
@@ -130,10 +134,12 @@ describe('swaggerRequest', function() {
       };
 
       let rejectCallback;
+      let promise;
       const opMock = jest.fn(function() {
-        return new Promise(function(resolve, reject) {
+        promise = new Promise(function(resolve, reject) {
           rejectCallback = reject;
         });
+        return promise;
       });
 
       const client = mockClient(opMock);
@@ -144,7 +150,7 @@ describe('swaggerRequest', function() {
         { label: 'testRequest' },
       );
 
-      action(dispatch, getState, { client, schema });
+      const result = action(dispatch, getState, { client, schema });
 
       expect(dispatch).toHaveBeenLastCalledWith(
         expect.objectContaining({
@@ -160,11 +166,7 @@ describe('swaggerRequest', function() {
         }),
       );
 
-      expect(function() {
-        rejectCallback(response);
-      }).toThrow();
-
-      setTimeout(function() {
+      result.catch(function(response) {
         expect(dispatch).toHaveBeenLastCalledWith(
           expect.objectContaining({
             type: '@@swagger/shipments.getShipment/FAILURE',
@@ -173,7 +175,9 @@ describe('swaggerRequest', function() {
         );
       });
 
-      done();
+      rejectCallback(response);
+
+      return expect(result).rejects.toEqual(response);
     });
   });
 });

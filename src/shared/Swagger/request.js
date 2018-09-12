@@ -86,7 +86,7 @@ export function swaggerRequest(operationPath, params, options = {}) {
       });
     }
 
-    request
+    return request
       .then(response => {
         const updatedRequestLog = Object.assign({}, requestLog, {
           ok: response.ok,
@@ -149,9 +149,8 @@ export function swaggerRequest(operationPath, params, options = {}) {
           response,
           request: updatedRequestLog,
         });
-        throw response;
+        return Promise.reject(response);
       });
-    return request;
   };
 }
 
