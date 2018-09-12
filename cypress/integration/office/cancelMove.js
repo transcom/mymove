@@ -1,8 +1,11 @@
 /* global cy, */
 describe('office user finds the move', () => {
   beforeEach(() => {
+    // We need to reset the test database because we're finding a move by a
+    // specific ID. If the test runs twice in a row, the move will be cancelled
+    // and unable to be canceled again.
+    cy.exec('make db_e2e_reset');
     cy.signIntoOffice();
-    cy.resetDb();
   });
   it('office user cancels the move', () => {
     // Open the move
@@ -26,5 +29,8 @@ describe('office user finds the move', () => {
       .get('.cancel-panel button')
       .contains('Yes, cancel move')
       .click();
+    cy
+      .get('.usa-alert-success')
+      .contains('Move #VGHEIS for Submitted, PPM has been canceled');
   });
 });
