@@ -24,6 +24,7 @@ import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
+import ServiceAgents from './ServiceAgents';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 
@@ -92,6 +93,13 @@ const HHGTabContent = props => {
           shipment={props.officeShipment}
           update={props.patchShipment}
           error={props.surveyError}
+        />
+      )}
+      {props.officeShipment.service_agents && (
+        <ServiceAgents
+          title="Service Agents"
+          shipment={props.officeShipment}
+          serviceAgents={props.officeShipment.service_agents}
         />
       )}
     </div>

@@ -6,7 +6,7 @@ import { reduxForm, getFormValues } from 'redux-form';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { editablePanelify } from 'shared/EditablePanel';
-import { createOrUpdateServiceAgent } from 'shared/ServiceAgents/ducks';
+import { createOrUpdateServiceAgent } from './ducks';
 
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
@@ -52,11 +52,14 @@ const ServiceAgentEdit = props => {
 };
 
 const formName = 'service_agents_panel';
+// const isEditable = props => {
+//   console.log(props.editEnabled)
+//   return props.editEnabled
+// }
 
 let ServiceAgentPanel = editablePanelify(ServiceAgentDisplay, ServiceAgentEdit);
 ServiceAgentPanel = reduxForm({
   form: formName,
-  enableReinitialize: true,
   keepDirtyOnReinitialize: true,
 })(ServiceAgentPanel);
 
@@ -76,6 +79,7 @@ const ServiceAgents = props => {
         schema={props.schema}
         initialValues={props.initialValues.ORIGIN}
         getUpdateArgs={props.getOriginUpdateArgs}
+        editEnabled={props.editEnabled}
       />
 
       <ServiceAgentPanel
@@ -85,6 +89,7 @@ const ServiceAgents = props => {
         schema={props.schema}
         initialValues={props.initialValues.DESTINATION}
         getUpdateArgs={props.getDestinationUpdateArgs}
+        editEnabled={props.editEnabled}
       />
     </Fragment>
   );
@@ -94,6 +99,7 @@ function mapStateToProps(state, props) {
   let originFormValues = getFormValues('origin_service_agent')(state);
   let destFormValues = getFormValues('destination_service_agent')(state);
   let serviceAgents = props.serviceAgents;
+  let editEnabled = props.editEnabled;
   let initialValues = {};
   // This returns the last value. Currently there should only be one record for each role.
   serviceAgents.forEach(agent => (initialValues[agent.role] = agent));

@@ -52,8 +52,12 @@ const ServiceAgentEdit = props => {
 };
 
 const formName = 'service_agents_panel';
-
-let ServiceAgentPanel = editablePanelify(ServiceAgentDisplay, ServiceAgentEdit);
+const editEnabled = false;
+let ServiceAgentPanel = editablePanelify(
+  ServiceAgentDisplay,
+  ServiceAgentEdit,
+  editEnabled,
+);
 ServiceAgentPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -76,6 +80,7 @@ const ServiceAgents = props => {
         schema={props.schema}
         initialValues={props.initialValues.ORIGIN}
         getUpdateArgs={props.getOriginUpdateArgs}
+        editEnabled={props.editEnabled}
       />
 
       <ServiceAgentPanel
@@ -85,6 +90,7 @@ const ServiceAgents = props => {
         schema={props.schema}
         initialValues={props.initialValues.DESTINATION}
         getUpdateArgs={props.getDestinationUpdateArgs}
+        editEnabled={props.editEnabled}
       />
     </Fragment>
   );
@@ -104,7 +110,7 @@ function mapStateToProps(state, props) {
     initialValues,
 
     hasError: false,
-    errorMessage: get(state, 'tsp.error', {}),
+    errorMessage: get(state, 'shipment.error', {}),
     isUpdating: false,
 
     // editablePanel
