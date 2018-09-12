@@ -1,7 +1,7 @@
 import { denormalize } from 'normalizr';
 
 import { shipments } from '../schema';
-import { swaggerRequest } from 'shared/api';
+import { swaggerRequest } from 'shared/Swagger/request';
 
 export function createOrUpdateShipment(label, moveId, shipment, id) {
   if (id) {

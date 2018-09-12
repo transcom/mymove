@@ -4,7 +4,8 @@ import { routerReducer } from 'react-router-redux';
 
 import { loggedInUserReducer } from 'shared/User/ducks';
 import userReducer from 'shared/User/ducks';
-import { swaggerReducer, requestsReducer } from 'shared/Swagger/ducks';
+import { swaggerReducer } from 'shared/Swagger/ducks';
+import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
 import uiReducer from 'shared/UI/ducks';
 

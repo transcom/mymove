@@ -1,5 +1,5 @@
 import { get, uniqueId } from 'lodash';
-import { getSpec, getClient } from 'shared/Swagger/api';
+import { getClient } from './api';
 import { normalize } from 'normalizr';
 
 import store from 'shared/store';

@@ -1,16 +1,15 @@
 import * as helpers from 'shared/ReduxHelpers';
-import { GetSpec, GetPublicSpec } from './api';
-import { filter, last, omit, sortBy, startsWith } from 'lodash';
+import { getSpec, getPublicSpec } from './api';
 
 const resource = 'SWAGGER';
 
 export const actionsTypes = helpers.generateAsyncActionTypes(resource);
 
-export const loadSchema = helpers.generateAsyncActionCreator(resource, GetSpec);
+export const loadSchema = helpers.generateAsyncActionCreator(resource, getSpec);
 
 export const loadPublicSchema = helpers.generateAsyncActionCreator(
   resource,
-  GetPublicSpec,
+  getPublicSpec,
 );
 
 export const swaggerReducer = helpers.generateAsyncReducer(resource, v => ({
