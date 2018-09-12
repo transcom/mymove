@@ -40,8 +40,8 @@ func main() {
 		"DeliveryAddress",
 		"ServiceMember",
 	).Where("shipment_offers.accepted=true").
-		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
 		Where("move_id = $1", &moveID).
+		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
 		All(&shipments)
 	if err != nil {
 		log.Fatal(err)
