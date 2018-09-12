@@ -1,0 +1,2 @@
+drop_column("service_agents", "company")
+sql("ALTER TABLE service_agents ALTER COLUMN point_of_contact SET NOT NULL;")
