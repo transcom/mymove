@@ -5,6 +5,7 @@ import { formatPayload } from 'shared/utils';
 export async function RetrieveShipmentsForTSP(queueType) {
   const queueToStatus = {
     new: ['AWARDED'],
+    approved: ['APPROVED'],
     all: [],
   };
   /* eslint-disable security/detect-object-injection */
