@@ -224,7 +224,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		count += split
 		for _, shipment := range subShipmentList {
 			var offerState *bool
-			if shipment.Status == models.ShipmentStatusACCEPTED || shipment.Status == models.ShipmentStatusAWARDED {
+			if shipment.Status == models.ShipmentStatusACCEPTED || shipment.Status == models.ShipmentStatusAPPROVED {
 				offerState = models.BoolPointer(true)
 			}
 			shipmentOfferAssertions := Assertions{
