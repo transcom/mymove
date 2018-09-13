@@ -35,5 +35,5 @@ function officeUserViewsServiceAgents() {
   });
 
   // Verify that the Service Agent Panel contains expected data
-  cy.get('span').contains('Jenny at ACME Movers');
+  cy.get('span').contains('ACME Movers');
 }

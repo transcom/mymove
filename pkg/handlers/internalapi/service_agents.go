@@ -15,7 +15,7 @@ func payloadForServiceAgentModel(s models.ServiceAgent) *internalmessages.Servic
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 		Role:             internalmessages.ServiceAgentRole(s.Role),
-		PointOfContact:   handlers.FmtString(s.PointOfContact),
+		Company:          handlers.FmtString(s.Company),
 		Email:            s.Email,
 		PhoneNumber:      s.PhoneNumber,
 		FaxNumber:        s.FaxNumber,

@@ -18,11 +18,7 @@ const ServiceAgentDisplay = props => {
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          fieldName="point_of_contact"
-          nullWarning
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="company" nullWarning {...fieldProps} />
         <PanelSwaggerField fieldName="email" nullWarning {...fieldProps} />
         <PanelSwaggerField
           fieldName="phone_number"
