@@ -1,0 +1,42 @@
+# Database Development Guide
+
+## Migrations
+
+If you need to change the database schema, you'll need to write a migration.
+
+Creating a migration:
+
+Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `./bin/soda` that sets the go environment and working directory correctly.
+
+If you are generating a new model, use `./bin/gen_model model-name column-name:type column-name:type ...`. id, created_at and updated_at are all created automatically.
+
+If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/gobuffalo/fizz) yourself to the created files.
+
+## Secure Migrations
+
+**NOTICE**: Before adding SSNs or other PII, please consult with Infra.
+
+We are piggy-backing on the migration system for importing static datasets. This approach causes problems if the data isn't public, as all of the migrations are in this open source repository. To address this, we have what are called "secure migrations."
+
+To create a secure migration:
+
+* Generate new migration files: `bin/generate-secure-migration <migration_name>`
+  * This creates two migration files: a local test file with no secret data, and a production file to be uploaded to S3 that will have sensitive data.
+* Edit the production migration first, and put whatever sensitive data in it that you need to.
+* Copy the production migration into the local test migration.
+* Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
+* Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
+* Upload the migration to S3 with: `bin/upload-secure-migration <production_migration_file>`
+* Open a pull request!
+* When the pull request lands, the production migrations will be run on Staging and Prod.
+
+Gory Details:
+
+When this migration is run, `soda` will shell out to our script, `apply-secure-migration.sh`. This script will:
+
+* Look at `$SECURE_MIGRATION_SOURCE` to determine if the migrations should be found locally (`local`, for dev & testing,) or on S3 (`s3`).
+* If the file is to be found on S3, it is downloaded from `${AWS_S3_BUCKET_NAME}/secure-migrations/${FILENAME}`.
+* If it is to be found locally, the script looks for it in `$SECURE_MIGRATION_DIR`.
+* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql < ${FILENAME}`.
+
+There is an example of a secure migration [in the repo](https://github.com/transcom/mymove/blob/master/migrations/20180424010930_test_secure_migrations.up.fizz).
