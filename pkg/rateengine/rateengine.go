@@ -145,6 +145,86 @@ func (re *RateEngine) ComputePPM(
 	return cost, nil
 }
 
+// ComputeShipment Calculates the cost of an HHG move.
+func (re *RateEngine) ComputeShipment(
+	weight unit.Pound,
+	originZip5 string,
+	destinationZip5 string,
+	date time.Time,
+	daysInSIT int,
+	lhDiscount unit.DiscountRate,
+	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
+
+	// Weights below 1000lbs are prorated to the 1000lb rate
+	prorateFactor := 1.0
+	if weight.Int() < 1000 {
+		prorateFactor = weight.Float64() / 1000.0
+		weight = unit.Pound(1000)
+	}
+
+	// Linehaul charges
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	if err != nil {
+		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
+		return
+	}
+
+	// Non linehaul charges
+	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	if err != nil {
+		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
+		return
+	}
+
+	// Apply linehaul discounts
+	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
+	nonLinehaulCostComputation.OriginServiceFee = lhDiscount.Apply(nonLinehaulCostComputation.OriginServiceFee)
+	nonLinehaulCostComputation.DestinationServiceFee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationServiceFee)
+	nonLinehaulCostComputation.PackFee = lhDiscount.Apply(nonLinehaulCostComputation.PackFee)
+	nonLinehaulCostComputation.UnpackFee = lhDiscount.Apply(nonLinehaulCostComputation.UnpackFee)
+
+	// SIT
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	destinationZip3 := Zip5ToZip3(destinationZip5)
+	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+	if err != nil {
+		re.logger.Info("Can't calculate sit")
+		return
+	}
+	sitFee := sitDiscount.Apply(sit)
+
+	/// Max SIT
+	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
+	if err != nil {
+		re.logger.Info("Can't calculate max sit")
+		return
+	}
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	maxSITFee := sitDiscount.Apply(maxSIT)
+
+	// Totals
+	gcc := linehaulCostComputation.LinehaulChargeTotal +
+		nonLinehaulCostComputation.OriginServiceFee +
+		nonLinehaulCostComputation.DestinationServiceFee +
+		nonLinehaulCostComputation.PackFee +
+		nonLinehaulCostComputation.UnpackFee
+
+	cost = CostComputation{
+		LinehaulCostComputation:    linehaulCostComputation,
+		NonLinehaulCostComputation: nonLinehaulCostComputation,
+		SITFee: sitFee,
+		SITMax: maxSITFee,
+		GCC:    gcc,
+	}
+
+	// Finally, scale by prorate factor
+	cost.Scale(prorateFactor)
+
+	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
+
+	return cost, nil
+}
+
 // NewRateEngine creates a new RateEngine
 func NewRateEngine(db *pop.Connection, logger *zap.Logger, planner route.Planner) *RateEngine {
 	return &RateEngine{db: db, logger: logger, planner: planner}
