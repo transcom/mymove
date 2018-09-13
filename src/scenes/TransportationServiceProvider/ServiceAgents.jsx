@@ -6,7 +6,7 @@ import { reduxForm, getFormValues } from 'redux-form';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { editablePanelify } from 'shared/EditablePanel';
-import { createOrUpdateServiceAgent } from 'shared/ServiceAgents/ducks';
+import { createOrUpdateServiceAgent } from './ducks';
 
 import { PanelSwaggerField } from 'shared/EditablePanel';
 

@@ -5,12 +5,8 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { editablePanelify } from 'shared/EditablePanel';
-import { createOrUpdateServiceAgent } from 'shared/ServiceAgents/ducks';
-
-import { PanelSwaggerField } from 'shared/EditablePanel';
-
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
+import { no_op } from 'shared/utils';
 
 const ServiceAgentDisplay = props => {
   let serviceAgent = props.initialValues || {};
@@ -38,19 +34,7 @@ const ServiceAgentDisplay = props => {
   );
 };
 
-const ServiceAgentEdit = props => {
-  const schema = props.schema;
-  return (
-    <Fragment>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="point_of_contact" swagger={schema} required />
-        <SwaggerField fieldName="email" swagger={schema} required />
-        <SwaggerField fieldName="phone_number" swagger={schema} required />
-      </div>
-    </Fragment>
-  );
-};
-
+const ServiceAgentEdit = 'uneditable';
 const formName = 'service_agents_panel';
 const editEnabled = false;
 let ServiceAgentPanel = editablePanelify(
@@ -132,7 +116,7 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: createOrUpdateServiceAgent,
+      update: no_op,
     },
     dispatch,
   );
