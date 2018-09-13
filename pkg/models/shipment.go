@@ -105,7 +105,7 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 // Submit marks the Shipment request for review
 func (s *Shipment) Submit() error {
-	if s.Status != ShipmentStatusDRAFT {
+	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	s.Status = ShipmentStatusSUBMITTED
@@ -285,6 +285,32 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	return &shipments[0], err
 }
 
+// saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer
+func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *ShipmentOffer) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
+	// wrapped in a transaction because if one fails this actions should roll back.
+	responseVErrors := validate.NewErrors()
+	var responseError error
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment status to %s", shipment.Status)
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndUpdate(offer); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment offer status %v", offer.Accepted)
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return shipment, offer, responseVErrors, responseError
+}
+
 // AwardShipment sets the shipment as awarded.
 func AwardShipment(db *pop.Connection, shipmentID uuid.UUID) error {
 	var shipment Shipment
@@ -331,28 +357,36 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 		return shipment, shipmentOffer, nil, err
 	}
 
-	// Validate and update the Shipment and Shipment Offer
-	// wrapped in a transaction because if one fails this actions should roll back.
-	responseVErrors := validate.NewErrors()
-	var responseError error
-	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("rollback")
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
 
-		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment status to ACCEPTED")
-			return transactionError
-		}
-		if verrs, err := db.ValidateAndUpdate(shipmentOffer); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment offer status to ACCEPTED")
-			return transactionError
-		}
+// RejectShipmentForTSP accepts a shipment and shipment_offer
+func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, rejectionReason string) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
 
-		return nil
-	})
+	// Get the Shipment and Shipment Offer
+	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
 
-	return shipment, shipmentOffer, responseVErrors, responseError
+	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	// Move the shipment back to Submitted and Reject the shipment offer.
+	err = shipment.Submit()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	err = shipmentOffer.Reject(rejectionReason)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
