@@ -1818,11 +1818,13 @@ definitions:
       - SUBMITTED
       - AWARDED
       - APPROVED
+      - IN_TRANSIT
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       AWARDED: Awarded
       APPROVED: Approved
+      IN_TRANSIT: In Transit
   PPMStatus:
     type: string
     title: PPM status

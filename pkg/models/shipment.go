@@ -31,6 +31,8 @@ const (
 	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
+	// ShipmentStatusINTRANSIT captures enum value "INTRANSIT"
+	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -137,6 +139,15 @@ func (s *Shipment) Approve() error {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 	s.Status = ShipmentStatusAPPROVED
+	return nil
+}
+
+// Transport marks the Shipment request as In Transit. Must be in an Approved state.
+func (s *Shipment) Transport() error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "In Transit")
+	}
+	s.Status = ShipmentStatusINTRANSIT
 	return nil
 }
 
