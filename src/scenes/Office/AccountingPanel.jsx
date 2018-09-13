@@ -21,7 +21,7 @@ const AccountingDisplay = props => {
         <PanelSwaggerField
           title="Department indicator"
           fieldName="department_indicator"
-          nullWarning
+          required
           {...fieldProps}
         />
 
@@ -30,7 +30,7 @@ const AccountingDisplay = props => {
       <div className="editable-panel-column">
         <PanelSwaggerField
           title="TAC"
-          nullWarning
+          required
           fieldName="tac"
           {...fieldProps}
         />

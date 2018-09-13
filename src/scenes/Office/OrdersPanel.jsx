@@ -73,7 +73,7 @@ const OrdersDisplay = props => {
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField
           fieldName="orders_type_detail"
-          nullWarning
+          required
           {...fieldProps}
         />
         <PanelField

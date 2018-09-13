@@ -48,43 +48,43 @@ const OrdersViewerDisplay = props => {
 
         <PanelSwaggerField
           fieldName="orders_number"
-          nullWarning
+          required
           {...ordersFieldsProps}
         />
 
         <PanelField
           title="Date issued"
-          nullWarning
+          required
           value={formatDate(orders.issue_date)}
         />
 
         <PanelSwaggerField
           fieldName="orders_type"
-          nullWarning
+          required
           {...ordersFieldsProps}
         />
 
         <PanelSwaggerField
           fieldName="orders_type_detail"
-          nullWarning
+          required
           {...ordersFieldsProps}
         />
 
         <PanelField
           title="Report by"
-          nullWarning
+          required
           value={formatDate(orders.report_by_date)}
         />
 
         <PanelField
           title="Current Duty Station"
-          nullWarning
+          required
           value={currentDutyStation}
         />
 
         <PanelField
           title="New Duty Station"
-          nullWarning
+          required
           value={get(orders, 'new_duty_station.name', '')}
         />
 
@@ -95,7 +95,7 @@ const OrdersViewerDisplay = props => {
         <PanelSwaggerField
           title="Dept. Indicator"
           fieldName="department_indicator"
-          nullWarning
+          required
           {...ordersFieldsProps}
         />
 
@@ -113,7 +113,7 @@ const OrdersViewerDisplay = props => {
         <PanelSwaggerField
           title="TAC"
           fieldName="tac"
-          nullWarning
+          required
           {...ordersFieldsProps}
         />
 

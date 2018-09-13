@@ -67,7 +67,7 @@ SwaggerValue.propTypes = {
 };
 
 export const PanelSwaggerField = props => {
-  const { fieldName, nullWarning, schema, values } = props;
+  const { fieldName, required, schema, values } = props;
   const title =
     props.title || get(schema, `properties.${fieldName}.title`, fieldName);
   let component = (
@@ -78,7 +78,7 @@ export const PanelSwaggerField = props => {
   );
 
   /* eslint-disable security/detect-object-injection */
-  if (nullWarning && !values[fieldName]) {
+  if (required && !values[fieldName]) {
     component = (
       <PanelField title={title} className={fieldName} required>
         {props.children}
@@ -95,7 +95,7 @@ PanelSwaggerField.propTypes = {
   values: PropTypes.object.isRequired,
   title: PropTypes.string,
   children: PropTypes.node,
-  nullWarning: PropTypes.bool,
+  required: PropTypes.bool,
 };
 
 export class EditablePanel extends Component {
