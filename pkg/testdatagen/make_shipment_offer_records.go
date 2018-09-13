@@ -21,15 +21,16 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	}
 
 	// Test for TSP ID first before creating a new TSP
-	tspID := assertions.ShipmentOffer.TransportationServiceProviderID
-	if isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
-		tsp := MakeTSP(db, assertions)
-		tspID = tsp.ID
+
+	tsp := assertions.ShipmentOffer.TransportationServiceProvider
+	if isZeroUUID(tsp.ID) || isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
+		tsp = MakeTSP(db, assertions)
 	}
 	shipmentOffer := models.ShipmentOffer{
 		ShipmentID:                      shipment.ID,
 		Shipment:                        shipment,
-		TransportationServiceProviderID: tspID,
+		TransportationServiceProviderID: tsp.ID,
+		TransportationServiceProvider:   tsp,
 		AdministrativeShipment:          false,
 		Accepted:                        nil, // This is a Tri-state and new offers are always nil until accepted
 		RejectionReason:                 nil,

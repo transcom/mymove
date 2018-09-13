@@ -1,6 +1,7 @@
 package models
 
 import (
+	"crypto/sha256"
 	"strings"
 	"time"
 
@@ -9,8 +10,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-
-	"crypto/sha256"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -553,6 +552,13 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 					return transactionError
 				}
 				shipment.SourceGBLOC = &sourceGbloc
+
+				// Assign a new unique GBL number using source GBLOC
+				err = shipment.AssignGBLNumber(db)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error assigning GBL number for shipment")
+					return transactionError
+				}
 
 				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
