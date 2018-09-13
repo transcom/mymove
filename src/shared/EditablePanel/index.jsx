@@ -9,7 +9,7 @@ import Alert from 'shared/Alert';
 import './index.css';
 
 export const PanelField = props => {
-  const { title, value, nullWarning } = props;
+  const { title, value, required } = props;
   const classes = classNames('panel-field', props.className);
   let component = (
     <div className={classes}>
@@ -19,7 +19,7 @@ export const PanelField = props => {
   );
 
   /* eslint-disable security/detect-object-injection */
-  if (nullWarning && !(value || props.children)) {
+  if (required && !(value || props.children)) {
     component = (
       <div className={'missing ' + classes}>
         <span className="field-title">{title}</span>
@@ -36,7 +36,7 @@ PanelField.propTypes = {
   value: PropTypes.string,
   children: PropTypes.node,
   className: PropTypes.string,
-  nullWarning: PropTypes.bool,
+  required: PropTypes.bool,
 };
 
 export const SwaggerValue = props => {
@@ -80,8 +80,7 @@ export const PanelSwaggerField = props => {
   /* eslint-disable security/detect-object-injection */
   if (nullWarning && !values[fieldName]) {
     component = (
-      <PanelField title={title} className={'missing ' + fieldName}>
-        missing
+      <PanelField title={title} className={fieldName} required>
         {props.children}
       </PanelField>
     );
