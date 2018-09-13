@@ -210,8 +210,6 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 			strconv.Itoa(gbl.DateIssued.Year()) + " " +
 			fmt.Sprintf("%.2f%%", *gbl.LineHaulTransportationRate*100.0)
 	}
-	fmt.Println(gbl.LineHaulTransportationRate)
-	fmt.Println(gbl.TariffOrSpecialRateAuthorities)
 
 	return gbl, nil
 }
