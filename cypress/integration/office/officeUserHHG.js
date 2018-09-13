@@ -13,7 +13,7 @@ describe('office user finds the shipment', function() {
     officeUserViewsInTransitShipment();
   });
   it('office user approves basics for move, verifies and approves HHG shipment', function() {
-    officeUserApprovesMoveAndApprovesHHG();
+    officeUserApprovesHHG();
   });
 });
 
@@ -97,7 +97,7 @@ function officeUserViewsInTransitShipment() {
   });
 }
 
-function officeUserApprovesMoveAndApprovesHHG() {
+function officeUserApprovesHHG() {
   // Open accepted hhg queue
   cy.visit('/queues/hhg_accepted');
   cy.location().should(loc => {

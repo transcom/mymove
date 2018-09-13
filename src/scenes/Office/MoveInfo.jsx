@@ -110,11 +110,6 @@ class MoveInfo extends Component {
     this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
   }
 
-  get currentTab() {
-    const pathnames = this.props.location.pathname.split('/');
-    return pathnames[pathnames.length - 1];
-  }
-
   approveBasics = () => {
     this.props.approveBasics(this.props.match.params.moveId);
   };
@@ -170,6 +165,11 @@ class MoveInfo extends Component {
     const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
+    const isPPM = !isEmpty(this.props.officePPM);
+    const isHHG = !isEmpty(this.props.officeHHG);
+    const pathnames = this.props.location.pathname.split('/');
+    const currentTab = pathnames[pathnames.length - 1];
+
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
@@ -255,13 +255,13 @@ class MoveInfo extends Component {
                   {capitalize(move.status)}
                 </span>
               </NavTab>
-              {!isEmpty(ppm) && (
+              {isPPM && (
                 <NavTab to="/ppm">
                   <span className="title">PPM</span>
                   {this.renderPPMTabStatus()}
                 </NavTab>
               )}
-              {!isEmpty(hhg) && (
+              {isHHG && (
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
@@ -288,12 +288,10 @@ class MoveInfo extends Component {
                   path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
-                !isEmpty(ppm) &&
                 <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
                 />
-                !isEmpty(hhg) &&
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
@@ -325,29 +323,36 @@ class MoveInfo extends Component {
                 Approve Basics
                 {move.status === 'APPROVED' && check}
               </button>
-              <button
-                onClick={this.approvePPM}
-                disabled={
-                  ppmApproved || move.status !== 'APPROVED' || !ordersComplete
-                }
-                style={{ backgroundColor: ppmApproved && 'green' }}
-              >
-                Approve PPM
-                {ppmApproved && check}
-              </button>
-              <button
-                onClick={this.approveHHG}
-                disabled={
-                  hhgApproved ||
-                  move.status !== 'APPROVED' ||
-                  !ordersComplete ||
-                  this.currentTab !== 'hhg'
-                }
-                style={{ backgroundColor: hhgApproved && 'green' }}
-              >
-                Approve Shipments
-                {hhgApproved && check}
-              </button>
+              {isPPM ? (
+                <button
+                  onClick={this.approvePPM}
+                  disabled={
+                    !isPPM ||
+                    ppmApproved ||
+                    move.status !== 'APPROVED' ||
+                    !ordersComplete
+                  }
+                  style={{ backgroundColor: ppmApproved && 'green' }}
+                >
+                  Approve PPM
+                  {ppmApproved && check}
+                </button>
+              ) : (
+                <button
+                  onClick={this.approveHHG}
+                  disabled={
+                    hhgApproved ||
+                    move.status !== 'APPROVED' ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
+                  style={{ backgroundColor: hhgApproved && 'green' }}
+                >
+                  Approve Shipments
+                  {hhgApproved && check}
+                </button>
+              )}
+
               <CancelPanel cancelMove={this.cancelMove} />
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
