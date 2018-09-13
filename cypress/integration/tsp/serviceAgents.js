@@ -43,23 +43,23 @@ describe('TSP User enters and updates Service Agents', function() {
 function getFixture(role) {
   return {
     Origin: {
-      PointOfContact: 'Jenny at ACME Movers',
-      Email: 'jenny_acme@example.com',
+      Company: 'ACME Movers',
+      Email: 'acme@example.com',
       Phone: '303-867-5309',
     },
     OriginUpdate: {
-      PointOfContact: 'Jen at ACME Movers',
-      Email: 'jen_acme@example.com',
+      Company: 'ACME Movers',
+      Email: 'acmemovers@example.com',
       Phone: '303-867-5308',
     },
     Destination: {
-      PointOfContact: 'Alice at ACME Movers',
-      Email: 'alice_acme@example.com',
+      Company: 'ACE Movers',
+      Email: 'acmemoving@example.com',
       Phone: '303-867-5310',
     },
     DestinationUpdate: {
-      PointOfContact: 'Bob at ACME Movers',
-      Email: 'bob_acme@example.com',
+      Company: 'ACE Moving Company',
+      Email: 'moveme@example.com',
       Phone: '303-867-5311',
     },
   }[role];
@@ -94,9 +94,9 @@ function tspUserInputsServiceAgent(role) {
 
   // Enter details in form
   cy
-    .get('input[name="point_of_contact"]')
+    .get('input[name="company"]')
     .first()
-    .type(fixture.PointOfContact)
+    .type(fixture.Company)
     .blur();
   cy
     .get('input[name="email"]')
@@ -115,7 +115,7 @@ function tspUserClearsServiceAgent(role) {
 
   // Clear details in form
   cy
-    .get('input[name="point_of_contact"]')
+    .get('input[name="company"]')
     .clear()
     .blur();
   cy
@@ -141,7 +141,7 @@ function tspUserCancelsServiceAgent(role) {
 
   // Verify data has been saved in the UI
   cy
-    .get('div.point_of_contact')
+    .get('div.company')
     .get('span')
     .contains('missing');
   cy
@@ -169,9 +169,9 @@ function tspUserSavesServiceAgent(role) {
 
   // Verify data has been saved in the UI
   cy
-    .get('div.point_of_contact')
+    .get('div.company')
     .get('span')
-    .contains(fixture.PointOfContact);
+    .contains(fixture.Company);
   cy
     .get('div.email')
     .get('span')
@@ -185,9 +185,9 @@ function tspUserSavesServiceAgent(role) {
   cy.reload();
 
   cy
-    .get('div.point_of_contact')
+    .get('div.company')
     .get('span')
-    .contains(fixture.PointOfContact);
+    .contains(fixture.Company);
   cy
     .get('div.email')
     .get('span')

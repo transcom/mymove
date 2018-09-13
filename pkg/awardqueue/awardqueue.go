@@ -31,15 +31,15 @@ type AwardQueue struct {
 	logger *zap.Logger
 }
 
-func (aq *AwardQueue) findAllUnassignedShipments() ([]models.ShipmentWithOffer, error) {
-	shipments, err := models.FetchShipments(aq.db, true)
+func (aq *AwardQueue) findAllUnassignedShipments() (models.Shipments, error) {
+	shipments, err := models.FetchUnofferedShipments(aq.db)
 	return shipments, err
 }
 
 // attemptShipmentOffer will attempt to take the given Shipment and award it to
 // a TSP.
 // TODO: refactor this method to ensure the transaction is wrapping what it needs to
-func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*models.ShipmentOffer, error) {
+func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.ShipmentOffer, error) {
 	aq.logger.Info("Attempting to offer shipment", zap.Any("shipment_id", shipment.ID))
 
 	// Query the shipment's TDL
@@ -223,7 +223,7 @@ func (aq *AwardQueue) Run() error {
 // ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
 // to see if it falls within the window created by the blackout date record and if it matches on
 // optional fields COS, channel, GBLOC, and market.
-func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
+func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.Shipment) (bool, error) {
 	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
 
 	if err != nil {

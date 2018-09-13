@@ -590,10 +590,10 @@ definitions:
         readOnly: true
       role:
         $ref: '#/definitions/ServiceAgentRole'
-      point_of_contact:
+      company:
         type: string
-        example: Jenny at ACME Movers
-        title: Point of Contact
+        example: ACME Movers
+        title: Company
       email:
         type: string
         format: x-email
@@ -637,7 +637,7 @@ definitions:
         format: date-time
     required:
       - role
-      - point_of_contact
+      - company
   RejectShipment:
     type: object
     properties:

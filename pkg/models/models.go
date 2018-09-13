@@ -22,6 +22,12 @@ func Int64Pointer(i int64) *int64 {
 	return &i
 }
 
+// Float64Pointer allows you to take the address of a float64 literal.
+// It is useful for initializing float64 pointer fields in model construction
+func Float64Pointer(i float64) *float64 {
+	return &i
+}
+
 // TimePointer allows you to take the address of a time.Time literal.
 // It is useful for initializing time.Time pointer fields in model construction
 func TimePointer(t time.Time) *time.Time {

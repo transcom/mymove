@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -83,6 +85,39 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 	ppm0.Move.Submit()
 	models.SaveMoveDependencies(db, &ppm0.Move)
+
+	/*
+	 * A move, that will be canceled by the E2E test
+	 */
+	email = "ppm-to-cancel@example.com"
+	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb7"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	nowTime = time.Now()
+	ppmToCancel := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5ca"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc9"),
+			Locator: "CANCEL",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+		},
+		Uploader: loader,
+	})
+	ppmToCancel.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmToCancel.Move)
 
 	/*
 	 * Service member with a ppm in progress
@@ -297,6 +332,19 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	 */
 	email = "hhg@fromawardedtoaccept.ed"
 
+	packDate := time.Now().AddDate(0, 0, 1)
+	pickupDate := time.Now().AddDate(0, 0, 5)
+	deliveryDate := time.Now().AddDate(0, 0, 10)
+	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ABCD",
+		},
+	})
+	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "QRED",
+		},
+	})
 	offer2 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("179598c5-a5ee-4da5-8259-29749f03a398")),
@@ -308,6 +356,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			LastName:      models.StringPointer("ReadyForAccept"),
 			Edipi:         models.StringPointer("4444567890"),
 			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("17"),
+			TAC:                 models.StringPointer("NTA4"),
+			SAC:                 models.StringPointer("1234567890 9876543210"),
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("849a7880-4a82-4f76-acb4-63cf481e786b"),
@@ -321,10 +374,36 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAWARDED,
+			ID:                          uuid.FromStringOrNil("53ebebef-be58-41ce-9635-a4930149190d"),
+			Status:                      models.ShipmentStatusAWARDED,
+			PmSurveyPlannedPackDate:     &packDate,
+			PmSurveyPlannedPickupDate:   &pickupDate,
+			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+		},
+	})
+
+	_, err := testdatagen.MakeTSPPerformance(db,
+		tspUser.TransportationServiceProvider,
+		*offer2.Shipment.TrafficDistributionList,
+		models.IntPointer(3),
+		0.40,
+		5,
+		unit.DiscountRate(0.50),
+		unit.DiscountRate(0.55))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer2.Shipment,
+			ShipmentID: offer2.ShipmentID,
 		},
 	})
 
