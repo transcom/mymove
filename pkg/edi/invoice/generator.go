@@ -26,6 +26,7 @@ type CostByShipment struct {
 
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (string, error) {
+	interchangeControlNumber := 1 //TODO: increment this
 	currentTime := time.Now()
 	isa := edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
@@ -40,7 +41,7 @@ func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (strin
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
 		InterchangeControlVersionNumber:   "00401",
-		InterchangeControlNumber:          1,
+		InterchangeControlNumber:          interchangeControlNumber,
 		AcknowledgementRequested:          1,
 		UsageIndicator:                    "T", // T for test, P for production
 		ComponentElementSeparator:         "|",
@@ -76,7 +77,7 @@ func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (strin
 	}
 	iea := edisegment.IEA{
 		NumberOfIncludedFunctionalGroups: 1,
-		InterchangeControlNumber:         1,
+		InterchangeControlNumber:         interchangeControlNumber,
 	}
 
 	transaction += (ge.String(delimiter) + iea.String(delimiter))
