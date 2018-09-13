@@ -1,5 +1,19 @@
 # Database Development Guide
 
+## Table of Contents
+
+<!-- Table of Contents auto-generated with `bin/generate-md-toc.sh` -->
+
+<!-- toc -->
+
+* [Migrations](#migrations)
+* [Zero-Downtime Migrations](#zero-downtime-migrations)
+* [Secure Migrations](#secure-migrations)
+
+Regenerate with "bin/generate-md-toc.sh"
+
+<!-- tocstop -->
+
 ## Migrations
 
 If you need to change the database schema, you'll need to write a migration.
