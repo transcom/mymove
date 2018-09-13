@@ -223,10 +223,15 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		subShipmentList := shipmentList[count : count+split]
 		count += split
 		for _, shipment := range subShipmentList {
+			var offerState *bool
+			if shipment.Status == models.ShipmentStatusACCEPTED || shipment.Status == models.ShipmentStatusAWARDED {
+				offerState = models.BoolPointer(true)
+			}
 			shipmentOfferAssertions := Assertions{
 				ShipmentOffer: models.ShipmentOffer{
 					ShipmentID:                      shipment.ID,
 					TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+					Accepted:                        offerState,
 				},
 			}
 			shipmentOffer := MakeShipmentOffer(db, shipmentOfferAssertions)
