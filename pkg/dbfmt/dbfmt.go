@@ -9,6 +9,9 @@ import (
 	"github.com/gobuffalo/uuid"
 )
 
+// TODO
+// Print just the object graph
+
 func recursivePrettyStringWithPadding(model interface{}, padding string) string {
 	prettyString := ""
 
