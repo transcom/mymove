@@ -130,3 +130,29 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
 }
+
+// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
+	testData := [][]string{
+		// {GBLOC, expected GBL number}
+		{"GBO1", "GBO17000001"},
+		{"GBO1", "GBO17000002"},
+		{"GBO1", "GBO17000003"},
+		// New GBLOC starts new sequence
+		{"GBO2", "GBO27000001"},
+		// Old sequence should still work
+		{"GBO1", "GBO17000004"},
+	}
+
+	for _, d := range testData {
+		shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+			Shipment: Shipment{
+				SourceGBLOC: &d[0],
+			},
+		})
+		err := shipment.AssignGBLNumber(suite.db)
+		suite.NoError(err)
+		suite.NotNil(shipment.GBLNumber)
+		suite.Equal(*shipment.GBLNumber, d[1])
+	}
+}

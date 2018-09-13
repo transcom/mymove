@@ -50,6 +50,7 @@ type Shipment struct {
 	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
 	SourceGBLOC                         *string                  `json:"source_gbloc" db:"source_gbloc"`
 	DestinationGBLOC                    *string                  `json:"destination_gbloc" db:"destination_gbloc"`
+	GBLNumber                           *string                  `json:"gbl_number" db:"gbl_number"`
 	Market                              *string                  `json:"market" db:"market"`
 	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
 	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
@@ -136,6 +137,43 @@ func (s *Shipment) Approve() error {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 	s.Status = ShipmentStatusAPPROVED
+	return nil
+}
+
+// AssignGBLNumber generates a new valid GBL number for the shipment
+// Note: This doens't save the Shipment, so this should always be run as part of
+// another transaction that saves the shipment after assigning a GBL number
+func (s *Shipment) AssignGBLNumber(db *pop.Connection) error {
+	if s.SourceGBLOC == nil {
+		return errors.New("Shipment must have a SourceBLOC to be assigned a GBL number")
+	}
+
+	// We only assign a GBL number once
+	if s.GBLNumber != nil {
+		return errors.New("Shipment already has GBL number assigned")
+	}
+
+	var sequenceNumber int32
+	sql := `INSERT INTO gbl_number_trackers AS gbl (gbloc, sequence_number)
+			VALUES ($1, 1)
+		ON CONFLICT (gbloc)
+		DO
+			UPDATE
+				SET sequence_number = gbl.sequence_number + 1
+				WHERE gbl.gbloc = $1
+		RETURNING gbl.sequence_number
+	`
+
+	err := db.RawQuery(sql, *s.SourceGBLOC).First(&sequenceNumber)
+	if err != nil {
+		return errors.Wrap(err, "Error while incrementing GBL counter")
+	}
+
+	// Format is XXXX7000001
+	fullGBLNumber := fmt.Sprintf("%v7%06d", *s.SourceGBLOC, sequenceNumber)
+
+	s.GBLNumber = &fullGBLNumber
+
 	return nil
 }
 

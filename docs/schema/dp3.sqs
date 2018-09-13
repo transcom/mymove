@@ -1260,6 +1260,31 @@
         <uid><![CDATA[55C7CDC6-65DA-4D09-9458-143958183C46]]></uid>
     </SQLTable>
     <SQLTable>
+        <name><![CDATA[gbl_number_trackers]]></name>
+        <schema><![CDATA[]]></schema>
+        <location>
+            <x>670.00</x>
+            <y>2337.00</y>
+        </location>
+        <size>
+            <width>248.00</width>
+            <height>60.00</height>
+        </size>
+        <zorder>37</zorder>
+        <SQLField>
+            <name><![CDATA[sequence_number]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[1629DA53-F505-491F-919F-910E6A1E016D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[gbloc]]></name>
+            <type><![CDATA[CHARACTER VARYING(255)]]></type>
+            <uid><![CDATA[118C8416-4C59-4B58-9379-CF17BE6B9E59]]></uid>
+            <unique><![CDATA[1]]></unique>
+        </SQLField>
+        <uid><![CDATA[56A2B876-2FFC-4E5A-AC8D-488E6D4335D2]]></uid>
+    </SQLTable>
+    <SQLTable>
         <name><![CDATA[public.reimbursements]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
@@ -1575,7 +1600,7 @@
         </location>
         <size>
             <width>440.00</width>
-            <height>760.00</height>
+            <height>780.00</height>
         </size>
         <zorder>14</zorder>
         <SQLField>
@@ -1860,6 +1885,11 @@
             <name><![CDATA[actual_weight]]></name>
             <type><![CDATA[INTEGER]]></type>
             <uid><![CDATA[6C9E085B-956E-43EA-B186-15F8F1C0F9E1]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[gbl_number]]></name>
+            <type><![CDATA[CHARACTER VARYING(255)]]></type>
+            <uid><![CDATA[873E22A0-BCED-47EA-A929-22DB480603E9]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -3195,17 +3225,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[1246.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[2283.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[1548.000000]]></windowHeight>
-        <windowLocationX><![CDATA[760.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[119.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{0, 433}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[1869.000000]]></windowWidth>
+        <windowHeight><![CDATA[1329.000000]]></windowHeight>
+        <windowLocationX><![CDATA[-3.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[88.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{0, 1232}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[2560.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>
