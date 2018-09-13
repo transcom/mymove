@@ -183,6 +183,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			originServiceAgentAssertions := Assertions{
 				ServiceAgent: models.ServiceAgent{
 					ShipmentID: shipment.ID,
+					Shipment:   &shipment,
 					Role:       models.RoleORIGIN,
 				},
 			}
@@ -190,6 +191,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			destinationServiceAgentAssertions := Assertions{
 				ServiceAgent: models.ServiceAgent{
 					ShipmentID: shipment.ID,
+					Shipment:   &shipment,
 					Role:       models.RoleDESTINATION,
 				},
 			}
