@@ -102,17 +102,14 @@ func (suite *DBFmtSuite) TestTheDBFmt() {
 	moveID := move.ID
 
 	move = models.Move{}
-	err := suite.db.Eager("Orders").Find(&move, moveID.String())
-	if err != nil {
-		fmt.Println("Well then? ", err)
-		suite.Fail("UNLOADEd")
-		suite.T().Fatal()
-	}
+	err := suite.db.Eager("Orders.Moves").Find(&move, moveID.String())
+	suite.Nil(err)
+
+	littlemove := move.Orders.Moves[0]
+	move.Orders.Moves = append(move.Orders.Moves, littlemove)
 
 	goodString := PrettyString(move)
-	fmt.Println("----------------")
 	fmt.Println(goodString)
-	// fmt.Println("LOLOLO", PrettyString(move))
 
 	suite.Fail("NONO")
 
