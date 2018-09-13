@@ -144,7 +144,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				o.issue_date AS orders_issue_date,
 				concat_ws(' ', o.orders_number, o.paragraph_number, o.orders_issuing_agency) AS authority_for_shipment,
 				CASE WHEN o.has_dependents THEN 'WD' ELSE 'WOD' END AS service_member_dependent_status,
-				sa.point_of_contact AS service_agent_name,
+				sa.company AS service_agent_name,
 				tsp.standard_carrier_alpha_code,
 				tdl.code_of_service,
 				source_to.name AS full_name_of_shipper,
@@ -184,7 +184,6 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				AND s.pm_survey_planned_pickup_date IS NOT NULL
 				AND s.pm_survey_planned_delivery_date IS NOT NULL
 				AND sm.edipi IS NOT NULL
-				AND sa.point_of_contact IS NOT NULL
 				AND o.department_indicator IS NOT NULL
 				AND o.sac IS NOT NULL
 				AND o.tac IS NOT NULL

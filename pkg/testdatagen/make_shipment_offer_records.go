@@ -130,14 +130,10 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	sourceGBLOC := "OHAI"
 	oneWeek, _ := time.ParseDuration("7d")
 	selectedMoveType := "HHG"
-	moveAssertions := Assertions{
-		Move: models.Move{
-			SelectedMoveType: &selectedMoveType,
-		},
-	}
 	if len(statuses) == 0 {
 		statuses = []models.ShipmentStatus{
 			models.ShipmentStatusDRAFT,
+			models.ShipmentStatusSUBMITTED,
 			models.ShipmentStatusAWARDED,
 			models.ShipmentStatusACCEPTED}
 	}
@@ -145,13 +141,28 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
 		nowPlusTwo := now.Add(oneWeek * 2)
+
+		// Service Member Details
 		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
-		moveAssertions.User.LoginGovEmail = smEmail
-		move := MakeMove(db, moveAssertions)
-		status := statuses[rand.Intn(len(statuses))]
+
+		// Shipment Details
+		shipmentStatus := statuses[rand.Intn(len(statuses))]
+
+		// Move Details
+		moveStatus := models.MoveStatusDRAFT
+		if shipmentStatus == models.ShipmentStatusSUBMITTED {
+			moveStatus = models.MoveStatusSUBMITTED
+		} else if shipmentStatus != models.ShipmentStatusDRAFT {
+			moveStatus = models.MoveStatusAPPROVED
+		}
+
 		shipmentAssertions := Assertions{
 			User: models.User{
 				LoginGovEmail: smEmail,
+			},
+			Move: models.Move{
+				SelectedMoveType: &selectedMoveType,
+				Status:           moveStatus,
 			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
@@ -160,9 +171,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
-				Move:                    move,
-				MoveID:                  move.ID,
-				Status:                  status,
+				Status:                  shipmentStatus,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
@@ -170,7 +179,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 		// Accepted shipments must have an OSA and DSA
 		// This does not cover making any SA's for shipments that have statuses after Accepted (like Approved)
-		if status == models.ShipmentStatusACCEPTED {
+		if shipmentStatus == models.ShipmentStatusACCEPTED {
 			originServiceAgentAssertions := Assertions{
 				ServiceAgent: models.ServiceAgent{
 					ShipmentID: shipment.ID,

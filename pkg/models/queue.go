@@ -18,6 +18,7 @@ type MoveQueueItem struct {
 	Locator          string                              `json:"locator" db:"locator"`
 	Status           string                              `json:"status" db:"status"`
 	PpmStatus        *string                             `json:"ppm_status" db:"ppm_status"`
+	HhgStatus        *string                             `json:"hhg_status" db:"hhg_status"`
 	OrdersType       string                              `json:"orders_type" db:"orders_type"`
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
 	CustomerDeadline time.Time                           `json:"customer_deadline" db:"customer_deadline"`
@@ -28,7 +29,6 @@ type MoveQueueItem struct {
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
 func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueItem, error) {
 	var moveQueueItems []MoveQueueItem
-	// TODO: add clause `JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id`
 	var query string
 
 	if lifecycleState == "new" {
@@ -68,6 +68,27 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.status = 'APPROVED'
+		`
+	} else if lifecycleState == "hhg_accepted" {
+		// Move date is the Requested Pickup Date because accepted shipments haven't yet gone through the
+		// premove survey to set the actual Pickup Date.
+		query = `
+			SELECT moves.ID,
+				COALESCE(sm.edipi, '*missing*') as edipi,
+				COALESCE(sm.rank, '*missing*') as rank,
+				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+				moves.locator as locator,
+				ord.orders_type as orders_type,
+				shipment.requested_pickup_date as move_date,
+				moves.created_at as created_at,
+				moves.updated_at as last_modified_date,
+				moves.status as status,
+				shipment.status as hhg_status
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
+			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
+			WHERE shipment.status = 'ACCEPTED'
 		`
 	} else if lifecycleState == "all" {
 		query = `

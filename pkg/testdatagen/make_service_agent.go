@@ -17,12 +17,12 @@ func MakeServiceAgent(db *pop.Connection, assertions Assertions) models.ServiceA
 	}
 
 	serviceAgent := models.ServiceAgent{
-		ShipmentID:     shipment.ID,
-		Shipment:       shipment,
-		Role:           models.RoleORIGIN,
-		PointOfContact: "Jenny at ACME Movers",
-		PhoneNumber:    stringPointer("303-867-5309"),
-		Email:          stringPointer("jenny_acme@example.com"),
+		ShipmentID:  shipment.ID,
+		Shipment:    shipment,
+		Role:        models.RoleORIGIN,
+		Company:     "ACME Movers",
+		PhoneNumber: stringPointer("303-867-5309"),
+		Email:       stringPointer("acme@example.com"),
 	}
 
 	mergeModels(&serviceAgent, assertions.ServiceAgent)
