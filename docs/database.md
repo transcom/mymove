@@ -12,6 +12,17 @@ If you are generating a new model, use `./bin/gen_model model-name column-name:t
 
 If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/gobuffalo/fizz) yourself to the created files.
 
+## Zero-Downtime Migrations
+
+As a good practice, all of our migrations should create a database state that works both with the current version of the application code _and_ the new version of the application code. This allows us to run migrations before the new app code is live without creating downtime for our users.
+
+Eg: If we need to rename a column, doing a traditional rename would cause the app to fail if the database changes went live before the new application code (pointing to the new column name) went live. Instead, this should be done in a two-stage process.
+
+1. Write a migration adding a new column with the preferred name and copy the data from the old column into it. The old column will effectively be deprecated at this point.
+2. After the migration and new app code have been deployed to production, write a second migration to remove the old/deprecated column.
+
+Similarly, if a column needs to be dropped, we should deprecate the column in one pull request and then actually remove it in a follow-up pull request. Deprecation can be done by renaming the column to `deprecated_column_name`. This process has an added side affect of helping us keep our migrations reversible, since columns can always be re-added, but getting old data back into those columns is a more difficult process.
+
 ## Secure Migrations
 
 **NOTICE**: Before adding SSNs or other PII, please consult with Infra.
