@@ -107,7 +107,7 @@ function officeUserApprovesHHG() {
   // Find move and open it
   cy
     .get('div')
-    .contains('BACON3')
+    .contains('BACON5')
     .dblclick();
 
   cy.location().should(loc => {

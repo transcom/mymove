@@ -601,6 +601,7 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
+    // HHG STATUS
     case APPROVE_HHG.success:
       return Object.assign({}, state, {
         officeMove: {

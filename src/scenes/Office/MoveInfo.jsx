@@ -353,7 +353,6 @@ class MoveInfo extends Component {
                 </button>
               )}
 
-              <CancelPanel cancelMove={this.cancelMove} />
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
                 reasonPrompt="Why is the move being canceled?"
