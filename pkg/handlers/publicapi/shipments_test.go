@@ -563,8 +563,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	suite.Equal(0, len(okResponse.Payload))
 }
 
-// TestCreateShipmentAcceptHandler tests teh api endpoint that accepts a shipment
-func (suite *HandlerSuite) TestCreateShipmentAcceptHandler() {
+// TestAcceptShipmentHandler tests the api endpoint that accepts a shipment
+func (suite *HandlerSuite) TestAcceptShipmentHandler() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -576,19 +576,61 @@ func (suite *HandlerSuite) TestCreateShipmentAcceptHandler() {
 	shipment := shipments[0]
 
 	// Handler to Test
-	handler := CreateShipmentAcceptHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := AcceptShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	// Test query with first user
 	path := fmt.Sprintf("/shipments/%s/accept", shipment.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	params := shipmentop.CreateShipmentAcceptParams{
+	params := shipmentop.AcceptShipmentParams{
 		HTTPRequest: req,
 		ShipmentID:  *handlers.FmtUUID(shipment.ID),
 	}
 
 	response := handler.Handle(params)
-	suite.Assertions.IsType(&shipmentop.CreateShipmentAcceptOK{}, response)
-	okResponse := response.(*shipmentop.CreateShipmentAcceptOK)
+	suite.Assertions.IsType(&shipmentop.AcceptShipmentOK{}, response)
+	okResponse := response.(*shipmentop.AcceptShipmentOK)
 	suite.Equal("ACCEPTED", string(okResponse.Payload.Status))
+}
+
+// TestRejectShipmentHandler tests the api endpoint that rejects a shipment
+func (suite *HandlerSuite) TestRejectShipmentHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// Handler to Test
+	handler := RejectShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	// Test query with first user
+	path := fmt.Sprintf("/shipments/%s/reject", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	reason := "To Test Rejection"
+	body := apimessages.RejectShipment{
+		Reason: &reason,
+	}
+	params := shipmentop.RejectShipmentParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		Payload:     &body,
+	}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.RejectShipmentOK{}, response)
+	okResponse := response.(*shipmentop.RejectShipmentOK)
+	suite.Equal("SUBMITTED", string(okResponse.Payload.Status))
+
+	shipmentOffer, err := models.FetchShipmentOfferByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	suite.NoError(err)
+
+	suite.Equal(false, *shipmentOffer.Accepted)
+	suite.Equal(reason, *shipmentOffer.RejectionReason)
+
 }

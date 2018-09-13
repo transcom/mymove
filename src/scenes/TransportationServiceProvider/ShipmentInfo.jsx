@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
 
 import { NavLink } from 'react-router-dom';
@@ -13,9 +14,11 @@ import {
   patchShipment,
   acceptShipment,
   generateGBL,
+  rejectShipment,
 } from './ducks';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { formatDate } from 'shared/formatters';
+import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 
@@ -25,9 +28,8 @@ const attachmentsErrorMessages = {
 };
 
 class AcceptShipmentPanel extends Component {
-  rejectShipment = () => {
-    this.setState({ displayState: 'Rejected' });
-    // TODO (rebecca): Add rejection flow
+  rejectShipment = reason => {
+    this.props.rejectShipment(reason);
   };
 
   acceptShipment = () => {
@@ -40,15 +42,22 @@ class AcceptShipmentPanel extends Component {
         <button className="usa-button-primary" onClick={this.acceptShipment}>
           Accept Shipment
         </button>
-        <button className="usa-button-secondary" onClick={this.rejectShipment}>
-          Reject Shipment
-        </button>
+        <ConfirmWithReasonButton
+          buttonTitle="Reject Shipment"
+          reasonPrompt="Why are you rejecting this shipment?"
+          warningPrompt="Are you sure you want to reject this shipment?"
+          onConfirm={this.rejectShipment}
+        />
       </div>
     );
   }
 }
 
 class ShipmentInfo extends Component {
+  state = {
+    redirectToHome: false,
+  };
+
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
   }
@@ -61,11 +70,24 @@ class ShipmentInfo extends Component {
     return this.props.generateGBL(this.props.shipment.id);
   };
 
+  rejectShipment = reason => {
+    return this.props
+      .rejectShipment(this.props.shipment.id, reason)
+      .then(() => {
+        this.setState({ redirectToHome: true });
+      });
+  };
+
   render() {
     const last_name = get(this.props.shipment, 'service_member.last_name');
     const first_name = get(this.props.shipment, 'service_member.first_name');
     const locator = get(this.props.shipment, 'move.locator');
     const awarded = this.props.shipment.status === 'AWARDED';
+
+    if (this.state.redirectToHome) {
+      return <Redirect to="/" />;
+    }
+
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -133,7 +155,7 @@ class ShipmentInfo extends Component {
               {awarded && (
                 <AcceptShipmentPanel
                   acceptShipment={this.acceptShipment}
-                  generateGBL={this.generateGBL}
+                  rejectShipment={this.rejectShipment}
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
@@ -184,6 +206,7 @@ const mapDispatchToProps = dispatch =>
       patchShipment,
       acceptShipment,
       generateGBL,
+      rejectShipment,
     },
     dispatch,
   );

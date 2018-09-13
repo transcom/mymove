@@ -123,13 +123,13 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	return shipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
-// CreateShipmentAcceptHandler allows a TSP to accept a particular shipment
-type CreateShipmentAcceptHandler struct {
+// AcceptShipmentHandler allows a TSP to accept a particular shipment
+type AcceptShipmentHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcceptParams) middleware.Responder {
+func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -140,7 +140,7 @@ func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcce
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewGetShipmentForbidden()
+		return shipmentop.NewAcceptShipmentForbidden()
 	}
 
 	// Accept the shipment
@@ -148,11 +148,11 @@ func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcce
 	if err != nil || verrs.HasAny() {
 		if err == models.ErrFetchNotFound {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return shipmentop.NewGetShipmentBadRequest()
+			return shipmentop.NewAcceptShipmentBadRequest()
 		} else if err == models.ErrInvalidTransition {
 			h.Logger().Info("Attempted to accept shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
 			h.Logger().Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
-			return shipmentop.NewCreateShipmentAcceptConflict()
+			return shipmentop.NewAcceptShipmentConflict()
 		} else {
 			h.Logger().Error("Unknown Error", zap.Error(err))
 			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
@@ -160,17 +160,48 @@ func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcce
 	}
 
 	sp := payloadForShipmentModel(*shipment)
-	return shipmentop.NewCreateShipmentAcceptOK().WithPayload(sp)
+	return shipmentop.NewAcceptShipmentOK().WithPayload(sp)
 }
 
-// CreateShipmentRejectHandler allows a TSP to refuse a particular shipment
-type CreateShipmentRejectHandler struct {
+// RejectShipmentHandler allows a TSP to refuse a particular shipment
+type RejectShipmentHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentRejectHandler) Handle(params shipmentop.CreateShipmentRejectParams) middleware.Responder {
-	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
+func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) middleware.Responder {
+	// set reason, set thing
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewRejectShipmentForbidden()
+	}
+
+	// Reject the shipment
+	shipment, shipmentOffer, verrs, err := models.RejectShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, *params.Payload.Reason)
+	if err != nil || verrs.HasAny() {
+		if err == models.ErrFetchNotFound {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewRejectShipmentBadRequest()
+		} else if err == models.ErrInvalidTransition {
+			h.Logger().Info("Attempted to reject shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+			h.Logger().Info("Attempted to reject shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
+			return shipmentop.NewRejectShipmentConflict()
+		} else {
+			h.Logger().Error("Unknown Error", zap.Error(err))
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+	}
+
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
