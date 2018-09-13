@@ -85,24 +85,6 @@ type Shipment struct {
 	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
-// ShipmentWithOffer represents a single offered shipment within a Service Member's move.
-type ShipmentWithOffer struct {
-	ID                              uuid.UUID  `db:"id"`
-	CreatedAt                       time.Time  `db:"created_at"`
-	UpdatedAt                       time.Time  `db:"updated_at"`
-	BookDate                        *time.Time `db:"book_date"`
-	PickupDate                      *time.Time `db:"pickup_date"`
-	RequestedPickupDate             *time.Time `db:"requested_pickup_date"`
-	TrafficDistributionListID       *uuid.UUID `db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
-	SourceGBLOC                     *string    `db:"source_gbloc"`
-	DestinationGBLOC                *string    `db:"destination_gbloc"`
-	Market                          *string    `db:"market"`
-	Accepted                        *bool      `db:"accepted"`
-	RejectionReason                 *string    `db:"rejection_reason"`
-	AdministrativeShipment          *bool      `db:"administrative_shipment"`
-}
-
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
 
@@ -124,7 +106,7 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 // Submit marks the Shipment request for review
 func (s *Shipment) Submit() error {
-	if s.Status != ShipmentStatusDRAFT {
+	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	s.Status = ShipmentStatusSUBMITTED
@@ -195,52 +177,17 @@ func (s *Shipment) AssignGBLNumber(db *pop.Connection) error {
 	return nil
 }
 
-// FetchShipments looks up all shipments joined with their offer information in a
-// ShipmentWithOffer struct. Optionally, you can only query for unassigned
-// shipments with the `onlyUnassigned` parameter.
-func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
-	shipments := []ShipmentWithOffer{}
-
-	var sql string
-
-	if onlyUnassigned {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id
-			WHERE shipment_offers.id IS NULL`
-	} else {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id`
+// FetchUnofferedShipments will return submitted shipments that do not already have a shipment offer.
+func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
+	var shipments Shipments
+	err := db.Q().
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		Where("shipments.status = ?", ShipmentStatusSUBMITTED).
+		Where("shipment_offers.id is null").
+		All(&shipments)
+	if err != nil {
+		return nil, err
 	}
-
-	err := dbConnection.RawQuery(sql).All(&shipments)
 
 	return shipments, err
 }
@@ -376,6 +323,32 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	return &shipments[0], err
 }
 
+// saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer
+func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *ShipmentOffer) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
+	// wrapped in a transaction because if one fails this actions should roll back.
+	responseVErrors := validate.NewErrors()
+	var responseError error
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment status to %s", shipment.Status)
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndUpdate(offer); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment offer status %v", offer.Accepted)
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return shipment, offer, responseVErrors, responseError
+}
+
 // AwardShipment sets the shipment as awarded.
 func AwardShipment(db *pop.Connection, shipmentID uuid.UUID) error {
 	var shipment Shipment
@@ -422,28 +395,36 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 		return shipment, shipmentOffer, nil, err
 	}
 
-	// Validate and update the Shipment and Shipment Offer
-	// wrapped in a transaction because if one fails this actions should roll back.
-	responseVErrors := validate.NewErrors()
-	var responseError error
-	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("rollback")
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
 
-		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment status to ACCEPTED")
-			return transactionError
-		}
-		if verrs, err := db.ValidateAndUpdate(shipmentOffer); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment offer status to ACCEPTED")
-			return transactionError
-		}
+// RejectShipmentForTSP accepts a shipment and shipment_offer
+func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, rejectionReason string) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
 
-		return nil
-	})
+	// Get the Shipment and Shipment Offer
+	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
 
-	return shipment, shipmentOffer, responseVErrors, responseError
+	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	// Move the shipment back to Submitted and Reject the shipment offer.
+	err = shipment.Submit()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	err = shipmentOffer.Reject(rejectionReason)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
