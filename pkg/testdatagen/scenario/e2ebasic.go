@@ -85,6 +85,39 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	models.SaveMoveDependencies(db, &ppm0.Move)
 
 	/*
+	 * A move, that will be canceled by the E2E test
+	 */
+	email = "ppm-to-cancel@example.com"
+	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb7"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	nowTime = time.Now()
+	ppmToCancel := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5ca"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc9"),
+			Locator: "CANCEL",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+		},
+		Uploader: loader,
+	})
+	ppmToCancel.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmToCancel.Move)
+
+	/*
 	 * Service member with a ppm in progress
 	 */
 	email = "ppm.in@progre.ss"
