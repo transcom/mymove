@@ -2,7 +2,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, omit } from 'lodash';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
 import { formatDate, formatCents } from 'shared/formatters';
@@ -153,7 +153,6 @@ function mapStateToProps(state, props) {
     moveDocument: moveDocument,
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       // Make a copy of values to not modify moveDocument
       let values = JSON.parse(JSON.stringify(getFormValues(formName)(state)));
@@ -171,18 +170,8 @@ function mapStateToProps(state, props) {
         ]);
       }
       if (get(values.moveDocument, 'move_document_type', '') === 'EXPENSE') {
-        values.moveDocument.requested_amount_cents = parseFloat(
-          values.moveDocument.requested_amount_cents,
-        );
-      }
-      let requested_amount = get(
-        values.moveDocument,
-        'requested_amount_cents',
-        '',
-      );
-      if (requested_amount) {
         values.moveDocument.requested_amount_cents = convertDollarsToCents(
-          requested_amount,
+          values.moveDocument.requested_amount_cents,
         );
       }
       return [

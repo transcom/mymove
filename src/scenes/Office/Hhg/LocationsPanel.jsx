@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { editablePanelify } from 'shared/EditablePanel';
 import { addressElementDisplay, addressElementEdit } from '../AddressElement';
@@ -106,7 +106,6 @@ function mapStateToProps(state) {
     isUpdating: state.office.shipmentIsUpdating,
 
     // editablePanel
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [shipment.id, values];

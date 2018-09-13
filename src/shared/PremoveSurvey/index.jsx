@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
-import { reduxForm, FormSection, getFormValues, isValid } from 'redux-form';
+import { reduxForm, FormSection, getFormValues } from 'redux-form';
 
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -160,7 +160,6 @@ function mapStateToProps(state, props) {
     isUpdating: false,
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       return [get(props, 'shipment.id'), formValues.survey];
     },

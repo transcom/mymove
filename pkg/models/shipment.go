@@ -50,13 +50,13 @@ type Shipment struct {
 	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
 	SourceGBLOC                         *string                  `json:"source_gbloc" db:"source_gbloc"`
 	DestinationGBLOC                    *string                  `json:"destination_gbloc" db:"destination_gbloc"`
+	GBLNumber                           *string                  `json:"gbl_number" db:"gbl_number"`
 	Market                              *string                  `json:"market" db:"market"`
 	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
 	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
 	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
-	Move                                *Move                    `belongs_to:"move"`
+	Move                                Move                     `belongs_to:"move"`
 	Status                              ShipmentStatus           `json:"status" db:"status"`
-	CodeOfService                       *string                  `json:"code_of_service" db:"code_of_service"`
 	EstimatedPackDays                   *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays                *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
 	PickupAddressID                     *uuid.UUID               `json:"pickup_address_id" db:"pickup_address_id"`
@@ -73,6 +73,7 @@ type Shipment struct {
 	WeightEstimate                      *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
+	ActualWeight                        *unit.Pound              `json:"actual_weight" db:"actual_weight"`
 	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
 	PmSurveyPlannedPickupDate           *time.Time               `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
@@ -82,25 +83,6 @@ type Shipment struct {
 	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
 	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
 	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
-}
-
-// ShipmentWithOffer represents a single offered shipment within a Service Member's move.
-type ShipmentWithOffer struct {
-	ID                              uuid.UUID  `db:"id"`
-	CreatedAt                       time.Time  `db:"created_at"`
-	UpdatedAt                       time.Time  `db:"updated_at"`
-	BookDate                        *time.Time `db:"book_date"`
-	PickupDate                      *time.Time `db:"pickup_date"`
-	RequestedPickupDate             *time.Time `db:"requested_pickup_date"`
-	TrafficDistributionListID       *uuid.UUID `db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
-	SourceGBLOC                     *string    `db:"source_gbloc"`
-	DestinationGBLOC                *string    `db:"destination_gbloc"`
-	Market                          *string    `db:"market"`
-	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
-	Accepted                        *bool      `db:"accepted"`
-	RejectionReason                 *string    `db:"rejection_reason"`
-	AdministrativeShipment          *bool      `db:"administrative_shipment"`
 }
 
 // Shipments is not required by pop and may be deleted
@@ -124,64 +106,101 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 // Submit marks the Shipment request for review
 func (s *Shipment) Submit() error {
-	if s.Status != ShipmentStatusDRAFT {
+	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
-
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
 
-// FetchShipments looks up all shipments joined with their offer information in a
-// ShipmentWithOffer struct. Optionally, you can only query for unassigned
-// shipments with the `onlyUnassigned` parameter.
-func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
-	shipments := []ShipmentWithOffer{}
+// Award marks the Shipment request as Awarded. Must be in an Submitted state.
+func (s *Shipment) Award() error {
+	if s.Status != ShipmentStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Award")
+	}
+	s.Status = ShipmentStatusAWARDED
+	return nil
+}
 
-	var sql string
+// Accept marks the Shipment request as Accepted. Must be in an Awarded state.
+func (s *Shipment) Accept() error {
+	if s.Status != ShipmentStatusAWARDED {
+		return errors.Wrap(ErrInvalidTransition, "Accept")
+	}
+	s.Status = ShipmentStatusACCEPTED
+	return nil
+}
 
-	if onlyUnassigned {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipments.code_of_service,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id
-			WHERE shipment_offers.id IS NULL`
-	} else {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipments.code_of_service,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id`
+// Approve marks the Shipment request as Approved. Must be in an Accepted state.
+func (s *Shipment) Approve() error {
+	if s.Status != ShipmentStatusACCEPTED {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+	s.Status = ShipmentStatusAPPROVED
+	return nil
+}
+
+// AssignGBLNumber generates a new valid GBL number for the shipment
+// Note: This doens't save the Shipment, so this should always be run as part of
+// another transaction that saves the shipment after assigning a GBL number
+func (s *Shipment) AssignGBLNumber(db *pop.Connection) error {
+	if s.SourceGBLOC == nil {
+		return errors.New("Shipment must have a SourceBLOC to be assigned a GBL number")
 	}
 
-	err := dbConnection.RawQuery(sql).All(&shipments)
+	// We only assign a GBL number once
+	if s.GBLNumber != nil {
+		return errors.New("Shipment already has GBL number assigned")
+	}
+
+	var sequenceNumber int32
+	sql := `INSERT INTO gbl_number_trackers AS gbl (gbloc, sequence_number)
+			VALUES ($1, 1)
+		ON CONFLICT (gbloc)
+		DO
+			UPDATE
+				SET sequence_number = gbl.sequence_number + 1
+				WHERE gbl.gbloc = $1
+		RETURNING gbl.sequence_number
+	`
+
+	err := db.RawQuery(sql, *s.SourceGBLOC).First(&sequenceNumber)
+	if err != nil {
+		return errors.Wrap(err, "Error while incrementing GBL counter")
+	}
+
+	// Format is XXXX7000001
+	fullGBLNumber := fmt.Sprintf("%v7%06d", *s.SourceGBLOC, sequenceNumber)
+
+	s.GBLNumber = &fullGBLNumber
+
+	return nil
+}
+
+// FetchUnofferedShipments will return submitted shipments that do not already have a shipment offer.
+func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
+	var shipments Shipments
+	err := db.Q().
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		Where("shipments.status = ?", ShipmentStatusSUBMITTED).
+		Where("shipment_offers.id is null").
+		All(&shipments)
+	if err != nil {
+		return nil, err
+	}
 
 	return shipments, err
+}
+
+// FetchShipmentForInvoice fetches all the shipment information for generating an invoice
+func FetchShipmentForInvoice(db *pop.Connection, shipmentID uuid.UUID) (Shipment, error) {
+	var shipment Shipment
+	err := db.Q().Eager(
+		"Move.Orders",
+		"PickupAddress",
+		"ServiceMember",
+	).Find(&shipment, shipmentID)
+	return shipment, err
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
@@ -302,6 +321,110 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	}
 
 	return &shipments[0], err
+}
+
+// saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer
+func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *ShipmentOffer) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
+	// wrapped in a transaction because if one fails this actions should roll back.
+	responseVErrors := validate.NewErrors()
+	var responseError error
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment status to %s", shipment.Status)
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndUpdate(offer); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment offer status %v", offer.Accepted)
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return shipment, offer, responseVErrors, responseError
+}
+
+// AwardShipment sets the shipment as awarded.
+func AwardShipment(db *pop.Connection, shipmentID uuid.UUID) error {
+	var shipment Shipment
+	if err := db.Find(&shipment, shipmentID); err != nil {
+		return err
+	}
+
+	if err := shipment.Award(); err != nil {
+		return err
+	}
+
+	verrs, err := db.ValidateAndUpdate(&shipment)
+	if err != nil {
+		return err
+	} else if verrs.HasAny() {
+		return fmt.Errorf("Validation failure: %s", verrs)
+	}
+
+	return nil
+}
+
+// AcceptShipmentForTSP accepts a shipment and shipment_offer
+func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
+
+	// Get the Shipment and Shipment Offer
+	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
+
+	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	// Accept the Shipment and Shipment Offer
+	err = shipment.Accept()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	err = shipmentOffer.Accept()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
+
+// RejectShipmentForTSP accepts a shipment and shipment_offer
+func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, rejectionReason string) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
+
+	// Get the Shipment and Shipment Offer
+	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
+
+	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	// Move the shipment back to Submitted and Reject the shipment offer.
+	err = shipment.Submit()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	err = shipmentOffer.Reject(rejectionReason)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.

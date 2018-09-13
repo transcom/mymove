@@ -2,13 +2,7 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import {
-  reduxForm,
-  Field,
-  FormSection,
-  getFormValues,
-  isValid,
-} from 'redux-form';
+import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import { loadEntitlements, updateOrdersInfo } from './ducks';
@@ -92,6 +86,26 @@ const OrdersDisplay = props => {
         <PanelField title="New Duty Station">
           {get(props.orders, 'new_duty_station.name', '')}
         </PanelField>
+
+        {props.orders.orders_issuing_agency ? (
+          <PanelSwaggerField
+            title="Orders Issuing Agency"
+            fieldName="orders_issuing_agency"
+            {...fieldProps}
+          />
+        ) : (
+          <PanelField title="Orders Issuing Agency">missing</PanelField>
+        )}
+
+        {props.orders.paragraph_number ? (
+          <PanelSwaggerField
+            title="Paragraph Number"
+            fieldName="paragraph_number"
+            {...fieldProps}
+          />
+        ) : (
+          <PanelField title="Paragraph Number">missing</PanelField>
+        )}
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(props.entitlements, props.orders)}
@@ -148,6 +162,20 @@ const OrdersEdit = props => {
             />
           </div>
         </FormSection>
+
+        <FormSection name="orders">
+          <SwaggerField
+            fieldName="orders_issuing_agency"
+            swagger={schema}
+            className="half-width"
+          />
+
+          <SwaggerField
+            fieldName="paragraph_number"
+            swagger={schema}
+            className="half-width"
+          />
+        </FormSection>
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(props.entitlements, props.orders)}
@@ -203,7 +231,6 @@ function mapStateToProps(state) {
     move: get(state, 'office.officeMove', {}),
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       return [
         get(state, 'office.officeOrders.id'),

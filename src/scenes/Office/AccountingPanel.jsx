@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid } from 'redux-form';
+import { reduxForm, getFormValues } from 'redux-form';
 
 import { updateOrders } from './ducks';
 
@@ -32,6 +32,12 @@ const AccountingDisplay = props => {
           <PanelField title="Department indicator" className="missing">
             missing
           </PanelField>
+        )}
+
+        {props.orders.sac ? (
+          <PanelSwaggerField title="SAC" fieldName="sac" {...fieldProps} />
+        ) : (
+          <PanelField title="SAC">missing</PanelField>
         )}
       </div>
       <div className="editable-panel-column">
@@ -67,6 +73,9 @@ const AccountingEdit = props => {
           required
         />
       </div>
+      <div className="editable-panel-column">
+        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} />
+      </div>
     </React.Fragment>
   );
 };
@@ -97,7 +106,6 @@ function mapStateToProps(state) {
     isUpdating: state.office.ordersAreUpdating,
 
     // editablePanelify
-    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       values.new_duty_station_id = values.new_duty_station.id;

@@ -638,7 +638,8 @@ definitions:
   MoveDocumentType:
     type: string
     title: Document Type
-    enum:
+    example: EXPENSE
+    enum: &MOVEDOCUMENTTYPE
       - OTHER
       - WEIGHT_TICKET
       - STORAGE_EXPENSE
@@ -1959,6 +1960,16 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+        example: "RI-JP"
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
+        example: "COMNAVPERSCOM MILLINGTON"
       created_at:
         type: string
         format: date-time
@@ -1967,7 +1978,13 @@ definitions:
         format: date-time
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -2025,9 +2042,23 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      paragraph_number:
+        type: string
+        title: Paragraph Number
+        x-nullable: true
+      orders_issuing_agency:
+        type: string
+        title: Orders Issuing Agency
+        x-nullable: true
       tac:
         type: string
+        title: TAC
         example: "F8J1"
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: "N002214CSW32Y9"
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -2059,6 +2090,9 @@ definitions:
       ppm_status:
         type: string
         example: PAYMENT_REQUESTED
+      hhg_status:
+        type: string
+        example: ACCEPTED
       locator:
         type: string
         example: "12432"
@@ -2104,6 +2138,7 @@ definitions:
       - id
       - status
       - ppm_status
+      - hhg_status
       - locator
       - customer_name
       - edipi
@@ -2807,7 +2842,7 @@ paths:
           description: move not found
         500:
           description: server error
-  /shipment/{shipmentId}:
+  /shipments/{shipmentId}:
     patch:
       summary: Updates a Shipment for the given move
       description: Update a Shipment tied to the move ID
@@ -2867,6 +2902,37 @@ paths:
           description: user is not authorized
         404:
           description: shipment not found
+        500:
+          description: server error
+  /shipments/{shipmentId}/approve:
+    post:
+      summary: Approves an accepted shipment
+      description: Approves a shipment accepted by a TSP. The status of the Shipment will be updated to APPROVED.
+      operationId: approveHHG
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns updated (approved) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to approve this shipment
+        409:
+          description: the shipment is not in a state to be approved
+          schema:
+            $ref: '#/definitions/Shipment'
         500:
           description: server error
   /reimbursement/{reimbursementId}/approve:
@@ -3159,6 +3225,15 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM to create an attachments PDF for
+        - name: docTypes
+          in: query
+          type: array
+          required: true
+          items:
+            type: string
+            enum: *MOVEDOCUMENTTYPE
+          collectionFormat: csv
+          description: Restrict the list to documents with matching docType.
       responses:
         200:
           description: returns a PPM attachments upload
@@ -3703,6 +3778,7 @@ paths:
           - new
           - troubleshooting
           - ppm
+          - hhg_accepted
           - all
           required: true
           description: Queue type to show

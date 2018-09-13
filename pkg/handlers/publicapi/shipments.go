@@ -28,7 +28,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		Market:                              apimessages.ShipmentMarket(*s.Market),
 		BookDate:                            *handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 *handlers.FmtDateTimePtr(s.RequestedPickupDate),
-		Move:                                payloadForMoveModel(s.Move),
+		Move:                                payloadForMoveModel(&s.Move),
 		Status:                              apimessages.ShipmentStatus(s.Status),
 		EstimatedPackDays:                   handlers.FmtInt64(*s.EstimatedPackDays),
 		EstimatedTransitDays:                handlers.FmtInt64(*s.EstimatedTransitDays),
@@ -42,6 +42,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		WeightEstimate:                      handlers.FmtInt64(s.WeightEstimate.Int64()),
 		ProgearWeightEstimate:               handlers.FmtInt64(s.ProgearWeightEstimate.Int64()),
 		SpouseProgearWeightEstimate:         handlers.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		ActualWeight:                        handlers.FmtPoundPtr(s.ActualWeight),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -63,13 +64,6 @@ type IndexShipmentsHandler struct {
 func (h IndexShipmentsHandler) Handle(params shipmentop.IndexShipmentsParams) middleware.Responder {
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return shipmentop.NewIndexShipmentsForbidden()
-	}
 
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
@@ -104,14 +98,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
-
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return shipmentop.NewGetShipmentForbidden()
-	}
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
@@ -132,24 +119,85 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	return shipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
-// CreateShipmentAcceptHandler allows a TSP to accept a particular shipment
-type CreateShipmentAcceptHandler struct {
+// AcceptShipmentHandler allows a TSP to accept a particular shipment
+type AcceptShipmentHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentAcceptHandler) Handle(params shipmentop.CreateShipmentAcceptParams) middleware.Responder {
-	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
+func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewAcceptShipmentForbidden()
+	}
+
+	// Accept the shipment
+	shipment, shipmentOffer, verrs, err := models.AcceptShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil || verrs.HasAny() {
+		if err == models.ErrFetchNotFound {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewAcceptShipmentBadRequest()
+		} else if err == models.ErrInvalidTransition {
+			h.Logger().Info("Attempted to accept shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+			h.Logger().Info("Attempted to accept shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
+			return shipmentop.NewAcceptShipmentConflict()
+		} else {
+			h.Logger().Error("Unknown Error", zap.Error(err))
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+	}
+
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewAcceptShipmentOK().WithPayload(sp)
 }
 
-// CreateShipmentRejectHandler allows a TSP to refuse a particular shipment
-type CreateShipmentRejectHandler struct {
+// RejectShipmentHandler allows a TSP to refuse a particular shipment
+type RejectShipmentHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentRejectHandler) Handle(params shipmentop.CreateShipmentRejectParams) middleware.Responder {
-	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
+func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) middleware.Responder {
+	// set reason, set thing
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewRejectShipmentForbidden()
+	}
+
+	// Reject the shipment
+	shipment, shipmentOffer, verrs, err := models.RejectShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, *params.Payload.Reason)
+	if err != nil || verrs.HasAny() {
+		if err == models.ErrFetchNotFound {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewRejectShipmentBadRequest()
+		} else if err == models.ErrInvalidTransition {
+			h.Logger().Info("Attempted to reject shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+			h.Logger().Info("Attempted to reject shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
+			return shipmentop.NewRejectShipmentConflict()
+		} else {
+			h.Logger().Error("Unknown Error", zap.Error(err))
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+	}
+
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
@@ -168,6 +216,10 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 		shipment.PmSurveySpouseProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
 		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
+
+	if payload.ActualWeight != nil {
+		shipment.ActualWeight = handlers.PoundPtrFromInt64Ptr(payload.ActualWeight)
+	}
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment
@@ -180,14 +232,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
-
-	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserID
-	if session.TspUserID == uuid.Nil {
-		h.Logger().Error("Missing TSP User ID")
-		return shipmentop.NewGetShipmentForbidden()
-	}
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {

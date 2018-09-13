@@ -22,7 +22,10 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 		email = assertions.User.LoginGovEmail
 	}
 
-	office := MakeTransportationOffice(db)
+	office := assertions.OfficeUser.TransportationOffice
+	if isZeroUUID(office.ID) {
+		office = MakeTransportationOffice(db, assertions)
+	}
 
 	officeUser := models.OfficeUser{
 		UserID:                 &user.ID,

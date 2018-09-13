@@ -79,8 +79,6 @@ server_deps: go_version .server_deps.stamp
 	go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
-server_generate_and_run:
-	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run
 server_generate: server_deps .server_generate.stamp
 .server_generate.stamp: $(shell find swagger -type f -name *.yaml)
 	bin/gen_server.sh
@@ -90,16 +88,17 @@ server_build: server_deps server_generate
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
+# This command will rebuild the swagger go code and rerun server on any changes
+server_run:
+	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
-server_run: server_deps server_generate db_dev_run
+server_run_default: server_deps server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin --build ./cmd/webserver \
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
 		--excludeDir vendor --excludeDir node_modules \
 		-i --buildArgs "-i"
-# This is just an alais for backwards compatibility
-server_run_dev: server_run
 
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
@@ -153,7 +152,7 @@ server_test_coverage: server_deps server_generate db_dev_run db_test_reset
 	go test -coverprofile=coverage.out -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 	go tool cover -html=coverage.out
 
-e2e_test: server_deps server_generate client_build db_e2e_init
+e2e_test: server_build client_build db_e2e_init
 	$(AWS_VAULT) ./bin/run-e2e-test
 
 db_populate_e2e: db_dev_reset db_dev_migrate tools_build
@@ -213,6 +212,9 @@ endif
 		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 			./soda -e test migrate -c ../config/database.yml -p ../migrations up
 
+1203_form:
+	find ./cmd/generate_1203_form -type f -name "main.go" | entr -c -r go run ./cmd/generate_1203_form/main.go
+
 adr_update:
 	yarn run adr-log
 
@@ -231,6 +233,6 @@ clean:
 	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
-.PHONY: server_deps_update server_generate server_generate_and_run server_deps server_build server_run_standalone server_run server_run_dev server_build_docker server_run_only_docker server_test
+.PHONY: server_deps_update server_generate server_deps server_build server_run_standalone server_run server_run_default server_build_docker server_run_only_docker server_test
 .PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset
 .PHONY: clean pretty

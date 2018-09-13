@@ -6,9 +6,9 @@ import (
 	"io"
 	"path"
 
-	"github.com/pjdufour-truss/pdfcpu/pkg/api"
-	"github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/afero"
+	"github.com/trussworks/pdfcpu/pkg/api"
+	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"

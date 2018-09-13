@@ -26,6 +26,7 @@ import RoutingPanel from './Hhg/RoutingPanel';
 import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
+import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import {
   loadMoveDependencies,
@@ -98,86 +99,11 @@ const HHGTabContent = props => {
   );
 };
 
-class CancelPanel extends Component {
-  state = { displayState: 'Button', cancelReason: '' };
-
-  setConfirmState = () => {
-    this.setState({ displayState: 'Confirm' });
-  };
-
-  setCancelState = () => {
-    if (this.state.cancelReason !== '') {
-      this.setState({ displayState: 'Cancel' });
-    }
-  };
-
-  setButtonState = () => {
-    this.setState({ displayState: 'Button' });
-  };
-
-  handleChange = event => {
-    this.setState({ cancelReason: event.target.value });
-  };
-
-  cancelMove = event => {
-    event.preventDefault();
-    this.props.cancelMove(this.state.cancelReason);
-    this.setState({ displayState: 'Redirect' });
-  };
-
-  render() {
-    if (this.state.displayState === 'Cancel') {
-      return (
-        <div className="cancel-panel">
-          <h2 className="extras usa-heading">Cancel Move</h2>
-          <div className="extras content">
-            <Alert type="warning" heading="Cancelation Warning">
-              Are you sure you want to cancel the entire move?
-            </Alert>
-            <div className="usa-grid">
-              <div className="usa-width-one-whole extras options">
-                <a onClick={this.setButtonState}>No, never mind</a>
-              </div>
-              <div className="usa-width-one-whole extras options">
-                <button onClick={this.cancelMove}>Yes, cancel move</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (this.state.displayState === 'Confirm') {
-      return (
-        <div className="cancel-panel">
-          <h2 className="extras usa-heading">Cancel Move</h2>
-          <div className="extras content">
-            Why is the move being canceled?
-            <textarea required onChange={this.handleChange} />
-            <div className="usa-grid">
-              <div className="usa-width-one-whole extras options">
-                <a onClick={this.setButtonState}>Never mind</a>
-              </div>
-              <div className="usa-width-one-whole extras options">
-                <button onClick={this.setCancelState}>
-                  Cancel entire move
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (this.state.displayState === 'Button') {
-      return (
-        <button className="usa-button-secondary" onClick={this.setConfirmState}>
-          Cancel Move
-        </button>
-      );
-    } else if (this.state.displayState === 'Redirect') {
-      return <Redirect to="/" />;
-    }
-  }
-}
-
 class MoveInfo extends Component {
+  state = {
+    redirectToHome: false,
+  };
+
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
@@ -192,7 +118,9 @@ class MoveInfo extends Component {
   };
 
   cancelMove = cancelReason => {
-    this.props.cancelMove(this.props.officeMove.id, cancelReason);
+    this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
+      this.setState({ redirectToHome: true });
+    });
   };
 
   renderPPMTabStatus = () => {
@@ -245,6 +173,11 @@ class MoveInfo extends Component {
       ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
       ppm.status,
     );
+
+    if (this.state.redirectToHome) {
+      return <Redirect to="/" />;
+    }
+
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -325,7 +258,7 @@ class MoveInfo extends Component {
                       className="icon approval-waiting"
                       icon={faClock}
                     />
-                    Placeholder Status
+                    {capitalize(hhg.status)}
                   </span>
                 </NavTab>
               )}
@@ -393,7 +326,12 @@ class MoveInfo extends Component {
                 Approve PPM
                 {ppmApproved && check}
               </button>
-              <CancelPanel cancelMove={this.cancelMove} />
+              <ConfirmWithReasonButton
+                buttonTitle="Cancel Move"
+                reasonPrompt="Why is the move being canceled?"
+                warningPrompt="Are you sure you want to cancel the entire move?"
+                onConfirm={this.cancelMove}
+              />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
               */}

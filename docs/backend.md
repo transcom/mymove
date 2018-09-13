@@ -158,7 +158,7 @@ If you're creating a query (1) that is called by a function (2) that is in turne
 In `pkg/models/blackout_dates.go`, an error is created and returned:
 
 ```golang
-func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipment) ([]BlackoutDate, error) {
   ...
   err = query.All(&blackoutDates)
   if err != nil {
@@ -172,7 +172,7 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 In `pkg/awardqueue/awardqueue.go`, `FetchTSPBlackoutDates` is called, and any possible error is handled. This function also returns an error.
 
 ```golang
-func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
+func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.Shipment) (bool, error) {
   blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
 
   if err != nil {
@@ -186,7 +186,7 @@ func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOf
 Finally, at the top level in `attemptShipmentOffer` in the same file, any errors bubbled up from `ShipmentWithinBlackoutDates` or `FetchTSPBlackoutDates` are handled definitively, halting the progress of the longer function if the underlying processes and queries didn't complete as expected in the functions being called:
 
 ```golang
-func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*models.ShipmentOffer, error) {
+func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.ShipmentOffer, error) {
   aq.logger.Info("Attempting to offer shipment", zap.Any("shipment_id", shipment.ID))
   ...
   isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)

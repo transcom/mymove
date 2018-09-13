@@ -21,13 +21,15 @@ if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
   middlewares.push(logger);
 }
 
-const composeEnhancers = composeWithDevTools({});
+const composeEnhancers = composeWithDevTools({ name: 'sm-office' });
 
 export const store = composeEnhancers(applyMiddleware(...middlewares))(
   createStore,
 )(appReducer);
 
-export const tspStore = composeEnhancers(applyMiddleware(...middlewares))(
+const tspComposeEnhancers = composeWithDevTools({ name: 'tsp' });
+
+export const tspStore = tspComposeEnhancers(applyMiddleware(...middlewares))(
   createStore,
 )(tspAppReducer);
 
