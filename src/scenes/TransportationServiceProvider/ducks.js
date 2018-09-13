@@ -2,6 +2,7 @@ import {
   LoadShipment,
   PatchShipment,
   AcceptShipment,
+  RejectShipment,
   CreateServiceAgent,
   IndexServiceAgents,
   UpdateServiceAgent,
@@ -13,6 +14,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
+const rejectShipmentType = 'REJECT_SHIPMENT';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
@@ -26,6 +28,9 @@ const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
   acceptShipmentType,
+);
+const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  rejectShipmentType,
 );
 
 const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
@@ -61,6 +66,11 @@ export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
 export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(
   acceptShipmentType,
   AcceptShipment,
+);
+
+export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(
+  rejectShipmentType,
+  RejectShipment,
 );
 
 export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
@@ -122,6 +132,9 @@ const initialState = {
   shipmentIsAccepting: false,
   shipmentHasAcceptError: null,
   shipmentHasAcceptSuccess: false,
+  shipmentIsRejecting: false,
+  shipmentHasRejectError: null,
+  shipmentHasRejectSuccess: false,
   serviceAgentsAreLoading: false,
   serviceAgentsHasLoadSucces: false,
   serviceAgentsHasLoadError: null,
@@ -195,6 +208,25 @@ export function tspReducer(state = initialState, action) {
         shipmentIsAccepting: false,
         shipmentHasAcceptSuccess: false,
         shipmentHasAcceptError: null,
+        error: action.error.message,
+      });
+    case REJECT_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsRejecting: true,
+        shipmentHasRejectSuccess: false,
+      });
+    case REJECT_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsRejecting: false,
+        shipmentHasRejectSuccess: true,
+        shipmentHasRejectError: false,
+        shipment: action.payload,
+      });
+    case REJECT_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsRejecting: false,
+        shipmentHasRejectSuccess: false,
+        shipmentHasRejectError: null,
         error: action.error.message,
       });
 

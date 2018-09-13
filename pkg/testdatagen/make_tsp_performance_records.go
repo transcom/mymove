@@ -36,7 +36,7 @@ func MakeTSPPerformance(db *pop.Connection,
 		SITRate:                         SITDiscountRate,
 	}
 
-	verrs, err := db.ValidateAndSave(&tspPerformance)
+	verrs, err := db.ValidateAndCreate(&tspPerformance)
 	if verrs.HasAny() {
 		err = fmt.Errorf("TSP Performance validation errors: %v", verrs)
 	}

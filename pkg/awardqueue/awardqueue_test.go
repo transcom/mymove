@@ -37,6 +37,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 			DeliveryDate:        &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
+			BookDate:            &testdatagen.DateInsidePerformancePeriod,
 			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
@@ -51,24 +52,13 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 			StartBlackoutDate:               blackoutStartDate,
 			EndBlackoutDate:                 blackoutEndDate,
 			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC,
+			Market:                          &market,
 		},
 	})
 
-	// Create a ShipmentWithOffer to feed the award queue
-	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		RequestedPickupDate:             &pickupDate,
-		PickupDate:                      &pickupDate,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
-	}
-
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
+	offer, err := queue.attemptShipmentOffer(shipment)
 
 	expectedError := "could not find a TSP without blackout dates"
 	// See if shipment was offered
@@ -195,10 +185,11 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	testShipmentBetween := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate: &testPickupDateBetween,
-			PickupDate:          &testStartDate,
+			PickupDate:          &testPickupDateBetween,
 			DeliveryDate:        &testEndDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
+			BookDate:            &testdatagen.DateInsidePerformancePeriod,
 			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
@@ -206,10 +197,11 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	testShipmentAfter := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate: &testPickupDateAfter,
-			PickupDate:          &testStartDate,
+			PickupDate:          &testPickupDateAfter,
 			DeliveryDate:        &testEndDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
+			BookDate:            &testdatagen.DateInsidePerformancePeriod,
 			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
@@ -222,37 +214,16 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 			StartBlackoutDate:               testStartDate,
 			EndBlackoutDate:                 testEndDate,
 			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC,
+			Market:                          &market,
 		},
 	})
 
 	// One TSP with no blackout dates
 	testTSP2 := testdatagen.MakeDefaultTSP(suite.db)
 
-	// Two shipments with offers, using the shipments above
-	shipmentWithOfferBetween := models.ShipmentWithOffer{
-		ID: testShipmentBetween.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		PickupDate:                      &testPickupDateBetween,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
-	}
-
-	shipmentWithOfferAfter := models.ShipmentWithOffer{
-		ID: testShipmentAfter.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		PickupDate:                      &testPickupDateAfter,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
-	}
-
 	// Checks a date that falls within the blackout date range; returns true.
-	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, shipmentWithOfferBetween)
+	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testShipmentBetween)
 
 	if err != nil {
 		t.Fatal(err)
@@ -261,7 +232,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a date that falls after the blackout date range; returns false.
-	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, shipmentWithOfferAfter)
+	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testShipmentAfter)
 
 	if err != nil {
 		t.Fatal(err)
@@ -270,7 +241,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a TSP with no blackout dates and returns false.
-	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, shipmentWithOfferAfter)
+	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, testShipmentAfter)
 
 	if err != nil {
 		t.Fatal(err)
@@ -318,21 +289,8 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
-	// Create a ShipmentWithOffer to feed the award queue
-	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		PickupDate:                      &pickupDate,
-		RequestedPickupDate:             &pickupDate,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        shipment.BookDate,
-	}
-
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
+	offer, err := queue.attemptShipmentOffer(shipment)
 
 	// See if shipment was offered
 	if err != nil {
@@ -369,25 +327,13 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 			DeliveryDate:        &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
+			BookDate:            &pickupDate,
 			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
 
-	tdl := *shipment.TrafficDistributionList
-
-	// Create a ShipmentWithOffer to feed the award queue
-	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		PickupDate:                      &pickupDate,
-		RequestedPickupDate:             &pickupDate,
-		BookDate:                        &pickupDate,
-		TransportationServiceProviderID: nil,
-		AdministrativeShipment:          swag.Bool(false),
-	}
-
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
+	offer, err := queue.attemptShipmentOffer(shipment)
 
 	// See if shipment was offered
 	if err == nil {
