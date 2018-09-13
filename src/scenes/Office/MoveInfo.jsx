@@ -184,7 +184,7 @@ class MoveInfo extends Component {
       ppm.status,
     );
     const hhgApproved = hhg.status === 'APPROVED';
-
+    const moveApproved = move.status === 'APPROVED';
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -314,39 +314,32 @@ class MoveInfo extends Component {
                 </Alert>
               )}
               <button
+                className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
-                disabled={move.status === 'APPROVED' || !ordersComplete}
-                style={{
-                  backgroundColor: move.status === 'APPROVED' && 'green',
-                }}
+                disabled={moveApproved || !ordersComplete}
               >
                 Approve Basics
-                {move.status === 'APPROVED' && check}
+                {moveApproved && check}
               </button>
               {isPPM ? (
                 <button
+                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
                   onClick={this.approvePPM}
-                  disabled={
-                    !isPPM ||
-                    ppmApproved ||
-                    move.status !== 'APPROVED' ||
-                    !ordersComplete
-                  }
-                  style={{ backgroundColor: ppmApproved && 'green' }}
+                  disabled={ppmApproved || !moveApproved || !ordersComplete}
                 >
                   Approve PPM
                   {ppmApproved && check}
                 </button>
               ) : (
                 <button
+                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
                   onClick={this.approveHHG}
                   disabled={
                     hhgApproved ||
-                    move.status !== 'APPROVED' ||
+                    !moveApproved ||
                     !ordersComplete ||
                     currentTab !== 'hhg'
                   }
-                  style={{ backgroundColor: hhgApproved && 'green' }}
                 >
                   Approve Shipments
                   {hhgApproved && check}
@@ -382,7 +375,7 @@ class MoveInfo extends Component {
                 <p>No orders have been uploaded.</p>
               ) : (
                 <div>
-                  {move.status === 'APPROVED' ? (
+                  {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon
                         style={{ color: 'green' }}
@@ -420,6 +413,10 @@ class MoveInfo extends Component {
     );
   }
 }
+
+MoveInfo.defaultProps = {
+  move: {},
+};
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
