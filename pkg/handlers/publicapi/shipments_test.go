@@ -307,9 +307,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if pickupDate == empty {
-			pickupDate = time.Time(responsePayload.PickupDate)
+			pickupDate = time.Time(responsePayload.ActualPickupDate)
 		} else {
-			newDT := time.Time(responsePayload.PickupDate)
+			newDT := time.Time(responsePayload.ActualPickupDate)
 			suite.True(newDT.After(pickupDate))
 			pickupDate = newDT
 		}
@@ -356,9 +356,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if pickupDate == empty {
-			pickupDate = time.Time(responsePayload.PickupDate)
+			pickupDate = time.Time(responsePayload.ActualPickupDate)
 		} else {
-			newDT := time.Time(responsePayload.PickupDate)
+			newDT := time.Time(responsePayload.ActualPickupDate)
 			suite.True(newDT.Before(pickupDate))
 			pickupDate = newDT
 		}
@@ -592,4 +592,39 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	suite.Equal(false, *shipmentOffer.Accepted)
 	suite.Equal(reason, *shipmentOffer.RejectionReason)
 
+}
+
+// TestTransportShipmentHandler tests the api endpoint that transports a shipment
+func (suite *HandlerSuite) TestTransportShipmentHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// Handler to Test
+	handler := TransportShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	// Test query with first user
+	path := fmt.Sprintf("/shipments/%s/transport", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	actualPickupDate := time.Now()
+	body := apimessages.ActualPickupDate{
+		ActualPickupDate: handlers.FmtDatePtr(&actualPickupDate),
+	}
+	params := shipmentop.TransportShipmentParams{
+		HTTPRequest:      req,
+		ShipmentID:       *handlers.FmtUUID(shipment.ID),
+		ActualPickupDate: &body,
+	}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.TransportShipmentOK{}, response)
+	okResponse := response.(*shipmentop.TransportShipmentOK)
+	suite.Equal("IN_TRANSIT", string(okResponse.Payload.Status))
 }

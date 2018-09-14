@@ -16,11 +16,21 @@ func MakeServiceAgent(db *pop.Connection, assertions Assertions) models.ServiceA
 		shipment = &s
 	}
 
+	company := assertions.ServiceAgent.Company
+	if company == "" {
+		company = "ACME Movers"
+	}
+
+	role := assertions.ServiceAgent.Role
+	if role == "" {
+		role = models.RoleORIGIN
+	}
+
 	serviceAgent := models.ServiceAgent{
 		ShipmentID:  shipment.ID,
 		Shipment:    shipment,
-		Role:        models.RoleORIGIN,
-		Company:     "ACME Movers",
+		Role:        role,
+		Company:     company,
 		PhoneNumber: stringPointer("303-867-5309"),
 		Email:       stringPointer("acme@example.com"),
 	}
