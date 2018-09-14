@@ -415,7 +415,7 @@ definitions:
       service_member:
         $ref: '#/definitions/ServiceMember'
         readOnly: true
-      pickup_date:
+      actual_pickup_date:
         type: string
         format: date-time
         example: 2018-04-21T17:32:28Z
@@ -734,7 +734,7 @@ definitions:
         type: string
         format: date
         example: 2018-03-15
-      actual_pickup:
+      actual_pickup_date:
         type: string
         format: date
         example: 2018-03-15
@@ -777,6 +777,16 @@ definitions:
       DELIVERED: Delivered
       COMPLETED: Completed
       CANCELED: Canceled
+  ActualPickupDate:
+    type: object
+    properties:
+      actual_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-02"
+        x-nullable: true
+    required:
+      - actual_pickup_date
   TSP:
     type: object
     description: The primary definition of a Transport Service Provider
@@ -1258,6 +1268,42 @@ paths:
       responses:
         200:
           description: returns updated (accepted) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
+  /shipments/{shipmentId}/transport:
+    post:
+      summary: Places an accepted shipment into transit state
+      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT.
+      operationId: transportShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: actualPickupDate
+          required: true
+          schema:
+            $ref: '#/definitions/ActualPickupDate'
+      responses:
+        200:
+          description: returns updated (in_transit) shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:

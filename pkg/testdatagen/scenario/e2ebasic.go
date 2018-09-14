@@ -534,11 +534,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	models.SaveMoveDependencies(db, &hhg5.Move)
 
 	/*
-	 * Service member with accepted shipment
+	 * Service member with in transit shipment
+	 */
+	email = "hhg@in.transit"
+
+	offer6 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("1239dd2a-a23f-4967-a035-3bc9987c6848")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2339dd2a-a23f-4967-a035-3bc9987c6824"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForApprove"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("3452270d-4a6f-44ea-82f6-ae3cf3277c5d"),
+			Locator:          "NINOPK",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("459f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg6 := offer6.Shipment
+	hhg6.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg6.Move)
+
+	/*
+	 * Service member with approved shipment
 	 */
 	email = "hhg@approv.ed"
 
-	offer6 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	offer7 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("68461d67-5385-4780-9cb6-417075343b0e")),
 			LoginGovEmail: email,
@@ -570,8 +611,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	hhg6 := offer6.Shipment
-	hhg6.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg6.Move)
+	hhg7 := offer7.Shipment
+	hhg7.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg7.Move)
 
 }

@@ -31,7 +31,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	pickupAddress := assertions.Shipment.PickupAddress
 	if pickupAddress == nil {
-		newPickupAddress := MakeAddress(db, Assertions{})
+		newPickupAddress := MakeDefaultAddress(db)
 		pickupAddress = &newPickupAddress
 	}
 
@@ -51,7 +51,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		TrafficDistributionList:      tdl,
 		ServiceMemberID:              serviceMember.ID,
 		ServiceMember:                serviceMember,
-		PickupDate:                   timePointer(DateInsidePerformancePeriod),
+		ActualPickupDate:             timePointer(DateInsidePerformancePeriod),
 		DeliveryDate:                 timePointer(DateOutsidePerformancePeriod),
 		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
 		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
@@ -114,7 +114,7 @@ func MakeShipmentData(db *pop.Connection) {
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &now,
-			PickupDate:              &now,
+			ActualPickupDate:        &now,
 			DeliveryDate:            &now,
 			TrafficDistributionList: &tdlList[0],
 			SourceGBLOC:             &sourceGBLOC,
@@ -125,7 +125,7 @@ func MakeShipmentData(db *pop.Connection) {
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusOne,
-			PickupDate:              &nowPlusOne,
+			ActualPickupDate:        &nowPlusOne,
 			DeliveryDate:            &nowPlusOne,
 			TrafficDistributionList: &tdlList[1],
 			SourceGBLOC:             &sourceGBLOC,
@@ -136,7 +136,7 @@ func MakeShipmentData(db *pop.Connection) {
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusTwo,
-			PickupDate:              &nowPlusTwo,
+			ActualPickupDate:        &nowPlusTwo,
 			DeliveryDate:            &nowPlusTwo,
 			TrafficDistributionList: &tdlList[2],
 			SourceGBLOC:             &sourceGBLOC,

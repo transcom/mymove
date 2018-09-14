@@ -28,5 +28,8 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeDefaultAddress makes an Address with default values
 func MakeDefaultAddress(db *pop.Connection) models.Address {
+	// Make associated lookup table records.
+	MakeDefaultTariff400ngZip3(db)
+
 	return MakeAddress(db, Assertions{})
 }

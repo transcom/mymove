@@ -48,7 +48,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -60,7 +60,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	shipment2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -104,6 +104,11 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	err = shipment.Approve()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
+
+	// Can transport shipment
+	err = shipment.Transport()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 }
 
 // TestAcceptShipmentForTSP tests that a shipment and shipment offer is correctly accepted
@@ -129,4 +134,30 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Awarded")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
+}
+
+// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
+	testData := [][]string{
+		// {GBLOC, expected GBL number}
+		{"GBO1", "GBO17000001"},
+		{"GBO1", "GBO17000002"},
+		{"GBO1", "GBO17000003"},
+		// New GBLOC starts new sequence
+		{"GBO2", "GBO27000001"},
+		// Old sequence should still work
+		{"GBO1", "GBO17000004"},
+	}
+
+	for _, d := range testData {
+		shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+			Shipment: Shipment{
+				SourceGBLOC: &d[0],
+			},
+		})
+		err := shipment.AssignGBLNumber(suite.db)
+		suite.NoError(err)
+		suite.NotNil(shipment.GBLNumber)
+		suite.Equal(*shipment.GBLNumber, d[1])
+	}
 }
