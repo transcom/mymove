@@ -145,12 +145,12 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const shipment = currentShipment(state);
   const props = {
-    schema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    schema: getSwaggerDefinition('Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
-    error: lastError(state, getRequestLabel),
+    error: getLastError(state, getRequestLabel),
   };
   return props;
 }
