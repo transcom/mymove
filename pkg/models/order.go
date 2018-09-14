@@ -119,6 +119,40 @@ func (o *Order) Cancel() error {
 	return nil
 }
 
+// AfterSave will run after each create/update of an Order.
+func (o *Order) AfterSave(tx *pop.Connection) error {
+	// Since the new duty station on the order can affect which TDL any shipment records
+	// associated with this order use, we need to touch all shipments (which should
+	// cause the shipment record to update its TDL if needed) every time an order is
+	// created/updated.
+	if err := o.touchAllShipments(tx); err != nil {
+		return errors.Wrap(err, "Could not touch all shipments")
+	}
+
+	return nil
+}
+
+// touchAllShipments will iterate through all the shipments associated with this order and
+// "touch" each one to force a TDL determination.
+func (o *Order) touchAllShipments(db *pop.Connection) error {
+	// Get all shipments for all moves for this order.
+	var moves Moves
+	err := db.Eager("Shipments").Where("moves.orders_id = ?", o.ID).All(&moves)
+	if err != nil {
+		return errors.Wrapf(err, "Could not lookup shipments for moves with order ID %s", o.ID)
+	}
+
+	for _, move := range moves {
+		for _, shipment := range move.Shipments {
+			if err := db.Update(&shipment); err != nil {
+				return errors.Wrapf(err, "Could not update shipment ID %s", shipment.ID)
+			}
+		}
+	}
+
+	return nil
+}
+
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order

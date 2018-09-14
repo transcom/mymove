@@ -21,7 +21,7 @@ echo "Code goes here"
 * [ ] The requirements listed in
  [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely)
  have been satisfied.
-* [ ] Any migrations/schema changes also update the diagram in docs/schema/dp3.sqs
+* [ ] Any migrations/schema changes also update the diagram in docs/schema/dp3.sqs (see [Updating and changing the model](https://github.com/transcom/mymove/blob/master/docs/schema/README.md#updating-and-changing-the-model)
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in IE.
 * Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:

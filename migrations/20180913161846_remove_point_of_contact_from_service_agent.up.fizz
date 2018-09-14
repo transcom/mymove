@@ -1,0 +1,1 @@
+drop_column("service_agents", "point_of_contact")
