@@ -5,21 +5,25 @@ describe('TSP User enters and updates Service Agents', function() {
   });
   it('tsp user enters and cancels origin service agent', function() {
     tspUserEntersServiceAgent('Origin');
+    tspUserSeesNoServiceAgent();
     tspUserInputsServiceAgent('Origin');
     tspUserCancelsServiceAgent('Origin');
   });
   it('tsp user enters and cancels destination service agent', function() {
     tspUserEntersServiceAgent('Destination');
+    tspUserSeesNoServiceAgent();
     tspUserInputsServiceAgent('Destination');
     tspUserCancelsServiceAgent('Destination');
   });
   it('tsp user enters origin service agent', function() {
     tspUserEntersServiceAgent('Origin');
+    tspUserSeesNoServiceAgent();
     tspUserInputsServiceAgent('Origin');
     tspUserSavesServiceAgent('Origin');
   });
   it('tsp user enters destination service agent', function() {
     tspUserEntersServiceAgent('Destination');
+    tspUserSeesNoServiceAgent();
     tspUserInputsServiceAgent('Destination');
     tspUserSavesServiceAgent('Destination');
   });
@@ -63,6 +67,14 @@ function getFixture(role) {
       Phone: '303-867-5311',
     },
   }[role];
+}
+
+function tspUserSeesNoServiceAgent() {
+  // Make sure the fields are empty to begin with
+  // This helps make sure the test data hasn't changed elsewhere accidentally
+  cy.get('input[name="company"]').should('have.value', '');
+  cy.get('input[name="email"]').should('have.value', '');
+  cy.get('input[name="phone_number"]').should('have.value', '');
 }
 
 function tspUserEntersServiceAgent(role) {
