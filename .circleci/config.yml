@@ -87,7 +87,16 @@ jobs:
           command: npm install cypress@~3.1.0
       - run:
           name: make e2e_test_ci
-          command: make e2e_test_ci
+          command: |
+            echo 'export HTTPS_CERT=$(echo $E2E_HTTPS_CERT | base64 --decode)' >> $BASH_ENV
+            echo 'export HTTPS_KEY=$(echo $E2E_HTTPS_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(echo $E2E_CLIENT_AUTH_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            source $BASH_ENV
+            make e2e_test_ci
           environment:
               # Env vars needed by the `bin/apply-secure-migrations.sh` script
               DB_PASSWORD: mysecretpassword
