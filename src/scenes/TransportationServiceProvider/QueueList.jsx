@@ -14,7 +14,12 @@ export default class QueueList extends Component {
           </li>
           <li>
             <NavLink to="/queues/in_transit" activeClassName="usa-current">
-              <span>HHGs In Transit</span>
+              <span>In Transit Shipments</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/queues/delivered" activeClassName="usa-current">
+              <span>Delivered Shipments</span>
             </NavLink>
           </li>
           <li>

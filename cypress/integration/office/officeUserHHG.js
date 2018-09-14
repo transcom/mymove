@@ -9,6 +9,9 @@ describe('office user finds the shipment', function() {
   it('office user views accepted hhg moves in queue Accepted HHGs', function() {
     officeUserViewsAcceptedShipment();
   });
+  it('office user views delivered hhg moves in queue Delivered HHGs', function() {
+    officeUserViewsDeliveredShipment();
+  });
   it('office user approves basics for move, verifies and approves HHG shipment', function() {
     officeUserApprovesHHG();
   });
@@ -24,6 +27,33 @@ function officeUserViewsMoves() {
   cy
     .get('div')
     .contains('RLKBEM')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('a')
+    .contains('HHG')
+    .click(); // navtab
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+}
+
+function officeUserViewsDeliveredShipment() {
+  // Open new moves queue
+  cy.visit('/queues/delivered');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/delivered/);
+  });
+
+  // Find move (generated in e2ebasic.go) and open it
+  cy
+    .get('div')
+    .contains('SCHNOO')
     .dblclick();
 
   cy.location().should(loc => {
