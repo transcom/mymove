@@ -6,11 +6,7 @@ import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
 import { formatDate, formatCents } from 'shared/formatters';
-import {
-  PanelSwaggerField,
-  PanelField,
-  editablePanelify,
-} from 'shared/EditablePanel';
+import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
 import {
