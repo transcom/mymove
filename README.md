@@ -274,7 +274,7 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 
 #### Migrations
 
-To add new migrations, see the [database development guide](./docs/database.md)
+To add new regular and/or secure migrations, see the [database development guide](./docs/database.md)
 
 Running migrations in local development:
 
