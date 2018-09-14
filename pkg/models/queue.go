@@ -90,6 +90,27 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			WHERE shipment.status = 'ACCEPTED'
 		`
+	} else if lifecycleState == "hhg_in_transit" {
+		// Move date is the Requested Pickup Date because accepted shipments haven't yet gone through the
+		// premove survey to set the actual Pickup Date.
+		query = `
+			SELECT moves.ID,
+				COALESCE(sm.edipi, '*missing*') as edipi,
+				COALESCE(sm.rank, '*missing*') as rank,
+				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+				moves.locator as locator,
+				ord.orders_type as orders_type,
+				shipment.requested_pickup_date as move_date,
+				moves.created_at as created_at,
+				moves.updated_at as last_modified_date,
+				moves.status as status,
+				shipment.status as hhg_status
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
+			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
+			WHERE shipment.status = 'IN_TRANSIT'
+		`
 	} else if lifecycleState == "all" {
 		query = `
 			SELECT moves.ID,

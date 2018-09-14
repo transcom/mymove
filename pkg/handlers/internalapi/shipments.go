@@ -42,7 +42,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		Status:                              internalmessages.ShipmentStatus(s.Status),
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
-		PickupDate:                          handlers.FmtDatePtr(s.PickupDate),
+		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
 		DeliveryDate:                        handlers.FmtDatePtr(s.DeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
@@ -152,8 +152,8 @@ func patchShipmentWithPremoveSurveyFields(shipment *models.Shipment, payload *in
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessages.Shipment) {
 
-	if payload.PickupDate != nil {
-		shipment.PickupDate = (*time.Time)(payload.PickupDate)
+	if payload.ActualPickupDate != nil {
+		shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
 	}
 	if payload.RequestedPickupDate != nil {
 		shipment.RequestedPickupDate = (*time.Time)(payload.RequestedPickupDate)

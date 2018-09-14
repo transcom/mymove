@@ -46,127 +46,78 @@ const OrdersViewerDisplay = props => {
           </p>
         )}
 
-        {orders.orders_number ? (
-          <PanelSwaggerField fieldName="orders_number" {...ordersFieldsProps} />
-        ) : (
-          <PanelField title="Orders number" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.issue_date ? (
-          <PanelField
-            title="Date issued"
-            value={formatDate(orders.issue_date)}
-          />
-        ) : (
-          <PanelField title="Date issued" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.orders_type ? (
-          <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
-        ) : (
-          <PanelField title="Orders type" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.orders_type_detail ? (
-          <PanelSwaggerField
-            fieldName="orders_type_detail"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="Orders type detail" className="missing">
-            {' '}
-            missing
-          </PanelField>
-        )}
-        {orders.report_by_date ? (
-          <PanelField
-            title="Report by"
-            value={formatDate(orders.report_by_date)}
-          />
-        ) : (
-          <PanelField title="Report by" className="missing">
-            missing
-          </PanelField>
-        )}
-        {currentDutyStation ? (
-          <PanelField title="Current Duty Station">
-            {currentDutyStation}
-          </PanelField>
-        ) : (
-          <PanelField title="Current Duty Station" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.new_duty_station ? (
-          <PanelField title="New Duty Station">
-            {get(orders, 'new_duty_station.name', '')}
-          </PanelField>
-        ) : (
-          <PanelField title="New Duty Station" className="missing">
-            missing
-          </PanelField>
-        )}
+        <PanelSwaggerField
+          fieldName="orders_number"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelField
+          title="Date issued"
+          required
+          value={formatDate(orders.issue_date)}
+        />
+
+        <PanelSwaggerField
+          fieldName="orders_type"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField
+          fieldName="orders_type_detail"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelField
+          title="Report by"
+          required
+          value={formatDate(orders.report_by_date)}
+        />
+
+        <PanelField
+          title="Current Duty Station"
+          required
+          value={currentDutyStation}
+        />
+
+        <PanelField
+          title="New Duty Station"
+          required
+          value={get(orders, 'new_duty_station.name', '')}
+        />
+
         {orders.has_dependents && (
           <PanelField title="Dependents" value="Authorized" />
         )}
-        {orders.department_indicator ? (
-          <PanelSwaggerField
-            title="Dept. Indicator"
-            fieldName="department_indicator"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="Dept. Indicator" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.orders_issuing_agency ? (
-          <PanelSwaggerField
-            title="Orders Issuing Agency"
-            fieldName="orders_issuing_agency"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="Orders Issuing Agency" className="">
-            missing
-          </PanelField>
-        )}
-        {orders.paragraph_number ? (
-          <PanelSwaggerField
-            title="Paragraph Number"
-            fieldName="paragraph_number"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="Paragraph Number" className="">
-            missing
-          </PanelField>
-        )}
-        {orders.tac ? (
-          <PanelSwaggerField
-            title="TAC"
-            fieldName="tac"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="TAC" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.sac ? (
-          <PanelSwaggerField
-            title="SAC"
-            fieldName="sac"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="SAC" className="">
-            missing
-          </PanelField>
-        )}
+
+        <PanelSwaggerField
+          title="Dept. Indicator"
+          fieldName="department_indicator"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField
+          title="Orders Issuing Agency"
+          fieldName="orders_issuing_agency"
+          {...ordersFieldsProps}
+        />
+        <PanelSwaggerField
+          title="Paragraph Number"
+          fieldName="paragraph_number"
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField
+          title="TAC"
+          fieldName="tac"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField title="SAC" fieldName="sac" {...ordersFieldsProps} />
       </div>
     </React.Fragment>
   );

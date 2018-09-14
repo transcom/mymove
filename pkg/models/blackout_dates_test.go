@@ -32,17 +32,17 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 
 	shipmentDomesticMarket := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			PickupDate: &pickupDate,
-			BookDate:   &testdatagen.DateInsidePerformancePeriod,
-			Status:     models.ShipmentStatusSUBMITTED,
+			ActualPickupDate: &pickupDate,
+			BookDate:         &testdatagen.DateInsidePerformancePeriod,
+			Status:           models.ShipmentStatusSUBMITTED,
 		},
 	})
 
 	shipmentInternationalMarket := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			PickupDate: &pickupDate,
-			BookDate:   &testdatagen.DateInsidePerformancePeriod,
-			Status:     models.ShipmentStatusSUBMITTED,
+			ActualPickupDate: &pickupDate,
+			BookDate:         &testdatagen.DateInsidePerformancePeriod,
+			Status:           models.ShipmentStatusSUBMITTED,
 		},
 	})
 
@@ -87,20 +87,20 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 
 	shipmentInGBLOC1 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			PickupDate:  &pickupDate,
-			SourceGBLOC: &sourceGBLOC1,
-			Market:      &market1,
-			BookDate:    &testdatagen.DateInsidePerformancePeriod,
-			Status:      models.ShipmentStatusSUBMITTED,
+			ActualPickupDate: &pickupDate,
+			SourceGBLOC:      &sourceGBLOC1,
+			Market:           &market1,
+			BookDate:         &testdatagen.DateInsidePerformancePeriod,
+			Status:           models.ShipmentStatusSUBMITTED,
 		},
 	})
 
 	shipmentInGBLOC2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			PickupDate:  &pickupDate,
-			SourceGBLOC: &sourceGBLOC2,
-			BookDate:    &testdatagen.DateInsidePerformancePeriod,
-			Status:      models.ShipmentStatusSUBMITTED,
+			ActualPickupDate: &pickupDate,
+			SourceGBLOC:      &sourceGBLOC2,
+			BookDate:         &testdatagen.DateInsidePerformancePeriod,
+			Status:           models.ShipmentStatusSUBMITTED,
 		},
 	})
 
