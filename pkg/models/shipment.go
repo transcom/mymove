@@ -287,7 +287,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
 		"PartialSITDeliveryAddress").
-		Where("shipment_offers.transportation_service_provider_id = ?", tspID).
+		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
 	if len(status) > 0 {
@@ -295,7 +295,8 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		for index, st := range status {
 			statusStrings[index] = st
 		}
-		query = query.Where("shipments.status IN (?)", statusStrings...)
+
+		query = query.Where("shipments.status IN ($2)", statusStrings...)
 	}
 
 	// Manage ordering by pickup or delivery date
