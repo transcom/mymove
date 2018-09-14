@@ -1,7 +1,7 @@
 package scenario
 
 import (
-	"fmt"
+	// "fmt"
 	"log"
 	"time"
 
@@ -298,8 +298,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	// /*
 	//  * Service member with uploaded orders and an approved shipment to be accepted
 	//  */
-	bob := MakeHhgFromAwardedToAccepted(db, tspUser)
-	fmt.Println("shipment, status", bob.Status)
+	MakeHhgFromAwardedToAccepted(db, tspUser)
 
 	/*
 	 * Service member with accepted shipment

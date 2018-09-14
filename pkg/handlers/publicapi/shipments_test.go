@@ -12,6 +12,7 @@ import (
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
@@ -234,10 +235,13 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 		HTTPRequest: req,
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetFileStorer(fakeS3)
 
 	// And: an index of shipments is returned
 	// TODO: split out os calls from handler and/or mock OS to be able to test the handler
-	handler := CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateGovBillOfLadingHandler{context}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

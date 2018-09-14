@@ -1,13 +1,15 @@
 package publicapi
 
 import (
-	"os"
+
+	// "os"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -20,7 +22,7 @@ import (
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
-		ID: *handlers.FmtUUID(s.ID),
+		ID:                                  *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
 		PickupDate:                          *handlers.FmtDateTimePtr(s.PickupDate),
@@ -286,49 +288,56 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	// Don't allow GBL generation for shipments that already have a GBL move document
-	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
-	if len(extantGBLS) > 0 {
-		h.Logger().Error("There are already GBLs for this shipment.")
-		return shipmentop.NewCreateGovBillOfLadingBadRequest()
-	}
+	// extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
+	// if len(extantGBLS) > 0 {
+	// 	h.Logger().Error("There are already GBLs for this shipment.")
+	// 	return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	// }
 
 	// Create PDF for GBL
 	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)
 	if err != nil {
-		h.Logger().Error("Failed retrieving the GBL data.")
+		h.Logger().Error("Failed retrieving the GBL data.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingExpectationFailed()
 	}
-
 	formLayout := paperwork.Form1203Layout
 
-	f, err := os.Open(formLayout.TemplateImagePath)
+	// Read in bytes from Asset pkg
+	data, err := assets.Asset(formLayout.TemplateImagePath)
 	if err != nil {
-		h.Logger().Error("Failure reading GBL template image file.")
+		h.Logger().Error("Error reading template file", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
+	f, err := h.FileStorer().FileSystem().Create("something.png")
+	_, err = f.Write(data)
+	if err != nil {
+		h.Logger().Error("Error writing template bytes to file", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+	f.Seek(0, 0)
 
 	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
 	if err != nil {
-		h.Logger().Error("Error initializing GBL template form.")
+		h.Logger().Error("Error initializing GBL template form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
 	// Populate form fields with GBL data
 	err = form.DrawData(gbl)
 	if err != nil {
-		h.Logger().Error("Failure writing GBL data to form.")
+		h.Logger().Error("Failure writing GBL data to form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
 	aFile, err := h.FileStorer().FileSystem().Create("some name")
 	if err != nil {
-		h.Logger().Error("Error creating a new afero file for GBL form.")
+		h.Logger().Error("Error creating a new afero file for GBL form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
 	err = form.Output(aFile)
 	if err != nil {
-		h.Logger().Error("Failure exporting GBL form to file.")
+		h.Logger().Error("Failure exporting GBL form to file.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 

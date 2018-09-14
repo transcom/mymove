@@ -2,7 +2,7 @@ package paperwork
 
 // Form1203Layout specifies the layout and template of a 1203 form
 var Form1203Layout = FormLayout{
-	TemplateImagePath: "./pkg/paperwork/formtemplates/form1203template.png",
+	TemplateImagePath: "pkg/paperwork/formtemplates/form1203template.png",
 
 	FieldsLayout: map[string]FieldPos{
 		"GBLNumber1":               FormField(173, 5, 40, floatPtr(10), floatPtr(4)),
@@ -36,9 +36,9 @@ var Form1203Layout = FormLayout{
 		"BillChargesToAddress":         FormField(110, 96, 80, nil, nil),
 		// "FreightBillNumber": FormField(),
 		"DepartmentIndicator": FormField(110, 110, 80, nil, nil),
-		"TAC":     FormField(110, 113, 80, nil, nil),
-		"SAC":     FormField(110, 116, 80, nil, nil),
-		"Remarks": FormField(3, 125, 160, nil, nil),
+		"TAC":                 FormField(110, 113, 80, nil, nil),
+		"SAC":                 FormField(110, 116, 80, nil, nil),
+		"Remarks":             FormField(3, 125, 160, nil, nil),
 		// "PackagesNumber": FormField(),
 		// "PackagesKind": FormField(),
 		"DescriptionOfShipment": FormField(45, 151, 60, nil, nil),

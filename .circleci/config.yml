@@ -25,6 +25,9 @@ jobs:
           command: npm install markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
+          name: Install go-bindata
+          command: go get -u github.com/kevinburke/go-bindata/...
+      - run:
           name: Run make server_generate
           command: make server_generate
       - run:

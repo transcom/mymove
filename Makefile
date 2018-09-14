@@ -81,6 +81,7 @@ server_deps: go_version .server_deps.stamp
 	touch .server_deps.stamp
 server_generate: server_deps .server_generate.stamp
 .server_generate.stamp: $(shell find swagger -type f -name *.yaml)
+	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 	bin/gen_server.sh
 	touch .server_generate.stamp
 server_build: server_deps server_generate
