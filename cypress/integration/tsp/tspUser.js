@@ -35,15 +35,6 @@ function tspUserViewsInTransitShipment() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  cy
-    .get('a')
-    .contains('HHG')
-    .click(); // navtab
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+    expect(loc.pathname).to.match(/^\/queues\/in_transit\/shipments\/[^/]+/);
   });
 }
