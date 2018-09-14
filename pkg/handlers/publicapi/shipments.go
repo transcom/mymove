@@ -25,7 +25,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		ID: *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
-		PickupDate:                          *handlers.FmtDateTimePtr(s.PickupDate),
+		ActualPickupDate:                    *handlers.FmtDateTimePtr(s.ActualPickupDate),
 		DeliveryDate:                        *handlers.FmtDateTimePtr(s.DeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
@@ -206,6 +206,44 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
 }
 
+// TransportShipmentHandler allows a TSP to start transporting a particular shipment
+type TransportShipmentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewGetShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewGetShipmentBadRequest()
+	}
+
+	err = shipment.Transport()
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewTransportShipmentOK().WithPayload(sp)
+}
+
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
 	// Premove Survey values entered by TSP agent
 	requiredValue := payload.PmSurveyPlannedPackDate
@@ -225,6 +263,10 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 
 	if payload.ActualWeight != nil {
 		shipment.ActualWeight = handlers.PoundPtrFromInt64Ptr(payload.ActualWeight)
+	}
+
+	if &payload.ActualPickupDate != nil {
+		shipment.ActualPickupDate = (*time.Time)(&payload.ActualPickupDate)
 	}
 }
 

@@ -176,7 +176,8 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"SignedCertifications",
 		"Orders",
 		"MoveDocuments.Document",
-		"Shipments.TrafficDistributionList").Find(&move, id)
+		"Shipments.TrafficDistributionList",
+		"Shipments.ServiceAgents").Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -566,6 +567,13 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 					return transactionError
 				}
 				shipment.SourceGBLOC = &sourceGbloc
+
+				// Assign a new unique GBL number using source GBLOC
+				err = shipment.AssignGBLNumber(db)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error assigning GBL number for shipment")
+					return transactionError
+				}
 
 				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)

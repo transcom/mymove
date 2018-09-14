@@ -56,6 +56,26 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 	}
 }
 
+func (suite *ModelSuite) Test_FetchTDL() {
+	t := suite.T()
+
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US28",
+			DestinationRegion: "4",
+			CodeOfService:     "2",
+		},
+	})
+	fetchedTDL, err := FetchTDL(suite.db, "US28", "4", "2")
+	if err != nil {
+		t.Errorf("Something went wrong fetching the test object: %s\n", err)
+	}
+
+	if fetchedTDL.ID != tdl.ID {
+		t.Errorf("Got wrong TDL; expected: %s, got: %s", tdl.ID, fetchedTDL.ID)
+	}
+}
+
 func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 	t := suite.T()
 
