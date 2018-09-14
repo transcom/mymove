@@ -426,12 +426,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			Locator:          "BACON3",
 			SelectedMoveType: models.StringPointer("HHG"),
 		},
-		Order: models.Order{
-			OrdersNumber:        models.StringPointer("12345"),
-			OrdersTypeDetail:    &typeDetail,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
-		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("e09f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
 			SourceRateArea:    "US62",
@@ -536,10 +530,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	 * Service member with accepted shipment
 	 */
 	email = "hhg@in.transit"
-	/*
-	 * Service member with approved basics and accepted shipment
-	 */
-	email = "hhg@appro.ved"
 
 	offer6 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
@@ -573,12 +563,16 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
+	/*
+	 * Service member with approved basics and accepted shipment
+	 */
+	email = "hhg@appro.ved"
+
 	hhg6 := offer6.Shipment
 	hhg6.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg6.Move)
 
-
-	offer6 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	offer7 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("f79fd68e-4461-4ba8-b630-9618b913e229")),
 			LoginGovEmail: email,
@@ -616,7 +610,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	hhg6 := offer6.Shipment
-	hhg6.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg6.Move)
+	hhg7 := offer7.Shipment
+	hhg7.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg7.Move)
 }
