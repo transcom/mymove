@@ -25,8 +25,6 @@ const ServiceAgentDisplay = props => {
         <PanelSwaggerField fieldName="company" required {...fieldProps} />
         <PanelSwaggerField fieldName="email" required {...fieldProps} />
         <PanelSwaggerField fieldName="phone_number" required {...fieldProps} />
-        <PanelSwaggerField fieldName="email" required {...fieldProps} />
-        <PanelSwaggerField fieldName="phone_number" required {...fieldProps} />
       </div>
     </Fragment>
   );
