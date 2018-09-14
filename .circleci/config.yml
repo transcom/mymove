@@ -113,7 +113,10 @@ jobs:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
       - run:
           name: Install go-bindata
-          command: go get -u github.com/kevinburke/go-bindata/...
+          command: |
+            go get -u github.com/kevinburke/go-bindata/...
+            go version
+            go-bindata help
 
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
