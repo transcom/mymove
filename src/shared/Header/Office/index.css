@@ -21,3 +21,7 @@
 header.header {
   border-bottom: 3px solid black;
 }
+
+.usa-width-one-fourth .btn__approve--green {
+  background-color: green;
+}
