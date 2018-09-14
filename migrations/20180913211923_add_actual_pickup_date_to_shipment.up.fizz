@@ -1,1 +1,0 @@
-add_column("shipments", "actual_pickup_date", "datetime", {"null": true})

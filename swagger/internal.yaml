@@ -1423,7 +1423,7 @@ definitions:
         format: date
         example: "2018-04-26"
         x-nullable: true
-      pickup_date:
+      actual_pickup_date:
         type: string
         format: date
         example: "2018-04-26"
@@ -3761,6 +3761,7 @@ paths:
           - troubleshooting
           - ppm
           - hhg_accepted
+          - hhg_in_transit
           - all
           required: true
           description: Queue type to show

@@ -415,7 +415,7 @@ definitions:
       service_member:
         $ref: '#/definitions/ServiceMember'
         readOnly: true
-      pickup_date:
+      actual_pickup_date:
         type: string
         format: date-time
         example: 2018-04-21T17:32:28Z
@@ -734,7 +734,7 @@ definitions:
         type: string
         format: date
         example: 2018-03-15
-      actual_pickup:
+      actual_pickup_date:
         type: string
         format: date
         example: 2018-03-15
@@ -776,13 +776,13 @@ definitions:
       DELIVERED: Delivered
       COMPLETED: Completed
       CANCELED: Canceled
-  PickupDate:
+  ActualPickupDate:
     type: object
     properties:
       actual_pickup_date:
         type: string
         format: date
-        example: 2018-03-15
+        example: "2018-04-02"
         x-nullable: true
     required:
       - actual_pickup_date
@@ -1281,9 +1281,9 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
-  /shipments/{shipmentId}/in_transit:
+  /shipments/{shipmentId}/transport:
     post:
-      summary: Places an accepted shipment in transit
+      summary: Places an accepted shipment into transit state
       description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT.
       operationId: transportShipment
       tags:
@@ -1299,7 +1299,7 @@ paths:
           name: actualPickupDate
           required: true
           schema:
-            $ref: '#/definitions/PickupDate'
+            $ref: '#/definitions/ActualPickupDate'
       responses:
         200:
           description: returns updated (in_transit) shipment object
