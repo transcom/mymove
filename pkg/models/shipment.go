@@ -295,7 +295,6 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		for index, st := range status {
 			statusStrings[index] = st
 		}
-
 		query = query.Where("shipments.status IN ($2)", statusStrings...)
 	}
 
