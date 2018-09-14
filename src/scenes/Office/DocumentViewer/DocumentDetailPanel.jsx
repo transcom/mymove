@@ -38,23 +38,19 @@ const DocumentDetailDisplay = props => {
         <p className="uploaded-at">
           Uploaded {formatDate(get(moveDoc, 'document.uploads.0.created_at'))}
         </p>
-        {moveDoc.title ? (
-          <PanelSwaggerField fieldName="title" {...moveDocFieldProps} />
-        ) : (
-          <PanelField title="Document Title" className="missing">
-            Missing
-          </PanelField>
-        )}
-        {moveDoc.move_document_type ? (
-          <PanelSwaggerField
-            fieldName="move_document_type"
-            {...moveDocFieldProps}
-          />
-        ) : (
-          <PanelField title="Document Type" className="missing">
-            Missing
-          </PanelField>
-        )}
+        <PanelSwaggerField
+          title="Document Title"
+          fieldName="title"
+          required
+          {...moveDocFieldProps}
+        />
+
+        <PanelSwaggerField
+          title="Document Type"
+          fieldName="move_document_type"
+          required
+          {...moveDocFieldProps}
+        />
         {isExpenseDocument &&
           moveDoc.moving_expense_type && (
             <PanelSwaggerField
@@ -76,18 +72,18 @@ const DocumentDetailDisplay = props => {
               {...moveDocFieldProps}
             />
           )}
-        {moveDoc.status ? (
-          <PanelSwaggerField fieldName="status" {...moveDocFieldProps} />
-        ) : (
-          <PanelField title="Document Status" className="missing">
-            Missing
-          </PanelField>
-        )}
-        {moveDoc.notes ? (
-          <PanelSwaggerField fieldName="notes" {...moveDocFieldProps} />
-        ) : (
-          <PanelField title="Notes" />
-        )}
+        <PanelSwaggerField
+          title="Document Status"
+          fieldName="status"
+          required
+          {...moveDocFieldProps}
+        />
+
+        <PanelSwaggerField
+          title="Notes"
+          fieldName="notes"
+          {...moveDocFieldProps}
+        />
       </div>
     </React.Fragment>
   );
