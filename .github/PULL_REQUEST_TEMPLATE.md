@@ -24,7 +24,7 @@ echo "Code goes here"
 * Any new migrations/schema changes:
   * [ ] Update the diagram in docs/schema/dp3.sqs (see [Updating and changing the model](./docs/schema/README.md#updating-and-changing-the-model))
   * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](./docs/database.md#zero-downtime-migrations))
-  * [ ] Have been communicated to all engineers, likely on slack
+  * [ ] Have been communicated to #dp3-engineering
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in IE.
 * Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:
