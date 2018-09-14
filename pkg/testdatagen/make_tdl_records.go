@@ -40,7 +40,7 @@ func MakeTDL(db *pop.Connection, assertions Assertions) models.TrafficDistributi
 			CodeOfService:     cos,
 		}
 
-		verrs, err := db.ValidateAndSave(&tdl)
+		verrs, err := db.ValidateAndCreate(&tdl)
 		if verrs.HasAny() {
 			err = fmt.Errorf("TDL validation errors: %v", verrs)
 		}
