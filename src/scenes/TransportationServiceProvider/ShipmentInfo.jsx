@@ -170,12 +170,14 @@ class ShipmentInfo extends Component {
                   GBL generated successfully.
                 </Alert>
               )}
-              <button
-                className="usa-button-secondary"
-                onClick={this.generateGBL}
-              >
-                Generate Bill of Lading
-              </button>
+              <div>
+                <button
+                  className="usa-button-secondary"
+                  onClick={this.generateGBL}
+                >
+                  Generate Bill of Lading
+                </button>
+              </div>
             </div>
           </div>
         </div>

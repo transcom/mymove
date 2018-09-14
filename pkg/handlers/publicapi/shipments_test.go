@@ -223,9 +223,16 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 // TestCreateGovBillOfLadingHandler
 func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 
-	// When: There is a move, shipment, and move document of type GBL
+	// When: There is the full set of data for a GBL to be generated successfully
 	tspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
 	shipment := scenario.MakeHhgFromAwardedToAccepted(suite.TestDB(), tspUser)
+
+	testdatagen.MakeServiceAgent(suite.TestDB(), testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &shipment,
+			ShipmentID: shipment.ID,
+		},
+	})
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
@@ -239,8 +246,7 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 
-	// And: an index of shipments is returned
-	// TODO: split out os calls from handler and/or mock OS to be able to test the handler
+	// And: the create gbl handler is called
 	handler := CreateGovBillOfLadingHandler{context}
 	response := handler.Handle(params)
 

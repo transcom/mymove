@@ -25,9 +25,6 @@ jobs:
           command: npm install markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
-          name: Install go-bindata
-          command: go get -u github.com/kevinburke/go-bindata/...
-      - run:
           name: Run make server_generate
           command: make server_generate
       - run:
@@ -67,9 +64,6 @@ jobs:
       - run:
           name: Install YARN dependencies
           command: yarn
-      - run:
-          name: Install go-bindata
-          command: go get -u github.com/kevinburke/go-bindata/...
       - run:
           name: Add Go binaries to path
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
@@ -111,12 +105,6 @@ jobs:
       - restore_cache:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-      - run:
-          name: Install go-bindata
-          command: |
-            go get -u github.com/kevinburke/go-bindata/...
-            go version
-            go-bindata help
 
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
