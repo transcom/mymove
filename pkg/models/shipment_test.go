@@ -106,6 +106,20 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 }
 
+func (suite *ModelSuite) TestSetBookDateWhenSubmittted() {
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: {
+			BookDate: nil,
+		},
+	})
+	suite.Nil(shipment.BookDate)
+
+	// Can submit shipment
+	err := shipment.Submit()
+	suite.Nil(err)
+	suite.NotNil(shipment.BookDate)
+}
+
 // TestAcceptShipmentForTSP tests that a shipment and shipment offer is correctly accepted
 func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	numTspUsers := 1
