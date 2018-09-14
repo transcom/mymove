@@ -9,20 +9,34 @@ import Alert from 'shared/Alert';
 import './index.css';
 
 export const PanelField = props => {
-  const { title, value } = props;
+  const { title, value, required } = props;
   const classes = classNames('panel-field', props.className);
-  return (
+  let component = (
     <div className={classes}>
       <span className="field-title">{title}</span>
       <span className="field-value">{value || props.children}</span>
     </div>
   );
+
+  /* eslint-disable security/detect-object-injection */
+  if (required && !(value || props.children)) {
+    component = (
+      <div className={'missing ' + classes}>
+        <span className="field-title">{title}</span>
+        <span className="field-value">missing</span>
+      </div>
+    );
+  }
+  /* eslint-enable security/detect-object-injection */
+
+  return component;
 };
 PanelField.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.string,
   children: PropTypes.node,
   className: PropTypes.string,
+  required: PropTypes.bool,
 };
 
 export const SwaggerValue = props => {
@@ -53,7 +67,7 @@ SwaggerValue.propTypes = {
 };
 
 export const PanelSwaggerField = props => {
-  const { fieldName, nullWarning, schema, values } = props;
+  const { fieldName, required, schema, values } = props;
   const title =
     props.title || get(schema, `properties.${fieldName}.title`, fieldName);
   let component = (
@@ -64,10 +78,9 @@ export const PanelSwaggerField = props => {
   );
 
   /* eslint-disable security/detect-object-injection */
-  if (nullWarning && !values[fieldName]) {
+  if (required && !values[fieldName]) {
     component = (
-      <PanelField title={title} className={'missing ' + fieldName}>
-        missing
+      <PanelField title={title} className={fieldName} required>
         {props.children}
       </PanelField>
     );
@@ -82,7 +95,7 @@ PanelSwaggerField.propTypes = {
   values: PropTypes.object.isRequired,
   title: PropTypes.string,
   children: PropTypes.node,
-  nullWarning: PropTypes.bool,
+  required: PropTypes.bool,
 };
 
 export class EditablePanel extends Component {
