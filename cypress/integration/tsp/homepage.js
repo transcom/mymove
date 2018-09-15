@@ -1,7 +1,7 @@
 /* global cy */
 describe('TSP Home Page', function() {
   beforeEach(() => {
-    Cypress.config('baseUrl', 'http://tsplocal:4000');
+    Cypress.config('baseUrl', 'http://tsplocal:8080');
   });
   it('successfully loads when not logged in', function() {
     cy.visit('/');

@@ -3,7 +3,8 @@
 set -eu -o pipefail
 
 # Runs both the webserver and Cypress in parallel
-LOGIN_GOV_CALLBACK_PORT=4000 ENV=test bin/webserver --port 4000 & p1=$!
+ENV=test bin/webserver & p1=$!
+trap "kill $p1" SIGINT
 npx cypress run & p2=$!
 
 wait $p2

@@ -83,12 +83,17 @@ jobs:
           name: Install cypress
           command: npm install cypress@~3.1.0
       - run:
+          name: Setup hostnames
+          command: |
+            echo 127.0.0.1 officelocal | sudo tee -a /etc/hosts
+            echo 127.0.0.1 tsplocal | sudo tee -a /etc/hosts
+      - run:
           name: make e2e_test_ci
           command: |
-            echo 'export HTTPS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export HTTPS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export HTTPS_CLIENT_AUTH_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export HTTPS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export HTTPS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export HTTPS_CLIENT_AUTH_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
@@ -102,8 +107,17 @@ jobs:
               DB_HOST: localhost
               DB_PORT: 5432
               DB_NAME: test_db
+              # Env vars needed for the webserver to run
               SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
               SECURE_MIGRATION_SOURCE: local
+              LOGIN_GOV_CALLBACK_PROTOCOL: http://
+              LOGIN_GOV_CALLBACK_PORT: 8080
+              LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
+              LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
+              LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
+              LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+              HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
+              HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
 
       - save_cache:
           key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
