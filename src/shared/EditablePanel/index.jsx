@@ -3,25 +3,40 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { get } from 'lodash';
 
-import { formatCents } from 'shared/formatters';
+import { formatCents, formatDate } from 'shared/formatters';
+import Alert from 'shared/Alert';
 
 import './index.css';
 
 export const PanelField = props => {
-  const { title, value } = props;
+  const { title, value, required } = props;
   const classes = classNames('panel-field', props.className);
-  return (
+  let component = (
     <div className={classes}>
       <span className="field-title">{title}</span>
       <span className="field-value">{value || props.children}</span>
     </div>
   );
+
+  /* eslint-disable security/detect-object-injection */
+  if (required && !(value || props.children)) {
+    component = (
+      <div className={'missing ' + classes}>
+        <span className="field-title">{title}</span>
+        <span className="field-value">missing</span>
+      </div>
+    );
+  }
+  /* eslint-enable security/detect-object-injection */
+
+  return component;
 };
 PanelField.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.string,
   children: PropTypes.node,
   className: PropTypes.string,
+  required: PropTypes.bool,
 };
 
 export const SwaggerValue = props => {
@@ -29,17 +44,18 @@ export const SwaggerValue = props => {
   /* eslint-disable security/detect-object-injection */
   const swaggerProps = schema.properties[fieldName];
 
-  let value = values[fieldName];
+  let value = values[fieldName] || '';
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
   }
   if (swaggerProps.format === 'cents') {
     value = formatCents(value);
   }
-  if (swaggerProps.type === 'integer') {
-    if (fieldName === 'weight_estimate') {
-      value = value.toLocaleString() + ' lbs';
-    }
+  if (swaggerProps.format === 'date') {
+    value = formatDate(value);
+  }
+  if (value && swaggerProps['x-formatting'] === 'weight') {
+    value = value.toLocaleString() + ' lbs';
   }
   /* eslint-enable security/detect-object-injection */
   return <React.Fragment>{value || null}</React.Fragment>;
@@ -51,21 +67,35 @@ SwaggerValue.propTypes = {
 };
 
 export const PanelSwaggerField = props => {
-  const { fieldName, schema } = props;
+  const { fieldName, required, schema, values } = props;
   const title =
     props.title || get(schema, `properties.${fieldName}.title`, fieldName);
-
-  return (
-    <PanelField title={title}>
+  let component = (
+    <PanelField title={title} className={fieldName}>
       <SwaggerValue {...props} />
+      {props.children}
     </PanelField>
   );
+
+  /* eslint-disable security/detect-object-injection */
+  if (required && !values[fieldName]) {
+    component = (
+      <PanelField title={title} className={fieldName} required>
+        {props.children}
+      </PanelField>
+    );
+  }
+  /* eslint-enable security/detect-object-injection */
+
+  return component;
 };
 PanelSwaggerField.propTypes = {
   fieldName: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   values: PropTypes.object.isRequired,
   title: PropTypes.string,
+  children: PropTypes.node,
+  required: PropTypes.bool,
 };
 
 export class EditablePanel extends Component {
@@ -135,6 +165,81 @@ export class EditablePanel extends Component {
       </div>
     );
   }
+}
+
+// Convenience function for creating an editable panel given a display component and an edit component
+export function editablePanelify(
+  DisplayComponent,
+  EditComponent,
+  editEnabled = true,
+) {
+  const Wrapper = class extends Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        isEditable: false,
+      };
+      // TODO: Figure out why bind is still needed when ostensibly it's not
+      this.save = this.save.bind(this);
+    }
+
+    save = () => {
+      let isValid = this.props.valid;
+      if (isValid) {
+        let args = this.props.getUpdateArgs();
+        this.props.update(...args);
+        this.toggleEditable();
+      }
+    };
+
+    cancel = () => {
+      this.props.reset();
+      this.toggleEditable();
+    };
+
+    toggleEditable = () => {
+      this.setState({
+        isEditable: !this.state.isEditable,
+      });
+    };
+
+    render() {
+      const isEditable =
+        (editEnabled && (this.state.isEditable || this.props.isUpdating)) ||
+        false;
+      const Content = isEditable ? EditComponent : DisplayComponent;
+
+      return (
+        <React.Fragment>
+          {this.props.hasError && (
+            <Alert type="error" heading="An error occurred">
+              There was an error: <em>{this.props.errorMessage}</em>.
+            </Alert>
+          )}
+          <EditablePanel
+            title={this.props.title}
+            className={this.props.className}
+            onSave={this.save}
+            onEdit={this.toggleEditable}
+            onCancel={this.cancel}
+            isEditable={isEditable}
+            editEnabled={editEnabled}
+            isValid={this.props.valid}
+          >
+            <Content {...this.props} />
+          </EditablePanel>
+        </React.Fragment>
+      );
+    }
+  };
+
+  Wrapper.propTypes = {
+    update: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired,
+    isUpdating: PropTypes.bool,
+  };
+
+  return Wrapper;
 }
 
 EditablePanel.propTypes = {

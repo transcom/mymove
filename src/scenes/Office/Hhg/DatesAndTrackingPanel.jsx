@@ -2,13 +2,12 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid } from 'redux-form';
+import { reduxForm, getFormValues } from 'redux-form';
 
-import editablePanel from '../editablePanel';
 import { formatDate } from 'shared/formatters';
 import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelSwaggerField } from 'shared/EditablePanel';
+import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
 const DatesAndTrackingDisplay = props => {
   return (
@@ -44,7 +43,7 @@ const DatesAndTrackingEdit = props => {
 const formName = 'office_shipment_info_dates_and_tracking';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let DatesAndTrackingPanel = editablePanel(
+let DatesAndTrackingPanel = editablePanelify(
   DatesAndTrackingDisplay,
   DatesAndTrackingEdit,
   editEnabled,
@@ -67,8 +66,7 @@ function mapStateToProps(state) {
     shipment: shipment,
     isUpdating: state.office.shipmentIsUpdating,
 
-    // editablePanel
-    formIsValid: isValid(formName)(state),
+    // editablePanelify
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [shipment.id, values];

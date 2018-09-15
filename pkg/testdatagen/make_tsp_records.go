@@ -31,7 +31,7 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 		StandardCarrierAlphaCode: scac,
 	}
 
-	verrs, err := db.ValidateAndSave(&tsp)
+	verrs, err := db.ValidateAndCreate(&tsp)
 	if verrs.HasAny() {
 		err = fmt.Errorf("TSP validation errors: %v", verrs)
 	}

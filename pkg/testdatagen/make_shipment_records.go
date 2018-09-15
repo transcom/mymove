@@ -2,7 +2,6 @@ package testdatagen
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -12,62 +11,34 @@ import (
 
 // MakeShipment creates a single shipment record
 func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
-
-	requestedPickupDate := assertions.Shipment.RequestedPickupDate
-	if requestedPickupDate == nil {
-		requestedPickupDate = models.TimePointer(PerformancePeriodStart)
-	}
-	pickupDate := assertions.Shipment.PickupDate
-	if pickupDate == nil {
-		pickupDate = models.TimePointer(DateInsidePerformancePeriod)
-	}
-	deliveryDate := assertions.Shipment.DeliveryDate
-	if deliveryDate == nil {
-		deliveryDate = models.TimePointer(DateOutsidePerformancePeriod)
-	}
-
 	tdl := assertions.Shipment.TrafficDistributionList
 	if tdl == nil {
 		newTDL := MakeDefaultTDL(db)
 		tdl = &newTDL
 	}
 
-	sourceGBLOC := assertions.Shipment.SourceGBLOC
-	if sourceGBLOC == nil {
-		sourceGBLOC = &DefaultSrcGBLOC
-	}
-	destinationGBLOC := assertions.Shipment.DestinationGBLOC
-	if destinationGBLOC == nil {
-		destinationGBLOC = &DefaultSrcGBLOC
-	}
-
-	market := assertions.Shipment.Market
-	if market == nil {
-		market = &DefaultMarket
-	}
-
 	move := assertions.Shipment.Move
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Shipment.MoveID) {
 		newMove := MakeMove(db, assertions)
-		move = &newMove
+		move = newMove
 	}
 
 	serviceMember := assertions.Shipment.ServiceMember
 	if serviceMember == nil {
-		newServiceMember := MakeDefaultServiceMember(db)
-		serviceMember = &newServiceMember
-	}
-
-	codeOfService := assertions.Shipment.CodeOfService
-	if codeOfService == nil {
-		codeOfService = &DefaultCOS
+		serviceMember = &move.Orders.ServiceMember
 	}
 
 	pickupAddress := assertions.Shipment.PickupAddress
 	if pickupAddress == nil {
-		newPickupAddress := MakeAddress(db, Assertions{})
+		newPickupAddress := MakeDefaultAddress(db)
 		pickupAddress = &newPickupAddress
+	}
+
+	deliveryAddress := assertions.Shipment.DeliveryAddress
+	if deliveryAddress == nil {
+		newDeliveryAddress := MakeAddress(db, Assertions{})
+		deliveryAddress = &newDeliveryAddress
 	}
 
 	status := assertions.Shipment.Status
@@ -80,17 +51,16 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		TrafficDistributionList:      tdl,
 		ServiceMemberID:              serviceMember.ID,
 		ServiceMember:                serviceMember,
-		PickupDate:                   timePointer(*pickupDate),
-		DeliveryDate:                 timePointer(*deliveryDate),
-		SourceGBLOC:                  stringPointer(*sourceGBLOC),
-		DestinationGBLOC:             stringPointer(*destinationGBLOC),
-		Market:                       market,
-		CodeOfService:                codeOfService,
+		ActualPickupDate:             timePointer(DateInsidePerformancePeriod),
+		DeliveryDate:                 timePointer(DateOutsidePerformancePeriod),
+		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
+		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
+		Market:                       &DefaultMarket,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),
-		RequestedPickupDate:          timePointer(*requestedPickupDate),
+		RequestedPickupDate:          timePointer(PerformancePeriodStart),
 		MoveID:                       move.ID,
 		Move:                         move,
-		Status:                       status,
+		Status:                       models.ShipmentStatusDRAFT,
 		EstimatedPackDays:            models.Int64Pointer(2),
 		EstimatedTransitDays:         models.Int64Pointer(3),
 		PickupAddressID:              &pickupAddress.ID,
@@ -98,9 +68,9 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		HasSecondaryPickupAddress:    false,
 		SecondaryPickupAddressID:     nil,
 		SecondaryPickupAddress:       nil,
-		HasDeliveryAddress:           false,
-		DeliveryAddressID:            nil,
-		DeliveryAddress:              nil,
+		HasDeliveryAddress:           true,
+		DeliveryAddressID:            &deliveryAddress.ID,
+		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: false,
 		PartialSITDeliveryAddressID:  nil,
 		PartialSITDeliveryAddress:    nil,
@@ -109,13 +79,10 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		SpouseProgearWeightEstimate:  poundPointer(312),
 	}
 
-	verrs, err := db.ValidateAndSave(&shipment)
-	if verrs.HasAny() {
-		err = fmt.Errorf("shipment validation errors: %v", verrs)
-	}
-	if err != nil {
-		log.Panic(err)
-	}
+	// Overwrite values with those from assertions
+	mergeModels(&shipment, assertions.Shipment)
+
+	mustCreate(db, &shipment)
 
 	return shipment
 }
@@ -147,7 +114,7 @@ func MakeShipmentData(db *pop.Connection) {
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &now,
-			PickupDate:              &now,
+			ActualPickupDate:        &now,
 			DeliveryDate:            &now,
 			TrafficDistributionList: &tdlList[0],
 			SourceGBLOC:             &sourceGBLOC,
@@ -158,7 +125,7 @@ func MakeShipmentData(db *pop.Connection) {
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusOne,
-			PickupDate:              &nowPlusOne,
+			ActualPickupDate:        &nowPlusOne,
 			DeliveryDate:            &nowPlusOne,
 			TrafficDistributionList: &tdlList[1],
 			SourceGBLOC:             &sourceGBLOC,
@@ -169,7 +136,7 @@ func MakeShipmentData(db *pop.Connection) {
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusTwo,
-			PickupDate:              &nowPlusTwo,
+			ActualPickupDate:        &nowPlusTwo,
 			DeliveryDate:            &nowPlusTwo,
 			TrafficDistributionList: &tdlList[2],
 			SourceGBLOC:             &sourceGBLOC,

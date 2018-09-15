@@ -55,6 +55,7 @@ class QueueTable extends Component {
   render() {
     const titles = {
       new: 'New Shipments',
+      in_transit: 'HHGs In Transit',
       all: 'All Shipments',
     };
 

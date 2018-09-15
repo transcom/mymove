@@ -22,6 +22,20 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 	suite.verifyValidationErrors(move, expErrors)
 }
 
+func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	var selectedType = internalmessages.SelectedMoveTypeHHG
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	// Verify valid items are in locator
+	suite.Regexp("^[346789BCDFGHJKMPQRTVWXY]+$", move.Locator)
+	// Verify invalid items are not in locator - this should produce "non-word" locators
+	suite.NotRegexp("[0125AEIOULNSZ]", move.Locator)
+}
+
 func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.db)
 	order2 := testdatagen.MakeDefaultOrder(suite.db)
@@ -49,13 +63,13 @@ func (suite *ModelSuite) TestFetchMove() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
 			ServiceMember:           &order1.ServiceMember,
-			Move:                    move,
+			Move:                    *move,
 			MoveID:                  move.ID,
 		},
 	})
@@ -116,11 +130,50 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	reason := ""
 	move.Orders = orders
 
+	// Create PPM on this move
+	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+	ppm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Move:      *move,
+			MoveID:    move.ID,
+			Status:    PPMStatusDRAFT,
+			Advance:   &advance,
+			AdvanceID: &advance.ID,
+		},
+	})
+	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+
+	// Create hhg (shipment) on this move
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			MoveID:                  move.ID,
+			Move:                    *move,
+			RequestedPickupDate:     &pickupDate,
+			ActualPickupDate:        &pickupDate,
+			DeliveryDate:            &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+			Status:                  ShipmentStatusDRAFT,
+		},
+	})
+
+	move.Shipments = append(move.Shipments, shipment)
+
 	// Once submitted
 	err = move.Submit()
+	suite.mustSave(move)
+	suite.db.Reload(move)
 	suite.Nil(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
-
+	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
+	suite.Equal(ShipmentStatusSUBMITTED, move.Shipments[0].Status, "expected Submitted")
 	// Can cancel move
 	err = move.Cancel(reason)
 	suite.Nil(err)
@@ -222,13 +275,13 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
 			ServiceMember:           &serviceMember,
-			Move:                    move,
+			Move:                    *move,
 			MoveID:                  move.ID,
 		},
 	})
@@ -245,7 +298,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 
 	// Then: Shipment GBLOCs will be equal to:
 	// destination GBLOC: orders' new duty station's transportation office's GBLOC
-	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *shipment.DestinationGBLOC)
+	suite.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *shipment.DestinationGBLOC)
 	// source GBLOC: service member's current duty station's transportation office's GBLOC
-	suite.Assertions.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *shipment.SourceGBLOC)
+	suite.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *shipment.SourceGBLOC)
+	// GBL number should be set
+	suite.NotNil(shipment.GBLNumber)
 }

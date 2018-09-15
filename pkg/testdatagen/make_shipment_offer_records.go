@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
@@ -15,23 +14,25 @@ import (
 // MakeShipmentOffer creates a single shipment offer record
 func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.ShipmentOffer {
 
-	// Test for ShipmentID first before creating a new Shipment
-	shipmentID := assertions.ShipmentOffer.ShipmentID
+	// Test for Shipment first before creating a new Shipment
+	shipment := assertions.ShipmentOffer.Shipment
 	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
-		shipment := MakeDefaultShipment(db)
-		shipmentID = shipment.ID
+		shipment = MakeShipment(db, assertions)
 	}
 
 	// Test for TSP ID first before creating a new TSP
-	tspID := assertions.ShipmentOffer.TransportationServiceProviderID
-	if isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
-		// TODO: Make TSP and get ID
+
+	tsp := assertions.ShipmentOffer.TransportationServiceProvider
+	if isZeroUUID(tsp.ID) || isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
+		tsp = MakeTSP(db, assertions)
 	}
 	shipmentOffer := models.ShipmentOffer{
-		ShipmentID:                      shipmentID,
-		TransportationServiceProviderID: tspID,
+		ShipmentID:                      shipment.ID,
+		Shipment:                        shipment,
+		TransportationServiceProviderID: tsp.ID,
+		TransportationServiceProvider:   tsp,
 		AdministrativeShipment:          false,
-		Accepted:                        swag.Bool(true),
+		Accepted:                        nil, // This is a Tri-state and new offers are always nil until accepted
 		RejectionReason:                 nil,
 	}
 
@@ -70,7 +71,7 @@ func MakeShipmentOfferData(db *pop.Connection) {
 				ShipmentID:                      shipment.ID,
 				TransportationServiceProviderID: tspList[rand.Intn(len(tspList))].ID,
 				AdministrativeShipment:          false,
-				Accepted:                        swag.Bool(true),
+				Accepted:                        nil, // See note about Tri-state above
 				RejectionReason:                 nil,
 			},
 		}
@@ -103,7 +104,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
-		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
+		email := fmt.Sprintf("leo_spaceman_tsp_%d@example.com", i)
 		tspUserAssertions := Assertions{
 			User: models.User{
 				LoginGovEmail: email,
@@ -129,34 +130,71 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	sourceGBLOC := "OHAI"
 	oneWeek, _ := time.ParseDuration("7d")
 	selectedMoveType := "HHG"
-	moveAssertions := Assertions{
-		Move: models.Move{
-			SelectedMoveType: &selectedMoveType,
-		},
-	}
 	if len(statuses) == 0 {
-		statuses = []models.ShipmentStatus{models.ShipmentStatusDRAFT, models.ShipmentStatusAWARDED}
+		statuses = []models.ShipmentStatus{
+			models.ShipmentStatusDRAFT,
+			models.ShipmentStatusSUBMITTED,
+			models.ShipmentStatusAWARDED,
+			models.ShipmentStatusACCEPTED}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
 		nowPlusTwo := now.Add(oneWeek * 2)
-		move := MakeMove(db, moveAssertions)
+
+		// Service Member Details
+		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
+
+		// Shipment Details
+		shipmentStatus := statuses[rand.Intn(len(statuses))]
+
+		// Move Details
+		moveStatus := models.MoveStatusDRAFT
+		if shipmentStatus == models.ShipmentStatusSUBMITTED {
+			moveStatus = models.MoveStatusSUBMITTED
+		} else if shipmentStatus != models.ShipmentStatusDRAFT {
+			moveStatus = models.MoveStatusAPPROVED
+		}
+
 		shipmentAssertions := Assertions{
+			User: models.User{
+				LoginGovEmail: smEmail,
+			},
+			Move: models.Move{
+				SelectedMoveType: &selectedMoveType,
+				Status:           moveStatus,
+			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
-				PickupDate:              &nowPlusOne,
+				ActualPickupDate:        &nowPlusOne,
 				DeliveryDate:            &nowPlusTwo,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
-				Move:                    &move,
-				MoveID:                  move.ID,
-				Status:                  statuses[rand.Intn(len(statuses))],
+				Status:                  shipmentStatus,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
 		shipmentList = append(shipmentList, shipment)
+
+		// Accepted shipments must have an OSA and DSA
+		// This does not cover making any SA's for shipments that have statuses after Accepted (like Approved)
+		if shipmentStatus == models.ShipmentStatusACCEPTED {
+			originServiceAgentAssertions := Assertions{
+				ServiceAgent: models.ServiceAgent{
+					ShipmentID: shipment.ID,
+					Role:       models.RoleORIGIN,
+				},
+			}
+			MakeServiceAgent(db, originServiceAgentAssertions)
+			destinationServiceAgentAssertions := Assertions{
+				ServiceAgent: models.ServiceAgent{
+					ShipmentID: shipment.ID,
+					Role:       models.RoleDESTINATION,
+				},
+			}
+			MakeServiceAgent(db, destinationServiceAgentAssertions)
+		}
 		time.Sleep(100 * time.Millisecond)
 	}
 

@@ -88,7 +88,5 @@ describe('completing the hhg flow', function() {
     cy.nextPage();
     cy.contains('Success');
     cy.contains('Next Step: Awaiting approval');
-
-    cy.resetDb();
   });
 });

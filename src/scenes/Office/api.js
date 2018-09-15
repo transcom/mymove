@@ -1,4 +1,5 @@
 import { getClient, checkResponse } from 'shared/api';
+import { formatPayload } from 'shared/utils';
 
 // MOVE QUEUE
 export async function RetrieveMovesForOffice(queueType) {
@@ -17,6 +18,18 @@ export async function LoadMove(moveId) {
     moveId,
   });
   checkResponse(response, 'failed to load move due to server error');
+  return response.body;
+}
+
+// SHIPMENT
+export async function PatchShipment(shipmentId, shipment) {
+  const client = await getClient();
+  const payloadDef = client.spec.definitions.Shipment;
+  const response = await client.apis.shipments.patchShipment({
+    shipmentId,
+    shipment: formatPayload(shipment, payloadDef),
+  });
+  checkResponse(response, 'failed to load shipment due to server error');
   return response.body;
 }
 
@@ -108,6 +121,16 @@ export async function ApprovePPM(moveId, ppmId) {
   return response.body;
 }
 
+// HHG status
+export async function ApproveHHG(shipmentId) {
+  const client = await getClient();
+  const response = await client.apis.shipments.approveHHG({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to approve hhg due to server error');
+  return response.body;
+}
+
 // Reimbursement status
 export async function ApproveReimbursement(reimbursementId) {
   const client = await getClient();
@@ -138,10 +161,11 @@ export async function CancelMove(moveId, cancelReason) {
 }
 
 // PPM attachments
-export async function DownloadPPMAttachments(ppmId) {
+export async function DownloadPPMAttachments(ppmId, docTypes) {
   const client = await getClient();
   const response = await client.apis.ppm.createPPMAttachments({
     personallyProcuredMoveId: ppmId,
+    docTypes: docTypes,
   });
   checkResponse(response, 'failed to create PPM attachments PDF');
   return response.body;

@@ -59,6 +59,7 @@ The client application (i.e. website) makes outbound requests to the following d
 
 * S3 for document downloads; exact domains TBD.
 * New Relic for browser performance monitoring; specifically `bam.nr-data.net` and `js-agent.newrelic.*`. [More info and IPs are listed here](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/networks#agents).
+* Honeycomb for server-side debugging and observability. Currently being tested in staging and experimental environments.
 
 ## Development
 
@@ -126,7 +127,9 @@ The following commands will get mymove running on your machine for the first tim
 
 ### Setup: Prerequisites
 
-* Install Go with Homebrew. Make sure you do not have other installations.
+* Install Go version 1.10 with Homebrew. Make sure you do not have other installations.
+  * `brew install go@1.10`
+  * Brew will warn you that "go@1.10 is keg-only, which means it was not symlinked". Add the following to your bash config: `export PATH="/usr/local/opt/go@1.10/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
@@ -179,6 +182,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     `127.0.0.1 tsplocal`
 2. Ensure that you have a test account which can log into the TSP site...
     * `make tools_build` to build the tools
+    * run `./bin/generate-test-data -scenario=7` to load test data
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
@@ -225,6 +229,7 @@ Currently, scenarios have the following numbers:
 * `-scenario=4` for PPM or PPM SIT Estimate Scenario (can also use Rate Engine Scenarios for Estimates)
 * `-scenario=5` for Rate Engine Scenario 1
 * `-scenario=6` for Rate Engine Scenario 2
+* `-scenario=7` for TSP test data
 
 ### API / Swagger
 
@@ -278,7 +283,7 @@ Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate migrat
 
 If you are generating a new model, use `./bin/gen_model model-name column-name:type column-name:type ...`. id, created_at and updated_at are all created automatically.
 
-If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/gobuffalo/pop/blob/master/fizz/README.md) yourself to the created files.
+If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/gobuffalo/fizz) yourself to the created files.
 
 Running migrations in local development:
 

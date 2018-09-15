@@ -2,18 +2,15 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import {
-  reduxForm,
-  getFormValues,
-  isValid,
-  FormSection,
-  Field,
-} from 'redux-form';
+import { reduxForm, getFormValues, FormSection, Field } from 'redux-form';
 
-import editablePanel from './editablePanel';
 import { updateOrdersInfo } from './ducks.js';
 import { formatDate, formatDateTime } from 'shared/formatters';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  editablePanelify,
+} from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
@@ -49,94 +46,78 @@ const OrdersViewerDisplay = props => {
           </p>
         )}
 
-        {orders.orders_number ? (
-          <PanelSwaggerField fieldName="orders_number" {...ordersFieldsProps} />
-        ) : (
-          <PanelField title="Orders number" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.issue_date ? (
-          <PanelField
-            title="Date issued"
-            value={formatDate(orders.issue_date)}
-          />
-        ) : (
-          <PanelField title="Date issued" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.orders_type ? (
-          <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
-        ) : (
-          <PanelField title="Orders type" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.orders_type_detail ? (
-          <PanelSwaggerField
-            fieldName="orders_type_detail"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="Orders type detail" className="missing">
-            {' '}
-            missing
-          </PanelField>
-        )}
-        {orders.report_by_date ? (
-          <PanelField
-            title="Report by"
-            value={formatDate(orders.report_by_date)}
-          />
-        ) : (
-          <PanelField title="Report by" className="missing">
-            missing
-          </PanelField>
-        )}
-        {currentDutyStation ? (
-          <PanelField title="Current Duty Station">
-            {currentDutyStation}
-          </PanelField>
-        ) : (
-          <PanelField title="Current Duty Station" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.new_duty_station ? (
-          <PanelField title="New Duty Station">
-            {get(orders, 'new_duty_station.name', '')}
-          </PanelField>
-        ) : (
-          <PanelField title="New Duty Station" className="missing">
-            missing
-          </PanelField>
-        )}
+        <PanelSwaggerField
+          fieldName="orders_number"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelField
+          title="Date issued"
+          required
+          value={formatDate(orders.issue_date)}
+        />
+
+        <PanelSwaggerField
+          fieldName="orders_type"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField
+          fieldName="orders_type_detail"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelField
+          title="Report by"
+          required
+          value={formatDate(orders.report_by_date)}
+        />
+
+        <PanelField
+          title="Current Duty Station"
+          required
+          value={currentDutyStation}
+        />
+
+        <PanelField
+          title="New Duty Station"
+          required
+          value={get(orders, 'new_duty_station.name', '')}
+        />
+
         {orders.has_dependents && (
           <PanelField title="Dependents" value="Authorized" />
         )}
-        {orders.department_indicator ? (
-          <PanelSwaggerField
-            title="Dept. Indicator"
-            fieldName="department_indicator"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="Dept. Indicator" className="missing">
-            missing
-          </PanelField>
-        )}
-        {orders.tac ? (
-          <PanelSwaggerField
-            title="TAC"
-            fieldName="tac"
-            {...ordersFieldsProps}
-          />
-        ) : (
-          <PanelField title="TAC" className="missing">
-            missing
-          </PanelField>
-        )}
+
+        <PanelSwaggerField
+          title="Dept. Indicator"
+          fieldName="department_indicator"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField
+          title="Orders Issuing Agency"
+          fieldName="orders_issuing_agency"
+          {...ordersFieldsProps}
+        />
+        <PanelSwaggerField
+          title="Paragraph Number"
+          fieldName="paragraph_number"
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField
+          title="TAC"
+          fieldName="tac"
+          required
+          {...ordersFieldsProps}
+        />
+
+        <PanelSwaggerField title="SAC" fieldName="sac" {...ordersFieldsProps} />
       </div>
     </React.Fragment>
   );
@@ -205,7 +186,18 @@ const OrdersViewerEdit = props => {
             fieldName="department_indicator"
             swagger={schema}
           />
+          <SwaggerField
+            title="Orders Issuing Agency"
+            fieldName="orders_issuing_agency"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Paragraph Number"
+            fieldName="paragraph_number"
+            swagger={schema}
+          />
           <SwaggerField title="TAC" fieldName="tac" swagger={schema} />
+          <SwaggerField title="SAC" fieldName="sac" swagger={schema} />
         </FormSection>
       </div>
     </React.Fragment>
@@ -214,7 +206,7 @@ const OrdersViewerEdit = props => {
 
 const formName = 'orders_document_viewer';
 
-let OrdersViewerPanel = editablePanel(OrdersViewerDisplay, OrdersViewerEdit);
+let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
 function mapStateToProps(state) {
@@ -235,8 +227,7 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'office.officeServiceMember', {}),
     move: get(state, 'office.officeMove', {}),
 
-    // editablePanel
-    formIsValid: isValid(formName)(state),
+    // editablePanelify
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [

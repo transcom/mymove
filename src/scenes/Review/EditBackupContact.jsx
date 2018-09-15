@@ -24,6 +24,10 @@ let EditBackupContactForm = props => {
       <img src={profileImage} alt="" /> Backup Contact
       <hr />
       <h3 className="sm-heading">Edit Backup Contact:</h3>
+      <p>
+        Any person you assign as a backup contact must be 18 years of age or
+        older.
+      </p>
       <SwaggerField fieldName="name" swagger={schema} required />
       <SwaggerField fieldName="email" swagger={schema} required />
       <SwaggerField fieldName="telephone" swagger={schema} />

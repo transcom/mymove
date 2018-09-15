@@ -13,6 +13,18 @@
   vertical-align: top;
 }
 
+.editable-panel-3-column {
+  display: inline-block;
+  width: 28%;
+  margin-right: 5%;
+  vertical-align: top;
+}
+
+.column-head{
+  font-weight: 700;
+  margin: 8px 0 4px 0;
+}
+
 .column-subhead{
   display: block;
   margin: 0.8em;
@@ -63,12 +75,7 @@
 
 .editable-panel .half-width {
   width: 45%;
-  display: inline-block;
   vertical-align: top;
-}
-
-.editable-panel .half-width + .half-width {
-  margin-left: 2em;
 }
 
 .office-tab .editable-panel-edit {

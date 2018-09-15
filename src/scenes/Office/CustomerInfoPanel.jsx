@@ -2,9 +2,8 @@ import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import editablePanel from './editablePanel';
 import { addressElementDisplay, addressElementEdit } from './AddressElement';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
@@ -14,6 +13,7 @@ import {
   PanelSwaggerField,
   PanelField,
   SwaggerValue,
+  editablePanelify,
 } from 'shared/EditablePanel';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -146,7 +146,7 @@ const CustomerInfoEdit = props => {
 
 const formName = 'office_move_info_customer_info';
 
-let CustomerInfoPanel = editablePanel(CustomerInfoDisplay, CustomerInfoEdit);
+let CustomerInfoPanel = editablePanelify(CustomerInfoDisplay, CustomerInfoEdit);
 CustomerInfoPanel = reduxForm({
   form: formName,
   validate: validateRequiredFields,
@@ -178,8 +178,7 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     isUpdating: false,
 
-    // editablePanel
-    formIsValid: isValid(formName)(state),
+    // editablePanelify
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       let serviceMember = values.serviceMember;

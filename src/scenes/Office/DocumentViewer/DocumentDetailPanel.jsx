@@ -2,12 +2,11 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, omit } from 'lodash';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import editablePanel from '../editablePanel';
 import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
 import { formatDate, formatCents } from 'shared/formatters';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
 import {
@@ -35,23 +34,19 @@ const DocumentDetailDisplay = props => {
         <p className="uploaded-at">
           Uploaded {formatDate(get(moveDoc, 'document.uploads.0.created_at'))}
         </p>
-        {moveDoc.title ? (
-          <PanelSwaggerField fieldName="title" {...moveDocFieldProps} />
-        ) : (
-          <PanelField title="Document Title" className="missing">
-            Missing
-          </PanelField>
-        )}
-        {moveDoc.move_document_type ? (
-          <PanelSwaggerField
-            fieldName="move_document_type"
-            {...moveDocFieldProps}
-          />
-        ) : (
-          <PanelField title="Document Type" className="missing">
-            Missing
-          </PanelField>
-        )}
+        <PanelSwaggerField
+          title="Document Title"
+          fieldName="title"
+          required
+          {...moveDocFieldProps}
+        />
+
+        <PanelSwaggerField
+          title="Document Type"
+          fieldName="move_document_type"
+          required
+          {...moveDocFieldProps}
+        />
         {isExpenseDocument &&
           moveDoc.moving_expense_type && (
             <PanelSwaggerField
@@ -73,18 +68,18 @@ const DocumentDetailDisplay = props => {
               {...moveDocFieldProps}
             />
           )}
-        {moveDoc.status ? (
-          <PanelSwaggerField fieldName="status" {...moveDocFieldProps} />
-        ) : (
-          <PanelField title="Document Status" className="missing">
-            Missing
-          </PanelField>
-        )}
-        {moveDoc.notes ? (
-          <PanelSwaggerField fieldName="notes" {...moveDocFieldProps} />
-        ) : (
-          <PanelField title="Notes" />
-        )}
+        <PanelSwaggerField
+          title="Document Status"
+          fieldName="status"
+          required
+          {...moveDocFieldProps}
+        />
+
+        <PanelSwaggerField
+          title="Notes"
+          fieldName="notes"
+          {...moveDocFieldProps}
+        />
       </div>
     </React.Fragment>
   );
@@ -117,7 +112,7 @@ const DocumentDetailEdit = props => {
 
 const formName = 'move_document_viewer';
 
-let DocumentDetailPanel = editablePanel(
+let DocumentDetailPanel = editablePanelify(
   DocumentDetailDisplay,
   DocumentDetailEdit,
 );
@@ -149,8 +144,7 @@ function mapStateToProps(state, props) {
     isUpdating: false,
     moveDocument: moveDocument,
 
-    // editablePanel
-    formIsValid: isValid(formName)(state),
+    // editablePanelify
     getUpdateArgs: function() {
       // Make a copy of values to not modify moveDocument
       let values = JSON.parse(JSON.stringify(getFormValues(formName)(state)));
@@ -168,18 +162,8 @@ function mapStateToProps(state, props) {
         ]);
       }
       if (get(values.moveDocument, 'move_document_type', '') === 'EXPENSE') {
-        values.moveDocument.requested_amount_cents = parseFloat(
-          values.moveDocument.requested_amount_cents,
-        );
-      }
-      let requested_amount = get(
-        values.moveDocument,
-        'requested_amount_cents',
-        '',
-      );
-      if (requested_amount) {
         values.moveDocument.requested_amount_cents = convertDollarsToCents(
-          requested_amount,
+          values.moveDocument.requested_amount_cents,
         );
       }
       return [

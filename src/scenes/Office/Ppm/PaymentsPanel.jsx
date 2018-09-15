@@ -19,7 +19,7 @@ import './PaymentsPanel.css';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
-  424: 'Could not find any receipts for this PPM',
+  424: 'Could not find any receipts or documents for this PPM',
   500: 'An unexpected error has occurred',
 };
 
@@ -37,20 +37,22 @@ class PaymentsTable extends Component {
     this.setState({ showPaperwork: !this.state.showPaperwork });
   };
 
-  startDownload = () => {
+  startDownload = docTypes => {
     this.setState({ disableDownload: true });
-    this.props.downloadPPMAttachments(this.props.ppm.id).then(response => {
-      if (response.payload) {
-        // Taken from https://mathiasbynens.github.io/rel-noopener/
-        let win = window.open();
-        // win can be null if a pop-up blocker is used
-        if (win) {
-          win.opener = null;
-          win.location = response.payload.url;
+    this.props
+      .downloadPPMAttachments(this.props.ppm.id, docTypes)
+      .then(response => {
+        if (response.payload) {
+          // Taken from https://mathiasbynens.github.io/rel-noopener/
+          let win = window.open();
+          // win can be null if a pop-up blocker is used
+          if (win) {
+            win.opener = null;
+            win.location = response.payload.url;
+          }
         }
-      }
-      this.setState({ disableDownload: false });
-    });
+        this.setState({ disableDownload: false });
+      });
   };
 
   documentUpload = () => {
@@ -130,7 +132,8 @@ class PaymentsTable extends Component {
                 <tr>
                   <td className="payment-table-column-content">Advance </td>
                   <td className="payment-table-column-content">
-                    ${formatCents(
+                    $
+                    {formatCents(
                       get(advance, 'requested_amount'),
                     ).toLocaleString()}
                   </td>
@@ -219,7 +222,7 @@ class PaymentsTable extends Component {
 
                 <div className="paperwork-step">
                   <div>
-                    <p>Download attachments</p>
+                    <p>Download All Attachments (PDF)</p>
                     <p>
                       Download bundle of PPM receipts and attach it to the
                       completed Shipment Summary Worksheet.
@@ -227,9 +230,41 @@ class PaymentsTable extends Component {
                   </div>
                   <button
                     disabled={this.state.disableDownload}
-                    onClick={this.startDownload}
+                    onClick={() =>
+                      this.startDownload([
+                        'OTHER',
+                        'WEIGHT_TICKET',
+                        'STORAGE_EXPENSE',
+                        'EXPENSE',
+                      ])
+                    }
                   >
-                    Download Attachments (PDF)
+                    Download All Attachments (PDF)
+                  </button>
+                </div>
+
+                <hr />
+
+                <div className="paperwork-step">
+                  <div>
+                    <p>Download Orders and Weight Tickets (PDF)</p>
+                    <p>
+                      Download bundle of Orders and Weight Tickets (without
+                      receipts) and attach it to the completed Shipment Summary
+                      Worksheet.
+                    </p>
+                  </div>
+                  <button
+                    disabled={this.state.disableDownload}
+                    onClick={() =>
+                      this.startDownload([
+                        'OTHER',
+                        'WEIGHT_TICKET',
+                        'STORAGE_EXPENSE',
+                      ])
+                    }
+                  >
+                    Download Orders and Weight Tickets (PDF)
                   </button>
                 </div>
 

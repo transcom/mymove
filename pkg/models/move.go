@@ -1,6 +1,7 @@
 package models
 
 import (
+	"crypto/sha256"
 	"strings"
 	"time"
 
@@ -9,8 +10,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-
-	"crypto/sha256"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -36,7 +35,8 @@ const (
 const maxLocatorAttempts = 3
 const locatorLength = 6
 
-var locatorLetters = []rune("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
+// This set of letters should produce 'non-word' type strings
+var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
 // Move is an object representing a move
 type Move struct {
@@ -93,6 +93,14 @@ func (m *Move) Submit() error {
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
 		err := m.PersonallyProcuredMoves[i].Submit()
+		if err != nil {
+			return err
+		}
+	}
+
+	// Update HHG (Shipment) status too
+	for i := range m.Shipments {
+		err := m.Shipments[i].Submit()
 		if err != nil {
 			return err
 		}
@@ -164,7 +172,12 @@ func (m *Move) Cancel(reason string) error {
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document", "Shipments").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
+		"SignedCertifications",
+		"Orders",
+		"MoveDocuments.Document",
+		"Shipments.TrafficDistributionList",
+		"Shipments.ServiceAgents").Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -540,6 +553,13 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 					return transactionError
 				}
 				shipment.SourceGBLOC = &sourceGbloc
+
+				// Assign a new unique GBL number using source GBLOC
+				err = shipment.AssignGBLNumber(db)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error assigning GBL number for shipment")
+					return transactionError
+				}
 
 				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)

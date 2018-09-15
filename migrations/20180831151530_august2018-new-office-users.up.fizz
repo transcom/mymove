@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20180831151530_august2018-new-office-users.sql")

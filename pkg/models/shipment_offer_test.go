@@ -32,7 +32,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -47,4 +47,26 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	if err := suite.db.Find(&expectedShipmentOffer, shipmentOffer.ID); err != nil {
 		t.Fatalf("could not find shipmentOffer: %v", err)
 	}
+}
+
+func (suite *ModelSuite) TestShipmentOfferStateMachine() {
+	// Try to accept an offer
+	shipmentOffer := testdatagen.MakeDefaultShipmentOffer(suite.db)
+	suite.Nil(shipmentOffer.Accepted)
+	suite.Nil(shipmentOffer.RejectionReason)
+
+	err := shipmentOffer.Accept()
+	suite.Nil(err)
+	suite.True(*shipmentOffer.Accepted)
+	suite.Nil(shipmentOffer.RejectionReason)
+
+	// Try to Reject an offer
+	shipmentOffer = testdatagen.MakeDefaultShipmentOffer(suite.db)
+	suite.Nil(shipmentOffer.Accepted)
+	suite.Nil(shipmentOffer.RejectionReason)
+
+	err = shipmentOffer.Reject("DO NOT WANT")
+	suite.Nil(err)
+	suite.False(*shipmentOffer.Accepted)
+	suite.Equal("DO NOT WANT", *shipmentOffer.RejectionReason)
 }

@@ -48,9 +48,12 @@ type Order struct {
 	UploadedOrders      Document                           `belongs_to:"documents"`
 	UploadedOrdersID    uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber        *string                            `json:"orders_number" db:"orders_number"`
+	ParagraphNumber     *string                            `json:"paragraph_number" db:"paragraph_number"`
+	OrdersIssuingAgency *string                            `json:"orders_issuing_agency" db:"orders_issuing_agency"`
 	Moves               Moves                              `has_many:"moves" fk_id:"orders_id" order_by:"created_at desc"`
 	Status              OrderStatus                        `json:"status" db:"status"`
 	TAC                 *string                            `json:"tac" db:"tac"`
+	SAC                 *string                            `json:"sac" db:"sac"`
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
 }
 
@@ -67,8 +70,11 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: o.ServiceMemberID, Name: "ServiceMemberID"},
 		&validators.UUIDIsPresent{Field: o.NewDutyStationID, Name: "NewDutyStationID"},
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
-		&StringIsNilOrNotBlank{Field: o.TAC, Name: "Transportation Accounting Code"},
-		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "Department Indicator"},
+		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
+		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
+		&StringIsNilOrNotBlank{Field: o.OrdersIssuingAgency, Name: "OrdersIssuingAgency"},
+		&StringIsNilOrNotBlank{Field: o.ParagraphNumber, Name: "ParagraphNumber"},
+		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 	), nil
 }
@@ -113,6 +119,40 @@ func (o *Order) Cancel() error {
 	return nil
 }
 
+// AfterSave will run after each create/update of an Order.
+func (o *Order) AfterSave(tx *pop.Connection) error {
+	// Since the new duty station on the order can affect which TDL any shipment records
+	// associated with this order use, we need to touch all shipments (which should
+	// cause the shipment record to update its TDL if needed) every time an order is
+	// created/updated.
+	if err := o.touchAllShipments(tx); err != nil {
+		return errors.Wrap(err, "Could not touch all shipments")
+	}
+
+	return nil
+}
+
+// touchAllShipments will iterate through all the shipments associated with this order and
+// "touch" each one to force a TDL determination.
+func (o *Order) touchAllShipments(db *pop.Connection) error {
+	// Get all shipments for all moves for this order.
+	var moves Moves
+	err := db.Eager("Shipments").Where("moves.orders_id = ?", o.ID).All(&moves)
+	if err != nil {
+		return errors.Wrapf(err, "Could not lookup shipments for moves with order ID %s", o.ID)
+	}
+
+	for _, move := range moves {
+		for _, shipment := range move.Shipments {
+			if err := db.Update(&shipment); err != nil {
+				return errors.Wrapf(err, "Could not update shipment ID %s", shipment.ID)
+			}
+		}
+	}
+
+	return nil
+}
+
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
@@ -120,7 +160,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyStation.Address",
 		"UploadedOrders.Uploads",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.Shipments",
+		"Moves.Shipments.TrafficDistributionList",
 		"Moves.SignedCertifications").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
