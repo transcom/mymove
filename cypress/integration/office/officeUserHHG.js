@@ -45,9 +45,9 @@ function officeUserViewsMoves() {
 
 function officeUserViewsDeliveredShipment() {
   // Open new moves queue
-  cy.visit('/queues/delivered');
+  cy.visit('/queues/hhg_delivered');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/delivered/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
