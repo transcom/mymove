@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -291,7 +290,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Eager(
+	query := tx.Q().Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
 		"Move",
@@ -303,11 +302,11 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
 	if len(status) > 0 {
-		statusStrings := make([]string, len(status))
+		statusStrings := make([]interface{}, len(status))
 		for index, st := range status {
-			statusStrings[index] = fmt.Sprintf("'%s'", st)
+			statusStrings[index] = st
 		}
-		query = query.Where(fmt.Sprintf("shipments.status IN (%s)", strings.Join(statusStrings, ", ")))
+		query = query.Where("shipments.status IN ($2)", statusStrings...)
 	}
 
 	// Manage ordering by pickup or delivery date
