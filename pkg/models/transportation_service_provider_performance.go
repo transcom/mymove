@@ -174,20 +174,12 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 
 	// TODO: bookDate and requestedPickupDate should also be qualifiers here. BVSs from different
 	// performance periods and rate areas should be broken up into separate quality bands.
-	sql := `SELECT
-			*
-		FROM
-			transportation_service_provider_performances
-		WHERE
-			traffic_distribution_list_id = $1
-			AND
-			best_value_score > $2
-		ORDER BY
-			best_value_score DESC
-		`
-
-	tsps := TransportationServiceProviderPerformances{}
-	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
+	var tsps TransportationServiceProviderPerformances
+	err := tx.
+		Where("traffic_distribution_list_id = ?", tdlID).
+		Where("best_value_score > ?", mps).
+		Order("best_value_score DESC").
+		All(&tsps)
 
 	return tsps, err
 }
