@@ -400,6 +400,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		log.Panic(err)
 	}
 
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer2.Shipment,
+			ShipmentID: offer2.ShipmentID,
+		},
+	})
+
 	hhg2 := offer2.Shipment
 	hhg2.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg2.Move)
@@ -568,11 +575,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	models.SaveMoveDependencies(db, &hhg6.Move)
 
 	/*
-	 * Service member with approved basics and accepted shipment
+	 * Service member with approved shipment
 	 */
-	email = "hhg@appro.ved"
+	email = "hhg@approv.ed"
 
 	offer7 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("68461d67-5385-4780-9cb6-417075343b0e")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2825cadf-410f-4f82-aa0f-4caaf000e63e"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForApprove"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("616560f2-7e35-4504-b7e6-69038fb0c015"),
+			Locator:          "APPRVD",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("5fe59be4-45d0-47c7-b426-cf4db9882af7"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAPPROVED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg7 := offer7.Shipment
+	hhg7.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg7.Move)
+
+	/*
+	 * Service member with approved basics and accepted shipment
+	 */
+	email = "hhg@accept.ed"
+
+	offer8 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("f79fd68e-4461-4ba8-b630-9618b913e229")),
 			LoginGovEmail: email,
@@ -610,15 +658,15 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	hhg7 := offer7.Shipment
-	hhg7.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg7.Move)
+	hhg8 := offer8.Shipment
+	hhg8.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg8.Move)
 
 	/*
 	 * Service member with uploaded orders, a new shipment move, and a service agent
 	 */
 	email = "hhg@incomplete.serviceagent"
-	hhg8 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+	hhg9 := testdatagen.MakeShipment(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("412e76e0-bb34-47d4-ba37-ff13e2dd40b9")),
 			LoginGovEmail: email,
@@ -644,24 +692,24 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
-			ShipmentID: hhg8.ID,
+			ShipmentID: hhg9.ID,
 		},
 	})
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
-			ShipmentID: hhg8.ID,
+			ShipmentID: hhg9.ID,
 			Role:       models.RoleDESTINATION,
 		},
 	})
-	hhg8.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg8.Move)
+	hhg9.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg9.Move)
 
 	/*
 	 * Service member with delivered shipment
 	 */
 	email = "hhg@de.livered"
 
-	offer9 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	offer10 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("3339dd2a-a23f-4967-a035-3bc9987c6848")),
 			LoginGovEmail: email,
@@ -693,7 +741,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	hhg9 := offer9.Shipment
-	hhg9.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg9.Move)
+	hhg10 := offer10.Shipment
+	hhg10.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg10.Move)
 }
