@@ -3836,6 +3836,7 @@ paths:
           - troubleshooting
           - ppm
           - hhg_accepted
+          - hhg_delivered
           - all
           required: true
           description: Queue type to show
