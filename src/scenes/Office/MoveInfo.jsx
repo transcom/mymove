@@ -410,8 +410,10 @@ class MoveInfo extends Component {
               )}
               {showDocumentViewer && (
                 <DocumentList
+                  detailUrlPrefix={`/moves/${
+                    this.props.match.params.moveId
+                  }/documents`}
                   moveDocuments={moveDocuments}
-                  moveId={this.props.match.params.moveId}
                 />
               )}
             </div>

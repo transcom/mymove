@@ -135,8 +135,8 @@ class DocumentViewer extends Component {
                 <div>
                   {' '}
                   <DocumentList
+                    detailUrlPrefix={`/moves/${move.id}/documents`}
                     moveDocuments={moveDocuments}
-                    moveId={move.id}
                   />
                 </div>
               </TabPanel>

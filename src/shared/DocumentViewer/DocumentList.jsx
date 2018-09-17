@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import '../office.css';
-
 import { renderStatusIcon } from 'shared/utils';
-import '../office.css';
+import 'scenes/Office/office.css';
 
 export class DocumentList extends Component {
   render() {
-    const { moveDocuments, moveId, disableLinks } = this.props;
+    const { detailUrlPrefix, moveDocuments, disableLinks } = this.props;
     return (
       <div>
         {(moveDocuments || []).map(doc => {
           const status = renderStatusIcon(doc.status);
-          const detailUrl = `/moves/${moveId}/documents/${doc.id}`;
+          const detailUrl = `${detailUrlPrefix}/${doc.id}`;
           return (
             <div className="panel-field" key={doc.id}>
               <span className="status">{status}</span>
@@ -28,9 +26,9 @@ export class DocumentList extends Component {
 }
 
 DocumentList.propTypes = {
-  moveId: PropTypes.string.isRequired,
-  moveDocuments: PropTypes.array.isRequired,
+  detailUrlPrefix: PropTypes.string.isRequired,
   disableLinks: PropTypes.bool,
+  moveDocuments: PropTypes.array.isRequired,
 };
 
 export default DocumentList;
