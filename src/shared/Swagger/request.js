@@ -1,8 +1,5 @@
 import { get, uniqueId } from 'lodash';
-import { getClient } from './api';
 import { normalize } from 'normalizr';
-
-import store from 'shared/store';
 
 // Given a schema path (e.g. shipments.getShipment), return the
 // route's definition from the Swagger spec
@@ -30,6 +27,7 @@ function findMatchingRoute(paths, operationPath) {
 // This key can be used to determine what key to find the object's
 // definition in within our normalizr schema.
 function successfulReturnType(routeDefinition, status) {
+  // eslint-disable-next-line security/detect-object-injection
   const response = routeDefinition.responses[status];
   if (!response) {
     console.error(
@@ -122,6 +120,7 @@ export function swaggerRequest(operationPath, params, options = {}) {
           );
         }
 
+        // eslint-disable-next-line security/detect-object-injection
         const payloadSchema = schema[schemaKey];
         action.entities = normalizePayload(
           response.body,

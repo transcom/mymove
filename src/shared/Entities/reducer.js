@@ -5,10 +5,12 @@ import { ADD_ENTITIES } from 'shared/Entities/actions';
 // merge new entities into existing entities
 function mergeEntities(entities, newEntities) {
   Object.keys(newEntities).forEach(function(key) {
+    /* eslint-disable security/detect-object-injection */
     entities[key] = {
       ...entities[key],
       ...newEntities[key],
     };
+    /* eslint-enable security/detect-object-injection */
   });
   return entities;
 }

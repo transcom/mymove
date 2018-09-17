@@ -30,6 +30,7 @@ export function getLastRequestIsLoading(state, label) {
 
 // Return the last error for a given label
 export function getLastError(state, label) {
+  // eslint-disable-next-line security/detect-object-injection
   return state.requests.lastErrors[label];
 }
 
