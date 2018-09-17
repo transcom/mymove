@@ -107,9 +107,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	// TODO: Don't default to PPM when we start supporting HHG
-	newMoveType := internalmessages.SelectedMoveTypePPM
-	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), &newMoveType)
+	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), nil)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

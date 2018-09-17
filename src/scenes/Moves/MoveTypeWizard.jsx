@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-
+import { get } from 'lodash';
 import { updateMove, loadMove } from './ducks';
 import WizardPage from 'shared/WizardPage';
 import MoveType from './MoveType';
@@ -21,14 +21,15 @@ export class MoveTypeWizardPage extends Component {
   };
   render() {
     const { pages, pageKey, pendingMoveType, currentMove, error } = this.props;
-    const moveType =
-      pendingMoveType || (currentMove && 'selected_move_type' in currentMove);
+    const hasMoveType = Boolean(
+      pendingMoveType || get(currentMove, 'selected_move_type'),
+    );
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={Boolean(moveType)}
+        pageIsValid={hasMoveType}
         dirty={Boolean(pendingMoveType)}
         error={error}
       >
