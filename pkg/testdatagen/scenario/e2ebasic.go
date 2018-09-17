@@ -704,4 +704,44 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg9.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg9.Move)
 
+	/*
+	 * Service member with delivered shipment
+	 */
+	email = "hhg@de.livered"
+
+	offer10 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("3339dd2a-a23f-4967-a035-3bc9987c6848")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2559dd2a-a23f-4967-a035-3bc9987c6824"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForApprove"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("3442270d-4a6f-44ea-82f6-ae3cf3277c5d"),
+			Locator:          "SCHNOO",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("466f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusDELIVERED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg10 := offer10.Shipment
+	hhg10.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg10.Move)
 }

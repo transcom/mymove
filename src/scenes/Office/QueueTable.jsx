@@ -60,7 +60,7 @@ class QueueTable extends Component {
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
       hhg_accepted: 'Accepted HHGs',
-      hhg_in_transit: 'HHGs In Transit',
+      hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
     };
 

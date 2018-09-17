@@ -7,6 +7,7 @@ export async function RetrieveShipmentsForTSP(queueType) {
     new: ['AWARDED'],
     in_transit: ['IN_TRANSIT'],
     approved: ['APPROVED'],
+    delivered: ['DELIVERED'],
     all: [],
   };
   /* eslint-disable security/detect-object-injection */

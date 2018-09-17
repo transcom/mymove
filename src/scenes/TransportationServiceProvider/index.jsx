@@ -51,12 +51,12 @@ class TspWrapper extends Component {
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute
-                  path="/queues/:queueType(new|approved|in_transit|all)/shipments/:shipmentId"
+                  path="/queues/:queueType(new|approved|in_transit|delivered|all)/shipments/:shipmentId"
                   component={ShipmentInfo}
                 />
                 {/* Be specific about available routes by listing them */}
                 <PrivateRoute
-                  path="/queues/:queueType(new|approved|in_transit|all)"
+                  path="/queues/:queueType(new|approved|in_transit|delivered|all)"
                   component={Queues}
                 />
                 {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
