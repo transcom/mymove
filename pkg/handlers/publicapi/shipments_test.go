@@ -225,6 +225,14 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 
 	// When: There is the full set of data for a GBL to be generated successfully
 	tspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+	unauthedTSPUser := testdatagen.MakeTspUser(suite.TestDB(), testdatagen.Assertions{
+		TspUser: models.TspUser{
+			Email: "unauthorized@example.com",
+		},
+		User: models.User{
+			LoginGovEmail: "unauthorized@example.com",
+		},
+	})
 	shipment := scenario.MakeHhgFromAwardedToAccepted(suite.TestDB(), tspUser)
 
 	testdatagen.MakeServiceAgent(suite.TestDB(), testdatagen.Assertions{
@@ -253,20 +261,20 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	// Then: expect a 200 status code
 	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingCreated{}, response)
 
-	// // When: there is an existing GBL for a shipment and handler is called
-	// handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-	// response = handler.Handle(params)
+	// When: there is an existing GBL for a shipment and handler is called
+	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response = handler.Handle(params)
 
-	// // Then: expect a 400 status code
-	// suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingBadRequest{}, response)
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingBadRequest{}, response)
 
-	// // When: an unauthed TSP user hits the handler
-	// req = suite.AuthenticateTspRequest(req, unauthedTSPUser)
-	// params.HTTPRequest = req
-	// response = handler.Handle(params)
+	// When: an unauthed TSP user hits the handler
+	req = suite.AuthenticateTspRequest(req, unauthedTSPUser)
+	params.HTTPRequest = req
+	response = handler.Handle(params)
 
-	// // Then: expect a 400 status code
-	// suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingBadRequest{}, response)
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingForbidden{}, response)
 }
 
 // TestIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters

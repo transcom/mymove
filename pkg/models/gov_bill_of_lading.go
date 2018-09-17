@@ -159,7 +159,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 			FROM shipments s
 			INNER JOIN service_members sm
 				ON s.service_member_id = sm.id
-		INNER JOIN moves m
+			INNER JOIN moves m
 				ON s.move_id = m.id
 			INNER JOIN orders o
 				ON m.orders_id = o.id

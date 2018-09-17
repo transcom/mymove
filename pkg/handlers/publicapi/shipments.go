@@ -1,8 +1,6 @@
 package publicapi
 
 import (
-
-	// "os"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -305,7 +303,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
-// CreateGovBillOfLadingHandler creates a GBL move document and associates it to a shipment
+// CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
 	handlers.HandlerContext
 }
@@ -330,11 +328,11 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	// Don't allow GBL generation for shipments that already have a GBL move document
-	// extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
-	// if len(extantGBLS) > 0 {
-	// 	h.Logger().Error("There are already GBLs for this shipment.")
-	// 	return shipmentop.NewCreateGovBillOfLadingBadRequest()
-	// }
+	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
+	if len(extantGBLS) > 0 {
+		h.Logger().Error("There are already GBLs for this shipment.")
+		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	}
 
 	// Create PDF for GBL
 	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)

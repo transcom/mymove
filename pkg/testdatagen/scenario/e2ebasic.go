@@ -1,7 +1,6 @@
 package scenario
 
 import (
-	// "fmt"
 	"log"
 	"time"
 
@@ -660,13 +659,6 @@ func MakeHhgFromAwardedToAccepted(db *pop.Connection, tspUser models.TspUser) mo
 	if err != nil {
 		log.Panic(err)
 	}
-
-	// testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
-	// 	ServiceAgent: models.ServiceAgent{
-	// 		Shipment:   &offer2.Shipment,
-	// 		ShipmentID: offer2.ShipmentID,
-	// 	},
-	// })
 
 	hhg2 := offer2.Shipment
 	hhg2.Move.Submit()
