@@ -247,3 +247,33 @@ func (suite *HandlerSuite) TestApproveHHGHandler() {
 	okResponse := response.(*shipmentop.ApproveHHGOK)
 	suite.Equal("APPROVED", string(okResponse.Payload.Status))
 }
+
+func (suite *HandlerSuite) TestCompleteHHGHandler() {
+	// Given: an office User
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	shipmentAssertions := testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status: "DELIVERED",
+		},
+	}
+	shipment := testdatagen.MakeShipment(suite.TestDB(), shipmentAssertions)
+	suite.MustSave(&shipment)
+
+	handler := CompleteHHGHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := "/shipments/shipment_id/complete"
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := shipmentop.CompleteHHGParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	// assert we got back the 200 response
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.CompleteHHGOK{}, response)
+	okResponse := response.(*shipmentop.CompleteHHGOK)
+	suite.Equal("COMPLETED", string(okResponse.Payload.Status))
+}

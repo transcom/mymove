@@ -109,6 +109,17 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	err = shipment.Transport()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
+
+	// Can deliver shipment
+	err = shipment.Deliver()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
+
+	// Can complete shipment
+	err = shipment.Complete()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusCOMPLETED, shipment.Status, "expected Completed")
+
 }
 
 // TestAcceptShipmentForTSP tests that a shipment and shipment offer is correctly accepted

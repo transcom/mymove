@@ -34,6 +34,8 @@ const (
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
+	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
+	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -149,6 +151,24 @@ func (s *Shipment) Transport() error {
 		return errors.Wrap(ErrInvalidTransition, "In Transit")
 	}
 	s.Status = ShipmentStatusINTRANSIT
+	return nil
+}
+
+// Deliver marks the Shipment request as Delivered. Must be in a Delivered state.
+func (s *Shipment) Deliver() error {
+	if s.Status != ShipmentStatusINTRANSIT {
+		return errors.Wrap(ErrInvalidTransition, "Delivered")
+	}
+	s.Status = ShipmentStatusDELIVERED
+	return nil
+}
+
+// Complete marks the Shipment request as Completed. Must be in a Delivered state.
+func (s *Shipment) Complete() error {
+	if s.Status != ShipmentStatusDELIVERED {
+		return errors.Wrap(ErrInvalidTransition, "Completed")
+	}
+	s.Status = ShipmentStatusCOMPLETED
 	return nil
 }
 

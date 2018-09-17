@@ -73,7 +73,7 @@ func main() {
 		numTspUsers := 2
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
-		status := []models.ShipmentStatus{"DRAFT", "AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED"}
+		status := []models.ShipmentStatus{"DRAFT", "AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED", "COMPLETED"}
 		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 		if err != nil {
 			log.Panic(err)
