@@ -106,12 +106,12 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 }
 
-func (suite *ModelSuite) TestSetBookDateWhenSubmittted() {
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
-		Shipment: {
-			BookDate: nil,
-		},
-	})
+func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	// There is not a way to set a field to nil using testdatagen.Assertions
+	shipment.BookDate = nil
+	suite.mustSave(&shipment)
 	suite.Nil(shipment.BookDate)
 
 	// Can submit shipment
