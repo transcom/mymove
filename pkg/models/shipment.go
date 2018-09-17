@@ -114,6 +114,8 @@ func (s *Shipment) Submit() error {
 	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
+	now := time.Now()
+	s.BookDate = &now
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }

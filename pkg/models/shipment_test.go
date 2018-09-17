@@ -122,6 +122,20 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 
 }
 
+func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	// There is not a way to set a field to nil using testdatagen.Assertions
+	shipment.BookDate = nil
+	suite.mustSave(&shipment)
+	suite.Nil(shipment.BookDate)
+
+	// Can submit shipment
+	err := shipment.Submit()
+	suite.Nil(err)
+	suite.NotNil(shipment.BookDate)
+}
+
 // TestAcceptShipmentForTSP tests that a shipment and shipment offer is correctly accepted
 func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	numTspUsers := 1
