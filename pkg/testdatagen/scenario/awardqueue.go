@@ -36,7 +36,7 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 		testdatagen.MakeShipment(db, testdatagen.Assertions{
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
-				PickupDate:              &now,
+				ActualPickupDate:        &now,
 				DeliveryDate:            &now,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
@@ -93,7 +93,7 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 		testdatagen.MakeShipment(db, testdatagen.Assertions{
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &shipmentDate,
-				PickupDate:              &shipmentDate,
+				ActualPickupDate:        &shipmentDate,
 				DeliveryDate:            &shipmentDate,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
@@ -106,7 +106,7 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 		testdatagen.MakeShipment(db, testdatagen.Assertions{
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &shipmentDate,
-				PickupDate:              &shipmentDate,
+				ActualPickupDate:        &shipmentDate,
 				DeliveryDate:            &shipmentDate,
 				TrafficDistributionList: &tdl2,
 				SourceGBLOC:             &sourceGBLOC,

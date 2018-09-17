@@ -121,6 +121,16 @@ export async function ApprovePPM(moveId, ppmId) {
   return response.body;
 }
 
+// HHG status
+export async function ApproveHHG(shipmentId) {
+  const client = await getClient();
+  const response = await client.apis.shipments.approveHHG({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to approve hhg due to server error');
+  return response.body;
+}
+
 // Reimbursement status
 export async function ApproveReimbursement(reimbursementId) {
   const client = await getClient();

@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -31,10 +30,12 @@ const (
 	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
+	// ShipmentStatusINTRANSIT captures enum value "INTRANSIT"
+	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
-// PickupDate: when the shipment is currently scheduled to be picked up by the TSP
+// ActualPickupDate: when the shipment is currently scheduled to be picked up by the TSP
 // RequestedPickupDate: when the shipment was originally scheduled to be picked up
 // DeliveryDate: when the shipment is to be delivered
 // BookDate: when the shipment was most recently offered to a TSP
@@ -44,7 +45,7 @@ type Shipment struct {
 	TrafficDistributionList             *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
 	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
 	ServiceMember                       *ServiceMember           `belongs_to:"service_member"`
-	PickupDate                          *time.Time               `json:"pickup_date" db:"pickup_date"`
+	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
 	DeliveryDate                        *time.Time               `json:"delivery_date" db:"delivery_date"`
 	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
@@ -139,6 +140,15 @@ func (s *Shipment) Approve() error {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 	s.Status = ShipmentStatusAPPROVED
+	return nil
+}
+
+// Transport marks the Shipment request as In Transit. Must be in an Approved state.
+func (s *Shipment) Transport() error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "In Transit")
+	}
+	s.Status = ShipmentStatusINTRANSIT
 	return nil
 }
 
@@ -282,7 +292,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Eager(
+	query := tx.Q().Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
 		"Move",
@@ -294,20 +304,20 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
 	if len(status) > 0 {
-		statusStrings := make([]string, len(status))
+		statusStrings := make([]interface{}, len(status))
 		for index, st := range status {
-			statusStrings[index] = fmt.Sprintf("'%s'", st)
+			statusStrings[index] = st
 		}
-		query = query.Where(fmt.Sprintf("shipments.status IN (%s)", strings.Join(statusStrings, ", ")))
+		query = query.Where("shipments.status IN ($2)", statusStrings...)
 	}
 
 	// Manage ordering by pickup or delivery date
 	if orderBy != nil {
 		switch *orderBy {
 		case "PICKUP_DATE_ASC":
-			*orderBy = "pickup_date ASC"
+			*orderBy = "actual_pickup_date ASC"
 		case "PICKUP_DATE_DESC":
-			*orderBy = "pickup_date DESC"
+			*orderBy = "actual_pickup_date DESC"
 		case "DELIVERY_DATE_ASC":
 			*orderBy = "delivery_date ASC"
 		case "DELIVERY_DATE_DESC":

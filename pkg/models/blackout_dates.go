@@ -29,7 +29,7 @@ type BlackoutDate struct {
 func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipment) ([]BlackoutDate, error) {
 	blackoutDates := []BlackoutDate{}
 	var err error
-	query := tx.Where("transportation_service_provider_id = ?", tspID).Where("? BETWEEN start_blackout_date and end_blackout_date", shipment.PickupDate)
+	query := tx.Where("transportation_service_provider_id = ?", tspID).Where("? BETWEEN start_blackout_date and end_blackout_date", shipment.ActualPickupDate)
 
 	if shipment.Market != nil {
 		query = query.Where("market = ?", *shipment.Market)

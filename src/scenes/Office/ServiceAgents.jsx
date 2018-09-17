@@ -5,12 +5,8 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { editablePanelify } from 'shared/EditablePanel';
-import { createOrUpdateServiceAgent } from './ducks';
-
-import { PanelSwaggerField } from 'shared/EditablePanel';
-
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
+import { no_op } from 'shared/utils';
 
 const ServiceAgentDisplay = props => {
   let serviceAgent = props.initialValues || {};
@@ -22,30 +18,26 @@ const ServiceAgentDisplay = props => {
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="company" required {...fieldProps} />
-        <PanelSwaggerField fieldName="email" required {...fieldProps} />
-        <PanelSwaggerField fieldName="phone_number" required {...fieldProps} />
+        <PanelSwaggerField fieldName="company" nullWarning {...fieldProps} />
+        <PanelSwaggerField fieldName="email" nullWarning {...fieldProps} />
+        <PanelSwaggerField
+          fieldName="phone_number"
+          nullWarning
+          {...fieldProps}
+        />
       </div>
     </Fragment>
   );
 };
 
-const ServiceAgentEdit = props => {
-  const schema = props.schema;
-  return (
-    <Fragment>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="company" swagger={schema} required />
-        <SwaggerField fieldName="email" swagger={schema} required />
-        <SwaggerField fieldName="phone_number" swagger={schema} required />
-      </div>
-    </Fragment>
-  );
-};
-
+const ServiceAgentEdit = 'uneditable';
 const formName = 'service_agents_panel';
-
-let ServiceAgentPanel = editablePanelify(ServiceAgentDisplay, ServiceAgentEdit);
+const editEnabled = false;
+let ServiceAgentPanel = editablePanelify(
+  ServiceAgentDisplay,
+  ServiceAgentEdit,
+  editEnabled,
+);
 ServiceAgentPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -68,6 +60,7 @@ const ServiceAgents = props => {
         schema={props.schema}
         initialValues={props.initialValues.ORIGIN}
         getUpdateArgs={props.getOriginUpdateArgs}
+        editEnabled={props.editEnabled}
       />
 
       <ServiceAgentPanel
@@ -77,6 +70,7 @@ const ServiceAgents = props => {
         schema={props.schema}
         initialValues={props.initialValues.DESTINATION}
         getUpdateArgs={props.getDestinationUpdateArgs}
+        editEnabled={props.editEnabled}
       />
     </Fragment>
   );
@@ -96,7 +90,7 @@ function mapStateToProps(state, props) {
     initialValues,
 
     hasError: false,
-    errorMessage: get(state, 'tsp.error', {}),
+    errorMessage: get(state, 'shipment.error', {}),
     isUpdating: false,
 
     // editablePanel
@@ -118,7 +112,7 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: createOrUpdateServiceAgent,
+      update: no_op,
     },
     dispatch,
   );
