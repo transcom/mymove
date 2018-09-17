@@ -71,17 +71,17 @@ function tspUserRejectsShipment() {
     .contains('Reject Shipment')
     .click();
 
-  // cy
-  //   .get('button')
-  //   .contains('Reject Shipment')
-  //   .click();
+  cy
+    .get('button')
+    .contains('Reject Shipment')
+    .click();
 
-  // cy.location().should(loc => {
-  //   expect(loc.pathname).to.match(/^\/queues\/new/);
-  // });
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
 
-  // cy
-  //   .get('div')
-  //   .contains('REJECT')
-  //   .should('not.exist');
+  cy
+    .get('div')
+    .contains('REJECT')
+    .should('not.exist');
 }

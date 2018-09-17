@@ -171,10 +171,7 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               <div>
-                <button
-                  className="usa-button-secondary"
-                  onClick={this.generateGBL}
-                >
+                <button onClick={this.generateGBL}>
                   Generate Bill of Lading
                 </button>
               </div>
