@@ -68,3 +68,5 @@ public/swagger-ui/*
 
 cypress/videos
 cypress/screenshots
+
+results/my-test-output\.xml

@@ -5,7 +5,13 @@ set -eu -o pipefail
 # Runs both the webserver and Cypress in parallel
 ENV=test bin/webserver & p1=$!
 trap "kill $p1" SIGINT
-npx cypress run & p2=$!
+npx cypress run --reporter junit --reporter-options "mochaFile=results/my-test-output.xml" & p2=$!
 
 wait $p2
-pkill $p1
+test_exit=$?
+echo "Test exited with code $test_exit"
+
+# Kill background server
+pkill $p1 || true
+
+exit $test_exit

@@ -118,6 +118,12 @@ jobs:
               LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
               HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
               HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
+      - store_artifacts:
+          path: cypress/videos
+      - store_artifacts:
+          path: cypress/screenshots
+      - store_test_results:
+          path: results
 
       - save_cache:
           key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}

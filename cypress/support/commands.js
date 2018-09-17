@@ -52,6 +52,10 @@ Cypress.Commands.add('signInAsUser', userId => {
     .then(() => cy.visit('/'));
 });
 
+Cypress.Commands.add('logout', () => {
+  cy.request('/auth/logout').its('status').should('equal', 200);
+});
+
 Cypress.Commands.add('nextPage', () => {
   cy
     .get('button.next')
