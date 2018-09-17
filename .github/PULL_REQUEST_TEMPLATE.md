@@ -17,11 +17,14 @@ echo "Code goes here"
 ## Code Review Verification Steps
 
 * [ ] End to end tests pass (`make e2e_test`).
-* [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/blob/master/docs/backend.md#logging)
+* [ ] Code follows the guidelines for [Logging](./docs/backend.md#logging)
 * [ ] The requirements listed in
- [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely)
+ [Querying the Database Safely](./docs/backend.md#querying-the-database-safely)
  have been satisfied.
-* [ ] Any migrations/schema changes also update the diagram in docs/schema/dp3.sqs (see [Updating and changing the model](https://github.com/transcom/mymove/blob/master/docs/schema/README.md#updating-and-changing-the-model)
+* Any new migrations/schema changes:
+  * [ ] Update the diagram in docs/schema/dp3.sqs (see [Updating and changing the model](./docs/schema/README.md#updating-and-changing-the-model))
+  * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](./docs/database.md#zero-downtime-migrations))
+  * [ ] Have been communicated to #dp3-engineering
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in IE.
 * Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:
