@@ -136,6 +136,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			models.ShipmentStatusSUBMITTED,
 			models.ShipmentStatusAWARDED,
 			models.ShipmentStatusACCEPTED,
+			models.ShipmentStatusAPPROVED,
 			models.ShipmentStatusINTRANSIT,
 			models.ShipmentStatusDELIVERED}
 	}
