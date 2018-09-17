@@ -24,6 +24,12 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		codeOfService = &s.TrafficDistributionList.CodeOfService
 	}
 
+	var serviceAgentPayloads []*internalmessages.ServiceAgent
+	for _, serviceAgent := range s.ServiceAgents {
+		payload := payloadForServiceAgentModel(serviceAgent)
+		serviceAgentPayloads = append(serviceAgentPayloads, payload)
+	}
+
 	shipmentPayload := &internalmessages.Shipment{
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
@@ -60,6 +66,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+		ServiceAgents:                       serviceAgentPayloads,
 	}
 	return shipmentPayload
 }

@@ -24,6 +24,7 @@ import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
+import ServiceAgents from './ServiceAgents';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
@@ -32,6 +33,7 @@ import {
   loadMoveDependencies,
   approveBasics,
   approvePPM,
+  approveHHG,
   cancelMove,
   patchShipment,
 } from './ducks';
@@ -95,6 +97,13 @@ const HHGTabContent = props => {
           error={props.surveyError}
         />
       )}
+      {props.officeShipment.service_agents && (
+        <ServiceAgents
+          title="Service Agents"
+          shipment={props.officeShipment}
+          serviceAgents={props.officeShipment.service_agents}
+        />
+      )}
     </div>
   );
 };
@@ -115,6 +124,10 @@ class MoveInfo extends Component {
 
   approvePPM = () => {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
+  };
+
+  approveHHG = () => {
+    this.props.approveHHG(this.props.officeShipment.id);
   };
 
   cancelMove = cancelReason => {
@@ -154,12 +167,17 @@ class MoveInfo extends Component {
   };
 
   render() {
+    const { moveDocuments } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
-    const { moveDocuments } = this.props;
+    const isPPM = !isEmpty(this.props.officePPM);
+    const isHHG = !isEmpty(this.props.officeHHG);
+    const pathnames = this.props.location.pathname.split('/');
+    const currentTab = pathnames[pathnames.length - 1];
+
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
@@ -173,7 +191,8 @@ class MoveInfo extends Component {
       ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
       ppm.status,
     );
-
+    const hhgApproved = hhg.status === 'APPROVED';
+    const moveApproved = move.status === 'APPROVED';
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -244,13 +263,13 @@ class MoveInfo extends Component {
                   {capitalize(move.status)}
                 </span>
               </NavTab>
-              {!isEmpty(ppm) && (
+              {isPPM && (
                 <NavTab to="/ppm">
                   <span className="title">PPM</span>
                   {this.renderPPMTabStatus()}
                 </NavTab>
               )}
-              {!isEmpty(hhg) && (
+              {isHHG && (
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
@@ -277,12 +296,10 @@ class MoveInfo extends Component {
                   path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
-                !isEmpty(ppm) &&
                 <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
                 />
-                !isEmpty(hhg) &&
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
@@ -305,27 +322,38 @@ class MoveInfo extends Component {
                 </Alert>
               )}
               <button
+                className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
-                disabled={move.status === 'APPROVED' || !ordersComplete}
-                style={{
-                  backgroundColor: move.status === 'APPROVED' && 'green',
-                }}
+                disabled={moveApproved || !ordersComplete}
               >
                 Approve Basics
-                {move.status === 'APPROVED' && check}
+                {moveApproved && check}
               </button>
-              <button
-                onClick={this.approvePPM}
-                disabled={
-                  ppmApproved || move.status !== 'APPROVED' || !ordersComplete
-                }
-                style={{
-                  backgroundColor: ppmApproved && 'green',
-                }}
-              >
-                Approve PPM
-                {ppmApproved && check}
-              </button>
+              {isPPM ? (
+                <button
+                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
+                  onClick={this.approvePPM}
+                  disabled={ppmApproved || !moveApproved || !ordersComplete}
+                >
+                  Approve PPM
+                  {ppmApproved && check}
+                </button>
+              ) : (
+                <button
+                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
+                  onClick={this.approveHHG}
+                  disabled={
+                    hhgApproved ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
+                >
+                  Approve Shipments
+                  {hhgApproved && check}
+                </button>
+              )}
+
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
                 reasonPrompt="Why is the move being canceled?"
@@ -355,7 +383,7 @@ class MoveInfo extends Component {
                 <p>No orders have been uploaded.</p>
               ) : (
                 <div>
-                  {move.status === 'APPROVED' ? (
+                  {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon
                         style={{ color: 'green' }}
@@ -394,6 +422,10 @@ class MoveInfo extends Component {
   }
 }
 
+MoveInfo.defaultProps = {
+  move: {},
+};
+
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
   context: PropTypes.shape({
@@ -429,6 +461,7 @@ const mapDispatchToProps = dispatch =>
       getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
+      approveHHG,
       cancelMove,
       patchShipment,
     },
