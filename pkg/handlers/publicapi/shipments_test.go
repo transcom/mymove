@@ -235,12 +235,12 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	})
 	shipment := scenario.MakeHhgFromAwardedToAccepted(suite.TestDB(), tspUser)
 
-	testdatagen.MakeServiceAgent(suite.TestDB(), testdatagen.Assertions{
-		ServiceAgent: models.ServiceAgent{
-			Shipment:   &shipment,
-			ShipmentID: shipment.ID,
-		},
-	})
+	// testdatagen.MakeServiceAgent(suite.TestDB(), testdatagen.Assertions{
+	// 	ServiceAgent: models.ServiceAgent{
+	// 		Shipment:   &shipment,
+	// 		ShipmentID: shipment.ID,
+	// 	},
+	// })
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
