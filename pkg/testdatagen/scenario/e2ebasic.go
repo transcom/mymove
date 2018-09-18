@@ -284,6 +284,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
+	hhg0.Move.Shipments = []models.Shipment{hhg0}
 	hhg0.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg0.Move)
 
@@ -324,6 +325,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg1 := offer1.Shipment
+	hhg1.Move.Shipments = []models.Shipment{hhg1}
 	hhg1.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg1.Move)
 
@@ -408,6 +410,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg2 := offer2.Shipment
+	hhg2.Move.Shipments = []models.Shipment{hhg2}
 	hhg2.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg2.Move)
 
@@ -449,6 +452,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg3 := offer3.Shipment
+	hhg3.Move.Shipments = []models.Shipment{hhg3}
 	hhg3.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg3.Move)
 
@@ -489,6 +493,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg4 := offer4.Shipment
+	hhg4.Move.Shipments = []models.Shipment{hhg4}
 	hhg4.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg4.Move)
 
@@ -530,6 +535,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg5 := offer5.Shipment
+	hhg5.Move.Shipments = []models.Shipment{hhg5}
 	hhg5.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg5.Move)
 
@@ -571,6 +577,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg6 := offer6.Shipment
+	hhg6.Move.Shipments = []models.Shipment{hhg6}
 	hhg6.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg6.Move)
 
@@ -612,6 +619,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg7 := offer7.Shipment
+	hhg7.Move.Shipments = []models.Shipment{hhg7}
 	hhg7.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg7.Move)
 
@@ -659,6 +667,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg8 := offer8.Shipment
+	hhg8.Move.Shipments = []models.Shipment{hhg8}
 	hhg8.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg8.Move)
 
@@ -701,6 +710,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			Role:       models.RoleDESTINATION,
 		},
 	})
+	hhg9.Move.Shipments = []models.Shipment{hhg9}
 	hhg9.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg9.Move)
 
@@ -742,6 +752,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg10 := offer10.Shipment
+	hhg10.Move.Shipments = []models.Shipment{hhg10}
 	hhg10.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg10.Move)
 }
