@@ -37,7 +37,7 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
 				ActualPickupDate:        &now,
-				DeliveryDate:            &now,
+				ActualDeliveryDate:      &now,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
@@ -94,7 +94,7 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &shipmentDate,
 				ActualPickupDate:        &shipmentDate,
-				DeliveryDate:            &shipmentDate,
+				ActualDeliveryDate:      &shipmentDate,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
@@ -107,7 +107,7 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &shipmentDate,
 				ActualPickupDate:        &shipmentDate,
-				DeliveryDate:            &shipmentDate,
+				ActualDeliveryDate:      &shipmentDate,
 				TrafficDistributionList: &tdl2,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,

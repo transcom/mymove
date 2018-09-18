@@ -20,7 +20,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
 		ActualPickupDate:                    *handlers.FmtDateTimePtr(s.ActualPickupDate),
-		DeliveryDate:                        *handlers.FmtDateTimePtr(s.DeliveryDate),
+		ActualDeliveryDate:                  *handlers.FmtDateTimePtr(s.ActualDeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                         apimessages.GBLOC(*s.SourceGBLOC),
@@ -217,16 +217,18 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewGetShipmentForbidden()
+		return shipmentop.NewTransportShipmentForbidden()
 	}
 
 	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewGetShipmentBadRequest()
+		return shipmentop.NewTransportShipmentBadRequest()
 	}
 
-	err = shipment.Transport()
+	actualPickupDate := (time.Time)(*params.ActualPickupDate.ActualPickupDate)
+
+	err = shipment.Transport(actualPickupDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

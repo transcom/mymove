@@ -33,7 +33,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
-			DeliveryDate:            &deliveryDate,
+			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,

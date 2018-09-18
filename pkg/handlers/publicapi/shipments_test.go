@@ -405,9 +405,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if deliveryDate == empty {
-			deliveryDate = time.Time(responsePayload.DeliveryDate)
+			deliveryDate = time.Time(responsePayload.ActualDeliveryDate)
 		} else {
-			newDT := time.Time(responsePayload.DeliveryDate)
+			newDT := time.Time(responsePayload.ActualDeliveryDate)
 			suite.True(newDT.After(deliveryDate))
 			deliveryDate = newDT
 		}
@@ -454,9 +454,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if deliveryDate == empty {
-			deliveryDate = time.Time(responsePayload.DeliveryDate)
+			deliveryDate = time.Time(responsePayload.ActualDeliveryDate)
 		} else {
-			newDT := time.Time(responsePayload.DeliveryDate)
+			newDT := time.Time(responsePayload.ActualDeliveryDate)
 			suite.True(newDT.Before(deliveryDate))
 			deliveryDate = newDT
 		}
@@ -627,4 +627,5 @@ func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	suite.Assertions.IsType(&shipmentop.TransportShipmentOK{}, response)
 	okResponse := response.(*shipmentop.TransportShipmentOK)
 	suite.Equal("IN_TRANSIT", string(okResponse.Payload.Status))
+	suite.Equal(actualPickupDate, time.Time(okResponse.Payload.ActualPickupDate))
 }

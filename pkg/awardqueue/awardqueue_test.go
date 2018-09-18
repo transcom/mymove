@@ -34,7 +34,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &testdatagen.DateInsidePerformancePeriod,
@@ -88,7 +88,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &blackoutPickupDate,
 			ActualPickupDate:    &blackoutPickupDate,
-			DeliveryDate:        &blackoutDeliverDate,
+			ActualDeliveryDate:  &blackoutDeliverDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			Status:              models.ShipmentStatusSUBMITTED,
@@ -102,7 +102,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			Status:              models.ShipmentStatusSUBMITTED,
@@ -186,7 +186,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &testPickupDateBetween,
 			ActualPickupDate:    &testPickupDateBetween,
-			DeliveryDate:        &testEndDate,
+			ActualDeliveryDate:  &testEndDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &testdatagen.DateInsidePerformancePeriod,
@@ -198,7 +198,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &testPickupDateAfter,
 			ActualPickupDate:    &testPickupDateAfter,
-			DeliveryDate:        &testEndDate,
+			ActualDeliveryDate:  &testEndDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &testdatagen.DateInsidePerformancePeriod,
@@ -276,7 +276,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			Status:              models.ShipmentStatusSUBMITTED,
@@ -324,7 +324,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &pickupDate,
@@ -363,7 +363,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 			Shipment: models.Shipment{
 				RequestedPickupDate: &pickupDate,
 				ActualPickupDate:    &pickupDate,
-				DeliveryDate:        &deliveryDate,
+				ActualDeliveryDate:  &deliveryDate,
 				SourceGBLOC:         &sourceGBLOC,
 				Market:              &market,
 				Status:              models.ShipmentStatusSUBMITTED,
@@ -427,7 +427,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 			Shipment: models.Shipment{
 				RequestedPickupDate: &pickupDate,
 				ActualPickupDate:    &pickupDate,
-				DeliveryDate:        &deliveryDate,
+				ActualDeliveryDate:  &deliveryDate,
 				SourceGBLOC:         &sourceGBLOC,
 				Market:              &market,
 				Status:              models.ShipmentStatusSUBMITTED,
@@ -565,7 +565,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		TrafficDistributionListID: &tdl.ID,
 		ActualPickupDate:          &testdatagen.DateInsidePeakRateCycle,
 		RequestedPickupDate:       &testdatagen.DateInsidePeakRateCycle,
-		DeliveryDate:              &twoMonthsLater,
+		ActualDeliveryDate:        &twoMonthsLater,
 		BookDate:                  &testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
@@ -604,7 +604,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		TrafficDistributionListID: &tdl.ID,
 		ActualPickupDate:          &testdatagen.DateInsideNonPeakRateCycle,
 		RequestedPickupDate:       &testdatagen.DateInsideNonPeakRateCycle,
-		DeliveryDate:              &twoMonthsLater,
+		ActualDeliveryDate:        &twoMonthsLater,
 		BookDate:                  &testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,

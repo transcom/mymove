@@ -52,7 +52,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		ServiceMemberID:              serviceMember.ID,
 		ServiceMember:                serviceMember,
 		ActualPickupDate:             timePointer(DateInsidePerformancePeriod),
-		DeliveryDate:                 timePointer(DateOutsidePerformancePeriod),
+		ActualDeliveryDate:           timePointer(DateOutsidePerformancePeriod),
 		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
 		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
 		Market:                       &DefaultMarket,
@@ -115,7 +115,7 @@ func MakeShipmentData(db *pop.Connection) {
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &now,
 			ActualPickupDate:        &now,
-			DeliveryDate:            &now,
+			ActualDeliveryDate:      &now,
 			TrafficDistributionList: &tdlList[0],
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -126,7 +126,7 @@ func MakeShipmentData(db *pop.Connection) {
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusOne,
 			ActualPickupDate:        &nowPlusOne,
-			DeliveryDate:            &nowPlusOne,
+			ActualDeliveryDate:      &nowPlusOne,
 			TrafficDistributionList: &tdlList[1],
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -137,7 +137,7 @@ func MakeShipmentData(db *pop.Connection) {
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusTwo,
 			ActualPickupDate:        &nowPlusTwo,
-			DeliveryDate:            &nowPlusTwo,
+			ActualDeliveryDate:      &nowPlusTwo,
 			TrafficDistributionList: &tdlList[2],
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,

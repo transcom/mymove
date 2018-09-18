@@ -419,7 +419,7 @@ definitions:
         type: string
         format: date-time
         example: 2018-04-21T17:32:28Z
-      delivery_date:
+      actual_delivery_date:
         type: string
         format: date-time
         example: 2018-04-27T17:32:28Z
@@ -787,6 +787,16 @@ definitions:
         x-nullable: true
     required:
       - actual_pickup_date
+  ActualDeliveryDate:
+    type: object
+    properties:
+      actual_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-02"
+        x-nullable: true
+    required:
+      - actual_delivery_date
   TSP:
     type: object
     description: The primary definition of a Transport Service Provider
@@ -1349,7 +1359,7 @@ paths:
   /shipments/{shipmentId}/contact_details:
     get:
       summary: Gets the detailed contact information for a move
-      description: Accepts a shipment awarded to a TSP
+      description: Gets the detailed contact information for a move
       operationId: getShipmentContactDetails
       tags:
         - shipments
