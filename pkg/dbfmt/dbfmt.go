@@ -26,7 +26,7 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 	switch modelType {
 	case reflect.TypeOf(time.Time{}):
 		layout := "2006-01-02 15:04:05"
-		aTime := model.(time.Time)
+		aTime := modelValue.Interface().(time.Time)
 		return aTime.Format(layout)
 	}
 
