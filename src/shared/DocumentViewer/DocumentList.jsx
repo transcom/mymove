@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { renderStatusIcon } from 'shared/utils';
-import 'scenes/Office/office.css';
 
 export class DocumentList extends Component {
   render() {
@@ -14,7 +13,7 @@ export class DocumentList extends Component {
           const detailUrl = `${detailUrlPrefix}/${doc.id}`;
           return (
             <div className="panel-field" key={doc.id}>
-              <span className="status">{status}</span>
+              <span>{status}</span>
               {!disableLinks && <Link to={detailUrl}>{doc.title}</Link>}
               {disableLinks && <span>{doc.title}</span>}
             </div>
