@@ -12,10 +12,9 @@ import { loadMoveDependencies } from '../ducks.js';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
-import DocumentList from './DocumentList';
+import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentUploader from './DocumentUploader';
 import DocumentDetailPanel from './DocumentDetailPanel';
-import DocumentUploadViewer from './DocumentUploadViewer';
 import {
   selectAllDocumentsForMove,
   getMoveDocumentsForMove,
