@@ -1,25 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-const DocumentContent = props => {
-  let content;
-  if (props.contentType === 'application/pdf') {
-    content = (
+
+const DocumentContent = ({ contentType, filename, url }) => (
+  <div className="page">
+    {contentType === 'application/pdf' ? (
       <div className="pdf-placeholder">
-        {props.filename && <span className="filename">{props.filename}</span>}
+        {filename && <span className="filename">{filename}</span>}
         This PDF can be{' '}
-        <a target="_blank" href={props.url}>
+        <a target="_blank" href={url}>
           viewed here
         </a>
         .
       </div>
-    );
-  } else {
-    content = (
-      <img src={props.url} width="100%" height="100%" alt="document upload" />
-    );
-  }
-  return <div className="page">{content}</div>;
-};
+    ) : (
+      <img src={url} width="100%" height="100%" alt="document upload" />
+    )}
+  </div>
+);
+
 DocumentContent.propTypes = {
   contentType: PropTypes.string,
   filename: PropTypes.string,

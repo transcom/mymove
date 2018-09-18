@@ -14,6 +14,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentUploader from './DocumentUploader';
+import DocumentList from './DocumentList';
 import DocumentDetailPanel from './DocumentDetailPanel';
 import {
   selectAllDocumentsForMove,
