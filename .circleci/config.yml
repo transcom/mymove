@@ -314,7 +314,7 @@ workflows:
       - deploy_experimental_migrations:
           requires:
             - pre_test
-            - vuln_scan
+            #- vuln_scan # keep disabled until we work out new process
             - build_app
             - build_migrations
           filters:
