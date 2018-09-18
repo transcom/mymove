@@ -1,11 +1,13 @@
 package server
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/pkg/errors"
@@ -47,6 +49,52 @@ type Server struct {
 	Logger         *zap.Logger
 	Port           string
 	TLSCerts       []TLSCert
+	PrefixToDrop   string // if len(PrefixToDrop) > 0, then all log lines with the prefix will be dropped
+}
+
+type loggerWriter struct {
+	prefixToDrop []byte
+	logFunc      func(msg string, fields ...zap.Field)
+}
+
+func (lw *loggerWriter) Write(p []byte) (int, error) {
+	p = bytes.TrimSpace(p)
+	if len(lw.prefixToDrop) > 0 {
+		if reflect.DeepEqual(p[:len(lw.prefixToDrop)], lw.prefixToDrop) {
+			return 0, nil
+		}
+	}
+	lw.logFunc(string(p))
+	return len(p), nil
+}
+
+func levelToFunc(logger *zap.Logger, lvl zapcore.Level) (func(string, ...zap.Field), error) {
+	switch lvl {
+	case zap.DebugLevel:
+		return logger.Debug, nil
+	case zap.InfoLevel:
+		return logger.Info, nil
+	case zap.WarnLevel:
+		return logger.Warn, nil
+	case zap.ErrorLevel:
+		return logger.Error, nil
+	case zap.DPanicLevel:
+		return logger.DPanic, nil
+	case zap.PanicLevel:
+		return logger.Panic, nil
+	case zap.FatalLevel:
+		return logger.Fatal, nil
+	}
+	return nil, fmt.Errorf("unrecognized level: %q", lvl)
+}
+
+func newStdLogAt(l *zap.Logger, level zapcore.Level, prefixToDrop string) (*log.Logger, error) {
+	logger := l.WithOptions(zap.AddCallerSkip(2 + 2))
+	logFunc, err := levelToFunc(logger, level)
+	if err != nil {
+		return nil, err
+	}
+	return log.New(&loggerWriter{prefixToDrop: []byte(prefixToDrop), logFunc: logFunc}, "", 0), nil
 }
 
 // addr generates an address:port string to be used in defining an http.Server
@@ -57,20 +105,19 @@ func addr(listenAddress, port string) string {
 // stdLogError creates a *log.logger based off an existing zap.Logger instance.
 // Some libraries call log.logger directly, which isn't structured as JSON. This method
 // Will reformat log calls as zap.Error logs.
-func stdLogError(logger *zap.Logger) (*log.Logger, error) {
-	standardLog, err := zap.NewStdLogAt(logger, zapcore.ErrorLevel)
+func stdLogError(logger *zap.Logger, prefixToDrop string) (*log.Logger, error) {
+	standardLog, err := newStdLogAt(logger, zapcore.ErrorLevel, prefixToDrop)
 	if err != nil {
 		return nil, err
-
 	}
 	return standardLog, nil
 }
 
 // serverConfig generates a *http.Server with a structured error logger.
-func (s Server) serverConfig(tlsConfig *tls.Config) (*http.Server, error) {
+func (s Server) serverConfig(tlsConfig *tls.Config, prefixToDrop string) (*http.Server, error) {
 	// By detault http.Server will use the standard logging library which isn't
 	// structured JSON. This will pass zap.Logger with log level error
-	standardLog, err := stdLogError(s.Logger)
+	standardLog, err := stdLogError(s.Logger, prefixToDrop)
 	if err != nil {
 		s.Logger.Error("failed to create an error logger", zap.Error(err))
 		return nil, errors.Wrap(err, "Faile")
@@ -147,7 +194,7 @@ func (s Server) ListenAndServeTLS() error {
 		return err
 	}
 
-	server, err = s.serverConfig(tlsConfig)
+	server, err = s.serverConfig(tlsConfig, s.PrefixToDrop)
 	if err != nil {
 		s.Logger.Error("failed to generate a TLS server config", zap.Error(err))
 		return err
@@ -181,7 +228,7 @@ func (s Server) ListenAndServe() error {
 	var tlsConfig *tls.Config
 	var err error
 
-	server, err = s.serverConfig(tlsConfig)
+	server, err = s.serverConfig(tlsConfig, s.PrefixToDrop)
 	if err != nil {
 		s.Logger.Error("failed to generate a server config", zap.Error(err))
 		return err

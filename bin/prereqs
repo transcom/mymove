@@ -15,7 +15,7 @@ function has() {
     fi
 }
 
-has go "brew install go"
+has go "brew install go@1.10"
 has yarn "brew install yarn"
 has dep "brew install dep"
 has pre-commit "brew install pre-commit"
