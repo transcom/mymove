@@ -73,7 +73,7 @@ const OrdersDisplay = props => {
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField
           fieldName="orders_type_detail"
-          nullWarning
+          required
           {...fieldProps}
         />
         <PanelField
@@ -87,25 +87,17 @@ const OrdersDisplay = props => {
           {get(props.orders, 'new_duty_station.name', '')}
         </PanelField>
 
-        {props.orders.orders_issuing_agency ? (
-          <PanelSwaggerField
-            title="Orders Issuing Agency"
-            fieldName="orders_issuing_agency"
-            {...fieldProps}
-          />
-        ) : (
-          <PanelField title="Orders Issuing Agency">missing</PanelField>
-        )}
+        <PanelSwaggerField
+          title="Orders Issuing Agency"
+          fieldName="orders_issuing_agency"
+          {...fieldProps}
+        />
 
-        {props.orders.paragraph_number ? (
-          <PanelSwaggerField
-            title="Paragraph Number"
-            fieldName="paragraph_number"
-            {...fieldProps}
-          />
-        ) : (
-          <PanelField title="Paragraph Number">missing</PanelField>
-        )}
+        <PanelSwaggerField
+          title="Paragraph Number"
+          fieldName="paragraph_number"
+          {...fieldProps}
+        />
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(props.entitlements, props.orders)}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -34,14 +33,12 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
-
-// max request headers size is 1 mb
-const maxHeaderSize int = 1 * 1000 * 1000
 
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
 	zap.L().Debug("limitBodySizeMiddleware installed")
@@ -75,6 +72,22 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func securityHeadersMiddleware(inner http.Handler) http.Handler {
+	zap.L().Debug("securityHeadersMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		// Sets headers to prevent rendering our page in an iframe, prevents clickjacking
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+		w.Header().Set("X-Frame-Options", "deny")
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
@@ -92,6 +105,9 @@ func main() {
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
+
+	httpsClientAuthPort := flag.String("https_client_auth_port", "9443", "The `port` for the HTTPS listener requiring client authentication.")
+	httpsClientAuthCACert := flag.String("https_client_auth_ca_cert", "", "the CA certificate for the HTTPS listener requiring client authentication.")
 
 	httpsPort := flag.String("https_port", "8443", "the `port` to listen on.")
 	httpsCert := flag.String("https_cert", "", "TLS certificate.")
@@ -248,6 +264,7 @@ func main() {
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
 	site.Use(httpsComplianceMiddleware)
+	site.Use(securityHeadersMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
@@ -329,24 +346,46 @@ func main() {
 		httpHandler = site
 	}
 
-	// Start http/https listener(s)
 	errChan := make(chan error)
-	go func() { // start http listener
-		addr := fmt.Sprintf("%s:%s", *listenInterface, *port)
-		zap.L().Info("Starting http server listening", zap.String("address", addr))
-		s := &http.Server{
-			Addr:           addr,
-			Handler:        httpHandler,
-			MaxHeaderBytes: maxHeaderSize,
+	localhostCert := server.TLSCert{
+		CertPEMBlock: []byte(*httpsCert),
+		KeyPEMBlock:  []byte(*httpsKey),
+	}
+	go func() {
+		httpServer := server.Server{
+			ListenAddress: *listenInterface,
+			HTTPHandler:   httpHandler,
+			Logger:        logger,
+			Port:          *port,
 		}
-		errChan <- s.ListenAndServe()
+		errChan <- httpServer.ListenAndServe()
 	}()
-	go func() { // start https listener
-		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpsPort)
-		zap.L().Info("Starting https server listening", zap.String("address", addr))
-		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), httpHandler)
+	go func() {
+		tlsServer := server.Server{
+			ClientAuthType: tls.NoClientCert,
+			ListenAddress:  *listenInterface,
+			HTTPHandler:    httpHandler,
+			Logger:         logger,
+			Port:           *httpsPort,
+			TLSCerts:       []server.TLSCert{localhostCert},
+		}
+		errChan <- tlsServer.ListenAndServeTLS()
 	}()
-	log.Fatal(<-errChan)
+	go func() {
+		mutualTLSServer := server.Server{
+			// Only allow certificates validated by the specified
+			// client certificate CA.
+			ClientAuthType: tls.RequireAndVerifyClientCert,
+			CACertPEMBlock: []byte(*httpsClientAuthCACert),
+			ListenAddress:  *listenInterface,
+			HTTPHandler:    httpHandler,
+			Logger:         logger,
+			Port:           *httpsClientAuthPort,
+			TLSCerts:       []server.TLSCert{localhostCert},
+		}
+		errChan <- mutualTLSServer.ListenAndServeTLS()
+	}()
+	logger.Fatal("listener error", zap.Error(<-errChan))
 }
 
 // fileHandler serves up a single file
@@ -388,27 +427,4 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(mergedHTML))
 	}
-}
-
-func listenAndServeTLS(addr string, certPEMBlock, keyPEMBlock []byte, handler http.Handler) error {
-	// Configure TLS
-	cert, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
-	if err != nil {
-		return err
-	}
-	config := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		NextProtos:   []string{"h2"}, // enable HTTP/2
-	}
-
-	// Create listener
-	ln, err := tls.Listen("tcp", addr, config)
-	if err != nil {
-		return err
-	}
-	defer ln.Close()
-
-	// Start server
-	srv := &http.Server{Addr: addr, Handler: handler, MaxHeaderBytes: maxHeaderSize}
-	return srv.Serve(ln)
 }

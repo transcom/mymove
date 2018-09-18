@@ -21,15 +21,16 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	}
 
 	// Test for TSP ID first before creating a new TSP
-	tspID := assertions.ShipmentOffer.TransportationServiceProviderID
-	if isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
-		tsp := MakeTSP(db, assertions)
-		tspID = tsp.ID
+
+	tsp := assertions.ShipmentOffer.TransportationServiceProvider
+	if isZeroUUID(tsp.ID) || isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
+		tsp = MakeTSP(db, assertions)
 	}
 	shipmentOffer := models.ShipmentOffer{
 		ShipmentID:                      shipment.ID,
 		Shipment:                        shipment,
-		TransportationServiceProviderID: tspID,
+		TransportationServiceProviderID: tsp.ID,
+		TransportationServiceProvider:   tsp,
 		AdministrativeShipment:          false,
 		Accepted:                        nil, // This is a Tri-state and new offers are always nil until accepted
 		RejectionReason:                 nil,
@@ -134,7 +135,10 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			models.ShipmentStatusDRAFT,
 			models.ShipmentStatusSUBMITTED,
 			models.ShipmentStatusAWARDED,
-			models.ShipmentStatusACCEPTED}
+			models.ShipmentStatusACCEPTED,
+			models.ShipmentStatusAPPROVED,
+			models.ShipmentStatusINTRANSIT,
+			models.ShipmentStatusDELIVERED}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
@@ -165,7 +169,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
-				PickupDate:              &nowPlusOne,
+				ActualPickupDate:        &nowPlusOne,
 				DeliveryDate:            &nowPlusTwo,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,

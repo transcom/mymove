@@ -10,18 +10,29 @@ import (
 func MakeServiceAgent(db *pop.Connection, assertions Assertions) models.ServiceAgent {
 
 	// Create a shipment if one wasn't already created
-	shipmentID := assertions.ServiceAgent.ShipmentID
-	if isZeroUUID(shipmentID) {
-		shipment := MakeDefaultShipment(db)
-		shipmentID = shipment.ID
+	shipment := assertions.ServiceAgent.Shipment
+	if shipment == nil {
+		s := MakeDefaultShipment(db)
+		shipment = &s
+	}
+
+	company := assertions.ServiceAgent.Company
+	if company == "" {
+		company = "ACME Movers"
+	}
+
+	role := assertions.ServiceAgent.Role
+	if role == "" {
+		role = models.RoleORIGIN
 	}
 
 	serviceAgent := models.ServiceAgent{
-		ShipmentID:     shipmentID,
-		Role:           models.RoleORIGIN,
-		PointOfContact: "Jenny at ACME Movers",
-		PhoneNumber:    stringPointer("303-867-5309"),
-		Email:          stringPointer("jenny_acme@example.com"),
+		ShipmentID:  shipment.ID,
+		Shipment:    shipment,
+		Role:        role,
+		Company:     company,
+		PhoneNumber: stringPointer("303-867-5309"),
+		Email:       stringPointer("acme@example.com"),
 	}
 
 	mergeModels(&serviceAgent, assertions.ServiceAgent)

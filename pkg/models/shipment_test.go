@@ -36,8 +36,8 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	suite.verifyValidationErrors(shipment, expErrors)
 }
 
-// Test_FetchAllShipments tests that a shipment is returned when we fetch shipments with their offers.
-func (suite *ModelSuite) Test_FetchAllShipments() {
+// Test_FetchUnofferedShipments tests that a shipment is returned when we fetch shipments with offers.
+func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	t := suite.T()
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
@@ -48,70 +48,29 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
+			Status:                  ShipmentStatusSUBMITTED,
 		},
 	})
 
 	shipment2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
+			Status:                  ShipmentStatusSUBMITTED,
 		},
 	})
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
-	shipments, err := FetchShipments(suite.db, false)
-
-	// Expect both shipments returned
-	if err != nil {
-		t.Errorf("Failed to find Shipments: %v", err)
-	} else if shipments[0].ID != shipment.ID || shipments[1].ID != shipment2.ID {
-		t.Errorf("Failed to return correct shipments. Expected shipments %v and %v, got %v and %v",
-			shipment.ID, shipment2.ID, shipments[0].ID, shipments[1].ID)
-	}
-}
-
-// Test_FetchUnassignedShipments tests that a shipment is returned when we fetch shipments with offers.
-func (suite *ModelSuite) Test_FetchUnassignedShipments() {
-	t := suite.T()
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
-
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
-		Shipment: Shipment{
-			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
-			DeliveryDate:            &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
-		},
-	})
-
-	shipment2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
-		Shipment: Shipment{
-			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
-			DeliveryDate:            &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
-		},
-	})
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
-	shipments, err := FetchShipments(suite.db, true)
+	shipments, err := FetchUnofferedShipments(suite.db)
 
 	// Expect only unassigned shipment returned
 	if err != nil {
@@ -136,22 +95,34 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
 
-	// Can submit shipment
+	// Can accept shipment
 	err = shipment.Accept()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
+
+	// Can approve shipment
+	err = shipment.Approve()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
+
+	// Can transport shipment
+	err = shipment.Transport()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 }
 
-func equalShipmentsSlice(a []ShipmentWithOffer, b []ShipmentWithOffer) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
+func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	// There is not a way to set a field to nil using testdatagen.Assertions
+	shipment.BookDate = nil
+	suite.mustSave(&shipment)
+	suite.Nil(shipment.BookDate)
+
+	// Can submit shipment
+	err := shipment.Submit()
+	suite.Nil(err)
+	suite.NotNil(shipment.BookDate)
 }
 
 // TestAcceptShipmentForTSP tests that a shipment and shipment offer is correctly accepted
@@ -177,4 +148,30 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Awarded")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
+}
+
+// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
+	testData := [][]string{
+		// {GBLOC, expected GBL number}
+		{"GBO1", "GBO17000001"},
+		{"GBO1", "GBO17000002"},
+		{"GBO1", "GBO17000003"},
+		// New GBLOC starts new sequence
+		{"GBO2", "GBO27000001"},
+		// Old sequence should still work
+		{"GBO1", "GBO17000004"},
+	}
+
+	for _, d := range testData {
+		shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+			Shipment: Shipment{
+				SourceGBLOC: &d[0],
+			},
+		})
+		err := shipment.AssignGBLNumber(suite.db)
+		suite.NoError(err)
+		suite.NotNil(shipment.GBLNumber)
+		suite.Equal(*shipment.GBLNumber, d[1])
+	}
 }

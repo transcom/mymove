@@ -63,7 +63,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -155,7 +155,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 			MoveID:                  move.ID,
 			Move:                    *move,
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -275,7 +275,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -298,7 +298,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 
 	// Then: Shipment GBLOCs will be equal to:
 	// destination GBLOC: orders' new duty station's transportation office's GBLOC
-	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *shipment.DestinationGBLOC)
+	suite.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *shipment.DestinationGBLOC)
 	// source GBLOC: service member's current duty station's transportation office's GBLOC
-	suite.Assertions.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *shipment.SourceGBLOC)
+	suite.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *shipment.SourceGBLOC)
+	// GBL number should be set
+	suite.NotNil(shipment.GBLNumber)
 }

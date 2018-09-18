@@ -225,3 +225,39 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 		internalmessages.ReimbursementStatusREQUESTED,
 		*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
 }
+
+func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
+	// Given: a set of orders, a move, user and servicemember
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+
+	// There is not a way to set a field to nil using testdatagen.Assertions
+	shipment.BookDate = nil
+	suite.MustSave(&shipment)
+	suite.Nil(shipment.BookDate)
+
+	move := shipment.Move
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	params := moveop.SubmitMoveForApprovalParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+
+	// And: a move is submitted
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
+	handler := SubmitMoveHandler{context}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+	okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+
+	// And: Returned query to have an approved status
+	suite.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+	suite.Equal(internalmessages.ShipmentStatusSUBMITTED, okResponse.Payload.Shipments[0].Status)
+	suite.NotNil(okResponse.Payload.Shipments[0].BookDate)
+}

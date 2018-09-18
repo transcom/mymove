@@ -7,7 +7,7 @@ import (
 )
 
 // MakeTransportationOffice creates a single ServiceMember and associated User.
-func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
+func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.TransportationOffice {
 	address := MakeDefaultAddress(db)
 
 	office := models.TransportationOffice{
@@ -18,6 +18,8 @@ func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
 		Latitude:  1.23445,
 		Longitude: -23.34455,
 	}
+
+	mergeModels(&office, assertions.TransportationOffice)
 
 	mustCreate(db, &office)
 
@@ -33,7 +35,11 @@ func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
 	mustCreate(db, &phoneLine)
 
 	office.PhoneLines = phoneLines
-	mustSave(db, &office)
 
 	return office
+}
+
+// MakeDefaultTransportationOffice makes a default TransportationOffice
+func MakeDefaultTransportationOffice(db *pop.Connection) models.TransportationOffice {
+	return MakeTransportationOffice(db, Assertions{})
 }

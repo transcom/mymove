@@ -5,6 +5,9 @@ import { formatPayload } from 'shared/utils';
 export async function RetrieveShipmentsForTSP(queueType) {
   const queueToStatus = {
     new: ['AWARDED'],
+    in_transit: ['IN_TRANSIT'],
+    approved: ['APPROVED'],
+    delivered: ['DELIVERED'],
     all: [],
   };
   /* eslint-disable security/detect-object-injection */
@@ -37,8 +40,18 @@ export async function LoadShipment(shipmentId) {
 // SHIPMENT ACCEPT
 export async function AcceptShipment(shipmentId) {
   const client = await getPublicClient();
-  const response = await client.apis.shipments.createShipmentAccept({
+  const response = await client.apis.shipments.acceptShipment({
     shipmentId: shipmentId,
+  });
+  checkResponse(response, 'failed to accept shipment due to server error');
+  return response.body;
+}
+
+export async function RejectShipment(shipmentId, reason) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.rejectShipment({
+    shipmentId: shipmentId,
+    payload: { reason },
   });
   checkResponse(response, 'failed to accept shipment due to server error');
   return response.body;

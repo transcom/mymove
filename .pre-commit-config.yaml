@@ -7,7 +7,12 @@ repos:
       - id: check-yaml
         exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
-        exclude: ^config/devlocal-.+\.key$
+        exclude: >
+          (?x)^(
+            config/tls/devlocal-.+\.key$|
+            pkg/server/testdata/localhost.key$|
+            pkg/server/testdata/officelocal.key$|
+          )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
