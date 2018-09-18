@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+const awardQueueLockID = 1
 const numQualBands = 4
 
 // Minimum Performance Score (MPS) is the lowest BVS a TSP can have and still be assigned shipments.
@@ -203,7 +204,18 @@ func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributio
 	return nil
 }
 
-const awardQueueLockID = 1
+// ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
+// to see if it falls within the window created by the blackout date record and if it matches on
+// optional fields COS, channel, GBLOC, and market.
+func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.Shipment) (bool, error) {
+	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
+
+	if err != nil {
+		return false, errors.Wrap(err, "Error retrieving blackout dates from database")
+	}
+
+	return len(blackoutDates) != 0, nil
+}
 
 // Run will execute the award queue algorithm.
 func (aq *AwardQueue) Run() error {
@@ -212,14 +224,11 @@ func (aq *AwardQueue) Run() error {
 		// ensure that all parts of the AQ run inside the transaction
 		aq.db = tx
 
-		// obtain transaction-level advisory-lock
 		aq.logger.Info("Waiting to acquire advisory lock...")
-		err := tx.RawQuery("SELECT pg_advisory_xact_lock($1)", awardQueueLockID).Exec()
-		aq.logger.Info("Acquired pg_advisory_xact_lock")
-
-		if err != nil {
+		if err := waitForLock(tx, awardQueueLockID); err != nil {
 			return err
 		}
+		aq.logger.Info("Acquired pg_advisory_xact_lock")
 
 		if err := aq.assignPerformanceBands(); err != nil {
 			return err
@@ -233,17 +242,10 @@ func (aq *AwardQueue) Run() error {
 	})
 }
 
-// ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
-// to see if it falls within the window created by the blackout date record and if it matches on
-// optional fields COS, channel, GBLOC, and market.
-func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.Shipment) (bool, error) {
-	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
-
-	if err != nil {
-		return false, errors.Wrap(err, "Error retrieving blackout dates from database")
-	}
-
-	return len(blackoutDates) != 0, nil
+// waitForLock MUST be called within a transaction!
+func waitForLock(db *pop.Connection, id int) error {
+	// obtain transaction-level advisory-lock
+	return db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()
 }
 
 // NewAwardQueue creates a new AwardQueue
