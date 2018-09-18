@@ -30,8 +30,10 @@ const (
 	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
-	// ShipmentStatusINTRANSIT captures enum value "INTRANSIT"
+	// ShipmentStatusINTRANSIT captures enum value "IN_TRANSIT"
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
+	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
+	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -110,6 +112,8 @@ func (s *Shipment) Submit() error {
 	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
+	now := time.Now()
+	s.BookDate = &now
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
