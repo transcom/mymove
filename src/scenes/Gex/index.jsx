@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -33,7 +34,9 @@ export class Gex extends Component {
 
   sendRequest = values => {
     this.props.sendGexRequest(values).then(response => {
-      this.setState({ response: response.payload.gex_response });
+      this.setState({
+        response: get(response, 'payload.gex_response', 'No payload'),
+      });
     });
   };
 
