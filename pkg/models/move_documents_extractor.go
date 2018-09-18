@@ -18,6 +18,7 @@ type MoveDocumentExtractor struct {
 	Title                    string             `json:"title" db:"title"`
 	Status                   MoveDocumentStatus `json:"status" db:"status"`
 	PersonallyProcuredMoveID *uuid.UUID         `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	ShipmentID               *uuid.UUID         `json:"shipment_id" db:"shipment_id"`
 	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`

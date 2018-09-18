@@ -38,6 +38,8 @@ const (
 	MoveDocumentTypeSHIPMENTSUMMARY MoveDocumentType = "SHIPMENT_SUMMARY"
 	// MoveDocumentTypeEXPENSE captures enum value "EXPENSE"
 	MoveDocumentTypeEXPENSE MoveDocumentType = "EXPENSE"
+	// MoveDocumentTypeGOVBILLOFLADING captures enum value "GOV_BILL_OF_LADING"
+	MoveDocumentTypeGOVBILLOFLADING MoveDocumentType = "GOV_BILL_OF_LADING"
 )
 
 // MoveDocumentSaveAction represents actions that can be taken during save
@@ -59,6 +61,8 @@ type MoveDocument struct {
 	Move                     Move                   `belongs_to:"moves"`
 	PersonallyProcuredMoveID *uuid.UUID             `json:"personally_procured_move_id" db:"personally_procured_move_id"`
 	PersonallyProcuredMove   PersonallyProcuredMove `belongs_to:"personally_procured_moves"`
+	ShipmentID               *uuid.UUID             `json:"shipment_id" db:"shipment_id"`
+	Shipment                 Shipment               `belongs_to:"shipments"`
 	Title                    string                 `json:"title" db:"title"`
 	Status                   MoveDocumentStatus     `json:"status" db:"status"`
 	MoveDocumentType         MoveDocumentType       `json:"move_document_type" db:"move_document_type"`
@@ -137,6 +141,11 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 
 // FetchMoveDocument fetches a MoveDocument model
 func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
+	// Allow all office users to fetch move doc
+	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+		return &MoveDocument{}, ErrFetchForbidden
+	}
+
 	var moveDoc MoveDocument
 	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
 	if err != nil {
@@ -162,10 +171,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	if session.IsMyApp() && moveDoc.Document.ServiceMemberID != session.ServiceMemberID {
 		return &MoveDocument{}, ErrFetchForbidden
 	}
-	// Allow all office users to fetch move doc
-	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
-		return &MoveDocument{}, ErrFetchForbidden
-	}
+
 	return &moveDoc, nil
 }
 
@@ -202,6 +208,43 @@ func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Sessi
 		}
 	}
 
+	return moveDocuments, nil
+}
+
+// FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
+func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID) (MoveDocuments, error) {
+
+	// Verify that the logged-in TSP user is authorized to generate GBL
+	// Does this need to be checked here if already checked in create gbl handler?
+	if session.IsTspApp() {
+		if session.TspUserID == uuid.Nil {
+			return nil, ErrFetchForbidden
+		}
+		tspUser, err := FetchTspUserByID(db, session.TspUserID)
+		if err != nil {
+			return nil, ErrFetchNotFound
+		}
+		shipment, err := FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
+		if err != nil {
+			return nil, ErrFetchForbidden
+		}
+		if shipment.ID != shipmentID {
+			return nil, ErrFetchForbidden
+		}
+	}
+
+	// Allow all logged in office users to fetch move docs
+	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+		return nil, ErrFetchForbidden
+	}
+
+	var moveDocuments MoveDocuments
+	err := db.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
+	if err != nil {
+		if errors.Cause(err).Error() != recordNotFoundErrorString {
+			return nil, err
+		}
+	}
 	return moveDocuments, nil
 }
 
