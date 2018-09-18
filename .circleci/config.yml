@@ -111,7 +111,6 @@ jobs:
               SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
               SECURE_MIGRATION_SOURCE: local
               LOGIN_GOV_CALLBACK_PROTOCOL: http://
-              LOGIN_GOV_CALLBACK_PORT: 8080
               LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
               LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
               LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
@@ -123,7 +122,7 @@ jobs:
       - store_artifacts:
           path: cypress/screenshots
       - store_test_results:
-          path: results
+          path: cypress/results
 
       - save_cache:
           key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}

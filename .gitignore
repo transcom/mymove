@@ -66,7 +66,7 @@ public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
 
+# Cypress integration tests
 cypress/videos
 cypress/screenshots
-
-results/my-test-output\.xml
+cypress/results

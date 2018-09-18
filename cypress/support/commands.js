@@ -53,7 +53,10 @@ Cypress.Commands.add('signInAsUser', userId => {
 });
 
 Cypress.Commands.add('logout', () => {
-  cy.request('/auth/logout').its('status').should('equal', 200);
+  cy
+    .request('/auth/logout')
+    .its('status')
+    .should('equal', 200);
 });
 
 Cypress.Commands.add('nextPage', () => {
