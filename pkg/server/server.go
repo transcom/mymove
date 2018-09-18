@@ -118,25 +118,24 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 
 	// Follow Mozilla's "modern" server side TLS recommendations
 	// https://wiki.mozilla.org/Security/Server_Side_TLS#Modern_compatibility
-	// https://statics.tls.security.mozilla.org/server-side-tls-conf.json
+	// https://statics.tls.security.mozilla.org/server-side-tls-conf-4.0.json
 	// This configuration is compatible with Firefox 27, Chrome 30, IE 11 on
 	// Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8
 	tlsConfig := &tls.Config{
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
 		},
 		Certificates: tlsCerts,
 		ClientAuth:   s.ClientAuthType,
 		ClientCAs:    caCerts,
 		CurvePreferences: []tls.CurveID{
 			tls.CurveP256,
-			tls.CurveP384,
-			tls.CurveP521,
+			tls.X25519,
 		},
 		MinVersion:               tls.VersionTLS12,
 		NextProtos:               []string{"h2"},
