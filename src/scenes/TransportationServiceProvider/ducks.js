@@ -6,6 +6,7 @@ import {
   CreateServiceAgent,
   IndexServiceAgents,
   UpdateServiceAgent,
+  GenerateGBL,
 } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -14,6 +15,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
+const generateGBLType = 'GENERATE_GBL';
 const rejectShipmentType = 'REJECT_SHIPMENT';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
@@ -29,6 +31,7 @@ const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
   acceptShipmentType,
 );
+const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
 const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
   rejectShipmentType,
 );
@@ -66,6 +69,11 @@ export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
 export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(
   acceptShipmentType,
   AcceptShipment,
+);
+
+export const generateGBL = ReduxHelpers.generateAsyncActionCreator(
+  generateGBLType,
+  GenerateGBL,
 );
 
 export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(
@@ -148,6 +156,8 @@ const initialState = {
   loadTspDependenciesHasError: null,
   flashMessage: false,
   serviceAgents: [],
+  generateGBLSuccess: false,
+  generateGBLError: null,
 };
 
 export function tspReducer(state = initialState, action) {
@@ -313,6 +323,23 @@ export function tspReducer(state = initialState, action) {
         serviceAgentHasUpdatedError: null,
         serviceAgents: [],
         error: action.error.message,
+      });
+    // Gov bill of lading
+    case GENERATE_GBL.start:
+      return Object.assign({}, state, {
+        generateGBLSuccess: false,
+        generateGBLError: null,
+      });
+    case GENERATE_GBL.success:
+      return Object.assign({}, state, {
+        generateGBLSuccess: true,
+        generateGBLError: false,
+      });
+    case GENERATE_GBL.failure:
+      return Object.assign({}, state, {
+        generateGBLSuccess: false,
+        generateGBLError: true,
+        error: action.error,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES
