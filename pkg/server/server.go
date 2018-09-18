@@ -18,8 +18,6 @@ const (
 	maxHeaderSize = 1 * 1000 * 1000   // 1 Megabyte
 )
 
-var supportedProtocols = []string{"h2"}
-
 // ErrMissingCACert represents an error caused by server config that requires
 // certificate verification, but is missing a CA certificate
 var ErrMissingCACert = errors.New("missing required CA certificate")
@@ -118,11 +116,31 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 		tlsCerts = append(tlsCerts, parsedCert)
 	}
 
+	// Follow Mozilla's "modern" server side TLS recommendations
+	// https://wiki.mozilla.org/Security/Server_Side_TLS#Modern_compatibility
+	// https://statics.tls.security.mozilla.org/server-side-tls-conf.json
+	// This configuration is compatible with Firefox 27, Chrome 30, IE 11 on
+	// Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8
 	tlsConfig := &tls.Config{
-		ClientCAs:    caCerts,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+		},
 		Certificates: tlsCerts,
-		NextProtos:   supportedProtocols,
 		ClientAuth:   s.ClientAuthType,
+		ClientCAs:    caCerts,
+		CurvePreferences: []tls.CurveID{
+			tls.CurveP256,
+			tls.CurveP384,
+			tls.CurveP521,
+		},
+		MinVersion:               tls.VersionTLS12,
+		NextProtos:               []string{"h2"},
+		PreferServerCipherSuites: true,
 	}
 
 	// Map certificates with the CommonName / DNSNames to support
