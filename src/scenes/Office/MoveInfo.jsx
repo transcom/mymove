@@ -34,6 +34,7 @@ import {
   approveBasics,
   approvePPM,
   approveHHG,
+  completeHHG,
   cancelMove,
   patchShipment,
 } from './ducks';
@@ -130,6 +131,10 @@ class MoveInfo extends Component {
     this.props.approveHHG(this.props.officeShipment.id);
   };
 
+  completeHHG = () => {
+    this.props.completeHHG(this.props.officeShipment.id);
+  };
+
   cancelMove = cancelReason => {
     this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
       this.setState({ redirectToHome: true });
@@ -191,7 +196,12 @@ class MoveInfo extends Component {
       ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
       ppm.status,
     );
-    const hhgApproved = hhg.status === 'APPROVED';
+    const hhgApproved = includes(
+      ['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
+      hhg.status,
+    );
+    const hhgDelivered = hhg.status === 'DELIVERED';
+    const hhgCompleted = hhg.status === 'COMPLETED';
     const moveApproved = move.status === 'APPROVED';
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -344,6 +354,7 @@ class MoveInfo extends Component {
                   onClick={this.approveHHG}
                   disabled={
                     hhgApproved ||
+                    hhgCompleted ||
                     !moveApproved ||
                     !ordersComplete ||
                     currentTab !== 'hhg'
@@ -351,6 +362,22 @@ class MoveInfo extends Component {
                 >
                   Approve Shipments
                   {hhgApproved && check}
+                </button>
+              )}
+              {isHHG && (
+                <button
+                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
+                  onClick={this.completeHHG}
+                  disabled={
+                    !hhgDelivered ||
+                    hhgCompleted ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
+                >
+                  Complete Shipments
+                  {hhgCompleted && check}
                 </button>
               )}
 
@@ -462,6 +489,7 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveHHG,
+      completeHHG,
       cancelMove,
       patchShipment,
     },
