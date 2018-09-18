@@ -135,7 +135,10 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			models.ShipmentStatusDRAFT,
 			models.ShipmentStatusSUBMITTED,
 			models.ShipmentStatusAWARDED,
-			models.ShipmentStatusACCEPTED}
+			models.ShipmentStatusACCEPTED,
+			models.ShipmentStatusAPPROVED,
+			models.ShipmentStatusINTRANSIT,
+			models.ShipmentStatusDELIVERED}
 	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()

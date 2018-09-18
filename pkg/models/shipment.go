@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -31,8 +30,10 @@ const (
 	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
-	// ShipmentStatusINTRANSIT captures enum value "INTRANSIT"
+	// ShipmentStatusINTRANSIT captures enum value "IN_TRANSIT"
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
+	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
+	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -111,6 +112,8 @@ func (s *Shipment) Submit() error {
 	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
+	now := time.Now()
+	s.BookDate = &now
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
@@ -291,7 +294,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Eager(
+	query := tx.Q().Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
 		"Move",
@@ -303,11 +306,11 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
 	if len(status) > 0 {
-		statusStrings := make([]string, len(status))
+		statusStrings := make([]interface{}, len(status))
 		for index, st := range status {
-			statusStrings[index] = fmt.Sprintf("'%s'", st)
+			statusStrings[index] = st
 		}
-		query = query.Where(fmt.Sprintf("shipments.status IN (%s)", strings.Join(statusStrings, ", ")))
+		query = query.Where("shipments.status IN ($2)", statusStrings...)
 	}
 
 	// Manage ordering by pickup or delivery date

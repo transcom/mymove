@@ -1576,12 +1576,87 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
+      service_agents:
+        type: array
+        items:
+          $ref: '#/definitions/ServiceAgent'
       created_at:
         type: string
         format: date-time
       updated_at:
         type: string
         format: date-time
+  ServiceAgentRole:
+    type: string
+    title: Service Agent Role
+    enum:
+      - ORIGIN
+      - DESTINATION
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
+  ServiceAgent:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      shipment_id:
+        type: string
+        format: uuid
+        readOnly: true
+      role:
+        $ref: '#/definitions/ServiceAgentRole'
+      company:
+        type: string
+        example: ACME Movers
+        title: Company
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        description: Email used to contact shipping agent
+        example: jenny_acme@example.com
+        x-nullable: true
+        title: Email
+      phone_number:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 303-867-5309
+        x-nullable: true
+        title: Phone Number
+      fax_number:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 303-867-5310
+        x-nullable: true
+        title: Fax Number
+      email_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Email Is Preferred
+      phone_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Phone Is Preferred
+      notes:
+        type: string
+        x-nullable: true
+        example: This service agent is available at all hours
+        title: Notes
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - role
+      - company
   Address:
     type: object
     properties:
@@ -3761,7 +3836,7 @@ paths:
           - troubleshooting
           - ppm
           - hhg_accepted
-          - hhg_in_transit
+          - hhg_delivered
           - all
           required: true
           description: Queue type to show

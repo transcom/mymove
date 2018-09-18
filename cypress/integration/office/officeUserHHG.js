@@ -9,8 +9,8 @@ describe('office user finds the shipment', function() {
   it('office user views accepted hhg moves in queue Accepted HHGs', function() {
     officeUserViewsAcceptedShipment();
   });
-  it('office user views in transit hhg moves in queue HHGs In Transit', function() {
-    officeUserViewsInTransitShipment();
+  it('office user views delivered hhg moves in queue Delivered HHGs', function() {
+    officeUserViewsDeliveredShipment();
   });
   it('office user approves basics for move, verifies and approves HHG shipment', function() {
     officeUserApprovesHHG();
@@ -43,17 +43,17 @@ function officeUserViewsMoves() {
   });
 }
 
-function officeUserViewsAcceptedShipment() {
+function officeUserViewsDeliveredShipment() {
   // Open new moves queue
-  cy.visit('/queues/hhg_accepted');
+  cy.visit('/queues/hhg_delivered');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
   cy
     .get('div')
-    .contains('BACON3')
+    .contains('SCHNOO')
     .dblclick();
 
   cy.location().should(loc => {
@@ -70,17 +70,17 @@ function officeUserViewsAcceptedShipment() {
   });
 }
 
-function officeUserViewsInTransitShipment() {
+function officeUserViewsAcceptedShipment() {
   // Open new moves queue
-  cy.visit('/queues/hhg_in_transit');
+  cy.visit('/queues/hhg_accepted');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_in_transit/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
   cy
     .get('div')
-    .contains('NINOPK')
+    .contains('BACON3')
     .dblclick();
 
   cy.location().should(loc => {
