@@ -184,6 +184,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				AND s.pm_survey_planned_pickup_date IS NOT NULL
 				AND s.pm_survey_planned_delivery_date IS NOT NULL
 				AND sm.edipi IS NOT NULL
+				AND sa.company IS NOT NULL
 				AND o.department_indicator IS NOT NULL
 				AND o.sac IS NOT NULL
 				AND o.tac IS NOT NULL
