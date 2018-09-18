@@ -1,0 +1,1 @@
+add_column("shipment_offers", "transportation_service_provider_performance_id", "uuid", {"null": true})
