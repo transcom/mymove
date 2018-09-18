@@ -75,43 +75,37 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 			return nil, err
 		}
 
-		err = aq.db.Transaction(func(tx *pop.Connection) error {
-			tsp := models.TransportationServiceProvider{}
-			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
-				aq.logger.Info("Attempting to offer to TSP", zap.Object("tsp", tsp))
+		tsp := models.TransportationServiceProvider{}
+		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
+			aq.logger.Info("Attempting to offer to TSP", zap.Object("tsp", tsp))
 
-				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
-				if err != nil {
-					aq.logger.Error("Failed to determine if shipment is within TSP blackout dates", zap.Error(err))
-					return err
-				}
-
-				shipmentOffer, err = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, isAdministrativeShipment)
-				if err == nil {
-					if err = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
-						if isAdministrativeShipment == true {
-							aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
-						} else {
-							// TODO: OfferCount is off by 1
-							aq.logger.Info("Shipment offered to TSP!", zap.Int("current_count", tspPerformance.OfferCount+1))
-							foundAvailableTSP = true
-
-							// Award the shipment
-							if err := models.AwardShipment(aq.db, shipment.ID); err != nil {
-								aq.logger.Error("Failed to set shipment as awarded",
-									zap.Stringer("shipment ID", shipment.ID), zap.Error(err))
-							}
-						}
-						return nil
-					}
-				} else {
-					aq.logger.Error("Failed to offer to TSP", zap.Error(err))
-				}
+			isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
+			if err != nil {
+				aq.logger.Error("Failed to determine if shipment is within TSP blackout dates", zap.Error(err))
+				return nil, err
 			}
 
-			aq.logger.Error("Failed to offer to TSP", zap.Error(err))
-			return err
-		})
+			shipmentOffer, err = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, isAdministrativeShipment)
+			if err == nil {
+				if err = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
+					if isAdministrativeShipment == true {
+						aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
+					} else {
+						// TODO: OfferCount is off by 1
+						aq.logger.Info("Shipment offered to TSP!", zap.Int("current_count", tspPerformance.OfferCount+1))
+						foundAvailableTSP = true
+
+						// Award the shipment
+						if err := models.AwardShipment(aq.db, shipment.ID); err != nil {
+							aq.logger.Error("Failed to set shipment as awarded",
+								zap.Stringer("shipment ID", shipment.ID), zap.Error(err))
+						}
+					}
+				}
+			} else {
+				aq.logger.Error("Failed to offer to TSP", zap.Error(err))
+			}
+		}
 
 		if !foundAvailableTSP {
 			aq.logger.Info("Checking for another TSP.")
@@ -209,15 +203,34 @@ func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributio
 	return nil
 }
 
+const awardQueueLockID = 1
+
 // Run will execute the award queue algorithm.
 func (aq *AwardQueue) Run() error {
-	if err := aq.assignPerformanceBands(); err != nil {
-		return err
-	}
+	db := aq.db
+	return aq.db.Transaction(func(tx *pop.Connection) error {
+		// ensure that all parts of the AQ run inside the transaction
+		aq.db = tx
 
-	// This method should also return an error
-	aq.assignShipments()
-	return nil
+		// obtain transaction-level advisory-lock
+		aq.logger.Info("Waiting to acquire advisory lock...")
+		err := tx.RawQuery("SELECT pg_advisory_xact_lock($1)", awardQueueLockID).Exec()
+		aq.logger.Info("Acquired pg_advisory_xact_lock")
+
+		if err != nil {
+			return err
+		}
+
+		if err := aq.assignPerformanceBands(); err != nil {
+			return err
+		}
+
+		// This method should also return an error
+		aq.assignShipments()
+
+		aq.db = db
+		return nil
+	})
 }
 
 // ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
