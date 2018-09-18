@@ -23,9 +23,9 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 	// We can't know in advance if a move document is for a PPM or a Shipment
 	// Better to force the user to choose and explicitly pass in the values
 	// than to make default versions of these structs.
-	ppmId := assertions.MoveDocument.PersonallyProcuredMoveID
+	ppmID := assertions.MoveDocument.PersonallyProcuredMoveID
 	ppm := assertions.MoveDocument.PersonallyProcuredMove
-	shipmentId := assertions.MoveDocument.ShipmentID
+	shipmentID := assertions.MoveDocument.ShipmentID
 	shipment := assertions.MoveDocument.Shipment
 
 	moveDocumentType := models.MoveDocumentTypeOTHER
@@ -39,13 +39,13 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 	}
 
 	moveDocument := models.MoveDocument{
-		DocumentID: document.ID,
-		Document:   document,
-		MoveID:     move.ID,
-		Move:       move,
-		PersonallyProcuredMoveID: ppmId,
+		DocumentID:               document.ID,
+		Document:                 document,
+		MoveID:                   move.ID,
+		Move:                     move,
+		PersonallyProcuredMoveID: ppmID,
 		PersonallyProcuredMove:   ppm,
-		ShipmentID:               shipmentId,
+		ShipmentID:               shipmentID,
 		Shipment:                 shipment,
 		Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
 		MoveDocumentType:         moveDocumentType,
