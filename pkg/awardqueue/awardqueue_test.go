@@ -518,7 +518,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		t.Errorf("Failed to assign to performance bands: %v", err)
 	}
 
-	perfGroup := models.TransportationServiceProviderPerformance{
+	perfGroup := models.TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
 		PerformancePeriodStart:    lastTSPP.PerformancePeriodStart,
 		PerformancePeriodEnd:      lastTSPP.PerformancePeriodEnd,

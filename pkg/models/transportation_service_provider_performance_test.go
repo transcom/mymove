@@ -160,7 +160,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	mpsTSP := testdatagen.MakeDefaultTSP(suite.db)
 	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0, .2, .9)
 
-	perfGroup := TransportationServiceProviderPerformance{
+	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
 		PerformancePeriodStart:    lastTSPP.PerformancePeriodStart,
 		PerformancePeriodEnd:      lastTSPP.PerformancePeriodEnd,
@@ -419,7 +419,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1, .3, .9)
 	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1, .1, .3)
 
-	perfGroup := TransportationServiceProviderPerformance{
+	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
 		PerformancePeriodStart:    lastTSPP.PerformancePeriodStart,
 		PerformancePeriodEnd:      lastTSPP.PerformancePeriodEnd,
@@ -457,7 +457,7 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0, .3, .4)
 	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1, .9, .7)
 
-	perfGroup := TransportationServiceProviderPerformance{
+	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
 		PerformancePeriodStart:    lastTSPP.PerformancePeriodStart,
 		PerformancePeriodEnd:      lastTSPP.PerformancePeriodEnd,

@@ -184,7 +184,7 @@ func (aq *AwardQueue) assignPerformanceBands() error {
 //
 // This assumes that all TransportationServiceProviderPerformances have been properly created and
 // have a valid BestValueScore.
-func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup models.TransportationServiceProviderPerformance) error {
+func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup models.TSPPerformanceGroup) error {
 	aq.logger.Info("Assigning performance bands",
 		zap.Any("traffic_distribution_list_id", perfGroup.TrafficDistributionListID),
 		zap.Any("performance_period_start", perfGroup.PerformancePeriodStart),
