@@ -499,12 +499,17 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
+	var lastTSPP models.TransportationServiceProviderPerformance
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.db)
 		score := float64(mps + i + 1)
 
 		rate := unit.NewDiscountRateFromPercent(45.3)
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		var err error
+		lastTSPP, err = testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		if err != nil {
+			t.Errorf("Failed to MakeTSPPerformance: %v", err)
+		}
 	}
 
 	err := queue.assignPerformanceBands()
@@ -513,7 +518,15 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		t.Errorf("Failed to assign to performance bands: %v", err)
 	}
 
-	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
+	perfGroup := models.TransportationServiceProviderPerformance{
+		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
+		PerformancePeriodStart:    lastTSPP.PerformancePeriodStart,
+		PerformancePeriodEnd:      lastTSPP.PerformancePeriodEnd,
+		RateCycleStart:            lastTSPP.RateCycleStart,
+		RateCycleEnd:              lastTSPP.RateCycleEnd,
+	}
+
+	perfs, err := models.FetchTSPPerformancesForQualityBandAssignment(suite.db, perfGroup, mps)
 	if err != nil {
 		t.Errorf("Failed to fetch TSPPerformances: %v", err)
 	}
@@ -523,7 +536,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	for i, perf := range perfs {
 		band := expectedBands[i]
 		if perf.QualityBand == nil {
-			t.Errorf("No quality band assigned for Peformance #%v, got nil", perf.ID)
+			t.Errorf("No quality band assigned for Performance #%v, got nil", perf.ID)
 		} else if (*perf.QualityBand) != band {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}

@@ -38,30 +38,6 @@ func (t *TrafficDistributionList) Validate(tx *pop.Connection) (*validate.Errors
 	), nil
 }
 
-// FetchTDLsAwaitingBandAssignment returns TDLs with at least one TransportationServiceProviderPerformance containing a null QualityBand.
-func FetchTDLsAwaitingBandAssignment(db *pop.Connection) (TrafficDistributionLists, error) {
-	tdls := TrafficDistributionLists{}
-
-	sql := `SELECT
-				tdl.*
-			FROM
-				traffic_distribution_lists AS tdl
-			LEFT JOIN
-				transportation_service_provider_performances AS tspp ON
-					tspp.traffic_distribution_list_id = tdl.id
-			WHERE
-				tspp.quality_band IS NULL
-			GROUP BY
-				tdl.id
-			ORDER BY
-				tdl.id
-			`
-
-	err := db.RawQuery(sql).All(&tdls)
-
-	return tdls, err
-}
-
 // MarshalLogObject is required to be able to zap.Object log TDLs
 func (t TrafficDistributionList) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddString("src", t.SourceRateArea)
