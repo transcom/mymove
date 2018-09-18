@@ -22,7 +22,13 @@ const DocumentList = ({ moveDocuments, detailUrlPrefix, disableLinks }) => (
 DocumentList.propTypes = {
   detailUrlPrefix: PropTypes.string.isRequired,
   disableLinks: PropTypes.bool,
-  moveDocuments: PropTypes.array.isRequired,
+  moveDocuments: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
 };
 
 export default DocumentList;
