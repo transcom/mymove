@@ -84,6 +84,8 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	mustCreate(db, &shipment)
 
+	shipment.Move.Shipments = []models.Shipment{shipment}
+
 	return shipment
 }
 
