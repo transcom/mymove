@@ -130,6 +130,11 @@ class MoveInfo extends Component {
     this.props.approveHHG(this.props.officeShipment.id);
   };
 
+  submitInvoice = () => {
+    console.log('submitting invoice!');
+    // this.props.sendInvoice(this.props.officeShipment.id);
+  };
+
   cancelMove = cancelReason => {
     this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
       this.setState({ redirectToHome: true });
@@ -353,6 +358,17 @@ class MoveInfo extends Component {
                   {hhgApproved && check}
                 </button>
               )}
+              <button
+                onClick={this.submitInvoice}
+                disabled={
+                  hhgApproved ||
+                  !moveApproved ||
+                  !ordersComplete ||
+                  currentTab !== 'hhg'
+                }
+              >
+                Submit HHG Invoice
+              </button>
 
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
