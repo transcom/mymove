@@ -802,6 +802,7 @@ definitions:
     enum: &SHIPMENTSTATUS
       - AWARDED
       - ACCEPTED
+      - APPROVED
       - REJECTED
       - IN_PROGRESS
       - IN_TRANSIT
