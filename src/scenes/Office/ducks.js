@@ -314,9 +314,6 @@ const initialState = {
   backupContactsAreLoading: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
-  ppmIsApproving: false,
-  hhgIsApproving: false,
-  hhgIsCompleting: false,
   moveIsCanceling: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
@@ -614,10 +611,6 @@ export function officeReducer(state = initialState, action) {
       });
 
     // HHG STATUS
-    case APPROVE_HHG.start:
-      return Object.assign({}, state, {
-        hhgIsApproving: true,
-      });
     case APPROVE_HHG.success:
       return Object.assign({}, state, {
         officeMove: {
@@ -630,10 +623,6 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
-    case COMPLETE_HHG.start:
-      return Object.assign({}, state, {
-        hhgIsCompleting: true,
-      });
     case COMPLETE_HHG.success:
       return Object.assign({}, state, {
         officeMove: {
