@@ -72,6 +72,22 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func securityHeadersMiddleware(inner http.Handler) http.Handler {
+	zap.L().Debug("securityHeadersMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		// Sets headers to prevent rendering our page in an iframe, prevents clickjacking
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+		w.Header().Set("X-Frame-Options", "deny")
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
@@ -248,6 +264,7 @@ func main() {
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
 	site.Use(httpsComplianceMiddleware)
+	site.Use(securityHeadersMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
