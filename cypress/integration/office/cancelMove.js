@@ -19,11 +19,11 @@ describe('office user finds the move', () => {
       .type('Canceling this move as a test!');
     cy
       .get('.cancel-panel button')
-      .contains('Cancel entire move')
+      .contains('Cancel Move')
       .click();
     cy
       .get('.cancel-panel button')
-      .contains('Yes, cancel move')
+      .contains('Yes, Cancel Move')
       .click();
     cy
       .get('.usa-alert-success')

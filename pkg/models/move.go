@@ -176,7 +176,8 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"SignedCertifications",
 		"Orders",
 		"MoveDocuments.Document",
-		"Shipments.TrafficDistributionList").Find(&move, id)
+		"Shipments.TrafficDistributionList",
+		"Shipments.ServiceAgents").Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {

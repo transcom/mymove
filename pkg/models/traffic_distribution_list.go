@@ -70,31 +70,41 @@ func (t TrafficDistributionList) MarshalLogObject(encoder zapcore.ObjectEncoder)
 	return nil
 }
 
+// FetchTDL attempts to return a TDL based on SourceRateArea, Region, and CodeOfService (COS).
+func FetchTDL(db *pop.Connection, rateArea string, region string, codeOfService string) (TrafficDistributionList, error) {
+	var trafficDistributionList TrafficDistributionList
+	err := db.Where("source_rate_area = ?", rateArea).
+		Where("destination_region = ?", region).
+		Where("code_of_service = ?", codeOfService).
+		First(&trafficDistributionList)
+
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return TrafficDistributionList{}, ErrFetchNotFound
+		}
+		return TrafficDistributionList{}, err
+	}
+
+	return trafficDistributionList, nil
+}
+
 // FetchOrCreateTDL attempts to return a TDL based on SourceRateArea, Region, and CodeOfService (COS)
 // and creates one to return if it doesn't already exist.
 func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOfService string) (TrafficDistributionList, error) {
-	sql := `SELECT
-				*
-			FROM
-				traffic_distribution_lists
-			WHERE
-				source_rate_area = $1
-			AND
-				destination_region = $2
-			AND
-				code_of_service = $3
-			`
+	// Fetch TDL and return it immediately if found.
+	trafficDistributionList, err := FetchTDL(db, rateArea, region, codeOfService)
+	if err == nil {
+		return trafficDistributionList, err
+	}
 
-	tdls := []TrafficDistributionList{}
-	err := db.RawQuery(sql, rateArea, region, codeOfService).All(&tdls)
-
-	if len(tdls) == 0 {
-		tdl := TrafficDistributionList{
+	// If we didn't find the TDL, create it.
+	if err == ErrFetchNotFound {
+		trafficDistributionList := TrafficDistributionList{
 			SourceRateArea:    rateArea,
 			DestinationRegion: region,
 			CodeOfService:     codeOfService,
 		}
-		verrs, err := db.ValidateAndSave(&tdl)
+		verrs, err := db.ValidateAndSave(&trafficDistributionList)
 		if err != nil {
 			zap.L().Error("DB insertion error", zap.Error(err))
 			return TrafficDistributionList{}, err
@@ -102,8 +112,9 @@ func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOf
 			zap.L().Error("Validation errors", zap.Error(verrs))
 			return TrafficDistributionList{}, errors.New("Validation error on TDL")
 		}
-		tdls = append(tdls, tdl)
+		return trafficDistributionList, err
 	}
 
-	return tdls[0], err
+	// If we get here, an unexpected error occurred.
+	return TrafficDistributionList{}, err
 }

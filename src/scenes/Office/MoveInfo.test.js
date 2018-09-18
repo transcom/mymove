@@ -26,6 +26,9 @@ const loadDependenciesHasSuccess = false;
 const moveIsCanceling = false;
 const moveHasCancelError = null;
 const moveHasCancelSuccess = false;
+const location = {
+  pathname: '',
+};
 const match = {
   params: { moveID: '123456' },
   url: 'www.nino.com',
@@ -57,6 +60,7 @@ describe('Loads MoveInfo', () => {
             PPMsHaveLoadSuccess={PPMsHaveLoadSuccess}
             loadDependenciesHasError={loadDependenciesHasError}
             loadDependenciesHasSuccess={loadDependenciesHasSuccess}
+            location={location}
             match={match}
             loadMoveDependencies={dummyFunc}
             moveIsCanceling={moveIsCanceling}

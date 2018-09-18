@@ -48,7 +48,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -60,7 +60,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	shipment2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
+			ActualPickupDate:        &pickupDate,
 			DeliveryDate:            &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
@@ -104,6 +104,25 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	err = shipment.Approve()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
+
+	// Can transport shipment
+	err = shipment.Transport()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
+}
+
+func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	// There is not a way to set a field to nil using testdatagen.Assertions
+	shipment.BookDate = nil
+	suite.mustSave(&shipment)
+	suite.Nil(shipment.BookDate)
+
+	// Can submit shipment
+	err := shipment.Submit()
+	suite.Nil(err)
+	suite.NotNil(shipment.BookDate)
 }
 
 // TestAcceptShipmentForTSP tests that a shipment and shipment offer is correctly accepted

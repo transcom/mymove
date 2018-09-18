@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -31,10 +30,14 @@ const (
 	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
+	// ShipmentStatusINTRANSIT captures enum value "IN_TRANSIT"
+	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
+	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
+	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
-// PickupDate: when the shipment is currently scheduled to be picked up by the TSP
+// ActualPickupDate: when the shipment is currently scheduled to be picked up by the TSP
 // RequestedPickupDate: when the shipment was originally scheduled to be picked up
 // DeliveryDate: when the shipment is to be delivered
 // BookDate: when the shipment was most recently offered to a TSP
@@ -44,7 +47,7 @@ type Shipment struct {
 	TrafficDistributionList             *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
 	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
 	ServiceMember                       *ServiceMember           `belongs_to:"service_member"`
-	PickupDate                          *time.Time               `json:"pickup_date" db:"pickup_date"`
+	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
 	DeliveryDate                        *time.Time               `json:"delivery_date" db:"delivery_date"`
 	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
@@ -109,6 +112,8 @@ func (s *Shipment) Submit() error {
 	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
+	now := time.Now()
+	s.BookDate = &now
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
@@ -138,6 +143,87 @@ func (s *Shipment) Approve() error {
 	}
 	s.Status = ShipmentStatusAPPROVED
 	return nil
+}
+
+// Transport marks the Shipment request as In Transit. Must be in an Approved state.
+func (s *Shipment) Transport() error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "In Transit")
+	}
+	s.Status = ShipmentStatusINTRANSIT
+	return nil
+}
+
+// BeforeSave will run before each create/update of a Shipment.
+func (s *Shipment) BeforeSave(tx *pop.Connection) error {
+	// To be safe, we will always try to determine the correct TDL anytime a shipment record
+	// is created/updated.
+	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
+	if err != nil {
+		return errors.Wrapf(err, "Could not determine TDL for shipment ID %s for move ID %s", s.ID, s.MoveID)
+	}
+
+	if trafficDistributionList != nil {
+		s.TrafficDistributionListID = &trafficDistributionList.ID
+		s.TrafficDistributionList = trafficDistributionList
+	}
+
+	return nil
+}
+
+// DetermineTrafficDistributionList attempts to find (or create) the TDL for a shipment.  Since some of
+// the fields needed to determine the TDL are optional, this may return a nil TDL in a non-error scenario.
+func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*TrafficDistributionList, error) {
+	// To look up a TDL, we need to try to determine the following:
+	// 1) source_rate_area: Find using the postal code of the pickup address.
+	// 2) destination_region: Find using the postal code of the destination duty station.
+	// 3) code_of_service: For now, always assume "D".
+
+	// The pickup address is an optional field, so return if we don't have it.  We don't consider
+	// this an error condition since the database allows it (maybe we're in draft mode?).
+	if s.PickupAddressID == nil {
+		return nil, nil
+	}
+
+	// Pickup address postal code -> source rate area.
+	if s.PickupAddress == nil {
+		var pickupAddress Address
+		if err := db.Find(&pickupAddress, *s.PickupAddressID); err != nil {
+			return nil, errors.Wrapf(err, "Could not fetch pickup address ID %s", s.PickupAddressID.String())
+		}
+		s.PickupAddress = &pickupAddress
+	}
+	pickupZip := s.PickupAddress.PostalCode
+	rateArea, err := FetchRateAreaForZip5(db, pickupZip)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch rate area for zip %s", pickupZip)
+	}
+
+	// Destination duty station -> destination region
+	// Need to traverse shipments->moves->orders->duty_stations->address to get that.
+	var move Move
+	err = db.Eager("Orders.NewDutyStation.Address").Find(&move, s.MoveID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch destination duty station postal code for move ID %s",
+			s.MoveID)
+	}
+	destinationZip := move.Orders.NewDutyStation.Address.PostalCode
+	region, err := FetchRegionForZip5(db, destinationZip)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch region for zip %s", destinationZip)
+	}
+
+	// Code of service -> hard-coded for now.
+	codeOfService := "D"
+
+	// Fetch the TDL (or create it if it doesn't exist already).
+	trafficDistributionList, err := FetchOrCreateTDL(db, rateArea, region, codeOfService)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch TDL for rateArea=%s, region=%s, codeOfService=%s",
+			rateArea, region, codeOfService)
+	}
+
+	return &trafficDistributionList, nil
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
@@ -208,7 +294,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Eager(
+	query := tx.Q().Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
 		"Move",
@@ -220,20 +306,20 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
 	if len(status) > 0 {
-		statusStrings := make([]string, len(status))
+		statusStrings := make([]interface{}, len(status))
 		for index, st := range status {
-			statusStrings[index] = fmt.Sprintf("'%s'", st)
+			statusStrings[index] = st
 		}
-		query = query.Where(fmt.Sprintf("shipments.status IN (%s)", strings.Join(statusStrings, ", ")))
+		query = query.Where("shipments.status IN ($2)", statusStrings...)
 	}
 
 	// Manage ordering by pickup or delivery date
 	if orderBy != nil {
 		switch *orderBy {
 		case "PICKUP_DATE_ASC":
-			*orderBy = "pickup_date ASC"
+			*orderBy = "actual_pickup_date ASC"
 		case "PICKUP_DATE_DESC":
-			*orderBy = "pickup_date DESC"
+			*orderBy = "actual_pickup_date DESC"
 		case "DELIVERY_DATE_ASC":
 			*orderBy = "delivery_date ASC"
 		case "DELIVERY_DATE_DESC":
