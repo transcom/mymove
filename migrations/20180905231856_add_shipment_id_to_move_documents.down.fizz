@@ -1,0 +1,1 @@
+drop_column("move_documents", "shipment_id")
