@@ -230,6 +230,9 @@ func (aq *AwardQueue) Run() error {
 		}
 		aq.logger.Info("Acquired pg_advisory_xact_lock")
 
+		// TODO: for testing purposes, will be removed shortly
+		// time.Sleep(time.Second * 10)
+
 		if err := aq.assignPerformanceBands(); err != nil {
 			return err
 		}
