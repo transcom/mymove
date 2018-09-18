@@ -5,7 +5,7 @@ import { renderStatusIcon } from 'shared/utils';
 
 const DocumentList = ({ moveDocuments, detailUrlPrefix, disableLinks }) => (
   <div>
-    {(moveDocuments || []).map(doc => {
+    {moveDocuments.map(doc => {
       const status = renderStatusIcon(doc.status);
       const detailUrl = `${detailUrlPrefix}/${doc.id}`;
       return (
