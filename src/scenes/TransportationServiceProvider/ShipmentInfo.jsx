@@ -6,12 +6,14 @@ import { get, capitalize } from 'lodash';
 
 import { NavLink } from 'react-router-dom';
 
+import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 
 import {
   loadShipmentDependencies,
   patchShipment,
   acceptShipment,
+  generateGBL,
   rejectShipment,
 } from './ducks';
 import PremoveSurvey from 'shared/PremoveSurvey';
@@ -19,6 +21,11 @@ import { formatDate } from 'shared/formatters';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+
+const attachmentsErrorMessages = {
+  400: 'There is already a GBL for this shipment. ',
+  417: 'Missing data required to generate a Bill of Lading.',
+};
 
 class AcceptShipmentPanel extends Component {
   rejectShipment = reason => {
@@ -57,6 +64,10 @@ class ShipmentInfo extends Component {
 
   acceptShipment = () => {
     return this.props.acceptShipment(this.props.shipment.id);
+  };
+
+  generateGBL = () => {
+    return this.props.generateGBL(this.props.shipment.id);
   };
 
   rejectShipment = reason => {
@@ -148,6 +159,22 @@ class ShipmentInfo extends Component {
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
+              {this.props.generateGBLError && (
+                <Alert type="warning" heading="An error occurred">
+                  {attachmentsErrorMessages[this.props.error.statusCode] ||
+                    'Something went wrong contacting the server.'}
+                </Alert>
+              )}
+              {this.props.generateGBLSuccess && (
+                <Alert type="success" heading="Success!">
+                  GBL generated successfully.
+                </Alert>
+              )}
+              <div>
+                <button onClick={this.generateGBL}>
+                  Generate Bill of Lading
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -166,6 +193,9 @@ const mapStateToProps = state => ({
   ),
   loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
   acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+  generateGBLError: get(state, 'tsp.generateGBLError'),
+  generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+  error: get(state, 'tsp.error'),
 });
 
 const mapDispatchToProps = dispatch =>
@@ -174,6 +204,7 @@ const mapDispatchToProps = dispatch =>
       loadShipmentDependencies,
       patchShipment,
       acceptShipment,
+      generateGBL,
       rejectShipment,
     },
     dispatch,

@@ -400,13 +400,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		log.Panic(err)
 	}
 
-	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
-		ServiceAgent: models.ServiceAgent{
-			Shipment:   &offer2.Shipment,
-			ShipmentID: offer2.ShipmentID,
-		},
-	})
-
 	hhg2 := offer2.Shipment
 	hhg2.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg2.Move)
@@ -744,4 +737,98 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg10 := offer10.Shipment
 	hhg10.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg10.Move)
+
+	// /*
+	//  * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
+	//  */
+	MakeHhgFromAwardedToAcceptedGBLReady(db, tspUser)
+
+}
+
+// MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
+func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.TspUser) models.Shipment {
+	/*
+	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
+	 */
+	email := "hhg@gov_bill_of_lading.ready"
+
+	packDate := time.Now().AddDate(0, 0, 1)
+	pickupDate := time.Now().AddDate(0, 0, 5)
+	deliveryDate := time.Now().AddDate(0, 0, 10)
+	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ABCD",
+		},
+	})
+	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "QRED",
+		},
+	})
+	offer9 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("658f3a78-b3a9-47f4-a820-af673103d62d")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("658f3a78-b3a9-47f4-a820-af673103d62d"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForGBL"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("17"),
+			TAC:                 models.StringPointer("NTA4"),
+			SAC:                 models.StringPointer("1234567890 9876543210"),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("05a58b2e-07da-4b41-b4f8-d18ab68dddd5"),
+			Locator:          "GBLGBL",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("b15fdc2b-52cd-4b3e-91ba-a36d6ab94a16"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
+			Status:                      models.ShipmentStatusAWARDED,
+			PmSurveyPlannedPackDate:     &packDate,
+			PmSurveyPlannedPickupDate:   &pickupDate,
+			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+		},
+	})
+
+	_, err := testdatagen.MakeTSPPerformance(db,
+		tspUser.TransportationServiceProvider,
+		*offer9.Shipment.TrafficDistributionList,
+		models.IntPointer(3),
+		0.40,
+		5,
+		unit.DiscountRate(0.50),
+		unit.DiscountRate(0.55))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer9.Shipment,
+			ShipmentID: offer9.ShipmentID,
+		},
+	})
+
+	hhg2 := offer9.Shipment
+	hhg2.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg2.Move)
+	return offer9.Shipment
 }

@@ -11,7 +11,7 @@ RUN go get github.com/golang/dep/cmd/dep
 # This layer will be rebuilt when ever a file has changed in the project directory
 COPY ./ /go/src/github.com/transcom/mymove/
 WORKDIR /go/src/github.com/transcom/mymove/
-RUN rm .*.stamp
+RUN rm -f .*.stamp
 RUN make server_deps
 RUN make server_generate
 # These linker flags create a standalone binary that will run in scratch.
