@@ -287,7 +287,8 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Make a TSP to handle it
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	tspp, err := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	suite.Nil(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(shipment)
@@ -306,6 +307,9 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 				shipment.Status)
 		}
 	}
+
+	suite.Equal(tsp.ID, offer.TransportationServiceProviderID)
+	suite.Equal(tspp.ID, offer.TransportationServiceProviderPerformanceID)
 }
 
 // Test that we can create a shipment that should NOT be offered because it is not in a TDL
