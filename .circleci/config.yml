@@ -166,11 +166,11 @@ jobs:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
       - run: *announce_failure
 
-  deploy_staging_migrations:
+  deploy_experimental_migrations:
     docker:
       - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: "experimental"
     steps: &deploy_migrations_steps
       - checkout
       - run:
@@ -181,12 +181,12 @@ jobs:
           command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - run: *announce_failure
 
-  deploy_staging_app:
+  deploy_experimental_app:
     docker:
       - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
     environment:
-      - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
+      - APP_ENVIRONMENT: "experimental"
+      - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
     steps: &deploy_app_steps
       - checkout
       - setup_remote_docker
@@ -197,6 +197,41 @@ jobs:
           name: Health check app site
           command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
+
+  deploy_experimental_app_client_tls:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "experimental"
+    steps: &deploy_app_client_tls_steps
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy app-client-tls service
+          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+      - run: *announce_failure
+
+  deploy_staging_migrations:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "staging"
+    steps: *deploy_migrations_steps
+
+  deploy_staging_app:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "staging"
+      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
+    steps: *deploy_app_steps
+
+  deploy_staging_app_client_tls:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "staging"
+    steps: *deploy_app_client_tls_steps
 
   deploy_prod_migrations:
     docker:
@@ -212,6 +247,13 @@ jobs:
       - APP_ENVIRONMENT: "prod"
       - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
     steps: *deploy_app_steps
+
+  deploy_prod_app_client_tls:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "prod"
+    steps: *deploy_app_client_tls_steps
 
   integration_tests:
     docker:
@@ -265,14 +307,38 @@ workflows:
   app:
     jobs:
       - pre_test
-      - vuln_scan
+      #- vuln_scan # keep disabled until we work out new process
       - build_app
       - build_migrations
+
+      - deploy_experimental_migrations:
+          requires:
+            - pre_test
+            #- vuln_scan # keep disabled until we work out new process
+            - build_app
+            - build_migrations
+          filters:
+            branches:
+              only: mk-deploy-app-client-tls
+
+      - deploy_experimental_app:
+          requires:
+            - deploy_experimental_migrations
+          filters:
+            branches:
+              only: mk-deploy-app-client-tls
+
+      - deploy_experimental_app_client_tls:
+          requires:
+            - deploy_experimental_migrations
+          filters:
+            branches:
+              only: mk-deploy-app-client-tls
 
       - deploy_staging_migrations:
           requires:
             - pre_test
-            - vuln_scan
+            #- vuln_scan # keep disabled until we work out new process
             - build_app
             - build_migrations
           filters:

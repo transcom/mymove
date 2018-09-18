@@ -6,6 +6,7 @@ export async function RetrieveShipmentsForTSP(queueType) {
   const queueToStatus = {
     new: ['AWARDED'],
     in_transit: ['IN_TRANSIT'],
+    approved: ['APPROVED'],
     delivered: ['DELIVERED'],
     all: [],
   };
