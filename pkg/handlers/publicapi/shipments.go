@@ -337,6 +337,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	// Create PDF for GBL
 	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)
 	if err != nil {
+		// TODO: (andrea) Pass info of exactly what is missing in custom error message
 		h.Logger().Error("Failed retrieving the GBL data.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingExpectationFailed()
 	}
@@ -406,6 +407,8 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
+	// TODO: (andrea) Return a document payload instead, once the HHG document is defined in public swagger
+	// This one is copy pasted from internal.yaml to api.yaml :/
 	uploadPayload := &apimessages.UploadPayload{
 		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),

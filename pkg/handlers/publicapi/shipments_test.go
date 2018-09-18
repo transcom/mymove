@@ -233,7 +233,7 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 			LoginGovEmail: "unauthorized@example.com",
 		},
 	})
-	shipment := scenario.MakeHhgFromAwardedToAccepted(suite.TestDB(), tspUser)
+	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.TestDB(), tspUser)
 
 	// testdatagen.MakeServiceAgent(suite.TestDB(), testdatagen.Assertions{
 	// 	ServiceAgent: models.ServiceAgent{

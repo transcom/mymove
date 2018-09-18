@@ -229,7 +229,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 func (m Move) createMoveDocumentWithoutTransaction(
 	db *pop.Connection,
 	uploads Uploads,
-	ppmOrShipmentID *uuid.UUID,
+	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
@@ -267,7 +267,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 			MoveID:           m.ID,
 			Document:         newDoc,
 			DocumentID:       newDoc.ID,
-			ShipmentID:       ppmOrShipmentID,
+			ShipmentID:       modelID,
 			MoveDocumentType: moveDocumentType,
 			Title:            title,
 			Status:           MoveDocumentStatusAWAITINGREVIEW,
@@ -279,7 +279,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 			MoveID:                   m.ID,
 			Document:                 newDoc,
 			DocumentID:               newDoc.ID,
-			PersonallyProcuredMoveID: ppmOrShipmentID,
+			PersonallyProcuredMoveID: modelID,
 			MoveDocumentType:         moveDocumentType,
 			Title:                    title,
 			Status:                   MoveDocumentStatusAWAITINGREVIEW,
@@ -301,7 +301,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 func (m Move) CreateMoveDocument(
 	db *pop.Connection,
 	uploads Uploads,
-	ppmOrShipmentID *uuid.UUID,
+	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
@@ -316,7 +316,7 @@ func (m Move) CreateMoveDocument(
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
 			uploads,
-			ppmOrShipmentID,
+			modelID,
 			moveDocumentType,
 			title,
 			notes)
