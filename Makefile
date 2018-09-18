@@ -44,7 +44,7 @@ spellcheck:
 
 client_deps_update:
 	yarn upgrade
-client_deps: .client_deps.stamp
+client_deps: prereqs .client_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
 	bin/copy_swagger_ui.sh
@@ -68,7 +68,7 @@ tsp_client_run: client_deps
 
 server_deps_update: server_generate
 	dep ensure -v -update
-server_deps: go_version .server_deps.stamp
+server_deps: prereqs go_version .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
 	dep ensure -vendor-only
