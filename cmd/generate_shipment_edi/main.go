@@ -20,7 +20,6 @@ import (
 func main() {
 	moveIDString := flag.String("moveID", "", "The ID of the move where shipments are found")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-	//sendToGex := flag.Int(name: "togex", value: 0, "Do you want to send this EDI to GEX? y/n")
 	flag.Parse()
 
 	if *moveIDString == "" {
