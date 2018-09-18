@@ -1,0 +1,140 @@
+{
+  "name": "app-client-tls-{{ .environment }}",
+  "image": "{{ .image }}",
+  "portMappings": [
+    {
+      "containerPort": 9443,
+      "hostPort": 9443,
+      "protocol": "tcp"
+    }
+  ],
+  "essential": true,
+  "entryPoint": [
+    "/bin/chamber",
+    "exec",
+    "app-{{ .environment }}",
+    "--",
+    "/bin/mymove-server"
+  ],
+  "command": [
+    "-env",
+    "container",
+    "-debug_logging"
+  ],
+  "environment": [
+    {
+      "name": "ENVIRONMENT",
+      "value": "{{ .environment }}"
+    },
+    {
+      "name": "DB_HOST",
+      "value": "{{ .db_host }}"
+    },
+    {
+      "name": "DB_PORT",
+      "value": "5432"
+    },
+    {
+      "name": "DB_USER",
+      "value": "master"
+    },
+    {
+      "name": "DB_NAME",
+      "value": "app"
+    },
+    {
+      "name": "CHAMBER_KMS_KEY_ALIAS",
+      "value": "alias/aws/ssm"
+    },
+    {
+      "name": "CHAMBER_USE_PATHS",
+      "value": "1"
+    },
+    {
+      "name": "HTTPS_CLIENT_AUTH_CA_CERT",
+      "value": "{{ .https_client_auth_ca_cert }}"
+    },
+    {
+      "name": "HTTP_MY_SERVER_NAME",
+      "value": "my.{{ .domain }}"
+    },
+    {
+      "name": "HTTP_OFFICE_SERVER_NAME",
+      "value": "office.{{ .domain }}"
+    },
+    {
+      "name": "HTTP_TSP_SERVER_NAME",
+      "value": "tsp.{{ .domain }}"
+    },
+    {
+      "name": "HTTP_ORDERS_SERVER_NAME",
+      "value": "orders.{{ .domain }}"
+    },
+    {
+      "name": "AWS_S3_BUCKET_NAME",
+      "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
+    },
+    {
+      "name": "AWS_S3_REGION",
+      "value": "us-west-2"
+    },
+    {
+      "name": "AWS_S3_KEY_NAMESPACE",
+      "value": "app"
+    },
+    {
+      "name": "STORAGE_BACKEND",
+      "value": "s3"
+    },
+    {
+      "name": "EMAIL_BACKEND",
+      "value": "ses"
+    },
+    {
+      "name": "HERE_MAPS_GEOCODE_ENDPOINT",
+      "value": "https://geocoder.cit.api.here.com/6.2/geocode.json"
+    },
+    {
+      "name": "HERE_MAPS_ROUTING_ENDPOINT",
+      "value": "https://route.cit.api.here.com/routing/7.2/calculateroute.json"
+    },
+    {
+      "name": "AWS_SES_DOMAIN",
+      "value": "{{ .domain }}"
+    },
+    {
+      "name": "AWS_SES_REGION",
+      "value": "us-west-2"
+    },
+    {
+      "name": "LOGIN_GOV_HOSTNAME",
+      "value": "{{ .LOGIN_GOV_HOSTNAME }}"
+    },
+    {
+      "name": "HONEYCOMB_ENABLED",
+      "value": "{{ .HONEYCOMB_ENABLED }}"
+    },
+    {
+      "name": "HONEYCOMB_DATASET",
+      "value": "{{ .HONEYCOMB_DATASET }}"
+    },
+    {
+      "name": "NEW_RELIC_APPLICATION_ID",
+      "value": "{{ .NEW_RELIC_APPLICATION_ID }}"
+    },
+    {
+      "name": "NEW_RELIC_LICENSE_KEY",
+      "value": "{{ .NEW_RELIC_LICENSE_KEY }}"
+    }
+  ],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "ecs-tasks-app-client-tls-{{ .environment }}",
+      "awslogs-region": "us-west-2",
+      "awslogs-stream-prefix": "app"
+    }
+  },
+  "mountPoints": [],
+  "volumesFrom": []
+}
