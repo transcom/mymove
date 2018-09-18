@@ -47,6 +47,19 @@ type TransportationServiceProviderPerformance struct {
 // TransportationServiceProviderPerformances is a handy type for multiple TransportationServiceProviderPerformance structs
 type TransportationServiceProviderPerformances []TransportationServiceProviderPerformance
 
+// TSPPerformanceGroup contains the fields required to uniquely identify a TransportationServiceProviderPerformances
+// grouping for quality band assignment (currently done in the award queue).
+type TSPPerformanceGroup struct {
+	TrafficDistributionListID uuid.UUID
+	PerformancePeriodStart    time.Time
+	PerformancePeriodEnd      time.Time
+	RateCycleStart            time.Time
+	RateCycleEnd              time.Time
+}
+
+// TSPPerformanceGroups is a handy type for multiple TSPPerformanceGroup structs
+type TSPPerformanceGroups []TSPPerformanceGroup
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	// Pop can't validate pointers to ints, so turn the pointer into an integer.
@@ -168,28 +181,46 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 	return keys
 }
 
-// FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
-// order that they should be assigned quality bands.
-func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps float64) (TransportationServiceProviderPerformances, error) {
+// FetchTSPPerformancesForQualityBandAssignment returns TSPPs in the given TSPP grouping in the order
+// that they should be assigned quality bands.
+func FetchTSPPerformancesForQualityBandAssignment(tx *pop.Connection, perfGroup TSPPerformanceGroup, mps float64) (TransportationServiceProviderPerformances, error) {
+	var perfs TransportationServiceProviderPerformances
+	err := tx.
+		Where("traffic_distribution_list_id = ?", perfGroup.TrafficDistributionListID).
+		Where("performance_period_start = ?", perfGroup.PerformancePeriodStart).
+		Where("performance_period_end = ?", perfGroup.PerformancePeriodEnd).
+		Where("rate_cycle_start = ?", perfGroup.RateCycleStart).
+		Where("rate_cycle_end = ?", perfGroup.RateCycleEnd).
+		Where("best_value_score > ?", mps).
+		Order("best_value_score DESC").
+		All(&perfs)
 
-	// TODO: bookDate and requestedPickupDate should also be qualifiers here. BVSs from different
-	// performance periods and rate areas should be broken up into separate quality bands.
-	sql := `SELECT
-			*
-		FROM
-			transportation_service_provider_performances
-		WHERE
-			traffic_distribution_list_id = $1
-			AND
-			best_value_score > $2
-		ORDER BY
-			best_value_score DESC
-		`
+	return perfs, err
+}
 
-	tsps := TransportationServiceProviderPerformances{}
-	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
+// FetchUnbandedTSPPerformanceGroups gets all groupings of TSPPs that have at least one entry with
+// an unassigned quality band.
+func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups, error) {
+	var perfs TransportationServiceProviderPerformances
+	err := db.
+		Select("traffic_distribution_list_id", "performance_period_start", "performance_period_end", "rate_cycle_start", "rate_cycle_end").
+		Where("quality_band is NULL").
+		GroupBy("traffic_distribution_list_id", "performance_period_start", "performance_period_end", "rate_cycle_start", "rate_cycle_end").
+		Order("traffic_distribution_list_id, performance_period_start, rate_cycle_start").
+		All(&perfs)
 
-	return tsps, err
+	perfGroups := make(TSPPerformanceGroups, len(perfs))
+	for i, perf := range perfs {
+		perfGroups[i] = TSPPerformanceGroup{
+			TrafficDistributionListID: perf.TrafficDistributionListID,
+			PerformancePeriodStart:    perf.PerformancePeriodStart,
+			PerformancePeriodEnd:      perf.PerformancePeriodEnd,
+			RateCycleStart:            perf.RateCycleStart,
+			RateCycleEnd:              perf.RateCycleEnd,
+		}
+	}
+
+	return perfGroups, err
 }
 
 // AssignQualityBandToTSPPerformance sets the QualityBand value for a TransportationServiceProviderPerformance.
