@@ -629,3 +629,39 @@ func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	suite.Equal("IN_TRANSIT", string(okResponse.Payload.Status))
 	suite.Equal(actualPickupDate, time.Time(okResponse.Payload.ActualPickupDate))
 }
+
+// TestDeliverShipmentHandler tests the api endpoint that delivers a shipment
+func (suite *HandlerSuite) TestDeliverShipmentHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// Handler to Test
+	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	// Test query with first user
+	path := fmt.Sprintf("/shipments/%s/deliver", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	actualDeliveryDate := time.Now()
+	body := apimessages.ActualDeliveryDate{
+		ActualDeliveryDate: handlers.FmtDatePtr(&actualDeliveryDate),
+	}
+	params := shipmentop.DeliverShipmentParams{
+		HTTPRequest:        req,
+		ShipmentID:         *handlers.FmtUUID(shipment.ID),
+		ActualDeliveryDate: &body,
+	}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.DeliverShipmentOK{}, response)
+	okResponse := response.(*shipmentop.DeliverShipmentOK)
+	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
+	suite.Equal(actualDeliveryDate, time.Time(okResponse.Payload.ActualDeliveryDate))
+}

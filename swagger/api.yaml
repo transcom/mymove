@@ -1328,6 +1328,42 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
+  /shipments/{shipmentId}/deliver:
+    post:
+      summary: Places an in transit shipment to delivered state
+      description: The status of the shipment will be updated to DELIVERED.
+      operationId: deliverShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: actualDeliveryDate
+          required: true
+          schema:
+            $ref: '#/definitions/ActualDeliveryDate'
+      responses:
+        200:
+          description: returns updated (delivered) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
   /shipments/{shipmentId}/claims:
     get:
       summary: Gets the list of claims associated with a shipment

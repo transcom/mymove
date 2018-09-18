@@ -155,6 +155,16 @@ func (s *Shipment) Transport(actualPickupDate time.Time) error {
 	return nil
 }
 
+// Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
+func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
+	if s.Status != ShipmentStatusINTRANSIT {
+		return errors.Wrap(ErrInvalidTransition, "Deliver")
+	}
+	s.Status = ShipmentStatusDELIVERED
+	s.ActualDeliveryDate = &actualDeliveryDate
+	return nil
+}
+
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record

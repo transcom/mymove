@@ -240,6 +240,46 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 	return shipmentop.NewTransportShipmentOK().WithPayload(sp)
 }
 
+// DeliverShipmentHandler allows a TSP to start transporting a particular shipment
+type DeliverShipmentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle delivers the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewDeliverShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewDeliverShipmentBadRequest()
+	}
+
+	actualDeliveryDate := (time.Time)(*params.ActualDeliveryDate.ActualDeliveryDate)
+
+	err = shipment.Deliver(actualDeliveryDate)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
+}
+
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
 	// Premove Survey values entered by TSP agent
 	requiredValue := payload.PmSurveyPlannedPackDate
