@@ -1,1 +1,0 @@
-sql("ALTER TABLE move_documents ADD COLUMN shipment_id UUID REFERENCES shipments(id);")
