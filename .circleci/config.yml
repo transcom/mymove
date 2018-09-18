@@ -352,6 +352,13 @@ workflows:
             branches:
               only: master
 
+      - deploy_staging_app_client_tls:
+          requires:
+            - deploy_staging_migrations
+          filters:
+            branches:
+              only: master
+
       - approve_prod_deploy:
           type: approval
           requires:
@@ -365,6 +372,13 @@ workflows:
               only: master
 
       - deploy_prod_app:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: master
+
+      - deploy_prod_app_client_tls:
           requires:
             - deploy_prod_migrations
           filters:
