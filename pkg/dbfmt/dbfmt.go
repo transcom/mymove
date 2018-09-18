@@ -9,9 +9,6 @@ import (
 	"github.com/gobuffalo/uuid"
 )
 
-// TODO
-// Print just the object graph
-
 func recursivePrettyStringWithPadding(model interface{}, padding string) string {
 	prettyString := ""
 
@@ -23,6 +20,7 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 
 	modelType := modelValue.Type()
 
+	// Special cases where the default to_string is ugly
 	switch modelType {
 	case reflect.TypeOf(time.Time{}):
 		layout := "2006-01-02 15:04:05"
@@ -40,10 +38,10 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 				sub := modelValue.Index(i)
 				prettyString += recursivePrettyStringWithPadding(sub.Interface(), padding+"    ")
 				if i < modelValue.Len()-1 {
-					prettyString += ",\n"
+					prettyString += fmt.Sprintf("\n%s", padding+"    ")
 				}
 			}
-			prettyString += fmt.Sprintf("\n%s%20s]", padding, "")
+			prettyString += fmt.Sprintf("\n%s]", padding)
 		}
 	case reflect.Struct:
 		// check to see if it is one of our models. We don't want to be recursing down otherwise.
@@ -60,20 +58,20 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 			return "<<not loaded>>"
 		}
 
-		prettyString += "\n"
+		prettyString += "{\n"
+		indentedPadding := padding + "    "
 
 		for i := 0; i < modelValue.NumField(); i++ {
 			valField := modelValue.Field(i)
 			typeField := modelType.Field(i)
 
 			var fieldRep interface{}
-			fieldRep = recursivePrettyStringWithPadding(valField.Interface(), padding+"    ")
+			fieldRep = recursivePrettyStringWithPadding(valField.Interface(), indentedPadding)
 
-			prettyString += fmt.Sprintf("%s%-20s = %v\n", padding, typeField.Name, fieldRep)
+			prettyString += fmt.Sprintf("%s%-22s %v\n", indentedPadding, typeField.Name, fieldRep)
 		}
 
-		// gotta remove the last \n
-		prettyString = strings.TrimSuffix(prettyString, "\n")
+		prettyString += fmt.Sprintf("%s}", padding)
 
 	default:
 		return fmt.Sprintf("%v", modelValue.Interface())
@@ -86,4 +84,15 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 func PrettyString(model interface{}) string {
 	prettyString := recursivePrettyStringWithPadding(model, "")
 	return strings.TrimSpace(prettyString)
+}
+
+// Println prints a log message and the pretty printed version of the model to the console.
+func Println(messages ...interface{}) {
+
+	prettyMessages := make([]interface{}, len(messages))
+	for i, message := range messages {
+		prettyMessages[i] = PrettyString(message)
+	}
+
+	fmt.Println(prettyMessages...)
 }
