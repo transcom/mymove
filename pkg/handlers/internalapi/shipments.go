@@ -1,17 +1,7 @@
 package internalapi
 
 import (
-	"fmt"
-	//"bytes"
-	//"crypto/tls"
-	//"crypto/x509"
-	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/route"
-	"log"
-	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -20,13 +10,12 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	//"github.com/transcom/mymove/cmd/generate_shipment_edi"
-	gexop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/gex"
 )
 
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
@@ -342,86 +331,32 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendInvoiceParams) midd
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	db, err := pop.Connect("development") // TODO: do this right
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var logger = zap.NewNop()
-
-	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: replace with proper route/planner
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner()) //TODO: replace with proper route/planner
 	// Run rate engine on shipment --> returns CostByShipment Struct
 	shipmentCost, err := rateengine.HandleRunRateEngineOnShipment(*shipment, engine)
 	var costsByShipments []rateengine.CostByShipment
 	costsByShipments = append(costsByShipments, shipmentCost)
 
 	// pass value into generator --> edi string
-	edi, err := ediinvoice.Generate858C(costsByShipments, db)
+	edi, err := ediinvoice.Generate858C(costsByShipments, h.DB())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 	// send edi through gex post api
 	transactionName := "placeholder"
-	response, err := SendInvoiceToGex(h, edi, transactionName)
-	fmt.Print(response)
+	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), edi, transactionName)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	// get response from gex --> use status as status for this invoice call
 	// use a switch based on what is returned to return correct status from this handler
-
-	//err = shipment.Approve()
-	//if err != nil {
-	//	h.Logger().Error("Attempted to approve HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
-	//	return handlers.ResponseForError(h.Logger(), err)
-	//}
-	//verrs, err := h.DB().ValidateAndUpdate(shipment)
-	//if err != nil || verrs.HasAny() {
-	//	return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	//}
-	//
-	//shipmentPayload := payloadForShipmentModel(*shipment)
-	return shipmentop.NewSendInvoiceOK()
-}
-
-// SendInvoiceToGex sends an edi file string as a POST to the gex api
-func SendInvoiceToGex(h ShipmentInvoiceHandler, edi string, transactionName string) (response middleware.Responder, err error) {
-	// Ensure that the transaction body ends with a newline, otherwise the GEX
-	// EDI parser will fail silently
-	edi = strings.TrimSpace(edi) + "\n"
-	request, err := http.NewRequest(
-		"POST",
-		"https://gexweba.daas.dla.mil/msg_data/submit/"+transactionName,
-		strings.NewReader(edi),
-	)
-	if err != nil {
-		h.Logger().Error("Creating GEX POST request", zap.Error(err))
-		return gexop.NewSendGexRequestInternalServerError(), err
+	switch responseStatus {
+	case 200:
+		return shipmentop.NewSendInvoiceOK()
+	default:
+		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
+		return shipmentop.NewSendInvoiceInternalServerError()
 	}
 
-	// We need to provide basic auth credentials for the GEX server, as well as
-	// our client certificate for the proxy in front of the GEX server.
-	request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
-
-	config, err := getTLSConfig()
-	if err != nil {
-		h.Logger().Error("Creating TLS config", zap.Error(err))
-		return gexop.NewSendGexRequestInternalServerError(), err
-	}
-
-	tr := &http.Transport{TLSClientConfig: config}
-	client := &http.Client{Transport: tr}
-	resp, err := client.Do(request)
-	if err != nil {
-		h.Logger().Error("Sending GEX POST request", zap.Error(err))
-		return gexop.NewSendGexRequestInternalServerError(), err
-	}
-	fmt.Println(resp)
-	//buf := new(bytes.Buffer)
-	//buf.ReadFrom(resp.Body)
-	//responseBody := buf.String()
-
-	////TODO: check on InvoicePayload instead of GexResponsePayload
-	//responsePayload := internalmessages.GexResponsePayload{
-	//	GexResponse: resp.Status + "; " + responseBody,
-	//}
-
-	return gexop.NewSendGexRequestOK(), err
 }

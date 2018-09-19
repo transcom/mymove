@@ -2,8 +2,6 @@ package internalapi
 
 import (
 	"bytes"
-	"crypto/tls"
-	"crypto/x509"
 	"net/http"
 	"os"
 	"strings"
@@ -11,6 +9,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/edi/gex"
 	gexop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/gex"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -44,7 +43,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	// our client certificate for the proxy in front of the GEX server.
 	request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
 
-	config, err := getTLSConfig()
+	config, err := gex.GetTLSConfig()
 	if err != nil {
 		h.Logger().Error("Creating TLS config", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
@@ -66,21 +65,4 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 		GexResponse: resp.Status + "; " + responseBody,
 	}
 	return gexop.NewSendGexRequestOK().WithPayload(&responsePayload)
-}
-
-func getTLSConfig() (*tls.Config, error) {
-	clientCert := os.Getenv("CLIENT_TLS_CERT")
-	clientKey := os.Getenv("CLIENT_TLS_KEY")
-	certificate, err := tls.X509KeyPair([]byte(clientCert), []byte(clientKey))
-	if err != nil {
-		return nil, err
-	}
-
-	rootCAs := x509.NewCertPool()
-	rootCAs.AppendCertsFromPEM([]byte(os.Getenv("GEX_DOD_CA")))
-
-	return &tls.Config{
-		Certificates: []tls.Certificate{certificate},
-		RootCAs:      rootCAs,
-	}, nil
 }
