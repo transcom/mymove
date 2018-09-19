@@ -2,7 +2,7 @@ package paperwork
 
 // Form1203Layout specifies the layout and template of a 1203 form
 var Form1203Layout = FormLayout{
-	TemplateImagePath: "./pkg/paperwork/formtemplates/form1203template.png",
+	TemplateImagePath: "pkg/paperwork/formtemplates/form1203template.png",
 
 	FieldsLayout: map[string]FieldPos{
 		"GBLNumber1":               FormField(173, 5, 40, floatPtr(10), floatPtr(4)),

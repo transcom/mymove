@@ -28,7 +28,7 @@ function tspUserRejectsShipment() {
 
   // Click the Reject button
   cy
-    .get('button')
+    .get('.usa-button-secondary')
     .contains('Reject Shipment')
     .click();
 

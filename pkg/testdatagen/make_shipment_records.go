@@ -60,7 +60,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		RequestedPickupDate:          timePointer(PerformancePeriodStart),
 		MoveID:                       move.ID,
 		Move:                         move,
-		Status:                       models.ShipmentStatusDRAFT,
+		Status:                       status,
 		EstimatedPackDays:            models.Int64Pointer(2),
 		EstimatedTransitDays:         models.Int64Pointer(3),
 		PickupAddressID:              &pickupAddress.ID,

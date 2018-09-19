@@ -12,7 +12,9 @@ import (
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
 func (suite *HandlerSuite) TestGetShipmentHandler() {
@@ -216,6 +218,56 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 		suite.Equal(apimessages.SelectedMoveType(*shipment.Move.SelectedMoveType), *responsePayload.Move.SelectedMoveType)
 		suite.Equal(shipment.TrafficDistributionList.SourceRateArea, *responsePayload.TrafficDistributionList.SourceRateArea)
 	}
+}
+
+// TestCreateGovBillOfLadingHandler
+func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
+
+	// When: There is the full set of data for a GBL to be generated successfully
+	tspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+	unauthedTSPUser := testdatagen.MakeTspUser(suite.TestDB(), testdatagen.Assertions{
+		TspUser: models.TspUser{
+			Email: "unauthorized@example.com",
+		},
+		User: models.User{
+			LoginGovEmail: "unauthorized@example.com",
+		},
+	})
+	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.TestDB(), tspUser)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	params := shipmentop.CreateGovBillOfLadingParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetFileStorer(fakeS3)
+
+	// And: the create gbl handler is called
+	handler := CreateGovBillOfLadingHandler{context}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingCreated{}, response)
+
+	// When: there is an existing GBL for a shipment and handler is called
+	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingBadRequest{}, response)
+
+	// When: an unauthed TSP user hits the handler
+	req = suite.AuthenticateTspRequest(req, unauthedTSPUser)
+	params.HTTPRequest = req
+	response = handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingForbidden{}, response)
 }
 
 // TestIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
