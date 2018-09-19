@@ -21,7 +21,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -186,7 +186,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerAllShipments() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -276,7 +276,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	numTspUsers := 2
 	numShipments := 25
 	numShipmentOfferSplit := []int{15, 10}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -373,7 +373,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -422,7 +422,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -471,7 +471,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -520,7 +520,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -530,7 +530,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatus() {
 	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	// The params expect statuses in strings, so they have to be cast from ShipmentStatus types
-	stringStatus := []string{string(models.ShipmentStatusDRAFT)}
+	stringStatus := []string{string(models.ShipmentStatusSUBMITTED)}
 	// Test query with first user
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
@@ -550,7 +550,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerFilterByStatusNoResults() {
 	numTspUsers := 1
 	numShipments := 25
 	numShipmentOfferSplit := []int{25}
-	status := []models.ShipmentStatus{models.ShipmentStatusDRAFT}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
