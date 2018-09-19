@@ -51,8 +51,8 @@
       "value": "1"
     },
     {
-      "name": "HTTPS_CLIENT_AUTH_CA_CERT",
-      "value": "{{ .https_client_auth_ca_cert }}"
+      "name": "MOVE_MIL_DOD_CA_CERT",
+      "value": "{{ .move_mil_dod_ca_cert }}"
     },
     {
       "name": "HTTP_MY_SERVER_NAME",

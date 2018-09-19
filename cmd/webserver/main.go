@@ -110,8 +110,8 @@ func main() {
 	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "the DoD signed tls key for various move.mil services.")
 
 	mutualTLSPort := flag.String("mutual_tls_port", "9443", "The `port` for the mutual TLS listener.")
-	serverTLSPort := flag.String("tls_port", "8443", "the `port` server side TLS listener.")
-	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
+	tlsPort := flag.String("tls_port", "8443", "the `port` for the server side TLS listener.")
+	noTLSPort := flag.String("no_tls_port", "8080", "the `port` for the listener not requiring any TLS.")
 
 	loginGovCallbackProtocol := flag.String("login_gov_callback_protocol", "https://", "Protocol for non local environments.")
 	loginGovCallbackPort := flag.String("login_gov_callback_port", "443", "The port for callback urls.")
@@ -354,13 +354,13 @@ func main() {
 		},
 	}
 	go func() {
-		httpServer := server.Server{
+		noTLSServer := server.Server{
 			ListenAddress: *listenInterface,
 			HTTPHandler:   httpHandler,
 			Logger:        logger,
-			Port:          *port,
+			Port:          *noTLSPort,
 		}
-		errChan <- httpServer.ListenAndServe()
+		errChan <- noTLSServer.ListenAndServe()
 	}()
 	go func() {
 		tlsServer := server.Server{
@@ -368,7 +368,7 @@ func main() {
 			ListenAddress:  *listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
-			Port:           *serverTLSPort,
+			Port:           *tlsPort,
 			TLSCerts:       moveMilCerts,
 		}
 		errChan <- tlsServer.ListenAndServeTLS()
