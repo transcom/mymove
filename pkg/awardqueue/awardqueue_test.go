@@ -677,6 +677,35 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 	}
 }
 
+func (suite *AwardQueueSuite) Test_waitForLock() {
+	ret := make(chan int)
+	lockID := 1
+
+	go func() {
+		suite.db.Transaction(func(tx *pop.Connection) error {
+			suite.Nil(waitForLock(tx, lockID))
+			time.Sleep(time.Second)
+			ret <- 1
+			return nil
+		})
+	}()
+
+	go func() {
+		suite.db.Transaction(func(tx *pop.Connection) error {
+			time.Sleep(time.Millisecond * 500)
+			suite.Nil(waitForLock(tx, lockID))
+			ret <- 2
+			return nil
+		})
+	}()
+
+	first := <-ret
+	second := <-ret
+
+	suite.Equal(1, first)
+	suite.Equal(2, second)
+}
+
 func equalSlice(a []int, b []int) bool {
 	if len(a) != len(b) {
 		return false
