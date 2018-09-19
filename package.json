@@ -65,8 +65,9 @@
     "test:debug": "NODE_PATH=./src react-app-rewired --inspect-brk test --runInBand --env=jsdom",
     "test:coverage": "NODE_PATH=./src react-app-rewired test --coverage --env=jsdom",
     "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
-    "prettier": "prettier",
-    "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"
+    "prettier": "prettier --loglevel warn 'src/**/*.{js,jsx}'",
+    "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md",
+    "lint": "eslint src/"
   },
   "proxy": {
     "/api": {
