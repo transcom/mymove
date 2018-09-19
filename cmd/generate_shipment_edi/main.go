@@ -49,7 +49,7 @@ func main() {
 	}
 	var logger = zap.NewNop()
 
-	var costsByShipments []ediinvoice.CostByShipment
+	var costsByShipments []rateengine.CostByShipment
 
 	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: create the proper route/planner
 	for _, shipment := range shipments {
