@@ -44,7 +44,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 	tdl := *shipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -111,7 +111,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 	tdl := *blackoutShipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -287,7 +287,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Make a TSP to handle it
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	tspp, err := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	tspp, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 	suite.Nil(err)
 
 	// Run the Award Queue
@@ -381,7 +381,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -449,11 +449,11 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	tsp5 := testdatagen.MakeDefaultTSP(suite.db)
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
-	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -508,7 +508,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		score := float64(mps + i + 1)
 
 		rate := unit.NewDiscountRateFromPercent(45.3)
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, score, 0, rate, rate)
 	}
 
 	err := queue.assignPerformanceBands()

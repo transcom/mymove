@@ -30,7 +30,7 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
 
 	notFoundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
@@ -40,7 +40,7 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 		},
 	})
 	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
 
 	tdls, err := FetchTDLsAwaitingBandAssignment(suite.db)
 	if err != nil {
@@ -87,7 +87,7 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
 	if err != nil {

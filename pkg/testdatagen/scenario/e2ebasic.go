@@ -388,7 +388,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	_, err := testdatagen.MakeTSPPerformance(db,
+	_, err := testdatagen.MakeTSPPerformanceDeprecated(db,
 		tspUser.TransportationServiceProvider,
 		*offer2.Shipment.TrafficDistributionList,
 		models.IntPointer(3),
