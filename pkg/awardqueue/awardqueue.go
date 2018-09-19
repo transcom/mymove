@@ -219,7 +219,8 @@ func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment mode
 
 // Run will execute the award queue algorithm.
 func (aq *AwardQueue) Run() error {
-	db := aq.db
+	originalDB := aq.db
+	defer func() { aq.db = originalDB }()
 	return aq.db.Transaction(func(tx *pop.Connection) error {
 		// ensure that all parts of the AQ run inside the transaction
 		aq.db = tx
@@ -240,7 +241,6 @@ func (aq *AwardQueue) Run() error {
 		// This method should also return an error
 		aq.assignShipments()
 
-		aq.db = db
 		return nil
 	})
 }
