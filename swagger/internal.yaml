@@ -3012,6 +3012,35 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
+  /shipments/{shipmentId}/invoice:
+    post:
+      summary: Sends an invoice to Syncada through GEX
+      description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
+      operationId: sendInvoice
+      tags:
+      - shipments
+      parameters:
+      - name: shipmentId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the shipment
+      responses:
+        200:
+          description: invoice was submitted successfully
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to send this invoice
+        409:
+          description: the shipment is not in a state to be invoiced
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
