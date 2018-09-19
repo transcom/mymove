@@ -138,9 +138,9 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	oneWeek, _ := time.ParseDuration("7d")
 	selectedMoveType := "HHG"
 	if len(statuses) == 0 {
+		// Statuses for shipments attached to a shipment offer should not be DRAFT or SUBMITTED
+		// because this should be after the award queue has run and SUBMITTED shipments have been awarded
 		statuses = []models.ShipmentStatus{
-			models.ShipmentStatusDRAFT,
-			models.ShipmentStatusSUBMITTED,
 			models.ShipmentStatusAWARDED,
 			models.ShipmentStatusACCEPTED,
 			models.ShipmentStatusAPPROVED,
@@ -159,10 +159,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		shipmentStatus := statuses[rand.Intn(len(statuses))]
 
 		// Move Details
-		moveStatus := models.MoveStatusDRAFT
-		if shipmentStatus == models.ShipmentStatusSUBMITTED {
-			moveStatus = models.MoveStatusSUBMITTED
-		} else if shipmentStatus != models.ShipmentStatusDRAFT {
+		moveStatus := models.MoveStatusSUBMITTED
+		if shipmentStatus == models.ShipmentStatusAPPROVED {
 			moveStatus = models.MoveStatusAPPROVED
 		}
 
@@ -188,11 +186,11 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		shipmentList = append(shipmentList, shipment)
 
 		// Accepted shipments must have an OSA and DSA
-		// This does not cover making any SA's for shipments that have statuses after Accepted (like Approved)
-		if shipmentStatus == models.ShipmentStatusACCEPTED {
+		if shipmentStatus == models.ShipmentStatusACCEPTED || shipmentStatus == models.ShipmentStatusAWARDED {
 			originServiceAgentAssertions := Assertions{
 				ServiceAgent: models.ServiceAgent{
 					ShipmentID: shipment.ID,
+					Shipment:   &shipment,
 					Role:       models.RoleORIGIN,
 				},
 			}
@@ -200,12 +198,31 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			destinationServiceAgentAssertions := Assertions{
 				ServiceAgent: models.ServiceAgent{
 					ShipmentID: shipment.ID,
+					Shipment:   &shipment,
 					Role:       models.RoleDESTINATION,
 				},
 			}
 			MakeServiceAgent(db, destinationServiceAgentAssertions)
 		}
-		time.Sleep(100 * time.Millisecond)
+
+		// Approved shipments need to collect Weight Ticket documents
+		if shipmentStatus == models.ShipmentStatusAPPROVED {
+			docAssertions := Assertions{
+				Document: models.Document{
+					ServiceMemberID: shipment.Move.Orders.ServiceMember.ID,
+					ServiceMember:   shipment.Move.Orders.ServiceMember,
+				},
+				MoveDocument: models.MoveDocument{
+					MoveID:           shipment.Move.ID,
+					Move:             shipment.Move,
+					ShipmentID:       &shipment.ID,
+					Shipment:         shipment,
+					MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKET,
+					Title:            fmt.Sprintf("move_document_%d", i),
+				},
+			}
+			MakeMoveDocument(db, docAssertions)
+		}
 	}
 
 	// A Shipment Offer is created for each Shipment and split among TSPs
@@ -215,10 +232,15 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		subShipmentList := shipmentList[count : count+split]
 		count += split
 		for _, shipment := range subShipmentList {
+			var offerState *bool
+			if shipment.Status == models.ShipmentStatusACCEPTED || shipment.Status == models.ShipmentStatusAPPROVED {
+				offerState = models.BoolPointer(true)
+			}
 			shipmentOfferAssertions := Assertions{
 				ShipmentOffer: models.ShipmentOffer{
 					ShipmentID:                      shipment.ID,
 					TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+					Accepted:                        offerState,
 				},
 			}
 			shipmentOffer := MakeShipmentOffer(db, shipmentOfferAssertions)

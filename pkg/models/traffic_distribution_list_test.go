@@ -19,43 +19,6 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 	suite.verifyValidationErrors(tdl, expErrors)
 }
 
-func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
-	t := suite.T()
-
-	foundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
-		TrafficDistributionList: TrafficDistributionList{
-			SourceRateArea:    "US14",
-			DestinationRegion: "3",
-			CodeOfService:     "2",
-		},
-	})
-	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
-
-	notFoundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
-		TrafficDistributionList: TrafficDistributionList{
-			SourceRateArea:    "US14",
-			DestinationRegion: "5",
-			CodeOfService:     "2",
-		},
-	})
-	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
-
-	tdls, err := FetchTDLsAwaitingBandAssignment(suite.db)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(tdls) != 1 {
-		t.Errorf("Got wrong number of TDLs; expected: 1, got: %d", len(tdls))
-	}
-
-	if tdls[0].ID != foundTDL.ID {
-		t.Errorf("Got wrong TDL; expected: %s, got: %s", foundTDL.ID, tdls[0].ID)
-	}
-}
-
 func (suite *ModelSuite) Test_FetchTDL() {
 	t := suite.T()
 
