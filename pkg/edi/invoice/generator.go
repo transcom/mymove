@@ -15,17 +15,13 @@ import (
 const delimiter = "~"
 const dateFormat = "20060102"
 const timeFormat = "1504"
-const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
+const senderCode = "MYMOVE"
+
+//const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
 const receiverCode = "8004171844" // Syncada
 
-// CostByShipment struct containing shipment and cost
-type CostByShipment struct {
-	Shipment models.Shipment
-	Cost     rateengine.CostComputation
-}
-
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (string, error) {
+func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection) (string, error) {
 	interchangeControlNumber := 1 //TODO: increment this
 	currentTime := time.Now()
 	isa := edisegment.ISA{
@@ -85,7 +81,7 @@ func Generate858C(shipmentsAndCosts []CostByShipment, db *pop.Connection) (strin
 	return transaction, nil
 }
 
-func generate858CShipment(shipmentWithCost CostByShipment, sequenceNum int) (string, error) {
+func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNum int) (string, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -122,7 +118,7 @@ func generate858CShipment(shipmentWithCost CostByShipment, sequenceNum int) (str
 	return transaction, nil
 }
 
-func getHeadingSegments(shipmentWithCost CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
+func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
 	shipment := shipmentWithCost.Shipment
 	segments := []edisegment.Segment{}
 	/* for bx
@@ -238,7 +234,7 @@ func getHeadingSegments(shipmentWithCost CostByShipment, sequenceNum int) ([]edi
 	}, nil
 }
 
-func getLineItemSegments(shipmentWithCost CostByShipment) ([]edisegment.Segment, error) {
+func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegment.Segment, error) {
 	// follows HL loop (p.13) in https://www.ustranscom.mil/cmd/associated/dteb/files/transportationics/dt858c41.pdf
 	// HL segment: p. 51
 	// L0 segment: p. 77
