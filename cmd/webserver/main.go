@@ -94,17 +94,22 @@ func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
+
 	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
 	tspHostname := flag.String("http_tsp_server_name", "tsplocal", "Hostname according to environment.")
 	ordersHostname := flag.String("http_orders_server_name", "orderslocal", "Hostname according to environment.")
-	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
-	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
-	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
-	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
+
+	httpPort := flag.String("port", "8080", "the HTTP `port` to listen on.")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
+
+	httpServerLogLinePrefixDrop := flag.String("http_server_log_line_prefix_drop", "", "drop any log lines with this prefix")
+
+	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
+	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
+	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 
 	httpsClientAuthPort := flag.String("https_client_auth_port", "9443", "The `port` for the HTTPS listener requiring client authentication.")
 	httpsClientAuthCACert := flag.String("https_client_auth_ca_cert", "", "the CA certificate for the HTTPS listener requiring client authentication.")
@@ -356,7 +361,8 @@ func main() {
 			ListenAddress: *listenInterface,
 			HTTPHandler:   httpHandler,
 			Logger:        logger,
-			Port:          *port,
+			Port:          *httpPort,
+			PrefixToDrop:  *httpServerLogLinePrefixDrop,
 		}
 		errChan <- httpServer.ListenAndServe()
 	}()
@@ -368,6 +374,7 @@ func main() {
 			Logger:         logger,
 			Port:           *httpsPort,
 			TLSCerts:       []server.TLSCert{localhostCert},
+			PrefixToDrop:   *httpServerLogLinePrefixDrop,
 		}
 		errChan <- tlsServer.ListenAndServeTLS()
 	}()
@@ -382,6 +389,7 @@ func main() {
 			Logger:         logger,
 			Port:           *httpsClientAuthPort,
 			TLSCerts:       []server.TLSCert{localhostCert},
+			PrefixToDrop:   *httpServerLogLinePrefixDrop,
 		}
 		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()

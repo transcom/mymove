@@ -125,6 +125,10 @@
     {
       "name": "NEW_RELIC_LICENSE_KEY",
       "value": "{{ .NEW_RELIC_LICENSE_KEY }}"
+    },
+    {
+      "name": "HTTP_SERVER_LOG_LINE_PREFIX_DROP",
+      "value": "{{ .HTTP_SERVER_LOG_LINE_PREFIX_DROP }}"
     }
   ],
   "logConfiguration": {
