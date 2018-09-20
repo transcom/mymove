@@ -44,7 +44,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 	tdl := *shipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -111,7 +111,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 	tdl := *blackoutShipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -287,7 +287,8 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Make a TSP to handle it
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	tspp, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	suite.Nil(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(shipment)
@@ -306,6 +307,9 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 				shipment.Status)
 		}
 	}
+
+	suite.Equal(tsp.ID, offer.TransportationServiceProviderID)
+	suite.Equal(tspp.ID, offer.TransportationServiceProviderPerformanceID)
 }
 
 // Test that we can create a shipment that should NOT be offered because it is not in a TDL
@@ -377,7 +381,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -445,11 +449,11 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	tsp5 := testdatagen.MakeDefaultTSP(suite.db)
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
-	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -506,7 +510,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 
 		rate := unit.NewDiscountRateFromPercent(45.3)
 		var err error
-		lastTSPP, err = testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		lastTSPP, err = testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, score, 0, rate, rate)
 		if err != nil {
 			t.Errorf("Failed to MakeTSPPerformance: %v", err)
 		}

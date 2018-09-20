@@ -20,30 +20,31 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
-	Address                       models.Address
-	BackupContact                 models.BackupContact
-	BlackoutDate                  models.BlackoutDate
-	Document                      models.Document
-	DutyStation                   models.DutyStation
-	Move                          models.Move
-	MoveDocument                  models.MoveDocument
-	MovingExpenseDocument         models.MovingExpenseDocument
-	OfficeUser                    models.OfficeUser
-	Order                         models.Order
-	PersonallyProcuredMove        models.PersonallyProcuredMove
-	Reimbursement                 models.Reimbursement
-	ServiceAgent                  models.ServiceAgent
-	ServiceMember                 models.ServiceMember
-	Shipment                      models.Shipment
-	ShipmentOffer                 models.ShipmentOffer
-	Tariff400ngZip3               models.Tariff400ngZip3
-	TrafficDistributionList       models.TrafficDistributionList
-	TransportationOffice          models.TransportationOffice
-	TransportationServiceProvider models.TransportationServiceProvider
-	TspUser                       models.TspUser
-	Upload                        models.Upload
-	Uploader                      *uploader.Uploader
-	User                          models.User
+	Address                                  models.Address
+	BackupContact                            models.BackupContact
+	BlackoutDate                             models.BlackoutDate
+	Document                                 models.Document
+	DutyStation                              models.DutyStation
+	Move                                     models.Move
+	MoveDocument                             models.MoveDocument
+	MovingExpenseDocument                    models.MovingExpenseDocument
+	OfficeUser                               models.OfficeUser
+	Order                                    models.Order
+	PersonallyProcuredMove                   models.PersonallyProcuredMove
+	Reimbursement                            models.Reimbursement
+	ServiceAgent                             models.ServiceAgent
+	ServiceMember                            models.ServiceMember
+	Shipment                                 models.Shipment
+	ShipmentOffer                            models.ShipmentOffer
+	Tariff400ngZip3                          models.Tariff400ngZip3
+	TrafficDistributionList                  models.TrafficDistributionList
+	TransportationOffice                     models.TransportationOffice
+	TransportationServiceProvider            models.TransportationServiceProvider
+	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
+	TspUser                                  models.TspUser
+	Upload                                   models.Upload
+	Uploader                                 *uploader.Uploader
+	User                                     models.User
 }
 
 func stringPointer(s string) *string {
