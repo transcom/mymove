@@ -1,6 +1,4 @@
-# Improved Swagger/Redux collaboration
-
-**User Story:** _[ticket/issue-number]_ <!-- optional -->
+# Swagger/Redux Integration
 
 ## Accessing models by ID
 
@@ -55,7 +53,6 @@ Here is an example of a component using `getShipment` and `selectShipment` as de
 // import { connect } from 'react-redux';
 // import { bindActionCreators } from 'redux';
 
-import { request } from 'shared/api';
 import { lastError } from 'shared/Swagger/ducks';
 import { getShipment } from 'shared/Entities/modules/shipments';
 
@@ -119,7 +116,6 @@ example of how this might work for managing which of a list of Shipments is curr
 // import { connect } from 'react-redux';
 // import { bindActionCreators } from 'redux';
 
-import { request } from 'shared/api';
 import { lastError } from 'shared/Swagger/ducks';
 import { allShipments, selectShipment } from 'shared/Entities/modules/shipments';
 import { setCurrentShipmentID, currentShipmentID } from 'shared/UI/ducks';
@@ -131,7 +127,7 @@ export class ShipmentList extends Component {
         const id = get(this.props, 'shipmentID');
         if (!id) return;
 
-        this.props.request(requestLabel, 'shipments.listShipment');
+        this.props.listShipments(requestLabel);
     }
 
     shipmentClicked = (id) => {
@@ -170,9 +166,12 @@ function mapStateToProps(state) {
 }
 ```
 
+Note that the above use of defining an inline event handler for `onClick` is not considered a
+best practice. This technique is used above only for its brevity.
+
 ## Improved debugging experience
 
-By directing all Swagger Client calls through the `request` function, we can have a centralized place to manage how to track
+By directing all Swagger Client calls through the `swaggerRequest` function, we can have a centralized place to manage how to track
 the lifecycle of the request. This allows us to dispatch actions to Redux that represent these events, currently `@@swagger/${operation}/START`, `@@swagger/${operation}/SUCCESS` and `@@swagger/${operation}/FAILURE`. These actions will appear in the Redux debugger along with any other state changes.
 
 ## Redux store data layout
