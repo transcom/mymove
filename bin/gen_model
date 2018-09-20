@@ -6,6 +6,6 @@
 # This does not appear to work for running migrations, just generating models.
 # To run migrations, use `make db_dev_migrate`
 
-cd pkg
+cd pkg || exit
 
 ../bin/soda generate model "$@" --path ../migrations -c ../config/database.yml

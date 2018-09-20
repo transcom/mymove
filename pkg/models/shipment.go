@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -34,6 +35,8 @@ const (
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
+	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
+	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -154,8 +157,46 @@ func (s *Shipment) Transport() error {
 	return nil
 }
 
+// Deliver marks the Shipment request as Delivered. Must be in a Delivered state.
+func (s *Shipment) Deliver() error {
+	if s.Status != ShipmentStatusINTRANSIT {
+		return errors.Wrap(ErrInvalidTransition, "Delivered")
+	}
+	s.Status = ShipmentStatusDELIVERED
+	return nil
+}
+
+// Complete marks the Shipment request as Completed. Must be in a Delivered state.
+func (s *Shipment) Complete() error {
+	if s.Status != ShipmentStatusDELIVERED {
+		return errors.Wrap(ErrInvalidTransition, "Completed")
+	}
+	s.Status = ShipmentStatusCOMPLETED
+	return nil
+}
+
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
+	// TODO: These values should be ultimately calculated, but we're hard-coding them for now.
+	// TODO: Remove after proper calculations are in place.
+	if s.Status == ShipmentStatusSUBMITTED {
+		if s.EstimatedPackDays == nil {
+			s.EstimatedPackDays = swag.Int64(3)
+		}
+		if s.EstimatedTransitDays == nil {
+			s.EstimatedTransitDays = swag.Int64(10)
+		}
+		if s.DeliveryDate == nil {
+			if s.RequestedPickupDate != nil {
+				newDate := s.RequestedPickupDate.AddDate(0, 0, int(*s.EstimatedTransitDays))
+				s.DeliveryDate = &newDate
+			}
+		}
+		if s.ActualPickupDate == nil {
+			s.ActualPickupDate = s.RequestedPickupDate
+		}
+	}
+
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record
 	// is created/updated.
 	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
@@ -388,7 +429,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	err := tx.Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
-		"Move",
+		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",

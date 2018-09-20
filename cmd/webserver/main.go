@@ -72,6 +72,22 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func securityHeadersMiddleware(inner http.Handler) http.Handler {
+	zap.L().Debug("securityHeadersMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		// Sets headers to prevent rendering our page in an iframe, prevents clickjacking
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+		w.Header().Set("X-Frame-Options", "deny")
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
@@ -82,7 +98,6 @@ func main() {
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
 	tspHostname := flag.String("http_tsp_server_name", "tsplocal", "Hostname according to environment.")
 	ordersHostname := flag.String("http_orders_server_name", "orderslocal", "Hostname according to environment.")
-	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
@@ -90,12 +105,13 @@ func main() {
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
 
-	httpsClientAuthPort := flag.String("https_client_auth_port", "9443", "The `port` for the HTTPS listener requiring client authentication.")
-	httpsClientAuthCACert := flag.String("https_client_auth_ca_cert", "", "the CA certificate for the HTTPS listener requiring client authentication.")
+	moveMilDODCACert := flag.String("move_mil_dod_ca_cert", "", "The DoD CA certificate used to sign the move.mil TLS certificates.")
+	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "the DoD signed tls certificate for various move.mil services.")
+	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "the DoD signed tls key for various move.mil services.")
 
-	httpsPort := flag.String("https_port", "8443", "the `port` to listen on.")
-	httpsCert := flag.String("https_cert", "", "TLS certificate.")
-	httpsKey := flag.String("https_key", "", "TLS private key.")
+	mutualTLSPort := flag.String("mutual_tls_port", "9443", "The `port` for the mutual TLS listener.")
+	tlsPort := flag.String("tls_port", "8443", "the `port` for the server side TLS listener.")
+	noTLSPort := flag.String("no_tls_port", "8080", "the `port` for the listener not requiring any TLS.")
 
 	loginGovCallbackProtocol := flag.String("login_gov_callback_protocol", "https://", "Protocol for non local environments.")
 	loginGovCallbackPort := flag.String("login_gov_callback_port", "443", "The port for callback urls.")
@@ -248,6 +264,7 @@ func main() {
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
 	site.Use(httpsComplianceMiddleware)
+	site.Use(securityHeadersMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
@@ -330,18 +347,20 @@ func main() {
 	}
 
 	errChan := make(chan error)
-	localhostCert := server.TLSCert{
-		CertPEMBlock: []byte(*httpsCert),
-		KeyPEMBlock:  []byte(*httpsKey),
+	moveMilCerts := []server.TLSCert{
+		server.TLSCert{
+			CertPEMBlock: []byte(*moveMilDODTLSCert),
+			KeyPEMBlock:  []byte(*moveMilDODTLSKey),
+		},
 	}
 	go func() {
-		httpServer := server.Server{
+		noTLSServer := server.Server{
 			ListenAddress: *listenInterface,
 			HTTPHandler:   httpHandler,
 			Logger:        logger,
-			Port:          *port,
+			Port:          *noTLSPort,
 		}
-		errChan <- httpServer.ListenAndServe()
+		errChan <- noTLSServer.ListenAndServe()
 	}()
 	go func() {
 		tlsServer := server.Server{
@@ -349,8 +368,8 @@ func main() {
 			ListenAddress:  *listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
-			Port:           *httpsPort,
-			TLSCerts:       []server.TLSCert{localhostCert},
+			Port:           *tlsPort,
+			TLSCerts:       moveMilCerts,
 		}
 		errChan <- tlsServer.ListenAndServeTLS()
 	}()
@@ -359,12 +378,12 @@ func main() {
 			// Only allow certificates validated by the specified
 			// client certificate CA.
 			ClientAuthType: tls.RequireAndVerifyClientCert,
-			CACertPEMBlock: []byte(*httpsClientAuthCACert),
+			CACertPEMBlock: []byte(*moveMilDODCACert),
 			ListenAddress:  *listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
-			Port:           *httpsClientAuthPort,
-			TLSCerts:       []server.TLSCert{localhostCert},
+			Port:           *mutualTLSPort,
+			TLSCerts:       moveMilCerts,
 		}
 		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()

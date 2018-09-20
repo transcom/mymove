@@ -68,8 +68,8 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 			Status:                  ShipmentStatusSUBMITTED,
 		},
 	})
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
+	tspp := testdatagen.MakeDefaultTSPPerformance(suite.db)
+	CreateShipmentOffer(suite.db, shipment.ID, tspp.TransportationServiceProviderID, tspp.ID, false)
 	shipments, err := FetchUnofferedShipments(suite.db)
 
 	// Expect only unassigned shipment returned
@@ -109,6 +109,17 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	err = shipment.Transport()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
+
+	// Can deliver shipment
+	err = shipment.Deliver()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
+
+	// Can complete shipment
+	err = shipment.Complete()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusCOMPLETED, shipment.Status, "expected Completed")
+
 }
 
 func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
