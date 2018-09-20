@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -326,14 +327,23 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
+	var shipments models.Shipments
+
+	err := h.DB().Eager(
+		"Move.Orders",
+		"PickupAddress",
+		"DeliveryAddress",
+		"ServiceMember",
+	).Where("id = $1", shipmentID).
+		All(&shipments)
+
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), route.NewTestingPlanner(362)) // TODO: replace planner
 	// Run rate engine on shipment --> returns CostByShipment Struct
-	shipmentCost, err := rateengine.HandleRunRateEngineOnShipment(*shipment, engine)
+	shipmentCost, err := rateengine.HandleRunRateEngineOnShipment(shipments[0], engine)
 	var costsByShipments []rateengine.CostByShipment
 	costsByShipments = append(costsByShipments, shipmentCost)
 
