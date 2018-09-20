@@ -825,6 +825,7 @@ definitions:
         type: string
         format: date
         example: "2018-04-02"
+        title: Actual Pickup Date
         x-nullable: true
     required:
       - actual_pickup_date
@@ -1338,7 +1339,7 @@ paths:
           required: true
           description: UUID of the shipment
         - in: body
-          name: actualPickupDate
+          name: payload
           required: true
           schema:
             $ref: '#/definitions/ActualPickupDate'

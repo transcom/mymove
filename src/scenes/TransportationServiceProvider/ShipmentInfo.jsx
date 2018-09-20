@@ -3,11 +3,15 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
-
 import { NavLink } from 'react-router-dom';
+import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
+import PremoveSurvey from 'shared/PremoveSurvey';
+import { formatDate } from 'shared/formatters';
+import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import {
   loadShipmentDependencies,
@@ -15,10 +19,8 @@ import {
   acceptShipment,
   generateGBL,
   rejectShipment,
+  transportShipment,
 } from './ducks';
-import PremoveSurvey from 'shared/PremoveSurvey';
-import { formatDate } from 'shared/formatters';
-import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 
@@ -53,6 +55,64 @@ class AcceptShipmentPanel extends Component {
   }
 }
 
+let PickupDateForm = props => {
+  const { schema, onCancel, handleSubmit, submitting, valid } = props;
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <SwaggerField fieldName="actual_pickup_date" swagger={schema} required />
+
+      <button onClick={onCancel}>Cancel</button>
+      <button type="submit" disabled={submitting || !valid}>
+        Done
+      </button>
+    </form>
+  );
+};
+
+PickupDateForm = reduxForm({ form: 'pickup_shipment' })(PickupDateForm);
+
+class PickupPanel extends Component {
+  state = {
+    displayState: 'BUTTON',
+  };
+
+  setButtonState = () => {
+    this.setState({ displayState: 'BUTTON' });
+  };
+
+  setEnterDateState = () => {
+    this.setState({ displayState: 'ENTER_DATE' });
+  };
+
+  buttonView = () => {
+    return <button onClick={this.setEnterDateState}>Enter Pickup</button>;
+  };
+
+  enterDateView = () => {
+    const { schema, onSubmit } = this.props;
+    return (
+      <PickupDateForm
+        onCancel={this.setButtonState}
+        schema={schema}
+        onSubmit={onSubmit}
+      />
+    );
+  };
+
+  currentView = () => {
+    const viewStates = {
+      BUTTON: this.buttonView(),
+      ENTER_DATE: this.enterDateView(),
+    };
+    return viewStates[this.state.displayState];
+  };
+
+  render() {
+    return this.currentView();
+  }
+}
+
 class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
@@ -78,11 +138,16 @@ class ShipmentInfo extends Component {
       });
   };
 
+  pickupShipment = values => {
+    return this.props.transportShipment(this.props.shipment.id, values);
+  };
+
   render() {
     const last_name = get(this.props.shipment, 'service_member.last_name');
     const first_name = get(this.props.shipment, 'service_member.first_name');
     const locator = get(this.props.shipment, 'move.locator');
     const awarded = this.props.shipment.status === 'AWARDED';
+    const approved = this.props.shipment.status === 'APPROVED';
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -159,6 +224,12 @@ class ShipmentInfo extends Component {
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
+              {approved && (
+                <PickupPanel
+                  schema={this.props.pickupSchema}
+                  onSubmit={this.pickupShipment}
+                />
+              )}
               {this.props.generateGBLError && (
                 <Alert type="warning" heading="An error occurred">
                   {attachmentsErrorMessages[this.props.error.statusCode] ||
@@ -196,6 +267,7 @@ const mapStateToProps = state => ({
   generateGBLError: get(state, 'tsp.generateGBLError'),
   generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
   error: get(state, 'tsp.error'),
+  pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
 });
 
 const mapDispatchToProps = dispatch =>
@@ -206,6 +278,7 @@ const mapDispatchToProps = dispatch =>
       acceptShipment,
       generateGBL,
       rejectShipment,
+      transportShipment,
     },
     dispatch,
   );

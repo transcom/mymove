@@ -609,6 +609,47 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	models.SaveMoveDependencies(db, &hhg7.Move)
 
 	/*
+	 * Service member with approved shipment ready to be shipped.
+	 */
+	email = "hhg@ship.me"
+
+	shippingOffer := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("86ee8f4b-d5e3-49a3-a09b-f639db9ac9f7")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7091e1d6-f007-474c-a401-3b31f32c1648"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("So Approved"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("9fd22c81-7f5b-419e-bf73-738abf8fb353"),
+			Locator:          "SHIPME",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("1f363629-ddf2-4d0d-9939-f32dab0ec3d2"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAPPROVED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	shippingShipment := shippingOffer.Shipment
+	shippingShipment.Move.Submit()
+	models.SaveMoveDependencies(db, &shippingShipment.Move)
+
+	/*
 	 * Service member with approved basics and accepted shipment
 	 */
 	email = "hhg@accept.ed"
