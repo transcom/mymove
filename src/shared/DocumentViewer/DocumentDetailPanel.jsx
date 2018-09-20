@@ -89,9 +89,15 @@ const DocumentDetailDisplay = ({
   );
 };
 
-const { shape, string, number, arrayOf } = PropTypes;
+const { bool, object, shape, string, number, arrayOf } = PropTypes;
 
 DocumentDetailDisplay.propTypes = {
+  isExpenseDocument: bool.isRequired,
+  moveDocSchema: shape({
+    properties: object.isRequired,
+    required: arrayOf(string).isRequired,
+    type: string.isRequired,
+  }).isRequired,
   moveDocument: shape({
     document: shape({
       id: string.isRequired,
@@ -118,28 +124,33 @@ DocumentDetailDisplay.propTypes = {
   }).isRequired,
 };
 
-const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
-  const isExpenseDocument =
-    get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
-  return (
-    <Fragment>
-      <div>
-        <FormSection name="moveDocument">
-          <SwaggerField fieldName="title" swagger={moveDocSchema} required />
-          <SwaggerField
-            fieldName="move_document_type"
-            swagger={moveDocSchema}
-            required
-          />
-          {isExpenseDocument && (
-            <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
-          )}
-          <SwaggerField fieldName="status" swagger={moveDocSchema} required />
-          <SwaggerField fieldName="notes" swagger={moveDocSchema} />
-        </FormSection>
-      </div>
-    </Fragment>
-  );
+const DocumentDetailEdit = ({ isExpenseDocument, moveDocSchema }) => (
+  <Fragment>
+    <div>
+      <FormSection name="moveDocument">
+        <SwaggerField fieldName="title" swagger={moveDocSchema} required />
+        <SwaggerField
+          fieldName="move_document_type"
+          swagger={moveDocSchema}
+          required
+        />
+        {isExpenseDocument && (
+          <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
+        )}
+        <SwaggerField fieldName="status" swagger={moveDocSchema} required />
+        <SwaggerField fieldName="notes" swagger={moveDocSchema} />
+      </FormSection>
+    </div>
+  </Fragment>
+);
+
+DocumentDetailEdit.propTypes = {
+  isExpenseDocument: bool.isRequired,
+  moveDocSchema: shape({
+    properties: object.isRequired,
+    required: arrayOf(string).isRequired,
+    type: string.isRequired,
+  }).isRequired,
 };
 
 const formName = 'move_document_viewer';
@@ -154,10 +165,10 @@ DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 function mapStateToProps(state, props) {
   const moveDocumentId = props.moveDocumentId;
   const moveDocument = selectMoveDocument(state, moveDocumentId);
+  const isExpenseDocument = isMovingExpenseDocument(moveDocument);
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
   const initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
   const requested_amount = get(initialMoveDocument, 'requested_amount_cents');
-  const isExpenseDocument = isMovingExpenseDocument(moveDocument);
   if (requested_amount) {
     initialMoveDocument.requested_amount_cents = formatCents(requested_amount);
   }
