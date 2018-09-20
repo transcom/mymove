@@ -137,7 +137,6 @@ class MoveInfo extends Component {
   };
 
   submitInvoice = () => {
-    console.log('submitting invoice!');
     this.props.sendHHGInvoice(this.props.officeShipment.id);
   };
 
