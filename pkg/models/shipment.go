@@ -167,15 +167,6 @@ func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	return nil
 }
 
-// Deliver marks the Shipment request as Delivered. Must be in a Delivered state.
-func (s *Shipment) Deliver() error {
-	if s.Status != ShipmentStatusINTRANSIT {
-		return errors.Wrap(ErrInvalidTransition, "Delivered")
-	}
-	s.Status = ShipmentStatusDELIVERED
-	return nil
-}
-
 // Complete marks the Shipment request as Completed. Must be in a Delivered state.
 func (s *Shipment) Complete() error {
 	if s.Status != ShipmentStatusDELIVERED {

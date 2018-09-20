@@ -113,7 +113,7 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 
 	// Can deliver shipment
-	err = shipment.Deliver()
+	err = shipment.Deliver(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 
