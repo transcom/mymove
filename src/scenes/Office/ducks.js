@@ -14,6 +14,7 @@ import {
   CancelMove,
   DownloadPPMAttachments,
   PatchShipment,
+  SendHHGInvoice,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -35,6 +36,7 @@ const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveHHGType = 'APPROVE_HHG';
+const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
@@ -80,6 +82,10 @@ const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
 const APPROVE_HHG = ReduxHelpers.generateAsyncActionTypes(approveHHGType);
+
+const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(
+  sendHHGInvoiceType,
+);
 
 export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
   cancelMoveType,
@@ -172,6 +178,11 @@ export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
 export const approveHHG = ReduxHelpers.generateAsyncActionCreator(
   approveHHGType,
   ApproveHHG,
+);
+
+export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(
+  sendHHGInvoiceType,
+  SendHHGInvoice,
 );
 
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
@@ -323,6 +334,7 @@ const initialState = {
   ppmsHaveLoadSuccess: false,
   ppmHasUpdateError: null,
   ppmHasUpdateSuccess: false,
+  hhgInvoiceIsSending: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   moveHasApproveError: false,
@@ -418,6 +430,19 @@ export function officeReducer(state = initialState, action) {
         shipmentIsUpdating: false,
         shipmentPatchSuccess: false,
         shipmentPatchError: true,
+        error: action.error.message,
+      });
+    case SEND_HHG_INVOICE.start:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: true,
+      });
+    case SEND_HHG_INVOICE.success:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: false,
+      });
+    case SEND_HHG_INVOICE.failure:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: false,
         error: action.error.message,
       });
 

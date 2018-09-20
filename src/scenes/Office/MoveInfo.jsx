@@ -36,6 +36,7 @@ import {
   approveHHG,
   cancelMove,
   patchShipment,
+  sendHHGInvoice,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import {
@@ -132,7 +133,7 @@ class MoveInfo extends Component {
 
   submitInvoice = () => {
     console.log('submitting invoice!');
-    // this.props.sendInvoice(this.props.officeShipment.id);
+    this.props.sendHHGInvoice(this.props.officeShipment.id);
   };
 
   cancelMove = cancelReason => {
@@ -360,12 +361,12 @@ class MoveInfo extends Component {
               )}
               <button
                 onClick={this.submitInvoice}
-                disabled={
-                  hhgApproved ||
-                  !moveApproved ||
-                  !ordersComplete ||
-                  currentTab !== 'hhg'
-                }
+                // disabled={
+                //   hhgApproved ||
+                //   !moveApproved ||
+                //   !ordersComplete ||
+                //   currentTab !== 'hhg'
+                // }
               >
                 Submit HHG Invoice
               </button>
@@ -480,6 +481,7 @@ const mapDispatchToProps = dispatch =>
       approveHHG,
       cancelMove,
       patchShipment,
+      sendHHGInvoice,
     },
     dispatch,
   );
