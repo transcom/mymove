@@ -161,33 +161,39 @@ func getTSPsPerBand(count int) []int {
 	return bands
 }
 
-// assignPerformanceBands loops through each TDL and assigns any
-// TransportationServiceProviderPerformances without a quality band to a band.
+// assignPerformanceBands loops through each unique TransportationServiceProviderPerformances group
+// and assigns any unbanded TransportationServiceProviderPerformances to a band.
 func (aq *AwardQueue) assignPerformanceBands() error {
 
-	// for each TDL with pending performances
-	tdls, err := models.FetchTDLsAwaitingBandAssignment(aq.db)
+	perfGroups, err := models.FetchUnbandedTSPPerformanceGroups(aq.db)
 	if err != nil {
 		return err
 	}
 
-	for _, tdl := range tdls {
-		if err := aq.assignPerformanceBandsForTDL(tdl); err != nil {
+	for _, perfGroup := range perfGroups {
+		if err := aq.assignPerformanceBandsForTSPPerformanceGroup(perfGroup); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
-// assignPerformanceBandsForTDL loops through a TDL's TransportationServiceProviderPerformances
+// assignPerformanceBandsForTSPPerformanceGroup loops through the TSPPs for a given TSPP grouping
 // and assigns a QualityBand to each one.
 //
-// This assumes that all TransportationServiceProviderPerformances have been properly
-// created and have a valid BestValueScore.
-func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributionList) error {
-	aq.logger.Info("Assigning performance bands", zap.Object("tdl", tdl))
+// This assumes that all TransportationServiceProviderPerformances have been properly created and
+// have a valid BestValueScore.
+func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup models.TSPPerformanceGroup) error {
+	aq.logger.Info("Assigning performance bands",
+		zap.Any("traffic_distribution_list_id", perfGroup.TrafficDistributionListID),
+		zap.Any("performance_period_start", perfGroup.PerformancePeriodStart),
+		zap.Any("performance_period_end", perfGroup.PerformancePeriodEnd),
+		zap.Any("rate_cycle_start", perfGroup.RateCycleStart),
+		zap.Any("rate_cycle_end", perfGroup.RateCycleEnd),
+	)
 
-	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(aq.db, tdl.ID, mps)
+	perfs, err := models.FetchTSPPerformancesForQualityBandAssignment(aq.db, perfGroup, mps)
 	if err != nil {
 		return err
 	}
