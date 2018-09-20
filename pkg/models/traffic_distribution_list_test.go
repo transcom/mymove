@@ -50,7 +50,7 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
 	if err != nil {

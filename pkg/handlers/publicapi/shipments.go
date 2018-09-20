@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/awardqueue"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -20,7 +21,7 @@ import (
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
-		ID: *handlers.FmtUUID(s.ID),
+		ID:                                  *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
 		ActualPickupDate:                    *handlers.FmtDateTimePtr(s.ActualPickupDate),
@@ -43,9 +44,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
 		HasPartialSitDeliveryAddress:        *handlers.FmtBool(s.HasPartialSITDeliveryAddress),
 		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:                      handlers.FmtInt64(s.WeightEstimate.Int64()),
-		ProgearWeightEstimate:               handlers.FmtInt64(s.ProgearWeightEstimate.Int64()),
-		SpouseProgearWeightEstimate:         handlers.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		WeightEstimate:                      handlers.FmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
 		ActualWeight:                        handlers.FmtPoundPtr(s.ActualWeight),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
@@ -199,6 +200,8 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 		}
 	}
+
+	go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run()
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
