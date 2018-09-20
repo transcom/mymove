@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -316,11 +317,12 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		if err.Error() == "Unauthorized" {
+		fmt.Println("HIT erROR FOR UNAUTHED TSP", err)
+		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
 			return shipmentop.NewCreateGovBillOfLadingUnauthorized()
 		}
-		if err.Error() == "Forbidden" {
+		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
 			return shipmentop.NewCreateGovBillOfLadingForbidden()
 		}

@@ -267,7 +267,7 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code
-	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingForbidden{}, response)
+	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingUnauthorized{}, response)
 }
 
 // TestIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters

@@ -26,11 +26,11 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	_, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		if err.Error() == "Unauthorized" {
+		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
 			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
 		}
-		if err.Error() == "Forbidden" {
+		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
 			return movedocop.NewCreateGenericMoveDocumentForbidden()
 		}
@@ -84,11 +84,11 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		if err.Error() == "Unauthorized" {
+		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
 			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
 		}
-		if err.Error() == "Forbidden" {
+		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
 			return movedocop.NewCreateGenericMoveDocumentForbidden()
 		}
