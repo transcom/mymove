@@ -1,8 +1,8 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/route"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -327,23 +326,25 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	var shipments models.Shipments
+	var shipment models.Shipment
 
 	err := h.DB().Eager(
 		"Move.Orders",
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
-	).Where("id = $1", shipmentID).
-		All(&shipments)
+	).Find(&shipment, shipmentID)
 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), route.NewTestingPlanner(362)) // TODO: replace planner
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 	// Run rate engine on shipment --> returns CostByShipment Struct
-	shipmentCost, err := rateengine.HandleRunRateEngineOnShipment(shipments[0], engine)
+	shipmentCost, err := rateengine.HandleRunRateEngineOnShipment(shipment, engine)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 	var costsByShipments []rateengine.CostByShipment
 	costsByShipments = append(costsByShipments, shipmentCost)
 
@@ -367,5 +368,4 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
 		return shipmentop.NewSendHHGInvoiceInternalServerError()
 	}
-
 }
