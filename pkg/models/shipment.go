@@ -112,7 +112,7 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 // Submit marks the Shipment request for review
 func (s *Shipment) Submit() error {
-	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
+	if s.Status != ShipmentStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	now := time.Now()
@@ -136,6 +136,15 @@ func (s *Shipment) Accept() error {
 		return errors.Wrap(ErrInvalidTransition, "Accept")
 	}
 	s.Status = ShipmentStatusACCEPTED
+	return nil
+}
+
+// Reject returns the Shipment to the Submitted state. Must be in an Awarded state.
+func (s *Shipment) Reject() error {
+	if s.Status != ShipmentStatusAWARDED {
+		return errors.Wrap(ErrInvalidTransition, "Reject")
+	}
+	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
 
@@ -540,7 +549,7 @@ func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	}
 
 	// Move the shipment back to Submitted and Reject the shipment offer.
-	err = shipment.Submit()
+	err = shipment.Reject()
 	if err != nil {
 		return shipment, shipmentOffer, nil, err
 	}
