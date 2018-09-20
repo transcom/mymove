@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, omit } from 'lodash';
@@ -15,25 +16,27 @@ import {
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
 import ExpenseDocumentForm from '../../scenes/Office/DocumentViewer/ExpenseDocumentForm';
-
 import '../../scenes/Office/office.css';
 
-const DocumentDetailDisplay = props => {
-  const moveDoc = props.moveDocument;
-  const isExpenseDocument = isMovingExpenseDocument(moveDoc);
+const DocumentDetailDisplay = ({
+  isExpenseDocument,
+  moveDocument,
+  moveDocSchema,
+}) => {
   const moveDocFieldProps = {
-    values: moveDoc,
-    schema: props.moveDocSchema,
+    values: moveDocument,
+    schema: moveDocSchema,
   };
   return (
-    <React.Fragment>
+    <Fragment>
       <div>
         <span className="panel-subhead">
-          {renderStatusIcon(moveDoc.status)}
-          {moveDoc.title}
+          {renderStatusIcon(moveDocument.status)}
+          {moveDocument.title}
         </span>
         <p className="uploaded-at">
-          Uploaded {formatDate(get(moveDoc, 'document.uploads.0.created_at'))}
+          Uploaded{' '}
+          {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}
         </p>
         <PanelSwaggerField
           title="Document Title"
@@ -49,21 +52,21 @@ const DocumentDetailDisplay = props => {
           {...moveDocFieldProps}
         />
         {isExpenseDocument &&
-          moveDoc.moving_expense_type && (
+          moveDocument.moving_expense_type && (
             <PanelSwaggerField
               fieldName="moving_expense_type"
               {...moveDocFieldProps}
             />
           )}
         {isExpenseDocument &&
-          get(moveDoc, 'requested_amount_cents') && (
+          get(moveDocument, 'requested_amount_cents') && (
             <PanelSwaggerField
               fieldName="requested_amount_cents"
               {...moveDocFieldProps}
             />
           )}
         {isExpenseDocument &&
-          get(moveDoc, 'payment_method') && (
+          get(moveDocument, 'payment_method') && (
             <PanelSwaggerField
               fieldName="payment_method"
               {...moveDocFieldProps}
@@ -82,16 +85,44 @@ const DocumentDetailDisplay = props => {
           {...moveDocFieldProps}
         />
       </div>
-    </React.Fragment>
+    </Fragment>
   );
 };
 
-const DocumentDetailEdit = props => {
-  const { formValues, moveDocSchema } = props;
+const { shape, string, number, arrayOf } = PropTypes;
+
+DocumentDetailDisplay.propTypes = {
+  moveDocument: shape({
+    document: shape({
+      id: string.isRequired,
+      service_member_id: string.isRequired,
+      uploads: arrayOf(
+        shape({
+          byes: number,
+          content_type: string.isRequired,
+          created_at: string.isRequired,
+          filename: string.isRequired,
+          id: string.isRequired,
+          update_at: string,
+          url: string.isRequired,
+        }),
+      ).isRequired,
+    }),
+    id: string.isRequired,
+    move_document_type: string.isRequired,
+    move_id: string.isRequired,
+    notes: string,
+    personally_procured_move_id: string,
+    status: string.isRequired,
+    title: string.isRequired,
+  }).isRequired,
+};
+
+const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
   const isExpenseDocument =
     get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
   return (
-    <React.Fragment>
+    <Fragment>
       <div>
         <FormSection name="moveDocument">
           <SwaggerField fieldName="title" swagger={moveDocSchema} required />
@@ -107,7 +138,7 @@ const DocumentDetailEdit = props => {
           <SwaggerField fieldName="notes" swagger={moveDocSchema} />
         </FormSection>
       </div>
-    </React.Fragment>
+    </Fragment>
   );
 };
 
@@ -117,14 +148,16 @@ let DocumentDetailPanel = editablePanelify(
   DocumentDetailDisplay,
   DocumentDetailEdit,
 );
+
 DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 
 function mapStateToProps(state, props) {
   const moveDocumentId = props.moveDocumentId;
-  let moveDocument = selectMoveDocument(state, moveDocumentId);
+  const moveDocument = selectMoveDocument(state, moveDocumentId);
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
-  let initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
-  let requested_amount = get(initialMoveDocument, 'requested_amount_cents');
+  const initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
+  const requested_amount = get(initialMoveDocument, 'requested_amount_cents');
+  const isExpenseDocument = isMovingExpenseDocument(moveDocument);
   if (requested_amount) {
     initialMoveDocument.requested_amount_cents = formatCents(requested_amount);
   }
@@ -134,6 +167,7 @@ function mapStateToProps(state, props) {
     initialValues: {
       moveDocument: initialMoveDocument,
     },
+    isExpenseDocument,
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(
       state,
@@ -143,7 +177,7 @@ function mapStateToProps(state, props) {
     hasError: false,
     errorMessage: state.office.error,
     isUpdating: false,
-    moveDocument: moveDocument,
+    moveDocument,
 
     // editablePanelify
     getUpdateArgs: function() {
