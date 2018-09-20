@@ -1,2 +1,3 @@
-add_column("shipment_offers", "transportation_service_provider_performance_id", "uuid", {"null": true})
+sql("DELETE FROM shipment_offers;")
+add_column("shipment_offers", "transportation_service_provider_performance_id", "uuid", {})
 add_foreign_key("shipment_offers", "transportation_service_provider_performance_id", {"transportation_service_provider_performances": ["id"]}, {})
