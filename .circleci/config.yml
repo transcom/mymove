@@ -4,7 +4,7 @@ jobs:
   pre_test:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - restore_cache:
@@ -48,7 +48,7 @@ jobs:
   vuln_scan:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - restore_cache:
@@ -89,7 +89,7 @@ jobs:
   build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
       - image: postgres:latest
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -152,7 +152,7 @@ jobs:
 
   build_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - setup_remote_docker:
@@ -168,7 +168,7 @@ jobs:
 
   deploy_experimental_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
       - APP_ENVIRONMENT: "experimental"
     steps: &deploy_migrations_steps
@@ -183,7 +183,7 @@ jobs:
 
   deploy_experimental_app:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
       - APP_ENVIRONMENT: "experimental"
       - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
@@ -235,14 +235,14 @@ jobs:
 
   deploy_prod_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_migrations_steps
 
   deploy_prod_app:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
       - APP_ENVIRONMENT: "prod"
       - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
@@ -257,7 +257,7 @@ jobs:
 
   integration_tests:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - restore_cache:
@@ -274,7 +274,7 @@ jobs:
   update_dependencies:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - restore_cache:
@@ -319,21 +319,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-deploy-app-client-tls
+              only: mk-tls-ciphers
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-deploy-app-client-tls
+              only: mk-tls-ciphers
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-deploy-app-client-tls
+              only: mk-tls-ciphers
 
       - deploy_staging_migrations:
           requires:

@@ -19,7 +19,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import DocumentList from 'shared/DocumentViewer/DocumentList';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
@@ -410,8 +410,10 @@ class MoveInfo extends Component {
               )}
               {showDocumentViewer && (
                 <DocumentList
+                  detailUrlPrefix={`/moves/${
+                    this.props.match.params.moveId
+                  }/documents`}
                   moveDocuments={moveDocuments}
-                  moveId={this.props.match.params.moveId}
                 />
               )}
             </div>
