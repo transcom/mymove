@@ -317,10 +317,10 @@ type ShipmentInvoiceHandler struct {
 }
 
 // Handle is the handler
-func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendInvoiceParams) middleware.Responder {
+func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
-		return shipmentop.NewSendInvoiceForbidden()
+		return shipmentop.NewSendHHGInvoiceForbidden()
 	}
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -331,7 +331,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendInvoiceParams) midd
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner()) //TODO: replace with proper route/planner
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 	// Run rate engine on shipment --> returns CostByShipment Struct
 	shipmentCost, err := rateengine.HandleRunRateEngineOnShipment(*shipment, engine)
 	var costsByShipments []rateengine.CostByShipment
@@ -350,13 +350,12 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendInvoiceParams) midd
 	}
 
 	// get response from gex --> use status as status for this invoice call
-	// use a switch based on what is returned to return correct status from this handler
 	switch responseStatus {
 	case 200:
-		return shipmentop.NewSendInvoiceOK()
+		return shipmentop.NewSendHHGInvoiceOK()
 	default:
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
-		return shipmentop.NewSendInvoiceInternalServerError()
+		return shipmentop.NewSendHHGInvoiceInternalServerError()
 	}
 
 }

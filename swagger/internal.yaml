@@ -3016,7 +3016,7 @@ paths:
     post:
       summary: Sends an invoice to Syncada through GEX
       description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
-      operationId: sendInvoice
+      operationId: sendHHGInvoice
       tags:
       - shipments
       parameters:
