@@ -37,7 +37,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	deliveryAddress := assertions.Shipment.DeliveryAddress
 	if deliveryAddress == nil {
-		newDeliveryAddress := MakeAddress(db, Assertions{})
+		newDeliveryAddress := MakeAddress2(db, Assertions{})
 		deliveryAddress = &newDeliveryAddress
 	}
 
