@@ -113,9 +113,14 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 
 	// Can deliver shipment
-	err = shipment.Deliver(shipDate)
+	err = shipment.Deliver()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
+
+	// Can complete shipment
+	err = shipment.Complete()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusCOMPLETED, shipment.Status, "expected Completed")
 }
 
 func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {

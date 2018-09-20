@@ -34,6 +34,8 @@ const (
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
+	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
+	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -162,6 +164,24 @@ func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	}
 	s.Status = ShipmentStatusDELIVERED
 	s.ActualDeliveryDate = &actualDeliveryDate
+	return nil
+}
+
+// Deliver marks the Shipment request as Delivered. Must be in a Delivered state.
+func (s *Shipment) Deliver() error {
+	if s.Status != ShipmentStatusINTRANSIT {
+		return errors.Wrap(ErrInvalidTransition, "Delivered")
+	}
+	s.Status = ShipmentStatusDELIVERED
+	return nil
+}
+
+// Complete marks the Shipment request as Completed. Must be in a Delivered state.
+func (s *Shipment) Complete() error {
+	if s.Status != ShipmentStatusDELIVERED {
+		return errors.Wrap(ErrInvalidTransition, "Completed")
+	}
+	s.Status = ShipmentStatusCOMPLETED
 	return nil
 }
 
@@ -399,7 +419,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	err := tx.Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
-		"Move",
+		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
