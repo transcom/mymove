@@ -78,6 +78,8 @@ func MakeDefaultTSPPerformance(db *pop.Connection) models.TransportationServiceP
 }
 
 // MakeTSPPerformanceDeprecated makes a single best_value_score record
+//
+// Deprecated: Use MakeTSPPErformance or MakeDEfaultTSPPERformance instead.
 func MakeTSPPerformanceDeprecated(db *pop.Connection,
 	tsp models.TransportationServiceProvider,
 	tdl models.TrafficDistributionList,
@@ -115,6 +117,10 @@ func MakeTSPPerformanceDeprecated(db *pop.Connection,
 // MakeTSPPerformanceDataDeprecated creates three best value score records
 // Variable rounds describes how many rounds should have already been offered
 // `none` indicates no rounds have been offered, `half` indicates half a round, and `full` a full round.
+//
+// Deprecated: This function creates test data with random values, which can cause confusion during testing.
+// Use MakeTSPPerformance and explicitely define values or use MakeDefaultTSPPerformance if you really
+// don't care about them instead.
 func MakeTSPPerformanceDataDeprecated(db *pop.Connection, rounds string) {
 	// These two queries duplicate ones in other testdatagen files; not optimal
 	tspList := []models.TransportationServiceProvider{}
