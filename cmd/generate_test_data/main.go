@@ -94,7 +94,7 @@ func main() {
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)
 		testdatagen.MakeShipmentOfferData(db)
-		testdatagen.MakeTSPPerformanceData(db, *rounds)
+		testdatagen.MakeTSPPerformanceDataDeprecated(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakePPMData(db)
 		testdatagen.MakeReimbursementData(db)
