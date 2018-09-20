@@ -96,10 +96,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      # service_member_id:
-      #   type: string
-      #   format: uuid
-      #   title: The service member this document belongs to
       uploads:
         type: array
         items:
@@ -1163,7 +1159,7 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /shipments/{moveDocumentId}:
+  /shipments/{shipmentId}/documents/{moveDocumentId}:
     put:
       summary: Updates a move document
       description: Update a move document with the given information
@@ -1171,6 +1167,12 @@ paths:
       tags:
         - move_docs
       parameters:
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment model
         - in: path
           name: moveDocumentId
           type: string
@@ -1197,46 +1199,6 @@ paths:
           description: move document not found
         500:
           description: internal server error
-  # /documents/{documentId}/uploads:
-  #   post:
-  #     summary: Adds a new upload to a document
-  #     description: Uploads represent a single digital file, such as a JPEG or PDF.
-  #     operationId: createDocumentUpload
-  #     tags:
-  #       - documents
-  #     consumes:
-  #       - multipart/form-data
-  #     parameters:
-  #       - in: path
-  #         name: documentId
-  #         type: string
-  #         format: uuid
-  #         required: true
-  #         description: UUID of the document to which the Upload is added
-  #       - in: formData
-  #         name: file
-  #         type: file
-  #         description: The file to upload.
-  #         required: true
-  #       - in: formData
-  #         name: name
-  #         type: string
-  #         description: Human readable name for the upload
-  #     responses:
-  #       201:
-  #         description: created upload
-  #         schema:
-  #           $ref: '#/definitions/DocumentUpload'
-  #       400:
-  #         description: invalid request
-  #       401:
-  #         description: must be authenticated to use this endpoint
-  #       403:
-  #         description: not authorized to see the details of this shipment
-  #       404:
-  #         description: dcoument UUID not found in system
-  #       500:
-  #         description: server error
   /shipments:
     get:
       summary: Gets visible shipments
@@ -1605,64 +1567,6 @@ paths:
           description: not authorized to access this shipment
         500:
           description: server error
-  # /shipments/{shipmentId}/documents:
-  #   get:
-  #     summary: Gets the list of documents associated with a Shipment
-  #     operationId: getShipmentDocuments
-  #     tags:
-  #       - shipments
-  #     parameters:
-  #       - name: shipmentId
-  #         in: path
-  #         type: string
-  #         format: uuid
-  #         required: true
-  #         description: UUID of the shipment
-  #     responses:
-  #       200:
-  #         description: returns the documents associated with the shipment
-  #         schema:
-  #           $ref: '#/definitions/Document'
-  #       400:
-  #         description: invalid request
-  #       401:
-  #         description: must be authenticated to use this endpoint
-  #       403:
-  #         description: not authorized to access this shipment
-  #       500:
-  #         description: server error
-  #   post:
-  #     summary: Creates a new document associated with a shipment
-  #     description: Creates the storage for the new document and sets the UUID
-  #     operationId: createShipmentDocument
-  #     tags:
-  #       - shipments
-  #     parameters:
-  #       - name: shipmentId
-  #         in: path
-  #         type: string
-  #         format: uuid
-  #         required: true
-  #         description: UUID of the shipment
-  #       - name: payload
-  #         in: body
-  #         required: true
-  #         description: A bare bones Document object containing the name of the new document
-  #         schema:
-  #           $ref: '#/definitions/Document'
-  #     responses:
-  #       200:
-  #         description: returns updated document with UUID and create time set.
-  #         schema:
-  #           $ref: '#/definitions/Document'
-  #       400:
-  #         description: invalid request
-  #       401:
-  #         description: must be authenticated to use this endpoint
-  #       403:
-  #         description: not authorized to add documents to this shipment
-  #       500:
-  #         description: server error
   /shipments/{shipmentId}/gov_bill_of_lading:
     post:
       summary: Creates a new government bill of lading (form 1203) document associated with a shipment

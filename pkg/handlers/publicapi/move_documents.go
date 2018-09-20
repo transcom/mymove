@@ -1,18 +1,16 @@
 package publicapi
 
 import (
+	// "fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
-	// "github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
-	// "github.com/transcom/mymove/pkg/storage"
-	// "github.com/transcom/mymove/pkg/unit"
 )
 
 // IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
@@ -24,19 +22,18 @@ type IndexMoveDocumentsHandler struct {
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	// Verify that the logged in TSP user exists
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return movedocop.NewCreateGenericMoveDocumentUnauthorized()
-	}
-
-	// Verify that TSP user is authorized to create movedoc
+	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	_, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return movedocop.NewCreateGenericMoveDocumentForbidden()
+		if err.Error() == "Unauthorized" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
+		}
+		if err.Error() == "Forbidden" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return movedocop.NewCreateGenericMoveDocumentForbidden()
+		}
 	}
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, shipment.Move.ID)
@@ -64,7 +61,6 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 			Status:           apimessages.MoveDocumentStatus(doc.Status),
 			Notes:            doc.Notes,
 		}
-		// moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}
@@ -84,45 +80,45 @@ type UpdateMoveDocumentHandler struct {
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	// Verify that the logged in TSP user exists
-	_, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	// Verify that the TSP user is authorized to update move doc
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return movedocop.NewCreateGenericMoveDocumentUnauthorized()
+		if err.Error() == "Unauthorized" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
+		}
+		if err.Error() == "Forbidden" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return movedocop.NewCreateGenericMoveDocumentForbidden()
+		}
 	}
 
-	// // Verify that TSP user is authorized to update movedoc
-	// shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-	// shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
-	// if err != nil {
-	// 	h.Logger().Error("DB Query", zap.Error(err))
-	// 	return movedocop.NewCreateGenericMoveDocumentForbidden()
-	// }
-
-	////
-	// session := auth.SessionFromRequestContext(params.HTTPRequest)
-
+	// Fetch move document from move doc id
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
-
-	// Fetch move document from move id
 	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-
-	payload := params.UpdateMoveDocument
-	if payload.ShipmentID != nil {
-		ppmID := uuid.Must(uuid.FromString(payload.ShipmentID.String()))
-		moveDoc.ShipmentID = &ppmID
+	if moveDoc.ShipmentID == nil {
+		h.Logger().Error("Move document is not associated to a shipment.")
+		return movedocop.NewCreateGenericMoveDocumentForbidden()
 	}
+	if *moveDoc.ShipmentID != shipmentID {
+		h.Logger().Error("Move doc shipment ID does not match shipment ID.")
+		return movedocop.NewCreateGenericMoveDocumentForbidden()
+	}
+
+	// Set new values on move document
+	payload := params.UpdateMoveDocument
+	moveDoc.ShipmentID = &shipmentID
 	newType := models.MoveDocumentType(payload.MoveDocumentType)
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
 	moveDoc.MoveDocumentType = newType
-
 	newStatus := models.MoveDocumentStatus(payload.Status)
 
-	// If this is a shipment summary and it has been approved, we process the ppm.
+	// If this is a shipment summary and it has been approved, we process the shipment.
 	if newStatus != moveDoc.Status {
 		err = moveDoc.AttemptTransition(newStatus)
 		if err != nil {
@@ -131,35 +127,6 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	}
 
 	var saveAction models.MoveDocumentSaveAction
-
-	// // If we are an expense type, we need to either delete, create, or update a MovingExpenseType
-	// // depending on which type of document already exists
-	// if models.IsExpenseModelDocumentType(newType) {
-	// 	// We should have a MovingExpenseDocument model
-	// 	requestedAmt := unit.Cents(payload.RequestedAmountCents)
-	// 	paymentMethod := payload.PaymentMethod
-	// 	if moveDoc.MovingExpenseDocument == nil {
-	// 		// But we don't have one, so create it to be saved later
-	// 		moveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
-	// 			MoveDocumentID:       moveDoc.ID,
-	// 			MoveDocument:         *moveDoc,
-	// 			MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
-	// 			RequestedAmountCents: requestedAmt,
-	// 			PaymentMethod:        paymentMethod,
-	// 		}
-	// 	} else {
-	// 		// We have one already, so update the fields
-	// 		moveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(payload.MovingExpenseType)
-	// 		moveDoc.MovingExpenseDocument.RequestedAmountCents = requestedAmt
-	// 		moveDoc.MovingExpenseDocument.PaymentMethod = paymentMethod
-	// 	}
-	// 	saveAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
-	// } else {
-	// 	if moveDoc.MovingExpenseDocument != nil {
-	// 		// We just care if a MovingExpenseType exists, as it needs to be deleted
-	// 		saveAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
-	// 	}
-	// }
 
 	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {

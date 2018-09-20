@@ -12,6 +12,9 @@ var ErrCreateViolatesUniqueConstraint = errors.New("CREATE_VIOLATES_UNIQUE")
 // ErrFetchNotFound means that the requested record does not exist
 var ErrFetchNotFound = errors.New("FETCH_NOT_FOUND")
 
+// ErrUserUnauthorized means that the record exists but that the user does not have access to it
+var ErrUserUnauthorized = errors.New("USER_UNAUTHORIZED")
+
 // ErrFetchForbidden means that the record exists but that the user does not have access to it
 var ErrFetchForbidden = errors.New("FETCH_FORBIDDEN")
 

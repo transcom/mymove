@@ -409,6 +409,24 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	return &shipments[0], err
 }
 
+// FetchShipmentForVerifiedTSPUser fetches a shipment for a verified, authorized TSP user
+func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, shipmentID uuid.UUID) (*TspUser, *Shipment, error) {
+	// Verify that the logged in TSP user exists
+	var shipment *Shipment
+	var tspUser *TspUser
+	tspUser, err := FetchTspUserByID(db, tspUserID)
+	if err != nil {
+		return tspUser, shipment, ErrFetchForbidden
+	}
+	// Verify that TSP is associated to shipment
+	shipment, err = FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		return tspUser, shipment, ErrUserUnauthorized
+	}
+	return tspUser, shipment, nil
+
+}
+
 // saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer
 func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *ShipmentOffer) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
 	// wrapped in a transaction because if one fails this actions should roll back.

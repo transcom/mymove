@@ -22,8 +22,6 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 			return nil, err
 		}
 
-		// uploadPayload := payloadForUploadModel(upload, url)
-
 		uploadPayload := &apimessages.UploadPayload{
 			ID:          handlers.FmtUUID(upload.ID),
 			Filename:    swag.String(upload.Filename),
@@ -37,8 +35,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 	}
 
 	documentPayload := &apimessages.DocumentPayload{
-		ID: handlers.FmtUUID(document.ID),
-		// ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
+		ID:      handlers.FmtUUID(document.ID),
 		Uploads: uploads,
 	}
 	return documentPayload, nil
@@ -72,23 +69,19 @@ type CreateGenericMoveDocumentHandler struct {
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	// Verify that the logged in TSP user exists
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return movedocop.NewCreateGenericMoveDocumentUnauthorized()
-	}
-
-	// Verify that TSP user is authorized to create movedoc
+	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	_, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return movedocop.NewCreateGenericMoveDocumentForbidden()
+		if err.Error() == "Unauthorized" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
+		}
+		if err.Error() == "Forbidden" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return movedocop.NewCreateGenericMoveDocumentForbidden()
+		}
 	}
-
-	// #nosec UUID is pattern matched by swagger and will be ok
-	// moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, shipment.Move.ID)
@@ -113,22 +106,6 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		}
 		uploads = append(uploads, upload)
 	}
-
-	// var ppmID *uuid.UUID
-	// if payload.PersonallyProcuredMoveID != nil {
-	// 	id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
-
-	// 	// Enforce that the ppm's move_id matches our move
-	// 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, id)
-	// 	if err != nil {
-	// 		return handlers.ResponseForError(h.Logger(), err)
-	// 	}
-	// 	if !uuid.Equal(ppm.MoveID, moveID) {
-	// 		return movedocop.NewCreateGenericMoveDocumentBadRequest()
-	// 	}
-
-	// 	ppmID = &id
-	// }
 
 	newMoveDocument, verrs, err := move.CreateMoveDocument(h.DB(),
 		uploads,
