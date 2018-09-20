@@ -8,14 +8,15 @@ import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
 import { formatDate, formatCents } from 'shared/formatters';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import ExpenseDocumentForm from './ExpenseDocumentForm';
 import {
   selectMoveDocument,
   updateMoveDocument,
 } from 'shared/Entities/modules/moveDocuments';
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
-import '../office.css';
+import ExpenseDocumentForm from '../../scenes/Office/DocumentViewer/ExpenseDocumentForm';
+
+import '../../scenes/Office/office.css';
 
 const DocumentDetailDisplay = props => {
   const moveDoc = props.moveDocument;
