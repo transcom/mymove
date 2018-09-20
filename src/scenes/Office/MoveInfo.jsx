@@ -367,7 +367,7 @@ class MoveInfo extends Component {
               <button
                 onClick={this.submitInvoice}
                 disabled={
-                  hhgApproved ||
+                  !hhgApproved ||
                   !moveApproved ||
                   !ordersComplete ||
                   this.props.hhgInvoiceHasSendSuccess ||
