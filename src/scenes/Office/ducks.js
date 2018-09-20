@@ -335,6 +335,7 @@ const initialState = {
   ppmHasUpdateError: null,
   ppmHasUpdateSuccess: false,
   hhgInvoiceIsSending: false,
+  hhgInvoiceHasSendSuccess: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   moveHasApproveError: false,
@@ -435,10 +436,12 @@ export function officeReducer(state = initialState, action) {
     case SEND_HHG_INVOICE.start:
       return Object.assign({}, state, {
         hhgInvoiceIsSending: true,
+        hhgInvoiceHasSendSuccess: false,
       });
     case SEND_HHG_INVOICE.success:
       return Object.assign({}, state, {
         hhgInvoiceIsSending: false,
+        hhgInvoiceHasSendSuccess: true,
       });
     case SEND_HHG_INVOICE.failure:
       return Object.assign({}, state, {
