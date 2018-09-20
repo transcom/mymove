@@ -131,6 +131,15 @@ export async function ApproveHHG(shipmentId) {
   return response.body;
 }
 
+export async function CompleteHHG(shipmentId) {
+  const client = await getClient();
+  const response = await client.apis.shipments.completeHHG({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to complete hhg due to server error');
+  return response.body;
+}
+
 // Reimbursement status
 export async function ApproveReimbursement(reimbursementId) {
   const client = await getClient();
