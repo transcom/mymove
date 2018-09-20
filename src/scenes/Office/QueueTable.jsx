@@ -61,6 +61,7 @@ class QueueTable extends Component {
       ppm: 'PPMs',
       hhg_accepted: 'Accepted HHGs',
       hhg_delivered: 'Delivered HHGs',
+      hhg_completed: 'Completed HHGs',
       all: 'All Moves',
     };
 
