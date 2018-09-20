@@ -2,11 +2,8 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	// "github.com/gobuffalo/pop"
-	// "github.com/gobuffalo/uuid"
 	tspsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/tsps"
 	"github.com/transcom/mymove/pkg/handlers"
-	// "github.com/transcom/mymove/pkg/models"
 )
 
 // TspsIndexTSPsHandler returns a list of all the TSPs
