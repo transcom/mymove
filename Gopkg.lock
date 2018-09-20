@@ -957,6 +957,14 @@
   version = "v1.2.2"
 
 [[projects]]
+  digest = "1:41d24b8f6f442ff86b37be473e45b2bfc9a219eee1bdfabf9e680b9dd51b32a3"
+  name = "github.com/tealeg/xlsx"
+  packages = ["."]
+  pruneopts = ""
+  revision = "8be35264fa75a1bbe954ce51eba04f273e2c59e5"
+  version = "v1.0.3"
+
+[[projects]]
   digest = "1:e1cd343b3883ced86b6873fe4d2f76799259fba3d1656df6ac0a7fa92644c049"
   name = "github.com/toqueteos/webbrowser"
   packages = ["."]
@@ -1238,6 +1246,7 @@
     "github.com/segmentio/chamber",
     "github.com/spf13/afero",
     "github.com/stretchr/testify/suite",
+    "github.com/tealeg/xlsx",
     "github.com/trussworks/pdfcpu/pkg/api",
     "github.com/trussworks/pdfcpu/pkg/pdfcpu",
     "go.uber.org/zap",
