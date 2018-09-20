@@ -397,6 +397,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		models.MoveDocumentTypeGOVBILLOFLADING,
 		string("Government Bill Of Lading"),
 		swag.String(""),
+		string(apimessages.SelectedMoveTypeHHG),
 	)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
@@ -442,22 +443,22 @@ func (h GetShipmentClaimsHandler) Handle(p shipmentop.GetShipmentClaimsParams) m
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
-type GetShipmentDocumentsHandler struct {
-	handlers.HandlerContext
-}
+// // GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
+// type GetShipmentDocumentsHandler struct {
+// 	handlers.HandlerContext
+// }
 
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentDocumentsHandler) Handle(p shipmentop.GetShipmentDocumentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
-}
+// // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+// func (h GetShipmentDocumentsHandler) Handle(p shipmentop.GetShipmentDocumentsParams) middleware.Responder {
+// 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
+// }
 
-// CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
-type CreateShipmentDocumentHandler struct {
-	handlers.HandlerContext
-}
+// // CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
+// type CreateShipmentDocumentHandler struct {
+// 	handlers.HandlerContext
+// }
 
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentDocumentHandler) Handle(p shipmentop.CreateShipmentDocumentParams) middleware.Responder {
-	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
-}
+// // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+// func (h CreateShipmentDocumentHandler) Handle(p shipmentop.CreateShipmentDocumentParams) middleware.Responder {
+// 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
+// }

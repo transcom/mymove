@@ -232,7 +232,8 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	notes *string) (*MoveDocument, *validate.Errors, error) {
+	notes *string,
+	moveType string) (*MoveDocument, *validate.Errors, error) {
 
 	var responseError error
 	responseVErrors := validate.NewErrors()
@@ -261,7 +262,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	}
 
 	var newMoveDocument *MoveDocument
-	if moveDocumentType == "GOV_BILL_OF_LADING" {
+	if moveType == "HHG" {
 		newMoveDocument = &MoveDocument{
 			Move:             m,
 			MoveID:           m.ID,
@@ -304,7 +305,8 @@ func (m Move) CreateMoveDocument(
 	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	notes *string) (*MoveDocument, *validate.Errors, error) {
+	notes *string,
+	moveType string) (*MoveDocument, *validate.Errors, error) {
 
 	var newMoveDocument *MoveDocument
 	var responseError error
@@ -319,7 +321,8 @@ func (m Move) CreateMoveDocument(
 			modelID,
 			moveDocumentType,
 			title,
-			notes)
+			notes,
+			moveType)
 
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
@@ -342,7 +345,8 @@ func (m Move) CreateMovingExpenseDocument(
 	notes *string,
 	requestedAmountCents unit.Cents,
 	paymentMethod string,
-	movingExpenseType MovingExpenseType) (*MovingExpenseDocument, *validate.Errors, error) {
+	movingExpenseType MovingExpenseType,
+	moveType string) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
 	var responseError error
@@ -358,7 +362,8 @@ func (m Move) CreateMovingExpenseDocument(
 			personallyProcuredMoveID,
 			moveDocumentType,
 			title,
-			notes)
+			notes,
+			moveType)
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}
