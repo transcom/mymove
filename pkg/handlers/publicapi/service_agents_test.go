@@ -92,7 +92,8 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 
 	count, err := suite.TestDB().Where("shipment_id=$1", shipment.ID).Count(&models.ServiceAgent{})
 	suite.Nil(err, "could not count service agents")
-	suite.Equal(1, count)
+	// Test data generator will create 2 service agents by default for AWARDED shipments.  This test creates the third.
+	suite.Equal(3, count)
 }
 
 func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
