@@ -188,10 +188,10 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 		if s.EstimatedTransitDays == nil {
 			s.EstimatedTransitDays = swag.Int64(10)
 		}
-		if s.DeliveryDate == nil {
+		if s.ActualDeliveryDate == nil {
 			if s.RequestedPickupDate != nil {
 				newDate := s.RequestedPickupDate.AddDate(0, 0, int(*s.EstimatedTransitDays))
-				s.DeliveryDate = &newDate
+				s.ActualDeliveryDate = &newDate
 			}
 		}
 		if s.ActualPickupDate == nil {
