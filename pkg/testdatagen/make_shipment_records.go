@@ -2,12 +2,22 @@ package testdatagen
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
+
+// GBL Numbers are not all the same--this just generates something
+// kind of similar
+func randomTwelveDigit() string {
+	low := 100000000000
+	high := 999999999999
+	return strconv.Itoa(low + rand.Intn(high-low))
+}
 
 // MakeShipment creates a single shipment record
 func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
@@ -46,6 +56,11 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		status = models.ShipmentStatusDRAFT
 	}
 
+	gblNumber := assertions.Shipment.GBLNumber
+	if gblNumber == nil {
+		gblNumber = stringPointer(randomTwelveDigit())
+	}
+
 	shipment := models.Shipment{
 		TrafficDistributionListID:    uuidPointer(tdl.ID),
 		TrafficDistributionList:      tdl,
@@ -56,6 +71,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
 		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
 		Market:                       &DefaultMarket,
+		GBLNumber:                    gblNumber,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),
 		RequestedPickupDate:          timePointer(PerformancePeriodStart),
 		MoveID:                       move.ID,

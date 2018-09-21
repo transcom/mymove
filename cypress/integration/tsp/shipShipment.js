@@ -29,7 +29,7 @@ function tspUserPicksUpShipment() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // Click the Transport button
@@ -97,7 +97,7 @@ function tspUserPicksUpShipment() {
 
 function tspUserDeliversShipment() {
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // Click the Transport button
