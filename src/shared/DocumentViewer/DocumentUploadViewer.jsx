@@ -15,7 +15,7 @@ export const DocumentUploadViewer = ({ moveDocument }) => {
           key={url}
           url={url}
           filename={filename}
-          content_type={content_type}
+          contentType={content_type}
         />
       ))}
     </div>
