@@ -15,8 +15,8 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
-import ExpenseDocumentForm from '../../scenes/Office/DocumentViewer/ExpenseDocumentForm';
-import '../../scenes/Office/office.css';
+import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
+import 'scenes/Office/office.css';
 
 const DocumentDetailDisplay = ({
   isExpenseDocument,
