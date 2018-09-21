@@ -100,16 +100,12 @@ class PickupPanel extends Component {
     );
   };
 
-  currentView = () => {
+  render() {
     const viewStates = {
       BUTTON: this.buttonView(),
       ENTER_DATE: this.enterDateView(),
     };
     return viewStates[this.state.displayState];
-  };
-
-  render() {
-    return this.currentView();
   }
 }
 
@@ -138,9 +134,8 @@ class ShipmentInfo extends Component {
       });
   };
 
-  pickupShipment = values => {
-    return this.props.transportShipment(this.props.shipment.id, values);
-  };
+  pickupShipment = values =>
+    this.props.transportShipment(this.props.shipment.id, values);
 
   render() {
     const last_name = get(this.props.shipment, 'service_member.last_name');

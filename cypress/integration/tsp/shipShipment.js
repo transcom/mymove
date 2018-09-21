@@ -11,7 +11,7 @@ describe('TSP User Ships a Shipment', function() {
 });
 
 function tspUserPicksUpShipment() {
-  // // Open approved shipments queue
+  // Open approved shipments queue
   cy
     .get('div')
     .contains('Approved Shipments')
@@ -37,7 +37,7 @@ function tspUserPicksUpShipment() {
     .contains('Enter Pickup')
     .click();
 
-  // Next button should be disabled.
+  // Done button should be disabled.
   cy
     .get('button')
     .contains('Done')
@@ -68,7 +68,7 @@ function tspUserPicksUpShipment() {
     .contains('Enter Pickup')
     .click();
 
-  // Next button should be disabled.
+  // Done button should be disabled.
   cy
     .get('button')
     .contains('Done')
