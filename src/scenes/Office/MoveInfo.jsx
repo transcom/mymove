@@ -397,6 +397,7 @@ class MoveInfo extends Component {
                 </button>
               )}
               <button
+                className={`${invoiceSuccess ? 'btn__approve--green' : ''}`}
                 onClick={this.submitInvoice}
                 disabled={
                   !hhgCompleted ||
@@ -408,6 +409,7 @@ class MoveInfo extends Component {
                 }
               >
                 Submit HHG Invoice
+                {invoiceSuccess && check}
               </button>
 
               <ConfirmWithReasonButton
