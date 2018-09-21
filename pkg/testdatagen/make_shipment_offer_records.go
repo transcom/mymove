@@ -175,7 +175,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
 				ActualPickupDate:        &nowPlusOne,
-				DeliveryDate:            &nowPlusTwo,
+				ActualDeliveryDate:      &nowPlusTwo,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
