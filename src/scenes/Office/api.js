@@ -140,6 +140,16 @@ export async function CompleteHHG(shipmentId) {
   return response.body;
 }
 
+// HHG invoice
+export async function SendHHGInvoice(shipmentId) {
+  const client = await getClient();
+  const response = await client.apis.shipments.sendHHGInvoice({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to send invoice to server error');
+  return response.body;
+}
+
 // Reimbursement status
 export async function ApproveReimbursement(reimbursementId) {
   const client = await getClient();

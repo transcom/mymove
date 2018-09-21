@@ -1,0 +1,1 @@
+rename_column("shipments", "delivery_date", "actual_delivery_date")

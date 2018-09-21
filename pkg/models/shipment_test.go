@@ -49,7 +49,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
-			DeliveryDate:            &deliveryDate,
+			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -61,7 +61,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
-			DeliveryDate:            &deliveryDate,
+			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -105,13 +105,15 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 
+	shipDate := time.Now()
+
 	// Can transport shipment
-	err = shipment.Transport()
+	err = shipment.Transport(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 
 	// Can deliver shipment
-	err = shipment.Deliver()
+	err = shipment.Deliver(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 
@@ -119,7 +121,6 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	err = shipment.Complete()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusCOMPLETED, shipment.Status, "expected Completed")
-
 }
 
 func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {

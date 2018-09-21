@@ -1,6 +1,7 @@
 package rateengine
 
 import (
+	"github.com/transcom/mymove/pkg/models"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -223,6 +224,38 @@ func (re *RateEngine) ComputeShipment(
 	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
 
 	return cost, nil
+}
+
+// CostByShipment struct containing shipment and cost
+type CostByShipment struct {
+	Shipment models.Shipment
+	Cost     CostComputation
+}
+
+// HandleRunOnShipment runs the rate engine on a shipment and returns the shipment and cost
+func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipment, error) {
+	daysInSIT := 0
+	var sitDiscount unit.DiscountRate
+	sitDiscount = 0.0
+	// Apply rate engine to shipment
+	var shipmentCost CostByShipment
+	cost, err := re.ComputeShipment(unit.Pound(*shipment.WeightEstimate),
+		shipment.PickupAddress.PostalCode,
+		shipment.DeliveryAddress.PostalCode,
+		time.Time(*shipment.ActualPickupDate),
+		daysInSIT, // We don't want any SIT charges
+		.4,        // TODO: placeholder: need to get actual linehaul discount
+		sitDiscount,
+	)
+	if err != nil {
+		return CostByShipment{}, err
+	}
+
+	shipmentCost = CostByShipment{
+		Shipment: shipment,
+		Cost:     cost,
+	}
+	return shipmentCost, err
 }
 
 // NewRateEngine creates a new RateEngine
