@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"fmt"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"time"
@@ -373,7 +374,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 	// Run rate engine on shipment --> returns CostByShipment Struct
-	shipmentCost, err := rateengine.HandleRunRateEngineOnShipment(shipment, engine)
+	shipmentCost, err := engine.HandleRunOnShipment(shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -385,6 +386,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+	fmt.Print(edi) // to use for demo visual
+
 	// send edi through gex post api
 	transactionName := "placeholder"
 	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), edi, transactionName)
