@@ -9,7 +9,6 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
-import { formatDate } from 'shared/formatters';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
