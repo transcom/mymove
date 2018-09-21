@@ -827,8 +827,50 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg12.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg12.Move)
 
+	/*
+	 * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
+	 */
 	MakeHhgFromAwardedToAcceptedGBLReady(db, tspUser)
 
+	/*
+	 * Service member with uploaded orders and an approved shipment
+	 */
+	email = "hhg@premo.ve"
+
+	offer13 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("8f6b87f1-20ad-4c50-a855-ab66e222c7c3")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1a98be36-5c4c-4056-b16f-d5a6c65b8569"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("01d85649-18c2-44ad-854d-da8884579f42"),
+			Locator:          "PREMVE",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("fd76c4fc-a2fb-45b6-a3a6-7c35357ab79a"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAWARDED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg13 := offer13.Shipment
+	hhg13.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg13.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
