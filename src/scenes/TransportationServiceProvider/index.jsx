@@ -51,7 +51,7 @@ class TspWrapper extends Component {
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute
-                  path="/queues/:queueType(new|approved|in_transit|delivered|all)/shipments/:shipmentId"
+                  path="/shipments/:shipmentId"
                   component={ShipmentInfo}
                 />
                 {/* Be specific about available routes by listing them */}
