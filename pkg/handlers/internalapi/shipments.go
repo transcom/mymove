@@ -47,7 +47,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
 		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
-		DeliveryDate:                        handlers.FmtDatePtr(s.DeliveryDate),
+		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		EstimatedPackDays:                   s.EstimatedPackDays,

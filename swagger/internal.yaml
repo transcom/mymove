@@ -1449,7 +1449,7 @@ definitions:
         example: "2018-04-26"
         readOnly: true
         x-nullable: true
-      delivery_date:
+      actual_delivery_date:
         type: string
         format: date
         example: "2018-04-26"
