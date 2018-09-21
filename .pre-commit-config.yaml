@@ -1,4 +1,12 @@
 repos:
+  - repo: local
+    hooks:
+      - id: go-version
+        name: go version
+        entry: bin/check_go_version
+        language: script
+        types: [go]
+
   - repo: git://github.com/pre-commit/pre-commit-hooks
     rev: v1.4.0
     hooks:
@@ -7,7 +15,12 @@ repos:
       - id: check-yaml
         exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
-        exclude: ^config/devlocal-.+\.key$
+        exclude: >
+          (?x)^(
+            config/tls/devlocal-.+\.key$|
+            pkg/server/testdata/localhost.key$|
+            pkg/server/testdata/officelocal.key$|
+          )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 

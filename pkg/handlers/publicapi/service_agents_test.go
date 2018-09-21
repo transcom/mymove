@@ -59,13 +59,13 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
-	pointOfContact := "Pete and Repeat"
+	company := "ACME Shipping"
 
 	email := "dogs@dogs.bones"
 	notes := "This little piggy went to market"
 	newServiceAgent := apimessages.ServiceAgent{
 		Role:             apimessages.ServiceAgentRole(models.RoleORIGIN),
-		PointOfContact:   handlers.FmtString(pointOfContact),
+		Company:          handlers.FmtString(company),
 		Email:            swag.String(email),
 		EmailIsPreferred: handlers.FmtBool(false),
 		PhoneIsPreferred: handlers.FmtBool(true),
@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	okResponse := response.(*serviceagentop.CreateServiceAgentOK)
 
 	suite.Equal(newServiceAgent.Role, okResponse.Payload.Role)
-	suite.Equal(pointOfContact, *okResponse.Payload.PointOfContact)
+	suite.Equal(company, *okResponse.Payload.Company)
 	suite.Equal(*newServiceAgent.Email, *okResponse.Payload.Email)
 	suite.Equal(*newServiceAgent.EmailIsPreferred, *okResponse.Payload.EmailIsPreferred)
 	suite.Equal(*newServiceAgent.PhoneIsPreferred, *okResponse.Payload.PhoneIsPreferred)
@@ -92,7 +92,8 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 
 	count, err := suite.TestDB().Where("shipment_id=$1", shipment.ID).Count(&models.ServiceAgent{})
 	suite.Nil(err, "could not count service agents")
-	suite.Equal(1, count)
+	// Test data generator will create 2 service agents by default for AWARDED shipments.  This test creates the third.
+	suite.Equal(3, count)
 }
 
 func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
@@ -113,10 +114,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
-		PointOfContact: models.StringPointer("Not Jenny at ACME"),
-		Email:          models.StringPointer("notjenny@example.com"),
-		PhoneNumber:    models.StringPointer("3039035768"),
-		Notes:          models.StringPointer("Some notes"),
+		Company:     models.StringPointer("Not ACME"),
+		Email:       models.StringPointer("notjenny@example.com"),
+		PhoneNumber: models.StringPointer("3039035768"),
+		Notes:       models.StringPointer("Some notes"),
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
@@ -136,7 +137,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
 
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(serviceAgent.ID.String()), okResponse.Payload.ID)
-	suite.Equal(*UpdatePayload.PointOfContact, *okResponse.Payload.PointOfContact)
+	suite.Equal(*UpdatePayload.Company, *okResponse.Payload.Company)
 	suite.Equal(*UpdatePayload.Email, *okResponse.Payload.Email)
 	suite.Equal(*UpdatePayload.PhoneNumber, *okResponse.Payload.PhoneNumber)
 	suite.Equal(UpdatePayload.Notes, okResponse.Payload.Notes)
@@ -160,7 +161,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPOC() {
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
-		PointOfContact: models.StringPointer("Not Jenny at ACME"),
+		Company: models.StringPointer("Not ACME"),
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
@@ -180,8 +181,8 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPOC() {
 
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(serviceAgent.ID.String()), okResponse.Payload.ID)
-	suite.Equal(*UpdatePayload.PointOfContact, *okResponse.Payload.PointOfContact)
-	suite.Equal("jenny_acme@example.com", *okResponse.Payload.Email)
+	suite.Equal(*UpdatePayload.Company, *okResponse.Payload.Company)
+	suite.Equal("acme@example.com", *okResponse.Payload.Email)
 	suite.Equal("303-867-5309", *okResponse.Payload.PhoneNumber)
 	suite.Nil(okResponse.Payload.Notes)
 }
@@ -204,7 +205,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyEmail() {
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
-		Email: models.StringPointer("notjenny@example.com"),
+		Email: models.StringPointer("notacme@example.com"),
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{
@@ -224,7 +225,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyEmail() {
 
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(serviceAgent.ID.String()), okResponse.Payload.ID)
-	suite.Equal("Jenny at ACME Movers", *okResponse.Payload.PointOfContact)
+	suite.Equal("ACME Movers", *okResponse.Payload.Company)
 	suite.Equal(*UpdatePayload.Email, *okResponse.Payload.Email)
 	suite.Equal("303-867-5309", *okResponse.Payload.PhoneNumber)
 	suite.Nil(okResponse.Payload.Notes)
@@ -268,8 +269,8 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPhoneNumber() {
 
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(serviceAgent.ID.String()), okResponse.Payload.ID)
-	suite.Equal("Jenny at ACME Movers", *okResponse.Payload.PointOfContact)
-	suite.Equal("jenny_acme@example.com", *okResponse.Payload.Email)
+	suite.Equal("ACME Movers", *okResponse.Payload.Company)
+	suite.Equal("acme@example.com", *okResponse.Payload.Email)
 	suite.Equal("303-867-5309", *okResponse.Payload.PhoneNumber)
 	suite.Equal(*UpdatePayload.Notes, *okResponse.Payload.Notes)
 }
@@ -312,8 +313,8 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyNotes() {
 
 	// And: Payload has new values
 	suite.Equal(strfmt.UUID(serviceAgent.ID.String()), okResponse.Payload.ID)
-	suite.Equal("Jenny at ACME Movers", *okResponse.Payload.PointOfContact)
-	suite.Equal("jenny_acme@example.com", *okResponse.Payload.Email)
+	suite.Equal("ACME Movers", *okResponse.Payload.Company)
+	suite.Equal("acme@example.com", *okResponse.Payload.Email)
 	suite.Equal(*UpdatePayload.PhoneNumber, *okResponse.Payload.PhoneNumber)
 	suite.Nil(okResponse.Payload.Notes)
 }
@@ -338,10 +339,10 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerWrongTSP() {
 	req = suite.AuthenticateTspRequest(req, otherTspUser)
 
 	UpdatePayload := apimessages.ServiceAgent{
-		PointOfContact: models.StringPointer("Not Jenny at ACME"),
-		Email:          models.StringPointer("notjenny@example.com"),
-		PhoneNumber:    models.StringPointer("3039035768"),
-		Notes:          models.StringPointer("Some notes"),
+		Company:     models.StringPointer("Not ACME"),
+		Email:       models.StringPointer("notjenny@example.com"),
+		PhoneNumber: models.StringPointer("3039035768"),
+		Notes:       models.StringPointer("Some notes"),
 	}
 
 	params := serviceagentop.PatchServiceAgentParams{

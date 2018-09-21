@@ -19,40 +19,23 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 	suite.verifyValidationErrors(tdl, expErrors)
 }
 
-func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
+func (suite *ModelSuite) Test_FetchTDL() {
 	t := suite.T()
 
-	foundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
-			SourceRateArea:    "US14",
-			DestinationRegion: "3",
+			SourceRateArea:    "US28",
+			DestinationRegion: "4",
 			CodeOfService:     "2",
 		},
 	})
-	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
-
-	notFoundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
-		TrafficDistributionList: TrafficDistributionList{
-			SourceRateArea:    "US14",
-			DestinationRegion: "5",
-			CodeOfService:     "2",
-		},
-	})
-	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
-
-	tdls, err := FetchTDLsAwaitingBandAssignment(suite.db)
+	fetchedTDL, err := FetchTDL(suite.db, "US28", "4", "2")
 	if err != nil {
-		t.Fatal(err)
+		t.Errorf("Something went wrong fetching the test object: %s\n", err)
 	}
 
-	if len(tdls) != 1 {
-		t.Errorf("Got wrong number of TDLs; expected: 1, got: %d", len(tdls))
-	}
-
-	if tdls[0].ID != foundTDL.ID {
-		t.Errorf("Got wrong TDL; expected: %s, got: %s", foundTDL.ID, tdls[0].ID)
+	if fetchedTDL.ID != tdl.ID {
+		t.Errorf("Got wrong TDL; expected: %s, got: %s", tdl.ID, fetchedTDL.ID)
 	}
 }
 
@@ -67,7 +50,7 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
 	if err != nil {

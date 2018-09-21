@@ -73,7 +73,8 @@ func main() {
 		numTspUsers := 2
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
-		status := []models.ShipmentStatus{"DRAFT", "AWARDED", "ACCEPTED"}
+		// TSPs should never be able to see DRAFT or SUBMITTED or AWARDING shipments.
+		status := []models.ShipmentStatus{"AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED", "COMPLETED"}
 		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status)
 		if err != nil {
 			log.Panic(err)
@@ -93,7 +94,7 @@ func main() {
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)
 		testdatagen.MakeShipmentOfferData(db)
-		testdatagen.MakeTSPPerformanceData(db, *rounds)
+		testdatagen.MakeTSPPerformanceDataDeprecated(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakePPMData(db)
 		testdatagen.MakeReimbursementData(db)

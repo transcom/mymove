@@ -1,26 +1,39 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
-
 import { NavLink } from 'react-router-dom';
+import { reduxForm } from 'redux-form';
 
+import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
+import PremoveSurvey from 'shared/PremoveSurvey';
+import { formatDate } from 'shared/formatters';
+import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import {
   loadShipmentDependencies,
   patchShipment,
   acceptShipment,
+  generateGBL,
+  rejectShipment,
+  transportShipment,
+  deliverShipment,
 } from './ducks';
-import PremoveSurvey from 'shared/PremoveSurvey';
-import { formatDate } from 'shared/formatters';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+import FormButton from './FormButton';
+
+const attachmentsErrorMessages = {
+  400: 'There is already a GBL for this shipment. ',
+  417: 'Missing data required to generate a Bill of Lading.',
+};
 
 class AcceptShipmentPanel extends Component {
-  rejectShipment = () => {
-    this.setState({ displayState: 'Rejected' });
-    // TODO (rebecca): Add rejection flow
+  rejectShipment = reason => {
+    this.props.rejectShipment(reason);
   };
 
   acceptShipment = () => {
@@ -33,15 +46,60 @@ class AcceptShipmentPanel extends Component {
         <button className="usa-button-primary" onClick={this.acceptShipment}>
           Accept Shipment
         </button>
-        <button className="usa-button-secondary" onClick={this.rejectShipment}>
-          Reject Shipment
-        </button>
+        <ConfirmWithReasonButton
+          buttonTitle="Reject Shipment"
+          reasonPrompt="Why are you rejecting this shipment?"
+          warningPrompt="Are you sure you want to reject this shipment?"
+          onConfirm={this.rejectShipment}
+        />
       </div>
     );
   }
 }
 
+let PickupDateForm = props => {
+  const { schema, onCancel, handleSubmit, submitting, valid } = props;
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <SwaggerField fieldName="actual_pickup_date" swagger={schema} required />
+
+      <button onClick={onCancel}>Cancel</button>
+      <button type="submit" disabled={submitting || !valid}>
+        Done
+      </button>
+    </form>
+  );
+};
+
+PickupDateForm = reduxForm({ form: 'pickup_shipment' })(PickupDateForm);
+
+let DeliveryDateForm = props => {
+  const { schema, onCancel, handleSubmit, submitting, valid } = props;
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <SwaggerField
+        fieldName="actual_delivery_date"
+        swagger={schema}
+        required
+      />
+
+      <button onClick={onCancel}>Cancel</button>
+      <button type="submit" disabled={submitting || !valid}>
+        Done
+      </button>
+    </form>
+  );
+};
+
+DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
+
 class ShipmentInfo extends Component {
+  state = {
+    redirectToHome: false,
+  };
+
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
   }
@@ -50,11 +108,35 @@ class ShipmentInfo extends Component {
     return this.props.acceptShipment(this.props.shipment.id);
   };
 
+  generateGBL = () => {
+    return this.props.generateGBL(this.props.shipment.id);
+  };
+
+  rejectShipment = reason => {
+    return this.props
+      .rejectShipment(this.props.shipment.id, reason)
+      .then(() => {
+        this.setState({ redirectToHome: true });
+      });
+  };
+
+  pickupShipment = values =>
+    this.props.transportShipment(this.props.shipment.id, values);
+
+  deliverShipment = values =>
+    this.props.deliverShipment(this.props.shipment.id, values);
+
   render() {
     const last_name = get(this.props.shipment, 'service_member.last_name');
     const first_name = get(this.props.shipment, 'service_member.first_name');
     const locator = get(this.props.shipment, 'move.locator');
     const awarded = this.props.shipment.status === 'AWARDED';
+    const approved = this.props.shipment.status === 'APPROVED';
+    const inTransit = this.props.shipment.status === 'IN_TRANSIT';
+
+    if (this.state.redirectToHome) {
+      return <Redirect to="/" />;
+    }
 
     return (
       <div>
@@ -123,9 +205,42 @@ class ShipmentInfo extends Component {
               {awarded && (
                 <AcceptShipmentPanel
                   acceptShipment={this.acceptShipment}
+                  rejectShipment={this.rejectShipment}
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
+              {approved && (
+                <FormButton
+                  formComponent={PickupDateForm}
+                  schema={this.props.pickupSchema}
+                  onSubmit={this.pickupShipment}
+                  buttonTitle="Enter Pickup"
+                />
+              )}
+              {inTransit && (
+                <FormButton
+                  formComponent={DeliveryDateForm}
+                  schema={this.props.deliverSchema}
+                  onSubmit={this.deliverShipment}
+                  buttonTitle="Enter Delivery"
+                />
+              )}
+              {this.props.generateGBLError && (
+                <Alert type="warning" heading="An error occurred">
+                  {attachmentsErrorMessages[this.props.error.statusCode] ||
+                    'Something went wrong contacting the server.'}
+                </Alert>
+              )}
+              {this.props.generateGBLSuccess && (
+                <Alert type="success" heading="Success!">
+                  GBL generated successfully.
+                </Alert>
+              )}
+              <div>
+                <button onClick={this.generateGBL}>
+                  Generate Bill of Lading
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -144,6 +259,11 @@ const mapStateToProps = state => ({
   ),
   loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
   acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+  generateGBLError: get(state, 'tsp.generateGBLError'),
+  generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+  error: get(state, 'tsp.error'),
+  pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
+  deliverSchema: get(state, 'swagger.spec.definitions.ActualDeliveryDate', {}),
 });
 
 const mapDispatchToProps = dispatch =>
@@ -152,6 +272,10 @@ const mapDispatchToProps = dispatch =>
       loadShipmentDependencies,
       patchShipment,
       acceptShipment,
+      generateGBL,
+      rejectShipment,
+      transportShipment,
+      deliverShipment,
     },
     dispatch,
   );

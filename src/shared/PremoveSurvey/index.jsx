@@ -34,19 +34,19 @@ const SurveyDisplay = props => {
         <PanelSwaggerField
           title="Planned Pack Date"
           fieldName="pm_survey_planned_pack_date"
-          nullWarning
+          required
           {...fieldProps}
         />
         <PanelSwaggerField
           title="Planned Pickup Date"
           fieldName="pm_survey_planned_pickup_date"
-          nullWarning
+          required
           {...fieldProps}
         />
         <PanelSwaggerField
           title="Planned Delivery Date"
           fieldName="pm_survey_planned_delivery_date"
-          nullWarning
+          required
           {...fieldProps}
         />
       </div>
@@ -54,7 +54,7 @@ const SurveyDisplay = props => {
         <PanelSwaggerField
           title="Weight Estimate"
           fieldName="pm_survey_weight_estimate"
-          nullWarning
+          required
           {...fieldProps}
         />
         <PanelSwaggerField
@@ -77,7 +77,7 @@ const SurveyDisplay = props => {
         <PanelSwaggerField
           title="Survey Method"
           fieldName="pm_survey_method"
-          nullWarning
+          required
           {...fieldProps}
         />
       </div>

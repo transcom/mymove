@@ -20,28 +20,31 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
-	Address                       models.Address
-	BackupContact                 models.BackupContact
-	BlackoutDate                  models.BlackoutDate
-	Document                      models.Document
-	DutyStation                   models.DutyStation
-	Move                          models.Move
-	MoveDocument                  models.MoveDocument
-	MovingExpenseDocument         models.MovingExpenseDocument
-	OfficeUser                    models.OfficeUser
-	Order                         models.Order
-	PersonallyProcuredMove        models.PersonallyProcuredMove
-	Reimbursement                 models.Reimbursement
-	ServiceAgent                  models.ServiceAgent
-	ServiceMember                 models.ServiceMember
-	Shipment                      models.Shipment
-	ShipmentOffer                 models.ShipmentOffer
-	TrafficDistributionList       models.TrafficDistributionList
-	TransportationServiceProvider models.TransportationServiceProvider
-	TspUser                       models.TspUser
-	Upload                        models.Upload
-	Uploader                      *uploader.Uploader
-	User                          models.User
+	Address                                  models.Address
+	BackupContact                            models.BackupContact
+	BlackoutDate                             models.BlackoutDate
+	Document                                 models.Document
+	DutyStation                              models.DutyStation
+	Move                                     models.Move
+	MoveDocument                             models.MoveDocument
+	MovingExpenseDocument                    models.MovingExpenseDocument
+	OfficeUser                               models.OfficeUser
+	Order                                    models.Order
+	PersonallyProcuredMove                   models.PersonallyProcuredMove
+	Reimbursement                            models.Reimbursement
+	ServiceAgent                             models.ServiceAgent
+	ServiceMember                            models.ServiceMember
+	Shipment                                 models.Shipment
+	ShipmentOffer                            models.ShipmentOffer
+	Tariff400ngZip3                          models.Tariff400ngZip3
+	TrafficDistributionList                  models.TrafficDistributionList
+	TransportationOffice                     models.TransportationOffice
+	TransportationServiceProvider            models.TransportationServiceProvider
+	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
+	TspUser                                  models.TspUser
+	Upload                                   models.Upload
+	Uploader                                 *uploader.Uploader
+	User                                     models.User
 }
 
 func stringPointer(s string) *string {
@@ -123,26 +126,34 @@ type customTransformer struct {
 // Checks if src is not a zero value, then overwrites dst
 func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
 	// UUID comparison
-	if typ == reflect.TypeOf(uuid.UUID{}) {
+	if typ == reflect.TypeOf(uuid.UUID{}) || typ == reflect.TypeOf(&uuid.UUID{}) {
 		return func(dst, src reflect.Value) error {
-			if dst.CanSet() {
+			// We need to cast the actual value to validate
+			var srcIsValid bool
+			if src.Kind() == reflect.Ptr {
+				srcID := src.Interface().(*uuid.UUID)
+				srcIsValid = !src.IsNil() && !isZeroUUID(*srcID)
+			} else {
 				srcID := src.Interface().(uuid.UUID)
-				if !isZeroUUID(srcID) {
-					dst.Set(src)
-				}
+				srcIsValid = !isZeroUUID(srcID)
+			}
+			if dst.CanSet() && srcIsValid {
+				dst.Set(src)
 			}
 			return nil
 		}
 	}
 	// time.Time comparison
-	if typ == reflect.TypeOf(time.Time{}) {
+	if typ == reflect.TypeOf(time.Time{}) || typ == reflect.TypeOf(&time.Time{}) {
 		return func(dst, src reflect.Value) error {
-			if dst.CanSet() {
-				isZero := src.MethodByName("IsZero")
-				result := isZero.Call([]reflect.Value{})
-				if !result[0].Bool() {
-					dst.Set(src)
-				}
+			srcIsValid := false
+			// Either it's a non-nil pointer or a non-pointer
+			if src.Kind() != reflect.Ptr || !src.IsNil() {
+				isZeroMethod := src.MethodByName("IsZero")
+				srcIsValid = !isZeroMethod.Call([]reflect.Value{})[0].Bool()
+			}
+			if dst.CanSet() && srcIsValid {
+				dst.Set(src)
 			}
 			return nil
 		}

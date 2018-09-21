@@ -1,6 +1,7 @@
 package models
 
 import (
+	"crypto/sha256"
 	"strings"
 	"time"
 
@@ -9,8 +10,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-
-	"crypto/sha256"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -177,7 +176,8 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"SignedCertifications",
 		"Orders",
 		"MoveDocuments.Document",
-		"Shipments.TrafficDistributionList").Find(&move, id)
+		"Shipments.TrafficDistributionList",
+		"Shipments.ServiceAgents").Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -229,7 +229,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 func (m Move) createMoveDocumentWithoutTransaction(
 	db *pop.Connection,
 	uploads Uploads,
-	personallyProcuredMoveID *uuid.UUID,
+	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
@@ -260,17 +260,31 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		}
 	}
 
-	// Finally create the MoveDocument to tie it to the Move
-	newMoveDocument := &MoveDocument{
-		Move:                     m,
-		MoveID:                   m.ID,
-		Document:                 newDoc,
-		DocumentID:               newDoc.ID,
-		PersonallyProcuredMoveID: personallyProcuredMoveID,
-		MoveDocumentType:         moveDocumentType,
-		Title:                    title,
-		Status:                   MoveDocumentStatusAWAITINGREVIEW,
-		Notes:                    notes,
+	var newMoveDocument *MoveDocument
+	if moveDocumentType == "GOV_BILL_OF_LADING" {
+		newMoveDocument = &MoveDocument{
+			Move:             m,
+			MoveID:           m.ID,
+			Document:         newDoc,
+			DocumentID:       newDoc.ID,
+			ShipmentID:       modelID,
+			MoveDocumentType: moveDocumentType,
+			Title:            title,
+			Status:           MoveDocumentStatusAWAITINGREVIEW,
+		}
+	} else {
+		// Finally create the MoveDocument to tie it to the Move
+		newMoveDocument = &MoveDocument{
+			Move:                     m,
+			MoveID:                   m.ID,
+			Document:                 newDoc,
+			DocumentID:               newDoc.ID,
+			PersonallyProcuredMoveID: modelID,
+			MoveDocumentType:         moveDocumentType,
+			Title:                    title,
+			Status:                   MoveDocumentStatusAWAITINGREVIEW,
+			Notes:                    notes,
+		}
 	}
 
 	verrs, err = db.ValidateAndCreate(newMoveDocument)
@@ -283,11 +297,11 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	return newMoveDocument, responseVErrors, nil
 }
 
-// CreateMoveDocument creates a move document associated to a move & ppm
+// CreateMoveDocument creates a move document associated to a move & ppm or shipment
 func (m Move) CreateMoveDocument(
 	db *pop.Connection,
 	uploads Uploads,
-	personallyProcuredMoveID *uuid.UUID,
+	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
@@ -302,7 +316,7 @@ func (m Move) CreateMoveDocument(
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
 			uploads,
-			personallyProcuredMoveID,
+			modelID,
 			moveDocumentType,
 			title,
 			notes)
@@ -553,6 +567,13 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 					return transactionError
 				}
 				shipment.SourceGBLOC = &sourceGbloc
+
+				// Assign a new unique GBL number using source GBLOC
+				err = shipment.AssignGBLNumber(db)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error assigning GBL number for shipment")
+					return transactionError
+				}
 
 				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)

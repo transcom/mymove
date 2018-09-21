@@ -7,13 +7,80 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MakeTSPPerformance makes a single best_value_score record
-func MakeTSPPerformance(db *pop.Connection,
+// GetDateInRateCycle returns a date that is guaranteed to be in the requested
+// year and Peak/NonPeak season.
+func GetDateInRateCycle(year int, peak bool) time.Time {
+	start, end := models.GetRateCycle(year, peak)
+
+	center := end.Sub(start) / 2
+
+	return start.Add(center)
+}
+
+// MakeTSPPerformance makes a single transportation service provider record.
+func MakeTSPPerformance(db *pop.Connection, assertions Assertions) models.TransportationServiceProviderPerformance {
+
+	var tsp models.TransportationServiceProvider
+	id := assertions.TransportationServiceProviderPerformance.TransportationServiceProviderID
+	if uuid.Equal(id, uuid.Nil) {
+		tsp = MakeDefaultTSP(db)
+	} else {
+		tsp = assertions.TransportationServiceProviderPerformance.TransportationServiceProvider
+	}
+
+	var tdl models.TrafficDistributionList
+	id = assertions.TransportationServiceProviderPerformance.TrafficDistributionListID
+	if uuid.Equal(id, uuid.Nil) {
+		tdl = MakeDefaultTDL(db)
+	} else {
+		tdl = assertions.TransportationServiceProviderPerformance.TrafficDistributionList
+	}
+
+	qualityBand := 1
+	tspp := models.TransportationServiceProviderPerformance{
+		TransportationServiceProvider:   tsp,
+		TransportationServiceProviderID: tsp.ID,
+
+		PerformancePeriodStart:    PerformancePeriodStart,
+		PerformancePeriodEnd:      PerformancePeriodEnd,
+		RateCycleStart:            PeakRateCycleStart,
+		RateCycleEnd:              PeakRateCycleEnd,
+		TrafficDistributionListID: tdl.ID,
+		QualityBand:               &qualityBand,
+		BestValueScore:            0.88,
+		OfferCount:                0,
+		LinehaulRate:              0.34,
+		SITRate:                   0.45,
+	}
+
+	mergeModels(&tspp, assertions.TransportationServiceProviderPerformance)
+
+	verrs, err := db.ValidateAndCreate(&tspp)
+	if verrs.HasAny() {
+		err = fmt.Errorf("TSPP validation errors: %v", verrs)
+	}
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return tspp
+}
+
+// MakeDefaultTSPPerformance makes a TransportationServiceProviderPerformance with default values
+func MakeDefaultTSPPerformance(db *pop.Connection) models.TransportationServiceProviderPerformance {
+	return MakeTSPPerformance(db, Assertions{})
+}
+
+// MakeTSPPerformanceDeprecated makes a single best_value_score record
+//
+// Deprecated: Use MakeTSPPErformance or MakeDEfaultTSPPERformance instead.
+func MakeTSPPerformanceDeprecated(db *pop.Connection,
 	tsp models.TransportationServiceProvider,
 	tdl models.TrafficDistributionList,
 	qualityBand *int,
@@ -36,7 +103,7 @@ func MakeTSPPerformance(db *pop.Connection,
 		SITRate:                         SITDiscountRate,
 	}
 
-	verrs, err := db.ValidateAndSave(&tspPerformance)
+	verrs, err := db.ValidateAndCreate(&tspPerformance)
 	if verrs.HasAny() {
 		err = fmt.Errorf("TSP Performance validation errors: %v", verrs)
 	}
@@ -47,20 +114,14 @@ func MakeTSPPerformance(db *pop.Connection,
 	return tspPerformance, err
 }
 
-// GetDateInRateCycle returns a date that is guaranteed to be in the requested
-// year and Peak/NonPeak season.
-func GetDateInRateCycle(year int, peak bool) time.Time {
-	start, end := models.GetRateCycle(year, peak)
-
-	center := end.Sub(start) / 2
-
-	return start.Add(center)
-}
-
-// MakeTSPPerformanceData creates three best value score records
+// MakeTSPPerformanceDataDeprecated creates three best value score records
 // Variable rounds describes how many rounds should have already been offered
 // `none` indicates no rounds have been offered, `half` indicates half a round, and `full` a full round.
-func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
+//
+// Deprecated: This function creates test data with random values, which can cause confusion during testing.
+// Use MakeTSPPerformance and explicitely define values or use MakeDefaultTSPPerformance if you really
+// don't care about them instead.
+func MakeTSPPerformanceDataDeprecated(db *pop.Connection, rounds string) {
 	// These two queries duplicate ones in other testdatagen files; not optimal
 	tspList := []models.TransportationServiceProvider{}
 	err := db.All(&tspList)
@@ -99,7 +160,7 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 			offers = 0
 		}
 
-		MakeTSPPerformance(
+		MakeTSPPerformanceDeprecated(
 			db,
 			tspList[rand.Intn(len(tspList))],
 			tdlList[rand.Intn(len(tdlList))],
