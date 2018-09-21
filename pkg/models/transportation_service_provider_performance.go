@@ -28,20 +28,22 @@ var OffersPerQualityBand = map[int]int{
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {
-	ID                              uuid.UUID         `db:"id"`
-	CreatedAt                       time.Time         `db:"created_at"`
-	UpdatedAt                       time.Time         `db:"updated_at"`
-	PerformancePeriodStart          time.Time         `db:"performance_period_start"`
-	PerformancePeriodEnd            time.Time         `db:"performance_period_end"`
-	RateCycleStart                  time.Time         `db:"rate_cycle_start"`
-	RateCycleEnd                    time.Time         `db:"rate_cycle_end"`
-	TrafficDistributionListID       uuid.UUID         `db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID uuid.UUID         `db:"transportation_service_provider_id"`
-	QualityBand                     *int              `db:"quality_band"`
-	BestValueScore                  float64           `db:"best_value_score"`
-	LinehaulRate                    unit.DiscountRate `db:"linehaul_rate"`
-	SITRate                         unit.DiscountRate `db:"sit_rate"`
-	OfferCount                      int               `db:"offer_count"`
+	ID                              uuid.UUID                     `db:"id"`
+	CreatedAt                       time.Time                     `db:"created_at"`
+	UpdatedAt                       time.Time                     `db:"updated_at"`
+	PerformancePeriodStart          time.Time                     `db:"performance_period_start"`
+	PerformancePeriodEnd            time.Time                     `db:"performance_period_end"`
+	RateCycleStart                  time.Time                     `db:"rate_cycle_start"`
+	RateCycleEnd                    time.Time                     `db:"rate_cycle_end"`
+	TrafficDistributionListID       uuid.UUID                     `db:"traffic_distribution_list_id"`
+	TrafficDistributionList         TrafficDistributionList       `belongs_to:"traffic_distribution_list"`
+	TransportationServiceProviderID uuid.UUID                     `db:"transportation_service_provider_id"`
+	TransportationServiceProvider   TransportationServiceProvider `belongs_to:"transportation_service_provider"`
+	QualityBand                     *int                          `db:"quality_band"`
+	BestValueScore                  float64                       `db:"best_value_score"`
+	LinehaulRate                    unit.DiscountRate             `db:"linehaul_rate"`
+	SITRate                         unit.DiscountRate             `db:"sit_rate"`
+	OfferCount                      int                           `db:"offer_count"`
 }
 
 // TransportationServiceProviderPerformances is a handy type for multiple TransportationServiceProviderPerformance structs

@@ -1,4 +1,4 @@
-import { getPublicClient, checkResponse } from 'shared/api';
+import { getPublicClient, checkResponse } from 'shared/Swagger/api';
 import { formatPayload } from 'shared/utils';
 
 // SHIPMENT QUEUE
@@ -54,6 +54,28 @@ export async function RejectShipment(shipmentId, reason) {
     payload: { reason },
   });
   checkResponse(response, 'failed to accept shipment due to server error');
+  return response.body;
+}
+
+export async function TransportShipment(shipmentId, payload) {
+  const client = await getPublicClient();
+  const payloadDef = client.spec.definitions.ActualPickupDate;
+  const response = await client.apis.shipments.transportShipment({
+    shipmentId,
+    payload: formatPayload(payload, payloadDef),
+  });
+  checkResponse(response, 'failed to pick up shipment due to server error');
+  return response.body;
+}
+
+export async function DeliverShipment(shipmentId, payload) {
+  const client = await getPublicClient();
+  const payloadDef = client.spec.definitions.ActualDeliveryDate;
+  const response = await client.apis.shipments.deliverShipment({
+    shipmentId,
+    payload: formatPayload(payload, payloadDef),
+  });
+  checkResponse(response, 'failed to pick up shipment due to server error');
   return response.body;
 }
 
