@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -176,6 +177,26 @@ func (s *Shipment) Complete() error {
 
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
+	// TODO: These values should be ultimately calculated, but we're hard-coding them for now.
+	// TODO: Remove after proper calculations are in place.
+	if s.Status == ShipmentStatusSUBMITTED {
+		if s.EstimatedPackDays == nil {
+			s.EstimatedPackDays = swag.Int64(3)
+		}
+		if s.EstimatedTransitDays == nil {
+			s.EstimatedTransitDays = swag.Int64(10)
+		}
+		if s.DeliveryDate == nil {
+			if s.RequestedPickupDate != nil {
+				newDate := s.RequestedPickupDate.AddDate(0, 0, int(*s.EstimatedTransitDays))
+				s.DeliveryDate = &newDate
+			}
+		}
+		if s.ActualPickupDate == nil {
+			s.ActualPickupDate = s.RequestedPickupDate
+		}
+	}
+
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record
 	// is created/updated.
 	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)

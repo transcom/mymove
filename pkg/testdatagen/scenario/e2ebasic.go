@@ -388,7 +388,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	_, err := testdatagen.MakeTSPPerformance(db,
+	_, err := testdatagen.MakeTSPPerformanceDeprecated(db,
 		tspUser.TransportationServiceProvider,
 		*offer2.Shipment.TrafficDistributionList,
 		models.IntPointer(3),
@@ -894,7 +894,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		},
 	})
 
-	_, err := testdatagen.MakeTSPPerformance(db,
+	testdatagen.MakeTSPPerformanceDeprecated(db,
 		tspUser.TransportationServiceProvider,
 		*offer9.Shipment.TrafficDistributionList,
 		models.IntPointer(3),
@@ -902,9 +902,6 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		5,
 		unit.DiscountRate(0.50),
 		unit.DiscountRate(0.55))
-	if err != nil {
-		log.Panic(err)
-	}
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{

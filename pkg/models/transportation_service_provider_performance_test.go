@@ -94,7 +94,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, .2, .1)
+	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, mps, 0, .2, .1)
 
 	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
 	if err != nil {
@@ -120,7 +120,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 		},
 	})
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, .2, .3)
+	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, mps, 0, .2, .3)
 	band := 1
 
 	err := AssignQualityBandToTSPPerformance(suite.db, band, perf.ID)
@@ -154,11 +154,11 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.db)
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0, .5, .6)
+		testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, 15, 0, .5, .6)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
 	mpsTSP := testdatagen.MakeDefaultTSP(suite.db)
-	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0, .2, .9)
+	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, mpsTSP, tdl, nil, mps-1, 0, .2, .9)
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -193,9 +193,9 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0, .4, .4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0, .4, .4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0, .4, .4)
 
 	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
@@ -377,11 +377,11 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	tsp4 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp5 := testdatagen.MakeDefaultTSP(suite.db)
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0, .2, .2)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0, .1, .1)
-	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0, .2, .2)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .1, .1)
 
 	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
@@ -415,9 +415,9 @@ func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
 	// What matter is the BVS score order; offer count has no influence.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0, .5, .5)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1, .3, .9)
-	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1, .1, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, nil, 90, 0, .5, .5)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, nil, 50, 1, .3, .9)
+	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, nil, 15, 1, .1, .3)
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -454,8 +454,8 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
 	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0, .3, .4)
-	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1, .9, .7)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, nil, mps+1, 0, .3, .4)
+	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, nil, mps-1, 1, .9, .7)
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -489,7 +489,7 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	foundTSPP, err := testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
+	foundTSPP, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
 	if err != nil {
 		t.Errorf("Failed to MakeTSPPerformance for found TSPP: %v", err)
 	}
@@ -509,7 +509,7 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 		},
 	})
 	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
 
 	perfGroups, err := FetchUnbandedTSPPerformanceGroups(suite.db)
 	if err != nil {
