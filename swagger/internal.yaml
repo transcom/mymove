@@ -1429,7 +1429,7 @@ definitions:
         example: "2018-04-26"
         readOnly: true
         x-nullable: true
-      delivery_date:
+      actual_delivery_date:
         type: string
         format: date
         example: "2018-04-26"
@@ -1894,12 +1894,16 @@ definitions:
       - AWARDED
       - APPROVED
       - IN_TRANSIT
+      - DELIVERED
+      - COMPLETED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       AWARDED: Awarded
       APPROVED: Approved
       IN_TRANSIT: In Transit
+      DELIVERED: Delivered
+      COMPLETED: Completed
   PPMStatus:
     type: string
     title: PPM status
@@ -2992,6 +2996,37 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
+  /shipments/{shipmentId}/complete:
+    post:
+      summary: Completes a delivered shipment
+      description: Completes a shipment delivered by a TSP. The status of the Shipment will be updated to COMPLETED.
+      operationId: completeHHG
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns updated (completed) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to complete this shipment
+        409:
+          description: the shipment is not in a state to be completed
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
@@ -3837,6 +3872,7 @@ paths:
           - ppm
           - hhg_accepted
           - hhg_delivered
+          - hhg_completed
           - all
           required: true
           description: Queue type to show

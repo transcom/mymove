@@ -147,7 +147,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	var moveDoc MoveDocument
-	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
+	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -281,6 +281,17 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving Move Document's PPM")
+				return transactionError
+			}
+		}
+
+		// Updating the move document can cause the Shipment to be updated
+		if moveDocument.ShipmentID != nil {
+			shipment := moveDocument.Shipment
+
+			if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving Move Document's Shipment")
 				return transactionError
 			}
 		}

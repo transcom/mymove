@@ -388,7 +388,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	_, err := testdatagen.MakeTSPPerformance(db,
+	_, err := testdatagen.MakeTSPPerformanceDeprecated(db,
 		tspUser.TransportationServiceProvider,
 		*offer2.Shipment.TrafficDistributionList,
 		models.IntPointer(3),
@@ -609,6 +609,47 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	models.SaveMoveDependencies(db, &hhg7.Move)
 
 	/*
+	 * Service member with approved shipment ready to be shipped.
+	 */
+	email = "hhg@ship.me"
+
+	shippingOffer := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("86ee8f4b-d5e3-49a3-a09b-f639db9ac9f7")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7091e1d6-f007-474c-a401-3b31f32c1648"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("So Approved"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("9fd22c81-7f5b-419e-bf73-738abf8fb353"),
+			Locator:          "SHIPME",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("1f363629-ddf2-4d0d-9939-f32dab0ec3d2"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAPPROVED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	shippingShipment := shippingOffer.Shipment
+	shippingShipment.Move.Submit()
+	models.SaveMoveDependencies(db, &shippingShipment.Move)
+
+	/*
 	 * Service member with approved basics and accepted shipment
 	 */
 	email = "hhg@accept.ed"
@@ -738,11 +779,139 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg10.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg10.Move)
 
-	// /*
-	//  * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
-	//  */
+	/*
+	 * Service member with completed shipment
+	 */
+	email = "hhg@com.pleted"
+
+	offer11 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("4449dd2a-a23f-4967-a035-3bc9987c6848")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("5559dd2a-a23f-4967-a035-3bc9987c6824"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForApprove"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("9992270d-4a6f-44ea-82f6-ae3cf3277c5d"),
+			Locator:          "NOCHKA",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("777f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusCOMPLETED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg11 := offer11.Shipment
+	hhg11.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg11.Move)
+
+	/*
+	 * Service member with approved basics and accepted shipment to be approved
+	 */
+	email = "hhg@delivered.tocomplete"
+
+	offer12 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("ab9fd68e-4461-4ba8-b630-9618b913e229")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("ab9fd68e-4461-4ba8-b630-9618b913e229"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForApprove"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("abcd6b2f-9ef2-48be-b4ee-1c1e0a1456ef"),
+			Locator:          "SSETZN",
+			SelectedMoveType: models.StringPointer("HHG"),
+			Status:           models.MoveStatusAPPROVED,
+		},
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("54321"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("ab7e2e3e-9bff-4bb0-b301-f97ad03350c1"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusDELIVERED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg12 := offer12.Shipment
+	hhg12.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg12.Move)
+
+	/*
+	 * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
+	 */
 	MakeHhgFromAwardedToAcceptedGBLReady(db, tspUser)
 
+	/*
+	 * Service member with uploaded orders and an approved shipment
+	 */
+	email = "hhg@premo.ve"
+
+	offer13 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("8f6b87f1-20ad-4c50-a855-ab66e222c7c3")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1a98be36-5c4c-4056-b16f-d5a6c65b8569"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("01d85649-18c2-44ad-854d-da8884579f42"),
+			Locator:          "PREMVE",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("fd76c4fc-a2fb-45b6-a3a6-7c35357ab79a"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAWARDED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg13 := offer13.Shipment
+	hhg13.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg13.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
@@ -808,7 +977,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		},
 	})
 
-	_, err := testdatagen.MakeTSPPerformance(db,
+	testdatagen.MakeTSPPerformanceDeprecated(db,
 		tspUser.TransportationServiceProvider,
 		*offer9.Shipment.TrafficDistributionList,
 		models.IntPointer(3),
@@ -816,9 +985,6 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		5,
 		unit.DiscountRate(0.50),
 		unit.DiscountRate(0.55))
-	if err != nil {
-		log.Panic(err)
-	}
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{

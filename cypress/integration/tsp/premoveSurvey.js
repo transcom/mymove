@@ -19,7 +19,7 @@ function tspUserEntersPremoveSurvey() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('BACON1')
+    .contains('PREMVE')
     .dblclick();
 
   cy.location().should(loc => {
