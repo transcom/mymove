@@ -28,13 +28,15 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return movedocop.NewCreateGenericMoveDocumentForbidden()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
+		return handlers.ResponseForError(h.Logger(), err)
 	}
+
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, shipment.Move.ID)
 	if err != nil {
@@ -86,12 +88,13 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return movedocop.NewCreateGenericMoveDocumentForbidden()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	// Fetch move document from move doc id

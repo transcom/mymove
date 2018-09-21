@@ -75,15 +75,16 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return movedocop.NewCreateGenericMoveDocumentUnauthorized()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return movedocop.NewCreateGenericMoveDocumentForbidden()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	// Validate that this move belongs to the current user
+	// Fetch move
 	move, err := models.FetchMove(h.DB(), session, shipment.Move.ID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
@@ -91,7 +92,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 
 	payload := params.CreateGenericMoveDocumentPayload
 
-	// Fetch uploads to confirm ownership
+	// Fetch uploads
 	uploadIds := payload.UploadIds
 	if len(uploadIds) == 0 {
 		return movedocop.NewCreateGenericMoveDocumentBadRequest()

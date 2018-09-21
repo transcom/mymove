@@ -1,7 +1,6 @@
 package publicapi
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -317,17 +316,16 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		fmt.Println("HIT erROR FOR UNAUTHED TSP", err)
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return shipmentop.NewCreateGovBillOfLadingUnauthorized()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return shipmentop.NewCreateGovBillOfLadingForbidden()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
+		return handlers.ResponseForError(h.Logger(), err)
 	}
-
 	// Don't allow GBL generation for shipments that already have a GBL move document
 	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
 	if len(extantGBLS) > 0 {
