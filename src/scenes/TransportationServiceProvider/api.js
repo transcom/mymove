@@ -68,6 +68,17 @@ export async function TransportShipment(shipmentId, payload) {
   return response.body;
 }
 
+export async function DeliverShipment(shipmentId, payload) {
+  const client = await getPublicClient();
+  const payloadDef = client.spec.definitions.ActualDeliveryDate;
+  const response = await client.apis.shipments.deliverShipment({
+    shipmentId,
+    payload: formatPayload(payload, payloadDef),
+  });
+  checkResponse(response, 'failed to pick up shipment due to server error');
+  return response.body;
+}
+
 export async function PatchShipment(shipmentId, shipment) {
   const client = await getPublicClient();
   const payloadDef = client.spec.definitions.Shipment;
