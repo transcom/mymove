@@ -9,7 +9,7 @@ import (
 
 // This package prettily prints out our Pop models. It prints out models one
 // field at a time and recursively prints out nested models and arrays.
-// For models that are empty, it will print << not loaded >> instead of recursing further.
+// For models that are empty, it will print << zero value >> instead of recursing further.
 // This was written to make debugging easier, but could also be useful for logging object trees.
 
 // Usage:
@@ -54,8 +54,7 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 		// Check to see if the struct is empty, in which case, we just print that it's empty
 		zeroValue := reflect.Zero(modelType).Interface()
 		if reflect.DeepEqual(zeroValue, modelValue.Interface()) {
-			fmt.Println("WOAH IS ZERO")
-			return "<<zero value>>"
+			return "<< zero value >>"
 		}
 
 		prettyString += "{\n"
