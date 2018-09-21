@@ -19,8 +19,8 @@ const DocumentContent = ({ contentType, filename, url }) => (
 );
 
 DocumentContent.propTypes = {
-  contentType: PropTypes.string,
-  filename: PropTypes.string,
+  contentType: PropTypes.string.isRequired,
+  filename: PropTypes.string.isRequired,
   url: PropTypes.string.isRequired,
 };
 

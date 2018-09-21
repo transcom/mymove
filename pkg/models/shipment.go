@@ -51,7 +51,7 @@ type Shipment struct {
 	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
 	ServiceMember                       *ServiceMember           `belongs_to:"service_member"`
 	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
-	DeliveryDate                        *time.Time               `json:"delivery_date" db:"delivery_date"`
+	ActualDeliveryDate                  *time.Time               `json:"actual_delivery_date" db:"actual_delivery_date"`
 	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
 	SourceGBLOC                         *string                  `json:"source_gbloc" db:"source_gbloc"`
@@ -112,7 +112,7 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 // Submit marks the Shipment request for review
 func (s *Shipment) Submit() error {
-	if s.Status != ShipmentStatusDRAFT && s.Status != ShipmentStatusAWARDED {
+	if s.Status != ShipmentStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	now := time.Now()
@@ -139,6 +139,15 @@ func (s *Shipment) Accept() error {
 	return nil
 }
 
+// Reject returns the Shipment to the Submitted state. Must be in an Awarded state.
+func (s *Shipment) Reject() error {
+	if s.Status != ShipmentStatusAWARDED {
+		return errors.Wrap(ErrInvalidTransition, "Reject")
+	}
+	s.Status = ShipmentStatusSUBMITTED
+	return nil
+}
+
 // Approve marks the Shipment request as Approved. Must be in an Accepted state.
 func (s *Shipment) Approve() error {
 	if s.Status != ShipmentStatusACCEPTED {
@@ -149,20 +158,22 @@ func (s *Shipment) Approve() error {
 }
 
 // Transport marks the Shipment request as In Transit. Must be in an Approved state.
-func (s *Shipment) Transport() error {
+func (s *Shipment) Transport(actualPickupDate time.Time) error {
 	if s.Status != ShipmentStatusAPPROVED {
 		return errors.Wrap(ErrInvalidTransition, "In Transit")
 	}
 	s.Status = ShipmentStatusINTRANSIT
+	s.ActualPickupDate = &actualPickupDate
 	return nil
 }
 
-// Deliver marks the Shipment request as Delivered. Must be in a Delivered state.
-func (s *Shipment) Deliver() error {
+// Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
+func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	if s.Status != ShipmentStatusINTRANSIT {
-		return errors.Wrap(ErrInvalidTransition, "Delivered")
+		return errors.Wrap(ErrInvalidTransition, "Deliver")
 	}
 	s.Status = ShipmentStatusDELIVERED
+	s.ActualDeliveryDate = &actualDeliveryDate
 	return nil
 }
 
@@ -186,10 +197,10 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 		if s.EstimatedTransitDays == nil {
 			s.EstimatedTransitDays = swag.Int64(10)
 		}
-		if s.DeliveryDate == nil {
+		if s.ActualDeliveryDate == nil {
 			if s.RequestedPickupDate != nil {
 				newDate := s.RequestedPickupDate.AddDate(0, 0, int(*s.EstimatedTransitDays))
-				s.DeliveryDate = &newDate
+				s.ActualDeliveryDate = &newDate
 			}
 		}
 		if s.ActualPickupDate == nil {
@@ -362,9 +373,9 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		case "PICKUP_DATE_DESC":
 			*orderBy = "actual_pickup_date DESC"
 		case "DELIVERY_DATE_ASC":
-			*orderBy = "delivery_date ASC"
+			*orderBy = "actual_delivery_date ASC"
 		case "DELIVERY_DATE_DESC":
-			*orderBy = "delivery_date DESC"
+			*orderBy = "actual_delivery_date DESC"
 		default:
 			// Any other input is ignored
 			*orderBy = ""
@@ -540,7 +551,7 @@ func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	}
 
 	// Move the shipment back to Submitted and Reject the shipment offer.
-	err = shipment.Submit()
+	err = shipment.Reject()
 	if err != nil {
 		return shipment, shipmentOffer, nil, err
 	}

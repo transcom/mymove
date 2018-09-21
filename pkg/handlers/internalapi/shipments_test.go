@@ -275,3 +275,26 @@ func (suite *HandlerSuite) TestCompleteHHGHandler() {
 	okResponse := response.(*shipmentop.CompleteHHGOK)
 	suite.Equal("COMPLETED", string(okResponse.Payload.Status))
 }
+
+//func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
+//	// Given: an office User
+//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+//
+//	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{})
+//	suite.MustSave(&shipment)
+//
+//	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+//
+//	path := "/shipments/shipment_id/invoice"
+//	req := httptest.NewRequest("POST", path, nil)
+//	req = suite.AuthenticateOfficeRequest(req, officeUser)
+//
+//	params := shipmentop.SendHHGInvoiceParams{
+//		HTTPRequest: req,
+//		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+//	}
+//
+//	// assert we got back the OK response
+//	response := handler.Handle(params)
+//	suite.Equal(shipmentop.NewSendHHGInvoiceOK(), response)
+//}

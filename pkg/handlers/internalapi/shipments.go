@@ -1,6 +1,9 @@
 package internalapi
 
 import (
+	"fmt"
+	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -9,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -43,7 +47,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
 		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
-		DeliveryDate:                        handlers.FmtDatePtr(s.DeliveryDate),
+		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		EstimatedPackDays:                   s.EstimatedPackDays,
@@ -338,4 +342,65 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
 	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
+}
+
+// ShipmentInvoiceHandler sends an invoice through GEX to Syncada
+type ShipmentInvoiceHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle is the handler
+func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsOfficeUser() {
+		return shipmentop.NewSendHHGInvoiceForbidden()
+	}
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	var shipment models.Shipment
+
+	err := h.DB().Eager(
+		"Move.Orders",
+		"PickupAddress",
+		"DeliveryAddress",
+		"ServiceMember",
+	).Find(&shipment, shipmentID)
+
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	// Run rate engine on shipment --> returns CostByShipment Struct
+	shipmentCost, err := engine.HandleRunOnShipment(shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	var costsByShipments []rateengine.CostByShipment
+	costsByShipments = append(costsByShipments, shipmentCost)
+
+	// pass value into generator --> edi string
+	edi, err := ediinvoice.Generate858C(costsByShipments, h.DB())
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	fmt.Print(edi) // to use for demo visual
+
+	// send edi through gex post api
+	transactionName := "placeholder"
+	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), edi, transactionName)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// get response from gex --> use status as status for this invoice call
+	switch responseStatus {
+	case 200:
+		return shipmentop.NewSendHHGInvoiceOK()
+	default:
+		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
+		return shipmentop.NewSendHHGInvoiceInternalServerError()
+	}
 }

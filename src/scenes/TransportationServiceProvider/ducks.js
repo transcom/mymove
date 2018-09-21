@@ -3,6 +3,8 @@ import {
   PatchShipment,
   AcceptShipment,
   RejectShipment,
+  TransportShipment,
+  DeliverShipment,
   CreateServiceAgent,
   IndexServiceAgents,
   UpdateServiceAgent,
@@ -17,6 +19,8 @@ const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
 const generateGBLType = 'GENERATE_GBL';
 const rejectShipmentType = 'REJECT_SHIPMENT';
+const transportShipmentType = 'TRANSPORT_SHIPMENT';
+const deliverShipmentType = 'TRANSPORT_SHIPMENT';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
@@ -31,10 +35,17 @@ const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
   acceptShipmentType,
 );
-const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
 const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
   rejectShipmentType,
 );
+const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  transportShipmentType,
+);
+const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  deliverShipmentType,
+);
+
+const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
 
 const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
   indexServiceAgentsType,
@@ -79,6 +90,16 @@ export const generateGBL = ReduxHelpers.generateAsyncActionCreator(
 export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(
   rejectShipmentType,
   RejectShipment,
+);
+
+export const transportShipment = ReduxHelpers.generateAsyncActionCreator(
+  transportShipmentType,
+  TransportShipment,
+);
+
+export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(
+  deliverShipmentType,
+  DeliverShipment,
 );
 
 export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
@@ -143,6 +164,12 @@ const initialState = {
   shipmentIsRejecting: false,
   shipmentHasRejectError: null,
   shipmentHasRejectSuccess: false,
+  shipmentIsSendingTransport: false,
+  shipmentHasTransportError: null,
+  shipmentHasTransportSuccess: false,
+  shipmentIsDelivering: false,
+  shipmentHasDeliverError: null,
+  shipmentHasDeliverSuccess: false,
   serviceAgentsAreLoading: false,
   serviceAgentsHasLoadSucces: false,
   serviceAgentsHasLoadError: null,
@@ -237,6 +264,44 @@ export function tspReducer(state = initialState, action) {
         shipmentIsRejecting: false,
         shipmentHasRejectSuccess: false,
         shipmentHasRejectError: null,
+        error: action.error.message,
+      });
+    case TRANSPORT_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsSendingTransport: true,
+        shipmentHasTransportSuccess: false,
+      });
+    case TRANSPORT_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsSendingTransport: false,
+        shipmentHasTransportSuccess: true,
+        shipmentHasTransportError: false,
+        shipment: action.payload,
+      });
+    case TRANSPORT_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsSendingTransport: false,
+        shipmentHasTransportSuccess: false,
+        shipmentHasTransportError: null,
+        error: action.error.message,
+      });
+    case DELIVER_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsDelivering: true,
+        shipmentHasDeliverSuccess: false,
+      });
+    case DELIVER_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsDelivering: false,
+        shipmentHasDeliverSuccess: true,
+        shipmentHasDeliverError: false,
+        shipment: action.payload,
+      });
+    case DELIVER_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsDelivering: false,
+        shipmentHasDeliverSuccess: false,
+        shipmentHasDeliverError: null,
         error: action.error.message,
       });
 
