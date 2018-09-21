@@ -22,7 +22,7 @@ function tspUserGeneratesGBL() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   cy
@@ -31,7 +31,7 @@ function tspUserGeneratesGBL() {
     .should('be.enabled');
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // If clicked too soon, there's a server error
