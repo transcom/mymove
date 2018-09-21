@@ -5,9 +5,16 @@ import (
 	"reflect"
 	"strings"
 	"time"
-
-	"github.com/gobuffalo/uuid"
 )
+
+// This package prettily prints out our Pop models. It prints out models one
+// field at a time and recursively prints out nested models and arrays.
+// For models that are empty, it will print << not loaded >> instead of recursing further.
+// This was written to make debugging easier, but could also be useful for logging object trees.
+
+// Usage:
+// import "github.com/transcom/mymove/pkg/dbfmt"
+// dbfmt.Println("this is a model: ", model)
 
 func recursivePrettyStringWithPadding(model interface{}, padding string) string {
 	prettyString := ""
@@ -44,18 +51,11 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 			prettyString += fmt.Sprintf("\n%s]", padding)
 		}
 	case reflect.Struct:
-		// check to see if it is one of our models. We don't want to be recursing down otherwise.
-		idField := modelValue.FieldByName("ID")
-		if idField == (reflect.Value{}) {
-			return fmt.Sprintf("%v", modelValue.Interface())
-		}
-
-		// If we are a struct with a field named ID and that field is the default
-		// value, then this model hasn't been loaded and we won't display it.
-		id := idField.Interface().(uuid.UUID)
-		emptyUUID := uuid.UUID{}
-		if id == emptyUUID {
-			return "<<not loaded>>"
+		// Check to see if the struct is empty, in which case, we just print that it's empty
+		zeroValue := reflect.Zero(modelType).Interface()
+		if reflect.DeepEqual(zeroValue, modelValue.Interface()) {
+			fmt.Println("WOAH IS ZERO")
+			return "<<zero value>>"
 		}
 
 		prettyString += "{\n"
