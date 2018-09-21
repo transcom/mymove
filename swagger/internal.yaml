@@ -1293,6 +1293,26 @@ definitions:
       - description
       - created_at
       - updated_at
+  SendGexRequestPayload:
+    type: object
+    properties:
+      transaction_name:
+        type: string
+        title: Transaction Name
+        example: 858-1.edi
+      transaction_body:
+        type: string
+        title: Transaction Body
+        format: textarea
+    required:
+      - transaction_name
+      - transaction_body
+  GexResponsePayload:
+    type: object
+    properties:
+      gex_response:
+        type: string
+        title: The HTTP response body received from GEX
   TShirtSize:
     type: string
     x-nullable: true
@@ -3027,6 +3047,35 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
+  /shipments/{shipmentId}/invoice:
+    post:
+      summary: Sends an invoice to Syncada through GEX
+      description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
+      operationId: sendHHGInvoice
+      tags:
+      - shipments
+      parameters:
+      - name: shipmentId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the shipment
+      responses:
+        200:
+          description: invoice was submitted successfully
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to send this invoice
+        409:
+          description: the shipment is not in a state to be invoiced
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
@@ -3910,3 +3959,25 @@ paths:
           description: personally procured move not found
         409:
           description: Requested weight estimate is above allotted entitlement
+  /gex/send_request:
+    post:
+      summary: Sends a request to GEX
+      description: Sends a request to GEX
+      operationId: sendGexRequest
+      tags:
+        - gex
+      parameters:
+        - in: body
+          name: sendGexRequestPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SendGexRequestPayload'
+      responses:
+        200:
+          description: sent request
+          schema:
+            $ref: '#/definitions/GexResponsePayload'
+        400:
+          description: invalid request
+        500:
+          description: internal server error

@@ -21,6 +21,9 @@ describe('office user finds the shipment', function() {
   it('office user with approved move completes delivered HHG shipment', function() {
     officeUserCompletesHHG();
   });
+  it('office user with completed move sends invoice', function() {
+    officeUserSendsShipmentInvoice();
+  });
 });
 
 function officeUserViewsMoves() {
@@ -238,4 +241,46 @@ function officeUserCompletesHHG() {
     .should('be.disabled');
 
   cy.get('.status').contains('Completed');
+}
+
+function officeUserSendsShipmentInvoice() {
+  // Open completed hhg queue
+  cy.visit('/queues/hhg_completed');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
+  });
+
+  // Find move and open it
+  cy
+    .get('div')
+    .contains('SSETZN')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Basics Approved
+  cy.get('.status').contains('Approved');
+
+  // Click on HHG tab
+  cy
+    .get('span')
+    .contains('HHG')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  // Submit Invoice for HHG
+  cy.get('.status').contains('Completed');
+
+  cy.get('button').contains('Submit HHG Invoice');
+  // .click();  TODO: figure out how not to make call to GEX
+
+  // cy
+  //   .get('button')
+  //   .contains('Complete Shipment')
+  //   .should('be.disabled');
 }

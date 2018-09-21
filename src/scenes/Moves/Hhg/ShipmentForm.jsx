@@ -4,8 +4,9 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 
+import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
+import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
@@ -20,13 +21,12 @@ import {
 import './ShipmentForm.css';
 
 const formName = 'shipment_form';
+const getRequestLabel = 'ShipmentForm.getShipment';
+const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 
 export class ShipmentForm extends Component {
-  state = {
-    shipmentError: null,
-  };
-
   componentDidMount() {
     this.loadShipment();
   }
@@ -41,9 +41,13 @@ export class ShipmentForm extends Component {
   }
 
   loadShipment() {
-    const currentID = get(this.props, 'currentShipment.id');
-    if (currentID) {
-      this.props.getShipment(this.props.currentShipment.move_id, currentID);
+    const shipmentID = get(this.props, 'currentShipment.id');
+    if (shipmentID) {
+      this.props.getShipment(
+        getRequestLabel,
+        shipmentID,
+        this.props.currentShipment.move_id,
+      );
     }
   }
 
@@ -53,7 +57,12 @@ export class ShipmentForm extends Component {
     const currentShipmentId = get(this.props, 'currentShipment.id');
 
     return this.props
-      .createOrUpdateShipment(moveId, shipment, currentShipmentId)
+      .createOrUpdateShipment(
+        createOrUpdateRequestLabel,
+        moveId,
+        shipment,
+        currentShipmentId,
+      )
       .then(data => {
         return this.props.setCurrentShipment(data.body);
       })
@@ -86,7 +95,7 @@ export class ShipmentForm extends Component {
         additionalValues={{ requested_pickup_date: requestedPickupDate }}
       >
         <Fragment>
-          {this.state.shipmentError && (
+          {this.props.error && (
             <div className="usa-grid">
               <div className="usa-width-one-whole error-message">
                 <Alert type="error" heading="An error occurred">
@@ -136,11 +145,12 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const shipment = currentShipment(state);
   const props = {
-    schema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    schema: getSwaggerDefinition('Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
+    error: getLastError(state, getRequestLabel),
   };
   return props;
 }
