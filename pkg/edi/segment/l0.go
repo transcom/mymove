@@ -26,10 +26,17 @@ func (s *L0) String(delimiter string) string {
 		weight = strconv.FormatFloat(s.Weight, 'f', 3, 64)
 	}
 
+	var billedRatedAsQuantity string
+	if s.BilledRatedAsQuantity == 0 {
+		billedRatedAsQuantity = ""
+	} else {
+		billedRatedAsQuantity = strconv.FormatFloat(s.BilledRatedAsQuantity, 'f', 3, 64)
+	}
+
 	elements := []string{
 		"L0",
 		strconv.Itoa(s.LadingLineItemNumber),
-		strconv.FormatFloat(s.BilledRatedAsQuantity, 'f', 3, 64),
+		billedRatedAsQuantity,
 		s.BilledRatedAsQualifier,
 		weight,
 		s.WeightQualifier,

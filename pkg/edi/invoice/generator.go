@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
-const delimiter = "~"
+const delimiter = "*"
 const dateFormat = "20060102"
 const timeFormat = "1504"
 const senderCode = "MYMOVE"
