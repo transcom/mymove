@@ -21,7 +21,6 @@ import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeReducer } from 'scenes/Office/ducks';
 import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
-import { gexReducer } from 'scenes/Gex/ducks';
 
 // Entities
 import moveDocuments, {
@@ -81,7 +80,6 @@ export const appReducer = combineReducers(
     transportationOffices: transportationOfficeReducer,
     ppmIncentive: officePpmReducer,
     entities: entititesReducer,
-    gex: gexReducer,
   }),
 );
 
