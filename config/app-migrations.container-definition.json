@@ -69,5 +69,6 @@
   },
   "mountPoints": [],
   "portMappings": [],
-  "volumesFrom": []
+  "volumesFrom": [],
+  "readonlyRootFilesystem": true
 }
