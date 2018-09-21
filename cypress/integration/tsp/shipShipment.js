@@ -7,6 +7,7 @@ describe('TSP User Ships a Shipment', function() {
   });
   it('tsp user Picks Up a shipment', function() {
     tspUserPicksUpShipment();
+    tspUserDeliversShipment();
   });
 });
 
@@ -92,4 +93,72 @@ function tspUserPicksUpShipment() {
     .click();
 
   cy.get('li').contains('In_transit');
+}
+
+function tspUserDeliversShipment() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/approved\/shipments\/[^/]+/);
+  });
+
+  // Click the Transport button
+  cy
+    .get('div')
+    .contains('Enter Delivery')
+    .click();
+
+  // Done button should be disabled.
+  cy
+    .get('button')
+    .contains('Done')
+    .should('be.disabled');
+
+  // Pick a date!
+  cy
+    .get('div')
+    .contains('Actual Delivery Date')
+    .get('input')
+    .click();
+
+  cy
+    .get('div')
+    .contains('13')
+    .click();
+
+  // Cancel
+  cy
+    .get('button')
+    .contains('Cancel')
+    .click();
+
+  // Wash, Rinse, Repeat
+  // Click the Transport button
+  cy
+    .get('div')
+    .contains('Enter Delivery')
+    .click();
+
+  // Done button should be disabled.
+  cy
+    .get('button')
+    .contains('Done')
+    .should('be.disabled');
+
+  // Pick a date!
+  cy
+    .get('div')
+    .contains('Actual Delivery Date')
+    .get('input')
+    .click();
+
+  cy
+    .get('div')
+    .contains('13')
+    .click();
+
+  cy
+    .get('button')
+    .contains('Done')
+    .click();
+
+  cy.get('li').contains('Delivered');
 }

@@ -706,9 +706,9 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 		ActualDeliveryDate: handlers.FmtDatePtr(&actualDeliveryDate),
 	}
 	params := shipmentop.DeliverShipmentParams{
-		HTTPRequest:        req,
-		ShipmentID:         *handlers.FmtUUID(shipment.ID),
-		ActualDeliveryDate: &body,
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		Payload:     &body,
 	}
 
 	response := handler.Handle(params)

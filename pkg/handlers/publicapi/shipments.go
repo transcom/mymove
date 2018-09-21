@@ -233,7 +233,7 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 		return shipmentop.NewTransportShipmentBadRequest()
 	}
 
-	actualPickupDate := (time.Time)(*params.ActualPickupDate.ActualPickupDate)
+	actualPickupDate := (time.Time)(*params.Payload.ActualPickupDate)
 
 	err = shipment.Transport(actualPickupDate)
 	if err != nil {
@@ -273,7 +273,7 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 		return shipmentop.NewDeliverShipmentBadRequest()
 	}
 
-	actualDeliveryDate := (time.Time)(*params.ActualDeliveryDate.ActualDeliveryDate)
+	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
 
 	err = shipment.Deliver(actualDeliveryDate)
 	if err != nil {

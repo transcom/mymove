@@ -20,9 +20,11 @@ import {
   generateGBL,
   rejectShipment,
   transportShipment,
+  deliverShipment,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+import FormButton from './FormButton';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -72,42 +74,26 @@ let PickupDateForm = props => {
 
 PickupDateForm = reduxForm({ form: 'pickup_shipment' })(PickupDateForm);
 
-class PickupPanel extends Component {
-  state = {
-    displayState: 'BUTTON',
-  };
+let DeliveryDateForm = props => {
+  const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
-  setButtonState = () => {
-    this.setState({ displayState: 'BUTTON' });
-  };
-
-  setEnterDateState = () => {
-    this.setState({ displayState: 'ENTER_DATE' });
-  };
-
-  buttonView = () => {
-    return <button onClick={this.setEnterDateState}>Enter Pickup</button>;
-  };
-
-  enterDateView = () => {
-    const { schema, onSubmit } = this.props;
-    return (
-      <PickupDateForm
-        onCancel={this.setButtonState}
-        schema={schema}
-        onSubmit={onSubmit}
+  return (
+    <form onSubmit={handleSubmit}>
+      <SwaggerField
+        fieldName="actual_delivery_date"
+        swagger={schema}
+        required
       />
-    );
-  };
 
-  render() {
-    const viewStates = {
-      BUTTON: this.buttonView(),
-      ENTER_DATE: this.enterDateView(),
-    };
-    return viewStates[this.state.displayState];
-  }
-}
+      <button onClick={onCancel}>Cancel</button>
+      <button type="submit" disabled={submitting || !valid}>
+        Done
+      </button>
+    </form>
+  );
+};
+
+DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
 class ShipmentInfo extends Component {
   state = {
@@ -137,12 +123,16 @@ class ShipmentInfo extends Component {
   pickupShipment = values =>
     this.props.transportShipment(this.props.shipment.id, values);
 
+  deliverShipment = values =>
+    this.props.deliverShipment(this.props.shipment.id, values);
+
   render() {
     const last_name = get(this.props.shipment, 'service_member.last_name');
     const first_name = get(this.props.shipment, 'service_member.first_name');
     const locator = get(this.props.shipment, 'move.locator');
     const awarded = this.props.shipment.status === 'AWARDED';
     const approved = this.props.shipment.status === 'APPROVED';
+    const inTransit = this.props.shipment.status === 'IN_TRANSIT';
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -220,9 +210,19 @@ class ShipmentInfo extends Component {
                 />
               )}
               {approved && (
-                <PickupPanel
+                <FormButton
+                  formComponent={PickupDateForm}
                   schema={this.props.pickupSchema}
                   onSubmit={this.pickupShipment}
+                  buttonTitle="Enter Pickup"
+                />
+              )}
+              {inTransit && (
+                <FormButton
+                  formComponent={DeliveryDateForm}
+                  schema={this.props.deliverSchema}
+                  onSubmit={this.deliverShipment}
+                  buttonTitle="Enter Delivery"
                 />
               )}
               {this.props.generateGBLError && (
@@ -263,6 +263,7 @@ const mapStateToProps = state => ({
   generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
   error: get(state, 'tsp.error'),
   pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
+  deliverSchema: get(state, 'swagger.spec.definitions.ActualDeliveryDate', {}),
 });
 
 const mapDispatchToProps = dispatch =>
@@ -274,6 +275,7 @@ const mapDispatchToProps = dispatch =>
       generateGBL,
       rejectShipment,
       transportShipment,
+      deliverShipment,
     },
     dispatch,
   );
