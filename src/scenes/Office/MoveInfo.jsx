@@ -186,6 +186,7 @@ class MoveInfo extends Component {
     const isPPM = !isEmpty(this.props.officePPM);
     const isHHG = !isEmpty(this.props.officeHHG);
     const pathnames = this.props.location.pathname.split('/');
+    const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
     const currentTab = pathnames[pathnames.length - 1];
 
     const showDocumentViewer = this.props.context.flags.documentViewer;
@@ -398,10 +399,11 @@ class MoveInfo extends Component {
               <button
                 onClick={this.submitInvoice}
                 disabled={
+                  !hhgCompleted ||
                   !hhgApproved ||
                   !moveApproved ||
                   !ordersComplete ||
-                  this.props.hhgInvoiceHasSendSuccess ||
+                  invoiceSuccess ||
                   currentTab !== 'hhg'
                 }
               >
