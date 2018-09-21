@@ -23,7 +23,7 @@ function tspUserEntersPremoveSurvey() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   testPremoveSurvey();
