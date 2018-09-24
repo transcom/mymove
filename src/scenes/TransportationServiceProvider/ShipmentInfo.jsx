@@ -51,6 +51,7 @@ class AcceptShipmentPanel extends Component {
           reasonPrompt="Why are you rejecting this shipment?"
           warningPrompt="Are you sure you want to reject this shipment?"
           onConfirm={this.rejectShipment}
+          buttonDisabled={true}
         />
       </div>
     );
