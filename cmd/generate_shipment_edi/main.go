@@ -53,7 +53,7 @@ func main() {
 
 	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: create the proper route/planner
 	for _, shipment := range shipments {
-		costByShipment, err := rateengine.HandleRunRateEngineOnShipment(shipment, engine)
+		costByShipment, err := engine.HandleRunOnShipment(shipment)
 		if err != nil {
 			log.Fatal(err)
 		}
