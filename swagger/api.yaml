@@ -482,6 +482,13 @@ definitions:
         example: Donut
         x-nullable: true
         title: Last Name
+      edipi:
+        type: string
+        format: edipi
+        example: '5789345789'
+        pattern: '^[0-9]{10}$'
+        x-nullable: true
+        title: DoD ID number
       suffix:
         type: string
         example: Jr.
@@ -573,6 +580,11 @@ definitions:
       destination_gbloc:
         $ref: '#/definitions/GBLOC'
         readOnly: true
+      gbl_number:
+        type: string
+        example: 'KKFA9999999'
+        x-nullable: true
+        title: GBL Number
       market:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true

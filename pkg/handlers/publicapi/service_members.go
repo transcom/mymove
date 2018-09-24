@@ -11,6 +11,7 @@ func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessa
 		FirstName:              serviceMember.FirstName,
 		MiddleName:             serviceMember.MiddleName,
 		LastName:               serviceMember.LastName,
+		Edipi:                  serviceMember.Edipi,
 		Suffix:                 serviceMember.Suffix,
 		Telephone:              serviceMember.Telephone,
 		SecondaryTelephone:     serviceMember.SecondaryTelephone,
