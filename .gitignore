@@ -69,3 +69,6 @@ public/swagger-ui/*
 
 cypress/videos
 cypress/screenshots
+
+# XLSX backup files
+~$*.xlsx
