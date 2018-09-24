@@ -358,21 +358,20 @@ type CreateGovBillOfLadingHandler struct {
 func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLadingParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	// Verify that the logged in TSP user exists
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingUnauthorized()
-	}
-
-	// Verify that TSP user is authorized to generate GBL
+	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingForbidden()
+		if err.Error() == "USER_UNAUTHORIZED" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+		if err.Error() == "FETCH_FORBIDDEN" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+		return handlers.ResponseForError(h.Logger(), err)
 	}
-
 	// Don't allow GBL generation for shipments that already have a GBL move document
 	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
 	if len(extantGBLS) > 0 {
@@ -443,6 +442,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		models.MoveDocumentTypeGOVBILLOFLADING,
 		string("Government Bill Of Lading"),
 		swag.String(""),
+		string(apimessages.SelectedMoveTypeHHG),
 	)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
@@ -485,25 +485,5 @@ type GetShipmentClaimsHandler struct {
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h GetShipmentClaimsHandler) Handle(p shipmentop.GetShipmentClaimsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
-}
-
-// GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
-type GetShipmentDocumentsHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentDocumentsHandler) Handle(p shipmentop.GetShipmentDocumentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
-}
-
-// CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
-type CreateShipmentDocumentHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentDocumentHandler) Handle(p shipmentop.CreateShipmentDocumentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }

@@ -97,6 +97,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		unit.Cents(*payload.RequestedAmountCents),
 		*payload.PaymentMethod,
 		models.MovingExpenseType(payload.MovingExpenseType),
+		*move.SelectedMoveType,
 	)
 
 	if err != nil || verrs.HasAny() {
