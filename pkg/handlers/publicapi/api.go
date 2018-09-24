@@ -25,6 +25,9 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	// Blackouts
 
 	// Documents
+	publicAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
+	publicAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
+	publicAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
 
 	// Shipments
 	publicAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler{context}
@@ -33,6 +36,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsRejectShipmentHandler = RejectShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
+	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
 
 	publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{context}
 

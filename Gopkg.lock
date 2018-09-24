@@ -503,17 +503,20 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:ba26b234a639dcc4f44c36433688fe3068ecaf65ca2aa5865914c6616ecd277e"
+  digest = "1:7fced1f5141be44ac5552f11829b8ac964736638453a349f8d26dd3b03e3bd6d"
   name = "github.com/honeycombio/beeline-go"
   packages = [
     ".",
-    "internal",
+    "propagation",
+    "sample",
     "timer",
+    "trace",
+    "wrappers/common",
     "wrappers/hnynethttp",
   ]
   pruneopts = ""
-  revision = "6acc807d0ea48acf418285c0262d71272591326e"
-  version = "v0.1.1"
+  revision = "08f0ed449695b7dbb5f8c464c6373f5387cad956"
+  version = "v0.2.2"
 
 [[projects]]
   digest = "1:cd507d3e666790a625f34d59d5b0c314ce18b914e1ce3a73d0305b96914d66ae"

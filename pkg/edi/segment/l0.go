@@ -18,12 +18,27 @@ type L0 struct {
 
 // String converts L0 to its X12 single line string representation
 func (s *L0) String(delimiter string) string {
+
+	var weight string
+	if s.Weight == 0 {
+		weight = ""
+	} else {
+		weight = strconv.FormatFloat(s.Weight, 'f', 3, 64)
+	}
+
+	var billedRatedAsQuantity string
+	if s.BilledRatedAsQuantity == 0 {
+		billedRatedAsQuantity = ""
+	} else {
+		billedRatedAsQuantity = strconv.FormatFloat(s.BilledRatedAsQuantity, 'f', 3, 64)
+	}
+
 	elements := []string{
 		"L0",
 		strconv.Itoa(s.LadingLineItemNumber),
-		strconv.FormatFloat(s.BilledRatedAsQuantity, 'f', 3, 64),
+		billedRatedAsQuantity,
 		s.BilledRatedAsQualifier,
-		strconv.FormatFloat(s.Weight, 'f', 3, 64),
+		weight,
 		s.WeightQualifier,
 		"",
 		"",

@@ -319,21 +319,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-tls-ciphers
+              only: mk-use-dod-certs
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-tls-ciphers
+              only: mk-use-dod-certs
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-tls-ciphers
+              only: mk-use-dod-certs
 
       - deploy_staging_migrations:
           requires:

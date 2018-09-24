@@ -64,7 +64,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
-			DeliveryDate:            &deliveryDate,
+			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -156,7 +156,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 			Move:                    *move,
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
-			DeliveryDate:            &deliveryDate,
+			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -276,7 +276,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
-			DeliveryDate:            &deliveryDate,
+			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
