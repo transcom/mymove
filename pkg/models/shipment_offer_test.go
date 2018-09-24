@@ -11,8 +11,9 @@ func (suite *ModelSuite) Test_ShipmentOfferValidations() {
 	sa := &ShipmentOffer{}
 
 	var expErrors = map[string][]string{
-		"shipment_id":                        []string{"ShipmentID can not be blank."},
-		"transportation_service_provider_id": []string{"TransportationServiceProviderID can not be blank."},
+		"shipment_id":                                    []string{"ShipmentID can not be blank."},
+		"transportation_service_provider_id":             []string{"TransportationServiceProviderID can not be blank."},
+		"transportation_service_provider_performance_id": []string{"TransportationServiceProviderPerformanceID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(sa, expErrors)
@@ -25,6 +26,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	deliveryDate := time.Now().AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
+	tspp := testdatagen.MakeDefaultTSPPerformance(suite.db)
 
 	sourceGBLOC := "OHAI"
 	market := "dHHG"
@@ -32,15 +34,15 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
-			DeliveryDate:            &deliveryDate,
+			ActualPickupDate:        &pickupDate,
+			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
 		},
 	})
 
-	shipmentOffer, err := CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
+	shipmentOffer, err := CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, tspp.ID, false)
 	suite.Nil(err, "error making ShipmentOffer")
 
 	expectedShipmentOffer := ShipmentOffer{}

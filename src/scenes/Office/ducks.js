@@ -9,10 +9,13 @@ import {
   LoadPPMs,
   ApproveBasics,
   ApprovePPM,
+  ApproveHHG,
+  CompleteHHG,
   ApproveReimbursement,
   CancelMove,
   DownloadPPMAttachments,
   PatchShipment,
+  SendHHGInvoice,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -33,7 +36,10 @@ const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
+const approveHHGType = 'APPROVE_HHG';
+const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
+const completeHHGType = 'COMPLETE_HHG';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
@@ -76,6 +82,14 @@ const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
 const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
+
+const APPROVE_HHG = ReduxHelpers.generateAsyncActionTypes(approveHHGType);
+
+const COMPLETE_HHG = ReduxHelpers.generateAsyncActionTypes(completeHHGType);
+
+const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(
+  sendHHGInvoiceType,
+);
 
 export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
   cancelMoveType,
@@ -163,6 +177,21 @@ export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
 export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
   approvePPMType,
   ApprovePPM,
+);
+
+export const approveHHG = ReduxHelpers.generateAsyncActionCreator(
+  approveHHGType,
+  ApproveHHG,
+);
+
+export const completeHHG = ReduxHelpers.generateAsyncActionCreator(
+  completeHHGType,
+  CompleteHHG,
+);
+
+export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(
+  sendHHGInvoiceType,
+  SendHHGInvoice,
 );
 
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
@@ -314,6 +343,9 @@ const initialState = {
   ppmsHaveLoadSuccess: false,
   ppmHasUpdateError: null,
   ppmHasUpdateSuccess: false,
+  hhgInvoiceIsSending: false,
+  hhgInvoiceHasSendSuccess: false,
+  hhgInvoiceHasFailure: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   moveHasApproveError: false,
@@ -409,6 +441,24 @@ export function officeReducer(state = initialState, action) {
         shipmentIsUpdating: false,
         shipmentPatchSuccess: false,
         shipmentPatchError: true,
+        error: action.error.message,
+      });
+    case SEND_HHG_INVOICE.start:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: true,
+        hhgInvoiceHasSendSuccess: false,
+        hhgInvoiceHasFailure: false,
+      });
+    case SEND_HHG_INVOICE.success:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasSendSuccess: true,
+        hhgInvoiceHasFailure: false,
+      });
+    case SEND_HHG_INVOICE.failure:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasFailure: true,
         error: action.error.message,
       });
 
@@ -589,6 +639,31 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_PPM.failure:
       return Object.assign({}, state, {
         ppmIsApproving: false,
+        error: action.error.message,
+      });
+
+    // HHG STATUS
+    case APPROVE_HHG.success:
+      return Object.assign({}, state, {
+        officeMove: {
+          ...state.officeMove,
+          shipments: [action.payload],
+        },
+      });
+    case APPROVE_HHG.failure:
+      return Object.assign({}, state, {
+        error: action.error.message,
+      });
+
+    case COMPLETE_HHG.success:
+      return Object.assign({}, state, {
+        officeMove: {
+          ...state.officeMove,
+          shipments: [action.payload],
+        },
+      });
+    case COMPLETE_HHG.failure:
+      return Object.assign({}, state, {
         error: action.error.message,
       });
 

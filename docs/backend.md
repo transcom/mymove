@@ -8,6 +8,7 @@
   * [Acronyms](#acronyms)
   * [Style and Conventions](#style-and-conventions)
   * [Querying the Database Safely](#querying-the-database-safely)
+  * [`models.Fetch*` functions](#modelsfetch-functions)
   * [Logging](#logging)
     * [Logging Levels](#logging-levels)
   * [Errors](#errors)
@@ -72,6 +73,7 @@ Avoid:
 ### Style and Conventions
 
 Generally speaking, we will follow the recommendations laid out in [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments). By its own admission, this page:
+
 > _...collects common comments made during reviews of Go code, so that a single detailed explanation can be referred to by shorthands. This is a laundry list of common mistakes, not a style guide._
 
 Despite not being an official style guide, it covers a good amount of scope in a concise format, and should be able to keep our project code fairly consistent.
@@ -84,7 +86,7 @@ Beyond what is described above, the following contain additional insights into h
 
 ### Querying the Database Safely
 
-* SQL statements *must* use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and *never* interpolate values into SQL fragments in any other way.
+* SQL statements _must_ use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and _never_ interpolate values into SQL fragments in any other way.
 * SQL statements must only be defined in the `models` package.
 
 Here is an example of a safe query for a single `Shipment`:
@@ -102,34 +104,57 @@ if err = query.First(shipment); err == nil {
 }
 ```
 
+### `models.Fetch*` functions
+
+Functions that return model structs should return pointers.
+
+Do:
+
+```go
+func FetchShipment(db *pop.Connection, id uuid.UUID) (*Shipment, error) {}
+```
+
+Avoid:
+
+```go
+func FetchShipment(db *pop.Connection, id uuid.UUID) (Shipment, error) {}
+```
+
+This is for a few reasons:
+
+* Many Pop methods that accept models need to use pointers in order to modify the struct being passed in. Using them everywhere
+  models are used makes the code more consistent and avoids needing to convert to and from pointers.
+* Any methods on struct model instances need to have pointer receivers in order to mutate the struct. This is a common point of confusion
+  and an easy way to introduce bugs into a codebase.
+
 ### Logging
 
 We use the [Zap](https://github.com/uber-go/zap) logging framework from Uber to produce structured log records.
- To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
-  a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
+To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
+a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
 
 #### Logging Levels
 
 Another reason to use the Zap logging package is that it provides more nuanced logging levels than the basic Go logging package.
- That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
- the following indicates when each level of Logging should be used.
+That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
+the following indicates when each level of Logging should be used.
 
 * **Fatal** This should never be used outside of the server startup code in main.go. Fatal log messages call `sys.exit(1)` which unceremoniously kills the server without running any clean up code. This is almost certainly never what you want in production.
 
 * **Error** Reserved for system failures, e.g. cannot reach a database, a DB insert which was expected to work failed,
- or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
- all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
- then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
+  or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
+  all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
+  then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
 
 * **Warn** Don't use Warn - it rarely, if ever, adds any meaningful signal to the logs.
 
 * **Info** Use for recording 'Normal' events at a granularity that may be helpful to tracing and debugging requests,
- e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
+  e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
 
 * **Debug** Debug events are of questionable value and should be used during development, but probably best removed
- before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
- as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
- in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
+  before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
+  as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
+  in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
 
 ### Errors
 
@@ -139,10 +164,10 @@ Some general guidelines for errors:
 
 If a function or other action generates an error, assign it to a variable and either return it as part of your function's output or handle it in place (`if err != nil`, etc.). There will be the very occasional exception to this - one is within tests, depending on the test's goal. If you find yourself typing that underscore, take a moment to ask yourself why you're choosing that option. On those very rare occasions when it is the correct behavior, please add a comment explaining why.
 
-*Don't:*
-    `myVal, _ := functionThatShouldReturnAnInt()`
+_Don't:_
+`myVal, _ := functionThatShouldReturnAnInt()`
 
-*Do:*
+_Do:_
 
 ```golang
     myVal, err := functionThatShouldReturnAnInt()
@@ -158,7 +183,7 @@ If you're creating a query (1) that is called by a function (2) that is in turne
 In `pkg/models/blackout_dates.go`, an error is created and returned:
 
 ```golang
-func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipment) ([]BlackoutDate, error) {
   ...
   err = query.All(&blackoutDates)
   if err != nil {
@@ -172,7 +197,7 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 In `pkg/awardqueue/awardqueue.go`, `FetchTSPBlackoutDates` is called, and any possible error is handled. This function also returns an error.
 
 ```golang
-func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
+func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.Shipment) (bool, error) {
   blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
 
   if err != nil {
@@ -186,7 +211,7 @@ func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOf
 Finally, at the top level in `attemptShipmentOffer` in the same file, any errors bubbled up from `ShipmentWithinBlackoutDates` or `FetchTSPBlackoutDates` are handled definitively, halting the progress of the longer function if the underlying processes and queries didn't complete as expected in the functions being called:
 
 ```golang
-func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*models.ShipmentOffer, error) {
+func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.ShipmentOffer, error) {
   aq.logger.Info("Attempting to offer shipment", zap.Any("shipment_id", shipment.ID))
   ...
   isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
@@ -214,11 +239,11 @@ if err != nil {
 
 `fmt` can provide useful error handling during initial debugging, but we strongly suggest logging instead, from when you write the initial lines of a new function. Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Error()`, perhaps with [Zap](https://github.com/uber-go/zap).
 
-*Don't:*
-    `fmt.Println("Blackout dates fetch failed: ", err)`
+_Don't:_
+`fmt.Println("Blackout dates fetch failed: ", err)`
 
-*Do:*
-    `logger.Error("Blackout dates fetch failed: ", err)`
+_Do:_
+`logger.Error("Blackout dates fetch failed: ", err)`
 
 #### If some of your errors are predictable, pattern match on them to provide more error detail
 
@@ -267,9 +292,9 @@ Additional resources:
 
 * [GoDoc](https://godoc.org/) (where you can read the docs for nearly any Go package)
 * Check out the [Go wiki](https://github.com/golang/go/wiki/Learn)
-* *Video*: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
-* *Book*: [The Go Programming Language](http://www.gopl.io/)
-* *Article*: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
+* _Video_: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
+* _Book_: [The Go Programming Language](http://www.gopl.io/)
+* _Article_: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
 
 ### Testing
 

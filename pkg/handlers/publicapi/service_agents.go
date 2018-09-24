@@ -20,13 +20,13 @@ func payloadForServiceAgentModel(s models.ServiceAgent) *apimessages.ServiceAgen
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 		Role:             apimessages.ServiceAgentRole(s.Role),
-		PointOfContact:   handlers.FmtString(s.PointOfContact),
 		Email:            s.Email,
 		PhoneNumber:      s.PhoneNumber,
 		FaxNumber:        s.FaxNumber,
 		EmailIsPreferred: s.EmailIsPreferred,
 		PhoneIsPreferred: s.PhoneIsPreferred,
 		Notes:            s.Notes,
+		Company:          handlers.FmtString(s.Company),
 	}
 	return serviceAgentPayload
 }
@@ -98,7 +98,7 @@ func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAge
 		h.DB(),
 		shipment.ID,
 		serviceAgentRole,
-		payload.PointOfContact,
+		payload.Company,
 		payload.Email,
 		payload.PhoneNumber,
 		payload.EmailIsPreferred,
@@ -139,8 +139,8 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 
 	// Update the Service Agent
 	payload := params.PatchServiceAgentPayload
-	if payload.PointOfContact != nil {
-		serviceAgent.PointOfContact = *payload.PointOfContact
+	if payload.Company != nil {
+		serviceAgent.Company = *payload.Company
 	}
 	if payload.Email != nil {
 		serviceAgent.Email = payload.Email

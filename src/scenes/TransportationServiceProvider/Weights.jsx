@@ -21,44 +21,40 @@ const WeightsDisplay = props => {
         <div className="column-subhead">Total weight</div>
         <PanelSwaggerField
           fieldName="weight_estimate"
-          nullWarning
+          required
           title="Customer estimate"
           {...fieldProps}
         />
         <PanelSwaggerField
           fieldName="pm_survey_weight_estimate"
-          nullWarning
+          required
           title="TSP estimate"
           {...fieldProps}
         />
-        <PanelSwaggerField
-          fieldName="actual_weight"
-          nullWarning
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
         <div className="column-subhead">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"
-          nullWarning
+          required
           title="Customer estimate"
           {...fieldProps}
         />
         <PanelSwaggerField
           fieldName="pm_survey_progear_weight_estimate"
-          nullWarning
+          required
           title="TSP estimate"
           {...fieldProps}
         />
         <div className="column-subhead">Spouse pro-gear</div>
         <PanelSwaggerField
           fieldName="spouse_progear_weight_estimate"
-          nullWarning
+          required
           title="Customer estimate"
           {...fieldProps}
         />
         <PanelSwaggerField
           fieldName="pm_survey_spouse_progear_weight_estimate"
-          nullWarning
+          required
           title="TSP estimate"
           {...fieldProps}
         />
@@ -81,13 +77,13 @@ const WeightsEdit = props => {
           <div className="column-subhead">Total weight</div>
           <PanelSwaggerField
             fieldName="weight_estimate"
-            nullWarning
+            required
             title="Customer estimate"
             {...fieldProps}
           />
           <PanelSwaggerField
             fieldName="pm_survey_weight_estimate"
-            nullWarning
+            required
             title="TSP estimate"
             {...fieldProps}
           />
@@ -95,26 +91,26 @@ const WeightsEdit = props => {
           <div className="column-subhead">Pro-gear</div>
           <PanelSwaggerField
             fieldName="progear_weight_estimate"
-            nullWarning
+            required
             title="Customer estimate"
             {...fieldProps}
           />
           <PanelSwaggerField
             fieldName="pm_survey_progear_weight_estimate"
-            nullWarning
+            required
             title="TSP estimate"
             {...fieldProps}
           />
           <div className="column-subhead">Spouse pro-gear</div>
           <PanelSwaggerField
             fieldName="spouse_progear_weight_estimate"
-            nullWarning
+            required
             title="Customer estimate"
             {...fieldProps}
           />
           <PanelSwaggerField
             fieldName="pm_survey_spouse_progear_weight_estimate"
-            nullWarning
+            required
             title="TSP estimate"
             {...fieldProps}
           />

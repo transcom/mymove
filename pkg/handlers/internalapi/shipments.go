@@ -1,24 +1,24 @@
 package internalapi
 
 import (
+	"fmt"
+	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-/*
- * ------------------------------------------
- * The code below is for the INTERNAL REST API.
- * ------------------------------------------
- */
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
@@ -26,6 +26,12 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	var codeOfService *string
 	if s.TrafficDistributionList != nil {
 		codeOfService = &s.TrafficDistributionList.CodeOfService
+	}
+
+	var serviceAgentPayloads []*internalmessages.ServiceAgent
+	for _, serviceAgent := range s.ServiceAgents {
+		payload := payloadForServiceAgentModel(serviceAgent)
+		serviceAgentPayloads = append(serviceAgentPayloads, payload)
 	}
 
 	shipmentPayload := &internalmessages.Shipment{
@@ -40,8 +46,8 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		Status:                              internalmessages.ShipmentStatus(s.Status),
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
-		PickupDate:                          handlers.FmtDatePtr(s.PickupDate),
-		DeliveryDate:                        handlers.FmtDatePtr(s.DeliveryDate),
+		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
+		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		EstimatedPackDays:                   s.EstimatedPackDays,
@@ -64,6 +70,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+		ServiceAgents:                       serviceAgentPayloads,
 	}
 	return shipmentPayload
 }
@@ -99,7 +106,6 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		requestedPickupDate = &date
 	}
 
-	// TODO: Set code of service in the TDL linked to from the Shipment model.
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		ServiceMemberID:              session.ServiceMemberID,
@@ -150,8 +156,8 @@ func patchShipmentWithPremoveSurveyFields(shipment *models.Shipment, payload *in
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessages.Shipment) {
 
-	if payload.PickupDate != nil {
-		shipment.PickupDate = (*time.Time)(payload.PickupDate)
+	if payload.ActualPickupDate != nil {
+		shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
 	}
 	if payload.RequestedPickupDate != nil {
 		shipment.RequestedPickupDate = (*time.Time)(payload.RequestedPickupDate)
@@ -271,4 +277,130 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
+}
+
+// ApproveHHGHandler approves an HHG
+type ApproveHHGHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle is the handler
+func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsOfficeUser() {
+		return shipmentop.NewApproveHHGForbidden()
+	}
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	err = shipment.Approve()
+	if err != nil {
+		h.Logger().Error("Attempted to approve HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	shipmentPayload := payloadForShipmentModel(*shipment)
+	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
+}
+
+// CompleteHHGHandler completes an HHG
+type CompleteHHGHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle is the handler
+func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsOfficeUser() {
+		return shipmentop.NewCompleteHHGForbidden()
+	}
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	err = shipment.Complete()
+	if err != nil {
+		h.Logger().Error("Attempted to complete HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	shipmentPayload := payloadForShipmentModel(*shipment)
+	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
+}
+
+// ShipmentInvoiceHandler sends an invoice through GEX to Syncada
+type ShipmentInvoiceHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle is the handler
+func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsOfficeUser() {
+		return shipmentop.NewSendHHGInvoiceForbidden()
+	}
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	var shipment models.Shipment
+
+	err := h.DB().Eager(
+		"Move.Orders",
+		"PickupAddress",
+		"DeliveryAddress",
+		"ServiceMember",
+	).Find(&shipment, shipmentID)
+
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	// Run rate engine on shipment --> returns CostByShipment Struct
+	shipmentCost, err := engine.HandleRunOnShipment(shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	var costsByShipments []rateengine.CostByShipment
+	costsByShipments = append(costsByShipments, shipmentCost)
+
+	// pass value into generator --> edi string
+	edi, err := ediinvoice.Generate858C(costsByShipments, h.DB())
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	fmt.Print(edi) // to use for demo visual
+
+	// send edi through gex post api
+	transactionName := "placeholder"
+	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), edi, transactionName)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// get response from gex --> use status as status for this invoice call
+	switch responseStatus {
+	case 200:
+		return shipmentop.NewSendHHGInvoiceOK()
+	default:
+		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
+		return shipmentop.NewSendHHGInvoiceInternalServerError()
+	}
 }

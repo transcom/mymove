@@ -1,4 +1,4 @@
-import { getClient, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/Swagger/api';
 import { formatPayload } from 'shared/utils';
 
 // MOVE QUEUE
@@ -118,6 +118,35 @@ export async function ApprovePPM(moveId, ppmId) {
     personallyProcuredMoveId: ppmId,
   });
   checkResponse(response, 'failed to approve ppm due to server error');
+  return response.body;
+}
+
+// HHG status
+export async function ApproveHHG(shipmentId) {
+  const client = await getClient();
+  const response = await client.apis.shipments.approveHHG({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to approve hhg due to server error');
+  return response.body;
+}
+
+export async function CompleteHHG(shipmentId) {
+  const client = await getClient();
+  const response = await client.apis.shipments.completeHHG({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to complete hhg due to server error');
+  return response.body;
+}
+
+// HHG invoice
+export async function SendHHGInvoice(shipmentId) {
+  const client = await getClient();
+  const response = await client.apis.shipments.sendHHGInvoice({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to send invoice to server error');
   return response.body;
 }
 

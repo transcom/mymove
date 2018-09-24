@@ -12,6 +12,132 @@ consumes:
 produces:
   - application/json
 definitions:
+  IndexMoveDocumentPayload:
+      type: array
+      items:
+        $ref: '#/definitions/MoveDocumentPayload'
+  MoveDocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      document:
+        $ref: '#/definitions/DocumentPayload'
+      title:
+        type: string
+        example: very_useful_document.pdf
+        title: Document Title
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - id
+      - shipment_id
+      - document
+      - title
+      - move_document_type
+      - status
+  CreateGenericMoveDocumentPayload:
+    type: object
+    properties:
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      title:
+        type: string
+        example: very_useful_document.pdf
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - upload_ids
+      - title
+      - move_document_type
+  MoveDocumentStatus:
+    type: string
+    title: Document Status
+    enum:
+      - AWAITING_REVIEW
+      - OK
+      - HAS_ISSUE
+    x-display-value:
+      AWAITING_REVIEW: Awaiting review
+      OK: OK
+      HAS_ISSUE: Has issue
+  DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/UploadPayload'
+    required:
+      - id
+      - uploads
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        format: string
+        example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      bytes:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - url
+      - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
   Address:
     type: object
     properties:
@@ -305,6 +431,18 @@ definitions:
       APPROVED: Approved
       COMPLETED: Completed
       CANCELED: Canceled
+  MoveDocumentType:
+    type: string
+    title: Document Type
+    example: GOV_BILL_OF_LADING
+    enum: &MOVEDOCUMENTTYPE
+      - GOV_BILL_OF_LADING
+      - OTHER
+      - WEIGHT_TICKET
+    x-display-value:
+      GOV_BILL_OF_LADING: Government Bill of Lading
+      OTHER: Other document type
+      WEIGHT_TICKET: Weight ticket
   SelectedMoveType:
     type: string
     title: Selected Move Type
@@ -344,6 +482,13 @@ definitions:
         example: Donut
         x-nullable: true
         title: Last Name
+      edipi:
+        type: string
+        format: edipi
+        example: '5789345789'
+        pattern: '^[0-9]{10}$'
+        x-nullable: true
+        title: DoD ID number
       suffix:
         type: string
         example: Jr.
@@ -415,11 +560,11 @@ definitions:
       service_member:
         $ref: '#/definitions/ServiceMember'
         readOnly: true
-      pickup_date:
+      actual_pickup_date:
         type: string
         format: date-time
         example: 2018-04-21T17:32:28Z
-      delivery_date:
+      actual_delivery_date:
         type: string
         format: date-time
         example: 2018-04-27T17:32:28Z
@@ -435,6 +580,11 @@ definitions:
       destination_gbloc:
         $ref: '#/definitions/GBLOC'
         readOnly: true
+      gbl_number:
+        type: string
+        example: 'KKFA9999999'
+        x-nullable: true
+        title: GBL Number
       market:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true
@@ -590,10 +740,10 @@ definitions:
         readOnly: true
       role:
         $ref: '#/definitions/ServiceAgentRole'
-      point_of_contact:
+      company:
         type: string
-        example: Jenny at ACME Movers
-        title: Point of Contact
+        example: ACME Movers
+        title: Company
       email:
         type: string
         format: x-email
@@ -637,8 +787,8 @@ definitions:
         format: date-time
     required:
       - role
-      - point_of_contact
-  ShipmentReject:
+      - company
+  RejectShipment:
     type: object
     properties:
       reason:
@@ -734,7 +884,7 @@ definitions:
         type: string
         format: date
         example: 2018-03-15
-      actual_pickup:
+      actual_pickup_date:
         type: string
         format: date
         example: 2018-03-15
@@ -761,6 +911,7 @@ definitions:
     enum: &SHIPMENTSTATUS
       - AWARDED
       - ACCEPTED
+      - APPROVED
       - REJECTED
       - IN_PROGRESS
       - IN_TRANSIT
@@ -776,6 +927,28 @@ definitions:
       DELIVERED: Delivered
       COMPLETED: Completed
       CANCELED: Canceled
+  ActualPickupDate:
+    type: object
+    properties:
+      actual_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-02"
+        title: Actual Pickup Date
+        x-nullable: true
+    required:
+      - actual_pickup_date
+  ActualDeliveryDate:
+    type: object
+    properties:
+      actual_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-02"
+        x-nullable: true
+        title: Actual Delivery Date
+    required:
+      - actual_delivery_date
   TSP:
     type: object
     description: The primary definition of a Transport Service Provider
@@ -954,46 +1127,102 @@ paths:
           description: no blackout found with that UUID
         500:
           description: server error
-  /documents/{documentId}/uploads:
-    post:
-      summary: Adds a new upload to a document
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
-      operationId: createDocumentUpload
+  /shipments/{shipmentId}/documents:
+    get:
+      summary: Returns a list of all Move Documents associated with this move
+      description: Returns a list of all Move Documents associated with this move
+      operationId: indexMoveDocuments
       tags:
-        - documents
-      consumes:
-        - multipart/form-data
+        - move_docs
       parameters:
         - in: path
-          name: documentId
+          name: shipmentId
           type: string
           format: uuid
           required: true
-          description: UUID of the document to which the Upload is added
-        - in: formData
-          name: file
-          type: file
-          description: The file to upload.
-          required: true
-        - in: formData
-          name: name
-          type: string
-          description: Human readable name for the upload
+          description: UUID of the shipment
       responses:
-        201:
-          description: created upload
+        200:
+          description: returns list of move documents
           schema:
-            $ref: '#/definitions/DocumentUpload'
+            $ref: '#/definitions/IndexMoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+    post:
+      summary: Creates a move document
+      description: Created a move document with the given information
+      operationId: createGenericMoveDocument
+      tags:
+        - move_docs
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: createGenericMoveDocumentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateGenericMoveDocumentPayload'
+      responses:
+        200:
+          description: returns new move document object
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized to see the details of this shipment
-        404:
-          description: dcoument UUID not found in system
+          description: not authorized to modify this move
         500:
           description: server error
+  /shipments/{shipmentId}/documents/{moveDocumentId}:
+    put:
+      summary: Updates a move document
+      description: Update a move document with the given information
+      operationId: updateMoveDocument
+      tags:
+        - move_docs
+      parameters:
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment model
+        - in: path
+          name: moveDocumentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move document model
+        - in: body
+          name: updateMoveDocument
+          required: true
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+      responses:
+        200:
+          description: updated instance of move document
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move document not found
+        500:
+          description: internal server error
   /shipments:
     get:
       summary: Gets visible shipments
@@ -1244,7 +1473,7 @@ paths:
     post:
       summary: Accepts an awarded shipment
       description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED.
-      operationId: createShipmentAccept
+      operationId: acceptShipment
       tags:
         - shipments
       parameters:
@@ -1257,6 +1486,78 @@ paths:
       responses:
         200:
           description: returns updated (accepted) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
+  /shipments/{shipmentId}/transport:
+    post:
+      summary: Places an accepted shipment into transit state
+      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT.
+      operationId: transportShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/ActualPickupDate'
+      responses:
+        200:
+          description: returns updated (in_transit) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
+  /shipments/{shipmentId}/deliver:
+    post:
+      summary: Places an in transit shipment to delivered state
+      description: The status of the shipment will be updated to DELIVERED.
+      operationId: deliverShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/ActualDeliveryDate'
+      responses:
+        200:
+          description: returns updated (delivered) shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:
@@ -1302,7 +1603,7 @@ paths:
   /shipments/{shipmentId}/contact_details:
     get:
       summary: Gets the detailed contact information for a move
-      description: Accepts a shipment awarded to a TSP
+      description: Gets the detailed contact information for a move
       operationId: getShipmentContactDetails
       tags:
         - shipments
@@ -1326,36 +1627,11 @@ paths:
           description: not authorized to access this shipment
         500:
           description: server error
-  /shipments/{shipmentId}/documents:
-    get:
-      summary: Gets the list of documents associated with a Shipment
-      operationId: getShipmentDocuments
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-      responses:
-        200:
-          description: returns the documents associated with the shipment
-          schema:
-            $ref: '#/definitions/Document'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access this shipment
-        500:
-          description: server error
+  /shipments/{shipmentId}/gov_bill_of_lading:
     post:
-      summary: Creates a new document associated with a shipment
-      description: Creates the storage for the new document and sets the UUID
-      operationId: createShipmentDocument
+      summary: Creates a new government bill of lading (form 1203) document associated with a shipment
+      description: Creates a move document for a GBL and stores it
+      operationId: createGovBillOfLading
       tags:
         - shipments
       parameters:
@@ -1365,30 +1641,26 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
-        - name: payload
-          in: body
-          required: true
-          description: A bare bones Document object containing the name of the new document
-          schema:
-            $ref: '#/definitions/Document'
       responses:
-        200:
-          description: returns updated document with UUID and create time set.
+        201:
+          description: successfully created GBL move document for shipment
           schema:
-            $ref: '#/definitions/Document'
+            $ref: '#/definitions/UploadPayload'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to add documents to this shipment
+        417:
+          description: failed to meet data requirements for GBL form to be built
         500:
           description: server error
   /shipments/{shipmentId}/reject:
     post:
       summary: Rejects an awarded shipment
       description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
-      operationId: createShipmentReject
+      operationId: rejectShipment
       tags:
         - shipments
       parameters:
@@ -1403,7 +1675,7 @@ paths:
           description: reason for refusing award
           required: true
           schema:
-            $ref: '#/definitions/ShipmentReject'
+            $ref: '#/definitions/RejectShipment'
       responses:
         200:
           description: returns updated (rejected) shipment object

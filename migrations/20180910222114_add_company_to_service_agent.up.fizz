@@ -1,0 +1,4 @@
+add_column("service_agents", "company", "text", {"null": true})
+sql("UPDATE service_agents SET company = point_of_contact;")
+sql("ALTER TABLE service_agents ALTER COLUMN company SET NOT NULL;")
+sql("ALTER TABLE service_agents ALTER COLUMN point_of_contact DROP NOT NULL;")

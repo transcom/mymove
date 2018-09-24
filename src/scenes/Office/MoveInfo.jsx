@@ -19,20 +19,25 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import DocumentList from 'shared/DocumentViewer/DocumentList';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
+import ServiceAgents from './ServiceAgents';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
+import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import {
   loadMoveDependencies,
   approveBasics,
   approvePPM,
+  approveHHG,
+  completeHHG,
   cancelMove,
   patchShipment,
+  sendHHGInvoice,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import {
@@ -94,90 +99,22 @@ const HHGTabContent = props => {
           error={props.surveyError}
         />
       )}
+      {props.officeShipment.service_agents && (
+        <ServiceAgents
+          title="Service Agents"
+          shipment={props.officeShipment}
+          serviceAgents={props.officeShipment.service_agents}
+        />
+      )}
     </div>
   );
 };
 
-class CancelPanel extends Component {
-  state = { displayState: 'Button', cancelReason: '' };
-
-  setConfirmState = () => {
-    this.setState({ displayState: 'Confirm' });
-  };
-
-  setCancelState = () => {
-    if (this.state.cancelReason !== '') {
-      this.setState({ displayState: 'Cancel' });
-    }
-  };
-
-  setButtonState = () => {
-    this.setState({ displayState: 'Button' });
-  };
-
-  handleChange = event => {
-    this.setState({ cancelReason: event.target.value });
-  };
-
-  cancelMove = event => {
-    event.preventDefault();
-    this.props.cancelMove(this.state.cancelReason);
-    this.setState({ displayState: 'Redirect' });
-  };
-
-  render() {
-    if (this.state.displayState === 'Cancel') {
-      return (
-        <div className="cancel-panel">
-          <h2 className="extras usa-heading">Cancel Move</h2>
-          <div className="extras content">
-            <Alert type="warning" heading="Cancelation Warning">
-              Are you sure you want to cancel the entire move?
-            </Alert>
-            <div className="usa-grid">
-              <div className="usa-width-one-whole extras options">
-                <a onClick={this.setButtonState}>No, never mind</a>
-              </div>
-              <div className="usa-width-one-whole extras options">
-                <button onClick={this.cancelMove}>Yes, cancel move</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (this.state.displayState === 'Confirm') {
-      return (
-        <div className="cancel-panel">
-          <h2 className="extras usa-heading">Cancel Move</h2>
-          <div className="extras content">
-            Why is the move being canceled?
-            <textarea required onChange={this.handleChange} />
-            <div className="usa-grid">
-              <div className="usa-width-one-whole extras options">
-                <a onClick={this.setButtonState}>Never mind</a>
-              </div>
-              <div className="usa-width-one-whole extras options">
-                <button onClick={this.setCancelState}>
-                  Cancel entire move
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (this.state.displayState === 'Button') {
-      return (
-        <button className="usa-button-secondary" onClick={this.setConfirmState}>
-          Cancel Move
-        </button>
-      );
-    } else if (this.state.displayState === 'Redirect') {
-      return <Redirect to="/" />;
-    }
-  }
-}
-
 class MoveInfo extends Component {
+  state = {
+    redirectToHome: false,
+  };
+
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
@@ -191,8 +128,22 @@ class MoveInfo extends Component {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
   };
 
+  approveHHG = () => {
+    this.props.approveHHG(this.props.officeShipment.id);
+  };
+
+  completeHHG = () => {
+    this.props.completeHHG(this.props.officeShipment.id);
+  };
+
+  submitInvoice = () => {
+    this.props.sendHHGInvoice(this.props.officeShipment.id);
+  };
+
   cancelMove = cancelReason => {
-    this.props.cancelMove(this.props.officeMove.id, cancelReason);
+    this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
+      this.setState({ redirectToHome: true });
+    });
   };
 
   renderPPMTabStatus = () => {
@@ -226,12 +177,18 @@ class MoveInfo extends Component {
   };
 
   render() {
+    const { moveDocuments } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
-    const { moveDocuments } = this.props;
+    const isPPM = !isEmpty(this.props.officePPM);
+    const isHHG = !isEmpty(this.props.officeHHG);
+    const pathnames = this.props.location.pathname.split('/');
+    const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
+    const currentTab = pathnames[pathnames.length - 1];
+
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
@@ -245,6 +202,17 @@ class MoveInfo extends Component {
       ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
       ppm.status,
     );
+    const hhgApproved = includes(
+      ['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
+      hhg.status,
+    );
+    const hhgDelivered = hhg.status === 'DELIVERED';
+    const hhgCompleted = hhg.status === 'COMPLETED';
+    const moveApproved = move.status === 'APPROVED';
+    if (this.state.redirectToHome) {
+      return <Redirect to="/" />;
+    }
+
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -311,13 +279,13 @@ class MoveInfo extends Component {
                   {capitalize(move.status)}
                 </span>
               </NavTab>
-              {!isEmpty(ppm) && (
+              {isPPM && (
                 <NavTab to="/ppm">
                   <span className="title">PPM</span>
                   {this.renderPPMTabStatus()}
                 </NavTab>
               )}
-              {!isEmpty(hhg) && (
+              {isHHG && (
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
@@ -344,12 +312,10 @@ class MoveInfo extends Component {
                   path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
-                !isEmpty(ppm) &&
                 <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
                 />
-                !isEmpty(hhg) &&
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
@@ -371,29 +337,87 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
+              {this.props.hhgInvoiceHasSendSuccess && (
+                <Alert type="success" heading="Success">
+                  Invoice successfully sent
+                </Alert>
+              )}
+              {this.props.hhgInvoiceHasFailure && (
+                <Alert type="error" heading="">
+                  Unable to send invoice. Please try again in a few minutes.
+                </Alert>
+              )}
               <button
+                className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
-                disabled={move.status === 'APPROVED' || !ordersComplete}
-                style={{
-                  backgroundColor: move.status === 'APPROVED' && 'green',
-                }}
+                disabled={moveApproved || !ordersComplete}
               >
                 Approve Basics
-                {move.status === 'APPROVED' && check}
+                {moveApproved && check}
               </button>
+              {isPPM ? (
+                <button
+                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
+                  onClick={this.approvePPM}
+                  disabled={ppmApproved || !moveApproved || !ordersComplete}
+                >
+                  Approve PPM
+                  {ppmApproved && check}
+                </button>
+              ) : (
+                <button
+                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
+                  onClick={this.approveHHG}
+                  disabled={
+                    hhgApproved ||
+                    hhgCompleted ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
+                >
+                  Approve Shipments
+                  {hhgApproved && check}
+                </button>
+              )}
+              {isHHG && (
+                <button
+                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
+                  onClick={this.completeHHG}
+                  disabled={
+                    !hhgDelivered ||
+                    hhgCompleted ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
+                >
+                  Complete Shipments
+                  {hhgCompleted && check}
+                </button>
+              )}
               <button
-                onClick={this.approvePPM}
+                className={`${invoiceSuccess ? 'btn__approve--green' : ''}`}
+                onClick={this.submitInvoice}
                 disabled={
-                  ppmApproved || move.status !== 'APPROVED' || !ordersComplete
+                  !hhgCompleted ||
+                  !hhgApproved ||
+                  !moveApproved ||
+                  !ordersComplete ||
+                  invoiceSuccess ||
+                  currentTab !== 'hhg'
                 }
-                style={{
-                  backgroundColor: ppmApproved && 'green',
-                }}
               >
-                Approve PPM
-                {ppmApproved && check}
+                Submit HHG Invoice
+                {invoiceSuccess && check}
               </button>
-              <CancelPanel cancelMove={this.cancelMove} />
+
+              <ConfirmWithReasonButton
+                buttonTitle="Cancel Move"
+                reasonPrompt="Why is the move being canceled?"
+                warningPrompt="Are you sure you want to cancel the entire move?"
+                onConfirm={this.cancelMove}
+              />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
               */}
@@ -417,7 +441,7 @@ class MoveInfo extends Component {
                 <p>No orders have been uploaded.</p>
               ) : (
                 <div>
-                  {move.status === 'APPROVED' ? (
+                  {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon
                         style={{ color: 'green' }}
@@ -444,8 +468,10 @@ class MoveInfo extends Component {
               )}
               {showDocumentViewer && (
                 <DocumentList
+                  detailUrlPrefix={`/moves/${
+                    this.props.match.params.moveId
+                  }/documents`}
                   moveDocuments={moveDocuments}
-                  moveId={this.props.match.params.moveId}
                 />
               )}
             </div>
@@ -455,6 +481,10 @@ class MoveInfo extends Component {
     );
   }
 }
+
+MoveInfo.defaultProps = {
+  move: {},
+};
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
@@ -481,6 +511,8 @@ const mapStateToProps = state => ({
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),
   approveMoveHasError: get(state, 'office.moveHasApproveError'),
+  hhgInvoiceHasSendSuccess: get(state, 'office.hhgInvoiceHasSendSuccess'),
+  hhgInvoiceHasFailure: get(state, 'office.hhgInvoiceHasFailure'),
   errorMessage: get(state, 'office.error'),
 });
 
@@ -491,8 +523,11 @@ const mapDispatchToProps = dispatch =>
       getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
+      approveHHG,
+      completeHHG,
       cancelMove,
       patchShipment,
+      sendHHGInvoice,
     },
     dispatch,
   );

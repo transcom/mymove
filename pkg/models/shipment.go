@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -11,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -31,10 +31,16 @@ const (
 	ShipmentStatusACCEPTED ShipmentStatus = "ACCEPTED"
 	// ShipmentStatusAPPROVED captures enum value "APPROVED"
 	ShipmentStatusAPPROVED ShipmentStatus = "APPROVED"
+	// ShipmentStatusINTRANSIT captures enum value "IN_TRANSIT"
+	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
+	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
+	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
+	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
+	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
-// PickupDate: when the shipment is currently scheduled to be picked up by the TSP
+// ActualPickupDate: when the shipment is currently scheduled to be picked up by the TSP
 // RequestedPickupDate: when the shipment was originally scheduled to be picked up
 // DeliveryDate: when the shipment is to be delivered
 // BookDate: when the shipment was most recently offered to a TSP
@@ -44,12 +50,13 @@ type Shipment struct {
 	TrafficDistributionList             *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
 	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
 	ServiceMember                       *ServiceMember           `belongs_to:"service_member"`
-	PickupDate                          *time.Time               `json:"pickup_date" db:"pickup_date"`
-	DeliveryDate                        *time.Time               `json:"delivery_date" db:"delivery_date"`
+	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
+	ActualDeliveryDate                  *time.Time               `json:"actual_delivery_date" db:"actual_delivery_date"`
 	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
 	SourceGBLOC                         *string                  `json:"source_gbloc" db:"source_gbloc"`
 	DestinationGBLOC                    *string                  `json:"destination_gbloc" db:"destination_gbloc"`
+	GBLNumber                           *string                  `json:"gbl_number" db:"gbl_number"`
 	Market                              *string                  `json:"market" db:"market"`
 	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
 	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
@@ -84,24 +91,6 @@ type Shipment struct {
 	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
-// ShipmentWithOffer represents a single offered shipment within a Service Member's move.
-type ShipmentWithOffer struct {
-	ID                              uuid.UUID  `db:"id"`
-	CreatedAt                       time.Time  `db:"created_at"`
-	UpdatedAt                       time.Time  `db:"updated_at"`
-	BookDate                        *time.Time `db:"book_date"`
-	PickupDate                      *time.Time `db:"pickup_date"`
-	RequestedPickupDate             *time.Time `db:"requested_pickup_date"`
-	TrafficDistributionListID       *uuid.UUID `db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
-	SourceGBLOC                     *string    `db:"source_gbloc"`
-	DestinationGBLOC                *string    `db:"destination_gbloc"`
-	Market                          *string    `db:"market"`
-	Accepted                        *bool      `db:"accepted"`
-	RejectionReason                 *string    `db:"rejection_reason"`
-	AdministrativeShipment          *bool      `db:"administrative_shipment"`
-}
-
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
 
@@ -126,6 +115,8 @@ func (s *Shipment) Submit() error {
 	if s.Status != ShipmentStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
+	now := time.Now()
+	s.BookDate = &now
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
@@ -148,52 +139,193 @@ func (s *Shipment) Accept() error {
 	return nil
 }
 
-// FetchShipments looks up all shipments joined with their offer information in a
-// ShipmentWithOffer struct. Optionally, you can only query for unassigned
-// shipments with the `onlyUnassigned` parameter.
-func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
-	shipments := []ShipmentWithOffer{}
+// Reject returns the Shipment to the Submitted state. Must be in an Awarded state.
+func (s *Shipment) Reject() error {
+	if s.Status != ShipmentStatusAWARDED {
+		return errors.Wrap(ErrInvalidTransition, "Reject")
+	}
+	s.Status = ShipmentStatusSUBMITTED
+	return nil
+}
 
-	var sql string
+// Approve marks the Shipment request as Approved. Must be in an Accepted state.
+func (s *Shipment) Approve() error {
+	if s.Status != ShipmentStatusACCEPTED {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+	s.Status = ShipmentStatusAPPROVED
+	return nil
+}
 
-	if onlyUnassigned {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id
-			WHERE shipment_offers.id IS NULL`
-	} else {
-		sql = `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.requested_pickup_date,
-				shipments.book_date,
-				shipments.traffic_distribution_list_id,
-				shipments.source_gbloc,
-				shipments.destination_gbloc,
-				shipments.market,
-				shipment_offers.transportation_service_provider_id,
-				shipment_offers.administrative_shipment
-			FROM shipments
-			LEFT JOIN shipment_offers ON
-				shipment_offers.shipment_id=shipments.id`
+// Transport marks the Shipment request as In Transit. Must be in an Approved state.
+func (s *Shipment) Transport(actualPickupDate time.Time) error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "In Transit")
+	}
+	s.Status = ShipmentStatusINTRANSIT
+	s.ActualPickupDate = &actualPickupDate
+	return nil
+}
+
+// Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
+func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
+	if s.Status != ShipmentStatusINTRANSIT {
+		return errors.Wrap(ErrInvalidTransition, "Deliver")
+	}
+	s.Status = ShipmentStatusDELIVERED
+	s.ActualDeliveryDate = &actualDeliveryDate
+	return nil
+}
+
+// Complete marks the Shipment request as Completed. Must be in a Delivered state.
+func (s *Shipment) Complete() error {
+	if s.Status != ShipmentStatusDELIVERED {
+		return errors.Wrap(ErrInvalidTransition, "Completed")
+	}
+	s.Status = ShipmentStatusCOMPLETED
+	return nil
+}
+
+// BeforeSave will run before each create/update of a Shipment.
+func (s *Shipment) BeforeSave(tx *pop.Connection) error {
+	// TODO: These values should be ultimately calculated, but we're hard-coding them for now.
+	// TODO: Remove after proper calculations are in place.
+	if s.Status == ShipmentStatusSUBMITTED {
+		if s.EstimatedPackDays == nil {
+			s.EstimatedPackDays = swag.Int64(3)
+		}
+		if s.EstimatedTransitDays == nil {
+			s.EstimatedTransitDays = swag.Int64(10)
+		}
+		if s.ActualDeliveryDate == nil {
+			if s.RequestedPickupDate != nil {
+				newDate := s.RequestedPickupDate.AddDate(0, 0, int(*s.EstimatedTransitDays))
+				s.ActualDeliveryDate = &newDate
+			}
+		}
+		if s.ActualPickupDate == nil {
+			s.ActualPickupDate = s.RequestedPickupDate
+		}
 	}
 
-	err := dbConnection.RawQuery(sql).All(&shipments)
+	// To be safe, we will always try to determine the correct TDL anytime a shipment record
+	// is created/updated.
+	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
+	if err != nil {
+		return errors.Wrapf(err, "Could not determine TDL for shipment ID %s for move ID %s", s.ID, s.MoveID)
+	}
+
+	if trafficDistributionList != nil {
+		s.TrafficDistributionListID = &trafficDistributionList.ID
+		s.TrafficDistributionList = trafficDistributionList
+	}
+
+	return nil
+}
+
+// DetermineTrafficDistributionList attempts to find (or create) the TDL for a shipment.  Since some of
+// the fields needed to determine the TDL are optional, this may return a nil TDL in a non-error scenario.
+func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*TrafficDistributionList, error) {
+	// To look up a TDL, we need to try to determine the following:
+	// 1) source_rate_area: Find using the postal code of the pickup address.
+	// 2) destination_region: Find using the postal code of the destination duty station.
+	// 3) code_of_service: For now, always assume "D".
+
+	// The pickup address is an optional field, so return if we don't have it.  We don't consider
+	// this an error condition since the database allows it (maybe we're in draft mode?).
+	if s.PickupAddressID == nil {
+		return nil, nil
+	}
+
+	// Pickup address postal code -> source rate area.
+	if s.PickupAddress == nil {
+		var pickupAddress Address
+		if err := db.Find(&pickupAddress, *s.PickupAddressID); err != nil {
+			return nil, errors.Wrapf(err, "Could not fetch pickup address ID %s", s.PickupAddressID.String())
+		}
+		s.PickupAddress = &pickupAddress
+	}
+	pickupZip := s.PickupAddress.PostalCode
+	rateArea, err := FetchRateAreaForZip5(db, pickupZip)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch rate area for zip %s", pickupZip)
+	}
+
+	// Destination duty station -> destination region
+	// Need to traverse shipments->moves->orders->duty_stations->address to get that.
+	var move Move
+	err = db.Eager("Orders.NewDutyStation.Address").Find(&move, s.MoveID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch destination duty station postal code for move ID %s",
+			s.MoveID)
+	}
+	destinationZip := move.Orders.NewDutyStation.Address.PostalCode
+	region, err := FetchRegionForZip5(db, destinationZip)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch region for zip %s", destinationZip)
+	}
+
+	// Code of service -> hard-coded for now.
+	codeOfService := "D"
+
+	// Fetch the TDL (or create it if it doesn't exist already).
+	trafficDistributionList, err := FetchOrCreateTDL(db, rateArea, region, codeOfService)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not fetch TDL for rateArea=%s, region=%s, codeOfService=%s",
+			rateArea, region, codeOfService)
+	}
+
+	return &trafficDistributionList, nil
+}
+
+// AssignGBLNumber generates a new valid GBL number for the shipment
+// Note: This doens't save the Shipment, so this should always be run as part of
+// another transaction that saves the shipment after assigning a GBL number
+func (s *Shipment) AssignGBLNumber(db *pop.Connection) error {
+	if s.SourceGBLOC == nil {
+		return errors.New("Shipment must have a SourceBLOC to be assigned a GBL number")
+	}
+
+	// We only assign a GBL number once
+	if s.GBLNumber != nil {
+		return errors.New("Shipment already has GBL number assigned")
+	}
+
+	var sequenceNumber int32
+	sql := `INSERT INTO gbl_number_trackers AS gbl (gbloc, sequence_number)
+			VALUES ($1, 1)
+		ON CONFLICT (gbloc)
+		DO
+			UPDATE
+				SET sequence_number = gbl.sequence_number + 1
+				WHERE gbl.gbloc = $1
+		RETURNING gbl.sequence_number
+	`
+
+	err := db.RawQuery(sql, *s.SourceGBLOC).First(&sequenceNumber)
+	if err != nil {
+		return errors.Wrap(err, "Error while incrementing GBL counter")
+	}
+
+	// Format is XXXX7000001
+	fullGBLNumber := fmt.Sprintf("%v7%06d", *s.SourceGBLOC, sequenceNumber)
+
+	s.GBLNumber = &fullGBLNumber
+
+	return nil
+}
+
+// FetchUnofferedShipments will return submitted shipments that do not already have a shipment offer.
+func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
+	var shipments Shipments
+	err := db.Q().
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		Where("shipments.status = ?", ShipmentStatusSUBMITTED).
+		Where("shipment_offers.id is null").
+		All(&shipments)
+	if err != nil {
+		return nil, err
+	}
 
 	return shipments, err
 }
@@ -214,7 +346,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Eager(
+	query := tx.Q().Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
 		"Move",
@@ -226,24 +358,24 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
 	if len(status) > 0 {
-		statusStrings := make([]string, len(status))
+		statusStrings := make([]interface{}, len(status))
 		for index, st := range status {
-			statusStrings[index] = fmt.Sprintf("'%s'", st)
+			statusStrings[index] = st
 		}
-		query = query.Where(fmt.Sprintf("shipments.status IN (%s)", strings.Join(statusStrings, ", ")))
+		query = query.Where("shipments.status IN ($2)", statusStrings...)
 	}
 
 	// Manage ordering by pickup or delivery date
 	if orderBy != nil {
 		switch *orderBy {
 		case "PICKUP_DATE_ASC":
-			*orderBy = "pickup_date ASC"
+			*orderBy = "actual_pickup_date ASC"
 		case "PICKUP_DATE_DESC":
-			*orderBy = "pickup_date DESC"
+			*orderBy = "actual_pickup_date DESC"
 		case "DELIVERY_DATE_ASC":
-			*orderBy = "delivery_date ASC"
+			*orderBy = "actual_delivery_date ASC"
 		case "DELIVERY_DATE_DESC":
-			*orderBy = "delivery_date DESC"
+			*orderBy = "actual_delivery_date DESC"
 		default:
 			// Any other input is ignored
 			*orderBy = ""
@@ -308,7 +440,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	err := tx.Eager(
 		"TrafficDistributionList",
 		"ServiceMember",
-		"Move",
+		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
@@ -327,6 +459,71 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	}
 
 	return &shipments[0], err
+}
+
+// FetchShipmentForVerifiedTSPUser fetches a shipment for a verified, authorized TSP user
+func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, shipmentID uuid.UUID) (*TspUser, *Shipment, error) {
+	// Verify that the logged in TSP user exists
+	var shipment *Shipment
+	var tspUser *TspUser
+	tspUser, err := FetchTspUserByID(db, tspUserID)
+	if err != nil {
+		return tspUser, shipment, ErrFetchForbidden
+	}
+	// Verify that TSP is associated to shipment
+	shipment, err = FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		return tspUser, shipment, ErrUserUnauthorized
+	}
+	return tspUser, shipment, nil
+
+}
+
+// saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer
+func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *ShipmentOffer) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
+	// wrapped in a transaction because if one fails this actions should roll back.
+	responseVErrors := validate.NewErrors()
+	var responseError error
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment status to %s", shipment.Status)
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndUpdate(offer); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrapf(err, "Error changing shipment offer status %v", offer.Accepted)
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return shipment, offer, responseVErrors, responseError
+}
+
+// AwardShipment sets the shipment as awarded.
+func AwardShipment(db *pop.Connection, shipmentID uuid.UUID) error {
+	var shipment Shipment
+	if err := db.Find(&shipment, shipmentID); err != nil {
+		return err
+	}
+
+	if err := shipment.Award(); err != nil {
+		return err
+	}
+
+	verrs, err := db.ValidateAndUpdate(&shipment)
+	if err != nil {
+		return err
+	} else if verrs.HasAny() {
+		return fmt.Errorf("Validation failure: %s", verrs)
+	}
+
+	return nil
 }
 
 // AcceptShipmentForTSP accepts a shipment and shipment_offer
@@ -354,28 +551,36 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 		return shipment, shipmentOffer, nil, err
 	}
 
-	// Validate and update the Shipment and Shipment Offer
-	// wrapped in a transaction because if one fails this actions should roll back.
-	responseVErrors := validate.NewErrors()
-	var responseError error
-	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("rollback")
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
 
-		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment status to ACCEPTED")
-			return transactionError
-		}
-		if verrs, err := db.ValidateAndUpdate(shipmentOffer); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error changing shipment offer status to ACCEPTED")
-			return transactionError
-		}
+// RejectShipmentForTSP accepts a shipment and shipment_offer
+func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, rejectionReason string) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
 
-		return nil
-	})
+	// Get the Shipment and Shipment Offer
+	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
 
-	return shipment, shipmentOffer, responseVErrors, responseError
+	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	// Move the shipment back to Submitted and Reject the shipment offer.
+	err = shipment.Reject()
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	err = shipmentOffer.Reject(rejectionReason)
+	if err != nil {
+		return shipment, shipmentOffer, nil, err
+	}
+
+	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.

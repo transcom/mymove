@@ -22,17 +22,9 @@ const ServiceAgentDisplay = props => {
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          fieldName="point_of_contact"
-          nullWarning
-          {...fieldProps}
-        />
-        <PanelSwaggerField fieldName="email" nullWarning {...fieldProps} />
-        <PanelSwaggerField
-          fieldName="phone_number"
-          nullWarning
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="company" required {...fieldProps} />
+        <PanelSwaggerField fieldName="email" required {...fieldProps} />
+        <PanelSwaggerField fieldName="phone_number" required {...fieldProps} />
       </div>
     </Fragment>
   );
@@ -43,7 +35,7 @@ const ServiceAgentEdit = props => {
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <SwaggerField fieldName="point_of_contact" swagger={schema} required />
+        <SwaggerField fieldName="company" swagger={schema} required />
         <SwaggerField fieldName="email" swagger={schema} required />
         <SwaggerField fieldName="phone_number" swagger={schema} required />
       </div>
@@ -93,7 +85,7 @@ const ServiceAgents = props => {
 function mapStateToProps(state, props) {
   let originFormValues = getFormValues('origin_service_agent')(state);
   let destFormValues = getFormValues('destination_service_agent')(state);
-  let serviceAgents = get(state, 'tsp.serviceAgents', []);
+  let serviceAgents = props.serviceAgents;
   let initialValues = {};
   // This returns the last value. Currently there should only be one record for each role.
   serviceAgents.forEach(agent => (initialValues[agent.role] = agent));
@@ -104,7 +96,7 @@ function mapStateToProps(state, props) {
     initialValues,
 
     hasError: false,
-    errorMessage: state.tsp.error,
+    errorMessage: get(state, 'tsp.error', {}),
     isUpdating: false,
 
     // editablePanel

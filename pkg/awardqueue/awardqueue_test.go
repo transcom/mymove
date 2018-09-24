@@ -21,19 +21,9 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
-	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
-		BlackoutDate: models.BlackoutDate{
-			TransportationServiceProviderID: tsp.ID,
-			StartBlackoutDate:               blackoutStartDate,
-			EndBlackoutDate:                 blackoutEndDate,
-			TrafficDistributionListID:       &tdl.ID,
-		},
-	})
 
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 60)
@@ -42,30 +32,33 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
-			DeliveryDate:            &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+			RequestedPickupDate: &pickupDate,
+			ActualPickupDate:    &pickupDate,
+			ActualDeliveryDate:  &deliveryDate,
+			SourceGBLOC:         &sourceGBLOC,
+			Market:              &market,
+			BookDate:            &testdatagen.DateInsidePerformancePeriod,
+			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
 
-	// Create a ShipmentWithOffer to feed the award queue
-	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		RequestedPickupDate:             &pickupDate,
-		PickupDate:                      &pickupDate,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
-	}
+	tdl := *shipment.TrafficDistributionList
+
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp.ID,
+			StartBlackoutDate:               blackoutStartDate,
+			EndBlackoutDate:                 blackoutEndDate,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC,
+			Market:                          &market,
+		},
+	})
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
+	offer, err := queue.attemptShipmentOffer(shipment)
 
 	expectedError := "could not find a TSP without blackout dates"
 	// See if shipment was offered
@@ -79,38 +72,26 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
+
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
-
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
-	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
-		BlackoutDate: models.BlackoutDate{
-			TransportationServiceProviderID: tsp.ID,
-			StartBlackoutDate:               blackoutStartDate,
-			EndBlackoutDate:                 blackoutEndDate,
-			TrafficDistributionListID:       &tdl.ID,
-			SourceGBLOC:                     &sourceGBLOC,
-			Market:                          &market,
-		},
-	})
 
 	blackoutPickupDate := blackoutStartDate.AddDate(0, 0, 1)
 	blackoutDeliverDate := blackoutStartDate.AddDate(0, 0, 5)
 
 	blackoutShipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			RequestedPickupDate:     &blackoutPickupDate,
-			PickupDate:              &blackoutPickupDate,
-			DeliveryDate:            &blackoutDeliverDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+			RequestedPickupDate: &blackoutPickupDate,
+			ActualPickupDate:    &blackoutPickupDate,
+			ActualDeliveryDate:  &blackoutDeliverDate,
+			SourceGBLOC:         &sourceGBLOC,
+			Market:              &market,
+			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
 
@@ -119,12 +100,27 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
-			DeliveryDate:            &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+			RequestedPickupDate: &pickupDate,
+			ActualPickupDate:    &pickupDate,
+			ActualDeliveryDate:  &deliveryDate,
+			SourceGBLOC:         &sourceGBLOC,
+			Market:              &market,
+			Status:              models.ShipmentStatusSUBMITTED,
+		},
+	})
+
+	tdl := *blackoutShipment.TrafficDistributionList
+
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp.ID,
+			StartBlackoutDate:               blackoutStartDate,
+			EndBlackoutDate:                 blackoutEndDate,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC,
+			Market:                          &market,
 		},
 	})
 
@@ -151,28 +147,35 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		t.Errorf("Shipment Awards erroneously not assigned administrative status.")
 	}
 
+	// Test that shipments were awarded appropriately.
+	if err := suite.db.Find(&blackoutShipment, blackoutShipment.ID); err != nil {
+		t.Errorf("Couldn't find blackout shipment with ID: %v", blackoutShipment.ID)
+	}
+	if shipment.Status == models.ShipmentStatusAWARDED {
+		t.Errorf("Blackout shipment was erroneously awarded for shipment ID: %v", shipment.ID)
+	}
+
+	if err := suite.db.Find(&shipment, shipment.ID); err != nil {
+		t.Errorf("Couldn't find shipment with ID: %v", shipment.ID)
+	}
+	if shipment.Status != models.ShipmentStatusAWARDED {
+		t.Errorf("Shipment should have been awarded for shipment ID %v but instead had status %v", shipment.ID,
+			shipment.Status)
+	}
+
 	suite.verifyOfferCount(tsp, 2)
 }
 
 func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
-	// Creates a TSP and TDL with a blackout date connected to both.
+	// Creates a TSP with a blackout date connected to both.
 	testTSP1 := testdatagen.MakeDefaultTSP(suite.db)
-	testTDL := testdatagen.MakeDefaultTDL(suite.db)
 
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	testStartDate := testdatagen.DateInsidePeakRateCycle
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
-	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
-		BlackoutDate: models.BlackoutDate{
-			TransportationServiceProviderID: testTSP1.ID,
-			StartBlackoutDate:               testStartDate,
-			EndBlackoutDate:                 testEndDate,
-			TrafficDistributionListID:       &testTDL.ID,
-		},
-	})
 
 	// Two pickup times to check with ShipmentWithinBlackoutDates
 	testPickupDateBetween := testStartDate.Add(time.Hour * 24)
@@ -181,54 +184,46 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	// Two shipments using these pickup dates to provide to ShipmentWithinBlackoutDates
 	testShipmentBetween := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			RequestedPickupDate:     &testPickupDateBetween,
-			PickupDate:              &testStartDate,
-			DeliveryDate:            &testEndDate,
-			TrafficDistributionList: &testTDL,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+			RequestedPickupDate: &testPickupDateBetween,
+			ActualPickupDate:    &testPickupDateBetween,
+			ActualDeliveryDate:  &testEndDate,
+			SourceGBLOC:         &sourceGBLOC,
+			Market:              &market,
+			BookDate:            &testdatagen.DateInsidePerformancePeriod,
+			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
 
 	testShipmentAfter := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			RequestedPickupDate:     &testPickupDateAfter,
-			PickupDate:              &testStartDate,
-			DeliveryDate:            &testEndDate,
-			TrafficDistributionList: &testTDL,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+			RequestedPickupDate: &testPickupDateAfter,
+			ActualPickupDate:    &testPickupDateAfter,
+			ActualDeliveryDate:  &testEndDate,
+			SourceGBLOC:         &sourceGBLOC,
+			Market:              &market,
+			BookDate:            &testdatagen.DateInsidePerformancePeriod,
+			Status:              models.ShipmentStatusSUBMITTED,
+		},
+	})
+
+	tdl := *testShipmentBetween.TrafficDistributionList
+
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: testTSP1.ID,
+			StartBlackoutDate:               testStartDate,
+			EndBlackoutDate:                 testEndDate,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC,
+			Market:                          &market,
 		},
 	})
 
 	// One TSP with no blackout dates
 	testTSP2 := testdatagen.MakeDefaultTSP(suite.db)
 
-	// Two shipments with offers, using the shipments above
-	shipmentWithOfferBetween := models.ShipmentWithOffer{
-		ID: testShipmentBetween.ID,
-		TrafficDistributionListID:       &testTDL.ID,
-		PickupDate:                      &testPickupDateBetween,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
-	}
-
-	shipmentWithOfferAfter := models.ShipmentWithOffer{
-		ID: testShipmentAfter.ID,
-		TrafficDistributionListID:       &testTDL.ID,
-		PickupDate:                      &testPickupDateAfter,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
-	}
-
 	// Checks a date that falls within the blackout date range; returns true.
-	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, shipmentWithOfferBetween)
+	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testShipmentBetween)
 
 	if err != nil {
 		t.Fatal(err)
@@ -237,7 +232,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a date that falls after the blackout date range; returns false.
-	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, shipmentWithOfferAfter)
+	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testShipmentAfter)
 
 	if err != nil {
 		t.Fatal(err)
@@ -246,7 +241,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a TSP with no blackout dates and returns false.
-	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, shipmentWithOfferAfter)
+	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, testShipmentAfter)
 
 	if err != nil {
 		t.Fatal(err)
@@ -272,7 +267,6 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	pickupDate := testdatagen.DateInsidePeakRateCycle
@@ -280,51 +274,51 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
-			DeliveryDate:            &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+			RequestedPickupDate: &pickupDate,
+			ActualPickupDate:    &pickupDate,
+			ActualDeliveryDate:  &deliveryDate,
+			SourceGBLOC:         &sourceGBLOC,
+			Market:              &market,
+			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
 
+	tdl := *shipment.TrafficDistributionList
+
 	// Make a TSP to handle it
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
-
-	// Create a ShipmentWithOffer to feed the award queue
-	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		PickupDate:                      &pickupDate,
-		RequestedPickupDate:             &pickupDate,
-		TransportationServiceProviderID: nil,
-		Accepted:                        nil,
-		RejectionReason:                 nil,
-		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        shipment.BookDate,
-	}
+	tspp, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	suite.Nil(err)
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
+	offer, err := queue.attemptShipmentOffer(shipment)
 
 	// See if shipment was offered
 	if err != nil {
 		t.Errorf("Shipment offer expected no errors, received: %v", err)
 	} else if offer == nil {
 		t.Error("ShipmentOffer was not found.")
+	} else {
+		if err := suite.db.Find(&shipment, shipment.ID); err != nil {
+			t.Errorf("Couldn't find shipment with ID: %v", shipment.ID)
+		}
+		if shipment.Status != models.ShipmentStatusAWARDED {
+			t.Errorf("Shipment should have been awarded for shipment ID %v but instead had status %v", shipment.ID,
+				shipment.Status)
+		}
 	}
+
+	suite.Equal(tsp.ID, offer.TransportationServiceProviderID)
+	suite.Equal(tspp.ID, offer.TransportationServiceProviderPerformanceID)
 }
 
 // Test that we can create a shipment that should NOT be offered because it is not in a TDL
-// with any TSPs, and that it doens't get offered.
+// with any TSPs, and that it doesn't get offered.
 func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	pickupDate := testdatagen.DateInsidePeakRateCycle
@@ -332,28 +326,18 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
-			RequestedPickupDate:     &pickupDate,
-			PickupDate:              &pickupDate,
-			DeliveryDate:            &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+			RequestedPickupDate: &pickupDate,
+			ActualPickupDate:    &pickupDate,
+			ActualDeliveryDate:  &deliveryDate,
+			SourceGBLOC:         &sourceGBLOC,
+			Market:              &market,
+			BookDate:            &pickupDate,
+			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
 
-	// Create a ShipmentWithOffer to feed the award queue
-	shipmentWithOffer := models.ShipmentWithOffer{
-		ID: shipment.ID,
-		TrafficDistributionListID:       &tdl.ID,
-		PickupDate:                      &pickupDate,
-		RequestedPickupDate:             &pickupDate,
-		BookDate:                        &pickupDate,
-		TransportationServiceProviderID: nil,
-		AdministrativeShipment:          swag.Bool(false),
-	}
-
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
+	offer, err := queue.attemptShipmentOffer(shipment)
 
 	// See if shipment was offered
 	if err == nil {
@@ -368,10 +352,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
-	shipmentsToMake := 10
-
-	// Make a TDL to contain our tests
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	const shipmentsToMake = 10
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
@@ -380,24 +361,27 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	deliveryDate := testdatagen.DateInsidePeakRateCycle.Add(time.Hour)
 
 	// Make a few shipments in this TDL
+	var shipments [shipmentsToMake]models.Shipment
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		shipments[i] = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 			Shipment: models.Shipment{
-				RequestedPickupDate:     &pickupDate,
-				PickupDate:              &pickupDate,
-				DeliveryDate:            &deliveryDate,
-				TrafficDistributionList: &tdl,
-				SourceGBLOC:             &sourceGBLOC,
-				Market:                  &market,
+				RequestedPickupDate: &pickupDate,
+				ActualPickupDate:    &pickupDate,
+				ActualDeliveryDate:  &deliveryDate,
+				SourceGBLOC:         &sourceGBLOC,
+				Market:              &market,
+				Status:              models.ShipmentStatusSUBMITTED,
 			},
 		})
 	}
+
+	tdl := *shipments[0].TrafficDistributionList
 
 	// Make a TSP in the same TDL to handle these shipments
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -413,17 +397,26 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	if count != shipmentsToMake {
 		t.Errorf("Not all ShipmentOffers found. Expected %d found %d", shipmentsToMake, count)
 	}
+
+	for _, shipment := range shipments {
+		if err := suite.db.Find(&shipment, shipment.ID); err != nil {
+			t.Errorf("Couldn't find shipment with ID: %v", shipment.ID)
+		}
+		if shipment.Status != models.ShipmentStatusAWARDED {
+			t.Errorf("Shipment should have been awarded for shipment ID %v but instead had status %v", shipment.ID,
+				shipment.Status)
+		}
+	}
 }
 
 func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
+	t := suite.T()
+
 	suite.db.TruncateAll()
 
 	queue := NewAwardQueue(suite.db, suite.logger)
 
-	shipmentsToMake := 17
-
-	// Make a TDL to contain our tests
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	const shipmentsToMake = 17
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
@@ -432,18 +425,21 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	deliveryDate := testdatagen.DateInsidePeakRateCycle.Add(time.Hour)
 
 	// Make shipments in this TDL
+	var shipments [shipmentsToMake]models.Shipment
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		shipments[i] = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 			Shipment: models.Shipment{
-				RequestedPickupDate:     &pickupDate,
-				PickupDate:              &pickupDate,
-				DeliveryDate:            &deliveryDate,
-				TrafficDistributionList: &tdl,
-				SourceGBLOC:             &sourceGBLOC,
-				Market:                  &market,
+				RequestedPickupDate: &pickupDate,
+				ActualPickupDate:    &pickupDate,
+				ActualDeliveryDate:  &deliveryDate,
+				SourceGBLOC:         &sourceGBLOC,
+				Market:              &market,
+				Status:              models.ShipmentStatusSUBMITTED,
 			},
 		})
 	}
+
+	tdl := *shipments[0].TrafficDistributionList
 
 	// Make TSPs in the same TDL to handle these shipments
 	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
@@ -453,11 +449,11 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	tsp5 := testdatagen.MakeDefaultTSP(suite.db)
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
-	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -467,6 +463,16 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	suite.verifyOfferCount(tsp3, 3)
 	suite.verifyOfferCount(tsp4, 2)
 	suite.verifyOfferCount(tsp5, 1)
+
+	for _, shipment := range shipments {
+		if err := suite.db.Find(&shipment, shipment.ID); err != nil {
+			t.Errorf("Couldn't find shipment with ID: %v", shipment.ID)
+		}
+		if shipment.Status != models.ShipmentStatusAWARDED {
+			t.Errorf("Shipment should have been awarded for shipment ID %v but instead had status %v", shipment.ID,
+				shipment.Status)
+		}
+	}
 }
 
 func (suite *AwardQueueSuite) Test_GetTSPsPerBandWithRemainder() {
@@ -497,12 +503,17 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
+	var lastTSPP models.TransportationServiceProviderPerformance
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.db)
 		score := float64(mps + i + 1)
 
 		rate := unit.NewDiscountRateFromPercent(45.3)
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		var err error
+		lastTSPP, err = testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		if err != nil {
+			t.Errorf("Failed to MakeTSPPerformance: %v", err)
+		}
 	}
 
 	err := queue.assignPerformanceBands()
@@ -511,7 +522,15 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		t.Errorf("Failed to assign to performance bands: %v", err)
 	}
 
-	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
+	perfGroup := models.TSPPerformanceGroup{
+		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
+		PerformancePeriodStart:    lastTSPP.PerformancePeriodStart,
+		PerformancePeriodEnd:      lastTSPP.PerformancePeriodEnd,
+		RateCycleStart:            lastTSPP.RateCycleStart,
+		RateCycleEnd:              lastTSPP.RateCycleEnd,
+	}
+
+	perfs, err := models.FetchTSPPerformancesForQualityBandAssignment(suite.db, perfGroup, mps)
 	if err != nil {
 		t.Errorf("Failed to fetch TSPPerformances: %v", err)
 	}
@@ -521,7 +540,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	for i, perf := range perfs {
 		band := expectedBands[i]
 		if perf.QualityBand == nil {
-			t.Errorf("No quality band assigned for Peformance #%v, got nil", perf.ID)
+			t.Errorf("No quality band assigned for Performance #%v, got nil", perf.ID)
 		} else if (*perf.QualityBand) != band {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}
@@ -561,14 +580,14 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 
 	shipmentPeak := models.Shipment{
 		TrafficDistributionListID: &tdl.ID,
-		PickupDate:                &testdatagen.DateInsidePeakRateCycle,
+		ActualPickupDate:          &testdatagen.DateInsidePeakRateCycle,
 		RequestedPickupDate:       &testdatagen.DateInsidePeakRateCycle,
-		DeliveryDate:              &twoMonthsLater,
+		ActualDeliveryDate:        &twoMonthsLater,
 		BookDate:                  &testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
 		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
-		Status:                    "DEFAULT",
+		Status:                    models.ShipmentStatusSUBMITTED,
 		ServiceMemberID:           sm.ID,
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentPeak)
@@ -600,14 +619,14 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 
 	shipmentNonPeak := models.Shipment{
 		TrafficDistributionListID: &tdl.ID,
-		PickupDate:                &testdatagen.DateInsideNonPeakRateCycle,
+		ActualPickupDate:          &testdatagen.DateInsideNonPeakRateCycle,
 		RequestedPickupDate:       &testdatagen.DateInsideNonPeakRateCycle,
-		DeliveryDate:              &twoMonthsLater,
+		ActualDeliveryDate:        &twoMonthsLater,
 		BookDate:                  &testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
 		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
-		Status:                    "DEFAULT",
+		Status:                    models.ShipmentStatusSUBMITTED,
 		ServiceMemberID:           sm.ID,
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentNonPeak)
@@ -619,6 +638,23 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 
 	suite.verifyOfferCount(tspPeak, 1)
 	suite.verifyOfferCount(tspNonPeak, 1)
+
+	// Test that shipments were awarded appropriately.
+	if err := suite.db.Find(&shipmentPeak, shipmentPeak.ID); err != nil {
+		t.Errorf("Couldn't find peak shipment with ID: %v", shipmentPeak.ID)
+	}
+	if shipmentPeak.Status != models.ShipmentStatusAWARDED {
+		t.Errorf("Shipment should have been awarded for peak shipment ID %v but instead had status %v",
+			shipmentPeak.ID, shipmentPeak.Status)
+	}
+
+	if err := suite.db.Find(&shipmentNonPeak, shipmentNonPeak.ID); err != nil {
+		t.Errorf("Couldn't find non-peak shipment with ID: %v", shipmentNonPeak.ID)
+	}
+	if shipmentNonPeak.Status != models.ShipmentStatusAWARDED {
+		t.Errorf("Shipment should have been awarded for non-peak shipment ID %v but instead had status %v",
+			shipmentNonPeak.ID, shipmentNonPeak.Status)
+	}
 }
 
 func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceProvider, expectedCount int) {
@@ -643,6 +679,35 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 	if expectedCount != tspPerformance.OfferCount {
 		t.Errorf("Wrong OfferCount for TSP: expected %d, got %d", expectedCount, tspPerformance.OfferCount)
 	}
+}
+
+func (suite *AwardQueueSuite) Test_waitForLock() {
+	ret := make(chan int)
+	lockID := 1
+
+	go func() {
+		suite.db.Transaction(func(tx *pop.Connection) error {
+			suite.Nil(waitForLock(tx, lockID))
+			time.Sleep(time.Second)
+			ret <- 1
+			return nil
+		})
+	}()
+
+	go func() {
+		suite.db.Transaction(func(tx *pop.Connection) error {
+			time.Sleep(time.Millisecond * 500)
+			suite.Nil(waitForLock(tx, lockID))
+			ret <- 2
+			return nil
+		})
+	}()
+
+	first := <-ret
+	second := <-ret
+
+	suite.Equal(1, first)
+	suite.Equal(2, second)
 }
 
 func equalSlice(a []int, b []int) bool {

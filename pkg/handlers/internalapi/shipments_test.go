@@ -28,6 +28,26 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
+	// Make associated lookup table records.
+	testdatagen.MakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
+		Tariff400ngZip3: models.Tariff400ngZip3{
+			Zip3:          "012",
+			BasepointCity: "Pittsfield",
+			State:         "MA",
+			ServiceArea:   "388",
+			RateArea:      "US14",
+			Region:        "9",
+		},
+	})
+
+	testdatagen.MakeTDL(suite.TestDB(), testdatagen.Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US14",
+			DestinationRegion: "9",
+			CodeOfService:     "D",
+		},
+	})
+
 	addressPayload := fakeAddressPayload()
 
 	newShipment := internalmessages.Shipment{
@@ -59,16 +79,12 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
-	market := "dHHG"
-	// codeOfService := "D"
 
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
-	// TODO: Taking check of codeOfService out for now until we get the TDL record assigned
-	// TODO: to a submitted shipment (where it will ultimately live).
-	// suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
-	suite.Equal(&market, unwrapped.Payload.Market)
+	suite.Equal(swag.String("D"), unwrapped.Payload.CodeOfService)
+	suite.Equal(swag.String("dHHG"), unwrapped.Payload.Market)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
 	suite.Equal(swag.Int64(5), unwrapped.Payload.EstimatedTransitDays)
 	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PickupAddress)
@@ -104,8 +120,6 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	market := "dHHG"
-	// codeOfService := "D"
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
 
@@ -116,12 +130,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
-	suite.Equal(&market, unwrapped.Payload.Market)
-	// TODO: Taking check of codeOfService out for now until we get the TDL record assigned
-	// TODO: to a submitted shipment (where it will ultimately live).
-	// suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
-	suite.Nil(unwrapped.Payload.EstimatedPackDays)
-	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
+	suite.Equal(swag.String("dHHG"), unwrapped.Payload.Market)
+	suite.Nil(unwrapped.Payload.CodeOfService) // Won't be able to assign a TDL since we do not have a pickup address.
 	suite.Nil(unwrapped.Payload.PickupAddress)
 	suite.Equal(false, unwrapped.Payload.HasSecondaryPickupAddress)
 	suite.Nil(unwrapped.Payload.SecondaryPickupAddress)
@@ -138,7 +148,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
-	addressPayload := testdatagen.MakeAddress(suite.TestDB(), testdatagen.Assertions{})
+	addressPayload := testdatagen.MakeDefaultAddress(suite.TestDB())
 
 	shipment1 := models.Shipment{
 		MoveID:                       move.ID,
@@ -160,6 +170,18 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment/shipment_id", nil)
 	req = suite.AuthenticateRequest(req, sm)
+
+	// Make associated lookup table records.
+	testdatagen.MakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
+		Tariff400ngZip3: models.Tariff400ngZip3{
+			Zip3:          "321",
+			BasepointCity: "Crescent City",
+			State:         "FL",
+			ServiceArea:   "184",
+			RateArea:      "ZIP",
+			Region:        "13",
+		},
+	})
 
 	newAddress := otherFakeAddressPayload()
 
@@ -193,3 +215,86 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	suite.Equal(*patchShipmentPayload.EstimatedPackDays, int64(15), "EstimatedPackDays should have been set to 15")
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")
 }
+
+func (suite *HandlerSuite) TestApproveHHGHandler() {
+	// Given: an office User
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	shipmentAssertions := testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status: "ACCEPTED",
+		},
+	}
+	shipment := testdatagen.MakeShipment(suite.TestDB(), shipmentAssertions)
+	suite.MustSave(&shipment)
+
+	handler := ApproveHHGHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := "/shipments/shipment_id/approve"
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := shipmentop.ApproveHHGParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	// assert we got back the 200 response
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.ApproveHHGOK{}, response)
+	okResponse := response.(*shipmentop.ApproveHHGOK)
+	suite.Equal("APPROVED", string(okResponse.Payload.Status))
+}
+
+func (suite *HandlerSuite) TestCompleteHHGHandler() {
+	// Given: an office User
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	shipmentAssertions := testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status: "DELIVERED",
+		},
+	}
+	shipment := testdatagen.MakeShipment(suite.TestDB(), shipmentAssertions)
+	suite.MustSave(&shipment)
+
+	handler := CompleteHHGHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := "/shipments/shipment_id/complete"
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := shipmentop.CompleteHHGParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	// assert we got back the 200 response
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.CompleteHHGOK{}, response)
+	okResponse := response.(*shipmentop.CompleteHHGOK)
+	suite.Equal("COMPLETED", string(okResponse.Payload.Status))
+}
+
+//func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
+//	// Given: an office User
+//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+//
+//	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{})
+//	suite.MustSave(&shipment)
+//
+//	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+//
+//	path := "/shipments/shipment_id/invoice"
+//	req := httptest.NewRequest("POST", path, nil)
+//	req = suite.AuthenticateOfficeRequest(req, officeUser)
+//
+//	params := shipmentop.SendHHGInvoiceParams{
+//		HTTPRequest: req,
+//		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+//	}
+//
+//	// assert we got back the OK response
+//	response := handler.Handle(params)
+//	suite.Equal(shipmentop.NewSendHHGInvoiceOK(), response)
+//}

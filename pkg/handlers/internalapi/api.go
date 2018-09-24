@@ -77,6 +77,9 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{context}
 	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
+	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
+	internalAPI.ShipmentsCompleteHHGHandler = CompleteHHGHandler{context}
+	internalAPI.ShipmentsSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
@@ -84,6 +87,8 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context}
 
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
+
+	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
 
 	return internalAPI.Serve(nil)
 }
