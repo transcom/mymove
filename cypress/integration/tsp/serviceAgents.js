@@ -90,7 +90,7 @@ function tspUserEntersServiceAgent(role) {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // Click on edit Service Agent
@@ -223,7 +223,7 @@ function tspUserAcceptsShipment() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // Status should be Awarded

@@ -30,7 +30,7 @@ function tspUserViewsShipments() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 }
 
@@ -48,7 +48,7 @@ function tspUserViewsInTransitShipment() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/in_transit\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 }
 
@@ -66,7 +66,7 @@ function tspUserViewsDeliveredShipment() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/delivered\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 }
 

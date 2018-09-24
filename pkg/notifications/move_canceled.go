@@ -69,7 +69,7 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 	// TODO: we will want some sort of templating system
 
 	introText := `Your move has been canceled.`
-	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was cancelled.",
+	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was canceled.",
 		dsTransportInfo.Name, orders.NewDutyStation.Name, move.Locator)
 	closingText := fmt.Sprintf("Contact your local PPPO %s at %s if you have any questions.",
 		dsTransportInfo.Name, dsTransportInfo.PhoneLine)

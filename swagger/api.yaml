@@ -557,7 +557,7 @@ definitions:
         type: string
         format: date-time
         example: 2018-04-21T17:32:28Z
-      delivery_date:
+      actual_delivery_date:
         type: string
         format: date-time
         example: 2018-04-27T17:32:28Z
@@ -922,9 +922,21 @@ definitions:
         type: string
         format: date
         example: "2018-04-02"
+        title: Actual Pickup Date
         x-nullable: true
     required:
       - actual_pickup_date
+  ActualDeliveryDate:
+    type: object
+    properties:
+      actual_delivery_date:
+        type: string
+        format: date
+        example: "2018-04-02"
+        x-nullable: true
+        title: Actual Delivery Date
+    required:
+      - actual_delivery_date
   TSP:
     type: object
     description: The primary definition of a Transport Service Provider
@@ -1491,13 +1503,49 @@ paths:
           required: true
           description: UUID of the shipment
         - in: body
-          name: actualPickupDate
+          name: payload
           required: true
           schema:
             $ref: '#/definitions/ActualPickupDate'
       responses:
         200:
           description: returns updated (in_transit) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
+  /shipments/{shipmentId}/deliver:
+    post:
+      summary: Places an in transit shipment to delivered state
+      description: The status of the shipment will be updated to DELIVERED.
+      operationId: deliverShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/ActualDeliveryDate'
+      responses:
+        200:
+          description: returns updated (delivered) shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:
@@ -1543,7 +1591,7 @@ paths:
   /shipments/{shipmentId}/contact_details:
     get:
       summary: Gets the detailed contact information for a move
-      description: Accepts a shipment awarded to a TSP
+      description: Gets the detailed contact information for a move
       operationId: getShipmentContactDetails
       tags:
         - shipments

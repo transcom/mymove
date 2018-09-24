@@ -5,6 +5,7 @@ repos:
         name: go version
         entry: bin/check_go_version
         language: script
+        types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
     rev: v1.4.0
@@ -114,12 +115,3 @@ repos:
         name: dep version
         entry: bin/check_dep_version
         language: script
-
-  - repo: local
-    hooks:
-      - id: dep-status
-        name: dep status
-        entry: dep status -v
-        language: system
-        description: If this hook fails, try running `dep ensure`
-        files: \.go$

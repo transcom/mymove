@@ -86,7 +86,7 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 				return nil, err
 			}
 
-			shipmentOffer, err = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, isAdministrativeShipment)
+			shipmentOffer, err = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, tspPerformance.ID, isAdministrativeShipment)
 			if err == nil {
 				if err = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
 					if isAdministrativeShipment == true {
