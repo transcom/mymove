@@ -9,11 +9,12 @@ import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProductio
 import { isDevelopment } from 'shared/constants';
 import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
+import { getClient } from 'shared/Swagger/api';
 
 export const history = createHistory();
 
 const middlewares = [
-  thunk.withExtraArgument({ schema }),
+  thunk.withExtraArgument({ schema, client: getClient() }),
   routerMiddleware(history),
 ];
 

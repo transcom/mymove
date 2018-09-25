@@ -2,7 +2,7 @@ import * as request from './request';
 import * as schema from 'shared/Entities/schema';
 
 function mockClient(operationMock) {
-  return {
+  return Promise.resolve({
     apis: {
       shipments: {
         getShipment: operationMock,
@@ -45,7 +45,7 @@ function mockClient(operationMock) {
         },
       },
     },
-  };
+  });
 }
 
 describe('swaggerRequest', function() {
