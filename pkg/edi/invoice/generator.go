@@ -161,15 +161,19 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	if shipment.ServiceMember.Affiliation == nil {
 		return segments, errors.New("Service member is missing affiliation")
 	}
+	GBL := shipment.GBLNumber
+	if GBL == nil {
+		return segments, errors.New("GBL Number is missing for Shipment Identification Number (BX04)")
+	}
 
 	return []edisegment.Segment{
 		&edisegment.BX{
-			TransactionSetPurposeCode:    "00",        // Original
-			TransactionMethodTypeCode:    "J",         // Motor
-			ShipmentMethodOfPayment:      "PP",        // Prepaid by seller
-			ShipmentIdentificationNumber: "ABCD00001", // TODO: real GBL
-			StandardCarrierAlphaCode:     "MCCG",      // TODO: real SCAC
-			ShipmentQualifier:            "4",         // HHG Bill of Lading
+			TransactionSetPurposeCode:    "00", // Original
+			TransactionMethodTypeCode:    "J",  // Motor
+			ShipmentMethodOfPayment:      "PP", // Prepaid by seller
+			ShipmentIdentificationNumber: GBL,
+			StandardCarrierAlphaCode:     "MCCG", // TODO: real SCAC
+			ShipmentQualifier:            "4",    // HHG Bill of Lading
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "DY", // DoD transportation service code #
