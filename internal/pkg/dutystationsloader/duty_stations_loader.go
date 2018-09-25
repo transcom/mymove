@@ -98,7 +98,7 @@ func getCell(cells []*xlsx.Cell, i int) string {
 
 func similarityPattern(s string) string {
 	// "Some name" -> "%(some|name)% for SIMILAR TO lookups in postgres"
-	return "%(" + splitRepl.ReplaceAllString(strings.ToLower(newStation.DutyStation.Name), "|") + ")%"
+	return "%(" + splitRepl.ReplaceAllString(strings.ToLower(s), "|") + ")%"
 }
 
 // ParseStations parses a spreadsheet of duty stations into DutyStationRow structs

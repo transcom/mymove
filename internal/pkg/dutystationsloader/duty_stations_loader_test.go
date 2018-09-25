@@ -141,7 +141,7 @@ func (suite *DutyStationsLoaderSuite) TestSeparateStations() {
 		PostalCode:     postalCode2,
 	}
 
-	notSavedName := "Not saved :("
+	notSavedName := "Not saved sadface"
 	notSaved := models.DutyStation{
 		AddressID:   address2.ID,
 		Address:     address2,
@@ -220,8 +220,11 @@ func (suite *DutyStationsLoaderSuite) TestPairStationsOffices() {
 			Name: stationName1,
 		},
 	}
-	office1 := models.TransportationOffice{
-		Name: officeName1,
+	office1 := TransportationOfficeWrapper{
+		TransportationOfficeName: officeName1,
+		TransportationOffice: models.TransportationOffice{
+			Name: officeName1,
+		},
 	}
 
 	officeName2 := "oname2"
@@ -232,8 +235,11 @@ func (suite *DutyStationsLoaderSuite) TestPairStationsOffices() {
 			Name: stationName2,
 		},
 	}
-	office2 := models.TransportationOffice{
-		Name: officeName2,
+	office2 := TransportationOfficeWrapper{
+		TransportationOfficeName: officeName2,
+		TransportationOffice: models.TransportationOffice{
+			Name: officeName2,
+		},
 	}
 
 	// This DutyStation has no pair, should still come out the other side though
@@ -249,7 +255,7 @@ func (suite *DutyStationsLoaderSuite) TestPairStationsOffices() {
 	builder := NewMigrationBuilder(suite.db, suite.logger)
 	pairs := builder.pairOfficesToStations(
 		[]DutyStationWrapper{station1, station2, station3},
-		[]models.TransportationOffice{office1, office2})
+		[]TransportationOfficeWrapper{office1, office2})
 
 	suite.Len(pairs, 3)
 	for _, p := range pairs {
