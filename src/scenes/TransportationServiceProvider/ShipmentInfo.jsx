@@ -9,7 +9,6 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
-import { formatDate } from 'shared/formatters';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -25,6 +24,11 @@ import {
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 import FormButton from './FormButton';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faComments from '@fortawesome/fontawesome-free-solid/faComments';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -51,6 +55,7 @@ class AcceptShipmentPanel extends Component {
           reasonPrompt="Why are you rejecting this shipment?"
           warningPrompt="Are you sure you want to reject this shipment?"
           onConfirm={this.rejectShipment}
+          buttonDisabled={true}
         />
       </div>
     );
@@ -127,9 +132,10 @@ class ShipmentInfo extends Component {
     this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const last_name = get(this.props.shipment, 'service_member.last_name');
-    const first_name = get(this.props.shipment, 'service_member.first_name');
-    const locator = get(this.props.shipment, 'move.locator');
+    const serviceMember = get(this.props.shipment, 'service_member', {});
+    const move = get(this.props.shipment, 'move', {});
+    const gbl = get(this.props.shipment, 'gbl_number');
+
     const awarded = this.props.shipment.status === 'AWARDED';
     const approved = this.props.shipment.status === 'APPROVED';
     const inTransit = this.props.shipment.status === 'IN_TRANSIT';
@@ -142,8 +148,10 @@ class ShipmentInfo extends Component {
       <div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-two-thirds">
+            MOVE INFO - {move.selected_move_type} CODE D
             <h1>
-              Shipment Info: {last_name}, {first_name}
+              Shipment Info: {serviceMember.last_name},{' '}
+              {serviceMember.first_name}
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
@@ -162,15 +170,28 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li className="Todo-phase2">GBL# OHAI9999999</li>
-              <li>Locator# {locator}</li>
+              <li>GBL# {gbl}</li>
+              <li>Locator# {move.locator}</li>
               <li>
                 {this.props.shipment.source_gbloc} to{' '}
                 {this.props.shipment.destination_gbloc}
               </li>
+              <li>DoD ID# {serviceMember.edipi}</li>
               <li>
-                Requested Move date{' '}
-                {formatDate(this.props.shipment.requested_pickup_date)}
+                {serviceMember.telephone}
+                {serviceMember.phone_is_preferred && (
+                  <FontAwesomeIcon
+                    className="icon"
+                    icon={faPhone}
+                    flip="horizontal"
+                  />
+                )}
+                {serviceMember.text_message_is_preferred && (
+                  <FontAwesomeIcon className="icon" icon={faComments} />
+                )}
+                {serviceMember.email_is_preferred && (
+                  <FontAwesomeIcon className="icon" icon={faEmail} />
+                )}
               </li>
               <li>
                 Status: <b>{capitalize(this.props.shipment.status)}</b>

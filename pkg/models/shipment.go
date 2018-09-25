@@ -89,6 +89,7 @@ type Shipment struct {
 	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
 	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
 	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
+	ShipmentOffers                      ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
 }
 
 // Shipments is not required by pop and may be deleted
@@ -459,6 +460,24 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	}
 
 	return &shipments[0], err
+}
+
+// FetchShipmentForVerifiedTSPUser fetches a shipment for a verified, authorized TSP user
+func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, shipmentID uuid.UUID) (*TspUser, *Shipment, error) {
+	// Verify that the logged in TSP user exists
+	var shipment *Shipment
+	var tspUser *TspUser
+	tspUser, err := FetchTspUserByID(db, tspUserID)
+	if err != nil {
+		return tspUser, shipment, ErrFetchForbidden
+	}
+	// Verify that TSP is associated to shipment
+	shipment, err = FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		return tspUser, shipment, ErrUserUnauthorized
+	}
+	return tspUser, shipment, nil
+
 }
 
 // saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer

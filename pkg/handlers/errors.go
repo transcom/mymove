@@ -45,6 +45,9 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	case models.ErrFetchForbidden:
 		logger.Debug("forbidden", zap.Error(err))
 		return newErrResponse(http.StatusForbidden, err)
+	case models.ErrUserUnauthorized:
+		logger.Debug("unauthorized", zap.Error(err))
+		return newErrResponse(http.StatusUnauthorized, err)
 	case models.ErrInvalidPatchGate:
 		logger.Debug("invalid patch gate", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
