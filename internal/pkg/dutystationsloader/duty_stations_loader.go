@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +19,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
+
+var splitRepl = regexp.MustCompile(" |,|-")
 
 // A reverse-mapping from string value back to internalmessages.Affiliation
 var affiliationMap = map[string]internalmessages.Affiliation{
@@ -46,6 +49,12 @@ func NewMigrationBuilder(db *pop.Connection, logger *zap.Logger) MigrationBuilde
 type DutyStationWrapper struct {
 	TransportationOfficeName string
 	models.DutyStation
+}
+
+// TransportationOfficeWrapper wraps TransportationOffice data but retains the original TransportationOfficeName for pairing with a station
+type TransportationOfficeWrapper struct {
+	TransportationOfficeName string
+	models.TransportationOffice
 }
 
 // StationOfficePair pairs a DutyStationRow to a TransportationOfficeRow
@@ -309,9 +318,10 @@ func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrappe
 	var existing []DutyStationWrapper
 	for _, newStation := range stations {
 		var existingStation models.DutyStation
+		pattern := "%(" + splitRepl.ReplaceAllString(strings.ToLower(newStation.DutyStation.Name), "|") + ")%"
 		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=duty_stations.address_id").
-			Where("name ILIKE $1", "%"+strings.Replace(newStation.DutyStation.Name, " ", "%", -1)+"%").
+			Where("lower(name) SIMILAR TO $1", pattern).
 			Where("postal_code = $2", newStation.DutyStation.Address.PostalCode)
 		err := query.First(&existingStation)
 		if err == nil {
@@ -331,21 +341,28 @@ func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrappe
 }
 
 // Given a list of TransportationOffice data, separate into two lists: new data, and data that already exists in our db
-func (b *MigrationBuilder) separateExistingOffices(offices []models.TransportationOffice) ([]models.TransportationOffice, []models.TransportationOffice, error) {
-	var new []models.TransportationOffice
-	var existing []models.TransportationOffice
+func (b *MigrationBuilder) separateExistingOffices(offices []models.TransportationOffice) ([]TransportationOfficeWrapper, []TransportationOfficeWrapper, error) {
+	var new []TransportationOfficeWrapper
+	var existing []TransportationOfficeWrapper
 	for _, newOffice := range offices {
 		var existingOffice models.TransportationOffice
+		pattern := "%(" + splitRepl.ReplaceAllString(strings.ToLower(newOffice.Name), "|") + ")%"
 		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
-			Where("name ILIKE $1", "%"+strings.Replace(newOffice.Name, " ", "%", -1)+"%").
+			Where("lower(name) SIMILAR TO $1", pattern).
 			Where("postal_code = $2", newOffice.Address.PostalCode)
 		err := query.First(&existingOffice)
 		if err == nil {
 			b.logger.Debug("Found existing transportation office in db", zap.String("New office name", newOffice.Name), zap.String("Existing office", existingOffice.Name))
-			existing = append(existing, existingOffice)
+			existing = append(existing, TransportationOfficeWrapper{
+				TransportationOfficeName: newOffice.Name,
+				TransportationOffice:     existingOffice,
+			})
 		} else if errors.Cause(err) == sql.ErrNoRows {
-			new = append(new, newOffice)
+			new = append(new, TransportationOfficeWrapper{
+				TransportationOfficeName: newOffice.Name,
+				TransportationOffice:     newOffice,
+			})
 		} else {
 			return new, existing, err
 		}
@@ -357,9 +374,10 @@ func (b *MigrationBuilder) separateExistingOffices(offices []models.Transportati
 // Given a new DutyStation, try searching the db for a matching transportation office
 func (b *MigrationBuilder) findMatchingOffice(station DutyStationWrapper) (models.TransportationOffice, error) {
 	var office models.TransportationOffice
+	pattern := "%(" + splitRepl.ReplaceAllString(strings.ToLower(station.TransportationOfficeName), "|") + ")%"
 	query := b.db.Q().Eager().
 		LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
-		Where("name ILIKE $1", "%"+strings.Replace(station.TransportationOfficeName, " ", "%", -1)+"%").
+		Where("lower(name) SIMILAR TO $1", pattern).
 		Where("postal_code = $2", station.DutyStation.Address.PostalCode)
 	err := query.First(&office)
 
@@ -367,14 +385,14 @@ func (b *MigrationBuilder) findMatchingOffice(station DutyStationWrapper) (model
 }
 
 // PairStationsAndOffices creates pairs of duty stations and transportation offices using the dutyStation.TransportationOffice field
-func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, offices []models.TransportationOffice) []StationOfficePair {
+func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, offices []TransportationOfficeWrapper) []StationOfficePair {
 	// Create a map of office name to TransportationOfficeRow so we can easily look it up using station.TransportationOffice
-	officesByName := make(map[string]models.TransportationOffice)
+	officesByName := make(map[string]TransportationOfficeWrapper)
 	// We'll delete from this as we pair offices so we know what's left unpaired
 	unpairedOfficeNames := make(map[string]bool)
 	for _, t := range offices {
-		officesByName[t.Name] = t
-		unpairedOfficeNames[t.Name] = true
+		officesByName[t.TransportationOfficeName] = t
+		unpairedOfficeNames[t.TransportationOfficeName] = true
 	}
 
 	var pairs []StationOfficePair
@@ -383,11 +401,12 @@ func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, 
 			// Try to find a matching office using local data
 			pairs = append(pairs, StationOfficePair{
 				DutyStation:          s.DutyStation,
-				TransportationOffice: office,
+				TransportationOffice: office.TransportationOffice,
 			})
 			delete(unpairedOfficeNames, s.TransportationOfficeName)
 		} else if dbOffice, err := b.findMatchingOffice(s); err == nil {
 			// Else use a matched office from the database
+			b.logger.Debug("Found matching transportation office in db", zap.String("Station Name", s.DutyStation.Name), zap.String("Existing Office", dbOffice.Name))
 			pairs = append(pairs, StationOfficePair{
 				DutyStation:          s.DutyStation,
 				TransportationOffice: dbOffice,
@@ -408,7 +427,7 @@ func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, 
 		if uuid.Equal(office.ID, uuid.Nil) {
 			b.logger.Debug("New Office has no matching duty station", zap.String("TransportationOffice Name", n))
 			pairs = append(pairs, StationOfficePair{
-				TransportationOffice: officesByName[n],
+				TransportationOffice: officesByName[n].TransportationOffice,
 			})
 		}
 	}
