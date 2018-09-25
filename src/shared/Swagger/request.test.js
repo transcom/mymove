@@ -1,51 +1,53 @@
 import * as request from './request';
 import * as schema from 'shared/Entities/schema';
 
-function mockClient(operationMock) {
-  return Promise.resolve({
-    apis: {
-      shipments: {
-        getShipment: operationMock,
+function mockGetClient(operationMock) {
+  return function() {
+    return Promise.resolve({
+      apis: {
+        shipments: {
+          getShipment: operationMock,
+        },
       },
-    },
-    spec: {
-      paths: {
-        'shipments/{shipmentID}': {
-          get: {
-            consumes: ['application/json'],
-            description: 'Returns a Shipment tied to the move ID',
-            operationId: 'getShipment',
-            parameters: [
-              {
-                description: 'UUID of the Shipment being updated',
-                format: 'uuid',
-                in: 'path',
-                name: 'shipmentId',
-                required: true,
-                type: 'string',
-              },
-            ],
-            produces: ['application/json'],
-            responses: {
-              200: {
-                description: 'Returns Shipment for hhg move',
-                schema: {
-                  type: 'object',
-                  properties: {},
-                  $$ref: '#/definitions/Shipment',
+      spec: {
+        paths: {
+          'shipments/{shipmentID}': {
+            get: {
+              consumes: ['application/json'],
+              description: 'Returns a Shipment tied to the move ID',
+              operationId: 'getShipment',
+              parameters: [
+                {
+                  description: 'UUID of the Shipment being updated',
+                  format: 'uuid',
+                  in: 'path',
+                  name: 'shipmentId',
+                  required: true,
+                  type: 'string',
+                },
+              ],
+              produces: ['application/json'],
+              responses: {
+                200: {
+                  description: 'Returns Shipment for hhg move',
+                  schema: {
+                    type: 'object',
+                    properties: {},
+                    $$ref: '#/definitions/Shipment',
+                  },
+                },
+                400: {
+                  description: 'Bad request',
                 },
               },
-              400: {
-                description: 'Bad request',
-              },
+              summary: 'Returns a Shipment for the given move',
+              tags: ['shipments'],
             },
-            summary: 'Returns a Shipment for the given move',
-            tags: ['shipments'],
           },
         },
       },
-    },
-  });
+    });
+  };
 }
 
 describe('swaggerRequest', function() {
@@ -72,31 +74,34 @@ describe('swaggerRequest', function() {
           resolveCallback = resolve;
         });
       });
-      const client = mockClient(opMock);
 
       const action = request.swaggerRequest(
+        mockGetClient(opMock),
         'shipments.getShipment',
         { shipmentID: 'abcd-1234' },
         { label: 'testRequest' },
       );
 
-      const result = action(dispatch, getState, { client, schema });
+      const result = action(dispatch, getState, { schema });
 
-      expect(dispatch).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          type: '@@swagger/shipments.getShipment/START',
-          label: 'testRequest',
-          request: expect.objectContaining({
-            id: expect.any(String),
-            operationPath: 'shipments.getShipment',
-            params: { shipmentID: 'abcd-1234' },
-            start: expect.any(Date),
-            isLoading: true,
+      // allow the client promise to resolve
+      process.nextTick(function() {
+        expect(dispatch).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            type: '@@swagger/shipments.getShipment/START',
+            label: 'testRequest',
+            request: expect.objectContaining({
+              id: expect.any(String),
+              operationPath: 'shipments.getShipment',
+              params: { shipmentID: 'abcd-1234' },
+              start: expect.any(Date),
+              isLoading: true,
+            }),
           }),
-        }),
-      );
+        );
 
-      resolveCallback(response);
+        resolveCallback(response);
+      });
 
       result.then(function(response) {
         expect(dispatch).toHaveBeenLastCalledWith(
@@ -142,29 +147,33 @@ describe('swaggerRequest', function() {
         return promise;
       });
 
-      const client = mockClient(opMock);
-
       const action = request.swaggerRequest(
+        mockGetClient(opMock),
         'shipments.getShipment',
         { shipmentID: 'abcd-1234' },
         { label: 'testRequest' },
       );
 
-      const result = action(dispatch, getState, { client, schema });
+      const result = action(dispatch, getState, { schema });
 
-      expect(dispatch).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          type: '@@swagger/shipments.getShipment/START',
-          label: 'testRequest',
-          request: expect.objectContaining({
-            id: expect.any(String),
-            operationPath: 'shipments.getShipment',
-            params: { shipmentID: 'abcd-1234' },
-            start: expect.any(Date),
-            isLoading: true,
+      // allow the client promise to resolve
+      process.nextTick(function() {
+        expect(dispatch).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            type: '@@swagger/shipments.getShipment/START',
+            label: 'testRequest',
+            request: expect.objectContaining({
+              id: expect.any(String),
+              operationPath: 'shipments.getShipment',
+              params: { shipmentID: 'abcd-1234' },
+              start: expect.any(Date),
+              isLoading: true,
+            }),
           }),
-        }),
-      );
+        );
+
+        rejectCallback(response);
+      });
 
       result.catch(function(response) {
         expect(dispatch).toHaveBeenLastCalledWith(
@@ -174,8 +183,6 @@ describe('swaggerRequest', function() {
           }),
         );
       });
-
-      rejectCallback(response);
 
       return expect(result).rejects.toEqual(response);
     });

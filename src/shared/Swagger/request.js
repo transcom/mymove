@@ -42,10 +42,10 @@ function successfulReturnType(routeDefinition, status) {
 
 // Call an operation defined in the Swagger API, dispatching
 // actions as its state changes.
-export function swaggerRequest(operationPath, params, options = {}) {
-  return async function(dispatch, getState, { schema, client }) {
-    const swaggerClient = await client;
-    const operation = get(swaggerClient, 'apis.' + operationPath);
+export function swaggerRequest(getClient, operationPath, params, options = {}) {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
+    const operation = get(client, 'apis.' + operationPath);
 
     if (!operation) {
       throw new Error(`Operation '${operationPath}' does not exist!`);
@@ -100,7 +100,7 @@ export function swaggerRequest(operationPath, params, options = {}) {
         };
 
         const routeDefinition = findMatchingRoute(
-          swaggerClient.spec.paths,
+          client.spec.paths,
           operationPath,
         );
         if (!routeDefinition) {
