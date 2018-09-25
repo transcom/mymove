@@ -89,6 +89,7 @@ type Shipment struct {
 	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
 	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
 	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
+	ShipmentOffers                      ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
 }
 
 // Shipments is not required by pop and may be deleted
