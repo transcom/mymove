@@ -34,7 +34,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0025](0025-client-side-feature-flags.md) - Client Side Feature Flags using Custom JavaScript
 - [ADR-0026](0026-use-snyk-vulnerability-scanning.md) - Use Snyk Vulnerability Scanning
 - [ADR-0027](0027-pdf-generation.md) - PDF Generation
-- [ADR-0028](0028-Backend-State-Machine.md) - Backend Data State Machine
+- [ADR-0028](0028-backend-state-machine.md) - Backend Data State Machine
 
 <!-- adrlogstop -->
 

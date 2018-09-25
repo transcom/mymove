@@ -22,8 +22,8 @@ Please refer to this [Real Time Board](https://realtimeboard.com/app/board/o9J_k
 
 ## Decision Outcome
 
-* Chosen Alternative: *[alternative 1]*
-* *[justification. e.g., only alternative, which meets KO criterion decision driver | which resolves force force | ... | comes out best (see below)]*
+* Chosen Alternative: Maintain out own state machine mechanism.
+* The main decision driver here was it that although folks seemed to favor relying on a pre-built
 * *[consequences. e.g., negative impact on quality attribute, follow-up decisions required, ...]* <!-- optional -->
 
 ## Pros and Cons of the Alternatives
@@ -35,9 +35,10 @@ Please refer to this [Real Time Board](https://realtimeboard.com/app/board/o9J_k
 * `+` One place in each model where all implementation occurs.
 * `+` Provides hooks for enter/exit states, regardless of transition
 * `+` Provides hooks for code to run before/after transitions (before transition can block a transition)
-* `-` Have to implement throughout (includes adding a new field with serialization/de-serialization functions to each model that uses).
-* `-` Have to change currently existing Status field to be some form of private because we wouldn't want that to be writable outside of the FSM paradigm
+* `-` Have to implement everywhere we are using current state machines (includes adding a new field with serialization/de-serialization functions to each model that uses).
+* `-` Have to change currently existing Status field to be some form of private because we wouldn't want that to be writable outside of the FSM paradigm. Note, making a private field isn't exactly possible in this situation, so we'd actually probably implement through an awful name like "state_DO_NOT_EDIT".
 * `-` Probably heavier than we really need, since our transitions tend to be quite straightforward
+* `-` Additional arguments to events are of type interface{}
 
 * **To determine the difficulty of implementation, [we stubbed out implementing on the Move model here](https://github.com/transcom/mymove/tree/rek_fsm-loop). Please use this to form your opinion of the size of this task.**
 
@@ -45,8 +46,10 @@ Please refer to this [Real Time Board](https://realtimeboard.com/app/board/o9J_k
 
 * `+` Have already defined the majority of necessary transitions.
 * `+` Only write what you need
+* `+` Additional arguments to events are of a specific type since the code does not need to be generic.
 * `-` Doesn't save when you fire transitions
 * `-` Each transition/state function has to be written independently
+* `-` Legal transitions are not defined declaratively, possibly making the state graph harder to reason about
 
 Comparison of implementation
 
