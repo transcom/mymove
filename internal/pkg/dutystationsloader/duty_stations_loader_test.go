@@ -63,48 +63,109 @@ func (suite *DutyStationsLoaderSuite) TestParsingFunctions() {
 	stationsPath := "./testdata/stations.xlsx"
 	officesPath := "./testdata/offices.xlsx"
 
-	stationRows, err := ParseStations(stationsPath)
+	builder := NewMigrationBuilder(suite.db, suite.logger)
+
+	stationRows, err := builder.parseStations(stationsPath)
 	suite.NoError(err)
 	suite.Len(stationRows, 1)
-	suite.Equal(stationRows[0].Name, "Fort McFort")
-	suite.Equal(stationRows[0].PostalCode, "79916")
+	suite.Equal(stationRows[0].TransportationOfficeName, "Fort McFort PPPO")
+	suite.Equal(stationRows[0].DutyStation.Name, "Fort McFort")
+	suite.Equal(stationRows[0].DutyStation.Address.PostalCode, "79916")
 
-	officesRows, err := ParseOffices(officesPath)
+	officesRows, err := builder.parseOffices(officesPath)
 	suite.NoError(err)
 	suite.Len(officesRows, 1)
 	suite.Equal(officesRows[0].Name, "Fort McFort PPPO")
-	suite.Equal(officesRows[0].PostalCode, "79916")
-	suite.Equal(officesRows[0].Phone1.Type, "Voice")
+	suite.Equal(officesRows[0].Address.PostalCode, "79916")
+	suite.Equal(officesRows[0].PhoneLines[0].Type, "Voice")
 }
 
 func (suite *DutyStationsLoaderSuite) TestInsertionString() {
+	builder := NewMigrationBuilder(suite.db, suite.logger)
+
 	something := "something"
 	zeroID := uuid.Nil
 	somethingID := uuid.Must(uuid.FromString("cd40c92e-7c8a-4da4-ad58-4480df84b3f0"))
-	suite.Equal("'something'", insertionString(reflect.ValueOf(something)))
-	suite.Equal("'something'", insertionString(reflect.ValueOf(&something)))
-	suite.Equal("'00000000-0000-0000-0000-000000000000'", insertionString(reflect.ValueOf(zeroID)))
-	suite.Equal("'00000000-0000-0000-0000-000000000000'", insertionString(reflect.ValueOf(&zeroID)))
-	suite.Equal("'cd40c92e-7c8a-4da4-ad58-4480df84b3f0'", insertionString(reflect.ValueOf(somethingID)))
-	suite.Equal("'cd40c92e-7c8a-4da4-ad58-4480df84b3f0'", insertionString(reflect.ValueOf(&somethingID)))
-	suite.Equal("'ARMY'", insertionString(reflect.ValueOf(internalmessages.AffiliationARMY)))
-	suite.Equal("false", insertionString(reflect.ValueOf(false)))
-	suite.Equal("5.6148", insertionString(reflect.ValueOf(float32(5.61482))))
-	suite.Equal("now()", insertionString(reflect.ValueOf(time.Time{})))
+	suite.Equal("'something'", builder.insertionString(reflect.ValueOf(something)))
+	suite.Equal("'something'", builder.insertionString(reflect.ValueOf(&something)))
+	suite.Equal("'00000000-0000-0000-0000-000000000000'", builder.insertionString(reflect.ValueOf(zeroID)))
+	suite.Equal("'00000000-0000-0000-0000-000000000000'", builder.insertionString(reflect.ValueOf(&zeroID)))
+	suite.Equal("'cd40c92e-7c8a-4da4-ad58-4480df84b3f0'", builder.insertionString(reflect.ValueOf(somethingID)))
+	suite.Equal("'cd40c92e-7c8a-4da4-ad58-4480df84b3f0'", builder.insertionString(reflect.ValueOf(&somethingID)))
+	suite.Equal("'ARMY'", builder.insertionString(reflect.ValueOf(internalmessages.AffiliationARMY)))
+	suite.Equal("false", builder.insertionString(reflect.ValueOf(false)))
+	suite.Equal("5.6148", builder.insertionString(reflect.ValueOf(float32(5.61482))))
+	suite.Equal("now()", builder.insertionString(reflect.ValueOf(time.Time{})))
 }
 
 func (suite *DutyStationsLoaderSuite) TestCreateInsertQuery() {
+	builder := NewMigrationBuilder(suite.db, suite.logger)
+
 	model := models.User{
 		ID:            uuid.Must(uuid.FromString("cd40c92e-7c8a-4da4-ad58-4480df84b3f0")),
 		LoginGovUUID:  uuid.Must(uuid.FromString("cd40c92e-7c8a-4da4-ad58-4480df84b3f1")),
 		LoginGovEmail: "email@example.com",
 	}
 
-	query := createInsertQuery(model, &pop.Model{Value: models.User{}})
+	query := builder.createInsertQuery(model, &pop.Model{Value: models.User{}})
 
 	suite.Equal(
 		"INSERT into users (id, created_at, updated_at, login_gov_uuid, login_gov_email) VALUES ('cd40c92e-7c8a-4da4-ad58-4480df84b3f0', now(), now(), 'cd40c92e-7c8a-4da4-ad58-4480df84b3f1', 'email@example.com');\n",
 		query)
+}
+
+func (suite *DutyStationsLoaderSuite) TestSeparateStations() {
+	postalCode1 := "00001"
+	address1 := models.Address{
+		StreetAddress1: "something",
+		City:           "something",
+		State:          "CA",
+		PostalCode:     postalCode1,
+	}
+	suite.mustSave(&address1)
+
+	savedName := "Saved!"
+	saved := models.DutyStation{
+		AddressID:   address1.ID,
+		Address:     address1,
+		Name:        savedName,
+		Affiliation: internalmessages.AffiliationARMY,
+	}
+	suite.mustSave(&saved)
+
+	postalCode2 := "00002"
+	address2 := models.Address{
+		StreetAddress1: "something",
+		City:           "something",
+		State:          "CA",
+		PostalCode:     postalCode2,
+	}
+
+	notSavedName := "Not saved :("
+	notSaved := models.DutyStation{
+		AddressID:   address2.ID,
+		Address:     address2,
+		Name:        notSavedName,
+		Affiliation: internalmessages.AffiliationARMY,
+	}
+
+	builder := NewMigrationBuilder(suite.db, suite.logger)
+	new, existing, err := builder.separateExistingStations([]DutyStationWrapper{
+		DutyStationWrapper{
+			TransportationOfficeName: "Some name",
+			DutyStation:              saved,
+		},
+		DutyStationWrapper{
+			TransportationOfficeName: "Some other name",
+			DutyStation:              notSaved,
+		},
+	})
+
+	suite.NoError(err)
+	suite.Len(new, 1)
+	suite.Len(existing, 1)
+	suite.Equal(notSavedName, new[0].DutyStation.Name)
+	suite.Equal(savedName, existing[0].DutyStation.Name)
 }
 
 func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
@@ -117,41 +178,90 @@ func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
 	}
 	suite.mustSave(&address)
 
-	stationName := "Some Station"
-	station := models.DutyStation{
-		AddressID:   address.ID,
-		Name:        stationName,
-		Affiliation: internalmessages.AffiliationARMY,
-	}
-	suite.mustSave(&station)
-
-	officeName := "Some Office"
-	office := models.TransportationOffice{
+	savedName := "Some Office"
+	saved := models.TransportationOffice{
 		AddressID: address.ID,
-		Name:      officeName,
+		Address:   address,
+		Name:      savedName,
 	}
-	suite.mustSave(&office)
+	suite.mustSave(&saved)
 
-	stationRows := []DutyStationRow{
-		DutyStationRow{
-			Name:       stationName,
-			PostalCode: postalCode,
-		},
-		DutyStationRow{
-			Name:       "Something new",
-			PostalCode: "00002",
-		},
+	postalCode2 := "00002"
+	address2 := models.Address{
+		StreetAddress1: "something",
+		City:           "something",
+		State:          "CA",
+		PostalCode:     postalCode2,
 	}
 
-	officeRows := []TransportationOfficeRow{
-		TransportationOfficeRow{
-			Name:       officeName,
-			PostalCode: postalCode,
-		},
+	notSavedName := "Some Office"
+	notSaved := models.TransportationOffice{
+		AddressID: address2.ID,
+		Address:   address2,
+		Name:      notSavedName,
 	}
 
-	stationDupes, officeDupes, err := CheckDatabaseForDuplicates(suite.db, stationRows, officeRows)
+	builder := NewMigrationBuilder(suite.db, suite.logger)
+	new, existing, err := builder.separateExistingOffices([]models.TransportationOffice{saved, notSaved})
+
 	suite.NoError(err)
-	suite.Len(stationDupes, 1)
-	suite.Len(officeDupes, 1)
+	suite.Len(new, 1)
+	suite.Len(existing, 1)
+	suite.Equal(notSavedName, new[0].Name)
+	suite.Equal(savedName, existing[0].Name)
+}
+
+func (suite *DutyStationsLoaderSuite) TestPairStationsOffices() {
+	officeName1 := "oname1"
+	stationName1 := "sname1"
+	station1 := DutyStationWrapper{
+		TransportationOfficeName: officeName1,
+		DutyStation: models.DutyStation{
+			Name: stationName1,
+		},
+	}
+	office1 := models.TransportationOffice{
+		Name: officeName1,
+	}
+
+	officeName2 := "oname2"
+	stationName2 := "sname2"
+	station2 := DutyStationWrapper{
+		TransportationOfficeName: officeName2,
+		DutyStation: models.DutyStation{
+			Name: stationName2,
+		},
+	}
+	office2 := models.TransportationOffice{
+		Name: officeName2,
+	}
+
+	// This DutyStation has no pair, should still come out the other side though
+	officeName3 := "oname3"
+	stationName3 := "sname3"
+	station3 := DutyStationWrapper{
+		TransportationOfficeName: officeName3,
+		DutyStation: models.DutyStation{
+			Name: stationName3,
+		},
+	}
+
+	builder := NewMigrationBuilder(suite.db, suite.logger)
+	pairs := builder.pairOfficesToStations(
+		[]DutyStationWrapper{station1, station2, station3},
+		[]models.TransportationOffice{office1, office2})
+
+	suite.Len(pairs, 3)
+	for _, p := range pairs {
+		if p.DutyStation.Name == stationName1 {
+			suite.Equal(officeName1, p.TransportationOffice.Name)
+		}
+		if p.DutyStation.Name == stationName2 {
+			suite.Equal(officeName2, p.TransportationOffice.Name)
+		}
+		if p.DutyStation.Name == stationName3 {
+			// Will be a blank model since it had no pair
+			suite.Equal("", p.TransportationOffice.Name)
+		}
+	}
 }

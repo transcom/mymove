@@ -121,6 +121,7 @@ func (b *MigrationBuilder) parseStations(path string) ([]DutyStationWrapper, err
 	return stations, nil
 }
 
+// Creates an OfficePhoneLine model given a row and column numbers
 func (b *MigrationBuilder) parsePhoneData(row *xlsx.Row, namecol, labelcol, dsncol, typecol int) models.OfficePhoneLine {
 	return models.OfficePhoneLine{
 		Number:      getCell(row.Cells, namecol),
@@ -130,6 +131,7 @@ func (b *MigrationBuilder) parsePhoneData(row *xlsx.Row, namecol, labelcol, dsnc
 	}
 }
 
+// Creates an OfficeEmail model given a row and column numbers
 func (b *MigrationBuilder) parseEmailData(row *xlsx.Row, emailcol, labelcol int) models.OfficeEmail {
 	return models.OfficeEmail{
 		Email: getCell(row.Cells, emailcol),
@@ -290,7 +292,7 @@ func (b *MigrationBuilder) generateInsertionBlock(pair StationOfficePair) string
 			station.TransportationOfficeID = &office.ID
 		}
 
-		// We'll only ever have new DutyStations here
+		// We'll only ever have new DutyStations here, no need to check
 		station.Address.ID = uuid.Must(uuid.NewV4())
 		query.WriteString(b.createInsertQuery(station.Address, &pop.Model{Value: models.Address{}}))
 		station.ID = uuid.Must(uuid.NewV4())
@@ -301,6 +303,7 @@ func (b *MigrationBuilder) generateInsertionBlock(pair StationOfficePair) string
 	return query.String()
 }
 
+// Given a list of DutyStation data, separate into two lists: new data, and data that already exists in our db
 func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrapper) ([]DutyStationWrapper, []DutyStationWrapper, error) {
 	var new []DutyStationWrapper
 	var existing []DutyStationWrapper
@@ -308,8 +311,8 @@ func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrappe
 		var existingStation models.DutyStation
 		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=duty_stations.address_id").
-			Where("name ILIKE $1", "%"+strings.Replace(newStation.Name, " ", "%", -1)+"%").
-			Where("postal_code = $2", newStation.Address.PostalCode)
+			Where("name ILIKE $1", "%"+strings.Replace(newStation.DutyStation.Name, " ", "%", -1)+"%").
+			Where("postal_code = $2", newStation.DutyStation.Address.PostalCode)
 		err := query.First(&existingStation)
 		if err == nil {
 			b.logger.Debug("Found existing duty station in db", zap.String("New station name", newStation.Name), zap.String("Existing station", existingStation.Name))
@@ -327,6 +330,7 @@ func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrappe
 	return new, existing, nil
 }
 
+// Given a list of TransportationOffice data, separate into two lists: new data, and data that already exists in our db
 func (b *MigrationBuilder) separateExistingOffices(offices []models.TransportationOffice) ([]models.TransportationOffice, []models.TransportationOffice, error) {
 	var new []models.TransportationOffice
 	var existing []models.TransportationOffice
@@ -350,6 +354,7 @@ func (b *MigrationBuilder) separateExistingOffices(offices []models.Transportati
 	return new, existing, nil
 }
 
+// Given a new DutyStation, try searching the db for a matching transportation office
 func (b *MigrationBuilder) findMatchingOffice(station DutyStationWrapper) (models.TransportationOffice, error) {
 	var office models.TransportationOffice
 	query := b.db.Q().Eager().
@@ -373,7 +378,6 @@ func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, 
 	}
 
 	var pairs []StationOfficePair
-	// var unpairedStations []DutyStationRow
 	for _, s := range stations {
 		if office, ok := officesByName[s.TransportationOfficeName]; ok {
 			// Try to find a matching office using local data
@@ -414,6 +418,7 @@ func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, 
 
 // Build orchestrates building the contents of a DutyStation INSERT migration
 func (b *MigrationBuilder) Build(stationsFilePath, officesFilePath string) (string, error) {
+	// Parse raw data from spreadsheets
 	rawStations, err := b.parseStations(stationsFilePath)
 	if err != nil {
 		return "", err
@@ -424,6 +429,7 @@ func (b *MigrationBuilder) Build(stationsFilePath, officesFilePath string) (stri
 		return "", err
 	}
 
+	// Separate data into lists of new data and existing data
 	newStations, existingStations, err := b.separateExistingStations(rawStations)
 	if err != nil {
 		return "", err
@@ -446,6 +452,7 @@ func (b *MigrationBuilder) Build(stationsFilePath, officesFilePath string) (stri
 	// Existing offices will be recognizable by having ID populated
 	offices := append(newOffices, existingOffices...)
 
+	// Pairs stations/offices by name, looks for matching offices in db
 	pairs := b.pairOfficesToStations(stations, offices)
 
 	var migration strings.Builder
