@@ -1,14 +1,19 @@
 package dutystationsloader
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
+	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -23,59 +28,30 @@ var affiliationMap = map[string]internalmessages.Affiliation{
 	"COAST_GUARD": internalmessages.AffiliationCOASTGUARD,
 }
 
-// DutyStationRow contains a single row of a duty station spreadsheet
-type DutyStationRow struct {
-	RowNum               int
-	Name                 string
-	Affiliation          string
-	StreetAddress1       string
-	StreetAddress2       string
-	StreetAddress3       string
-	City                 string
-	State                string
-	PostalCode           string
-	TransportationOffice string
+// MigrationBuilder has methods that assist in building a DutyStation INSERT migration
+type MigrationBuilder struct {
+	db     *pop.Connection
+	logger *zap.Logger
 }
 
-// PhoneInfo contains phone-related fields from a transportation office spreadsheet
-type PhoneInfo struct {
-	Number string
-	Label  string
-	IsDSN  bool
-	Type   string
+// NewMigrationBuilder returns a new instance of a MigrationBuilder
+func NewMigrationBuilder(db *pop.Connection, logger *zap.Logger) MigrationBuilder {
+	return MigrationBuilder{
+		db,
+		logger,
+	}
 }
 
-// EmailInfo contains email-related fields from a transportation office spreadsheet
-type EmailInfo struct {
-	Email string
-	Label string
-}
-
-// TransportationOfficeRow contains a single row of a transportation office spreadsheet
-type TransportationOfficeRow struct {
-	RowNum         int
-	Name           string
-	StreetAddress1 string
-	StreetAddress2 string
-	StreetAddress3 string
-	City           string
-	State          string
-	PostalCode     string
-	LatLong        string
-	Hours          string
-	Services       string
-	Phone1         PhoneInfo
-	Phone2         PhoneInfo
-	Phone3         PhoneInfo
-	Email1         EmailInfo
-	Email2         EmailInfo
-	Email3         EmailInfo
+// DutyStationWrapper wraps DutyStation data but retains TransportationOfficeName for pairing with an office
+type DutyStationWrapper struct {
+	TransportationOfficeName string
+	models.DutyStation
 }
 
 // StationOfficePair pairs a DutyStationRow to a TransportationOfficeRow
 type StationOfficePair struct {
-	DutyStationRow
-	TransportationOfficeRow
+	models.DutyStation
+	models.TransportationOffice
 }
 
 // column pairs a column name with its INSERT query-stringified value
@@ -93,6 +69,15 @@ func stringPointer(s string) *string {
 	return &s
 }
 
+// floatFormatter reformats a float string as an int
+func floatFormatter(f string) string {
+	float, err := strconv.ParseFloat(f, 64)
+	if err != nil {
+		log.Panic(err)
+	}
+	return fmt.Sprintf("%.0f", float)
+}
+
 // A safe way to get a cell from a slice of cells, returning empty string if not found
 func getCell(cells []*xlsx.Cell, i int) string {
 	if len(cells) > i {
@@ -103,103 +88,120 @@ func getCell(cells []*xlsx.Cell, i int) string {
 }
 
 // ParseStations parses a spreadsheet of duty stations into DutyStationRow structs
-func ParseStations(path string) ([]DutyStationRow, error) {
-	var rows []DutyStationRow
+func (b *MigrationBuilder) parseStations(path string) ([]DutyStationWrapper, error) {
+	var stations []DutyStationWrapper
 
 	xlFile, err := xlsx.OpenFile(path)
 	if err != nil {
-		return rows, err
+		return stations, err
 	}
 
 	// Skip the first header row
 	dataRows := xlFile.Sheets[0].Rows[1:]
-	for i, row := range dataRows {
-		parsed := DutyStationRow{
-			RowNum:               i,
-			Name:                 getCell(row.Cells, 0),
-			Affiliation:          getCell(row.Cells, 1),
-			StreetAddress1:       getCell(row.Cells, 2),
-			StreetAddress2:       getCell(row.Cells, 3),
-			StreetAddress3:       getCell(row.Cells, 4),
-			City:                 getCell(row.Cells, 5),
-			State:                getCell(row.Cells, 6),
-			PostalCode:           getCell(row.Cells, 7),
-			TransportationOffice: getCell(row.Cells, 8),
+	for _, row := range dataRows {
+		parsed := DutyStationWrapper{
+			TransportationOfficeName: getCell(row.Cells, 8),
+			DutyStation: models.DutyStation{
+				Name:        getCell(row.Cells, 0),
+				Affiliation: affiliationMap[getCell(row.Cells, 1)],
+				Address: models.Address{
+					StreetAddress1: getCell(row.Cells, 2),
+					StreetAddress2: stringPointer(getCell(row.Cells, 3)),
+					StreetAddress3: stringPointer(getCell(row.Cells, 4)),
+					City:           getCell(row.Cells, 5),
+					State:          getCell(row.Cells, 6),
+					PostalCode:     floatFormatter(getCell(row.Cells, 7)),
+					Country:        stringPointer("United States"),
+				},
+			},
 		}
-		rows = append(rows, parsed)
+		stations = append(stations, parsed)
 	}
 
-	return rows, nil
+	return stations, nil
+}
+
+func (b *MigrationBuilder) parsePhoneData(row *xlsx.Row, namecol, labelcol, dsncol, typecol int) models.OfficePhoneLine {
+	return models.OfficePhoneLine{
+		Number:      getCell(row.Cells, namecol),
+		Label:       stringPointer(getCell(row.Cells, labelcol)),
+		IsDsnNumber: getCell(row.Cells, dsncol) != "FALSE",
+		Type:        getCell(row.Cells, typecol),
+	}
+}
+
+func (b *MigrationBuilder) parseEmailData(row *xlsx.Row, emailcol, labelcol int) models.OfficeEmail {
+	return models.OfficeEmail{
+		Email: getCell(row.Cells, emailcol),
+		Label: stringPointer(getCell(row.Cells, labelcol)),
+	}
 }
 
 // ParseOffices parses a spreadsheet of transportation offices into TransportationOfficeRow structs
-func ParseOffices(path string) ([]TransportationOfficeRow, error) {
-	var rows []TransportationOfficeRow
+func (b *MigrationBuilder) parseOffices(path string) ([]models.TransportationOffice, error) {
+	var offices []models.TransportationOffice
 
 	xlFile, err := xlsx.OpenFile(path)
 	if err != nil {
-		return rows, err
+		return offices, err
 	}
 
 	// Skip the first header row
 	dataRows := xlFile.Sheets[0].Rows[1:]
-	for i, row := range dataRows {
-		parsed := TransportationOfficeRow{
-			RowNum:         i,
-			Name:           getCell(row.Cells, 0),
-			StreetAddress1: getCell(row.Cells, 1),
-			StreetAddress2: getCell(row.Cells, 2),
-			StreetAddress3: getCell(row.Cells, 3),
-			City:           getCell(row.Cells, 4),
-			State:          getCell(row.Cells, 5),
-			PostalCode:     getCell(row.Cells, 6),
-			LatLong:        getCell(row.Cells, 7),
-			Hours:          getCell(row.Cells, 8),
-			Services:       getCell(row.Cells, 9),
-			Phone1: PhoneInfo{
-				Number: getCell(row.Cells, 10),
-				Label:  getCell(row.Cells, 11),
-				IsDSN:  getCell(row.Cells, 12) != "FALSE",
-				Type:   getCell(row.Cells, 13),
-			},
-			Phone2: PhoneInfo{
-				Number: getCell(row.Cells, 14),
-				Label:  getCell(row.Cells, 15),
-				IsDSN:  getCell(row.Cells, 16) != "FALSE",
-				Type:   getCell(row.Cells, 17),
-			},
-			Phone3: PhoneInfo{
-				Number: getCell(row.Cells, 18),
-				Label:  getCell(row.Cells, 19),
-				IsDSN:  getCell(row.Cells, 20) != "FALSE",
-				Type:   getCell(row.Cells, 21),
-			},
-			Email1: EmailInfo{
-				Email: getCell(row.Cells, 22),
-				Label: getCell(row.Cells, 23),
-			},
-			Email2: EmailInfo{
-				Email: getCell(row.Cells, 24),
-				Label: getCell(row.Cells, 25),
-			},
-			Email3: EmailInfo{
-				Email: getCell(row.Cells, 26),
-				Label: getCell(row.Cells, 27),
-			},
+	for _, row := range dataRows {
+		var phones []models.OfficePhoneLine
+		if phone := b.parsePhoneData(row, 10, 11, 12, 13); phone.Number != "" {
+			phones = append(phones, phone)
 		}
-		rows = append(rows, parsed)
+		if phone := b.parsePhoneData(row, 14, 15, 16, 17); phone.Number != "" {
+			phones = append(phones, phone)
+		}
+		if phone := b.parsePhoneData(row, 18, 19, 20, 21); phone.Number != "" {
+			phones = append(phones, phone)
+		}
+
+		var emails []models.OfficeEmail
+		if email := b.parseEmailData(row, 22, 23); email.Email != "" {
+			emails = append(emails, email)
+		}
+		if email := b.parseEmailData(row, 24, 25); email.Email != "" {
+			emails = append(emails, email)
+		}
+		if email := b.parseEmailData(row, 26, 27); email.Email != "" {
+			emails = append(emails, email)
+		}
+
+		parsed := models.TransportationOffice{
+			Name: getCell(row.Cells, 0),
+			Address: models.Address{
+				StreetAddress1: getCell(row.Cells, 1),
+				StreetAddress2: stringPointer(getCell(row.Cells, 2)),
+				StreetAddress3: stringPointer(getCell(row.Cells, 3)),
+				City:           getCell(row.Cells, 4),
+				State:          getCell(row.Cells, 5),
+				PostalCode:     floatFormatter(getCell(row.Cells, 6)),
+				Country:        stringPointer("United States"),
+			},
+			Latitude:   float32(0),
+			Longitude:  float32(0),
+			Hours:      stringPointer(getCell(row.Cells, 8)),
+			Services:   stringPointer(getCell(row.Cells, 9)),
+			PhoneLines: phones,
+			Emails:     emails,
+		}
+		offices = append(offices, parsed)
 	}
 
-	return rows, nil
+	return offices, nil
 }
 
 // Wraps a string value in single-quotes to play nice with psql syntax
 func quoter(s string) string {
-	return fmt.Sprintf("'%v'", s)
+	return fmt.Sprintf("'%s'", s)
 }
 
 // Transforms a reflect.Value into a stringified value good for insertion
-func insertionString(v reflect.Value) string {
+func (b *MigrationBuilder) insertionString(v reflect.Value) string {
 	switch v := v.Interface().(type) {
 	case string:
 		return quoter(v)
@@ -231,7 +233,7 @@ func insertionString(v reflect.Value) string {
 }
 
 // Takes a model and a table name and creates an INSERT query
-func createInsertQuery(m interface{}, model pop.TableNameAble) string {
+func (b *MigrationBuilder) createInsertQuery(m interface{}, model pop.TableNameAble) string {
 	t := reflect.TypeOf(m)
 	v := reflect.ValueOf(m)
 
@@ -244,7 +246,7 @@ func createInsertQuery(m interface{}, model pop.TableNameAble) string {
 
 		fieldVal := v.FieldByName(field.Name)
 
-		val := insertionString(fieldVal)
+		val := b.insertionString(fieldVal)
 		if tag != "" && val != "" {
 			cols = append(cols, tag)
 			vals = append(vals, val)
@@ -257,191 +259,200 @@ func createInsertQuery(m interface{}, model pop.TableNameAble) string {
 }
 
 // Extract our station/office information into mymove models and generate INSERT statements
-func generateInsertionBlock(pair StationOfficePair) string {
-	stationRow := pair.DutyStationRow
-	officeRow := pair.TransportationOfficeRow
-
-	//
-	// Transportation office models
-	//
-	officeAddress := models.Address{
-		ID:             uuid.Must(uuid.NewV4()),
-		StreetAddress1: officeRow.StreetAddress1,
-		StreetAddress2: stringPointer(officeRow.StreetAddress2),
-		StreetAddress3: stringPointer(officeRow.StreetAddress3),
-		City:           officeRow.City,
-		State:          officeRow.State,
-		PostalCode:     officeRow.PostalCode,
-		Country:        stringPointer("United States"),
-	}
-	office := models.TransportationOffice{
-		ID:        uuid.Must(uuid.NewV4()),
-		Name:      officeRow.Name,
-		AddressID: officeAddress.ID,
-		Hours:     stringPointer(officeRow.Hours),
-		Services:  stringPointer(officeRow.Services),
-	}
-	phones := []PhoneInfo{
-		pair.TransportationOfficeRow.Phone1,
-		pair.TransportationOfficeRow.Phone2,
-		pair.TransportationOfficeRow.Phone3,
-	}
-	var phoneModels []models.OfficePhoneLine
-	for _, p := range phones {
-		if p.Number == "" {
-			continue
-		}
-
-		model := models.OfficePhoneLine{
-			ID: uuid.Must(uuid.NewV4()),
-			TransportationOfficeID: office.ID,
-			Number:                 p.Number,
-			Label:                  stringPointer(p.Label),
-			IsDsnNumber:            p.IsDSN,
-			Type:                   p.Type,
-		}
-		phoneModels = append(phoneModels, model)
-	}
-
-	emails := []EmailInfo{
-		pair.TransportationOfficeRow.Email1,
-		pair.TransportationOfficeRow.Email2,
-		pair.TransportationOfficeRow.Email3,
-	}
-	var emailModels []models.OfficeEmail
-	for _, e := range emails {
-		if e.Email == "" {
-			continue
-		}
-
-		model := models.OfficeEmail{
-			ID: uuid.Must(uuid.NewV4()),
-			TransportationOfficeID: office.ID,
-			Email: e.Email,
-			Label: stringPointer(e.Label),
-		}
-		emailModels = append(emailModels, model)
-	}
-
-	//
-	// Duty station models
-	//
-	stationAddress := models.Address{
-		ID:             uuid.Must(uuid.NewV4()),
-		StreetAddress1: stationRow.StreetAddress1,
-		StreetAddress2: stringPointer(stationRow.StreetAddress2),
-		StreetAddress3: stringPointer(stationRow.StreetAddress3),
-		City:           stationRow.City,
-		State:          stationRow.State,
-		PostalCode:     stationRow.PostalCode,
-		Country:        stringPointer("United States"),
-	}
-
-	station := models.DutyStation{
-		ID: uuid.Must(uuid.NewV4()),
-		TransportationOfficeID: &office.ID,
-		Name:        stationRow.Name,
-		Affiliation: affiliationMap[stationRow.Affiliation],
-		AddressID:   stationAddress.ID,
-	}
-
-	// Finally, build our block of INSERT queries. Order is important for foreign key relationships.
+func (b *MigrationBuilder) generateInsertionBlock(pair StationOfficePair) string {
 	var query strings.Builder
-	query.WriteString(createInsertQuery(officeAddress, &pop.Model{Value: models.Address{}}))
-	query.WriteString(createInsertQuery(office, &pop.Model{Value: models.TransportationOffice{}}))
-	for _, p := range phoneModels {
-		query.WriteString(createInsertQuery(p, &pop.Model{Value: models.OfficePhoneLine{}}))
+	station := pair.DutyStation
+	office := pair.TransportationOffice
+
+	// New office, need to add IDs and INSERT
+	if office.Name != "" && uuid.Equal(office.ID, uuid.Nil) {
+		// We need to generate IDs before we create the INSERT statements
+		office.Address.ID = uuid.Must(uuid.NewV4())
+		query.WriteString(b.createInsertQuery(office.Address, &pop.Model{Value: models.Address{}}))
+		office.ID = uuid.Must(uuid.NewV4())
+		office.AddressID = office.Address.ID
+		query.WriteString(b.createInsertQuery(office, &pop.Model{Value: models.TransportationOffice{}}))
+		for _, p := range office.PhoneLines {
+			p.ID = uuid.Must(uuid.NewV4())
+			p.TransportationOfficeID = office.ID
+			query.WriteString(b.createInsertQuery(p, &pop.Model{Value: models.OfficePhoneLine{}}))
+		}
+		for _, e := range office.Emails {
+			e.ID = uuid.Must(uuid.NewV4())
+			e.TransportationOfficeID = office.ID
+			query.WriteString(b.createInsertQuery(e, &pop.Model{Value: models.OfficeEmail{}}))
+		}
 	}
-	for _, e := range emailModels {
-		query.WriteString(createInsertQuery(e, &pop.Model{Value: models.OfficeEmail{}}))
+
+	if station.Name != "" {
+		// If we have a valid office, set up the relationship
+		if !uuid.Equal(office.ID, uuid.Nil) {
+			station.TransportationOfficeID = &office.ID
+		}
+
+		// We'll only ever have new DutyStations here
+		station.Address.ID = uuid.Must(uuid.NewV4())
+		query.WriteString(b.createInsertQuery(station.Address, &pop.Model{Value: models.Address{}}))
+		station.ID = uuid.Must(uuid.NewV4())
+		station.AddressID = station.Address.ID
+		query.WriteString(b.createInsertQuery(station, &pop.Model{Value: models.DutyStation{}}))
 	}
-	query.WriteString(createInsertQuery(stationAddress, &pop.Model{Value: models.Address{}}))
-	query.WriteString(createInsertQuery(station, &pop.Model{Value: models.DutyStation{}}))
-	query.WriteString("\n")
 
 	return query.String()
 }
 
-// CheckDatabaseForDuplicates searches local database for similarly named/located duty stations and transportation offices
-// Searches for matching words in `name` field combined with matching `postal_code`
-func CheckDatabaseForDuplicates(db *pop.Connection, stationRows []DutyStationRow, officeRows []TransportationOfficeRow) ([]DutyStationRow, []TransportationOfficeRow, error) {
-	var err error
-	var stationDupes []DutyStationRow
-	var officeDupes []TransportationOfficeRow
-	for _, row := range stationRows {
-		var stations []models.DutyStation
-		query := db.Q().Eager().
+func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrapper) ([]DutyStationWrapper, []DutyStationWrapper, error) {
+	var new []DutyStationWrapper
+	var existing []DutyStationWrapper
+	for _, newStation := range stations {
+		var existingStation models.DutyStation
+		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=duty_stations.address_id").
-			Where("name ILIKE $1", "%"+strings.Replace(row.Name, " ", "%", -1)+"%").
-			Where("postal_code = $2", row.PostalCode)
-		err = query.All(&stations)
-		if len(stations) > 0 {
-			stationDupes = append(stationDupes, row)
+			Where("name ILIKE $1", "%"+strings.Replace(newStation.Name, " ", "%", -1)+"%").
+			Where("postal_code = $2", newStation.Address.PostalCode)
+		err := query.First(&existingStation)
+		if err == nil {
+			b.logger.Debug("Found existing duty station in db", zap.String("New station name", newStation.Name), zap.String("Existing station", existingStation.Name))
+			existing = append(existing, DutyStationWrapper{
+				TransportationOfficeName: newStation.TransportationOfficeName,
+				DutyStation:              existingStation,
+			})
+		} else if errors.Cause(err) == sql.ErrNoRows {
+			new = append(new, newStation)
+		} else {
+			return new, existing, err
 		}
 	}
-	if err != nil {
-		return stationDupes, officeDupes, err
-	}
 
-	for _, row := range officeRows {
-		var offices []models.TransportationOffice
-		query := db.Q().Eager().
+	return new, existing, nil
+}
+
+func (b *MigrationBuilder) separateExistingOffices(offices []models.TransportationOffice) ([]models.TransportationOffice, []models.TransportationOffice, error) {
+	var new []models.TransportationOffice
+	var existing []models.TransportationOffice
+	for _, newOffice := range offices {
+		var existingOffice models.TransportationOffice
+		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
-			Where("name ILIKE $1", "%"+strings.Replace(row.Name, " ", "%", -1)+"%").
-			Where("postal_code = $2", row.PostalCode)
-		err = query.All(&offices)
-		if len(offices) > 0 {
-			officeDupes = append(officeDupes, row)
+			Where("name ILIKE $1", "%"+strings.Replace(newOffice.Name, " ", "%", -1)+"%").
+			Where("postal_code = $2", newOffice.Address.PostalCode)
+		err := query.First(&existingOffice)
+		if err == nil {
+			b.logger.Debug("Found existing transportation office in db", zap.String("New office name", newOffice.Name), zap.String("Existing office", existingOffice.Name))
+			existing = append(existing, existingOffice)
+		} else if errors.Cause(err) == sql.ErrNoRows {
+			new = append(new, newOffice)
+		} else {
+			return new, existing, err
 		}
 	}
-	if err != nil {
-		return stationDupes, officeDupes, err
-	}
 
-	return stationDupes, officeDupes, nil
+	return new, existing, nil
+}
+
+func (b *MigrationBuilder) findMatchingOffice(station DutyStationWrapper) (models.TransportationOffice, error) {
+	var office models.TransportationOffice
+	query := b.db.Q().Eager().
+		LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
+		Where("name ILIKE $1", "%"+strings.Replace(station.TransportationOfficeName, " ", "%", -1)+"%").
+		Where("postal_code = $2", station.DutyStation.Address.PostalCode)
+	err := query.First(&office)
+
+	return office, err
 }
 
 // PairStationsAndOffices creates pairs of duty stations and transportation offices using the dutyStation.TransportationOffice field
-func PairStationsAndOffices(stationRows []DutyStationRow, officeRows []TransportationOfficeRow) ([]StationOfficePair, []DutyStationRow, []TransportationOfficeRow) {
+func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, offices []models.TransportationOffice) []StationOfficePair {
 	// Create a map of office name to TransportationOfficeRow so we can easily look it up using station.TransportationOffice
-	officesByName := make(map[string]TransportationOfficeRow)
+	officesByName := make(map[string]models.TransportationOffice)
 	// We'll delete from this as we pair offices so we know what's left unpaired
-	officesUnpaired := make(map[string]bool)
-	for _, t := range officeRows {
+	unpairedOfficeNames := make(map[string]bool)
+	for _, t := range offices {
 		officesByName[t.Name] = t
-		officesUnpaired[t.Name] = true
+		unpairedOfficeNames[t.Name] = true
 	}
 
 	var pairs []StationOfficePair
-	var unpairedStations []DutyStationRow
-	for _, s := range stationRows {
-		// Either we find a matching TransportationOffice name or it's unpaired
-		if office, ok := officesByName[s.TransportationOffice]; ok {
+	// var unpairedStations []DutyStationRow
+	for _, s := range stations {
+		if office, ok := officesByName[s.TransportationOfficeName]; ok {
+			// Try to find a matching office using local data
 			pairs = append(pairs, StationOfficePair{
-				DutyStationRow:          s,
-				TransportationOfficeRow: office,
+				DutyStation:          s.DutyStation,
+				TransportationOffice: office,
 			})
-			delete(officesUnpaired, s.TransportationOffice)
+			delete(unpairedOfficeNames, s.TransportationOfficeName)
+		} else if dbOffice, err := b.findMatchingOffice(s); err == nil {
+			// Else use a matched office from the database
+			pairs = append(pairs, StationOfficePair{
+				DutyStation:          s.DutyStation,
+				TransportationOffice: dbOffice,
+			})
 		} else {
-			unpairedStations = append(unpairedStations, s)
+			b.logger.Debug("Can't find a matching office for duty station", zap.String("DutyStation office name", s.TransportationOfficeName))
+			// If there's no office we still want to insert the station
+			pairs = append(pairs, StationOfficePair{
+				DutyStation: s.DutyStation,
+			})
 		}
 	}
 
-	var unpairedOffices []TransportationOfficeRow
-	for n := range officesUnpaired {
-		unpairedOffices = append(unpairedOffices, officesByName[n])
+	// Append left over unpaired offices
+	for n := range unpairedOfficeNames {
+		office := officesByName[n]
+		// Existing offices will have a populated ID field, we don't need to append them since there's no station to worry about
+		if uuid.Equal(office.ID, uuid.Nil) {
+			b.logger.Debug("New Office has no matching duty station", zap.String("TransportationOffice Name", n))
+			pairs = append(pairs, StationOfficePair{
+				TransportationOffice: officesByName[n],
+			})
+		}
 	}
 
-	return pairs, unpairedStations, unpairedOffices
+	return pairs
 }
 
-// GenerateMigrationString generates the contents of a migration to INSERT the supplied station/office pairs
-func GenerateMigrationString(pairs []StationOfficePair) string {
-	// For each station/office pair, create a block of INSERT queries and append to migration file
-	var migration strings.Builder
-	for _, pair := range pairs {
-		migration.WriteString(generateInsertionBlock(pair))
+// Build orchestrates building the contents of a DutyStation INSERT migration
+func (b *MigrationBuilder) Build(stationsFilePath, officesFilePath string) (string, error) {
+	rawStations, err := b.parseStations(stationsFilePath)
+	if err != nil {
+		return "", err
 	}
 
-	return migration.String()
+	rawOffices, err := b.parseOffices(officesFilePath)
+	if err != nil {
+		return "", err
+	}
+
+	newStations, existingStations, err := b.separateExistingStations(rawStations)
+	if err != nil {
+		return "", err
+	}
+	newOffices, existingOffices, err := b.separateExistingOffices(rawOffices)
+	if err != nil {
+		return "", err
+	}
+
+	b.logger.Info("Separated stations",
+		zap.Int("Number of new stations", len(newStations)),
+		zap.Int("Number of existing stations", len(existingStations)))
+	b.logger.Info("Separated offices",
+		zap.Int("Number of new offices", len(newOffices)),
+		zap.Int("Number of existing offices", len(existingOffices)))
+
+	// We only care about new duty stations
+	stations := newStations
+	// We might need to link new duty stations to existing offices, so combine them here
+	// Existing offices will be recognizable by having ID populated
+	offices := append(newOffices, existingOffices...)
+
+	pairs := b.pairOfficesToStations(stations, offices)
+
+	var migration strings.Builder
+	for _, pair := range pairs {
+		migration.WriteString(b.generateInsertionBlock(pair))
+		migration.WriteString("\n")
+	}
+
+	return migration.String(), nil
 }
