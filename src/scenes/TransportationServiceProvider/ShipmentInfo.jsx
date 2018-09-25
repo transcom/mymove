@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
@@ -31,6 +31,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -135,14 +136,15 @@ class ShipmentInfo extends Component {
     this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const serviceMember = get(this.props.shipment, 'service_member', {});
-    const move = get(this.props.shipment, 'move', {});
-    const gbl = get(this.props.shipment, 'gbl_number');
-    const showDocumentViewer = this.props.context.flags.documentViewer;
+    const { context, shipment, shipmentDocuments } = this.props;
+    const serviceMember = get(shipment, 'service_member', {});
+    const move = get(shipment, 'move', {});
+    const gbl = get(shipment, 'gbl_number');
+    const showDocumentViewer = context.flags.documentViewer;
 
-    const awarded = this.props.shipment.status === 'AWARDED';
-    const approved = this.props.shipment.status === 'APPROVED';
-    const inTransit = this.props.shipment.status === 'IN_TRANSIT';
+    const awarded = shipment.status === 'AWARDED';
+    const approved = shipment.status === 'APPROVED';
+    const inTransit = shipment.status === 'IN_TRANSIT';
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -265,6 +267,47 @@ class ShipmentInfo extends Component {
                 <button onClick={this.generateGBL}>
                   Generate Bill of Lading
                 </button>
+              </div>
+              <div
+                style={{
+                  border: '1px solid black',
+                  padding: '1em',
+                  marginTop: '1em',
+                }}
+              >
+                <h2
+                  style={{
+                    marginTop: 0,
+                    fontSize: '2rem',
+                    fontFamily: 'sans-serif',
+                  }}
+                >
+                  Documents
+                  {!showDocumentViewer && (
+                    <FontAwesomeIcon
+                      className="icon"
+                      icon={faExternalLinkAlt}
+                    />
+                  )}
+                  {showDocumentViewer && (
+                    <Link to={`/moves/${move.id}/documents`} target="_blank">
+                      <FontAwesomeIcon
+                        className="icon"
+                        icon={faExternalLinkAlt}
+                      />
+                    </Link>
+                  )}
+                </h2>
+                {showDocumentViewer && shipmentDocuments.length ? (
+                  <DocumentList
+                    detailUrlPrefix={`/moves/${
+                      this.props.match.params.shipmentId
+                    }/documents`}
+                    moveDocuments={shipmentDocuments}
+                  />
+                ) : (
+                  <p>No orders have been uploaded.</p>
+                )}
               </div>
             </div>
           </div>
