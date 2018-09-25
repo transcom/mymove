@@ -37,6 +37,7 @@ func main() {
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
+		"ShipmentOffers.TransportationServiceProviderPerformance",
 	).Where("shipment_offers.accepted=true").
 		Where("move_id = $1", &moveID).
 		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
