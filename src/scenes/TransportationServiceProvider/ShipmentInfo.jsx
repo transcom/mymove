@@ -7,6 +7,7 @@ import { NavLink } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
+import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
@@ -20,6 +21,7 @@ import {
   rejectShipment,
   transportShipment,
   deliverShipment,
+  getAllShipmentDocuments,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
@@ -107,6 +109,7 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
+    this.props.getAllShipmentDocuments(this.props.match.params.shipmentId);
   }
 
   acceptShipment = () => {
@@ -135,6 +138,7 @@ class ShipmentInfo extends Component {
     const serviceMember = get(this.props.shipment, 'service_member', {});
     const move = get(this.props.shipment, 'move', {});
     const gbl = get(this.props.shipment, 'gbl_number');
+    const showDocumentViewer = this.props.context.flags.documentViewer;
 
     const awarded = this.props.shipment.status === 'AWARDED';
     const approved = this.props.shipment.status === 'APPROVED';
@@ -273,6 +277,7 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
+  shipmentDocuments: get(state, 'tsp.shipmentDocuments', []),
   serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,
@@ -297,6 +302,7 @@ const mapDispatchToProps = dispatch =>
       rejectShipment,
       transportShipment,
       deliverShipment,
+      getAllShipmentDocuments,
     },
     dispatch,
   );

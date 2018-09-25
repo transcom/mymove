@@ -9,6 +9,7 @@ import {
   IndexServiceAgents,
   UpdateServiceAgent,
   GenerateGBL,
+  GetAllShipmentDocuments,
 } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -21,6 +22,7 @@ const generateGBLType = 'GENERATE_GBL';
 const rejectShipmentType = 'REJECT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
 const deliverShipmentType = 'TRANSPORT_SHIPMENT';
+const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
@@ -43,6 +45,9 @@ const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
 );
 const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
   deliverShipmentType,
+);
+const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(
+  loadShipmentDocumentsType,
 );
 
 const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
@@ -102,6 +107,11 @@ export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(
   DeliverShipment,
 );
 
+export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
+  loadShipmentDocumentsType,
+  GetAllShipmentDocuments,
+);
+
 export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
   indexServiceAgentsType,
   IndexServiceAgents,
@@ -153,6 +163,7 @@ export function loadShipmentDependencies(shipmentId) {
 
 // Reducer
 const initialState = {
+  shipmentDocuments: [],
   shipmentIsLoading: false,
   shipmentHasLoadSuccess: false,
   shipmentHasLoadError: null,
@@ -285,6 +296,7 @@ export function tspReducer(state = initialState, action) {
         shipmentHasTransportError: null,
         error: action.error.message,
       });
+
     case DELIVER_SHIPMENT.start:
       return Object.assign({}, state, {
         shipmentIsDelivering: true,
@@ -302,6 +314,27 @@ export function tspReducer(state = initialState, action) {
         shipmentIsDelivering: false,
         shipmentHasDeliverSuccess: false,
         shipmentHasDeliverError: null,
+        error: action.error.message,
+      });
+
+    // LOAD SHIPMENT DOCUMENTS
+    case LOAD_SHIPMENT_DOCUMENTS.start:
+      return Object.assign({}, state, {
+        loadingShipmentDocuments: true,
+        loadShipmentDocumentsSuccess: false,
+      });
+    case LOAD_SHIPMENT_DOCUMENTS.success:
+      return Object.assign({}, state, {
+        loadingShipmentDocuments: false,
+        loadShipmentDocumentsSuccess: true,
+        loadingShipmentDocumentsError: false,
+        shipmentDocuments: action.payload,
+      });
+    case LOAD_SHIPMENT_DOCUMENTS.failure:
+      return Object.assign({}, state, {
+        loadingShipmentDocuments: false,
+        loadShipmentDocumentsSuccess: false,
+        loadingShipmentDocumentsError: true,
         error: action.error.message,
       });
 
