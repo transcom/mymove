@@ -96,6 +96,11 @@ func getCell(cells []*xlsx.Cell, i int) string {
 	return ""
 }
 
+func similarityPattern(s string) string {
+	// "Some name" -> "%(some|name)% for SIMILAR TO lookups in postgres"
+	return "%(" + splitRepl.ReplaceAllString(strings.ToLower(newStation.DutyStation.Name), "|") + ")%"
+}
+
 // ParseStations parses a spreadsheet of duty stations into DutyStationRow structs
 func (b *MigrationBuilder) parseStations(path string) ([]DutyStationWrapper, error) {
 	var stations []DutyStationWrapper
@@ -318,10 +323,9 @@ func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrappe
 	var existing []DutyStationWrapper
 	for _, newStation := range stations {
 		var existingStation models.DutyStation
-		pattern := "%(" + splitRepl.ReplaceAllString(strings.ToLower(newStation.DutyStation.Name), "|") + ")%"
 		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=duty_stations.address_id").
-			Where("lower(name) SIMILAR TO $1", pattern).
+			Where("lower(name) SIMILAR TO $1", similarityPattern(newStation.DutyStation.Name)).
 			Where("postal_code = $2", newStation.DutyStation.Address.PostalCode)
 		err := query.First(&existingStation)
 		if err == nil {
@@ -346,10 +350,9 @@ func (b *MigrationBuilder) separateExistingOffices(offices []models.Transportati
 	var existing []TransportationOfficeWrapper
 	for _, newOffice := range offices {
 		var existingOffice models.TransportationOffice
-		pattern := "%(" + splitRepl.ReplaceAllString(strings.ToLower(newOffice.Name), "|") + ")%"
 		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
-			Where("lower(name) SIMILAR TO $1", pattern).
+			Where("lower(name) SIMILAR TO $1", similarityPattern(newOffice.Name)).
 			Where("postal_code = $2", newOffice.Address.PostalCode)
 		err := query.First(&existingOffice)
 		if err == nil {
@@ -374,10 +377,9 @@ func (b *MigrationBuilder) separateExistingOffices(offices []models.Transportati
 // Given a new DutyStation, try searching the db for a matching transportation office
 func (b *MigrationBuilder) findMatchingOffice(station DutyStationWrapper) (models.TransportationOffice, error) {
 	var office models.TransportationOffice
-	pattern := "%(" + splitRepl.ReplaceAllString(strings.ToLower(station.TransportationOfficeName), "|") + ")%"
 	query := b.db.Q().Eager().
 		LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
-		Where("lower(name) SIMILAR TO $1", pattern).
+		Where("lower(name) SIMILAR TO $1", similarityPattern(station.TransportationOfficeName)).
 		Where("postal_code = $2", station.DutyStation.Address.PostalCode)
 	err := query.First(&office)
 
