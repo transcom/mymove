@@ -294,7 +294,7 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 			tdl.source_rate_area = $1
 			AND tdl.destination_region = $2
 			AND tdl.code_of_service = $3
-			AND tspp.rate_cycle_start <= $4 AND tspp.rate_cycle_end > $4
+			AND tspp.rate_cycle_start <= $4 AND tspp.rate_cycle_end >= $4
 		ORDER BY tspp.best_value_score DESC
 	`
 
