@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"log"
 
 	"github.com/gobuffalo/pop"
@@ -18,10 +19,12 @@ import (
 func main() {
 	moveIDString := flag.String("moveID", "", "The ID of the move where shipments are found")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
+	sendToGex := flag.Bool("gex", false, "Choose to send the file to gex")
+	transactionName := flag.String("transactionName", "test", "The required name sent in the url of the gex api request")
 	flag.Parse()
 
 	if *moveIDString == "" {
-		log.Fatal("Usage: generate_shipment_edi -moveID <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+		log.Fatal("Usage: cmd/generate_shipment_edi/main.go --moveID <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
 
 	db, err := pop.Connect(*env)
@@ -65,4 +68,12 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(edi)
+	fmt.Println("Sending to GEX. . .")
+
+	if *sendToGex == true {
+		statusCode, err := gex.SendInvoiceToGex(logger, edi, *transactionName)
+
+		fmt.Printf("status code: %v, error: %v", statusCode, err)
+	}
+
 }
