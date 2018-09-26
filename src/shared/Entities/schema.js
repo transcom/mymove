@@ -26,6 +26,7 @@ shipment.define({
   delivery_address: address,
   partial_sit_delivery_address: address,
 });
+
 export const shipments = new schema.Array(shipment);
 
 // Moves
@@ -64,7 +65,10 @@ order.define({
 export const moveDocument = new schema.Entity('moveDocuments', {
   document: documentModel,
 });
+
 export const moveDocuments = new schema.Array(moveDocument);
 moveDocument.define({
   move: move,
 });
+
+export const indexmovedocumentpayload = moveDocuments;

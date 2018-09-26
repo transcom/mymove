@@ -143,9 +143,12 @@ class ShipmentInfo extends Component {
 
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
-    const serviceMember = get(shipment, 'service_member', {});
-    const move = get(shipment, 'move', {});
-    const gbl = get(shipment, 'gbl_number');
+    const {
+      service_member: serviceMember = {},
+      move = {},
+      gbl_number: gbl,
+    } = shipment;
+
     const showDocumentViewer = context.flags.documentViewer;
 
     const awarded = shipment.status === 'AWARDED';
@@ -314,7 +317,11 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
-  shipmentDocuments: get(state, 'tsp.shipmentDocuments', []),
+  shipmentDocuments: Object.keys(state.entities.moveDocuments).map(id => ({
+    // TODO: More robust solution when I understand the new redux-swagger pattern more
+    // eslint-disable-next-line
+    ...state.entities.moveDocuments[id],
+  })),
   serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,
