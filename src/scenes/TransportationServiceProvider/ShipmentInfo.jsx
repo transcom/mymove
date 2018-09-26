@@ -24,6 +24,7 @@ import {
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 import FormButton from './FormButton';
+import CustomerInfo from './CustomerInfo';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -132,7 +133,8 @@ class ShipmentInfo extends Component {
     this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const serviceMember = get(this.props.shipment, 'service_member', {});
+    const serviceMember = this.props.serviceMember;
+    const backupContacts = get(serviceMember, 'backup_contacts', {});
     const move = get(this.props.shipment, 'move', {});
     const gbl = get(this.props.shipment, 'gbl_number');
 
@@ -262,6 +264,10 @@ class ShipmentInfo extends Component {
                   Generate Bill of Lading
                 </button>
               </div>
+              <div className="customer-info">
+                <h2 className="extras usa-heading">Customer Info</h2>
+                <CustomerInfo serviceMember={serviceMember} />
+              </div>
             </div>
           </div>
         </div>
@@ -273,6 +279,7 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
+  serviceMember: get(state, 'tsp.shipment.service_member', {}),
   serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,

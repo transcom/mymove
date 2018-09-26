@@ -464,6 +464,72 @@ definitions:
     x-display-value:
       ORIGIN: Origin
       DESTINATION: Destination
+  ServiceMemberRank:
+    type: string
+    x-nullable: true
+    title: Rank
+    enum:
+      - E_1
+      - E_2
+      - E_3
+      - E_4
+      - E_5
+      - E_6
+      - E_7
+      - E_8
+      - E_9
+      - O_1_W_1_ACADEMY_GRADUATE
+      - O_2_W_2
+      - O_3_W_3
+      - O_4_W_4
+      - O_5_W_5
+      - O_6
+      - O_7
+      - O_8
+      - O_9
+      - O_10
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET_MIDSHIPMAN
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      O_1_W_1_ACADEMY_GRADUATE: O-1/W-1/Service Academy Graduate
+      O_2_W_2: O-2/W-2
+      O_3_W_3: O-3/W-3
+      O_4_W_4: O-4/W-4
+      O_5_W_5: O-5/W-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET_MIDSHIPMAN: Service Academy Cadet/Midshipman
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    enum: &AFFILIATION
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marines
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
   ServiceMember:
     type: object
     properties:
@@ -489,6 +555,12 @@ definitions:
         pattern: '^[0-9]{10}$'
         x-nullable: true
         title: DoD ID number
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+        title: Branch
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
+        title: Rank
       suffix:
         type: string
         example: Jr.
@@ -527,6 +599,65 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
+      backup_contacts:
+        $ref: '#/definitions/IndexServiceMemberBackupContacts'
+  IndexServiceMemberBackupContacts:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceMemberBackupContact'
+  ServiceMemberBackupContact:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Susan Smith
+        x-nullable: true
+        title: Name
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      permission:
+        $ref: '#/definitions/BackupContactPermission'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - created_at
+      - updated_at
+      - name
+      - email
+      - permission
+  BackupContactPermission:
+    type: string
+    title: Backup Contact Permissions
+    example: VIEW
+    enum:
+    - NONE
+    - VIEW
+    - EDIT
+    x-display-value:
+      NONE: Contact Only
+      VIEW: View all move details
+      EDIT: View and edit all move details
   TrafficDistributionList:
     type: object
     properties:

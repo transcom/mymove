@@ -195,9 +195,9 @@ func makeEntitlements() map[internalmessages.ServiceMemberRank]WeightAllotment {
 }
 
 // GetWeightAllotment returns the weight allotments for a given rank.
-func GetWeightAllotment(rank internalmessages.ServiceMemberRank) WeightAllotment {
+func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
 	entitlements := makeEntitlements()
-	return entitlements[rank]
+	return entitlements[internalmessages.ServiceMemberRank(rank)]
 }
 
 // GetEntitlement calculates the entitlement for a rank, has dependents and has spouseprogear
