@@ -54,6 +54,10 @@ class TspWrapper extends Component {
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute
+                  path="/shipments/:shipmentId/documents/new"
+                  render={() => <div>Placeholder for new doc</div>}
+                />
+                <PrivateRoute
                   path="/shipments/:shipmentId/documents/:moveDocumentId"
                   component={DocumentViewer}
                 />
