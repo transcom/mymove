@@ -16,6 +16,9 @@ import (
 func (suite *InvoiceSuite) TestGenerate858C() {
 	shipments := make([]models.Shipment, 1)
 	shipments[0] = testdatagen.MakeDefaultShipment(suite.db)
+	err := shipments[0].AssignGBLNumber(suite.db)
+	suite.NoError(err, "could not assign GBLNumber")
+
 	var cost rateengine.CostComputation
 	costByShipment := rateengine.CostByShipment{
 		Shipment: shipments[0],
