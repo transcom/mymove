@@ -12,6 +12,7 @@ import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { getAllShipmentDocuments } from 'shared/Entities/modules/shipmentDocuments';
 
 import {
   loadShipmentDependencies,
@@ -21,7 +22,6 @@ import {
   rejectShipment,
   transportShipment,
   deliverShipment,
-  getAllShipmentDocuments,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
@@ -103,6 +103,7 @@ let DeliveryDateForm = props => {
 
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
+const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
 class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
@@ -110,7 +111,10 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
-    this.props.getAllShipmentDocuments(this.props.match.params.shipmentId);
+    this.props.getAllShipmentDocuments(
+      getShipmentDocumentsLabel,
+      this.props.match.params.shipmentId,
+    );
   }
 
   acceptShipment = () => {
