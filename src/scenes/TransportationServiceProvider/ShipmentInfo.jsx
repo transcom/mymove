@@ -14,6 +14,12 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { getAllShipmentDocuments } from 'shared/Entities/modules/shipmentDocuments';
 
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faComments from '@fortawesome/fontawesome-free-solid/faComments';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+
 import {
   loadShipmentDependencies,
   patchShipment,
@@ -27,11 +33,7 @@ import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 import FormButton from './FormButton';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import './tsp.css';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -272,20 +274,8 @@ class ShipmentInfo extends Component {
                   Generate Bill of Lading
                 </button>
               </div>
-              <div
-                style={{
-                  border: '1px solid black',
-                  padding: '1em',
-                  marginTop: '1em',
-                }}
-              >
-                <h2
-                  style={{
-                    marginTop: 0,
-                    fontSize: '2rem',
-                    fontFamily: 'sans-serif',
-                  }}
-                >
+              <div className="documents">
+                <h2 className="documents-list-header">
                   Documents
                   {!showDocumentViewer && (
                     <FontAwesomeIcon
