@@ -15,7 +15,7 @@ class CustomerInfo extends Component {
       'backup_contacts[0]',
       {},
     );
-    debugger;
+
     return (
       <div>
         <div className="usa-grid">

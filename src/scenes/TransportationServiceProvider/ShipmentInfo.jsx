@@ -134,7 +134,6 @@ class ShipmentInfo extends Component {
 
   render() {
     const serviceMember = this.props.serviceMember;
-    const backupContacts = get(serviceMember, 'backup_contacts', {});
     const move = get(this.props.shipment, 'move', {});
     const gbl = get(this.props.shipment, 'gbl_number');
 
