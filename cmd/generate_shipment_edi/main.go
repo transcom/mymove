@@ -51,7 +51,10 @@ func main() {
 	if len(shipments) == 0 {
 		log.Fatal("No accepted shipments found")
 	}
-	var logger = zap.NewNop()
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
 
 	var costsByShipments []rateengine.CostByShipment
 
