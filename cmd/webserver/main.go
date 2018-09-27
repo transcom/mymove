@@ -349,8 +349,13 @@ func main() {
 	errChan := make(chan error)
 	moveMilCerts := []server.TLSCert{
 		server.TLSCert{
-			CertPEMBlock: []byte(*moveMilDODTLSCert),
-			KeyPEMBlock:  []byte(*moveMilDODTLSKey),
+			//Append move.mil cert with CA certificate chain
+			CertPEMBlock: bytes.Join([][]byte{
+				[]byte(*moveMilDODTLSCert),
+				[]byte(*moveMilDODCACert)},
+				[]byte("\n"),
+			),
+			KeyPEMBlock: []byte(*moveMilDODTLSKey),
 		},
 	}
 	go func() {
