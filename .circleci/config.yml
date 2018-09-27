@@ -89,7 +89,7 @@ jobs:
   integration_tests:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
       - image: postgres:10-alpine
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
