@@ -420,10 +420,11 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            #- vuln_scan # keep disabled until we work out new process
-            - integration_tests
-            - build_app
-            - build_migrations
+
+      #- vuln_scan # keep disabled until we work out new process
+      - integration_tests
+      - build_app
+      - build_migrations
 
       - build_app:
           requires:
