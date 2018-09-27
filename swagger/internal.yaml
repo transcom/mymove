@@ -3981,3 +3981,34 @@ paths:
           description: invalid request
         500:
           description: internal server error
+  /calendar/unavailable_move_dates:
+    get:
+      summary: Returns unavailable dates for the move calendar
+      description: Returns unavailable dates for the move calendar
+      operationId: showUnavailableMoveDates
+      tags:
+        - calendar
+      parameters:
+        - in: query
+          name: start_date
+          type: string
+          format: date
+          required: true
+          description: Look for future unavailable dates starting from (and including) this date
+      responses:
+        200:
+          description: List of unavailable dates
+          schema:
+            type: array
+            items:
+              type: string
+              format: date
+              example: "2018-09-25"
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
