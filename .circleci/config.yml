@@ -364,21 +364,6 @@ jobs:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_app_client_tls_steps
 
-  integration_tests:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-
-      - run: make e2e_test
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-      - run: *announce_failure
 
   update_dependencies:
     working_directory: ~/go/src/github.com/transcom/mymove
