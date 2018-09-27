@@ -126,8 +126,9 @@ jobs:
       - run:
           name: make e2e_test_ci
           command: |
-            echo 'export HTTPS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export HTTPS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
             echo 'export HTTPS_CLIENT_AUTH_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
