@@ -13,12 +13,18 @@ class MoveDocumentView extends Component {
   }
 
   render() {
-    const { shipment } = this.props;
-    return <div>{JSON.stringify(shipment)}</div>;
+    const { moveDocuments, shipment } = this.props;
+    return (
+      <div>
+        <p>{JSON.stringify(shipment)}</p>
+        <p>{JSON.stringify(moveDocuments)}</p>
+      </div>
+    );
   }
 }
 
 MoveDocumentView.propTypes = {
+  moveDocuments: PropTypes.array.isRequired,
   onDidMount: PropTypes.func.isRequired,
   shipment: PropTypes.object.isRequired,
 };
