@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { get } from 'lodash';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -9,12 +10,7 @@ import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 class CustomerInfo extends Component {
   render() {
-    const serviceMember = this.props.serviceMember;
-    const backupContact = get(
-      this.props.serviceMember,
-      'backup_contacts[0]',
-      {},
-    );
+    const { serviceMember, backupContact } = this.props;
 
     return (
       <div>
@@ -115,4 +111,49 @@ CustomerInfo.propTypes = {
   }).isRequired,
 };
 
-export default CustomerInfo;
+const mapStateToProps = state => {
+  const defaultServiceMember = {
+    backupContacts: [],
+    id: '',
+    created_at: '',
+    updated_at: '',
+    user: {},
+    user_id: '',
+    edipi: '',
+    rank: '',
+    affiliation: '',
+    secondary_telephone: '',
+    last_name: '',
+    telephone: '',
+    first_name: '',
+    personal_email: '',
+  };
+  const defaultBackupContact = {
+    service_member_id: '',
+    service_member: {},
+    created_at: '',
+    permission: '',
+    id: '',
+    updated_at: '',
+    name: '',
+    email: '',
+    phone: '',
+  };
+  const serviceMember = get(
+    state,
+    'tsp.shipment.service_member',
+    defaultServiceMember,
+  );
+  const backupContact = get(
+    state,
+    'tsp.shipment.service_member.backup_contacts[0]',
+    defaultBackupContact,
+  );
+
+  return {
+    serviceMember,
+    backupContact,
+  };
+};
+
+export default connect(mapStateToProps)(CustomerInfo);

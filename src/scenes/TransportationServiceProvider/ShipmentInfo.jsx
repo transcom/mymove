@@ -265,7 +265,7 @@ class ShipmentInfo extends Component {
               </div>
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
-                <CustomerInfo serviceMember={serviceMember} />
+                <CustomerInfo />
               </div>
             </div>
           </div>
