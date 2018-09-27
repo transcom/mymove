@@ -50,7 +50,7 @@ func main() {
 		log.Fatal(err)
 	}
 	if len(shipments) == 0 {
-		log.Fatal("No accepted shipments found")
+		log.Fatal("No shipments with accepted shipment offers found")
 	}
 	var logger = zap.NewNop()
 	planner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
