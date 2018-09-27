@@ -159,14 +159,14 @@ func main() {
 		useHoneycomb = true
 	}
 	if useHoneycomb {
-		zap.L().Debug("Honeycomb Integration enabled")
+		logger.Debug("Honeycomb Integration enabled", zap.String("honeycomb-dataset", *honeycombDataset))
 		beeline.Init(beeline.Config{
 			WriteKey: *honeycombAPIKey,
 			Dataset:  *honeycombDataset,
 			Debug:    *honeycombDebug,
 		})
 	} else {
-		zap.L().Debug("Honeycomb Integration disabled")
+		logger.Debug("Honeycomb Integration disabled")
 	}
 
 	// Assert that our secret keys can be parsed into actual private keys
@@ -349,8 +349,13 @@ func main() {
 	errChan := make(chan error)
 	moveMilCerts := []server.TLSCert{
 		server.TLSCert{
-			CertPEMBlock: []byte(*moveMilDODTLSCert),
-			KeyPEMBlock:  []byte(*moveMilDODTLSKey),
+			//Append move.mil cert with CA certificate chain
+			CertPEMBlock: bytes.Join([][]byte{
+				[]byte(*moveMilDODTLSCert),
+				[]byte(*moveMilDODCACert)},
+				[]byte("\n"),
+			),
+			KeyPEMBlock: []byte(*moveMilDODTLSKey),
 		},
 	}
 	go func() {

@@ -1,6 +1,54 @@
 version: 2
 jobs:
 
+  pre_deps_golang:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Install dependencies
+          command: dep ensure -vendor-only
+      - save_cache:
+          key: go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/pkg/dep/sources
+      - save_cache:
+          key: mymove-vendor-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/src/github.com/transcom/mymove/vendor
+      - run: &announce_failure
+          name: Announce failure
+          command: |
+            [[ $CIRCLE_BRANCH = master ]] || exit 0
+            bin/circleci-announce-broken-branch
+          when: on_fail
+
+  pre_deps_yarn:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install YARN dependencies
+          command: yarn install
+      - save_cache:
+          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - run: *announce_failure
+
   pre_test:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
@@ -9,8 +57,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -34,16 +84,7 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - run: &announce_failure
-          name: Announce failure
-          command: |
-            [[ $CIRCLE_BRANCH = master ]] || exit 0
-            bin/circleci-announce-broken-branch
-          when: on_fail
+      - run: *announce_failure
 
   vuln_scan:
     working_directory: ~/go/src/github.com/transcom/mymove
@@ -53,17 +94,16 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
       - run:
           name: Authenticate with Snyk
           command: npx snyk auth $SNYK_API_TOKEN
-      - run:
-          name: Install YARN dependencies
-          command: yarn
       - run:
           name: Add Go binaries to path
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
@@ -76,14 +116,6 @@ jobs:
       - run:
           name: Scan Go dependencies for known vulnerabilities
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
       - run: *announce_failure
 
   build_app:
@@ -100,8 +132,10 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
@@ -138,15 +172,6 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
-
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
 
       - run: *announce_failure
 
@@ -279,9 +304,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
-
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
@@ -296,20 +322,32 @@ jobs:
       - run:
           name: Push changes
           command: bin/circleci-push-dependency-updates
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
 
 workflows:
   version: 2
 
   app:
     jobs:
-      - pre_test
+      - pre_deps_golang
+
+      - pre_deps_yarn
+
+      - pre_test:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+
       #- vuln_scan # keep disabled until we work out new process
-      - build_app
-      - build_migrations
+
+      - build_app:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+
+      - build_migrations:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
 
       - deploy_experimental_migrations:
           requires:
@@ -319,21 +357,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-use-dod-certs
+              only: mk-intermediate-cert
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-use-dod-certs
+              only: mk-intermediate-cert
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-use-dod-certs
+              only: mk-intermediate-cert
 
       - deploy_staging_migrations:
           requires:

@@ -4,14 +4,17 @@
 
 All data access should be done through selectors and not by directly accessing the global Redux state. Here's an example of a fictitious `ShipmentDisplay` component fetching a specific shipment using its ID (which may have been extracted from a URL).
 
-Define an action creator function in `shared/Entities/modules/shipment.js` to connect
+You'll need to define an action creator function in `shared/Entities/modules/shipment.js` that wraps a call to `swaggerRequest`:
 
 ```js
+// import { getClient } from 'shared/Swagger/api';
+
 export function getShipment(label, shipmentId, moveId) {
   return swaggerRequest(
-    'shipments.getShipment',
-    { moveId, shipmentId },
-    { label },
+    getClient,                  // function returning a promise that will resolve to a Swagger client instance
+    'shipments.getShipment',    // what operation to perform, including tag namespace
+    { moveId, shipmentId },     // parameters to pass to the operation
+    { label },                  // optional params for swaggerRequest, such as label
   );
 }
 ```

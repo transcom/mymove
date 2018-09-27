@@ -366,6 +366,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
+		"ShipmentOffers.TransportationServiceProviderPerformance",
 	).Find(&shipment, shipmentID)
 
 	if err != nil {
