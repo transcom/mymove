@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"github.com/namsral/flag"
 	"log"
 
 	"github.com/gobuffalo/pop"
@@ -18,6 +18,10 @@ import (
 func main() {
 	moveIDString := flag.String("moveID", "", "The ID of the move where shipments are found")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
+	hereGeoEndpoint := flag.String("here_maps_geocode_endpoint", "", "URL for the HERE maps geocoder endpoint")
+	hereRouteEndpoint := flag.String("here_maps_routing_endpoint", "", "URL for the HERE maps routing endpoint")
+	hereAppID := flag.String("here_maps_app_id", "", "HERE maps App ID for this application")
+	hereAppCode := flag.String("here_maps_app_code", "", "HERE maps App API code")
 	flag.Parse()
 
 	if *moveIDString == "" {
@@ -49,10 +53,10 @@ func main() {
 		log.Fatal("No accepted shipments found")
 	}
 	var logger = zap.NewNop()
-
+	planner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
 	var costsByShipments []rateengine.CostByShipment
 
-	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: create the proper route/planner
+	engine := rateengine.NewRateEngine(db, logger, planner)
 	for _, shipment := range shipments {
 		costByShipment, err := engine.HandleRunOnShipment(shipment)
 		if err != nil {
