@@ -12,7 +12,10 @@ import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { getAllShipmentDocuments } from 'shared/Entities/modules/shipmentDocuments';
+import {
+  getAllShipmentDocuments,
+  selectShipmentDocuments,
+} from 'shared/Entities/modules/shipmentDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -317,11 +320,7 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
-  shipmentDocuments: Object.keys(state.entities.moveDocuments).map(id => ({
-    // TODO: More robust solution when I understand the new redux-swagger pattern more
-    // eslint-disable-next-line
-    ...state.entities.moveDocuments[id],
-  })),
+  shipmentDocuments: selectShipmentDocuments(state),
   serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,

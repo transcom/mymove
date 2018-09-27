@@ -9,3 +9,6 @@ export function getAllShipmentDocuments(label, shipmentId) {
     { label },
   );
 }
+
+export const selectShipmentDocuments = state =>
+  Object.values(state.entities.moveDocuments);
