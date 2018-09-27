@@ -12,10 +12,10 @@ consumes:
 produces:
   - application/json
 definitions:
-  IndexMoveDocumentPayload:
-      type: array
-      items:
-        $ref: '#/definitions/MoveDocumentPayload'
+  MoveDocuments:
+    type: array
+    items:
+      $ref: '#/definitions/MoveDocumentPayload'
   MoveDocumentPayload:
     type: object
     properties:
@@ -173,7 +173,7 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: "United States"
+        example: 'United States'
         default: United States
     required:
       - street_address_1
@@ -346,7 +346,7 @@ definitions:
         example: 2018-04-12T23:20:50.52Z
       description:
         type: string
-        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
+        example: 'During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face'
   CodeOfService:
     type: string
     description: Code for service provided by a TSP
@@ -408,10 +408,10 @@ definitions:
         $ref: '#/definitions/MoveStatus'
       locator:
         type: string
-        example: "12432"
+        example: '12432'
       cancel_reason:
         type: string
-        example: "Change of orders"
+        example: 'Change of orders'
         x-nullable: true
     required:
       - orders_id
@@ -535,13 +535,13 @@ definitions:
         example: US34
       destination_region:
         type: string
-        example: "5"
+        example: '5'
       code_of_service:
         type: string
         example: D
         enum:
           - D
-          - "2"
+          - '2'
     required:
       - source_rate_area
       - destination_region
@@ -592,7 +592,7 @@ definitions:
       book_date:
         type: string
         format: date
-        example: "2018-03-15"
+        example: '2018-03-15'
       requested_pickup_date:
         type: string
         format: date-time
@@ -670,20 +670,20 @@ definitions:
       pm_survey_planned_pack_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned pack date"
+        example: '2018-04-26'
+        title: 'Planned pack date'
         x-nullable: true
       pm_survey_planned_pickup_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned pickup date"
+        example: '2018-04-26'
+        title: 'Planned pickup date'
         x-nullable: true
       pm_survey_planned_delivery_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned delivery date"
+        example: '2018-04-26'
+        title: 'Planned delivery date'
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
@@ -933,7 +933,7 @@ definitions:
       actual_pickup_date:
         type: string
         format: date
-        example: "2018-04-02"
+        example: '2018-04-02'
         title: Actual Pickup Date
         x-nullable: true
     required:
@@ -944,7 +944,7 @@ definitions:
       actual_delivery_date:
         type: string
         format: date
-        example: "2018-04-02"
+        example: '2018-04-02'
         x-nullable: true
         title: Actual Delivery Date
     required:
@@ -1013,13 +1013,14 @@ paths:
           description: server error
     post:
       summary: Adds a new Blackout period to the list of blackouts
-      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
-       contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
-       result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
+      description:
+        This is used to create a new blackout. When posting to this URL the payload Blackout should not
+        contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
+        result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
 
-       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
-       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
-       originate in the given GBLOC.
+        At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
+        they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
+        originate in the given GBLOC.
       operationId: createBlackout
       tags:
         - blackouts
@@ -1059,7 +1060,7 @@ paths:
         200:
           description: the details of the requested blackout period
           schema:
-              $ref: '#/definitions/BlackoutPayload'
+            $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         401:
@@ -1091,7 +1092,7 @@ paths:
         200:
           description: the blackout was successfully updated
           schema:
-              $ref: '#/definitions/BlackoutPayload'
+            $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         401:
@@ -1145,7 +1146,7 @@ paths:
         200:
           description: returns list of move documents
           schema:
-            $ref: '#/definitions/IndexMoveDocumentPayload'
+            $ref: '#/definitions/MoveDocuments'
         400:
           description: invalid request
         401:
