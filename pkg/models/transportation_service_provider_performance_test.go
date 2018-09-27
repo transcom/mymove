@@ -606,6 +606,52 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 	}
 }
 
+func (suite *ModelSuite) Test_FetchDiscountRatesDateBoundaries() {
+	t := suite.T()
+
+	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US68",
+			DestinationRegion: "5",
+			CodeOfService:     "2",
+		},
+	}) // Victoria, TX to Salina, KS
+	tsp := testdatagen.MakeDefaultTSP(suite.db)
+
+	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
+	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+
+	tspPerformance := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  90,
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
+	}
+	suite.mustSave(&tspPerformance)
+
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleEnd); err != nil {
+		t.Fatalf("Failed to find tsp performance for last day in rate cycle: %s", err)
+	}
+
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleStart); err != nil {
+		t.Fatalf("Failed to find tsp performance for first day in rate cycle: %s", err)
+	}
+
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleStart.Add(time.Hour*-24)); err == nil {
+		t.Fatalf("Should not have found a TSPP for the last day before the start of a rate cycle: %s", err)
+	}
+
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleEnd.Add(time.Hour*24)); err == nil {
+		t.Fatalf("Should not have found a TSPP for the first day following a rate cycle: %s", err)
+	}
+}
+
 func equalUUIDSlice(a []uuid.UUID, b []uuid.UUID) bool {
 	if len(a) != len(b) {
 		return false
