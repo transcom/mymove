@@ -11,7 +11,6 @@ import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import BasicPanel from 'shared/BasicPanel';
 
 import {
   loadShipmentDependencies,
@@ -24,6 +23,7 @@ import {
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+import Locations from './Locations';
 import FormButton from './FormButton';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -221,6 +221,7 @@ class ShipmentInfo extends Component {
                       display: 'inline-block',
                       width: 600,
                       marginRight: 10,
+                      verticalAlign: 'top',
                     }}
                   >
                     <Weights
@@ -236,8 +237,8 @@ class ShipmentInfo extends Component {
                       marginLeft: 10,
                     }}
                   >
-                    <Weights
-                      title="what"
+                    <Locations
+                      title="Locations"
                       shipment={this.props.shipment}
                       update={this.props.patchShipment}
                     />

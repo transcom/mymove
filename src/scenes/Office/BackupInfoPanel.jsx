@@ -6,7 +6,7 @@ import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { updateBackupInfo } from './ducks';
 
-import { addressElementDisplay, addressElementEdit } from './AddressElement';
+import { addressElementDisplay, addressElementEdit } from 'shared/Address';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField, editablePanelify } from 'shared/EditablePanel';

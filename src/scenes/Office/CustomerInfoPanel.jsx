@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import { addressElementDisplay, addressElementEdit } from './AddressElement';
+import { addressElementDisplay, addressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 

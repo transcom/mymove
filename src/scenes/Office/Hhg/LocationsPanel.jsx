@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { editablePanelify } from 'shared/EditablePanel';
-import { addressElementDisplay, addressElementEdit } from '../AddressElement';
+import { addressElementDisplay, addressElementEdit } from 'shared/Address';
 import { no_op } from 'shared/utils';
 
 const LocationsDisplay = props => {
