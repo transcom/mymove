@@ -1,9 +1,5 @@
 package models
 
-import (
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-)
-
 // WeightAllotment represents the weights allotted for a rank
 type WeightAllotment struct {
 	TotalWeightSelf               int
@@ -12,7 +8,7 @@ type WeightAllotment struct {
 	ProGearWeightSpouse           int
 }
 
-func makeEntitlements() map[internalmessages.ServiceMemberRank]WeightAllotment {
+func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 	midshipman := WeightAllotment{
 		TotalWeightSelf:               350,
 		TotalWeightSelfPlusDependents: 3000,
@@ -167,29 +163,29 @@ func makeEntitlements() map[internalmessages.ServiceMemberRank]WeightAllotment {
 		ProGearWeightSpouse:           500,
 	}
 
-	entitlements := map[internalmessages.ServiceMemberRank]WeightAllotment{
-		internalmessages.ServiceMemberRankACADEMYCADETMIDSHIPMAN: midshipman,
-		internalmessages.ServiceMemberRankAVIATIONCADET:          aviationCadet,
-		internalmessages.ServiceMemberRankE1:                     E1,
-		internalmessages.ServiceMemberRankE2:                     E2,
-		internalmessages.ServiceMemberRankE3:                     E3,
-		internalmessages.ServiceMemberRankE4:                     E4,
-		internalmessages.ServiceMemberRankE5:                     E5,
-		internalmessages.ServiceMemberRankE6:                     E6,
-		internalmessages.ServiceMemberRankE7:                     E7,
-		internalmessages.ServiceMemberRankE8:                     E8,
-		internalmessages.ServiceMemberRankE9:                     E9,
-		internalmessages.ServiceMemberRankO1W1ACADEMYGRADUATE:    O1W1AcademyGraduate,
-		internalmessages.ServiceMemberRankO2W2:                   O2W2,
-		internalmessages.ServiceMemberRankO3W3:                   O3W3,
-		internalmessages.ServiceMemberRankO4W4:                   O4W4,
-		internalmessages.ServiceMemberRankO5W5:                   O5W5,
-		internalmessages.ServiceMemberRankO6:                     O6,
-		internalmessages.ServiceMemberRankO7:                     O7,
-		internalmessages.ServiceMemberRankO8:                     O8,
-		internalmessages.ServiceMemberRankO9:                     O9,
-		internalmessages.ServiceMemberRankO10:                    O10,
-		internalmessages.ServiceMemberRankCIVILIANEMPLOYEE:       civilianEmployee,
+	entitlements := map[ServiceMemberRank]WeightAllotment{
+		ServiceMemberRankACADEMYCADETMIDSHIPMAN: midshipman,
+		ServiceMemberRankAVIATIONCADET:          aviationCadet,
+		ServiceMemberRankE1:                     E1,
+		ServiceMemberRankE2:                     E2,
+		ServiceMemberRankE3:                     E3,
+		ServiceMemberRankE4:                     E4,
+		ServiceMemberRankE5:                     E5,
+		ServiceMemberRankE6:                     E6,
+		ServiceMemberRankE7:                     E7,
+		ServiceMemberRankE8:                     E8,
+		ServiceMemberRankE9:                     E9,
+		ServiceMemberRankO1W1ACADEMYGRADUATE:    O1W1AcademyGraduate,
+		ServiceMemberRankO2W2:                   O2W2,
+		ServiceMemberRankO3W3:                   O3W3,
+		ServiceMemberRankO4W4:                   O4W4,
+		ServiceMemberRankO5W5:                   O5W5,
+		ServiceMemberRankO6:                     O6,
+		ServiceMemberRankO7:                     O7,
+		ServiceMemberRankO8:                     O8,
+		ServiceMemberRankO9:                     O9,
+		ServiceMemberRankO10:                    O10,
+		ServiceMemberRankCIVILIANEMPLOYEE:       civilianEmployee,
 	}
 	return entitlements
 }
@@ -197,11 +193,11 @@ func makeEntitlements() map[internalmessages.ServiceMemberRank]WeightAllotment {
 // GetWeightAllotment returns the weight allotments for a given rank.
 func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
 	entitlements := makeEntitlements()
-	return entitlements[internalmessages.ServiceMemberRank(rank)]
+	return entitlements[rank]
 }
 
 // GetEntitlement calculates the entitlement for a rank, has dependents and has spouseprogear
-func GetEntitlement(rank internalmessages.ServiceMemberRank, hasDependents bool, spouseHasProGear bool) int {
+func GetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProGear bool) int {
 
 	entitlements := makeEntitlements()
 	spouseProGear := 0

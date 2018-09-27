@@ -45,8 +45,6 @@ class CustomerInfo extends Component {
               <FontAwesomeIcon className="icon" icon={faEmail} />
             )}
             <br />
-          </div>
-          <div className="extras content">
             {backupContact.name && (
               <span>
                 <b>Backup Contacts</b>

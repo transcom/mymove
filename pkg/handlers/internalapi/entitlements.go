@@ -9,7 +9,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -46,7 +45,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	// PPMs are in descending order - this is the last one created
 	weightEstimate := *move.PersonallyProcuredMoves[0].WeightEstimate
 
-	smEntitlement := models.GetEntitlement((internalmessages.ServiceMemberRank)(*serviceMember.Rank), orders.HasDependents, orders.SpouseHasProGear)
+	smEntitlement := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
 	if int(weightEstimate) > smEntitlement {
 		return handlers.ResponseForConflictErrors(h.Logger(), fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
 	}
