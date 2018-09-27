@@ -1,0 +1,10 @@
+create_table("accessorials") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("shipment_id", "uuid", {})
+	t.Column("code", "string", {})
+	t.Column("location", "string", {})
+	t.Column("quantity", "integer", {})
+	t.Column("notes", "text", {})
+	t.Column("status", "string", {})
+	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {"on_delete": "restrict"})
+}
