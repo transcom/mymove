@@ -286,19 +286,13 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 
 	var tspPerformance TransportationServiceProviderPerformance
 
-	query := `
-		SELECT tspp.*
-		FROM transportation_service_provider_performances AS tspp
-		LEFT JOIN traffic_distribution_lists AS tdl ON tdl.id = tspp.traffic_distribution_list_id
-		WHERE
-			tdl.source_rate_area = $1
-			AND tdl.destination_region = $2
-			AND tdl.code_of_service = $3
-			AND tspp.rate_cycle_start <= $4 AND tspp.rate_cycle_end > $4
-		ORDER BY tspp.best_value_score DESC
-	`
-
-	err = db.RawQuery(query, rateArea, region, cos, date).First(&tspPerformance)
+	err = db.Q().LeftJoin("traffic_distribution_lists AS tdl", "tdl.id = transportation_service_provider_performances.traffic_distribution_list_id").
+		Where("tdl.source_rate_area = ?", rateArea).
+		Where("tdl.destination_region = ?", region).
+		Where("tdl.code_of_service = ?", cos).
+		Where("? BETWEEN transportation_service_provider_performances.rate_cycle_start AND transportation_service_provider_performances.rate_cycle_end", date).
+		Order("transportation_service_provider_performances.best_value_score DESC").
+		First(&tspPerformance)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {

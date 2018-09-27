@@ -150,3 +150,15 @@
   padding: 1em;
   margin-top: 1em;
 }
+
+.documents {
+  border: 1px solid black;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.documents-list-header {
+  margin-top: 0;
+  font-size: '2rem';
+  font-family: 'sans-serif';
+}

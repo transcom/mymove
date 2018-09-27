@@ -16,55 +16,58 @@ class CustomerInfo extends Component {
       <div>
         <div className="usa-grid">
           <div className="extras content">
-            <b>
-              {serviceMember.last_name}, {serviceMember.first_name}
-            </b>
-            <br />
-            DoD ID#: {serviceMember.edipi} - {serviceMember.affiliation} -{' '}
-            {serviceMember.rank}
-            <br />
-            {serviceMember.telephone}
-            {serviceMember.secondary_telephone && (
-              <span>- {serviceMember.secondary_telephone}</span>
-            )}
-            <br />
-            {serviceMember.personal_email}
-            <br />
-            Preferred contact method:{' '}
-            {serviceMember.phone_is_preferred && (
-              <FontAwesomeIcon
-                className="icon"
-                icon={faPhone}
-                flip="horizontal"
-              />
-            )}
-            {serviceMember.text_message_is_preferred && (
-              <FontAwesomeIcon className="icon" icon={faComments} />
-            )}
-            {serviceMember.email_is_preferred && (
-              <FontAwesomeIcon className="icon" icon={faEmail} />
-            )}
-            <br />
-            {backupContact.name && (
-              <span>
-                <b>Backup Contacts</b>
-                <br />
-                {backupContact.name} ({backupContact.permission})
-                <br />
-                {backupContact.telephone && (
-                  <span>
-                    {backupContact.telephone}
-                    <br />
-                  </span>
-                )}
-                {backupContact.email && (
-                  <span>
-                    {backupContact.email}
-                    <br />
-                  </span>
-                )}
-              </span>
-            )}
+            <p>
+              <b>
+                {serviceMember.last_name}, {serviceMember.first_name}
+              </b>
+              <br />
+              DoD ID#: {serviceMember.edipi} - {serviceMember.affiliation} -{' '}
+              {serviceMember.rank}
+              <br />
+              {serviceMember.telephone}
+              {serviceMember.secondary_telephone && (
+                <span>- {serviceMember.secondary_telephone}</span>
+              )}
+              <br />
+              {serviceMember.personal_email}
+              <br />
+              Preferred contact method:{' '}
+              {serviceMember.phone_is_preferred && (
+                <FontAwesomeIcon
+                  className="icon"
+                  icon={faPhone}
+                  flip="horizontal"
+                />
+              )}
+              {serviceMember.text_message_is_preferred && (
+                <FontAwesomeIcon className="icon" icon={faComments} />
+              )}
+              {serviceMember.email_is_preferred && (
+                <FontAwesomeIcon className="icon" icon={faEmail} />
+              )}
+            </p>
+            <p>
+              {backupContact.name && (
+                <span>
+                  <b>Backup Contacts</b>
+                  <br />
+                  {backupContact.name} ({backupContact.permission})
+                  <br />
+                  {backupContact.telephone && (
+                    <span>
+                      {backupContact.telephone}
+                      <br />
+                    </span>
+                  )}
+                  {backupContact.email && (
+                    <span>
+                      {backupContact.email}
+                      <br />
+                    </span>
+                  )}
+                </span>
+              )}
+            </p>
           </div>
         </div>
       </div>
