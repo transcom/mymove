@@ -35,7 +35,10 @@ func main() {
 	// make sure edi ends in new line
 	ediString = strings.TrimSpace(ediString) + "\n"
 
-	var logger = zap.NewNop()
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
 
 	fmt.Println(ediString)
 	statusCode, err := gex.SendInvoiceToGex(logger, ediString, *transactionName)
