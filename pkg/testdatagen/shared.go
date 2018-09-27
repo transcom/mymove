@@ -20,6 +20,7 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
+	Accessorial                              models.Accessorial
 	Address                                  models.Address
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
