@@ -42,8 +42,9 @@ function successfulReturnType(routeDefinition, status) {
 
 // Call an operation defined in the Swagger API, dispatching
 // actions as its state changes.
-export function swaggerRequest(operationPath, params, options = {}) {
-  return async function(dispatch, getState, { schema, client }) {
+export function swaggerRequest(getClient, operationPath, params, options = {}) {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
     const operation = get(client, 'apis.' + operationPath);
 
     if (!operation) {

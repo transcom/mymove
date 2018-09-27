@@ -37,6 +37,7 @@ func main() {
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
+		"ShipmentOffers.TransportationServiceProviderPerformance",
 	).Where("shipment_offers.accepted=true").
 		Where("move_id = $1", &moveID).
 		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
@@ -53,7 +54,7 @@ func main() {
 
 	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: create the proper route/planner
 	for _, shipment := range shipments {
-		costByShipment, err := rateengine.HandleRunRateEngineOnShipment(shipment, engine)
+		costByShipment, err := engine.HandleRunOnShipment(shipment)
 		if err != nil {
 			log.Fatal(err)
 		}
