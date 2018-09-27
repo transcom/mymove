@@ -13,11 +13,10 @@ func MakeAccessorial(db *pop.Connection, assertions Assertions) models.Accessori
 
 	//filled in dummy data
 	accessorial := models.Accessorial{
-		ShipmentID: shipment.ID,
-		Code:       "105B",
-		Item:       "Pack Reg Crate",
-		Location:   models.AccessorialLocationDESTINATION,
-		// ToDo: FIND OUT IF WE HAVE A TEXT SANITIZER
+		ShipmentID:    shipment.ID,
+		Code:          "105B",
+		Item:          "Pack Reg Crate",
+		Location:      models.AccessorialLocationDESTINATION,
 		Notes:         "Mounted deer head measures 23\" x 34\" x 27\"; crate will be 16.7 cu ft",
 		Quantity:      1670,
 		Status:        models.AccessorialStatusSUBMITTED,
