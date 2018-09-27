@@ -163,7 +163,6 @@ export function loadShipmentDependencies(shipmentId) {
 
 // Reducer
 const initialState = {
-  shipmentDocuments: [],
   shipmentIsLoading: false,
   shipmentHasLoadSuccess: false,
   shipmentHasLoadError: null,

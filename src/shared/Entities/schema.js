@@ -70,5 +70,3 @@ export const moveDocuments = new schema.Array(moveDocument);
 moveDocument.define({
   move: move,
 });
-
-export const indexmovedocumentpayload = moveDocuments;
