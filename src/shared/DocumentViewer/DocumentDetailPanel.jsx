@@ -123,25 +123,29 @@ DocumentDetailDisplay.propTypes = {
   }).isRequired,
 };
 
-const DocumentDetailEdit = ({ isExpenseDocument, moveDocSchema }) => (
-  <Fragment>
-    <div>
-      <FormSection name="moveDocument">
-        <SwaggerField fieldName="title" swagger={moveDocSchema} required />
-        <SwaggerField
-          fieldName="move_document_type"
-          swagger={moveDocSchema}
-          required
-        />
-        {isExpenseDocument && (
-          <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
-        )}
-        <SwaggerField fieldName="status" swagger={moveDocSchema} required />
-        <SwaggerField fieldName="notes" swagger={moveDocSchema} />
-      </FormSection>
-    </div>
-  </Fragment>
-);
+const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
+  const isExpenseDocument =
+    formValues.moveDocument.move_document_type === 'EXPENSE';
+  return (
+    <Fragment>
+      <div>
+        <FormSection name="moveDocument">
+          <SwaggerField fieldName="title" swagger={moveDocSchema} required />
+          <SwaggerField
+            fieldName="move_document_type"
+            swagger={moveDocSchema}
+            required
+          />
+          {isExpenseDocument && (
+            <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
+          )}
+          <SwaggerField fieldName="status" swagger={moveDocSchema} required />
+          <SwaggerField fieldName="notes" swagger={moveDocSchema} />
+        </FormSection>
+      </div>
+    </Fragment>
+  );
+};
 
 DocumentDetailEdit.propTypes = {
   isExpenseDocument: bool.isRequired,
