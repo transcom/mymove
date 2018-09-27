@@ -23,8 +23,7 @@ Please refer to this [Real Time Board](https://realtimeboard.com/app/board/o9J_k
 ## Decision Outcome
 
 * Chosen Alternative: Maintain out own state machine mechanism.
-* The main decision driver here was it that although folks seemed to favor relying on a pre-built
-* *[consequences. e.g., negative impact on quality attribute, follow-up decisions required, ...]* <!-- optional -->
+* The main decision driver here was it that although folks favor pre-built libraries because they're pre-packaged and thought of most of the functionality we want, we don't really need a lot of that functionality, and the best library we found was not intuitive. So one of the main points we were looking for--greater ease of use--was not well addressed by the options we found. This being the case, we decided to codify and build out our state machine mechanisms a little further, and to then implement consistently throughout.
 
 ## Pros and Cons of the Alternatives
 
