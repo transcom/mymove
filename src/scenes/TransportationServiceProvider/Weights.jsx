@@ -15,7 +15,60 @@ const WeightsDisplay = props => {
     values: props.shipment,
   };
   return (
-    <React.Fragment>
+    <div className="editable-panel-column">
+      <div className="column-head">Weights</div>
+      <div className="column-subhead">Total weight</div>
+      <PanelSwaggerField
+        fieldName="weight_estimate"
+        required
+        title="Customer estimate"
+        {...fieldProps}
+      />
+      <PanelSwaggerField
+        fieldName="pm_survey_weight_estimate"
+        required
+        title="TSP estimate"
+        {...fieldProps}
+      />
+      <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
+      <div className="column-subhead">Pro-gear</div>
+      <PanelSwaggerField
+        fieldName="progear_weight_estimate"
+        required
+        title="Customer estimate"
+        {...fieldProps}
+      />
+      <PanelSwaggerField
+        fieldName="pm_survey_progear_weight_estimate"
+        required
+        title="TSP estimate"
+        {...fieldProps}
+      />
+      <div className="column-subhead">Spouse pro-gear</div>
+      <PanelSwaggerField
+        fieldName="spouse_progear_weight_estimate"
+        required
+        title="Customer estimate"
+        {...fieldProps}
+      />
+      <PanelSwaggerField
+        fieldName="pm_survey_spouse_progear_weight_estimate"
+        required
+        title="TSP estimate"
+        {...fieldProps}
+      />
+    </div>
+  );
+};
+
+const WeightsEdit = props => {
+  const schema = props.shipmentSchema;
+  const fieldProps = {
+    schema,
+    values: props.shipment,
+  };
+  return (
+    <FormSection name="weights">
       <div className="editable-panel-column">
         <div className="column-head">Weights</div>
         <div className="column-subhead">Total weight</div>
@@ -31,7 +84,7 @@ const WeightsDisplay = props => {
           title="TSP estimate"
           {...fieldProps}
         />
-        <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
+        <SwaggerField fieldName="actual_weight" swagger={schema} required />
         <div className="column-subhead">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"
@@ -59,64 +112,7 @@ const WeightsDisplay = props => {
           {...fieldProps}
         />
       </div>
-    </React.Fragment>
-  );
-};
-
-const WeightsEdit = props => {
-  const schema = props.shipmentSchema;
-  const fieldProps = {
-    schema,
-    values: props.shipment,
-  };
-  return (
-    <React.Fragment>
-      <FormSection name="weights">
-        <div className="editable-panel-column">
-          <div className="column-head">Weights</div>
-          <div className="column-subhead">Total weight</div>
-          <PanelSwaggerField
-            fieldName="weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
-          <PanelSwaggerField
-            fieldName="pm_survey_weight_estimate"
-            required
-            title="TSP estimate"
-            {...fieldProps}
-          />
-          <SwaggerField fieldName="actual_weight" swagger={schema} required />
-          <div className="column-subhead">Pro-gear</div>
-          <PanelSwaggerField
-            fieldName="progear_weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
-          <PanelSwaggerField
-            fieldName="pm_survey_progear_weight_estimate"
-            required
-            title="TSP estimate"
-            {...fieldProps}
-          />
-          <div className="column-subhead">Spouse pro-gear</div>
-          <PanelSwaggerField
-            fieldName="spouse_progear_weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
-          <PanelSwaggerField
-            fieldName="pm_survey_spouse_progear_weight_estimate"
-            required
-            title="TSP estimate"
-            {...fieldProps}
-          />
-        </div>
-      </FormSection>
-    </React.Fragment>
+    </FormSection>
   );
 };
 

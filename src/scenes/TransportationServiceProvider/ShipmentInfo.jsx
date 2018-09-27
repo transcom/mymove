@@ -11,6 +11,7 @@ import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import BasicPanel from 'shared/BasicPanel';
 
 import {
   loadShipmentDependencies,
@@ -214,11 +215,33 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <Weights
-                    title="Weights & Items"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
+
+                  <div
+                    style={{
+                      display: 'inline-block',
+                      width: 600,
+                      marginRight: 10,
+                    }}
+                  >
+                    <Weights
+                      title="Weights & Items"
+                      shipment={this.props.shipment}
+                      update={this.props.patchShipment}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: 'inline-block',
+                      width: 600,
+                      marginLeft: 10,
+                    }}
+                  >
+                    <Weights
+                      title="what"
+                      shipment={this.props.shipment}
+                      update={this.props.patchShipment}
+                    />
+                  </div>
                 </div>
               )}
             </div>
