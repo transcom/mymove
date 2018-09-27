@@ -6,5 +6,7 @@ create_table("accessorials") {
 	t.Column("quantity", "integer", {})
 	t.Column("notes", "text", {})
 	t.Column("status", "string", {})
+	t.Column("submitted_date", "datetime", {})
+	t.Column("approved_date", "datetime", {})
 	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {"on_delete": "restrict"})
 }
