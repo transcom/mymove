@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-export const addressElementDisplay = (address, title) => (
+export const AddressElementDisplay = ({ address, title }) => (
   <React.Fragment>
     <PanelField title={title}>
       {address.street_address_1}
@@ -25,7 +26,19 @@ export const addressElementDisplay = (address, title) => (
   </React.Fragment>
 );
 
-export const addressElementEdit = (addressProps, title) => (
+AddressElementDisplay.propTypes = {
+  address: PropTypes.shape({
+    street_address_1: PropTypes.string.isRequired,
+    street_address_2: PropTypes.string,
+    street_address_3: PropTypes.string,
+    city: PropTypes.string.isRequired,
+    state: PropTypes.string.isRequired,
+    postal_code: PropTypes.string.isRequired,
+  }),
+  title: PropTypes.string.isRequired,
+};
+
+export const AddressElementEdit = (addressProps, title) => (
   <React.Fragment>
     <div className="panel-subhead">{title}</div>
     <SwaggerField fieldName="street_address_1" {...addressProps} required />
