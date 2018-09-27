@@ -19,7 +19,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import DocumentList from 'shared/DocumentViewer/DocumentList';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
@@ -34,8 +34,10 @@ import {
   approveBasics,
   approvePPM,
   approveHHG,
+  completeHHG,
   cancelMove,
   patchShipment,
+  sendHHGInvoice,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import {
@@ -130,6 +132,14 @@ class MoveInfo extends Component {
     this.props.approveHHG(this.props.officeShipment.id);
   };
 
+  completeHHG = () => {
+    this.props.completeHHG(this.props.officeShipment.id);
+  };
+
+  submitInvoice = () => {
+    this.props.sendHHGInvoice(this.props.officeShipment.id);
+  };
+
   cancelMove = cancelReason => {
     this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
       this.setState({ redirectToHome: true });
@@ -176,6 +186,7 @@ class MoveInfo extends Component {
     const isPPM = !isEmpty(this.props.officePPM);
     const isHHG = !isEmpty(this.props.officeHHG);
     const pathnames = this.props.location.pathname.split('/');
+    const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
     const currentTab = pathnames[pathnames.length - 1];
 
     const showDocumentViewer = this.props.context.flags.documentViewer;
@@ -191,7 +202,12 @@ class MoveInfo extends Component {
       ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'],
       ppm.status,
     );
-    const hhgApproved = hhg.status === 'APPROVED';
+    const hhgApproved = includes(
+      ['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
+      hhg.status,
+    );
+    const hhgDelivered = hhg.status === 'DELIVERED';
+    const hhgCompleted = hhg.status === 'COMPLETED';
     const moveApproved = move.status === 'APPROVED';
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -321,6 +337,16 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
+              {this.props.hhgInvoiceHasSendSuccess && (
+                <Alert type="success" heading="Success">
+                  Invoice successfully sent
+                </Alert>
+              )}
+              {this.props.hhgInvoiceHasFailure && (
+                <Alert type="error" heading="">
+                  Unable to send invoice. Please try again in a few minutes.
+                </Alert>
+              )}
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
@@ -344,6 +370,7 @@ class MoveInfo extends Component {
                   onClick={this.approveHHG}
                   disabled={
                     hhgApproved ||
+                    hhgCompleted ||
                     !moveApproved ||
                     !ordersComplete ||
                     currentTab !== 'hhg'
@@ -353,6 +380,37 @@ class MoveInfo extends Component {
                   {hhgApproved && check}
                 </button>
               )}
+              {isHHG && (
+                <button
+                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
+                  onClick={this.completeHHG}
+                  disabled={
+                    !hhgDelivered ||
+                    hhgCompleted ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
+                >
+                  Complete Shipments
+                  {hhgCompleted && check}
+                </button>
+              )}
+              <button
+                className={`${invoiceSuccess ? 'btn__approve--green' : ''}`}
+                onClick={this.submitInvoice}
+                disabled={
+                  !hhgCompleted ||
+                  !hhgApproved ||
+                  !moveApproved ||
+                  !ordersComplete ||
+                  invoiceSuccess ||
+                  currentTab !== 'hhg'
+                }
+              >
+                Submit HHG Invoice
+                {invoiceSuccess && check}
+              </button>
 
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
@@ -410,8 +468,10 @@ class MoveInfo extends Component {
               )}
               {showDocumentViewer && (
                 <DocumentList
+                  detailUrlPrefix={`/moves/${
+                    this.props.match.params.moveId
+                  }/documents`}
                   moveDocuments={moveDocuments}
-                  moveId={this.props.match.params.moveId}
                 />
               )}
             </div>
@@ -451,6 +511,8 @@ const mapStateToProps = state => ({
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),
   approveMoveHasError: get(state, 'office.moveHasApproveError'),
+  hhgInvoiceHasSendSuccess: get(state, 'office.hhgInvoiceHasSendSuccess'),
+  hhgInvoiceHasFailure: get(state, 'office.hhgInvoiceHasFailure'),
   errorMessage: get(state, 'office.error'),
 });
 
@@ -462,8 +524,10 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveHHG,
+      completeHHG,
       cancelMove,
       patchShipment,
+      sendHHGInvoice,
     },
     dispatch,
   );

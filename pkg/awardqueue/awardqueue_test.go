@@ -34,7 +34,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &testdatagen.DateInsidePerformancePeriod,
@@ -44,7 +44,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 	tdl := *shipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -88,7 +88,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &blackoutPickupDate,
 			ActualPickupDate:    &blackoutPickupDate,
-			DeliveryDate:        &blackoutDeliverDate,
+			ActualDeliveryDate:  &blackoutDeliverDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			Status:              models.ShipmentStatusSUBMITTED,
@@ -102,7 +102,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			Status:              models.ShipmentStatusSUBMITTED,
@@ -111,7 +111,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 	tdl := *blackoutShipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -186,7 +186,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &testPickupDateBetween,
 			ActualPickupDate:    &testPickupDateBetween,
-			DeliveryDate:        &testEndDate,
+			ActualDeliveryDate:  &testEndDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &testdatagen.DateInsidePerformancePeriod,
@@ -198,7 +198,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &testPickupDateAfter,
 			ActualPickupDate:    &testPickupDateAfter,
-			DeliveryDate:        &testEndDate,
+			ActualDeliveryDate:  &testEndDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &testdatagen.DateInsidePerformancePeriod,
@@ -276,7 +276,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			Status:              models.ShipmentStatusSUBMITTED,
@@ -287,7 +287,8 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Make a TSP to handle it
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	tspp, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	suite.Nil(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(shipment)
@@ -306,6 +307,9 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 				shipment.Status)
 		}
 	}
+
+	suite.Equal(tsp.ID, offer.TransportationServiceProviderID)
+	suite.Equal(tspp.ID, offer.TransportationServiceProviderPerformanceID)
 }
 
 // Test that we can create a shipment that should NOT be offered because it is not in a TDL
@@ -324,7 +328,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 		Shipment: models.Shipment{
 			RequestedPickupDate: &pickupDate,
 			ActualPickupDate:    &pickupDate,
-			DeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
 			Market:              &market,
 			BookDate:            &pickupDate,
@@ -363,7 +367,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 			Shipment: models.Shipment{
 				RequestedPickupDate: &pickupDate,
 				ActualPickupDate:    &pickupDate,
-				DeliveryDate:        &deliveryDate,
+				ActualDeliveryDate:  &deliveryDate,
 				SourceGBLOC:         &sourceGBLOC,
 				Market:              &market,
 				Status:              models.ShipmentStatusSUBMITTED,
@@ -377,7 +381,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -427,7 +431,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 			Shipment: models.Shipment{
 				RequestedPickupDate: &pickupDate,
 				ActualPickupDate:    &pickupDate,
-				DeliveryDate:        &deliveryDate,
+				ActualDeliveryDate:  &deliveryDate,
 				SourceGBLOC:         &sourceGBLOC,
 				Market:              &market,
 				Status:              models.ShipmentStatusSUBMITTED,
@@ -445,11 +449,11 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	tsp5 := testdatagen.MakeDefaultTSP(suite.db)
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
-	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -499,12 +503,17 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
 
+	var lastTSPP models.TransportationServiceProviderPerformance
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.db)
 		score := float64(mps + i + 1)
 
 		rate := unit.NewDiscountRateFromPercent(45.3)
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		var err error
+		lastTSPP, err = testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, score, 0, rate, rate)
+		if err != nil {
+			t.Errorf("Failed to MakeTSPPerformance: %v", err)
+		}
 	}
 
 	err := queue.assignPerformanceBands()
@@ -513,7 +522,15 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		t.Errorf("Failed to assign to performance bands: %v", err)
 	}
 
-	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
+	perfGroup := models.TSPPerformanceGroup{
+		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
+		PerformancePeriodStart:    lastTSPP.PerformancePeriodStart,
+		PerformancePeriodEnd:      lastTSPP.PerformancePeriodEnd,
+		RateCycleStart:            lastTSPP.RateCycleStart,
+		RateCycleEnd:              lastTSPP.RateCycleEnd,
+	}
+
+	perfs, err := models.FetchTSPPerformancesForQualityBandAssignment(suite.db, perfGroup, mps)
 	if err != nil {
 		t.Errorf("Failed to fetch TSPPerformances: %v", err)
 	}
@@ -523,7 +540,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	for i, perf := range perfs {
 		band := expectedBands[i]
 		if perf.QualityBand == nil {
-			t.Errorf("No quality band assigned for Peformance #%v, got nil", perf.ID)
+			t.Errorf("No quality band assigned for Performance #%v, got nil", perf.ID)
 		} else if (*perf.QualityBand) != band {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}
@@ -565,7 +582,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		TrafficDistributionListID: &tdl.ID,
 		ActualPickupDate:          &testdatagen.DateInsidePeakRateCycle,
 		RequestedPickupDate:       &testdatagen.DateInsidePeakRateCycle,
-		DeliveryDate:              &twoMonthsLater,
+		ActualDeliveryDate:        &twoMonthsLater,
 		BookDate:                  &testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
@@ -604,7 +621,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		TrafficDistributionListID: &tdl.ID,
 		ActualPickupDate:          &testdatagen.DateInsideNonPeakRateCycle,
 		RequestedPickupDate:       &testdatagen.DateInsideNonPeakRateCycle,
-		DeliveryDate:              &twoMonthsLater,
+		ActualDeliveryDate:        &twoMonthsLater,
 		BookDate:                  &testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
@@ -662,6 +679,35 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 	if expectedCount != tspPerformance.OfferCount {
 		t.Errorf("Wrong OfferCount for TSP: expected %d, got %d", expectedCount, tspPerformance.OfferCount)
 	}
+}
+
+func (suite *AwardQueueSuite) Test_waitForLock() {
+	ret := make(chan int)
+	lockID := 1
+
+	go func() {
+		suite.db.Transaction(func(tx *pop.Connection) error {
+			suite.Nil(waitForLock(tx, lockID))
+			time.Sleep(time.Second)
+			ret <- 1
+			return nil
+		})
+	}()
+
+	go func() {
+		suite.db.Transaction(func(tx *pop.Connection) error {
+			time.Sleep(time.Millisecond * 500)
+			suite.Nil(waitForLock(tx, lockID))
+			ret <- 2
+			return nil
+		})
+	}()
+
+	first := <-ret
+	second := <-ret
+
+	suite.Equal(1, first)
+	suite.Equal(2, second)
 }
 
 func equalSlice(a []int, b []int) bool {

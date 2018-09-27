@@ -70,7 +70,7 @@ function tspUserSeesEstimatedWeights() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   fillAndSavePremoveSurvey();
@@ -112,7 +112,7 @@ function tspUserEntersActualWeight() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // Check that the initial display view for actual weight is correct

@@ -1,6 +1,9 @@
 package rateengine
 
 import (
+	"github.com/gobuffalo/uuid"
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/models"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -223,6 +226,64 @@ func (re *RateEngine) ComputeShipment(
 	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
 
 	return cost, nil
+}
+
+// CostByShipment struct containing shipment and cost
+type CostByShipment struct {
+	Shipment models.Shipment
+	Cost     CostComputation
+}
+
+// HandleRunOnShipment runs the rate engine on a shipment and returns the shipment and cost.
+// Assumptions: Shipment model passed in has eagerly fetched PickupAddress, DeliveryAddress,
+// and ShipmentOffers.TransportationServiceProviderPerformance.
+func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipment, error) {
+	// Validate expected model relationships are available.
+	if shipment.PickupAddress == nil {
+		return CostByShipment{}, errors.New("PickupAddress is nil")
+	}
+
+	if shipment.DeliveryAddress == nil {
+		return CostByShipment{}, errors.New("DeliveryAddress is nil")
+	}
+
+	if shipment.ShipmentOffers == nil {
+		return CostByShipment{}, errors.New("ShipmentOffers is nil")
+	} else if len(shipment.ShipmentOffers) == 0 {
+		return CostByShipment{}, errors.New("ShipmentOffers fetched, but none found")
+	}
+
+	if shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.ID == uuid.Nil {
+		return CostByShipment{}, errors.New("TransportationServiceProviderPerformance is nil")
+	}
+
+	// All required relationships should exist at this point.
+	daysInSIT := 0
+	var sitDiscount unit.DiscountRate
+	sitDiscount = 0.0
+
+	// Assume the most recent matching shipment offer is the right one.
+	lhDiscount := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
+
+	// Apply rate engine to shipment
+	var shipmentCost CostByShipment
+	cost, err := re.ComputeShipment(unit.Pound(*shipment.WeightEstimate),
+		shipment.PickupAddress.PostalCode,
+		shipment.DeliveryAddress.PostalCode,
+		time.Time(*shipment.ActualPickupDate),
+		daysInSIT, // We don't want any SIT charges
+		lhDiscount,
+		sitDiscount,
+	)
+	if err != nil {
+		return CostByShipment{}, err
+	}
+
+	shipmentCost = CostByShipment{
+		Shipment: shipment,
+		Cost:     cost,
+	}
+	return shipmentCost, err
 }
 
 // NewRateEngine creates a new RateEngine

@@ -3,7 +3,7 @@ import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
 
-import { getClient, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/Swagger/api';
 
 export const STATE_KEY = 'moveDocuments';
 

@@ -88,7 +88,8 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
-		payload.Notes)
+		payload.Notes,
+		*move.SelectedMoveType)
 
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

@@ -17,11 +17,11 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	shipments := make([]models.Shipment, 1)
 	shipments[0] = testdatagen.MakeDefaultShipment(suite.db)
 	var cost rateengine.CostComputation
-	costByShipment := ediinvoice.CostByShipment{
+	costByShipment := rateengine.CostByShipment{
 		Shipment: shipments[0],
 		Cost:     cost,
 	}
-	var costsByShipments []ediinvoice.CostByShipment
+	var costsByShipments []rateengine.CostByShipment
 	costsByShipments = append(costsByShipments, costByShipment)
 
 	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db)

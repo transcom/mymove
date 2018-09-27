@@ -229,10 +229,11 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 func (m Move) createMoveDocumentWithoutTransaction(
 	db *pop.Connection,
 	uploads Uploads,
-	personallyProcuredMoveID *uuid.UUID,
+	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	notes *string) (*MoveDocument, *validate.Errors, error) {
+	notes *string,
+	moveType string) (*MoveDocument, *validate.Errors, error) {
 
 	var responseError error
 	responseVErrors := validate.NewErrors()
@@ -260,17 +261,31 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		}
 	}
 
-	// Finally create the MoveDocument to tie it to the Move
-	newMoveDocument := &MoveDocument{
-		Move:                     m,
-		MoveID:                   m.ID,
-		Document:                 newDoc,
-		DocumentID:               newDoc.ID,
-		PersonallyProcuredMoveID: personallyProcuredMoveID,
-		MoveDocumentType:         moveDocumentType,
-		Title:                    title,
-		Status:                   MoveDocumentStatusAWAITINGREVIEW,
-		Notes:                    notes,
+	var newMoveDocument *MoveDocument
+	if moveType == "HHG" {
+		newMoveDocument = &MoveDocument{
+			Move:             m,
+			MoveID:           m.ID,
+			Document:         newDoc,
+			DocumentID:       newDoc.ID,
+			ShipmentID:       modelID,
+			MoveDocumentType: moveDocumentType,
+			Title:            title,
+			Status:           MoveDocumentStatusAWAITINGREVIEW,
+		}
+	} else {
+		// Finally create the MoveDocument to tie it to the Move
+		newMoveDocument = &MoveDocument{
+			Move:                     m,
+			MoveID:                   m.ID,
+			Document:                 newDoc,
+			DocumentID:               newDoc.ID,
+			PersonallyProcuredMoveID: modelID,
+			MoveDocumentType:         moveDocumentType,
+			Title:                    title,
+			Status:                   MoveDocumentStatusAWAITINGREVIEW,
+			Notes:                    notes,
+		}
 	}
 
 	verrs, err = db.ValidateAndCreate(newMoveDocument)
@@ -283,14 +298,15 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	return newMoveDocument, responseVErrors, nil
 }
 
-// CreateMoveDocument creates a move document associated to a move & ppm
+// CreateMoveDocument creates a move document associated to a move & ppm or shipment
 func (m Move) CreateMoveDocument(
 	db *pop.Connection,
 	uploads Uploads,
-	personallyProcuredMoveID *uuid.UUID,
+	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	notes *string) (*MoveDocument, *validate.Errors, error) {
+	notes *string,
+	moveType string) (*MoveDocument, *validate.Errors, error) {
 
 	var newMoveDocument *MoveDocument
 	var responseError error
@@ -302,10 +318,11 @@ func (m Move) CreateMoveDocument(
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
 			uploads,
-			personallyProcuredMoveID,
+			modelID,
 			moveDocumentType,
 			title,
-			notes)
+			notes,
+			moveType)
 
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
@@ -328,7 +345,8 @@ func (m Move) CreateMovingExpenseDocument(
 	notes *string,
 	requestedAmountCents unit.Cents,
 	paymentMethod string,
-	movingExpenseType MovingExpenseType) (*MovingExpenseDocument, *validate.Errors, error) {
+	movingExpenseType MovingExpenseType,
+	moveType string) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
 	var responseError error
@@ -344,7 +362,8 @@ func (m Move) CreateMovingExpenseDocument(
 			personallyProcuredMoveID,
 			moveDocumentType,
 			title,
-			notes)
+			notes,
+			moveType)
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}

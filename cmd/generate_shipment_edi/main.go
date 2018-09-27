@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -12,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
 )
 
@@ -39,6 +37,7 @@ func main() {
 		"PickupAddress",
 		"DeliveryAddress",
 		"ServiceMember",
+		"ShipmentOffers.TransportationServiceProviderPerformance",
 	).Where("shipment_offers.accepted=true").
 		Where("move_id = $1", &moveID).
 		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
@@ -51,11 +50,11 @@ func main() {
 	}
 	var logger = zap.NewNop()
 
-	var costsByShipments []ediinvoice.CostByShipment
+	var costsByShipments []rateengine.CostByShipment
 
-	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: create the propper route/planner
+	engine := rateengine.NewRateEngine(db, logger, route.NewTestingPlanner(362)) //TODO: create the proper route/planner
 	for _, shipment := range shipments {
-		costByShipment, err := HandleRunRateEngineOnShipment(shipment, engine)
+		costByShipment, err := engine.HandleRunOnShipment(shipment)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -66,30 +65,4 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(edi)
-}
-
-// HandleRunRateEngineOnShipment runs the rate engine on a shipment and returns the shipment and cost
-func HandleRunRateEngineOnShipment(shipment models.Shipment, engine *rateengine.RateEngine) (ediinvoice.CostByShipment, error) {
-	daysInSIT := 0
-	var sitDiscount unit.DiscountRate
-	sitDiscount = 0.0
-	// Apply rate engine to shipment
-	var shipmentCost ediinvoice.CostByShipment
-	cost, err := engine.ComputeShipment(unit.Pound(*shipment.WeightEstimate),
-		shipment.PickupAddress.PostalCode,
-		shipment.DeliveryAddress.PostalCode,
-		time.Time(*shipment.PickupDate),
-		daysInSIT, // We don't want any SIT charges
-		.4,        // TODO: placeholder: need to get actual linehaul discount
-		sitDiscount,
-	)
-	if err != nil {
-		return ediinvoice.CostByShipment{}, err
-	}
-
-	shipmentCost = ediinvoice.CostByShipment{
-		Shipment: shipment,
-		Cost:     cost,
-	}
-	return shipmentCost, err
 }

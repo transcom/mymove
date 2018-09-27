@@ -1,16 +1,66 @@
 version: 2
 jobs:
 
-  pre_test:
+  pre_deps_golang:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Install dependencies
+          command: dep ensure -vendor-only
+      - save_cache:
+          key: go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/pkg/dep/sources
+      - save_cache:
+          key: mymove-vendor-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/src/github.com/transcom/mymove/vendor
+      - run: &announce_failure
+          name: Announce failure
+          command: |
+            [[ $CIRCLE_BRANCH = master ]] || exit 0
+            bin/circleci-announce-broken-branch
+          when: on_fail
+
+  pre_deps_yarn:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install YARN dependencies
+          command: yarn install
+      - save_cache:
+          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - run: *announce_failure
+
+  pre_test:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -34,16 +84,7 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - run: &announce_failure
-          name: Announce failure
-          command: |
-            [[ $CIRCLE_BRANCH = master ]] || exit 0
-            bin/circleci-announce-broken-branch
-          when: on_fail
+      - run: *announce_failure
 
   integration_tests:
     working_directory: ~/go/src/github.com/transcom/mymove
@@ -132,22 +173,21 @@ jobs:
   vuln_scan:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
       - run:
           name: Authenticate with Snyk
           command: npx snyk auth $SNYK_API_TOKEN
-      - run:
-          name: Install YARN dependencies
-          command: yarn
       - run:
           name: Add Go binaries to path
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
@@ -160,20 +200,12 @@ jobs:
       - run:
           name: Scan Go dependencies for known vulnerabilities
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
       - run: *announce_failure
 
   build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
       - image: postgres:latest
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -184,8 +216,10 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
@@ -223,20 +257,11 @@ jobs:
             docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
 
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-
       - run: *announce_failure
 
   build_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - setup_remote_docker:
@@ -250,11 +275,11 @@ jobs:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
       - run: *announce_failure
 
-  deploy_staging_migrations:
+  deploy_experimental_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: "experimental"
     steps: &deploy_migrations_steps
       - checkout
       - run:
@@ -265,12 +290,12 @@ jobs:
           command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - run: *announce_failure
 
-  deploy_staging_app:
+  deploy_experimental_app:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
-      - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
+      - APP_ENVIRONMENT: "experimental"
+      - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
     steps: &deploy_app_steps
       - checkout
       - setup_remote_docker
@@ -282,32 +307,91 @@ jobs:
           command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
 
-  deploy_prod_migrations:
+  deploy_experimental_app_client_tls:
     docker:
       - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "experimental"
+    steps: &deploy_app_client_tls_steps
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy app-client-tls service
+          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+      - run: *announce_failure
+
+  deploy_staging_migrations:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "staging"
+    steps: *deploy_migrations_steps
+
+  deploy_staging_app:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "staging"
+      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
+    steps: *deploy_app_steps
+
+  deploy_staging_app_client_tls:
+    docker:
+      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "staging"
+    steps: *deploy_app_client_tls_steps
+
+  deploy_prod_migrations:
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_migrations_steps
 
   deploy_prod_app:
     docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     environment:
       - APP_ENVIRONMENT: "prod"
       - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
     steps: *deploy_app_steps
 
-  update_dependencies:
-    working_directory: ~/go/src/github.com/transcom/mymove
+  deploy_prod_app_client_tls:
     docker:
       - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    environment:
+      - APP_ENVIRONMENT: "prod"
+    steps: *deploy_app_client_tls_steps
+
+  integration_tests:
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
 
+      - run: make e2e_test
+      - save_cache:
+          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - run: *announce_failure
+
+  update_dependencies:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
@@ -322,21 +406,58 @@ jobs:
       - run:
           name: Push changes
           command: bin/circleci-push-dependency-updates
-      - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
 
 workflows:
   version: 2
 
   app:
     jobs:
-      - pre_test
-      #- vuln_scan # keep disabled until we work out new process
-      - integration_tests
-      - build_app
-      - build_migrations
+      - pre_deps_golang
+
+      - pre_deps_yarn
+
+      - pre_test:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            #- vuln_scan # keep disabled until we work out new process
+            - integration_tests
+            - build_app
+            - build_migrations
+
+      - build_app:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+
+      - build_migrations:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+
+      - deploy_experimental_migrations:
+          requires:
+            - pre_test
+            #- vuln_scan # keep disabled until we work out new process
+            - build_app
+            - build_migrations
+          filters:
+            branches:
+              only: mk-use-dod-certs
+
+      - deploy_experimental_app:
+          requires:
+            - deploy_experimental_migrations
+          filters:
+            branches:
+              only: mk-use-dod-certs
+
+      - deploy_experimental_app_client_tls:
+          requires:
+            - deploy_experimental_migrations
+          filters:
+            branches:
+              only: mk-use-dod-certs
 
       - deploy_staging_migrations:
           requires:
@@ -349,6 +470,13 @@ workflows:
               only: master
 
       - deploy_staging_app:
+          requires:
+            - deploy_staging_migrations
+          filters:
+            branches:
+              only: master
+
+      - deploy_staging_app_client_tls:
           requires:
             - deploy_staging_migrations
           filters:
@@ -368,6 +496,13 @@ workflows:
               only: master
 
       - deploy_prod_app:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: master
+
+      - deploy_prod_app_client_tls:
           requires:
             - deploy_prod_migrations
           filters:

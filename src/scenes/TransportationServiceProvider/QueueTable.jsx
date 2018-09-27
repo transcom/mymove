@@ -141,9 +141,7 @@ class QueueTable extends Component {
             className="-striped -highlight"
             getTrProps={(state, rowInfo) => ({
               onDoubleClick: e =>
-                this.props.history.push(
-                  `${this.props.queueType}/shipments/${rowInfo.original.id}`,
-                ),
+                this.props.history.push(`/shipments/${rowInfo.original.id}`),
             })}
           />
         </div>

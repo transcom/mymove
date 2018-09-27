@@ -1,4 +1,5 @@
 #!/bin/bash
 
 export DB_NAME=dev_db
-. $(dirname "$0")/psql
+# shellcheck source=bin/psql
+. "$(dirname "$0")"/psql
