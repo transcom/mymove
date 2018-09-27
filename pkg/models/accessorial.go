@@ -36,9 +36,11 @@ type Accessorial struct {
 	ID         uuid.UUID `json:"id" db:"id"`
 	ShipmentID uuid.UUID `json:"shipment_id" db:"shipment_id"`
 
-	//Code and Item description are linked, how should we store that information? What gets stored in the database?
-	//for now, code is a string. It will become a reference to code table once that is designed.
-	Code     string              `json:"code" db:"code"`
+	// Code and Item description are linked, how should we store that information? What gets stored in the database?
+	// for now, code is a string. It will become a reference to code table once that is designed.
+	Code string `json:"code" db:"code"`
+	// This is the item description for the code
+	Item     string              `json:"item" db:"item"`
 	Location AccessorialLocation `json:"location" db:"location"`
 
 	// Enter numbers only, no symbols or units. Examples:
