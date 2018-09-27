@@ -3,14 +3,25 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
+import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import {
+  getAllShipmentDocuments,
+  selectShipmentDocuments,
+} from 'shared/Entities/modules/shipmentDocuments';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faComments from '@fortawesome/fontawesome-free-solid/faComments';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 import {
   loadShipmentDependencies,
@@ -25,10 +36,7 @@ import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 import FormButton from './FormButton';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import './tsp.css';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -100,6 +108,7 @@ let DeliveryDateForm = props => {
 
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
+const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
 class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
@@ -107,6 +116,10 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
+    this.props.getAllShipmentDocuments(
+      getShipmentDocumentsLabel,
+      this.props.match.params.shipmentId,
+    );
   }
 
   acceptShipment = () => {
@@ -132,13 +145,18 @@ class ShipmentInfo extends Component {
     this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const serviceMember = get(this.props.shipment, 'service_member', {});
-    const move = get(this.props.shipment, 'move', {});
-    const gbl = get(this.props.shipment, 'gbl_number');
+    const { context, shipment, shipmentDocuments } = this.props;
+    const {
+      service_member: serviceMember = {},
+      move = {},
+      gbl_number: gbl,
+    } = shipment;
 
-    const awarded = this.props.shipment.status === 'AWARDED';
-    const approved = this.props.shipment.status === 'APPROVED';
-    const inTransit = this.props.shipment.status === 'IN_TRANSIT';
+    const showDocumentViewer = context.flags.documentViewer;
+
+    const awarded = shipment.status === 'AWARDED';
+    const approved = shipment.status === 'APPROVED';
+    const inTransit = shipment.status === 'IN_TRANSIT';
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -262,6 +280,35 @@ class ShipmentInfo extends Component {
                   Generate Bill of Lading
                 </button>
               </div>
+              <div className="documents">
+                <h2 className="documents-list-header">
+                  Documents
+                  {!showDocumentViewer && (
+                    <FontAwesomeIcon
+                      className="icon"
+                      icon={faExternalLinkAlt}
+                    />
+                  )}
+                  {showDocumentViewer && (
+                    <Link to={`/moves/${move.id}/documents`} target="_blank">
+                      <FontAwesomeIcon
+                        className="icon"
+                        icon={faExternalLinkAlt}
+                      />
+                    </Link>
+                  )}
+                </h2>
+                {showDocumentViewer && shipmentDocuments.length ? (
+                  <DocumentList
+                    detailUrlPrefix={`/moves/${
+                      this.props.match.params.shipmentId
+                    }/documents`}
+                    moveDocuments={shipmentDocuments}
+                  />
+                ) : (
+                  <p>No orders have been uploaded.</p>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -273,6 +320,7 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   shipment: get(state, 'tsp.shipment', {}),
+  shipmentDocuments: selectShipmentDocuments(state),
   serviceAgents: get(state, 'tsp.serviceAgents', []),
   loadTspDependenciesHasSuccess: get(
     state,
@@ -297,6 +345,7 @@ const mapDispatchToProps = dispatch =>
       rejectShipment,
       transportShipment,
       deliverShipment,
+      getAllShipmentDocuments,
     },
     dispatch,
   );
