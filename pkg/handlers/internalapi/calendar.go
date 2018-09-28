@@ -20,16 +20,19 @@ type ShowUnavailableMoveDatesHandler struct {
 
 // Handle returns the unavailable move dates.
 func (h ShowUnavailableMoveDatesHandler) Handle(params calendarop.ShowUnavailableMoveDatesParams) middleware.Responder {
-	var datesPayload []strfmt.Date
-
 	startDate := time.Time(params.StartDate)
+
+	var datesPayload []strfmt.Date
+	datesPayload = append(datesPayload, strfmt.Date(startDate)) // The start date is always unavailable.
+
 	const daysToCheck = 90
 	const shortFuseTotalDays = 5
 	daysChecked := 0
 	shortFuseDaysFound := 0
 
 	// TODO: Handle holidays.
-	for d := startDate; daysChecked < daysToCheck; d = d.AddDate(0, 0, 1) {
+	firstPossibleDate := startDate.AddDate(0, 0, 1)
+	for d := firstPossibleDate; daysChecked < daysToCheck; d = d.AddDate(0, 0, 1) {
 		if d.Weekday() == time.Saturday || d.Weekday() == time.Sunday {
 			datesPayload = append(datesPayload, strfmt.Date(d))
 		} else if shortFuseDaysFound < shortFuseTotalDays {

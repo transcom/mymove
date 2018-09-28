@@ -30,6 +30,7 @@ func (suite *HandlerSuite) TestShowUnavailableMoveDatesHandler() {
 		strfmt.Date(time.Date(2018, 9, 30, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 1, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 2, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 3, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 6, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 7, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 13, 0, 0, 0, 0, time.UTC)),
