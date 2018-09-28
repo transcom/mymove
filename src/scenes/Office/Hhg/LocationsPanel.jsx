@@ -57,16 +57,21 @@ const LocationsEdit = props => {
       <div className="editable-panel-column">
         <FormSection name="pickupAddress">
           <span className="column-subhead">Pickup</span>
-          {AddressElementEdit(pickupProps, 'Primary')}
-          {shipment.has_secondary_pickup_address &&
-            AddressElementEdit(secondaryPickupProps, 'Secondary')}
+          <AddressElementEdit addressProps={pickupProps} title="Primary" />
+          {shipment.has_secondary_pickup_address && (
+            <AddressElementEdit
+              addressProps={secondaryPickupProps}
+              title="Secondary"
+            />
+          )}
         </FormSection>
       </div>
       <div className="editable-panel-column">
         <FormSection name="deliveryAddress">
           <span className="column-subhead">Delivery</span>
-          {shipment.has_delivery_address &&
-            AddressElementEdit(deliveryProps, 'Primary')}
+          {shipment.has_delivery_address && (
+            <AddressElementEdit addressProps={deliveryProps} title="Primary" />
+          )}
         </FormSection>
       </div>
     </React.Fragment>

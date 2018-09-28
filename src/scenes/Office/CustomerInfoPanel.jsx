@@ -136,7 +136,10 @@ const CustomerInfoEdit = props => {
 
         <div className="editable-panel-column">
           <FormSection name="address">
-            {AddressElementEdit(addressProps, 'Current Residence Address')}
+            <AddressElementEdit
+              addressProps={addressProps}
+              title="Current Residence Address"
+            />
           </FormSection>
         </div>
       </div>

@@ -71,10 +71,10 @@ const BackupInfoEdit = props => {
 
       <div className="editable-panel-column">
         <FormSection name="backupMailingAddress">
-          {AddressElementEdit(
-            backupMailingAddressProps,
-            'Backup mailing address',
-          )}
+          <AddressElementEdit
+            addressProps={backupMailingAddressProps}
+            title="Backup mailing address"
+          />
         </FormSection>
       </div>
     </React.Fragment>

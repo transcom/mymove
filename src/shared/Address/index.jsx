@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { PanelField } from 'shared/EditablePanel';
@@ -38,13 +38,13 @@ AddressElementDisplay.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-export const AddressElementEdit = (addressProps, title) => (
-  <React.Fragment>
+export const AddressElementEdit = ({ addressProps, title }) => (
+  <Fragment>
     <div className="panel-subhead">{title}</div>
     <SwaggerField fieldName="street_address_1" {...addressProps} required />
     <SwaggerField fieldName="street_address_2" {...addressProps} />
     <SwaggerField fieldName="city" {...addressProps} required />
     <SwaggerField fieldName="state" {...addressProps} required />
     <SwaggerField fieldName="postal_code" {...addressProps} required />
-  </React.Fragment>
+  </Fragment>
 );

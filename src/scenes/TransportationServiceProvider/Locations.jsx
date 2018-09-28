@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { reduxForm, FormSection } from 'redux-form';
 
 import { editablePanelify } from 'shared/EditablePanel';
 
-import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
+import { AddressElementDisplay } from 'shared/Address';
 
 const LocationsDisplay = ({ shipment }) => {
   const {
