@@ -133,3 +133,16 @@ export async function GenerateGBL(shipmentId) {
   );
   return response.body;
 }
+
+// All documents for shipment
+export async function GetAllShipmentDocuments(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.move_docs.indexMoveDocuments({
+    shipmentId,
+  });
+  checkResponse(
+    response,
+    'failed to load shipment documents due to server error',
+  );
+  return response.body;
+}

@@ -28,21 +28,28 @@ class QueueTable extends Component {
   }
 
   async fetchData() {
+    const loadingQueueType = this.props.queueType;
+
     this.setState({
       data: [],
       pages: null,
       loading: true,
+      loadingQueue: loadingQueueType,
     });
 
     // Catch any errors here and render an empty queue
     try {
       const body = await RetrieveShipmentsForTSP(this.props.queueType);
 
-      this.setState({
-        data: body,
-        pages: 1,
-        loading: false,
-      });
+      // Only update the queue list if the request that is returning
+      // is for the same queue as the most recent request.
+      if (this.state.loadingQueue === loadingQueueType) {
+        this.setState({
+          data: body,
+          pages: 1,
+          loading: false,
+        });
+      }
     } catch (e) {
       this.setState({
         data: [],
