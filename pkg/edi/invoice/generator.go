@@ -32,7 +32,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		InterchangeSenderIDQualifier:      "ZZ",
 		InterchangeSenderID:               fmt.Sprintf("%-15v", senderCode), // Must be 15 characters
 		InterchangeReceiverIDQualifier:    "12",
-		InterchangeReceiverID:             fmt.Sprintf("%-15v", receiverCode), // Must be 15 characters
+		InterchangeReceiverID:             fmt.Sprintf("%-15s", receiverCode), // Must be 15 characters
 		InterchangeDate:                   currentTime.Format("060102"),
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
