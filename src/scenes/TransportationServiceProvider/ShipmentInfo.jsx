@@ -234,27 +234,14 @@ class ShipmentInfo extends Component {
                     serviceAgents={this.props.serviceAgents}
                   />
 
-                  <div
-                    style={{
-                      display: 'inline-block',
-                      width: 600,
-                      marginRight: 10,
-                      verticalAlign: 'top',
-                    }}
-                  >
+                  <div className="usa-width-one-half">
                     <Weights
                       title="Weights & Items"
                       shipment={this.props.shipment}
                       update={this.props.patchShipment}
                     />
                   </div>
-                  <div
-                    style={{
-                      display: 'inline-block',
-                      width: 600,
-                      marginLeft: 10,
-                    }}
-                  >
+                  <div className="usa-width-one-half">
                     <Locations
                       title="Locations"
                       shipment={this.props.shipment}

@@ -81,49 +81,6 @@ LocationsDisplay.propTypes = {
   weight_estimate: number,
 };
 
-const LocationsEdit = props => {
-  let { shipment } = props;
-  let pickupProps = {
-    swagger: props.addressSchema,
-    values: props.pickupAddress,
-  };
-  let secondaryPickupProps = {
-    swagger: props.addressSchema,
-    values: props.secondaryPickupAddress,
-  };
-  let deliveryProps = {
-    swagger: props.addressSchema,
-    values: props.deliveryAddress,
-  };
-  return (
-    <React.Fragment>
-      <div className="editable-panel-column">
-        <FormSection name="pickupAddress">
-          <span className="column-subhead">Pickup</span>
-          {AddressElementEdit(pickupProps, 'Primary')}
-          {shipment.has_secondary_pickup_address &&
-            AddressElementEdit(secondaryPickupProps, 'Secondary')}
-        </FormSection>
-      </div>
-      <div className="editable-panel-column">
-        <FormSection name="deliveryAddress">
-          <span className="column-subhead">Delivery</span>
-          {shipment.has_delivery_address &&
-            AddressElementEdit(deliveryProps, 'Primary')}
-        </FormSection>
-      </div>
-    </React.Fragment>
-  );
-};
-
-const formName = 'office_shipment_info_locations';
-const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
-
-let LocationsPanel = editablePanelify(
-  LocationsDisplay,
-  LocationsEdit,
-  editEnabled,
-);
-LocationsPanel = reduxForm({ form: formName })(LocationsPanel);
+const LocationsPanel = editablePanelify(LocationsDisplay, null, false);
 
 export default LocationsPanel;
