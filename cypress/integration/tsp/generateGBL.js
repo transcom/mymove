@@ -41,10 +41,7 @@ function tspUserGeneratesGBL() {
     .contains('Generate Bill of Lading')
     .click();
 
-  cy
-    .get('div')
-    .get('p')
-    .contains('GBL generated successfully.');
+  cy.get('.usa-alert-success').contains('GBL generated successfully.');
 
   cy
     .get('button')
@@ -52,7 +49,6 @@ function tspUserGeneratesGBL() {
     .click();
 
   cy
-    .get('div')
-    .get('p')
+    .get('.usa-alert-warning')
     .contains('There is already a GBL for this shipment. ');
 }
