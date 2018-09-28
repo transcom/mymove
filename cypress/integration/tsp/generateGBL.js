@@ -36,12 +36,17 @@ function tspUserGeneratesGBL() {
 
   // If clicked too soon, there's a server error
   cy.wait(500);
+
   cy
     .get('button')
     .contains('Generate Bill of Lading')
     .click();
 
-  cy.get('.usa-alert-success').contains('GBL generated successfully.');
+  // I have seen this take anywhere from 8s - 18s. Until we optimize it, giving the test a long
+  // timeout.
+  cy
+    .get('.usa-alert-success', { timeout: 20000 })
+    .contains('GBL generated successfully.');
 
   cy
     .get('button')
