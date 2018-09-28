@@ -5,6 +5,7 @@ import {
   getAllShipmentDocuments,
   getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
+import { stringifyName } from 'shared/utils/serviceMember';
 
 const mapStateToProps = (state, ownProps) => {
   const { shipmentId } = ownProps.match.params;
@@ -13,12 +14,8 @@ const mapStateToProps = (state, ownProps) => {
     entities: { moveDocuments = {}, uploads = {} },
   } = state;
   const { locator: moveLocator } = move;
-  const {
-    edipi = '',
-    last_name: lastName = '',
-    first_name: firstName = '',
-  } = serviceMember;
-  const name = [lastName, firstName].filter(name => !!name).join(', ');
+  const { edipi = '' } = serviceMember;
+  const name = stringifyName(serviceMember);
 
   return {
     documentDetailUrlPrefix: `/shipments/${shipmentId}/documents`,
