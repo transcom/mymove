@@ -47,6 +47,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 
 	// And: Payload is equivalent to original shipment
 	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
+	suite.Equal(apimessages.AffiliationARMY, *okResponse.Payload.ServiceMember.Affiliation)
 }
 
 func (suite *HandlerSuite) TestPatchShipmentHandlerActualWeight() {

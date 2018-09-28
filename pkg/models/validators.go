@@ -143,19 +143,6 @@ func (v *AffiliationIsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// BackupContactPermissionIsPresent validates that permission field is present
-type BackupContactPermissionIsPresent struct {
-	Name  string
-	Field internalmessages.BackupContactPermission
-}
-
-// IsValid adds an error if the string value is blank.
-func (v *BackupContactPermissionIsPresent) IsValid(errors *validate.Errors) {
-	if string(v.Field) == "" {
-		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
-	}
-}
-
 // OrdersTypeIsPresent validates that orders type field is present
 type OrdersTypeIsPresent struct {
 	Name  string
