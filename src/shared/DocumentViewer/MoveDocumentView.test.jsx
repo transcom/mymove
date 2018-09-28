@@ -136,19 +136,5 @@ describe('MoveDocumentView', () => {
           .text(),
       ).toEqual('Details');
     });
-
-    it('renders the DocumentDetailPanel with the appropriate props', () => {
-      const moveDocumentId = '123-456-789';
-      const documentView = renderMoveDocumentView({ moveDocumentId });
-      const documentDetailPanel = documentView
-        .find('TabPanel')
-        .at(1)
-        .find('Connect(ReduxForm)');
-      expect(documentDetailPanel.prop('className')).toEqual('document-viewer');
-      expect(documentDetailPanel.prop('moveDocumentId')).toEqual(
-        moveDocumentId,
-      );
-      expect(documentDetailPanel.prop('title')).toEqual('');
-    });
   });
 });

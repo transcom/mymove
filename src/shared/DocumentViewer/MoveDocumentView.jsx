@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import DocumentContent from './DocumentContent';
 import DocumentList from './DocumentList';
-import DocumentDetailPanel from './DocumentDetailPanel';
 import { PanelField } from 'shared/EditablePanel';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { Link } from 'react-router-dom';
@@ -74,11 +73,7 @@ class MoveDocumentView extends Component {
               </TabPanel>
 
               <TabPanel>
-                <DocumentDetailPanel
-                  className="document-viewer"
-                  moveDocumentId={moveDocumentId}
-                  title=""
-                />
+                <p>Placeholder for document details</p>
               </TabPanel>
             </Tabs>
           </div>
