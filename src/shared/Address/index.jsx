@@ -5,25 +5,23 @@ import { PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 export const AddressElementDisplay = ({ address, title }) => (
-  <React.Fragment>
-    <PanelField title={title}>
-      {address.street_address_1}
-      <br />
-      {address.street_address_2 && (
-        <span>
-          {address.street_address_2}
-          <br />
-        </span>
-      )}
-      {address.street_address_3 && (
-        <span>
-          {address.street_address_3}
-          <br />
-        </span>
-      )}
-      {address.city}, {address.state} {address.postal_code}
-    </PanelField>
-  </React.Fragment>
+  <PanelField title={title}>
+    {address.street_address_1}
+    <br />
+    {address.street_address_2 && (
+      <span>
+        {address.street_address_2}
+        <br />
+      </span>
+    )}
+    {address.street_address_3 && (
+      <span>
+        {address.street_address_3}
+        <br />
+      </span>
+    )}
+    {address.city}, {address.state} {address.postal_code}
+  </PanelField>
 );
 
 AddressElementDisplay.propTypes = {
