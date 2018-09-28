@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
@@ -14,60 +14,7 @@ const WeightsDisplay = props => {
     values: props.shipment,
   };
   return (
-    <div className="editable-panel-column">
-      <div className="column-head">Weights</div>
-      <div className="column-subhead">Total weight</div>
-      <PanelSwaggerField
-        fieldName="weight_estimate"
-        required
-        title="Customer estimate"
-        {...fieldProps}
-      />
-      <PanelSwaggerField
-        fieldName="pm_survey_weight_estimate"
-        required
-        title="TSP estimate"
-        {...fieldProps}
-      />
-      <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
-      <div className="column-subhead">Pro-gear</div>
-      <PanelSwaggerField
-        fieldName="progear_weight_estimate"
-        required
-        title="Customer estimate"
-        {...fieldProps}
-      />
-      <PanelSwaggerField
-        fieldName="pm_survey_progear_weight_estimate"
-        required
-        title="TSP estimate"
-        {...fieldProps}
-      />
-      <div className="column-subhead">Spouse pro-gear</div>
-      <PanelSwaggerField
-        fieldName="spouse_progear_weight_estimate"
-        required
-        title="Customer estimate"
-        {...fieldProps}
-      />
-      <PanelSwaggerField
-        fieldName="pm_survey_spouse_progear_weight_estimate"
-        required
-        title="TSP estimate"
-        {...fieldProps}
-      />
-    </div>
-  );
-};
-
-const WeightsEdit = props => {
-  const schema = props.shipmentSchema;
-  const fieldProps = {
-    schema,
-    values: props.shipment,
-  };
-  return (
-    <FormSection name="weights">
+    <Fragment>
       <div className="editable-panel-column">
         <div className="column-head">Weights</div>
         <div className="column-subhead">Total weight</div>
@@ -83,11 +30,7 @@ const WeightsEdit = props => {
           title="TSP estimate"
           {...fieldProps}
         />
-        <PanelSwaggerField
-          fieldName="actual_weight"
-          swagger={schema}
-          required
-        />
+        <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
         <div className="column-subhead">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"
@@ -115,7 +58,68 @@ const WeightsEdit = props => {
           {...fieldProps}
         />
       </div>
-    </FormSection>
+    </Fragment>
+  );
+};
+
+const WeightsEdit = props => {
+  const schema = props.shipmentSchema;
+  const fieldProps = {
+    schema,
+    values: props.shipment,
+  };
+  return (
+    <Fragment>
+      <FormSection name="weights">
+        <div className="editable-panel-column">
+          <div className="column-head">Weights</div>
+          <div className="column-subhead">Total weight</div>
+          <PanelSwaggerField
+            fieldName="weight_estimate"
+            required
+            title="Customer estimate"
+            {...fieldProps}
+          />
+          <PanelSwaggerField
+            fieldName="pm_survey_weight_estimate"
+            required
+            title="TSP estimate"
+            {...fieldProps}
+          />
+          <PanelSwaggerField
+            fieldName="actual_weight"
+            swagger={schema}
+            required
+          />
+          <div className="column-subhead">Pro-gear</div>
+          <PanelSwaggerField
+            fieldName="progear_weight_estimate"
+            required
+            title="Customer estimate"
+            {...fieldProps}
+          />
+          <PanelSwaggerField
+            fieldName="pm_survey_progear_weight_estimate"
+            required
+            title="TSP estimate"
+            {...fieldProps}
+          />
+          <div className="column-subhead">Spouse pro-gear</div>
+          <PanelSwaggerField
+            fieldName="spouse_progear_weight_estimate"
+            required
+            title="Customer estimate"
+            {...fieldProps}
+          />
+          <PanelSwaggerField
+            fieldName="pm_survey_spouse_progear_weight_estimate"
+            required
+            title="TSP estimate"
+            {...fieldProps}
+          />
+        </div>
+      </FormSection>
+    </Fragment>
   );
 };
 
