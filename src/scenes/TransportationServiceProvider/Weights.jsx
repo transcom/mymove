@@ -5,7 +5,6 @@ import { get, pick } from 'lodash';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
 
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const weightsFields = ['actual_weight'];
 
@@ -84,7 +83,11 @@ const WeightsEdit = props => {
           title="TSP estimate"
           {...fieldProps}
         />
-        <SwaggerField fieldName="actual_weight" swagger={schema} required />
+        <PanelSwaggerField
+          fieldName="actual_weight"
+          swagger={schema}
+          required
+        />
         <div className="column-subhead">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"

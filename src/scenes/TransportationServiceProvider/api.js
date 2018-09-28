@@ -34,7 +34,6 @@ export async function LoadShipment(shipmentId) {
     shipmentId,
   });
   checkResponse(response, 'failed to load shipment due to server error');
-  console.log('response', response.body);
   return response.body;
 }
 
