@@ -548,7 +548,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
-  IndexMoveDocumentPayload:
+  MoveDocuments:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
@@ -3150,7 +3150,7 @@ paths:
         200:
           description: returns list of move douments
           schema:
-            $ref: '#/definitions/IndexMoveDocumentPayload'
+            $ref: '#/definitions/MoveDocuments'
         400:
           description: invalid request
         401:
