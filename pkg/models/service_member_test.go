@@ -4,7 +4,6 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -33,8 +32,8 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 
 	// And: a service member is incompletely initialized with almost all required values
 	edipi := "12345567890"
-	affiliation := internalmessages.AffiliationARMY
-	rank := internalmessages.ServiceMemberRankE5
+	affiliation := AffiliationARMY
+	rank := ServiceMemberRankE5
 	firstName := "bob"
 	lastName := "sally"
 	telephone := "510 555-5555"
