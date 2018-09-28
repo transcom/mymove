@@ -622,3 +622,18 @@ func FetchMoveForAdvancePaperwork(db *pop.Connection, moveID uuid.UUID) (Move, e
 	}
 	return move, nil
 }
+
+// FetchMoveForMoveDates returns a Move along with all the associations needed to determine
+// the move dates summary information.
+func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	err := db.
+		Eager(
+			"Orders.ServiceMember.DutyStation.Address",
+			"Orders.NewDutyStation.Address",
+			"Orders.ServiceMember",
+		).
+		Find(&move, moveID)
+
+	return move, err
+}

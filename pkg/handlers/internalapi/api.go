@@ -91,6 +91,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
 
 	internalAPI.CalendarShowUnavailableMoveDatesHandler = ShowUnavailableMoveDatesHandler{context}
+	internalAPI.CalendarShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
 
 	return internalAPI.Serve(nil)
 }
