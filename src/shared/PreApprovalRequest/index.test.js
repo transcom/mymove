@@ -12,6 +12,7 @@ describe('PreApprovalRequest tests', () => {
       location: 'D',
       base_quantity: ' 16.7',
       notes: '',
+      created_at: '2018-09-24T14:05:38.847Z',
       status: 'SUBMITTED',
     },
     {
@@ -21,12 +22,12 @@ describe('PreApprovalRequest tests', () => {
       base_quantity: ' 16.7',
       notes:
         'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
+      created_at: '2018-09-24T14:05:38.847Z',
       status: 'SUBMITTED',
     },
   ];
   describe('When on approval is passed in and status is submitted', () => {
     it('renders without crashing', () => {
-      const div = document.createElement('div');
       wrapper = shallow(
         <PreApprovalRequest
           accessorials={accessorials}
@@ -41,9 +42,8 @@ describe('PreApprovalRequest tests', () => {
       expect(childContainer.length).toBe(6);
     });
   });
-  describe('When on approval is NOT passed in and status is submitted', () => {
+  describe('When on approval is NOT passed in and status is SUBMITTED', () => {
     beforeEach(() => {
-      const div = document.createElement('div');
       wrapper = shallow(
         <PreApprovalRequest
           accessorials={accessorials}
@@ -62,7 +62,6 @@ describe('PreApprovalRequest tests', () => {
     beforeEach(() => {
       accessorials[0].status = 'APPROVED';
       accessorials[1].status = 'APPROVED';
-      const div = document.createElement('div');
       wrapper = shallow(
         <PreApprovalRequest
           accessorials={accessorials}
@@ -82,7 +81,6 @@ describe('PreApprovalRequest tests', () => {
     beforeEach(() => {
       accessorials[0].status = 'APPROVED';
       accessorials[1].status = 'APPROVED';
-      const div = document.createElement('div');
       wrapper = shallow(
         <PreApprovalRequest
           accessorials={accessorials}

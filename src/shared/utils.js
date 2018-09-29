@@ -87,8 +87,11 @@ export function renderStatusIcon(status) {
   ) {
     return <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />;
   }
-  if (status === 'OK' || status === 'APPROVED' || status === 'INVOICED') {
+  if (status === 'OK') {
     return <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />;
+  }
+  if (status === 'APPROVED' || status === 'INVOICED') {
+    return <FontAwesomeIcon className="icon approved" icon={faCheck} />;
   }
   if (status === 'HAS_ISSUE') {
     return (

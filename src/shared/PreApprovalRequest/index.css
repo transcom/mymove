@@ -8,26 +8,37 @@
   table-layout: fixed;
   display: table;
   width: 100%;
-  margin: 1em;
   border-spacing: 2px;
 }
 
+/* Custom widths for columns in the preapproval request table */
+/*Code, Loc. */
 .accessorial-panel table > tbody > tr > th:nth-child(1),
-.accessorial-panel table > tbody > tr > th:nth-child(3),
-.accessorial-panel table > tbody > tr > th:nth-child(4),
-.accessorial-panel table > tbody > tr > th:nth-child(7) {
+.accessorial-panel table > tbody > tr > th:nth-child(3) {
+  width: 4%;
+}
+/*Base Quantity*/
+.accessorial-panel table > tbody > tr > th:nth-child(4) {
   width: 7%;
 }
+/*Item*/
 .accessorial-panel table > tbody > tr > th:nth-child(2) {
+  width: 15%;
+}
+/*Notes*/
+.accessorial-panel table > tbody > tr > th:nth-child(5) {
+  width: 16%;
+}
+/*Status*/
+.accessorial-panel table > tbody > tr > th:nth-child(7) {
   width: 12%;
 }
-.accessorial-panel table > tbody > tr > th:nth-child(5) {
-  width: 18%;
+/* submitted, action icons*/
+.accessorial-panel table > tbody > tr > th:nth-child(6),
+.accessorial-panel table > tbody > tr > th:nth-child(8) {
+  width: 9%;
 }
 
-.accessorial-panel table > tbody > tr > th:nth-child(6) {
-  width: 12%;
-}
 .accessorial-panel th,
 .accessorial-panel td {
   border: none;
@@ -36,10 +47,10 @@
 
 .accessorial-panel th {
   font-weight: bold;
-  font-size: 0.9em;
+  font-size: 0.8em;
   border-bottom: solid 1px #a2a2a2;
   text-align: left;
-  padding: 0rem 3rem 1rem 0rem;
+  padding: 0rem 2rem 1rem 0rem;
 }
 
 .accessorial-panel table > tbody > tr > td {

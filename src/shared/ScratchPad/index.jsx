@@ -14,6 +14,7 @@ class ScratchPad extends Component {
         location: 'D',
         base_quantity: '	16.7',
         notes: '',
+        created_at: '2018-09-24T14:05:38.847Z',
         status: 'SUBMITTED',
       },
       {
@@ -23,7 +24,8 @@ class ScratchPad extends Component {
         base_quantity: '	16.7',
         notes:
           'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
-        status: 'SUBMITTED',
+        created_at: '2018-09-24T14:05:38.847Z',
+        status: 'APPROVED',
       },
     ];
     return (
