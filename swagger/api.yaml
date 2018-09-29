@@ -693,12 +693,12 @@ definitions:
         readOnly: true
       actual_pickup_date:
         type: string
-        format: date-time
-        example: 2018-04-21T17:32:28Z
+        format: date
+        example: '2018-04-21'
       actual_delivery_date:
         type: string
-        format: date-time
-        example: 2018-04-27T17:32:28Z
+        format: date
+        example: '2018-04-27'
       created_at:
         type: string
         format: date-time
@@ -726,8 +726,8 @@ definitions:
         example: '2018-03-15'
       requested_pickup_date:
         type: string
-        format: date-time
-        example: 2018-04-19T17:32:28Z
+        format: date
+        example: '2018-04-19'
       move:
         $ref: '#/definitions/Move'
         x-nullable: true

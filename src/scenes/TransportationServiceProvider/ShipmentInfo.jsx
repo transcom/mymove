@@ -34,6 +34,7 @@ import {
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+import Dates from './Dates';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 
@@ -222,6 +223,11 @@ class ShipmentInfo extends Component {
             <div className="usa-width-two-thirds">
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
+                  <Dates
+                    title="Dates"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                   <PremoveSurvey
                     title="Premove Survey"
                     shipment={this.props.shipment}
