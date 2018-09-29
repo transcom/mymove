@@ -36,8 +36,8 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		UserID:                  handlers.FmtUUID(serviceMember.UserID),
 		Edipi:                   serviceMember.Edipi,
 		Orders:                  orders,
-		Affiliation:             serviceMember.Affiliation,
-		Rank:                    serviceMember.Rank,
+		Affiliation:             (*internalmessages.Affiliation)(serviceMember.Affiliation),
+		Rank:                    (*internalmessages.ServiceMemberRank)(serviceMember.Rank),
 		FirstName:               serviceMember.FirstName,
 		MiddleName:              serviceMember.MiddleName,
 		LastName:                serviceMember.LastName,
@@ -102,8 +102,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	newServiceMember := models.ServiceMember{
 		UserID:                 session.UserID,
 		Edipi:                  params.CreateServiceMemberPayload.Edipi,
-		Affiliation:            params.CreateServiceMemberPayload.Affiliation,
-		Rank:                   params.CreateServiceMemberPayload.Rank,
+		Affiliation:            (*models.ServiceMemberAffiliation)(params.CreateServiceMemberPayload.Affiliation),
+		Rank:                   (*models.ServiceMemberRank)(params.CreateServiceMemberPayload.Rank),
 		FirstName:              params.CreateServiceMemberPayload.FirstName,
 		MiddleName:             params.CreateServiceMemberPayload.MiddleName,
 		LastName:               params.CreateServiceMemberPayload.LastName,
@@ -193,10 +193,10 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 		serviceMember.Edipi = payload.Edipi
 	}
 	if payload.Affiliation != nil {
-		serviceMember.Affiliation = payload.Affiliation
+		serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
 	}
 	if payload.Rank != nil {
-		serviceMember.Rank = payload.Rank
+		serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
 	}
 	if payload.FirstName != nil {
 		serviceMember.FirstName = payload.FirstName
