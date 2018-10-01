@@ -2,12 +2,22 @@ package testdatagen
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
+
+// GBL Numbers are not all the same--this just generates something
+// kind of similar
+func randomTwelveDigit() string {
+	low := 100000000000
+	high := 999999999999
+	return strconv.Itoa(low + rand.Intn(high-low))
+}
 
 // MakeShipment creates a single shipment record
 func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
@@ -25,8 +35,8 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	}
 
 	serviceMember := assertions.Shipment.ServiceMember
-	if serviceMember == nil {
-		serviceMember = &move.Orders.ServiceMember
+	if isZeroUUID(assertions.Shipment.ServiceMemberID) {
+		serviceMember = move.Orders.ServiceMember
 	}
 
 	pickupAddress := assertions.Shipment.PickupAddress
@@ -37,7 +47,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 	deliveryAddress := assertions.Shipment.DeliveryAddress
 	if deliveryAddress == nil {
-		newDeliveryAddress := MakeAddress(db, Assertions{})
+		newDeliveryAddress := MakeAddress2(db, Assertions{})
 		deliveryAddress = &newDeliveryAddress
 	}
 
@@ -52,7 +62,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		ServiceMemberID:              serviceMember.ID,
 		ServiceMember:                serviceMember,
 		ActualPickupDate:             timePointer(DateInsidePerformancePeriod),
-		DeliveryDate:                 timePointer(DateOutsidePerformancePeriod),
+		ActualDeliveryDate:           timePointer(DateOutsidePerformancePeriod),
 		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
 		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
 		Market:                       &DefaultMarket,
@@ -60,7 +70,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		RequestedPickupDate:          timePointer(PerformancePeriodStart),
 		MoveID:                       move.ID,
 		Move:                         move,
-		Status:                       models.ShipmentStatusDRAFT,
+		Status:                       status,
 		EstimatedPackDays:            models.Int64Pointer(2),
 		EstimatedTransitDays:         models.Int64Pointer(3),
 		PickupAddressID:              &pickupAddress.ID,
@@ -83,6 +93,8 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	mergeModels(&shipment, assertions.Shipment)
 
 	mustCreate(db, &shipment)
+
+	shipment.Move.Shipments = append(shipment.Move.Shipments, shipment)
 
 	return shipment
 }
@@ -115,7 +127,7 @@ func MakeShipmentData(db *pop.Connection) {
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &now,
 			ActualPickupDate:        &now,
-			DeliveryDate:            &now,
+			ActualDeliveryDate:      &now,
 			TrafficDistributionList: &tdlList[0],
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -126,7 +138,7 @@ func MakeShipmentData(db *pop.Connection) {
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusOne,
 			ActualPickupDate:        &nowPlusOne,
-			DeliveryDate:            &nowPlusOne,
+			ActualDeliveryDate:      &nowPlusOne,
 			TrafficDistributionList: &tdlList[1],
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
@@ -137,7 +149,7 @@ func MakeShipmentData(db *pop.Connection) {
 		Shipment: models.Shipment{
 			RequestedPickupDate:     &nowPlusTwo,
 			ActualPickupDate:        &nowPlusTwo,
-			DeliveryDate:            &nowPlusTwo,
+			ActualDeliveryDate:      &nowPlusTwo,
 			TrafficDistributionList: &tdlList[2],
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,

@@ -100,7 +100,7 @@ func (suite *BaseTestSuite) IsNotErrResponse(response middleware.Responder) {
 func (suite *BaseTestSuite) CheckErrorResponse(resp middleware.Responder, code int, name string) {
 	errResponse, ok := resp.(*ErrResponse)
 	if !ok || errResponse.Code != code {
-		suite.T().Fatalf("Expected %s Response: %v", name, resp)
+		suite.T().Fatalf("Expected %s, Response: %v, Code: %v", name, resp, code)
 		debug.PrintStack()
 	}
 }

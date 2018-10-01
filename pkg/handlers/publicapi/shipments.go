@@ -5,12 +5,17 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/awardqueue"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
+	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
 )
 
@@ -18,13 +23,14 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
 		ID: *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
-		ServiceMember:                       payloadForServiceMemberModel(s.ServiceMember),
+		ServiceMember:                       payloadForServiceMemberModel(&s.ServiceMember),
 		ActualPickupDate:                    *handlers.FmtDateTimePtr(s.ActualPickupDate),
-		DeliveryDate:                        *handlers.FmtDateTimePtr(s.DeliveryDate),
+		ActualDeliveryDate:                  *handlers.FmtDateTimePtr(s.ActualDeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                         apimessages.GBLOC(*s.SourceGBLOC),
 		DestinationGbloc:                    apimessages.GBLOC(*s.DestinationGBLOC),
+		GblNumber:                           s.GBLNumber,
 		Market:                              apimessages.ShipmentMarket(*s.Market),
 		BookDate:                            *handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 *handlers.FmtDateTimePtr(s.RequestedPickupDate),
@@ -39,9 +45,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
 		HasPartialSitDeliveryAddress:        *handlers.FmtBool(s.HasPartialSITDeliveryAddress),
 		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:                      handlers.FmtInt64(s.WeightEstimate.Int64()),
-		ProgearWeightEstimate:               handlers.FmtInt64(s.ProgearWeightEstimate.Int64()),
-		SpouseProgearWeightEstimate:         handlers.FmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		WeightEstimate:                      handlers.FmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
 		ActualWeight:                        handlers.FmtPoundPtr(s.ActualWeight),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
@@ -196,6 +202,8 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 		}
 	}
 
+	go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run()
+
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
 }
@@ -217,16 +225,18 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewGetShipmentForbidden()
+		return shipmentop.NewTransportShipmentForbidden()
 	}
 
 	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewGetShipmentBadRequest()
+		return shipmentop.NewTransportShipmentBadRequest()
 	}
 
-	err = shipment.Transport()
+	actualPickupDate := (time.Time)(*params.Payload.ActualPickupDate)
+
+	err = shipment.Transport(actualPickupDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -236,6 +246,46 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 	}
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewTransportShipmentOK().WithPayload(sp)
+}
+
+// DeliverShipmentHandler allows a TSP to start transporting a particular shipment
+type DeliverShipmentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle delivers the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewDeliverShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewDeliverShipmentBadRequest()
+	}
+
+	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
+
+	err = shipment.Deliver(actualDeliveryDate)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
@@ -299,6 +349,125 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
+// CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
+type CreateGovBillOfLadingHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
+func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLadingParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// Verify that the TSP user is authorized to update move doc
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+	if err != nil {
+		if err.Error() == "USER_UNAUTHORIZED" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+		if err.Error() == "FETCH_FORBIDDEN" {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	// Don't allow GBL generation for shipments that already have a GBL move document
+	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
+	if len(extantGBLS) > 0 {
+		h.Logger().Error("There are already GBLs for this shipment.")
+		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+	}
+
+	// Create PDF for GBL
+	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)
+	if err != nil {
+		// TODO: (andrea) Pass info of exactly what is missing in custom error message
+		h.Logger().Error("Failed retrieving the GBL data.", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingExpectationFailed()
+	}
+	formLayout := paperwork.Form1203Layout
+
+	// Read in bytes from Asset pkg
+	data, err := assets.Asset(formLayout.TemplateImagePath)
+	if err != nil {
+		h.Logger().Error("Error reading template file", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+	f, err := h.FileStorer().FileSystem().Create("something.png")
+	_, err = f.Write(data)
+	if err != nil {
+		h.Logger().Error("Error writing template bytes to file", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+	f.Seek(0, 0)
+
+	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	if err != nil {
+		h.Logger().Error("Error initializing GBL template form.", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	// Populate form fields with GBL data
+	err = form.DrawData(gbl)
+	if err != nil {
+		h.Logger().Error("Failure writing GBL data to form.", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	aFile, err := h.FileStorer().FileSystem().Create("some name")
+	if err != nil {
+		h.Logger().Error("Error creating a new afero file for GBL form.", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	err = form.Output(aFile)
+	if err != nil {
+		h.Logger().Error("Failure exporting GBL form to file.", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
+	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	uploads := []models.Upload{*upload}
+
+	// Create GBL move document associated to the shipment
+	_, verrs, err = shipment.Move.CreateMoveDocument(h.DB(),
+		uploads,
+		&shipmentID,
+		models.MoveDocumentTypeGOVBILLOFLADING,
+		string("Government Bill Of Lading"),
+		swag.String(""),
+		string(apimessages.SelectedMoveTypeHHG),
+	)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	url, err := uploader.PresignedURL(upload)
+	if err != nil {
+		h.Logger().Error("failed to get presigned url", zap.Error(err))
+		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+	}
+
+	// TODO: (andrea) Return a document payload instead, once the HHG document is defined in public swagger
+	// This one is copy pasted from internal.yaml to api.yaml :/
+	uploadPayload := &apimessages.UploadPayload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(uploadPayload)
+
+}
+
 // GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
 type GetShipmentContactDetailsHandler struct {
 	handlers.HandlerContext
@@ -316,25 +485,5 @@ type GetShipmentClaimsHandler struct {
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h GetShipmentClaimsHandler) Handle(p shipmentop.GetShipmentClaimsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
-}
-
-// GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
-type GetShipmentDocumentsHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentDocumentsHandler) Handle(p shipmentop.GetShipmentDocumentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
-}
-
-// CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
-type CreateShipmentDocumentHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentDocumentHandler) Handle(p shipmentop.CreateShipmentDocumentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }

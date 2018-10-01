@@ -28,21 +28,28 @@ class QueueTable extends Component {
   }
 
   async fetchData() {
+    const loadingQueueType = this.props.queueType;
+
     this.setState({
       data: [],
       pages: null,
       loading: true,
+      loadingQueue: loadingQueueType,
     });
 
     // Catch any errors here and render an empty queue
     try {
       const body = await RetrieveShipmentsForTSP(this.props.queueType);
 
-      this.setState({
-        data: body,
-        pages: 1,
-        loading: false,
-      });
+      // Only update the queue list if the request that is returning
+      // is for the same queue as the most recent request.
+      if (this.state.loadingQueue === loadingQueueType) {
+        this.setState({
+          data: body,
+          pages: 1,
+          loading: false,
+        });
+      }
     } catch (e) {
       this.setState({
         data: [],
@@ -55,6 +62,9 @@ class QueueTable extends Component {
   render() {
     const titles = {
       new: 'New Shipments',
+      approved: 'Approved Shipments',
+      in_transit: 'In Transit Shipments',
+      delivered: 'Delivered Shipments',
       all: 'All Shipments',
     };
 
@@ -138,9 +148,7 @@ class QueueTable extends Component {
             className="-striped -highlight"
             getTrProps={(state, rowInfo) => ({
               onDoubleClick: e =>
-                this.props.history.push(
-                  `${this.props.queueType}/shipments/${rowInfo.original.id}`,
-                ),
+                this.props.history.push(`/shipments/${rowInfo.original.id}`),
             })}
           />
         </div>

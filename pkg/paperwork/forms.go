@@ -201,6 +201,6 @@ func (f *FormFiller) DrawData(data interface{}) error {
 }
 
 // Output outputs the form to the provided file
-func (f *FormFiller) Output(output io.WriteCloser) error {
-	return f.pdf.OutputAndClose(output)
+func (f *FormFiller) Output(output io.Writer) error {
+	return f.pdf.Output(output)
 }

@@ -9,11 +9,20 @@ describe('office user finds the shipment', function() {
   it('office user views accepted hhg moves in queue Accepted HHGs', function() {
     officeUserViewsAcceptedShipment();
   });
-  it('office user views in transit hhg moves in queue HHGs In Transit', function() {
-    officeUserViewsInTransitShipment();
+  it('office user views delivered hhg moves in queue Delivered HHGs', function() {
+    officeUserViewsDeliveredShipment();
+  });
+  it('office user views completed hhg moves in queue Completed HHGs', function() {
+    officeUserViewsCompletedShipment();
   });
   it('office user approves basics for move, verifies and approves HHG shipment', function() {
     officeUserApprovesHHG();
+  });
+  it('office user with approved move completes delivered HHG shipment', function() {
+    officeUserCompletesHHG();
+  });
+  it('office user with completed move sends invoice', function() {
+    officeUserSendsShipmentInvoice();
   });
 });
 
@@ -43,17 +52,17 @@ function officeUserViewsMoves() {
   });
 }
 
-function officeUserViewsAcceptedShipment() {
+function officeUserViewsDeliveredShipment() {
   // Open new moves queue
-  cy.visit('/queues/hhg_accepted');
+  cy.visit('/queues/hhg_delivered');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
   cy
     .get('div')
-    .contains('BACON3')
+    .contains('SCHNOO')
     .dblclick();
 
   cy.location().should(loc => {
@@ -70,17 +79,44 @@ function officeUserViewsAcceptedShipment() {
   });
 }
 
-function officeUserViewsInTransitShipment() {
+function officeUserViewsCompletedShipment() {
   // Open new moves queue
-  cy.visit('/queues/hhg_in_transit');
+  cy.visit('/queues/hhg_completed');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_in_transit/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
   cy
     .get('div')
-    .contains('NINOPK')
+    .contains('NOCHKA')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('a')
+    .contains('HHG')
+    .click(); // navtab
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+}
+
+function officeUserViewsAcceptedShipment() {
+  // Open new moves queue
+  cy.visit('/queues/hhg_accepted');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+  });
+
+  // Find move (generated in e2ebasic.go) and open it
+  cy
+    .get('div')
+    .contains('BACON3')
     .dblclick();
 
   cy.location().should(loc => {
@@ -125,6 +161,10 @@ function officeUserApprovesHHG() {
     .get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
+  cy
+    .get('button')
+    .contains('Complete Shipments')
+    .should('be.disabled');
 
   cy.get('.status').contains('Accepted');
 
@@ -144,10 +184,103 @@ function officeUserApprovesHHG() {
     .contains('Approve Shipment')
     .click();
 
+  // Disabled because already approved and not delivered
+  cy
+    .get('button')
+    .contains('Approve Shipment')
+    .should('be.disabled');
+  cy
+    .get('button')
+    .contains('Complete Shipments')
+    .should('be.disabled');
+
+  cy.get('.status').contains('Approved');
+}
+
+function officeUserCompletesHHG() {
+  // Open delivered hhg queue
+  cy.visit('/queues/hhg_delivered');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
+  });
+
+  // Find move and open it
+  cy
+    .get('div')
+    .contains('SSETZN')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Basics Approved
+  cy.get('.status').contains('Approved');
+
+  // Click on HHG tab
+  cy
+    .get('span')
+    .contains('HHG')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  // Complete HHG
+  cy.get('.status').contains('Delivered');
+
+  cy
+    .get('button')
+    .contains('Complete Shipments')
+    .click();
+
   cy
     .get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
 
+  cy.get('.status').contains('Completed');
+}
+
+function officeUserSendsShipmentInvoice() {
+  // Open completed hhg queue
+  cy.visit('/queues/hhg_completed');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
+  });
+
+  // Find move and open it
+  cy
+    .get('div')
+    .contains('SSETZN')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Basics Approved
   cy.get('.status').contains('Approved');
+
+  // Click on HHG tab
+  cy
+    .get('span')
+    .contains('HHG')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  // Submit Invoice for HHG
+  cy.get('.status').contains('Completed');
+
+  cy.get('button').contains('Submit HHG Invoice');
+  // .click();  TODO: figure out how not to make call to GEX
+
+  // cy
+  //   .get('button')
+  //   .contains('Complete Shipment')
+  //   .should('be.disabled');
 }

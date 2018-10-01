@@ -3,7 +3,7 @@ import { moveDocuments } from '../schema';
 import { addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
 
-import { getClient, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/Swagger/api';
 
 const expenseTypes = ['EXPENSE', 'STORAGE_EXPENSE'];
 

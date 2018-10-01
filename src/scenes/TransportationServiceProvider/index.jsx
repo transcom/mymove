@@ -14,6 +14,8 @@ import { loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
+import ScratchPad from 'shared/ScratchPad';
+import { isProduction } from 'shared/constants';
 
 import './tsp.css';
 
@@ -51,14 +53,17 @@ class TspWrapper extends Component {
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute
-                  path="/queues/:queueType(new|in_transit|all)/shipments/:shipmentId"
+                  path="/shipments/:shipmentId"
                   component={ShipmentInfo}
                 />
                 {/* Be specific about available routes by listing them */}
                 <PrivateRoute
-                  path="/queues/:queueType(new|in_transit|all)"
+                  path="/queues/:queueType(new|approved|in_transit|delivered|all)"
                   component={Queues}
                 />
+                {!isProduction && (
+                  <PrivateRoute path="/playground" component={ScratchPad} />
+                )}
                 {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
               </Switch>
             </div>

@@ -91,7 +91,7 @@ EditProfileForm = reduxForm({
 })(EditProfileForm);
 
 class EditProfile extends Component {
-  updateProfile = (fieldValues, something, elses) => {
+  updateProfile = fieldValues => {
     fieldValues.current_station_id = fieldValues.current_station.id;
     if (fieldValues.rank !== this.props.serviceMember.rank) {
       this.props.entitlementChanged();

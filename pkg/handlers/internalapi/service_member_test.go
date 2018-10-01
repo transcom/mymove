@@ -22,9 +22,11 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	// Given: A servicemember and a user
 	user := testdatagen.MakeDefaultUser(suite.TestDB())
 
-	newServiceMember := models.ServiceMember{
-		UserID: user.ID,
-	}
+	newServiceMember := testdatagen.MakeExtendedServiceMember(suite.TestDB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID: user.ID,
+		},
+	})
 	suite.MustSave(&newServiceMember)
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
