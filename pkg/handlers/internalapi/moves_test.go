@@ -287,7 +287,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	rank := internalmessages.ServiceMemberRankE4
+	rank := models.ServiceMemberRankE4
 	serviceMember := testdatagen.MakeServiceMember(suite.TestDB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			Rank:          &rank,
