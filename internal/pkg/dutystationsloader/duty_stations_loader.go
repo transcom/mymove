@@ -325,8 +325,15 @@ func (b *MigrationBuilder) separateExistingStations(stations []DutyStationWrappe
 		var existingStation models.DutyStation
 		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=duty_stations.address_id").
-			Where("lower(name) SIMILAR TO $1", similarityPattern(newStation.DutyStation.Name)).
-			Where("postal_code = $2", newStation.DutyStation.Address.PostalCode)
+			Where(`
+				lower(name)=lower($1)
+			OR
+				lower(name) SIMILAR TO $2
+				AND
+				postal_code=$3
+			`, newStation.DutyStation.Name, similarityPattern(newStation.DutyStation.Name), newStation.DutyStation.Address.PostalCode)
+			// Where("lower(name) SIMILAR TO $1", similarityPattern(newStation.DutyStation.Name)).
+			// Where("postal_code = $2", newStation.DutyStation.Address.PostalCode)
 		err := query.First(&existingStation)
 		if err == nil {
 			b.logger.Debug("Found existing duty station in db", zap.String("New station name", newStation.Name), zap.String("Existing station", existingStation.Name))
@@ -352,8 +359,13 @@ func (b *MigrationBuilder) separateExistingOffices(offices []models.Transportati
 		var existingOffice models.TransportationOffice
 		query := b.db.Q().Eager().
 			LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
-			Where("lower(name) SIMILAR TO $1", similarityPattern(newOffice.Name)).
-			Where("postal_code = $2", newOffice.Address.PostalCode)
+			Where(`
+				lower(name)=lower($1)
+			OR
+				lower(name) SIMILAR TO $2
+				AND
+				postal_code=$3
+			`, newOffice.Name, similarityPattern(newOffice.Name), newOffice.Address.PostalCode)
 		err := query.First(&existingOffice)
 		if err == nil {
 			b.logger.Debug("Found existing transportation office in db", zap.String("New office name", newOffice.Name), zap.String("Existing office", existingOffice.Name))
@@ -379,8 +391,13 @@ func (b *MigrationBuilder) findMatchingOffice(station DutyStationWrapper) (model
 	var office models.TransportationOffice
 	query := b.db.Q().Eager().
 		LeftJoin("addresses", "addresses.id=transportation_offices.address_id").
-		Where("lower(name) SIMILAR TO $1", similarityPattern(station.TransportationOfficeName)).
-		Where("postal_code = $2", station.DutyStation.Address.PostalCode)
+		Where(`
+				lower(name)=lower($1)
+			OR
+				lower(name) SIMILAR TO $2
+				AND
+				postal_code=$3
+			`, station.DutyStation.Name, similarityPattern(station.DutyStation.Name), station.DutyStation.Address.PostalCode)
 	err := query.First(&office)
 
 	return office, err
