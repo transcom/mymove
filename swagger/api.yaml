@@ -173,18 +173,30 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       code:
         type: string
+        title: Code
+        example: 105B
       discount_type:
         type: string
+        title: Discount
+        example: dHHG
       location:
         $ref: '#/definitions/AccessorialLocation'
       description:
         type: string
+        title: Description
+        example: Linehaul Transportation
       uom_1:
         type: string
+        title: 1st UOM
+        example: Days
       uom_2:
         type: string
+        title: 2nd UOM
+        example: Net Billing Weight
       ref_code:
         type: string
+        title: Reference Code
+        example: Point Schedule
       created_at:
         type: string
         format: date-time
@@ -212,11 +224,13 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       quantity_1:
         type: integer
+        title: 1st Quantity
         description: Accessorial base quantity
         minimum: 0
         example: 10000
       quantity_2:
         type: integer
+        title: 2nd Quantity
         description: Accessorial base quantity
         minimum: 0
         example: 10000
@@ -224,16 +238,20 @@ definitions:
         $ref: '#/definitions/AccessorialLocation'
       notes:
         type: string
-        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
         title: Notes
+        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       status:
         $ref: '#/definitions/AccessorialStatus'
       submitted_date:
         type: string
+        title: Submitted Date
         format: date-time
+        example: 2018-10-21
       approved_date:
         type: string
+        title: Approved Date
         format: date-time
+        example: 2018-10-21
       created_at:
         type: string
         format: date-time
