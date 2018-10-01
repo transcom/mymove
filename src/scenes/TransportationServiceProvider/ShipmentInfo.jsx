@@ -36,6 +36,7 @@ import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 import Locations from './Locations';
 import FormButton from './FormButton';
+import CustomerInfo from './CustomerInfo';
 
 import './tsp.css';
 
@@ -154,7 +155,6 @@ class ShipmentInfo extends Component {
     } = shipment;
 
     const showDocumentViewer = context.flags.documentViewer;
-
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
@@ -261,7 +261,7 @@ class ShipmentInfo extends Component {
               )}
               {approved && (
                 <FormButton
-                  formComponent={PickupDateForm}
+                  FormComponent={PickupDateForm}
                   schema={this.props.pickupSchema}
                   onSubmit={this.pickupShipment}
                   buttonTitle="Enter Pickup"
@@ -269,7 +269,7 @@ class ShipmentInfo extends Component {
               )}
               {inTransit && (
                 <FormButton
-                  formComponent={DeliveryDateForm}
+                  FormComponent={DeliveryDateForm}
                   schema={this.props.deliverSchema}
                   onSubmit={this.deliverShipment}
                   buttonTitle="Enter Delivery"
@@ -290,6 +290,10 @@ class ShipmentInfo extends Component {
                 <button onClick={this.generateGBL}>
                   Generate Bill of Lading
                 </button>
+              </div>
+              <div className="customer-info">
+                <h2 className="extras usa-heading">Customer Info</h2>
+                <CustomerInfo />
               </div>
               <div className="documents">
                 <h2 className="documents-list-header">
