@@ -105,6 +105,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
+		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),
@@ -138,6 +139,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {
 	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedDeliveryDate))
 	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedPickupDate))
 	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedPackDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyConductedDate))
 }
 
 func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurveyWrongTSP() {
@@ -159,6 +161,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurveyWrongTSP() {
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
+		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),

@@ -11,7 +11,19 @@ import {
 } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-const weightsFields = ['actual_weight'];
+const datesFields = [
+  'pm_survey_conducted_date',
+  'pm_survey_planned_pack_date',
+  'pm_survey_planned_pickup_date',
+  'pm_survey_planned_delivery_date',
+  'requested_pickup_date',
+  'actual_pickup_date',
+  'actual_pack_date',
+  'requested_delivery_date',
+  'actual_delivery_date',
+  'pm_survey_notes',
+  'pm_survey_method',
+];
 
 const DatesDisplay = props => {
   const fieldProps = {
@@ -22,7 +34,18 @@ const DatesDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <div className="column-subhead">PM Survey</div>
-        <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
+        <PanelSwaggerField
+          title="PM survey conducted"
+          fieldName="pm_survey_conducted_date"
+          required
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Survey Method"
+          fieldName="pm_survey_method"
+          required
+          {...fieldProps}
+        />
         <div className="column-subhead">Packing</div>
         <PanelSwaggerField
           fieldName="pm_survey_planned_pack_date"
@@ -30,6 +53,13 @@ const DatesDisplay = props => {
           title="Planned"
           {...fieldProps}
         />
+        <PanelSwaggerField
+          fieldName="actual_pack_date"
+          required
+          title="Actual"
+          {...fieldProps}
+        />
+        <PanelField title="Actual" value="Pack date TK" />
       </div>
       <div className="editable-panel-column">
         <div className="column-subhead">Pickup</div>
@@ -65,6 +95,12 @@ const DatesDisplay = props => {
           {...fieldProps}
         />
         <PanelField title="RDD" value="RDD TK" />
+        <PanelSwaggerField
+          fieldName="pm_survey_notes"
+          required
+          title="Notes about dates"
+          {...fieldProps}
+        />
       </div>
     </React.Fragment>
   );
@@ -72,26 +108,35 @@ const DatesDisplay = props => {
 
 const DatesEdit = props => {
   const schema = props.shipmentSchema;
-  const fieldProps = {
-    schema,
-    values: props.shipment,
-  };
   return (
     <React.Fragment>
       <FormSection name="dates">
         <div className="editable-panel-column">
           <div className="column-subhead">PM Survey</div>
-
-          <SwaggerField fieldName="actual_weight" swagger={schema} />
+          <SwaggerField
+            fieldName="pm_survey_conducted_date"
+            swagger={schema}
+            required
+          />
+          <SwaggerField
+            fieldName="pm_survey_method"
+            swagger={schema}
+            required
+          />
           <div className="column-subhead">Packing</div>
+          <PanelField title="Original" value="Original pack date TK" />
           <SwaggerField
             fieldName="pm_survey_planned_pack_date"
             required
             title="Planned"
             swagger={schema}
           />
-        </div>
-        <div className="editable-panel-column">
+          <SwaggerField
+            fieldName="actual_pack_date"
+            required
+            title="Actual"
+            swagger={schema}
+          />
           <div className="column-subhead">Pickup</div>
           <SwaggerField
             fieldName="requested_pickup_date"
@@ -111,6 +156,8 @@ const DatesEdit = props => {
             title="Actual"
             swagger={schema}
           />
+        </div>
+        <div className="editable-panel-column">
           <div className="column-subhead">Delivery</div>
           <SwaggerField
             fieldName="pm_survey_planned_delivery_date"
@@ -125,6 +172,11 @@ const DatesEdit = props => {
             swagger={schema}
           />
           <PanelField title="RDD" value="RDD TK" />
+          <SwaggerField
+            fieldName="pm_survey_notes"
+            title="Notes about dates"
+            swagger={schema}
+          />
         </div>
       </FormSection>
     </React.Fragment>
@@ -151,7 +203,7 @@ function mapStateToProps(state, props) {
     // reduxForm
     formValues,
     initialValues: {
-      shipment: props.shipment,
+      dates: pick(props.shipment, datesFields),
     },
 
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
@@ -162,7 +214,7 @@ function mapStateToProps(state, props) {
 
     // editablePanelify
     getUpdateArgs: function() {
-      return [get(props, 'shipment.id'), formValues.shipment];
+      return [get(props, 'shipment.id'), formValues.dates];
     },
   };
 }
