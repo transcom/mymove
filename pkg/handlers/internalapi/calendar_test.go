@@ -9,7 +9,6 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowUnavailableMoveDatesHandler() {
-
 	req := httptest.NewRequest("GET", "/calendar/unavailable_move_dates", nil)
 
 	params := calendarop.ShowUnavailableMoveDatesParams{
