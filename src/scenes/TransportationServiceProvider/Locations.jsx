@@ -7,6 +7,7 @@ import { AddressElementDisplay } from 'shared/Address';
 
 const LocationsDisplay = ({ shipment }) => {
   const {
+    delivery_address,
     pickup_address,
     has_secondary_pickup_address,
     secondary_pickup_address,
@@ -21,6 +22,8 @@ const LocationsDisplay = ({ shipment }) => {
           title="Secondary"
         />
       )}
+      <span className="column-subhead">Delivery</span>
+      <AddressElementDisplay address={delivery_address} title="Primary" />
     </div>
   );
 };
