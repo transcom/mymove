@@ -20,14 +20,14 @@ export default class FormButton extends Component {
   };
 
   enterFormView = () => {
-    const { schema, onSubmit, formComponent } = this.props;
+    const { schema, onSubmit, FormComponent } = this.props;
 
     const formProps = {
       onCancel: this.setButtonState,
       schema: schema,
       onSubmit: onSubmit,
     };
-    return React.createElement(formComponent, formProps, null);
+    return <FormComponent {...formProps} />;
   };
 
   render() {
@@ -40,7 +40,7 @@ export default class FormButton extends Component {
 }
 
 FormButton.propTypes = {
-  formComponent: PropTypes.element.isRequired,
+  FormComponent: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
   onSubmit: PropTypes.func.isRequired,
   buttonTitle: PropTypes.string.isRequired,
