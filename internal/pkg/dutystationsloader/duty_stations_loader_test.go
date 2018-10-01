@@ -162,10 +162,12 @@ func (suite *DutyStationsLoaderSuite) TestSeparateStations() {
 	})
 
 	suite.NoError(err)
-	suite.Len(new, 1)
-	suite.Len(existing, 1)
-	suite.Equal(notSavedName, new[0].DutyStation.Name)
-	suite.Equal(savedName, existing[0].DutyStation.Name)
+	if suite.Len(new, 1) {
+		suite.Equal(notSavedName, new[0].DutyStation.Name)
+	}
+	if suite.Len(existing, 1) {
+		suite.Equal(savedName, existing[0].DutyStation.Name)
+	}
 }
 
 func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
@@ -194,7 +196,7 @@ func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
 		PostalCode:     postalCode2,
 	}
 
-	notSavedName := "Some Office"
+	notSavedName := "This isn't saved"
 	notSaved := models.TransportationOffice{
 		AddressID: address2.ID,
 		Address:   address2,
@@ -205,10 +207,12 @@ func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
 	new, existing, err := builder.separateExistingOffices([]models.TransportationOffice{saved, notSaved})
 
 	suite.NoError(err)
-	suite.Len(new, 1)
-	suite.Len(existing, 1)
-	suite.Equal(notSavedName, new[0].Name)
-	suite.Equal(savedName, existing[0].Name)
+	if suite.Len(new, 1) {
+		suite.Equal(notSavedName, new[0].Name)
+	}
+	if suite.Len(existing, 1) {
+		suite.Equal(savedName, existing[0].Name)
+	}
 }
 
 func (suite *DutyStationsLoaderSuite) TestPairStationsOffices() {
