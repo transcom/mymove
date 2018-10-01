@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import { addressElementDisplay, addressElementEdit } from './AddressElement';
+import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
@@ -76,7 +76,7 @@ const CustomerInfoDisplay = props => {
             </span>
           )}
         </PanelField>
-        {addressElementDisplay(address, 'Current Address')}
+        <AddressElementDisplay address={address} title="Current Address" />
       </div>
     </React.Fragment>
   );
@@ -136,7 +136,10 @@ const CustomerInfoEdit = props => {
 
         <div className="editable-panel-column">
           <FormSection name="address">
-            {addressElementEdit(addressProps, 'Current Residence Address')}
+            <AddressElementEdit
+              addressProps={addressProps}
+              title="Current Residence Address"
+            />
           </FormSection>
         </div>
       </div>

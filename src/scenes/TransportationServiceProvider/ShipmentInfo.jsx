@@ -34,6 +34,7 @@ import {
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+import Locations from './Locations';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 
@@ -232,11 +233,21 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <Weights
-                    title="Weights & Items"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
+
+                  <div className="usa-width-one-half">
+                    <Weights
+                      title="Weights & Items"
+                      shipment={this.props.shipment}
+                      update={this.props.patchShipment}
+                    />
+                  </div>
+                  <div className="usa-width-one-half">
+                    <Locations
+                      title="Locations"
+                      shipment={this.props.shipment}
+                      update={this.props.patchShipment}
+                    />
+                  </div>
                 </div>
               )}
             </div>

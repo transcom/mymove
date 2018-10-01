@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { editablePanelify } from 'shared/EditablePanel';
-import { addressElementDisplay, addressElementEdit } from '../AddressElement';
+import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { no_op } from 'shared/utils';
 
 const LocationsDisplay = props => {
@@ -20,14 +20,18 @@ const LocationsDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <span className="column-subhead">Pickup</span>
-        {addressElementDisplay(pickupAddress, 'Primary')}
-        {shipment.has_secondary_pickup_address &&
-          addressElementDisplay(secondaryPickupAddress, 'Secondary')}
+        <AddressElementDisplay address={pickupAddress} title="Primary" />
+        {shipment.has_secondary_pickup_address && (
+          <AddressElementDisplay
+            address={secondaryPickupAddress}
+            title="Secondary"
+          />
+        )}
       </div>
       {shipment.has_delivery_address && (
         <div className="editable-panel-column">
           <span className="column-subhead">Delivery</span>
-          {addressElementDisplay(deliveryAddress, 'Primary')}
+          <AddressElementDisplay address={deliveryAddress} title="Primary" />
         </div>
       )}
     </React.Fragment>
@@ -53,16 +57,21 @@ const LocationsEdit = props => {
       <div className="editable-panel-column">
         <FormSection name="pickupAddress">
           <span className="column-subhead">Pickup</span>
-          {addressElementEdit(pickupProps, 'Primary')}
-          {shipment.has_secondary_pickup_address &&
-            addressElementEdit(secondaryPickupProps, 'Secondary')}
+          <AddressElementEdit addressProps={pickupProps} title="Primary" />
+          {shipment.has_secondary_pickup_address && (
+            <AddressElementEdit
+              addressProps={secondaryPickupProps}
+              title="Secondary"
+            />
+          )}
         </FormSection>
       </div>
       <div className="editable-panel-column">
         <FormSection name="deliveryAddress">
           <span className="column-subhead">Delivery</span>
-          {shipment.has_delivery_address &&
-            addressElementEdit(deliveryProps, 'Primary')}
+          {shipment.has_delivery_address && (
+            <AddressElementEdit addressProps={deliveryProps} title="Primary" />
+          )}
         </FormSection>
       </div>
     </React.Fragment>
