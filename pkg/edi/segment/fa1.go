@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // AffiliationToAgency is a map from our affiliation to the FA1 segment's AgencyQualifierCode field
-var AffiliationToAgency = map[internalmessages.Affiliation]string{
-	internalmessages.AffiliationARMY:     "DZ",
-	internalmessages.AffiliationNAVY:     "DN",
-	internalmessages.AffiliationMARINES:  "DX",
-	internalmessages.AffiliationAIRFORCE: "DY",
+var AffiliationToAgency = map[models.ServiceMemberAffiliation]string{
+	models.AffiliationARMY:     "DZ",
+	models.AffiliationNAVY:     "DN",
+	models.AffiliationMARINES:  "DX",
+	models.AffiliationAIRFORCE: "DY",
 }
 
 // FA1 represents the FA1 EDI segment
