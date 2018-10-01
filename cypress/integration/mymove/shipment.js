@@ -17,7 +17,7 @@ describe('completing the hhg flow', function() {
     });
     // Calendar move date
     cy
-      .get('div[class="DayPicker-Day"][tabindex="0"]') // get's the 1st of the month
+      .get('.DayPicker-Day--today') // gets today
       .click()
       .should('have.class', 'DayPicker-Day--selected');
 
