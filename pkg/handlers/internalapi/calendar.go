@@ -25,10 +25,10 @@ func (h ShowUnavailableMoveDatesHandler) Handle(params calendarop.ShowUnavailabl
 	daysChecked := 0
 	shortFuseDaysFound := 0
 
-	// TODO: Handle holidays.
+	usCalendar := handlers.NewUSCalendar()
 	firstPossibleDate := startDate.AddDate(0, 0, 1)
 	for d := firstPossibleDate; daysChecked < daysToCheck; d = d.AddDate(0, 0, 1) {
-		if d.Weekday() == time.Saturday || d.Weekday() == time.Sunday {
+		if !usCalendar.IsWorkday(d) {
 			datesPayload = append(datesPayload, strfmt.Date(d))
 		} else if shortFuseDaysFound < shortFuseTotalDays {
 			datesPayload = append(datesPayload, strfmt.Date(d))
