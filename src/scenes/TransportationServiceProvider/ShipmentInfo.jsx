@@ -256,7 +256,7 @@ class ShipmentInfo extends Component {
               )}
               {approved && (
                 <FormButton
-                  formComponent={PickupDateForm}
+                  FormComponent={PickupDateForm}
                   schema={this.props.pickupSchema}
                   onSubmit={this.pickupShipment}
                   buttonTitle="Enter Pickup"
@@ -264,7 +264,7 @@ class ShipmentInfo extends Component {
               )}
               {inTransit && (
                 <FormButton
-                  formComponent={DeliveryDateForm}
+                  FormComponent={DeliveryDateForm}
                   schema={this.props.deliverSchema}
                   onSubmit={this.deliverShipment}
                   buttonTitle="Enter Delivery"
