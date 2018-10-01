@@ -49,7 +49,7 @@ type Shipment struct {
 	TrafficDistributionListID           *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	TrafficDistributionList             *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
 	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
-	ServiceMember                       *ServiceMember           `belongs_to:"service_member"`
+	ServiceMember                       ServiceMember            `belongs_to:"service_member"`
 	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
 	ActualDeliveryDate                  *time.Time               `json:"actual_delivery_date" db:"actual_delivery_date"`
 	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
@@ -440,7 +440,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 
 	err := tx.Eager(
 		"TrafficDistributionList",
-		"ServiceMember",
+		"ServiceMember.BackupContacts",
 		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",

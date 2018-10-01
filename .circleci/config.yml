@@ -86,6 +86,91 @@ jobs:
             - ~/.cache/pre-commit
       - run: *announce_failure
 
+  integration_tests:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+      - image: postgres:10-alpine
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep
+            - client-deps-cache-{{ checksum "yarn.lock" }}
+
+      - run:
+          # This is needed to use `psql` to test DB connectivity, until the app
+          # itself starts making database connections.
+          name: Install postgres client
+          command: |
+            sudo apt-get -qq update
+            sudo apt-get -qq -y install postgresql-client-9.6
+      - run:
+          name: Cypress deps
+          command: |
+            sudo apt-get -qq -y install xvfb libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
+      - run:
+          name: Install cypress
+          command: npm install cypress@~3.1.0
+      - run:
+          name: Setup hostnames
+          command: |
+            echo 127.0.0.1 officelocal | sudo tee -a /etc/hosts
+            echo 127.0.0.1 tsplocal | sudo tee -a /etc/hosts
+      - run:
+          name: make e2e_test_ci
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export HTTPS_CLIENT_AUTH_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            source $BASH_ENV
+            make e2e_test_ci
+          environment:
+              # Env vars needed by the `bin/apply-secure-migrations.sh` script
+              DB_PASSWORD: mysecretpassword
+              DB_USER: postgres
+              DB_HOST: localhost
+              DB_PORT: 5432
+              DB_NAME: test_db
+              # Env vars needed for the webserver to run
+              SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
+              SECURE_MIGRATION_SOURCE: local
+              LOGIN_GOV_CALLBACK_PROTOCOL: http://
+              LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
+              LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
+              LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
+              LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+              HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
+              HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
+      - store_artifacts:
+          path: cypress/videos
+      - store_artifacts:
+          path: cypress/screenshots
+      - store_test_results:
+          path: cypress/results
+
+      - save_cache:
+          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/pkg/dep
+      - save_cache:
+          key: client-deps-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache
+      - run: *announce_failure
+
   vuln_scan:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
@@ -280,21 +365,6 @@ jobs:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_app_client_tls_steps
 
-  integration_tests:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-
-      - run: make e2e_test
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-      - run: *announce_failure
 
   update_dependencies:
     working_directory: ~/go/src/github.com/transcom/mymove
@@ -338,6 +408,9 @@ workflows:
             - pre_deps_yarn
 
       #- vuln_scan # keep disabled until we work out new process
+      - integration_tests
+      - build_app
+      - build_migrations
 
       - build_app:
           requires:
@@ -357,21 +430,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-use-dod-certs
+              only: mk-intermediate-cert
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-use-dod-certs
+              only: mk-intermediate-cert
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-use-dod-certs
+              only: mk-intermediate-cert
 
       - deploy_staging_migrations:
           requires:

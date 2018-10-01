@@ -19,6 +19,9 @@ function findMatchingRoute(paths, operationPath) {
   return routeDefinition;
 }
 
+// assumes str passed in is title case (ex. SomeModelName => someModelName)
+const toCamelCase = str => str[0].toLowerCase() + str.slice(1);
+
 // Given a route definition and a status code, return the lowercased
 // name for the defined return type. For example, a 200 response to
 // shipments.getShipment should be '$$ref/definitions/Shipment', for
@@ -29,6 +32,7 @@ function findMatchingRoute(paths, operationPath) {
 function successfulReturnType(routeDefinition, status) {
   // eslint-disable-next-line security/detect-object-injection
   const response = routeDefinition.responses[status];
+  const [, , schemaKey] = response.schema['$$ref'].split('/');
   if (!response) {
     console.error(
       `No response found for operation ${
@@ -37,13 +41,14 @@ function successfulReturnType(routeDefinition, status) {
     );
     return;
   }
-  return response.schema['$$ref'].split('/')[2].toLowerCase();
+  return toCamelCase(schemaKey);
 }
 
 // Call an operation defined in the Swagger API, dispatching
 // actions as its state changes.
-export function swaggerRequest(operationPath, params, options = {}) {
-  return async function(dispatch, getState, { schema, client }) {
+export function swaggerRequest(getClient, operationPath, params, options = {}) {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
     const operation = get(client, 'apis.' + operationPath);
 
     if (!operation) {

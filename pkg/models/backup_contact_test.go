@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -21,7 +20,7 @@ func (suite *ModelSuite) Test_BackupContactCreate() {
 		ServiceMember:   serviceMember,
 		Name:            "name",
 		Email:           "email@example.com",
-		Permission:      internalmessages.BackupContactPermissionEDIT,
+		Permission:      models.BackupContactPermissionEDIT,
 	}
 
 	verrs, err := suite.db.ValidateAndCreate(&newContact)
@@ -58,7 +57,7 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 		ServiceMemberID: serviceMember1.ID,
 		Name:            "name",
 		Email:           "email@example.com",
-		Permission:      internalmessages.BackupContactPermissionEDIT,
+		Permission:      models.BackupContactPermissionEDIT,
 	}
 	suite.mustSave(&backupContact)
 

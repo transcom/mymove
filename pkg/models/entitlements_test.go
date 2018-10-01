@@ -1,12 +1,11 @@
 package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
-	E1 := internalmessages.ServiceMemberRankE1
+	E1 := models.ServiceMemberRankE1
 
 	// When: E1 has dependents and spouse gear
 	suite.Assertions.Equal(10500, models.GetEntitlement(E1, true, true))

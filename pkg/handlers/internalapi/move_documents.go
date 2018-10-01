@@ -101,7 +101,7 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocs))
+	moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {

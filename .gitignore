@@ -67,8 +67,10 @@ public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
 
+# Cypress integration tests
 cypress/videos
 cypress/screenshots
+cypress/results
 
 # XLSX backup files
 ~$*.xlsx
