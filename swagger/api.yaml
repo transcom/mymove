@@ -138,6 +138,115 @@ definitions:
       - bytes
       - created_at
       - updated_at
+  AccessorialLocation:
+    type: string
+    title: Location
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - NEITHER
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
+      NEITHER: Neither
+  AccessorialStatus:
+    type: string
+    title: Status
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - INVOICED
+    x-display-value:
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      INVOICED: Invoiced
+  Accessorials:
+    type: array
+    items:
+      $ref: '#/definitions/AccessorialPayload'
+  AccessorialPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+      discount_type:
+        type: string
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      description:
+        type: string
+      uom_1:
+        type: string
+      uom_2:
+        type: string
+      ref_code:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  ShipmentAccessorials:
+    type: array
+    items:
+      $ref: '#/definitions/ShipmentAccessorialPayload'
+  ShipmentAccessorialPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accessorial_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      quantity_1:
+        type: integer
+        description: Accessorial base quantity
+        minimum: 0
+        example: 10000
+      quantity_2:
+        type: integer
+        description: Accessorial base quantity
+        minimum: 0
+        example: 10000
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      notes:
+        type: string
+        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+        title: Notes
+      status:
+        $ref: '#/definitions/AccessorialStatus'
+      submitted_date:
+        type: string
+        format: date-time
+      approved_date:
+        type: string
+        format: date-time
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - shipment_id
+      - accessorial_id
+      - quantity_1
+      - location
+      - notes
   Address:
     type: object
     properties:
