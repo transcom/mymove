@@ -1,27 +1,42 @@
 import React from 'react';
+import Panel from 'shared/Panel';
+import { AddressElementDisplay } from 'shared/Address';
 import PropTypes from 'prop-types';
 
-import { editablePanelify } from 'shared/EditablePanel';
-
-import { AddressElementDisplay } from 'shared/Address';
-
-const LocationsDisplay = ({ shipment }) => {
+const LocationsPanel = ({ shipment }) => {
   const {
     pickup_address,
     has_secondary_pickup_address,
     secondary_pickup_address,
   } = shipment;
   return (
-    <div className="editable-panel-column">
-      <span className="column-subhead">Pickup</span>
-      <AddressElementDisplay address={pickup_address} title="Primary" />
-      {has_secondary_pickup_address && (
-        <AddressElementDisplay
-          address={secondary_pickup_address}
-          title="Secondary"
-        />
+    <Panel>
+      {({ isEditing }) => (
+        <Panel.HalfRow>
+          <Panel.Title editLabel="Edit">Locations</Panel.Title>
+          {isEditing ? (
+            <Panel.Content>
+              <Panel.Header>Locations</Panel.Header>
+              <Panel.Subheader>Primary Address</Panel.Subheader>
+              <div>placeholder</div>
+              <Panel.CancelButton>Cancel</Panel.CancelButton>
+              <Panel.SaveButton>Save</Panel.SaveButton>
+            </Panel.Content>
+          ) : (
+            <Panel.Content>
+              <Panel.Subheader>Pickup</Panel.Subheader>
+              <AddressElementDisplay address={pickup_address} title="Primary" />
+              {has_secondary_pickup_address && (
+                <AddressElementDisplay
+                  address={secondary_pickup_address}
+                  title="Secondary"
+                />
+              )}
+            </Panel.Content>
+          )}
+        </Panel.HalfRow>
       )}
-    </div>
+    </Panel>
   );
 };
 
@@ -37,7 +52,7 @@ const address = shape({
   street_address_3: string,
 });
 
-LocationsDisplay.propTypes = {
+LocationsPanel.propTypes = {
   actual_delivery_date: string,
   actual_pickup_date: string,
   book_date: string,
@@ -79,7 +94,5 @@ LocationsDisplay.propTypes = {
   }),
   weight_estimate: number,
 };
-
-const LocationsPanel = editablePanelify(LocationsDisplay, null, false);
 
 export default LocationsPanel;

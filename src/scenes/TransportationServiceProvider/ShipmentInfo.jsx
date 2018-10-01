@@ -110,6 +110,7 @@ let DeliveryDateForm = props => {
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
 const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
+
 class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
@@ -241,13 +242,11 @@ class ShipmentInfo extends Component {
                       update={this.props.patchShipment}
                     />
                   </div>
-                  <div className="usa-width-one-half">
-                    <Locations
-                      title="Locations"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
+                  <Locations
+                    title="Locations"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                 </div>
               )}
             </div>
