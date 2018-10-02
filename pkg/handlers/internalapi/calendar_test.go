@@ -9,7 +9,6 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowUnavailableMoveDatesHandler() {
-
 	req := httptest.NewRequest("GET", "/calendar/unavailable_move_dates", nil)
 
 	params := calendarop.ShowUnavailableMoveDatesParams{
@@ -28,6 +27,7 @@ func (suite *HandlerSuite) TestShowUnavailableMoveDatesHandler() {
 		strfmt.Date(time.Date(2018, 10, 3, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 6, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 7, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 8, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 13, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 14, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 20, 0, 0, 0, 0, time.UTC)),
@@ -38,8 +38,10 @@ func (suite *HandlerSuite) TestShowUnavailableMoveDatesHandler() {
 		strfmt.Date(time.Date(2018, 11, 4, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 11, 10, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 11, 11, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 11, 12, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 11, 17, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 11, 18, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 11, 22, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 11, 24, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 11, 25, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 12, 1, 0, 0, 0, 0, time.UTC)),
@@ -50,6 +52,7 @@ func (suite *HandlerSuite) TestShowUnavailableMoveDatesHandler() {
 		strfmt.Date(time.Date(2018, 12, 16, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 12, 22, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 12, 23, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 12, 25, 0, 0, 0, 0, time.UTC)),
 	}
 
 	showHandler := ShowUnavailableMoveDatesHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
