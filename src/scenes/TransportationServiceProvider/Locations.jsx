@@ -9,9 +9,16 @@ const LocationsDisplay = ({ shipment }) => {
   const {
     delivery_address,
     pickup_address,
+    has_delivery_address,
     has_secondary_pickup_address,
     secondary_pickup_address,
+    service_member,
   } = shipment;
+  const { city, state, postal_code } = service_member.current_station.address;
+  // if they do not have a delivery address, default to the station's address info
+  const address = has_delivery_address
+    ? delivery_address
+    : { city, state, postal_code };
   return (
     <div className="editable-panel-column">
       <span className="column-subhead">Pickup</span>
@@ -23,7 +30,7 @@ const LocationsDisplay = ({ shipment }) => {
         />
       )}
       <span className="column-subhead">Delivery</span>
-      <AddressElementDisplay address={delivery_address} title="Primary" />
+      <AddressElementDisplay address={address} title="Primary" />
     </div>
   );
 };
@@ -65,6 +72,9 @@ LocationsDisplay.propTypes = {
   requested_pickup_date: string,
   secondary_pickup_address: address,
   service_member: shape({
+    current_station: shape({
+      address,
+    }),
     edipi: string,
     email_is_preferred: bool,
     first_name: string.isRequired,
