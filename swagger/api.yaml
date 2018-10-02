@@ -2011,7 +2011,7 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the accessorial model
+          description: UUID of the shipment accessorial model
         - in: body
           name: updateShipmentAccessorial
           required: true
@@ -2058,6 +2058,34 @@ paths:
           description: no shipment accessorial found with that UUID
         500:
           description: server error
+  /shipments/accessorials/{shipment_accessorial_id}/approve:
+    put:
+      summary: Updates a shipment accessorial item to approve status
+      description: Update a shipment accessorial with approve status
+      operationId: approveShipmentAccessorial
+      tags:
+        - accessorials
+        - shipments
+      parameters:
+        - in: path
+          name: shipment_accessorial_id
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment accessorial model
+      responses:
+        200:
+          description: shipment accessorial approved
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment accessorial not found
+        500:
+          description: internal server error
   /shipments/{shipmentId}/reject:
     post:
       summary: Rejects an awarded shipment
