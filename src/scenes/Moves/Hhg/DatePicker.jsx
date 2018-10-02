@@ -2,16 +2,18 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
+import { Field } from 'redux-form';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import './DatePicker.css';
 
 export class HHGDatePicker extends Component {
   handleDayClick = day => {
-    this.props.setDate(formatSwaggerDate(day));
+    this.props.input.onChange(formatSwaggerDate(day));
   };
 
   render() {
+    const selectedDay = this.props.input.value;
     return (
       <div className="form-section">
         <h3 className="instruction-heading">
@@ -22,12 +24,12 @@ export class HHGDatePicker extends Component {
           <div className="usa-width-one-third">
             <DayPicker
               onDayClick={this.handleDayClick}
-              selectedDays={parseSwaggerDate(this.props.selectedDay)}
+              selectedDays={parseSwaggerDate(selectedDay)}
             />
           </div>
 
           <div className="usa-width-two-thirds">
-            {this.props.selectedDay && (
+            {selectedDay && (
               <table className="Todo-phase2">
                 <tbody>
                   <tr>
@@ -70,8 +72,7 @@ export class HHGDatePicker extends Component {
   }
 }
 HHGDatePicker.propTypes = {
-  error: PropTypes.object,
-  selectedDay: PropTypes.string,
+  input: PropTypes.object.isRequired,
 };
 
 export default HHGDatePicker;

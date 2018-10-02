@@ -1,15 +1,16 @@
-import { get } from 'lodash';
+import { get, isNil } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
+import { getFormValues, Field } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
+import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
 import {
   createOrUpdateShipment,
@@ -18,11 +19,14 @@ import {
 
 import './ShipmentForm.css';
 
+const validateMoveDateForm = validateAdditionalFields([
+  'requested_pickup_date',
+]);
+
 const formName = 'move_date_form';
 const getRequestLabel = 'ShipmentForm.getShipment';
 const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
-
-const MoveDateWizardForm = reduxifyWizardForm(formName);
+const MoveDateWizardForm = reduxifyWizardForm(formName, validateMoveDateForm);
 
 export class MoveDate extends Component {
   componentDidMount() {
@@ -72,14 +76,8 @@ export class MoveDate extends Component {
       });
   };
 
-  setDate = day => {
-    this.setState({ requestedPickupDate: day });
-  };
-
   render() {
-    const { pages, pageKey, error, initialValues, formValues } = this.props;
-
-    const requestedPickupDate = get(this.state, 'requestedPickupDate');
+    const { pages, pageKey, error, initialValues } = this.props;
 
     // Shipment Wizard
     return (
@@ -90,7 +88,6 @@ export class MoveDate extends Component {
         pageKey={pageKey}
         serverError={error}
         initialValues={initialValues}
-        additionalValues={{ requested_pickup_date: requestedPickupDate }}
       >
         <Fragment>
           {this.props.error && (
@@ -107,12 +104,7 @@ export class MoveDate extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <DatePicker
-            schema={this.props.schema}
-            error={error}
-            selectedDay={get(formValues, 'requested_pickup_date', null)}
-            setDate={this.setDate}
-          />
+          <Field name="requested_pickup_date" component={DatePicker} />
         </div>
       </MoveDateWizardForm>
     );
