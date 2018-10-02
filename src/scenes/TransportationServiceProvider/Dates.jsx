@@ -47,6 +47,10 @@ const DatesDisplay = props => {
           {...fieldProps}
         />
         <div className="column-subhead">Packing</div>
+        <PanelField
+          title="Original"
+          value="estimated_pickup_date - estimated_pack_days TK"
+        />
         <PanelSwaggerField
           fieldName="pm_survey_planned_pack_date"
           required
@@ -59,7 +63,6 @@ const DatesDisplay = props => {
           title="Actual"
           {...fieldProps}
         />
-        <PanelField title="Actual" value="Pack date TK" />
       </div>
       <div className="editable-panel-column">
         <div className="column-subhead">Pickup</div>
@@ -94,7 +97,7 @@ const DatesDisplay = props => {
           title="Actual"
           {...fieldProps}
         />
-        <PanelField title="RDD" value="RDD TK" />
+        <PanelField title="RDD" value="shipment.requested_delivery_date TK" />
         <PanelSwaggerField
           fieldName="pm_survey_notes"
           required
@@ -108,11 +111,15 @@ const DatesDisplay = props => {
 
 const DatesEdit = props => {
   const schema = props.shipmentSchema;
+  const fieldProps = {
+    schema,
+    values: props.shipment,
+  };
   return (
     <React.Fragment>
       <FormSection name="dates">
         <div className="editable-panel-column">
-          <div className="column-subhead">PM Survey</div>
+          <div className="column-head">PM Survey</div>
           <SwaggerField
             fieldName="pm_survey_conducted_date"
             swagger={schema}
@@ -123,7 +130,7 @@ const DatesEdit = props => {
             swagger={schema}
             required
           />
-          <div className="column-subhead">Packing</div>
+          <div className="column-head">Packing</div>
           <PanelField title="Original" value="Original pack date TK" />
           <SwaggerField
             fieldName="pm_survey_planned_pack_date"
@@ -137,12 +144,14 @@ const DatesEdit = props => {
             title="Actual"
             swagger={schema}
           />
-          <div className="column-subhead">Pickup</div>
-          <SwaggerField
+        </div>
+        <div className="editable-panel-column">
+          <div className="column-head">Pickup</div>
+          <PanelSwaggerField
             fieldName="requested_pickup_date"
             required
             title="Original"
-            swagger={schema}
+            {...fieldProps}
           />
           <SwaggerField
             fieldName="pm_survey_planned_pickup_date"
@@ -156,9 +165,7 @@ const DatesEdit = props => {
             title="Actual"
             swagger={schema}
           />
-        </div>
-        <div className="editable-panel-column">
-          <div className="column-subhead">Delivery</div>
+          <div className="column-head">Delivery</div>
           <SwaggerField
             fieldName="pm_survey_planned_delivery_date"
             required

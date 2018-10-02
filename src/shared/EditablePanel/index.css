@@ -22,13 +22,12 @@
 
 .column-head{
   font-weight: 700;
-  margin: 8px 0 4px 0;
+  margin: 1.5em 0.8em 0.8em 0;
 }
 
 .column-subhead{
   display: block;
-  margin: 0.8em;
-  margin-left: 0;
+  margin: 1.5em 0.8em 0.8em 0em;
   font-size: 0.8em;
   font-weight: bold;
 }
@@ -161,21 +160,24 @@
 .editable-panel.is-editable .field-value {
   display: block;
   margin-left: 0;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .editable-panel.is-editable .field-title {
   display: block;
+  font-size: 1.6rem;
+  margin: 1rem 0;
 }
 
 .editable-panel.is-editable .panel-field {
   border: 0;
-  margin: 1rem 0 2rem;
+  margin: 1rem 0 1rem;
 }
 
 .editable-panel.is-editable .panel-subhead {
   margin-top: 3rem;
   display: block;
+  font-size: 1.7rem;
 }
 
 .disable-edit .editable-panel-edit {
