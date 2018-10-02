@@ -4053,11 +4053,11 @@ paths:
           description: invalid request
         500:
           description: internal server error
-  /calendar/unavailable_move_dates:
+  /calendar/available_move_dates:
     get:
-      summary: Returns unavailable dates for the move calendar
-      description: Returns unavailable dates for the move calendar
-      operationId: showUnavailableMoveDates
+      summary: Returns available dates for the move calendar
+      description: Returns available dates for the move calendar
+      operationId: showAvailableMoveDates
       tags:
         - calendar
       parameters:
@@ -4066,10 +4066,10 @@ paths:
           type: string
           format: date
           required: true
-          description: Look for future unavailable dates starting from (and including) this date
+          description: Look for future available dates starting from (and including) this date
       responses:
         200:
-          description: List of unavailable dates
+          description: List of available dates
           schema:
             type: array
             items:
