@@ -23,8 +23,9 @@ INSERT into duty_stations (id, created_at, updated_at, name, affiliation, addres
 INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('95e84a0a-3b70-4540-a667-f9fe0b2996b5', now(), now(), '', 'Fort Belvoir', 'VA', '22060', 'United States');
 INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('8902e868-114d-44f3-b0d9-015b88a7217d', now(), now(), 'Fort Belvoir', 'ARMY', '95e84a0a-3b70-4540-a667-f9fe0b2996b5', '8e25ccc1-7891-4146-a9d0-cd0d48b59a50');
 
-INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('e039754a-f1c9-4be8-af3a-b868de9a1034', now(), now(), '', 'Fort Belvoir', 'VA', '22060', 'United States');
-INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('8017a42b-28ee-431f-99ff-dddf23bd4ad2', now(), now(), 'Fort Belvoir', 'ARMY', 'e039754a-f1c9-4be8-af3a-b868de9a1034', '39c5c8a3-b758-49de-8606-588a8a67b149');
+-- Ignoring this duplicate of Fort Belvoir since it points to a JPPSO
+-- INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('e039754a-f1c9-4be8-af3a-b868de9a1034', now(), now(), '', 'Fort Belvoir', 'VA', '22060', 'United States');
+-- INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('8017a42b-28ee-431f-99ff-dddf23bd4ad2', now(), now(), 'Fort Belvoir', 'ARMY', 'e039754a-f1c9-4be8-af3a-b868de9a1034', '39c5c8a3-b758-49de-8606-588a8a67b149');
 
 INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('0890e758-ecce-4ddc-a5ad-1563526e984f', now(), now(), '', 'West Point', 'NY', '10996', 'United States');
 INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('b2e189c8-4051-4aec-9f74-dda23789190a', now(), now(), 'West Point', 'ARMY', '0890e758-ecce-4ddc-a5ad-1563526e984f', '46898e12-8657-4ece-bb89-9a9e94815db9');
@@ -77,8 +78,9 @@ INSERT into duty_stations (id, created_at, updated_at, name, affiliation, addres
 INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('a2ab96a5-88da-402d-b7a2-85ad9db777bf', now(), now(), '', 'Joint Base Lewis-McChord', 'WA', '98438', 'United States');
 INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('c1aa182d-108d-449e-976f-235c73de622c', now(), now(), 'Joint Base Lewis-McChord', 'AIR_FORCE', 'a2ab96a5-88da-402d-b7a2-85ad9db777bf', '95abaeaa-452f-4fe0-9264-960cd2a15ccd');
 
-INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('d8c9d37a-df27-47e1-a85d-f599ada6561f', now(), now(), '', 'Joint Base Lewis-McChord', 'WA', '98433', 'United States');
-INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('0ceb4c7c-103d-422d-91e2-c8435b4f0f61', now(), now(), 'Joint Base Lewis-McChord', 'ARMY', 'd8c9d37a-df27-47e1-a85d-f599ada6561f', '56f61173-214a-4498-9f76-39f22890aea4');
+-- Ignoring duplicate of Joint Base Lewis-McChord that points to secondary transportation office
+-- INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('d8c9d37a-df27-47e1-a85d-f599ada6561f', now(), now(), '', 'Joint Base Lewis-McChord', 'WA', '98433', 'United States');
+-- INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('0ceb4c7c-103d-422d-91e2-c8435b4f0f61', now(), now(), 'Joint Base Lewis-McChord', 'ARMY', 'd8c9d37a-df27-47e1-a85d-f599ada6561f', '56f61173-214a-4498-9f76-39f22890aea4');
 
 INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('8f168590-71ba-48ca-9257-773841c4b8ee', now(), now(), '', 'Fort Wainwright', 'AK', '99703', 'United States');
 INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('8dd5f587-8c57-4bda-b286-1d66a3b215d1', now(), now(), 'Fort Wainwright', 'ARMY', '8f168590-71ba-48ca-9257-773841c4b8ee', '446aaf44-a5c8-4000-a0b8-6e5e421f62b0');
@@ -224,8 +226,9 @@ INSERT into duty_stations (id, created_at, updated_at, name, affiliation, addres
 INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('af83a8a0-fd10-418a-b7e5-78a99182cbe8', now(), now(), '', 'JBER', 'AK', '99506', 'United States');
 INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('787d7363-b75e-4dd8-81d1-f62fc2b35327', now(), now(), 'Joint Base Elmendorf-Richardson', 'AIR_FORCE', 'af83a8a0-fd10-418a-b7e5-78a99182cbe8', '4522d141-87f1-4f1e-a111-466303c6ae14');
 
-INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('12ce42ac-536a-40ee-81d0-d47356b24cc6', now(), now(), '', 'JBER', 'AK', '99505', 'United States');
-INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('e0a140ca-1955-47f4-b235-d8bebd5f5045', now(), now(), 'Joint Base Elmendorf-Richardson', 'AIR_FORCE', '12ce42ac-536a-40ee-81d0-d47356b24cc6', 'bc34e876-7f18-4401-ab91-507b0861a947');
+-- Ignoring duplicate of Joint Base Elmendorf-Richardson since it points to a satellite transportation office
+-- INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('12ce42ac-536a-40ee-81d0-d47356b24cc6', now(), now(), '', 'JBER', 'AK', '99505', 'United States');
+-- INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('e0a140ca-1955-47f4-b235-d8bebd5f5045', now(), now(), 'Joint Base Elmendorf-Richardson', 'AIR_FORCE', '12ce42ac-536a-40ee-81d0-d47356b24cc6', 'bc34e876-7f18-4401-ab91-507b0861a947');
 
 INSERT into addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country) VALUES ('e7b33708-d006-4c9f-9267-94397439a25a', now(), now(), '', 'Eielson AFB', 'AK', '99702', 'United States');
 INSERT into duty_stations (id, created_at, updated_at, name, affiliation, address_id, transportation_office_id) VALUES ('4ecbda93-fd5f-432d-8881-4c6e59d8311a', now(), now(), 'Eielson AFB', 'AIR_FORCE', 'e7b33708-d006-4c9f-9267-94397439a25a', '41ef1e1c-c257-48d3-8727-ba560ac6ac3d');
