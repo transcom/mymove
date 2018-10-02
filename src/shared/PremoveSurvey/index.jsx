@@ -87,6 +87,7 @@ const SurveyDisplay = props => {
 
 const SurveyEdit = props => {
   const schema = props.shipmentSchema;
+  console.log('Props', props);
   return (
     <React.Fragment>
       <FormSection name="survey">
