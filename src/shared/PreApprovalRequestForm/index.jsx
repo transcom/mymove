@@ -34,7 +34,6 @@ class PreApprovalRequestForm extends Component {
           <SwaggerField
             fieldName="notes"
             swagger={this.props.ship_accessorial_schema}
-            required
           />
         </div>
       </Form>
@@ -48,7 +47,7 @@ PreApprovalRequestForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-const formName = 'preapproval_request_form';
+export const formName = 'preapproval_request_form';
 
 PreApprovalRequestForm = reduxForm({
   form: formName,
