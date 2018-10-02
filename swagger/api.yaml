@@ -163,8 +163,8 @@ definitions:
   Accessorials:
     type: array
     items:
-      $ref: '#/definitions/AccessorialPayload'
-  AccessorialPayload:
+      $ref: '#/definitions/Accessorial'
+  Accessorial:
     type: object
     properties:
       id:
@@ -206,8 +206,8 @@ definitions:
   ShipmentAccessorials:
     type: array
     items:
-      $ref: '#/definitions/ShipmentAccessorialPayload'
-  ShipmentAccessorialPayload:
+      $ref: '#/definitions/ShipmentAccessorial'
+  ShipmentAccessorial:
     type: object
     properties:
       id:
@@ -1238,7 +1238,6 @@ paths:
       operationId: getAccessorials
       tags:
         - accessorials
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       responses:
         200:
           description: list of accessorials
@@ -1942,7 +1941,6 @@ paths:
       tags:
         - accessorials
         - shipments
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - name: shipmentId
           in: path
@@ -1981,12 +1979,12 @@ paths:
           name: payload
           required: true
           schema:
-            $ref: '#/definitions/ShipmentAccessorialPayload'
+            $ref: '#/definitions/ShipmentAccessorial'
       responses:
         201:
           description: successfully created shipment acessorial for shipment
           schema:
-            $ref: '#/definitions/ShipmentAccessorialPayload'
+            $ref: '#/definitions/ShipmentAccessorial'
         400:
           description: invalid request
         401:
@@ -2016,12 +2014,12 @@ paths:
           name: updateShipmentAccessorial
           required: true
           schema:
-            $ref: '#/definitions/ShipmentAccessorialPayload'
+            $ref: '#/definitions/ShipmentAccessorial'
       responses:
         200:
           description: updated instance of shipment accessorial
           schema:
-            $ref: '#/definitions/ShipmentAccessorialPayload'
+            $ref: '#/definitions/ShipmentAccessorial'
         400:
           description: invalid request
         401:
