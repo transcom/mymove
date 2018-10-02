@@ -30,7 +30,7 @@ export const AddressElementDisplay = ({ address, title }) => (
 
 AddressElementDisplay.propTypes = {
   address: PropTypes.shape({
-    street_address_1: PropTypes.string.isRequired,
+    street_address_1: PropTypes.string,
     street_address_2: PropTypes.string,
     street_address_3: PropTypes.string,
     city: PropTypes.string.isRequired,

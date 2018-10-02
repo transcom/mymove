@@ -95,4 +95,4 @@ LocationsDisplay.propTypes = {
 
 const LocationsPanel = editablePanelify(LocationsDisplay, null, false);
 
-export default LocationsPanel;
+export { LocationsDisplay, LocationsPanel as default };
