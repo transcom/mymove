@@ -9,7 +9,6 @@ import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import DatePicker from 'scenes/Moves/Hhg/DatePicker';
 import Address from 'scenes/Moves/Hhg/Address';
 import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
 
@@ -79,7 +78,7 @@ export class ShipmentForm extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, initialValues, formValues } = this.props;
+    const { pages, pageKey, error, initialValues } = this.props;
 
     const requestedPickupDate = get(this.state, 'requestedPickupDate');
 
