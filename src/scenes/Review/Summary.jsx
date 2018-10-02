@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { get } from 'lodash';
-import moment from 'moment';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
@@ -14,11 +13,7 @@ import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
 import './Review.css';
-
-function formatDate(date) {
-  if (!date) return;
-  return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
-}
+import { formatDateSM } from 'shared/formatters';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -206,11 +201,13 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Orders Date: </td>
-                    <td> {formatDate(get(currentOrders, 'issue_date'))}</td>
+                    <td> {formatDateSM(get(currentOrders, 'issue_date'))}</td>
                   </tr>
                   <tr>
                     <td> Report-by Date: </td>
-                    <td>{formatDate(get(currentOrders, 'report_by_date'))}</td>
+                    <td>
+                      {formatDateSM(get(currentOrders, 'report_by_date'))}
+                    </td>
                   </tr>
                   <tr>
                     <td> New Duty Station: </td>
@@ -390,7 +387,7 @@ function PPMShipmentSummary(props) {
             </tr>
             <tr>
               <td> Move Date: </td>
-              <td>{formatDate(get(ppm, 'planned_move_date'))}</td>
+              <td>{formatDateSM(get(ppm, 'planned_move_date'))}</td>
             </tr>
             <tr>
               <td> Pickup ZIP Code: </td>

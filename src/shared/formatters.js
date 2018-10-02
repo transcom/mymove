@@ -29,6 +29,15 @@ export function formatCentsRange(min, max) {
   return `$${formatCents(min)} - ${formatCents(max)}`;
 }
 
+// Service Member Formatters
+
+// Format a date in the MM-DD-YYYY format for use in the service member UI.
+export function formatDateSM(date) {
+  if (date) {
+    return moment(date).format('MM/DD/YYYY');
+  }
+}
+
 // Format a date into the format required for submission as a date property in
 // Swagger.
 export function formatSwaggerDate(date) {
@@ -46,8 +55,6 @@ export function parseSwaggerDate(dateString) {
 }
 
 // Office Formatters
-//
-// The formatters below for the office app, but not the service member app
 
 // Format a date and ignore any time values, e.g. 03-Jan-2018
 export function formatDate(date) {
