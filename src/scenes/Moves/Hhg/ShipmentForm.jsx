@@ -109,12 +109,6 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <DatePicker
-            schema={this.props.schema}
-            error={error}
-            selectedDay={get(formValues, 'requested_pickup_date', null)}
-            setDate={this.setDate}
-          />
           <Address
             schema={this.props.schema}
             error={error}

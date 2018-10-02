@@ -26,7 +26,7 @@ import Transition from 'scenes/Moves/Transition';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
-// import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
+import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
 import MoveDate from 'scenes/Moves/Hhg/MoveDate';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
@@ -224,15 +224,15 @@ const pages = {
       <MoveDate pages={pages} pageKey={key} match={match} />
     ),
   },
-  // '/moves/:moveId/hhg-form': {
-  //   isInFlow: hasHHG,
-  //   isComplete: (sm, orders, move, hhg) => {
-  //     return every([hhg.requested_pickup_date, hhg.pickup_address]);
-  //   },
-  //   render: (key, pages) => ({ match }) => (
-  //     <ShipmentForm pages={pages} pageKey={key} match={match} />
-  //   ),
-  // },
+  '/moves/:moveId/hhg-form': {
+    isInFlow: hasHHG,
+    isComplete: (sm, orders, move, hhg) => {
+      return every([hhg.pickup_address]);
+    },
+    render: (key, pages) => ({ match }) => (
+      <ShipmentForm pages={pages} pageKey={key} match={match} />
+    ),
+  },
   '/moves/:moveId/ppm-transition': {
     isInFlow: isCombo,
     isComplete: always,
