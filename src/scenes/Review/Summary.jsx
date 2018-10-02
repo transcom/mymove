@@ -5,15 +5,21 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import ppmBlack from 'shared/icon/ppm-black.svg';
+
+import { getSwaggerDefinition } from 'shared/Swagger/selectors';
+import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
+import { currentShipment } from 'shared/UI/ducks';
+
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { formatCentsRange, formatCents } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
-import './Review.css';
 import { formatDateSM } from 'shared/formatters';
+import PPMShipmentSummary from './PPMShipmentSummary';
+import HHGShipmentSummary from './HHGShipmentSummary';
+
+import './Review.css';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -25,6 +31,7 @@ export class Summary extends Component {
     const {
       currentMove,
       currentPpm,
+      currentShipment,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -332,6 +339,14 @@ export class Summary extends Component {
             />
           )}
 
+        {currentShipment &&
+          !lastMoveIsCanceled && (
+            <HHGShipmentSummary
+              shipment={currentShipment}
+              movePath={rootAddressWithMoveId}
+            />
+          )}
+
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at{' '}
@@ -356,125 +371,34 @@ Summary.propTypes = {
   error: PropTypes.object,
 };
 
-function PPMShipmentSummary(props) {
-  const { movePath, ppm } = props;
-
-  const editDateAndLocationAddress = movePath + '/edit-date-and-location';
-  const editWeightAddress = movePath + '/edit-weight';
-  const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-    ? `(spend up to ${ppm.estimated_storage_reimbursement.toLocaleString()} on private storage)`
-    : '';
-  const sitDisplay = get(ppm, 'has_sit', false)
-    ? `${ppm.days_in_storage} days ${privateStorageString}`
-    : 'Not requested';
-
-  return (
-    <div className="usa-grid-full ppm-container">
-      <h3>
-        <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff
-        (PPM)
-      </h3>
-      <div className="usa-width-one-half review-section ppm-review-section">
-        <table>
-          <tbody>
-            <tr>
-              <th>
-                Dates &amp; Locations
-                <span className="align-right">
-                  <Link to={editDateAndLocationAddress}>Edit</Link>
-                </span>
-              </th>
-            </tr>
-            <tr>
-              <td> Move Date: </td>
-              <td>{formatDateSM(get(ppm, 'planned_move_date'))}</td>
-            </tr>
-            <tr>
-              <td> Pickup ZIP Code: </td>
-              <td> {ppm.pickup_postal_code}</td>
-            </tr>
-            {ppm.has_additional_postal_code && (
-              <tr>
-                <td> Additional Pickup: </td>
-                <td> {ppm.additional_pickup_postal_code}</td>
-              </tr>
-            )}
-            <tr>
-              <td> Delivery ZIP Code: </td>
-              <td> {ppm.destination_postal_code}</td>
-            </tr>
-            <tr>
-              <td> Storage: </td>
-              <td>{sitDisplay}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div className="usa-width-one-half review-section ppm-review-section">
-        <table>
-          <tbody>
-            <tr>
-              <th>
-                Weight
-                <span className="align-right">
-                  <Link to={editWeightAddress}>Edit</Link>
-                </span>
-              </th>
-            </tr>
-            <tr>
-              <td> Estimated Weight: </td>
-              <td> {ppm.weight_estimate.toLocaleString()} lbs</td>
-            </tr>
-            <tr>
-              <td> Estimated PPM Incentive: </td>
-              <td>
-                {' '}
-                {formatCentsRange(
-                  ppm.incentive_estimate_min,
-                  ppm.incentive_estimate_max,
-                )}
-              </td>
-            </tr>
-            {ppm.has_requested_advance && (
-              <tr>
-                <td> Advance: </td>
-                <td> ${formatCents(ppm.advance.requested_amount)}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-PPMShipmentSummary.propTypes = {
-  ppm: PropTypes.object.required,
-  movePath: PropTypes.string.required,
-};
-
 function mapStateToProps(state) {
   return {
     currentPpm: state.ppm.currentPpm,
+    currentShipment: selectShipment(state, currentShipment(state)),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: state.moves.currentMove,
     // latestMove: state.moves.latestMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
-    schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
-    schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
-    schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
+    schemaRank: getSwaggerDefinition(state, 'ServiceMemberRank'),
+    schemaOrdersType: getSwaggerDefinition(state, 'OrdersType'),
+    schemaAffiliation: getSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: moveIsApproved(state),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
   };
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
+  const { shipmentId } = ownProps.match.params;
   return bindActionCreators(
     {
+      onDidMount: () => {
+        dispatch(getShipment('Summary.getShipment', shipmentId));
+      },
       checkEntitlement,
       loadEntitlementsFromState,
+      getShipment,
     },
     dispatch,
   );
