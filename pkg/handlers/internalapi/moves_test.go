@@ -357,14 +357,14 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 			strfmt.Date(time.Date(2018, 10, 3, 0, 0, 0, 0, time.UTC)),
 			strfmt.Date(time.Date(2018, 10, 4, 0, 0, 0, 0, time.UTC)),
 			strfmt.Date(time.Date(2018, 10, 5, 0, 0, 0, 0, time.UTC)),
-			strfmt.Date(time.Date(2018, 10, 8, 0, 0, 0, 0, time.UTC)),
 			strfmt.Date(time.Date(2018, 10, 9, 0, 0, 0, 0, time.UTC)),
 			strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC)),
 			strfmt.Date(time.Date(2018, 10, 11, 0, 0, 0, 0, time.UTC)),
 			strfmt.Date(time.Date(2018, 10, 12, 0, 0, 0, 0, time.UTC)),
+			strfmt.Date(time.Date(2018, 10, 15, 0, 0, 0, 0, time.UTC)),
 		},
 		Delivery: []strfmt.Date{
-			strfmt.Date(time.Date(2018, 10, 15, 0, 0, 0, 0, time.UTC)),
+			strfmt.Date(time.Date(2018, 10, 16, 0, 0, 0, 0, time.UTC)),
 		},
 		Report: []strfmt.Date{
 			strfmt.Date(move.Orders.ReportByDate),

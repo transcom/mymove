@@ -261,10 +261,10 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 func createMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool) []strfmt.Date {
 	var dates []strfmt.Date
 
-	// TODO: Handle holidays.
+	usCalendar := handlers.NewUSCalendar()
 	daysAdded := 0
 	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, 1) {
-		if includeWeekendsAndHolidays || (d.Weekday() != time.Saturday && d.Weekday() != time.Sunday) {
+		if includeWeekendsAndHolidays || usCalendar.IsWorkday(d) {
 			dates = append(dates, strfmt.Date(d))
 			daysAdded++
 		}
