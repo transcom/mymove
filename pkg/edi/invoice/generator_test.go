@@ -16,6 +16,10 @@ import (
 func (suite *InvoiceSuite) TestGenerate858C() {
 	shipments := make([]models.Shipment, 1)
 	shipments[0] = testdatagen.MakeDefaultShipment(suite.db)
+	err := shipments[0].AssignGBLNumber(suite.db)
+	suite.mustSave(&shipments[0])
+	suite.NoError(err, "could not assign GBLNumber")
+
 	var cost rateengine.CostComputation
 	costByShipment := rateengine.CostByShipment{
 		Shipment: shipments[0],
@@ -37,6 +41,19 @@ type InvoiceSuite struct {
 
 func (suite *InvoiceSuite) SetupTest() {
 	suite.db.TruncateAll()
+}
+
+func (suite *InvoiceSuite) mustSave(model interface{}) {
+	t := suite.T()
+	t.Helper()
+
+	verrs, err := suite.db.ValidateAndSave(model)
+	if err != nil {
+		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
+	}
+	if verrs.HasAny() {
+		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
+	}
 }
 
 func TestInvoiceSuite(t *testing.T) {
