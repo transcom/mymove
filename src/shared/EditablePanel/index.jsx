@@ -174,14 +174,9 @@ export function editablePanelify(
   editEnabled = true,
 ) {
   const Wrapper = class extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        isEditable: false,
-      };
-      // TODO: Figure out why bind is still needed when ostensibly it's not
-      this.save = this.save.bind(this);
-    }
+    state = {
+      isEditable: false,
+    };
 
     save = () => {
       let isValid = this.props.valid;
