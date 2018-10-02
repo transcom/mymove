@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
-import { Field } from 'redux-form';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import './DatePicker.css';
