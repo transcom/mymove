@@ -7,7 +7,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -80,13 +79,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
 	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, aFile)
-	if err != nil {
-		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
-			return uploadop.NewCreateUploadBadRequest()
-		}
-		h.Logger().Error("Failed to create upload", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	} else if verrs.HasAny() {
+	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 

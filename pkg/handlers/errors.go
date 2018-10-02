@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
@@ -62,6 +63,9 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	case models.ErrUserUnauthorized:
 		logger.Debug("unauthorized", zap.Error(err))
 		return newErrResponse(http.StatusUnauthorized, err)
+	case uploaderpkg.ErrZeroLengthFile:
+		logger.Debug("uploaded zero length file", zap.Error(err))
+		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidPatchGate:
 		logger.Debug("invalid patch gate", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
