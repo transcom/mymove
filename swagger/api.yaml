@@ -972,6 +972,13 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
 paths:
   /blackouts:
     get:
@@ -1223,6 +1230,97 @@ paths:
           description: move document not found
         500:
           description: internal server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+      responses:
+        204:
+          description: deleted
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+  /uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        201:
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+    delete:
+      summary: Deletes a collection of uploads
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUploads
+      tags:
+        - uploads
+      parameters:
+        - in: query
+          name: uploadIds
+          type: array
+          items:
+            type: string
+            format: uuid
+          required: true
+          description: Array of UUIDs to be deleted
+      responses:
+        204:
+          description: deleted
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
   /shipments:
     get:
       summary: Gets visible shipments

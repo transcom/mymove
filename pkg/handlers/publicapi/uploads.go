@@ -1,4 +1,4 @@
-package internalapi
+package publicapi
 
 import (
 	"io"
@@ -11,15 +11,15 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
+	uploadop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
-func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
-	return &internalmessages.UploadPayload{
+func payloadForUploadModel(upload models.Upload, url string) *apimessages.UploadPayload {
+	return &apimessages.UploadPayload{
 		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
 		ContentType: swag.String(upload.ContentType),
