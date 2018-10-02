@@ -4,7 +4,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -22,7 +21,7 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 		Name:            "name",
 		Email:           "email@example.com",
 		Phone:           swag.String("555-555-5555"),
-		Permission:      internalmessages.BackupContactPermissionEDIT,
+		Permission:      models.BackupContactPermissionEDIT,
 	}
 
 	mergeModels(&backupContact, assertions.BackupContact)
