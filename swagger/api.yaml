@@ -1940,7 +1940,6 @@ paths:
       operationId: getShipmentAccessorials
       tags:
         - accessorials
-        - shipments
       parameters:
         - name: shipmentId
           in: path
@@ -1967,7 +1966,6 @@ paths:
       operationId: createShipmentAccessorial
       tags:
         - accessorials
-        - shipments
       parameters:
         - name: shipmentId
           in: path
@@ -2002,7 +2000,6 @@ paths:
       operationId: updateShipmentAccessorial
       tags:
         - accessorials
-        - shipments
       parameters:
         - in: path
           name: shipment_accessorial_id
@@ -2035,7 +2032,6 @@ paths:
       operationId: deleteShipmentAccessorial
       tags:
         - accessorials
-        - shipments
       parameters:
         - in: path
           name: shipment_accessorial_id
@@ -2063,7 +2059,6 @@ paths:
       operationId: approveShipmentAccessorial
       tags:
         - accessorials
-        - shipments
       parameters:
         - in: path
           name: shipment_accessorial_id
