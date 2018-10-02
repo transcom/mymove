@@ -5,15 +5,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestFetchAccessorial() {
-	//Setup
-	accessorial := testdatagen.MakeDefaultAccessorial(suite.db)
-	//make more items that don't relate to the first
-	testdatagen.MakeDefaultAccessorial(suite.db)
-	testdatagen.MakeDefaultAccessorial(suite.db)
+func (suite *ModelSuite) TestFetchAccessorials() {
+	accessorial := testdatagen.MakeDummyAccessorial(suite.db)
 
 	//Do
-	accs, err := models.FetchAccessorialsByShipmentID(suite.db, &accessorial.ShipmentID)
+	accs, err := models.FetchAccessorials(suite.db)
 
 	//Test
 	suite.NoError(err)

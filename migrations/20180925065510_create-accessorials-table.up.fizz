@@ -1,13 +1,25 @@
 create_table("accessorials") {
 	t.Column("id", "uuid", {"primary": true})
-	t.Column("shipment_id", "uuid", {})
 	t.Column("code", "string", {})
-	t.Column("item", "string", {})
+	t.Column("discount_type", "string", {})
+	t.Column("allowed_location", "string", {})
+	t.Column("description", "string", {})
+	t.Column("measurement_unit_1", "string", {})
+	t.Column("measurement_unit_2", "string", {})
+	t.Column("rate_ref_code", "string", {})
+}
+
+create_table("shipment_accessorials") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("shipment_id", "uuid", {})
+	t.Column("accessorial_id", "uuid", {})
+	t.Column("quantity_1", "integer", {})
+	t.Column("quantity_2", "integer", {})
 	t.Column("location", "string", {})
-	t.Column("quantity", "integer", {})
 	t.Column("notes", "text", {})
 	t.Column("status", "string", {})
 	t.Column("submitted_date", "datetime", {})
 	t.Column("approved_date", "datetime", {})
 	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {"on_delete": "restrict"})
+	t.ForeignKey("accessorial_id", {"accessorials": ["id"]}, {"on_delete": "restrict"})
 }
