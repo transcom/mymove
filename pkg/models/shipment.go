@@ -438,7 +438,6 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 
 	shipments := []Shipment{}
 
-	pop.Debug = true
 	err := tx.Eager(
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
@@ -451,7 +450,6 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
-	pop.Debug = false
 
 	if err != nil {
 		return nil, err
