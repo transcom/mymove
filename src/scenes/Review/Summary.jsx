@@ -15,6 +15,11 @@ import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
 import './Review.css';
 
+function formatDate(date) {
+  if (!date) return;
+  return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
+}
+
 export class Summary extends Component {
   componentDidMount() {
     if (get(this.props.match.params, 'moveId')) {
@@ -82,10 +87,6 @@ export class Summary extends Component {
     //   };
     //   return `${perms[backup_contact.permission]}`;
     // }
-    function formatDate(date) {
-      if (!date) return;
-      return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
-    }
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(
       currentStation,
@@ -100,18 +101,6 @@ export class Summary extends Component {
     const editBackupContactAddress = rootAddress + '/edit-backup-contact';
     const editContactInfoAddress = rootAddress + '/edit-contact-info';
     const editOrdersAddress = rootAddressWithMoveId + '/edit-orders';
-    const editDateAndLocationAddress =
-      rootAddressWithMoveId + '/edit-date-and-location';
-    const editWeightAddress = rootAddressWithMoveId + '/edit-weight';
-    const privateStorageString = get(
-      currentPpm,
-      'estimated_storage_reimbursement',
-    )
-      ? `(spend up to ${currentPpm.estimated_storage_reimbursement.toLocaleString()} on private storage)`
-      : '';
-    const sitDisplay = get(currentPpm, 'has_sit', false)
-      ? `${currentPpm.days_in_storage} days ${privateStorageString}`
-      : 'Not requested';
     const editSuccessBlurb = this.props.reviewState.editSuccess
       ? 'Your changes have been saved. '
       : '';
@@ -340,97 +329,12 @@ export class Summary extends Component {
         </div>
         {currentPpm &&
           !lastMoveIsCanceled && (
-            <div className="usa-grid-full ppm-container">
-              <h3>
-                <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move
-                your stuff (PPM)
-              </h3>
-              <div className="usa-width-one-half review-section ppm-review-section">
-                <table>
-                  <tbody>
-                    <tr>
-                      <th>
-                        Dates & Locations
-                        <span className="align-right">
-                          <Link to={editDateAndLocationAddress}>Edit</Link>
-                        </span>
-                      </th>
-                    </tr>
-                    <tr>
-                      <td> Move Date: </td>
-                      <td>
-                        {formatDate(get(currentPpm, 'planned_move_date'))}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td> Pickup ZIP Code: </td>
-                      <td> {currentPpm && currentPpm.pickup_postal_code}</td>
-                    </tr>
-                    {currentPpm.has_additional_postal_code && (
-                      <tr>
-                        <td> Additional Pickup: </td>
-                        <td> {currentPpm.additional_pickup_postal_code}</td>
-                      </tr>
-                    )}
-                    <tr>
-                      <td> Delivery ZIP Code: </td>
-                      <td>
-                        {' '}
-                        {currentPpm && currentPpm.destination_postal_code}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td> Storage: </td>
-                      <td>{sitDisplay}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="usa-width-one-half review-section ppm-review-section">
-                <table>
-                  <tbody>
-                    <tr>
-                      <th>
-                        Weight
-                        <span className="align-right">
-                          <Link to={editWeightAddress}>Edit</Link>
-                        </span>
-                      </th>
-                    </tr>
-                    <tr>
-                      <td> Estimated Weight: </td>
-                      <td>
-                        {' '}
-                        {currentPpm &&
-                          currentPpm.weight_estimate.toLocaleString()}{' '}
-                        lbs
-                      </td>
-                    </tr>
-                    <tr>
-                      <td> Estimated PPM Incentive: </td>
-                      <td>
-                        {' '}
-                        {currentPpm &&
-                          formatCentsRange(
-                            currentPpm.incentive_estimate_min,
-                            currentPpm.incentive_estimate_max,
-                          )}
-                      </td>
-                    </tr>
-                    {currentPpm.has_requested_advance && (
-                      <tr>
-                        <td> Advance: </td>
-                        <td>
-                          {' '}
-                          ${formatCents(currentPpm.advance.requested_amount)}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <PPMShipmentSummary
+              ppm={currentPpm}
+              movePath={rootAddressWithMoveId}
+            />
           )}
+
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at{' '}
@@ -453,6 +357,103 @@ Summary.propTypes = {
   lastMoveIsCanceled: PropTypes.bool,
   checkEntitlement: PropTypes.func.isRequired,
   error: PropTypes.object,
+};
+
+function PPMShipmentSummary(props) {
+  const { movePath, ppm } = props;
+
+  const editDateAndLocationAddress = movePath + '/edit-date-and-location';
+  const editWeightAddress = movePath + '/edit-weight';
+  const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
+    ? `(spend up to ${ppm.estimated_storage_reimbursement.toLocaleString()} on private storage)`
+    : '';
+  const sitDisplay = get(ppm, 'has_sit', false)
+    ? `${ppm.days_in_storage} days ${privateStorageString}`
+    : 'Not requested';
+
+  return (
+    <div className="usa-grid-full ppm-container">
+      <h3>
+        <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff
+        (PPM)
+      </h3>
+      <div className="usa-width-one-half review-section ppm-review-section">
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                Dates &amp; Locations
+                <span className="align-right">
+                  <Link to={editDateAndLocationAddress}>Edit</Link>
+                </span>
+              </th>
+            </tr>
+            <tr>
+              <td> Move Date: </td>
+              <td>{formatDate(get(ppm, 'planned_move_date'))}</td>
+            </tr>
+            <tr>
+              <td> Pickup ZIP Code: </td>
+              <td> {ppm.pickup_postal_code}</td>
+            </tr>
+            {ppm.has_additional_postal_code && (
+              <tr>
+                <td> Additional Pickup: </td>
+                <td> {ppm.additional_pickup_postal_code}</td>
+              </tr>
+            )}
+            <tr>
+              <td> Delivery ZIP Code: </td>
+              <td> {ppm.destination_postal_code}</td>
+            </tr>
+            <tr>
+              <td> Storage: </td>
+              <td>{sitDisplay}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="usa-width-one-half review-section ppm-review-section">
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                Weight
+                <span className="align-right">
+                  <Link to={editWeightAddress}>Edit</Link>
+                </span>
+              </th>
+            </tr>
+            <tr>
+              <td> Estimated Weight: </td>
+              <td> {ppm.weight_estimate.toLocaleString()} lbs</td>
+            </tr>
+            <tr>
+              <td> Estimated PPM Incentive: </td>
+              <td>
+                {' '}
+                {formatCentsRange(
+                  ppm.incentive_estimate_min,
+                  ppm.incentive_estimate_max,
+                )}
+              </td>
+            </tr>
+            {ppm.has_requested_advance && (
+              <tr>
+                <td> Advance: </td>
+                <td> ${formatCents(ppm.advance.requested_amount)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+PPMShipmentSummary.propTypes = {
+  ppm: PropTypes.object.required,
+  movePath: PropTypes.string.required,
 };
 
 function mapStateToProps(state) {
