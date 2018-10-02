@@ -177,6 +177,7 @@ definitions:
         default: United States
     required:
       - street_address_1
+      - state
       - city
       - postal_code
   IndexBlackoutsPayload:
@@ -530,6 +531,31 @@ definitions:
       MARINES: Marines
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
+  DutyStation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        format: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - created_at
+      - updated_at
   ServiceMember:
     type: object
     properties:
@@ -601,6 +627,8 @@ definitions:
         title: Email
       backup_contacts:
         $ref: '#/definitions/IndexServiceMemberBackupContacts'
+      current_station:
+        $ref: '#/definitions/DutyStation'
   IndexServiceMemberBackupContacts:
     type: array
     items:
@@ -651,9 +679,9 @@ definitions:
     title: Backup Contact Permissions
     example: VIEW
     enum:
-    - NONE
-    - VIEW
-    - EDIT
+      - NONE
+      - VIEW
+      - EDIT
     x-display-value:
       NONE: Contact Only
       VIEW: View all move details
