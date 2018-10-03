@@ -8,34 +8,33 @@ import (
 	"time"
 )
 
-// ShowUnavailableMoveDatesHandler returns the unavailable move dates starting at a given date.
-type ShowUnavailableMoveDatesHandler struct {
+// ShowAvailableMoveDatesHandler returns the available move dates starting at a given date.
+type ShowAvailableMoveDatesHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle returns the unavailable move dates.
-func (h ShowUnavailableMoveDatesHandler) Handle(params calendarop.ShowUnavailableMoveDatesParams) middleware.Responder {
+// Handle returns the available move dates.
+func (h ShowAvailableMoveDatesHandler) Handle(params calendarop.ShowAvailableMoveDatesParams) middleware.Responder {
 	startDate := time.Time(params.StartDate)
 
 	var datesPayload []strfmt.Date
-	datesPayload = append(datesPayload, strfmt.Date(startDate)) // The start date is always unavailable.
-
 	const daysToCheck = 90
 	const shortFuseTotalDays = 5
 	daysChecked := 0
 	shortFuseDaysFound := 0
 
-	// TODO: Handle holidays.
-	firstPossibleDate := startDate.AddDate(0, 0, 1)
+	usCalendar := handlers.NewUSCalendar()
+	firstPossibleDate := startDate.AddDate(0, 0, 1) // We never include the start date.
 	for d := firstPossibleDate; daysChecked < daysToCheck; d = d.AddDate(0, 0, 1) {
-		if d.Weekday() == time.Saturday || d.Weekday() == time.Sunday {
-			datesPayload = append(datesPayload, strfmt.Date(d))
-		} else if shortFuseDaysFound < shortFuseTotalDays {
-			datesPayload = append(datesPayload, strfmt.Date(d))
-			shortFuseDaysFound++
+		if usCalendar.IsWorkday(d) {
+			if shortFuseDaysFound < shortFuseTotalDays {
+				shortFuseDaysFound++
+			} else {
+				datesPayload = append(datesPayload, strfmt.Date(d))
+			}
 		}
 		daysChecked++
 	}
 
-	return calendarop.NewShowUnavailableMoveDatesOK().WithPayload(datesPayload)
+	return calendarop.NewShowAvailableMoveDatesOK().WithPayload(datesPayload)
 }

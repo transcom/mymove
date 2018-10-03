@@ -5,6 +5,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import './shared.css';
 
 export const swaggerDateFormat = 'YYYY-MM-DD';
 export const defaultDateFormat = 'M/D/YYYY';
@@ -88,6 +89,9 @@ export function renderStatusIcon(status) {
   }
   if (status === 'OK') {
     return <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />;
+  }
+  if (status === 'APPROVED' || status === 'INVOICED') {
+    return <FontAwesomeIcon className="icon approved" icon={faCheck} />;
   }
   if (status === 'HAS_ISSUE') {
     return (
