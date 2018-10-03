@@ -24,6 +24,11 @@ export function fillAndSavePremoveSurvey() {
     .type('8/5/2018')
     .blur();
   cy
+    .get('input[name="survey.pm_survey_conducted_date"]')
+    .first()
+    .type('7/20/2018')
+    .blur();
+  cy
     .get('input[name="survey.pm_survey_weight_estimate"]')
     .first()
     .type('6000')
