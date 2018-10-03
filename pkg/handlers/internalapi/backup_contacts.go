@@ -18,7 +18,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 		Name:       &contact.Name,
 		Email:      &contact.Email,
 		Telephone:  contact.Phone,
-		Permission: contact.Permission,
+		Permission: internalmessages.BackupContactPermission(contact.Permission),
 	}
 	return contactPayload
 }
@@ -43,7 +43,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 		*params.CreateBackupContactPayload.Name,
 		*params.CreateBackupContactPayload.Email,
 		params.CreateBackupContactPayload.Telephone,
-		params.CreateBackupContactPayload.Permission)
+		models.BackupContactPermission(params.CreateBackupContactPayload.Permission))
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
@@ -118,7 +118,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
 	contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
 	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
-	contact.Permission = params.UpdateServiceMemberBackupContactPayload.Permission
+	contact.Permission = models.BackupContactPermission(params.UpdateServiceMemberBackupContactPayload.Permission)
 
 	if verrs, err := h.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

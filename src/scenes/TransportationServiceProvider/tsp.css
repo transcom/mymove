@@ -138,8 +138,27 @@
 .extras.content {
   margin-top: 2rem;
   font-family: sans-serif;
+  font-size: 0.8em;
 }
 
 .extras.options {
   margin-top: 1rem;
+}
+
+.customer-info {
+  border: 3px solid #f1f1f1;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.documents {
+  border: 1px solid black;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.documents-list-header {
+  margin-top: 0;
+  font-size: '2rem';
+  font-family: 'sans-serif';
 }

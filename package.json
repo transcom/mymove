@@ -67,7 +67,7 @@
     "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
     "prettier": "prettier --loglevel warn 'src/**/*.{js,jsx}'",
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md",
-    "lint": "eslint src/"
+    "lint": "eslint --ext .js --ext .jsx src"
   },
   "proxy": {
     "/api": {

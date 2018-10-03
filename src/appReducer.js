@@ -35,28 +35,26 @@ const defaultReducers = {
   entities: entitiesReducer,
 };
 
-export const appReducer = combineReducers(
-  Object.assign({}, defaultReducers, {
-    submittedIssues: issuesReducer,
-    moves: moveReducer,
-    ppm: ppmReducer,
-    serviceMember: serviceMemberReducer,
-    orders: ordersReducer,
-    shipments: shipmentsReducer,
-    feedback: feedbackReducer,
-    signedCertification: signedCertificationReducer,
-    upload: documentReducer,
-    review: reviewReducer,
-    office: officeReducer,
-    transportationOffices: transportationOfficeReducer,
-    ppmIncentive: officePpmReducer,
-  }),
-);
+export const appReducer = combineReducers({
+  ...defaultReducers,
+  submittedIssues: issuesReducer,
+  moves: moveReducer,
+  ppm: ppmReducer,
+  serviceMember: serviceMemberReducer,
+  orders: ordersReducer,
+  shipments: shipmentsReducer,
+  feedback: feedbackReducer,
+  signedCertification: signedCertificationReducer,
+  upload: documentReducer,
+  review: reviewReducer,
+  office: officeReducer,
+  transportationOffices: transportationOfficeReducer,
+  ppmIncentive: officePpmReducer,
+});
 
-export const tspAppReducer = combineReducers(
-  Object.assign({}, defaultReducers, {
-    tsp: tspReducer,
-  }),
-);
+export const tspAppReducer = combineReducers({
+  ...defaultReducers,
+  tsp: tspReducer,
+});
 
 export default appReducer;

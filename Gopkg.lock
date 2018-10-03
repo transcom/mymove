@@ -772,6 +772,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:d6b12a14e66a2ab1ef788252f0d547ad6f641a2824bf54b1af5e4109b405ff39"
+  name = "github.com/rickar/cal"
+  packages = ["."]
+  pruneopts = ""
+  revision = "dbf7e8f9712c5536d29455e1461af2227eb20692"
+
+[[projects]]
+  branch = "master"
   digest = "1:98891c206223fa262569ea196faad59d2c169de675e74796030524eea327ed7d"
   name = "github.com/ryanuber/go-glob"
   packages = ["."]
@@ -1237,6 +1245,7 @@
     "github.com/markbates/goth/providers/openidConnect",
     "github.com/namsral/flag",
     "github.com/pkg/errors",
+    "github.com/rickar/cal",
     "github.com/securego/gosec/cmd/gosec",
     "github.com/segmentio/chamber",
     "github.com/spf13/afero",

@@ -12,10 +12,10 @@ consumes:
 produces:
   - application/json
 definitions:
-  IndexMoveDocumentPayload:
-      type: array
-      items:
-        $ref: '#/definitions/MoveDocumentPayload'
+  MoveDocuments:
+    type: array
+    items:
+      $ref: '#/definitions/MoveDocumentPayload'
   MoveDocumentPayload:
     type: object
     properties:
@@ -138,6 +138,130 @@ definitions:
       - bytes
       - created_at
       - updated_at
+  AccessorialLocation:
+    type: string
+    title: Location
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - NEITHER
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
+      NEITHER: Neither
+  AccessorialStatus:
+    type: string
+    title: Status
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - INVOICED
+    x-display-value:
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      INVOICED: Invoiced
+  Accessorials:
+    type: array
+    items:
+      $ref: '#/definitions/Accessorial'
+  Accessorial:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        title: Code
+        example: 105B
+      discount_type:
+        type: string
+        title: Discount
+        example: dHHG
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      item:
+        type: string
+        title: Item
+        example: Linehaul Transportation
+      uom_1:
+        type: string
+        title: 1st UOM
+        example: Days
+      uom_2:
+        type: string
+        title: 2nd UOM
+        example: Net Billing Weight
+      ref_code:
+        type: string
+        title: Reference Code
+        example: Point Schedule
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  ShipmentAccessorials:
+    type: array
+    items:
+      $ref: '#/definitions/ShipmentAccessorial'
+  ShipmentAccessorial:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accessorial:
+        $ref: '#/definitions/Accessorial'
+      quantity_1:
+        type: integer
+        title: Base Quantity
+        description: 1st Accessorial base quantity
+        minimum: 0
+        example: 10000
+      quantity_2:
+        type: integer
+        title: 2nd Quantity
+        description: 2nd Accessorial base quantity
+        minimum: 0
+        example: 10000
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      notes:
+        type: string
+        title: Notes
+        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+      status:
+        $ref: '#/definitions/AccessorialStatus'
+      submitted_date:
+        type: string
+        title: Submitted Date
+        format: date-time
+        example: 2018-10-21
+      approved_date:
+        type: string
+        title: Approved Date
+        format: date-time
+        example: 2018-10-21
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - shipment_id
+      - quantity_1
+      - location
+      - notes
   Address:
     type: object
     properties:
@@ -173,7 +297,7 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: "United States"
+        example: 'United States'
         default: United States
     required:
       - street_address_1
@@ -346,7 +470,7 @@ definitions:
         example: 2018-04-12T23:20:50.52Z
       description:
         type: string
-        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
+        example: 'During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face'
   CodeOfService:
     type: string
     description: Code for service provided by a TSP
@@ -408,10 +532,10 @@ definitions:
         $ref: '#/definitions/MoveStatus'
       locator:
         type: string
-        example: "12432"
+        example: '12432'
       cancel_reason:
         type: string
-        example: "Change of orders"
+        example: 'Change of orders'
         x-nullable: true
     required:
       - orders_id
@@ -464,6 +588,72 @@ definitions:
     x-display-value:
       ORIGIN: Origin
       DESTINATION: Destination
+  ServiceMemberRank:
+    type: string
+    x-nullable: true
+    title: Rank
+    enum:
+      - E_1
+      - E_2
+      - E_3
+      - E_4
+      - E_5
+      - E_6
+      - E_7
+      - E_8
+      - E_9
+      - O_1_W_1_ACADEMY_GRADUATE
+      - O_2_W_2
+      - O_3_W_3
+      - O_4_W_4
+      - O_5_W_5
+      - O_6
+      - O_7
+      - O_8
+      - O_9
+      - O_10
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET_MIDSHIPMAN
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      O_1_W_1_ACADEMY_GRADUATE: O-1/W-1/Service Academy Graduate
+      O_2_W_2: O-2/W-2
+      O_3_W_3: O-3/W-3
+      O_4_W_4: O-4/W-4
+      O_5_W_5: O-5/W-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET_MIDSHIPMAN: Service Academy Cadet/Midshipman
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    enum: &AFFILIATION
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marines
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
   ServiceMember:
     type: object
     properties:
@@ -489,6 +679,12 @@ definitions:
         pattern: '^[0-9]{10}$'
         x-nullable: true
         title: DoD ID number
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+        title: Branch
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
+        title: Rank
       suffix:
         type: string
         example: Jr.
@@ -527,6 +723,65 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
+      backup_contacts:
+        $ref: '#/definitions/IndexServiceMemberBackupContacts'
+  IndexServiceMemberBackupContacts:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceMemberBackupContact'
+  ServiceMemberBackupContact:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Susan Smith
+        x-nullable: true
+        title: Name
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      permission:
+        $ref: '#/definitions/BackupContactPermission'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - created_at
+      - updated_at
+      - name
+      - email
+      - permission
+  BackupContactPermission:
+    type: string
+    title: Backup Contact Permissions
+    example: VIEW
+    enum:
+    - NONE
+    - VIEW
+    - EDIT
+    x-display-value:
+      NONE: Contact Only
+      VIEW: View all move details
+      EDIT: View and edit all move details
   TrafficDistributionList:
     type: object
     properties:
@@ -535,13 +790,13 @@ definitions:
         example: US34
       destination_region:
         type: string
-        example: "5"
+        example: '5'
       code_of_service:
         type: string
         example: D
         enum:
           - D
-          - "2"
+          - '2'
     required:
       - source_rate_area
       - destination_region
@@ -592,7 +847,7 @@ definitions:
       book_date:
         type: string
         format: date
-        example: "2018-03-15"
+        example: '2018-03-15'
       requested_pickup_date:
         type: string
         format: date-time
@@ -670,20 +925,20 @@ definitions:
       pm_survey_planned_pack_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned pack date"
+        example: '2018-04-26'
+        title: 'Planned pack date'
         x-nullable: true
       pm_survey_planned_pickup_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned pickup date"
+        example: '2018-04-26'
+        title: 'Planned pickup date'
         x-nullable: true
       pm_survey_planned_delivery_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned delivery date"
+        example: '2018-04-26'
+        title: 'Planned delivery date'
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
@@ -933,7 +1188,7 @@ definitions:
       actual_pickup_date:
         type: string
         format: date
-        example: "2018-04-02"
+        example: '2018-04-02'
         title: Actual Pickup Date
         x-nullable: true
     required:
@@ -944,7 +1199,7 @@ definitions:
       actual_delivery_date:
         type: string
         format: date
-        example: "2018-04-02"
+        example: '2018-04-02'
         x-nullable: true
         title: Actual Delivery Date
     required:
@@ -980,6 +1235,24 @@ definitions:
         additionalProperties:
           type: string
 paths:
+  /accessorials:
+    get:
+      summary: Retrieve list of accessorials
+      description: Gets a list of all accessorials.
+      operationId: getAccessorials
+      tags:
+        - accessorials
+      responses:
+        200:
+          description: list of accessorials
+          schema:
+            $ref: '#/definitions/Accessorials'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of accessorials
+        500:
+          description: server error
   /blackouts:
     get:
       summary: retrieve a list of blacked out dates (for accessible TSPs)
@@ -1020,13 +1293,14 @@ paths:
           description: server error
     post:
       summary: Adds a new Blackout period to the list of blackouts
-      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
-       contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
-       result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
+      description:
+        This is used to create a new blackout. When posting to this URL the payload Blackout should not
+        contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
+        result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
 
-       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
-       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
-       originate in the given GBLOC.
+        At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
+        they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
+        originate in the given GBLOC.
       operationId: createBlackout
       tags:
         - blackouts
@@ -1066,7 +1340,7 @@ paths:
         200:
           description: the details of the requested blackout period
           schema:
-              $ref: '#/definitions/BlackoutPayload'
+            $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         401:
@@ -1098,7 +1372,7 @@ paths:
         200:
           description: the blackout was successfully updated
           schema:
-              $ref: '#/definitions/BlackoutPayload'
+            $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         401:
@@ -1152,7 +1426,7 @@ paths:
         200:
           description: returns list of move documents
           schema:
-            $ref: '#/definitions/IndexMoveDocumentPayload'
+            $ref: '#/definitions/MoveDocuments'
         400:
           description: invalid request
         401:
@@ -1754,6 +2028,152 @@ paths:
           description: failed to meet data requirements for GBL form to be built
         500:
           description: server error
+  /shipments/{shipmentId}/accessorials:
+    get:
+      summary: Retrieve shipment accessorials associated with a shipment
+      description: Gets a list of all shipment accessorials associated with a shipment.
+      operationId: getShipmentAccessorials
+      tags:
+        - accessorials
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: list of shipment accessorials associated with shipment
+          schema:
+            $ref: '#/definitions/ShipmentAccessorials'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of accessorials for this shipment
+        404:
+          description: Shipment UUID not found in system
+        500:
+          description: server error
+    post:
+      summary: Creates a new shipment accessorial item associated with a shipment
+      description: Creates a new shipment accessorial item associated with a shipment
+      operationId: createShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+      responses:
+        201:
+          description: successfully created shipment acessorial for shipment
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to add accessorials to this shipment
+        417:
+          description: failed to meet data requirements for accessorials
+        500:
+          description: server error
+  /shipments/accessorials/{shipment_accessorial_id}:
+    put:
+      summary: Updates a shipment accessorial item
+      description: Update a shipment accessorial with the given information
+      operationId: updateShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipment_accessorial_id
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment accessorial model
+        - in: body
+          name: updateShipmentAccessorial
+          required: true
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+      responses:
+        200:
+          description: updated instance of shipment accessorial
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment accessorial not found
+        500:
+          description: internal server error
+    delete:
+      summary: delete the associated shipment accessorial
+      operationId: deleteShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipment_accessorial_id
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the shipment accessorial
+      responses:
+        200:
+          description: the shipment accessorial was successfully deleted
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated accessorial
+        404:
+          description: no shipment accessorial found with that UUID
+        500:
+          description: server error
+  /shipments/accessorials/{shipment_accessorial_id}/approve:
+    put:
+      summary: Updates a shipment accessorial item to approve status
+      description: Update a shipment accessorial with approve status
+      operationId: approveShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipment_accessorial_id
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment accessorial model
+      responses:
+        200:
+          description: shipment accessorial approved
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment accessorial not found
+        500:
+          description: internal server error
   /shipments/{shipmentId}/reject:
     post:
       summary: Rejects an awarded shipment

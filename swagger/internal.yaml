@@ -548,7 +548,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
-  IndexMoveDocumentPayload:
+  MoveDocuments:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
@@ -2230,6 +2230,45 @@ definitions:
       - last_modified_date
       - last_modified_name
       - created_at
+  MoveDatesSummaryPayload:
+    type: object
+    properties:
+      pack:
+        type: array
+        items:
+          type: string
+          format: date
+          example: "2018-09-25"
+      pickup:
+        type: array
+        items:
+          type: string
+          format: date
+          example: "2018-09-25"
+      transit:
+        type: array
+        items:
+          type: string
+          format: date
+          example: "2018-09-25"
+      delivery:
+        type: array
+        items:
+          type: string
+          format: date
+          example: "2018-09-25"
+      report:
+        type: array
+        items:
+          type: string
+          format: date
+          example: "2018-09-25"
+    required:
+      - pack
+      - pickup
+      - transit
+      - delivery
+      - report
 paths:
   /estimates/ppm:
     get:
@@ -3150,7 +3189,7 @@ paths:
         200:
           description: returns list of move douments
           schema:
-            $ref: '#/definitions/IndexMoveDocumentPayload'
+            $ref: '#/definitions/MoveDocuments'
         400:
           description: invalid request
         401:
@@ -3352,6 +3391,39 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
+  /moves/{moveId}/move_dates_summary:
+    get:
+      summary: Returns projected move-related dates for a given move date
+      description: Returns projected move-related dates for a given move date
+      operationId: showMoveDatesSummary
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: query
+          name: move_date
+          type: string
+          format: date
+          required: true
+          description: The chosen move date
+      responses:
+        200:
+          description: List of projected move-related dates
+          schema:
+            $ref: '#/definitions/MoveDatesSummaryPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
     post:
       summary: Creates PPM attachments PDF
@@ -3979,5 +4051,36 @@ paths:
             $ref: '#/definitions/GexResponsePayload'
         400:
           description: invalid request
+        500:
+          description: internal server error
+  /calendar/available_move_dates:
+    get:
+      summary: Returns available dates for the move calendar
+      description: Returns available dates for the move calendar
+      operationId: showAvailableMoveDates
+      tags:
+        - calendar
+      parameters:
+        - in: query
+          name: start_date
+          type: string
+          format: date
+          required: true
+          description: Look for future available dates starting from (and including) this date
+      responses:
+        200:
+          description: List of available dates
+          schema:
+            type: array
+            items:
+              type: string
+              format: date
+              example: "2018-09-25"
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
         500:
           description: internal server error

@@ -16,6 +16,8 @@ import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
+import ScratchPad from 'shared/ScratchPad';
+import { isProduction } from 'shared/constants';
 
 import './office.css';
 
@@ -65,6 +67,9 @@ class OfficeWrapper extends Component {
                   path="/moves/:moveId/documents/:moveDocumentId?"
                   component={DocumentViewer}
                 />
+                {!isProduction && (
+                  <PrivateRoute path="/playground" component={ScratchPad} />
+                )}
               </Switch>
             </div>
           </main>
