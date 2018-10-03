@@ -17,15 +17,15 @@ import {
   getShipment,
 } from 'shared/Entities/modules/shipments';
 
-import './ShipmentForm.css';
+import './ShipmentWizard.css';
 
 const validateMoveDateForm = validateAdditionalFields([
   'requested_pickup_date',
 ]);
 
 const formName = 'move_date_form';
-const getRequestLabel = 'ShipmentForm.getShipment';
-const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+const getRequestLabel = 'MoveDate.getShipment';
+const createOrUpdateRequestLabel = 'MoveDate.createOrUpdateShipment';
 const MoveDateWizardForm = reduxifyWizardForm(formName, validateMoveDateForm);
 
 export class MoveDate extends Component {
@@ -100,7 +100,7 @@ export class MoveDate extends Component {
             </div>
           )}
         </Fragment>
-        <div className="shipment-form">
+        <div className="shipment-wizard">
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>

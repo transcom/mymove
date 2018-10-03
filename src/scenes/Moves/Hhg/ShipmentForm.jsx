@@ -17,7 +17,7 @@ import {
   getShipment,
 } from 'shared/Entities/modules/shipments';
 
-import './ShipmentForm.css';
+import './ShipmentWizard.css';
 
 const formName = 'shipment_form';
 const getRequestLabel = 'ShipmentForm.getShipment';
@@ -104,7 +104,7 @@ export class ShipmentForm extends Component {
             </div>
           )}
         </Fragment>
-        <div className="shipment-form">
+        <div className="shipment-wizard">
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
