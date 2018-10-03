@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import BasicPanel from 'shared/BasicPanel';
-import PreApprovalRequestForm, {
-  formName as PreApprovalRequestFormName,
-} from 'shared/PreApprovalRequestForm';
-import { submit, isValid, isSubmitting } from 'redux-form';
+import PreApprovalRequestForm from 'shared/PreApprovalRequestForm';
+import { submit } from 'redux-form';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -17,35 +15,35 @@ class ScratchPad extends Component {
         <div className="usa-width-one-whole">
           <BasicPanel title={'TEST TITLE'}>
             <PreApprovalRequestForm
+              accessorials={[
+                {
+                  id: 'sdlfkj',
+                  code: 'F9D',
+                  item: 'Long Haul',
+                },
+                {
+                  id: 'badfka',
+                  code: '19D',
+                  item: 'Crate',
+                },
+              ]}
               ref={form => (this.formReference = form)}
               onSubmit={this.onSubmit}
             />
-            <button
-              disabled={!this.props.formEnabled}
-              onClick={this.props.submitForm}
-            >
-              Submit
-            </button>
+            <button onClick={this.props.submitForm}>Submit</button>
           </BasicPanel>
         </div>
       </div>
     );
   }
 }
-function mapStateToProps(state) {
-  return {
-    formEnabled:
-      isValid(PreApprovalRequestFormName)(state) &&
-      !isSubmitting(PreApprovalRequestFormName)(state),
-  };
-}
 function mapDispatchToProps(dispatch) {
   // Bind an action, which submit the form by its name
   return bindActionCreators(
     {
-      submitForm: () => submit(PreApprovalRequestFormName),
+      submitForm: () => submit('preapproval_request_form'),
     },
     dispatch,
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ScratchPad);
+export default connect(null, mapDispatchToProps)(ScratchPad);

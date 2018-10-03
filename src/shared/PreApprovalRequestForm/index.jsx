@@ -3,8 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { reduxForm, Field, Form } from 'redux-form';
-import validator from 'shared/JsonSchemaForm/validator';
+import { reduxForm, Form } from 'redux-form';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -32,6 +31,7 @@ const Codes = accessorials => props => {
     </select>
   );
 };
+
 class PreApprovalRequestForm extends Component {
   render() {
     return (
@@ -79,18 +79,6 @@ PreApprovalRequestForm = reduxForm({
 
 function mapStateToProps(state, props) {
   return {
-    accessorials: [
-      {
-        id: 'sdlfkj',
-        code: 'F9D',
-        item: 'Long Haul',
-      },
-      {
-        id: 'badfka',
-        code: '19D',
-        item: 'Crate',
-      },
-    ],
     ship_accessorial_schema: get(
       state,
       'swagger.spec.definitions.ShipmentAccessorialPayload',
