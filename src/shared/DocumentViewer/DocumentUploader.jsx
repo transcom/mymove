@@ -184,9 +184,7 @@ export class DocumentUploader extends Component {
   }
 }
 
-DocumentUploader = reduxForm({
-  form: moveDocumentFormName,
-})(DocumentUploader);
+DocumentUploader = reduxForm()(DocumentUploader);
 
 DocumentUploader.propTypes = {
   moveId: PropTypes.string.isRequired,
@@ -195,20 +193,7 @@ DocumentUploader.propTypes = {
 };
 
 function mapStateToProps(state, props) {
-  const docTypes = get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
-    [],
-  );
-
-  let initialValues = {};
-  // Verify the provided doc type against the schema
-  if (includes(docTypes, props.moveDocumentType)) {
-    initialValues.move_document_type = props.moveDocumentType;
-  }
-
   const newProps = {
-    initialValues: initialValues,
     formValues: getFormValues(moveDocumentFormName)(state),
     genericMoveDocSchema: get(
       state,

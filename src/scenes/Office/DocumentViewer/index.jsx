@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { includes, get, map } from 'lodash';
 import qs from 'query-string';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -37,6 +37,20 @@ class DocumentViewer extends Component {
   componentWillUpdate() {
     document.title = 'Document Viewer';
   }
+
+  get getDocumentUploaderProps() {
+    const { docTypes, location } = this.props;
+    // Parse query string parameters
+    const moveDocumentType = qs.parse(location.search).moveDocumentType;
+
+    const initialValues = {};
+    // Verify the provided doc type against the schema
+    if (includes(docTypes, moveDocumentType)) {
+      initialValues.move_document_type = moveDocumentType;
+    }
+
+    return { initialValues };
+  }
   render() {
     const { serviceMember, move, moveDocuments } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
@@ -50,9 +64,6 @@ class DocumentViewer extends Component {
     const defaultPath = `/moves/:moveId/documents`;
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
-
-    // Parse query string parameters
-    const queryValues = qs.parse(this.props.location.search);
 
     const defaultTabIndex =
       this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
@@ -88,8 +99,9 @@ class DocumentViewer extends Component {
                   return (
                     <DocumentUploader
                       moveId={move.id}
-                      moveDocumentType={queryValues.move_document_type}
+                      form="move_document_upload"
                       location={this.props.location}
+                      {...this.getDocumentUploaderProps}
                     />
                   );
                 }}
@@ -164,7 +176,8 @@ DocumentViewer.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
+  docTypes: get(state, 'swagger.spec.definitions.MoveDocumentType.enum', []),
+  swaggerError: state.swagger.hasErrored,
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
   moveDocuments: selectAllDocumentsForMove(
