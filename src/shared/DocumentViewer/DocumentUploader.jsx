@@ -11,7 +11,7 @@ import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
-import ExpenseDocumentForm from './ExpenseDocumentForm';
+import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 import { convertDollarsToCents } from 'shared/utils';
 
 import './DocumentUploader.css';
