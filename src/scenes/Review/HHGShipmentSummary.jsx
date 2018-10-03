@@ -1,58 +1,77 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
-import ppmBlack from 'shared/icon/ppm-black.svg';
-import { formatCentsRange, formatCents } from 'shared/formatters';
+import truckIcon from 'shared/icon/truck-black.svg';
 import { formatDateSM } from 'shared/formatters';
 
+import Address from './Address';
 import './Review.css';
 
 export default function HHGShipmentSummary(props) {
   const { movePath, shipment } = props;
 
-  const editDateAndLocationAddress = movePath + '/edit-date-and-location';
-  const editWeightAddress = movePath + '/edit-weight';
+  const editDatePath = movePath + '/edit-hhg-date';
+  const editWeightsPath = movePath + '/edit-hhg-weights';
+  const editLocationsPath = movePath + '/edit-hhg-locations';
 
   return (
     <div className="usa-grid-full ppm-container">
       <h3>
-        <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff
-        (PPM)
+        <img src={truckIcon} alt="PPM shipment" /> Shipment - Government moves
+        all of your stuff (HHG)
       </h3>
       <div className="usa-width-one-half review-section ppm-review-section">
         <table>
           <tbody>
             <tr>
               <th>
-                Dates &amp; Locations
+                Move Dates
                 <span className="align-right">
-                  <Link to={editDateAndLocationAddress}>Edit</Link>
+                  <Link to={editDatePath}>Edit</Link>
                 </span>
               </th>
             </tr>
             <tr>
-              <td> Move Date: </td>
-              {/* <td>{formatDateSM(get(ppm, 'planned_move_date'))}</td> */}
+              <td>Movers Packing: </td>
+              <td className="Todo-phase2">TODO</td>
             </tr>
             <tr>
-              <td> Pickup ZIP Code: </td>
-              {/* <td> {ppm.pickup_postal_code}</td> */}
-            </tr>
-            {/* {ppm.has_additional_postal_code && (
-              <tr>
-                <td> Additional Pickup: </td>
-                <td> {ppm.additional_pickup_postal_code}</td>
-              </tr>
-            )} */}
-            <tr>
-              <td> Delivery ZIP Code: </td>
-              {/* <td> {ppm.destination_postal_code}</td> */}
+              <td>Loading Truck: </td>
+              <td className="Todo-phase2">TODO</td>
             </tr>
             <tr>
-              <td> Storage: </td>
-              {/* <td>{sitDisplay}</td> */}
+              <td>Move in Transit:</td>
+              <td className="Todo-phase2">TODO</td>
+            </tr>
+            <tr>
+              <td>Delivery:</td>
+              <td className="Todo-phase2">TODO</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          Move dates are subject to change. Your mover will confirm final dates
+          after your pre-move survey.
+        </p>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                Your Stuff
+                <span className="align-right">
+                  <Link to={editWeightsPath}>Edit</Link>
+                </span>
+              </th>
+            </tr>
+            <tr>
+              <td>Weight Estimate:</td>
+              <td className="Todo-phase2">
+                TODO<br />
+                Great! You appear within your weight allowance.
+              </td>
             </tr>
           </tbody>
         </table>
@@ -62,15 +81,17 @@ export default function HHGShipmentSummary(props) {
           <tbody>
             <tr>
               <th>
-                Weight
+                Pickup &amp; Delivery Locations
                 <span className="align-right">
-                  <Link to={editWeightAddress}>Edit</Link>
+                  <Link to={editLocationsPath}>Edit</Link>
                 </span>
               </th>
             </tr>
             <tr>
-              <td> Estimated Weight: </td>
-              {/* <td> {ppm.weight_estimate.toLocaleString()} lbs</td> */}
+              <td>Pickup Address:</td>
+              <td>
+                <Address address={shipment.pickup_address} />
+              </td>
             </tr>
             <tr>
               <td> Estimated PPM Incentive: </td>
@@ -84,6 +105,6 @@ export default function HHGShipmentSummary(props) {
 }
 
 HHGShipmentSummary.propTypes = {
-  shipment: PropTypes.object.required,
-  movePath: PropTypes.string.required,
+  shipment: PropTypes.object.isRequired,
+  movePath: PropTypes.string.isRequired,
 };
