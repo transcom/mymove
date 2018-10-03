@@ -181,9 +181,9 @@ definitions:
         example: dHHG
       location:
         $ref: '#/definitions/AccessorialLocation'
-      description:
+      item:
         type: string
-        title: Description
+        title: Item
         example: Linehaul Transportation
       uom_1:
         type: string
@@ -218,10 +218,8 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      accessorial_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accessorial:
+        $ref: '#/definitions/Accessorial'
       quantity_1:
         type: integer
         title: Base Quantity
@@ -261,7 +259,6 @@ definitions:
     required:
       - id
       - shipment_id
-      - accessorial_id
       - quantity_1
       - location
       - notes
