@@ -47,7 +47,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	}
 
 	ordersNumber := "ORDER" + strconv.Itoa(rand.Intn(100))
-	TAC := "tac-placeholder"
+	TAC := "F8E1"
 
 	order := models.Order{
 		ServiceMember:    sm,

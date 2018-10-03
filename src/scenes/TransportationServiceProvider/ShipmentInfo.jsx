@@ -15,6 +15,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
+  getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -110,7 +111,6 @@ let DeliveryDateForm = props => {
 
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
-const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
 class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
