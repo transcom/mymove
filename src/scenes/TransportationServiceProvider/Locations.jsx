@@ -7,25 +7,25 @@ import { AddressElementDisplay } from 'shared/Address';
 
 const LocationsDisplay = ({ shipment }) => {
   const {
-    delivery_address,
-    pickup_address,
-    has_delivery_address,
-    has_secondary_pickup_address,
-    secondary_pickup_address,
-    service_member,
+    delivery_address: deliveryAddress,
+    pickup_address: pickupAddress,
+    has_delivery_address: hasDeliverAddress,
+    has_secondary_pickup_address: hasSecondaryPickupAddress,
+    secondary_pickup_address: secondaryPickupAddress,
+    service_member: serviceMember,
   } = shipment;
-  const { city, state, postal_code } = service_member.current_station.address;
+  const { city, state, postal_code } = serviceMember.current_station.address;
   // if they do not have a delivery address, default to the station's address info
-  const address = has_delivery_address
-    ? delivery_address
+  const address = hasDeliverAddress
+    ? deliveryAddress
     : { city, state, postal_code };
   return (
     <div className="editable-panel-column">
       <span className="column-subhead">Pickup</span>
-      <AddressElementDisplay address={pickup_address} title="Primary" />
-      {has_secondary_pickup_address && (
+      <AddressElementDisplay address={pickupAddress} title="Primary" />
+      {hasSecondaryPickupAddress && (
         <AddressElementDisplay
-          address={secondary_pickup_address}
+          address={secondaryPickupAddress}
           title="Secondary"
         />
       )}
