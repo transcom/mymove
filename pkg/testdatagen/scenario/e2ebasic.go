@@ -952,7 +952,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	})
 
 	hhg14 := offer14.Shipment
-	dbfmt.Println(hhg14)
 	hhg14.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg14.Move)
 }
