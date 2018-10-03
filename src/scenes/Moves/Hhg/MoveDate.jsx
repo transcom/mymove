@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { getFormValues, Field } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
-import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
+import { getLastError } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
