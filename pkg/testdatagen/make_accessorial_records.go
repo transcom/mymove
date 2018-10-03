@@ -15,7 +15,7 @@ func MakeDummyAccessorial(db *pop.Connection) models.Accessorial {
 		Code:             "105B",
 		Item:             "Pack Reg Crate",
 		DiscountType:     models.AccessorialDiscountTypeNONE,
-		AllowedLocation:  models.AccessorialAllowedLocationBOTH,
+		AllowedLocation:  models.AccessorialAllowedLocationEITHER,
 		MeasurementUnit1: models.AccessorialMeasurementUnitEACH,
 		MeasurementUnit2: models.AccessorialMeasurementUnitNONE,
 		RateRefCode:      models.AccessorialRateRefCodeNONE,

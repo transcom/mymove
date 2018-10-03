@@ -27,8 +27,8 @@ const (
 	AccessorialAllowedLocationDESTINATION AccessorialAllowedLocation = "DESTINATION"
 	// AccessorialAllowedLocationNEITHER captures enum value "NEITHER"
 	AccessorialAllowedLocationNEITHER AccessorialAllowedLocation = "NEITHER"
-	// AccessorialAllowedLocationBOTH captures enum value "BOTH"
-	AccessorialAllowedLocationBOTH AccessorialAllowedLocation = "BOTH"
+	// AccessorialAllowedLocationEITHER captures enum value "EITHER"
+	AccessorialAllowedLocationEITHER AccessorialAllowedLocation = "EITHER"
 
 	// AccessorialDiscountTypeHHG captures enum value "HHG"
 	AccessorialDiscountTypeHHG AccessorialDiscountType = "HHG"
