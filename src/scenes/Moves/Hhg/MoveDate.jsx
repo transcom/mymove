@@ -111,7 +111,6 @@ export class MoveDate extends Component {
   }
 }
 MoveDate.propTypes = {
-  schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
 };
@@ -125,7 +124,6 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const shipment = currentShipment(state);
   const props = {
-    schema: getSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
