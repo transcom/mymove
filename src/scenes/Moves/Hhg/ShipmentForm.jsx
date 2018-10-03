@@ -73,14 +73,8 @@ export class ShipmentForm extends Component {
       });
   };
 
-  setDate = day => {
-    this.setState({ requestedPickupDate: day });
-  };
-
   render() {
     const { pages, pageKey, error, initialValues } = this.props;
-
-    const requestedPickupDate = get(this.state, 'requestedPickupDate');
 
     // Shipment Wizard
     return (
@@ -91,7 +85,6 @@ export class ShipmentForm extends Component {
         pageKey={pageKey}
         serverError={error}
         initialValues={initialValues}
-        additionalValues={{ requested_pickup_date: requestedPickupDate }}
       >
         <Fragment>
           {this.props.error && (
