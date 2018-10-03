@@ -1,5 +1,6 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
+import { PanelField } from 'shared/EditablePanel';
 import { AddressElementDisplay } from '.';
 
 describe('Address component test', () => {
@@ -10,12 +11,14 @@ describe('Address component test', () => {
       state: 'NY',
       postal_code: '11217',
     };
-    const wrapper = mount(
+    const wrapper = shallow(
       <AddressElementDisplay address={address} title="Primary" />,
-    );
+    )
+      .find(PanelField)
+      .dive();
     const fields = wrapper.find('.field-value').props().children;
     it("should render the address' label", () => {
-      const Label = wrapper.find('.field-title').props().children;
+      const Label = wrapper.find('.field-title').text();
       expect(Label).toBe('Primary');
     });
     it('should render the address itself', () => {
@@ -62,9 +65,11 @@ describe('Address component test', () => {
         postal_code: '11217',
       };
 
-      const wrapper = mount(
+      const wrapper = shallow(
         <AddressElementDisplay address={address} title="primary" />,
-      );
+      )
+        .find(PanelField)
+        .dive();
       const [, address_2, address_3] = wrapper
         .find('.field-value')
         .props().children;
@@ -81,15 +86,25 @@ describe('Address component test', () => {
         state: 'NY',
         postal_code: '11217',
       };
-      const wrapper = mount(
+      const wrapper = shallow(
         <AddressElementDisplay address={address} title="primary" />,
-      );
+      )
+        .find(PanelField)
+        .dive();
 
-      const [, address_2, address_3] = wrapper
+      const address_2 = wrapper
         .find('.field-value')
-        .props().children;
-      expect(address_2.props.children[0]).toBe(address.street_address_2);
-      expect(address_3.props.children[0]).toBe(address.street_address_3);
+        .children()
+        .at(1)
+        .props().children[0];
+      const address_3 = wrapper
+        .find('.field-value')
+        .children()
+        .at(2)
+        .props().children[0];
+
+      expect(address_2).toBe(address.street_address_2);
+      expect(address_3).toBe(address.street_address_3);
     });
   });
   describe('when address component is provided only city, state, postal_code', () => {
@@ -98,9 +113,11 @@ describe('Address component test', () => {
       state: 'NY',
       postal_code: '11217',
     };
-    const wrapper = mount(
+    const wrapper = shallow(
       <AddressElementDisplay address={address} title="Primary" />,
-    );
+    )
+      .find(PanelField)
+      .dive();
     const fields = wrapper.find('.field-value').props().children;
     it('should not render street address if not provided', () => {
       expect(fields[0]).toBeFalsy();

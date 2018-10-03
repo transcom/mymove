@@ -74,10 +74,18 @@ describe('Locations component test', () => {
       },
     };
     const wrapper = shallow(<LocationsDisplay shipment={shipment} />);
+    const AddressElement = wrapper.find(AddressElementDisplay);
 
-    it('should render 2 AddressElementDisplays', () => {
-      const AddressElement = wrapper.find(AddressElementDisplay);
+    it('should still render 2 AddressElementDisplays', () => {
       expect(AddressElement.length).toBe(2);
+    });
+    it('should only show city state and zip if it defaults to duty station', () => {
+      const DutyStationAddressElement = AddressElement.getElements()[1];
+      expect(DutyStationAddressElement.props.address).toEqual({
+        city: 'San Diego',
+        state: 'CA',
+        postal_code: '92104',
+      });
     });
   });
 });
