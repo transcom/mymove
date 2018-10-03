@@ -3,7 +3,11 @@ package models
 import (
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/unit"
+	"math"
 )
+
+// PoundsPackedPerDay represents the number of pounds that can be packed in a single day.
+const PoundsPackedPerDay = 5000
 
 type domesticTransitTime struct {
 	Sequence    int
@@ -166,4 +170,9 @@ func TransitDays(weight unit.Pound, miles int) (int, error) {
 		}
 	}
 	return 0, errors.Errorf("Could not find transit time for %d lbs and %d miles", pounds, miles)
+}
+
+// PackDays returns the number of days it will take to pack the given weight.
+func PackDays(weight unit.Pound) int {
+	return int(math.Ceil(float64(weight) / float64(PoundsPackedPerDay)))
 }
