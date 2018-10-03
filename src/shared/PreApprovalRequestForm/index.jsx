@@ -8,19 +8,41 @@ import validator from 'shared/JsonSchemaForm/validator';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
+const Codes = accessorials => props => {
+  let value, onChange;
+  if (props.input) {
+    value = props.input.value;
+    onChange = props.input.onChange;
+  } else {
+    value = props.value;
+    onChange = props.onChange;
+  }
+
+  const localOnChange = event => {
+    onChange(event.target.value);
+  };
+  return (
+    <select onChange={localOnChange} value={value}>
+      <option />
+      {accessorials.map(e => (
+        <option key={e.id} value={e.id}>
+          {e.code} {e.item}
+        </option>
+      ))}
+    </select>
+  );
+};
 class PreApprovalRequestForm extends Component {
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="rounded">
-          <Field component="select" name="code" validate={validator.isRequired}>
-            <option />
-            {this.props.accessorials.map(e => (
-              <option key={e.id} value={e.id}>
-                {e.code} {e.item}
-              </option>
-            ))}
-          </Field>
+          <SwaggerField
+            fieldName="accessorial_id"
+            component={Codes(this.props.accessorials)}
+            swagger={this.props.ship_accessorial_schema}
+            required
+          />
           <SwaggerField
             fieldName="location"
             swagger={this.props.ship_accessorial_schema}
@@ -57,15 +79,16 @@ PreApprovalRequestForm = reduxForm({
 
 function mapStateToProps(state, props) {
   return {
-    // reduxForm
-    initialValues: {
-      location: 'ORIGIN',
-    },
     accessorials: [
       {
         id: 'sdlfkj',
         code: 'F9D',
         item: 'Long Haul',
+      },
+      {
+        id: 'badfka',
+        code: '19D',
+        item: 'Crate',
       },
     ],
     ship_accessorial_schema: get(
