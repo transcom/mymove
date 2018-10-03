@@ -7,6 +7,8 @@ import { reduxForm, Form } from 'redux-form';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
+import './index.css';
+
 const Codes = accessorials => props => {
   let value, onChange;
   if (props.input) {
@@ -36,27 +38,36 @@ class PreApprovalRequestForm extends Component {
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
-        <div className="rounded">
-          <SwaggerField
-            fieldName="accessorial_id"
-            component={Codes(this.props.accessorials)}
-            swagger={this.props.ship_accessorial_schema}
-            required
-          />
-          <SwaggerField
-            fieldName="location"
-            swagger={this.props.ship_accessorial_schema}
-            required
-          />
-          <SwaggerField
-            fieldName="quantity_1"
-            swagger={this.props.ship_accessorial_schema}
-            required
-          />
-          <SwaggerField
-            fieldName="notes"
-            swagger={this.props.ship_accessorial_schema}
-          />
+        <div className="usa-grid">
+          <div className="usa-width-one-half">
+            <SwaggerField
+              fieldName="accessorial"
+              title="Code & Item"
+              className="three-quarter-width rounded"
+              component={Codes(this.props.accessorials)}
+              swagger={this.props.ship_accessorial_schema}
+              required
+            />
+            <SwaggerField
+              fieldName="location"
+              className="one-third-width rounded"
+              swagger={this.props.ship_accessorial_schema}
+              required
+            />
+            <SwaggerField
+              fieldName="quantity_1"
+              className="half-width"
+              swagger={this.props.ship_accessorial_schema}
+              required
+            />
+          </div>
+          <div className="usa-width-one-half">
+            <SwaggerField
+              fieldName="notes"
+              className="three-quarter-width"
+              swagger={this.props.ship_accessorial_schema}
+            />
+          </div>
         </div>
       </Form>
     );
@@ -81,7 +92,7 @@ function mapStateToProps(state, props) {
   return {
     ship_accessorial_schema: get(
       state,
-      'swagger.spec.definitions.ShipmentAccessorialPayload',
+      'swagger.spec.definitions.ShipmentAccessorial',
       {},
     ),
   };

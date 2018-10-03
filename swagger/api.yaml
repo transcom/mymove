@@ -236,6 +236,7 @@ definitions:
         $ref: '#/definitions/AccessorialLocation'
       notes:
         type: string
+        format: textarea
         title: Notes
         example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       status:
