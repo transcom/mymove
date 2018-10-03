@@ -84,6 +84,24 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
 	if session.IsMyApp() && serviceMember.ID != session.ServiceMemberID {
 		return ServiceMember{}, ErrFetchForbidden
+	} else if session.IsTspApp() {
+		// A TspUser is only allowed to interact with a service member if they are associated with one of their shipments.
+		query := `
+			SELECT tsp_users.id FROM tsp_users, shipment_offers, shipments
+			WHERE
+				tsp_users.transportation_service_provider_id = shipment_offers.transportation_service_provider_id
+				AND shipment_offers.shipment_id = shipments.id
+				AND tsp_users.id = $1
+				AND shipments.service_member_id = $2
+		` // TODO: Make sure the shipment is accepted.
+
+		count, err := db.RawQuery(query, session.TspUserID, serviceMember.ID).Count(TspUser{})
+		if err != nil {
+			return ServiceMember{}, err
+		}
+		if count == 0 {
+			return ServiceMember{}, ErrFetchForbidden
+		}
 	}
 
 	// TODO: Remove this when Pop's eager loader stops populating blank structs into these fields
