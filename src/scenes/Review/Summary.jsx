@@ -12,12 +12,14 @@ import { currentShipment } from 'shared/UI/ducks';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
 import { formatDateSM } from 'shared/formatters';
+
+import { checkEntitlement } from './ducks';
 import PPMShipmentSummary from './PPMShipmentSummary';
 import HHGShipmentSummary from './HHGShipmentSummary';
+import Address from './Address';
 
 import './Review.css';
 
@@ -48,19 +50,6 @@ export class Summary extends Component {
       return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${
         serviceMember.last_name
       } ${serviceMember.suffix || ''}`;
-    }
-    function getFullAddress(address) {
-      if (address) {
-        return (
-          <Fragment>
-            <div>{address.street_address_1}</div>
-            {address.street_address_2 && <div>{address.street_address_2}</div>}
-            <div>
-              {address.city}, {address.state} {address.postal_code}
-            </div>
-          </Fragment>
-        );
-      }
     }
     function getFullContactPreferences() {
       if (!serviceMember) return;
@@ -287,15 +276,17 @@ export class Summary extends Component {
                 <tr>
                   <td> Current Mailing Address: </td>
                   <td>
-                    {getFullAddress(get(serviceMember, 'residential_address'))}
+                    <Address
+                      address={get(serviceMember, 'residential_address')}
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td> Backup Mailing Address: </td>
                   <td>
-                    {getFullAddress(
-                      get(serviceMember, 'backup_mailing_address'),
-                    )}
+                    <Address
+                      address={get(serviceMember, 'backup_mailing_address')}
+                    />
                   </td>
                 </tr>
               </tbody>
