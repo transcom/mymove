@@ -5,13 +5,12 @@ import { formatPayload } from 'shared/utils';
 // This function will be an API call one day. For now loads a sample.
 export async function GetCertificationText(hasSIT, hasAdvance, moveType) {
   let txt;
-  switch (moveType) {
-    case 'PPM':
-      txt = [legalese.ppmStandardLiability];
-      break;
-    case 'HHG':
-      txt = [legalese.hhgStandardLiability];
+  if (moveType === 'PPM') {
+    txt = [legalese.ppmStandardLiability];
+  } else if (moveType === 'HHG') {
+    txt = [legalese.hhgStandardLiability];
   }
+
   if (hasSIT) txt.push(legalese.storageLiability);
   if (hasAdvance) txt.push(legalese.ppmAdvance);
   if (moveType === 'PPM') txt.push(legalese.additionalInformation);
