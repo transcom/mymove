@@ -12,3 +12,5 @@ export function getAllShipmentDocuments(label, shipmentId) {
 
 export const selectShipmentDocuments = state =>
   Object.values(state.entities.moveDocuments);
+
+export const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';

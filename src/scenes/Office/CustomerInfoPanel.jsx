@@ -1,4 +1,4 @@
-import { get, compact } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -15,6 +15,7 @@ import {
   SwaggerValue,
   editablePanelify,
 } from 'shared/EditablePanel';
+import { stringifyName } from 'shared/utils/serviceMember';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -27,7 +28,7 @@ const CustomerInfoDisplay = props => {
     values: props.serviceMember,
   };
   const values = props.serviceMember;
-  const name = compact([values.last_name, values.first_name]).join(', ');
+  const name = stringifyName(values);
   const address = get(values, 'residential_address', {});
 
   return (
