@@ -7,7 +7,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	uploadop "github.com/transcom/mymove/pkg/gen/publicapi/internaloperations/uploads"
+	internaluploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
+	uploadop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -44,7 +45,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
-	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
+	createdResponse, ok := response.(*internaluploadop.CreateUploadCreated)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadCreated, got %T", response)
 	}
@@ -122,10 +123,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	params.File = suite.Fixture("empty.pdf")
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
-	_, ok := response.(*uploadop.CreateUploadBadRequest)
-	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadBadRequest, got %T", response)
-	}
+	suite.CheckResponseBadRequest(response)
 
 	count, err := suite.TestDB().Count(&models.Upload{})
 
@@ -144,10 +142,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
-	_, ok := response.(*uploadop.CreateUploadInternalServerError)
-	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadInternalServerError, got %T", response)
-	}
+	suite.CheckResponseInternalServerError(response)
 
 	count, err := suite.TestDB().Count(&models.Upload{})
 
@@ -220,7 +215,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	handler := DeleteUploadsHandler{context}
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.DeleteUploadsNoContent)
+	_, ok := response.(*internaluploadop.DeleteUploadsNoContent)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}

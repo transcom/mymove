@@ -1,34 +1,13 @@
 package publicapi
 
 import (
-	"io"
-
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/apimessages"
+	internaluploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	uploadop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
-	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
+	"github.com/transcom/mymove/pkg/handlers/internalapi"
 )
-
-func payloadForUploadModel(upload models.Upload, url string) *apimessages.UploadPayload {
-	return &apimessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
-	}
-}
 
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
 type CreateUploadHandler struct {
@@ -38,65 +17,14 @@ type CreateUploadHandler struct {
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 
-	file, ok := params.File.(*runtime.File)
-	if !ok {
-		h.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
-		return uploadop.NewCreateUploadInternalServerError()
+	internalUploadParams := internaluploadop.CreateUploadParams{
+		HTTPRequest: params.HTTPRequest,
+		DocumentID:  params.DocumentID,
+		File:        params.File,
 	}
 
-	h.Logger().Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
-
-	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	var docID *uuid.UUID
-	if params.DocumentID != nil {
-		documentID, err := uuid.FromString(params.DocumentID.String())
-		if err != nil {
-			h.Logger().Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
-			return uploadop.NewCreateUploadBadRequest()
-		}
-
-		// Fetch document to ensure user has access to it
-		document, docErr := models.FetchDocument(h.DB(), session, documentID)
-		if docErr != nil {
-			return handlers.ResponseForError(h.Logger(), docErr)
-		}
-		docID = &document.ID
-	}
-
-	// Read the incoming data into a new afero.File for consumption
-	aFile, err := h.FileStorer().FileSystem().Create(file.Header.Filename)
-	if err != nil {
-		h.Logger().Error("Error opening afero file.", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	}
-
-	_, err = io.Copy(aFile, file.Data)
-	if err != nil {
-		h.Logger().Error("Error copying incoming data into afero file.", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	}
-
-	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, aFile)
-	if err != nil {
-		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
-			return uploadop.NewCreateUploadBadRequest()
-		}
-		h.Logger().Error("Failed to create upload", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	} else if verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-
-	url, err := uploader.PresignedURL(newUpload)
-	if err != nil {
-		h.Logger().Error("failed to get presigned url", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	}
-	uploadPayload := payloadForUploadModel(*newUpload, url)
-	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
+	internalHandler := internalapi.CreateUploadHandler{HandlerContext: h.HandlerContext}
+	return internalHandler.Handle(internalUploadParams)
 }
 
 // DeleteUploadHandler deletes an upload
@@ -106,20 +34,13 @@ type DeleteUploadHandler struct {
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	uploadID, _ := uuid.FromString(params.UploadID.String())
-	upload, err := models.FetchUpload(h.DB(), session, uploadID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+	internalDeleteParams := internaluploadop.DeleteUploadParams{
+		HTTPRequest: params.HTTPRequest,
+		UploadID:    params.UploadID,
 	}
 
-	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	if err = uploader.DeleteUpload(&upload); err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	return uploadop.NewDeleteUploadNoContent()
+	internalHandler := internalapi.DeleteUploadHandler{HandlerContext: h.HandlerContext}
+	return internalHandler.Handle(internalDeleteParams)
 }
 
 // DeleteUploadsHandler deletes a collection of uploads
@@ -129,21 +50,11 @@ type DeleteUploadsHandler struct {
 
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
-	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-
-	for _, uploadID := range params.UploadIds {
-		uuid, _ := uuid.FromString(uploadID.String())
-		upload, err := models.FetchUpload(h.DB(), session, uuid)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-
-		if err = uploader.DeleteUpload(&upload); err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
-		}
+	internalDeleteParams := internaluploadop.DeleteUploadsParams{
+		HTTPRequest: params.HTTPRequest,
+		UploadIds:   params.UploadIds,
 	}
 
-	return uploadop.NewDeleteUploadsNoContent()
+	internalHandler := internalapi.DeleteUploadsHandler{HandlerContext: h.HandlerContext}
+	return internalHandler.Handle(internalDeleteParams)
 }
