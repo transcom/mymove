@@ -3,11 +3,18 @@ import * as legalese from './legaleseText';
 import { formatPayload } from 'shared/utils';
 
 // This function will be an API call one day. For now loads a sample.
-export async function GetCertificationText(hasSIT, hasAdvance) {
-  const txt = [legalese.ppmStandardLiability];
+export async function GetCertificationText(hasSIT, hasAdvance, moveType) {
+  let txt;
+  switch (moveType) {
+    case 'PPM':
+      txt = [legalese.ppmStandardLiability];
+      break;
+    case 'HHG':
+      txt = [legalese.hhgStandardLiability];
+  }
   if (hasSIT) txt.push(legalese.storageLiability);
   if (hasAdvance) txt.push(legalese.ppmAdvance);
-  txt.push(legalese.additionalInformation);
+  if (moveType === 'PPM') txt.push(legalese.additionalInformation);
   return txt.join('');
 }
 
