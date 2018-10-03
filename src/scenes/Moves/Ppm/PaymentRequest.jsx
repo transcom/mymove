@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { get } from 'lodash';
 
-import DocumentUploader from 'scenes/Office/DocumentViewer/DocumentUploader';
+import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 
 import {
   selectAllDocumentsForMove,

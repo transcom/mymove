@@ -17,7 +17,7 @@ import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import DocumentDetailPanel from 'shared/DocumentViewer/DocumentDetailPanel';
 
-import DocumentUploader from './DocumentUploader';
+import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import {
   selectAllDocumentsForMove,
   getMoveDocumentsForMove,
