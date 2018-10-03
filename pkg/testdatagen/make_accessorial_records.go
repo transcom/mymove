@@ -13,7 +13,7 @@ import (
 func MakeDummyAccessorial(db *pop.Connection) models.Accessorial {
 	accessorial := models.Accessorial{
 		Code:             "105B",
-		Description:      "Pack Reg Crate",
+		Item:             "Pack Reg Crate",
 		DiscountType:     models.AccessorialDiscountTypeNONE,
 		AllowedLocation:  models.AccessorialAllowedLocationBOTH,
 		MeasurementUnit1: models.AccessorialMeasurementUnitEACH,

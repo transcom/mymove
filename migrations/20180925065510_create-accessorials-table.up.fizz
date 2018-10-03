@@ -3,7 +3,7 @@ create_table("accessorials") {
 	t.Column("code", "string", {})
 	t.Column("discount_type", "string", {})
 	t.Column("allowed_location", "string", {})
-	t.Column("description", "string", {})
+	t.Column("item", "string", {})
 	t.Column("measurement_unit_1", "string", {})
 	t.Column("measurement_unit_2", "string", {})
 	t.Column("rate_ref_code", "string", {})

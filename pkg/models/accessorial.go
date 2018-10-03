@@ -80,7 +80,7 @@ const (
 type Accessorial struct {
 	ID               uuid.UUID                  `json:"id" db:"id"`
 	Code             string                     `json:"code" db:"code"`
-	Description      string                     `json:"description" db:"description"`
+	Item             string                     `json:"item" db:"item"`
 	DiscountType     AccessorialDiscountType    `json:"discount_type" db:"discount_type"`
 	AllowedLocation  AccessorialAllowedLocation `json:"allowed_location" db:"allowed_location"`
 	MeasurementUnit1 AccessorialMeasurementUnit `json:"measurement_unit_1" db:"measurement_unit_1"`
