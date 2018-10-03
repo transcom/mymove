@@ -92,6 +92,10 @@ function tspUserPicksUpShipment() {
     .contains('Done')
     .click();
 
+  // Appears in dates panel
+  cy.get('div.actual_pickup_date').contains('11');
+
+  // New status
   cy.get('li').contains('In_transit');
 }
 
@@ -160,5 +164,9 @@ function tspUserDeliversShipment() {
     .contains('Done')
     .click();
 
+  // Appears in dates panel
+  cy.get('div.actual_delivery_date').contains('13');
+
+  // New status
   cy.get('li').contains('Delivered');
 }
