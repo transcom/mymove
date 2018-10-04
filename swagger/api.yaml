@@ -629,8 +629,6 @@ definitions:
         title: Email
       backup_contacts:
         $ref: '#/definitions/IndexServiceMemberBackupContacts'
-      current_station:
-        $ref: '#/definitions/DutyStation'
   IndexServiceMemberBackupContacts:
     type: array
     items:

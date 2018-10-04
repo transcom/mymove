@@ -6,8 +6,6 @@ import (
 )
 
 func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessages.ServiceMember {
-	var dutyStation *apimessages.DutyStation
-	dutyStation = payloadForDutyStationModel(serviceMember.DutyStation)
 	contactPayloads := make(apimessages.IndexServiceMemberBackupContacts, len(serviceMember.BackupContacts))
 	for i, contact := range serviceMember.BackupContacts {
 		contactPayload := payloadForBackupContactModel(contact)
@@ -29,7 +27,6 @@ func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessa
 		TextMessageIsPreferred: serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:       serviceMember.EmailIsPreferred,
 		BackupContacts:         contactPayloads,
-		CurrentStation:         dutyStation,
 	}
 
 	return &serviceMemberPayload
