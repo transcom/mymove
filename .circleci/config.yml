@@ -1,10 +1,64 @@
-version: 2
+version: "2.1"
+
+executors:
+  mymove:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+  mymove_and_postgres:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+      - image: postgres:10.1
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+
+commands:
+  announce_failure:
+    parameters:
+    steps:
+      - run:
+          name: Announce failure
+          command: |
+            [[ $CIRCLE_BRANCH = master ]] || exit 0
+            bin/circleci-announce-broken-branch
+          when: on_fail
+  deploy_migrations_steps:
+    steps:
+      - checkout
+      - run:
+          name: Snapshot database
+          command: bin/rds-snapshot-app-db $APP_ENVIRONMENT
+      - run:
+          name: Run database migrations
+          command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+      - announce_failure
+  deploy_app_steps:
+    steps:
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy app service
+          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+      - run:
+          name: Health check app site
+          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
+      - announce_failure
+  deploy_app_client_tls_steps:
+    steps:
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy app-client-tls service
+          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+      - announce_failure
+
+
 jobs:
 
   pre_deps_golang:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -24,17 +78,10 @@ jobs:
           key: mymove-vendor-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/vendor
-      - run: &announce_failure
-          name: Announce failure
-          command: |
-            [[ $CIRCLE_BRANCH = master ]] || exit 0
-            bin/circleci-announce-broken-branch
-          when: on_fail
+      - announce_failure
 
   pre_deps_yarn:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -47,12 +94,10 @@ jobs:
           key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
-      - run: *announce_failure
+      - announce_failure
 
   pre_test:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -84,24 +129,22 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
-      - run: *announce_failure
+      - announce_failure
 
   integration_tests:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
-      - image: postgres:10-alpine
-        environment:
-          - POSTGRES_PASSWORD: mysecretpassword
-          - POSTGRES_DB: test_db
+    executor: mymove_and_postgres
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
             - client-deps-cache-{{ checksum "yarn.lock" }}
 
       - run:
@@ -162,19 +205,13 @@ jobs:
           path: cypress/results
 
       - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - save_cache:
           key: client-deps-cache-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache
-      - run: *announce_failure
+      - announce_failure
 
   vuln_scan:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -201,16 +238,10 @@ jobs:
       - run:
           name: Scan Go dependencies for known vulnerabilities
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
-      - run: *announce_failure
+      - announce_failure
 
   build_app:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
-      - image: postgres:latest
-        environment:
-          - POSTGRES_PASSWORD: mysecretpassword
-          - POSTGRES_DB: test_db
+    executor: mymove_and_postgres
     steps:
       - checkout
       - setup_remote_docker:
@@ -258,11 +289,10 @@ jobs:
             docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
 
-      - run: *announce_failure
+      - announce_failure
 
   build_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - setup_remote_docker:
@@ -274,102 +304,76 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
-      - run: *announce_failure
+      - announce_failure
 
   deploy_experimental_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
-    steps: &deploy_migrations_steps
-      - checkout
-      - run:
-          name: Snapshot database
-          command: bin/rds-snapshot-app-db $APP_ENVIRONMENT
-      - run:
-          name: Run database migrations
-          command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
-      - run: *announce_failure
+    steps:
+      - deploy_migrations_steps
 
   deploy_experimental_app:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
       - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
-    steps: &deploy_app_steps
-      - checkout
-      - setup_remote_docker
-      - deploy:
-          name: Deploy app service
-          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
-      - run:
-          name: Health check app site
-          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
-      - run: *announce_failure
+    steps:
+      - deploy_app_steps
 
   deploy_experimental_app_client_tls:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
-    steps: &deploy_app_client_tls_steps
-      - checkout
-      - setup_remote_docker
-      - deploy:
-          name: Deploy app-client-tls service
-          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
-      - run: *announce_failure
+    steps:
+      - deploy_app_client_tls_steps
 
   deploy_staging_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
-    steps: *deploy_migrations_steps
+    steps:
+      - deploy_migrations_steps
 
   deploy_staging_app:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
       - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
-    steps: *deploy_app_steps
+    steps:
+      - deploy_app_steps
 
   deploy_staging_app_client_tls:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
-    steps: *deploy_app_client_tls_steps
+    steps:
+      - deploy_app_client_tls_steps
 
   deploy_prod_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
-    steps: *deploy_migrations_steps
+    steps:
+      - deploy_migrations_steps
 
   deploy_prod_app:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
       - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
-    steps: *deploy_app_steps
+    steps:
+      - deploy_app_steps
 
   deploy_prod_app_client_tls:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
-    steps: *deploy_app_client_tls_steps
-
+    steps:
+      - deploy_app_client_tls_steps
 
   update_dependencies:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -408,9 +412,14 @@ workflows:
             - pre_deps_yarn
 
       #- vuln_scan # keep disabled until we work out new process
-      - integration_tests
-      - build_app
-      - build_migrations
+      #  requires:
+      #    - pre_deps_golang
+      #    - pre_deps_yarn
+
+      - integration_tests:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
 
       - build_app:
           requires:
@@ -430,21 +439,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-intermediate-cert
+              only: executors
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-intermediate-cert
+              only: executors
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-intermediate-cert
+              only: executors
 
       - deploy_staging_migrations:
           requires:

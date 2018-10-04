@@ -1,0 +1,24 @@
+.icon {
+  margin: 0 0.3em 0 0.5em;
+}
+
+.approval-ready {
+  color: green;
+  cursor: pointer;
+}
+
+.approved {
+  color: green;
+}
+
+.approval-waiting {
+  color: #fdb81e;
+}
+
+.approval-blocked {
+  color: gray;
+}
+
+.approval-problem {
+  color: #e31c3d;
+}
