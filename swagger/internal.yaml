@@ -1594,6 +1594,7 @@ definitions:
         x-formatting: weight
       pm_survey_notes:
         type: string
+        format: textarea
         example: This document is good to go!
         x-nullable: true
         title: Notes about dates

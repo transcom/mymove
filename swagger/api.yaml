@@ -977,6 +977,7 @@ definitions:
       pm_survey_notes:
         type: string
         example: This document is good to go!
+        format: textarea
         x-nullable: true
         title: Notes about dates
       pm_survey_method:
