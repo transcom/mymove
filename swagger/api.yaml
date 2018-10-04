@@ -138,6 +138,130 @@ definitions:
       - bytes
       - created_at
       - updated_at
+  AccessorialLocation:
+    type: string
+    title: Location
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - NEITHER
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
+      NEITHER: Neither
+  AccessorialStatus:
+    type: string
+    title: Status
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - INVOICED
+    x-display-value:
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      INVOICED: Invoiced
+  Accessorials:
+    type: array
+    items:
+      $ref: '#/definitions/Accessorial'
+  Accessorial:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        title: Code
+        example: 105B
+      discount_type:
+        type: string
+        title: Discount
+        example: dHHG
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      item:
+        type: string
+        title: Item
+        example: Linehaul Transportation
+      uom_1:
+        type: string
+        title: 1st UOM
+        example: Days
+      uom_2:
+        type: string
+        title: 2nd UOM
+        example: Net Billing Weight
+      ref_code:
+        type: string
+        title: Reference Code
+        example: Point Schedule
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  ShipmentAccessorials:
+    type: array
+    items:
+      $ref: '#/definitions/ShipmentAccessorial'
+  ShipmentAccessorial:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accessorial:
+        $ref: '#/definitions/Accessorial'
+      quantity_1:
+        type: integer
+        title: Base Quantity
+        description: 1st Accessorial base quantity
+        minimum: 0
+        example: 10000
+      quantity_2:
+        type: integer
+        title: 2nd Quantity
+        description: 2nd Accessorial base quantity
+        minimum: 0
+        example: 10000
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      notes:
+        type: string
+        title: Notes
+        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+      status:
+        $ref: '#/definitions/AccessorialStatus'
+      submitted_date:
+        type: string
+        title: Submitted Date
+        format: date-time
+        example: 2018-10-21
+      approved_date:
+        type: string
+        title: Approved Date
+        format: date-time
+        example: 2018-10-21
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - shipment_id
+      - quantity_1
+      - location
+      - notes
   Address:
     type: object
     properties:
@@ -1132,6 +1256,24 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
 paths:
+  /accessorials:
+    get:
+      summary: Retrieve list of accessorials
+      description: Gets a list of all accessorials.
+      operationId: getAccessorials
+      tags:
+        - accessorials
+      responses:
+        200:
+          description: list of accessorials
+          schema:
+            $ref: '#/definitions/Accessorials'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of accessorials
+        500:
+          description: server error
   /blackouts:
     get:
       summary: retrieve a list of blacked out dates (for accessible TSPs)
@@ -1816,6 +1958,152 @@ paths:
           description: failed to meet data requirements for GBL form to be built
         500:
           description: server error
+  /shipments/{shipmentId}/accessorials:
+    get:
+      summary: Retrieve shipment accessorials associated with a shipment
+      description: Gets a list of all shipment accessorials associated with a shipment.
+      operationId: getShipmentAccessorials
+      tags:
+        - accessorials
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: list of shipment accessorials associated with shipment
+          schema:
+            $ref: '#/definitions/ShipmentAccessorials'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of accessorials for this shipment
+        404:
+          description: Shipment UUID not found in system
+        500:
+          description: server error
+    post:
+      summary: Creates a new shipment accessorial item associated with a shipment
+      description: Creates a new shipment accessorial item associated with a shipment
+      operationId: createShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+      responses:
+        201:
+          description: successfully created shipment acessorial for shipment
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to add accessorials to this shipment
+        417:
+          description: failed to meet data requirements for accessorials
+        500:
+          description: server error
+  /shipments/accessorials/{shipment_accessorial_id}:
+    put:
+      summary: Updates a shipment accessorial item
+      description: Update a shipment accessorial with the given information
+      operationId: updateShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipment_accessorial_id
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment accessorial model
+        - in: body
+          name: updateShipmentAccessorial
+          required: true
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+      responses:
+        200:
+          description: updated instance of shipment accessorial
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment accessorial not found
+        500:
+          description: internal server error
+    delete:
+      summary: delete the associated shipment accessorial
+      operationId: deleteShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipment_accessorial_id
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the shipment accessorial
+      responses:
+        200:
+          description: the shipment accessorial was successfully deleted
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated accessorial
+        404:
+          description: no shipment accessorial found with that UUID
+        500:
+          description: server error
+  /shipments/accessorials/{shipment_accessorial_id}/approve:
+    put:
+      summary: Updates a shipment accessorial item to approve status
+      description: Update a shipment accessorial with approve status
+      operationId: approveShipmentAccessorial
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipment_accessorial_id
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment accessorial model
+      responses:
+        200:
+          description: shipment accessorial approved
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment accessorial not found
+        500:
+          description: internal server error
   /shipments/{shipmentId}/reject:
     post:
       summary: Rejects an awarded shipment
