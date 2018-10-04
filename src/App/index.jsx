@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-
+import { isOfficeSite, isTspSite } from 'shared/constants.js';
 import { store, tspStore } from 'shared/store';
 import './index.css';
 
@@ -39,9 +39,6 @@ const tspContext = Object.assign({}, defaultTspContext, { flags });
 const officeContext = Object.assign({}, defaultOfficeContext, { flags });
 const myMoveContext = Object.assign({}, defaultMyMoveContext, { flags });
 
-const hostname = window && window.location && window.location.hostname;
-const isOfficeSite = hostname.startsWith('office');
-const isTspSite = hostname.startsWith('tsp');
 const App = () => {
   if (isOfficeSite)
     return (
