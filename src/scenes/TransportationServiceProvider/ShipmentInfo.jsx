@@ -148,11 +148,22 @@ class ShipmentInfo extends Component {
 
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
+
     const {
+      delivery_address: deliveryAddress,
+      has_delivery_address: hasDeliverAddress,
       service_member: serviceMember = {},
       move = {},
       gbl_number: gbl,
     } = shipment;
+    const { city, state, postal_code } = serviceMember.current_station
+      ? serviceMember.current_station.address
+      : {};
+
+    // if they do not have a delivery address, default to the station's address info
+    const address = hasDeliverAddress
+      ? deliveryAddress
+      : { city, state, postal_code };
 
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
@@ -243,6 +254,7 @@ class ShipmentInfo extends Component {
                   </div>
                   <div className="usa-width-one-half">
                     <Locations
+                      address={address}
                       title="Locations"
                       shipment={this.props.shipment}
                       update={this.props.patchShipment}

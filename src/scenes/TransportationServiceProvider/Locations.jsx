@@ -5,35 +5,27 @@ import { editablePanelify } from 'shared/EditablePanel';
 
 import { AddressElementDisplay } from 'shared/Address';
 
-const LocationsDisplay = ({ shipment }) => {
-  const {
-    delivery_address: deliveryAddress,
+const LocationsDisplay = ({
+  address,
+  shipment: {
     pickup_address: pickupAddress,
-    has_delivery_address: hasDeliverAddress,
     has_secondary_pickup_address: hasSecondaryPickupAddress,
     secondary_pickup_address: secondaryPickupAddress,
-    service_member: serviceMember,
-  } = shipment;
-  const { city, state, postal_code } = serviceMember.current_station.address;
-  // if they do not have a delivery address, default to the station's address info
-  const address = hasDeliverAddress
-    ? deliveryAddress
-    : { city, state, postal_code };
-  return (
-    <div className="editable-panel-column">
-      <span className="column-subhead">Pickup</span>
-      <AddressElementDisplay address={pickupAddress} title="Primary" />
-      {hasSecondaryPickupAddress && (
-        <AddressElementDisplay
-          address={secondaryPickupAddress}
-          title="Secondary"
-        />
-      )}
-      <span className="column-subhead">Delivery</span>
-      <AddressElementDisplay address={address} title="Primary" />
-    </div>
-  );
-};
+  },
+}) => (
+  <div className="editable-panel-column">
+    <span className="column-subhead">Pickup</span>
+    <AddressElementDisplay address={pickupAddress} title="Primary" />
+    {hasSecondaryPickupAddress && (
+      <AddressElementDisplay
+        address={secondaryPickupAddress}
+        title="Secondary"
+      />
+    )}
+    <span className="column-subhead">Delivery</span>
+    <AddressElementDisplay address={address} title="Primary" />
+  </div>
+);
 
 const { shape, string, number, bool } = PropTypes;
 
@@ -50,6 +42,7 @@ const address = shape({
 LocationsDisplay.propTypes = {
   actual_delivery_date: string,
   actual_pickup_date: string,
+  address,
   book_date: string,
   created_at: string,
   delivery_address: address,
