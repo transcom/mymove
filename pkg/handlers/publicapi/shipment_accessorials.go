@@ -73,12 +73,12 @@ func (h GetShipmentAccessorialsHandler) Handle(params accessorialop.GetShipmentA
 	return accessorialop.NewGetShipmentAccessorialsOK().WithPayload(payload)
 }
 
-// CreateShipmentAccessorialHandler returns a particular shipment
+// CreateShipmentAccessorialHandler creates a shipment_accessorial for a provided shipment_id
 type CreateShipmentAccessorialHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle returns a specified shipment
+// Handle handles the request
 func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShipmentAccessorialParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 

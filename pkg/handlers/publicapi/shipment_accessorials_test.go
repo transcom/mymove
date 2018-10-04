@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 
 	payload := apimessages.ShipmentAccessorial{
 		Accessorial: payloadForAccessorialModel(&acc),
-		Location:    "O",
+		Location:    apimessages.AccessorialLocationORIGIN,
 		Notes:       handlers.FmtString("Some notes"),
 		Quantity1:   handlers.FmtInt64(int64(5)),
 	}
