@@ -1,29 +1,32 @@
-import { includes, get, map } from 'lodash';
+import { get, map } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { push, replace } from 'react-router-redux';
-import { bindActionCreators } from 'redux';
+import { replace } from 'react-router-redux';
 import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
-import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
-import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
-import { convertDollarsToCents } from 'shared/utils';
 
 import './DocumentUploader.css';
 
-const moveDocumentFormName = 'move_document_upload';
-
 export class DocumentUploader extends Component {
+  static propTypes = {
+    form: PropTypes.string.isRequired,
+    initialValues: PropTypes.object.isRequired,
+    genericMoveDocSchema: PropTypes.object.isRequired,
+    moveDocSchema: PropTypes.object,
+    onSubmit: PropTypes.func.isRequired,
+  };
+
   state = {
     newUploads: [],
     uploaderIsIdle: true,
     moveDocumentCreateError: false,
   };
+
   componentDidUpdate() {
     const { initialValues, location } = this.props;
     // Clear query string after initial values are set
@@ -33,56 +36,23 @@ export class DocumentUploader extends Component {
   }
 
   onSubmit = () => {
-    const { formValues, currentPpm, moveId, reset } = this.props;
+    const { formValues, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     this.setState({
       moveDocumentCreateError: null,
     });
-    if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.requested_amount_cents = convertDollarsToCents(
-        formValues.requested_amount_cents,
-      );
-      this.props
-        .createMovingExpenseDocument(
-          moveId,
-          currentPpm.id,
-          uploadIds,
-          formValues.title,
-          formValues.moving_expense_type,
-          formValues.move_document_type,
-          formValues.requested_amount_cents,
-          formValues.payment_method,
-          formValues.notes,
-        )
-        .then(() => {
-          reset();
-          this.uploader.clearFiles();
-        })
-        .catch(err => {
-          this.setState({
-            moveDocumentCreateError: err,
-          });
+    this.props
+      .onSubmit(uploadIds, formValues)
+      .then(() => {
+        reset();
+        this.uploader.clearFiles();
+      })
+      .catch(err => {
+        this.setState({
+          moveDocumentCreateError: err,
         });
-    } else {
-      this.props
-        .createMoveDocument(
-          moveId,
-          currentPpm.id,
-          uploadIds,
-          formValues.title,
-          formValues.move_document_type,
-          formValues.notes,
-        )
-        .then(() => {
-          reset();
-          this.uploader.clearFiles();
-        })
-        .catch(err => {
-          this.setState({
-            moveDocumentCreateError: err,
-          });
-        });
-    }
+      });
+
     // todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
@@ -175,43 +145,11 @@ export class DocumentUploader extends Component {
   }
 }
 
+// form name comes from prop 'form' that is passed in when used
 DocumentUploader = reduxForm()(DocumentUploader);
 
-DocumentUploader.propTypes = {
-  moveId: PropTypes.string.isRequired,
-  moveDocumentType: PropTypes.string,
-  location: PropTypes.object,
-};
+const mapStateToProps = (state, props) => ({
+  formValues: getFormValues(props.form)(state),
+});
 
-function mapStateToProps(state, props) {
-  const newProps = {
-    formValues: getFormValues(moveDocumentFormName)(state),
-    genericMoveDocSchema: get(
-      state,
-      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
-      {},
-    ),
-    moveDocSchema: get(
-      state,
-      'swagger.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
-    moveDocumentCreateError: state.office.moveDocumentCreateError,
-    currentPpm:
-      get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
-  };
-  return newProps;
-}
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      createMoveDocument,
-      createMovingExpenseDocument,
-      push,
-      replace,
-    },
-    dispatch,
-  );
-}
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentUploader);
+export default connect(mapStateToProps, { replace })(DocumentUploader);
