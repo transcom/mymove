@@ -9,6 +9,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 )
 
+// TODO: These handlers just call the handlers for uploads in the internal API. This is not good.
+// Ideally, the api should only live in one place and we should have the ability to call the public and the private
+// api from our apps. Additionally, we are starting to investigate the model of using Services
+// to separate logic from the handlers. This should be replaced at some point with those fixes.
+
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
 type CreateUploadHandler struct {
 	handlers.HandlerContext
