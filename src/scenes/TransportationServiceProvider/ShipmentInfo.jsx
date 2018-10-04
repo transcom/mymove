@@ -305,7 +305,12 @@ class ShipmentInfo extends Component {
                     />
                   )}
                   {showDocumentViewer && (
-                    <Link to={`/moves/${move.id}/documents`} target="_blank">
+                    <Link
+                      to={`/shipments/${
+                        this.props.match.params.shipmentId
+                      }/documents`}
+                      target="_blank"
+                    >
                       <FontAwesomeIcon
                         className="icon"
                         icon={faExternalLinkAlt}
