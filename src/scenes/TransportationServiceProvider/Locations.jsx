@@ -6,7 +6,7 @@ import { editablePanelify } from 'shared/EditablePanel';
 import { AddressElementDisplay } from 'shared/Address';
 
 const LocationsDisplay = ({
-  address,
+  deliveryAddress,
   shipment: {
     pickup_address: pickupAddress,
     has_secondary_pickup_address: hasSecondaryPickupAddress,
@@ -23,7 +23,7 @@ const LocationsDisplay = ({
       />
     )}
     <span className="column-subhead">Delivery</span>
-    <AddressElementDisplay address={address} title="Primary" />
+    <AddressElementDisplay address={deliveryAddress} title="Primary" />
   </div>
 );
 
@@ -31,10 +31,10 @@ const { shape, string, number, bool } = PropTypes;
 
 const address = shape({
   city: string.isRequired,
-  country: string.isRequired,
+  country: string,
   postal_code: string.isRequired,
   state: string.isRequired,
-  street_address_1: string.isRequired,
+  street_address_1: string,
   street_address_2: string,
   street_address_3: string,
 });
@@ -42,7 +42,7 @@ const address = shape({
 LocationsDisplay.propTypes = {
   actual_delivery_date: string,
   actual_pickup_date: string,
-  address,
+  deliveryAddress: address,
   book_date: string,
   created_at: string,
   delivery_address: address,

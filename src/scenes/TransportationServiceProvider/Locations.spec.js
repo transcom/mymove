@@ -62,18 +62,22 @@ describe('Locations component test', () => {
         state: 'CA',
         postal_code: '90210',
       },
-      service_member: {
-        current_station: {
+      move: {
+        new_duty_station: {
           address: {
             city: 'San Diego',
             state: 'CA',
             postal_code: '92104',
           },
-          name: 'Fort Worth',
         },
       },
     };
-    const wrapper = shallow(<LocationsDisplay shipment={shipment} />);
+    const wrapper = shallow(
+      <LocationsDisplay
+        deliveryAddress={shipment.move.new_duty_station.address}
+        shipment={shipment}
+      />,
+    );
     const AddressElement = wrapper.find(AddressElementDisplay);
 
     it('should still render 2 AddressElementDisplays', () => {

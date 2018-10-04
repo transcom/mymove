@@ -147,23 +147,18 @@ class ShipmentInfo extends Component {
     this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const { context, shipment, shipmentDocuments } = this.props;
+    const {
+      context,
+      shipment,
+      shipmentDocuments,
+      deliveryAddress,
+    } = this.props;
 
     const {
-      delivery_address: deliveryAddress,
-      has_delivery_address: hasDeliverAddress,
       service_member: serviceMember = {},
       move = {},
       gbl_number: gbl,
     } = shipment;
-    const { city, state, postal_code } = serviceMember.current_station
-      ? serviceMember.current_station.address
-      : {};
-
-    // if they do not have a delivery address, default to the station's address info
-    const address = hasDeliverAddress
-      ? deliveryAddress
-      : { city, state, postal_code };
 
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
@@ -254,7 +249,7 @@ class ShipmentInfo extends Component {
                   </div>
                   <div className="usa-width-one-half">
                     <Locations
-                      address={address}
+                      deliveryAddress={deliveryAddress}
                       title="Locations"
                       shipment={this.props.shipment}
                       update={this.props.patchShipment}
@@ -344,23 +339,37 @@ class ShipmentInfo extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
-  shipment: get(state, 'tsp.shipment', {}),
-  shipmentDocuments: selectShipmentDocuments(state),
-  serviceAgents: get(state, 'tsp.serviceAgents', []),
-  loadTspDependenciesHasSuccess: get(
-    state,
-    'tsp.loadTspDependenciesHasSuccess',
-  ),
-  loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
-  acceptError: get(state, 'tsp.shipmentHasAcceptError'),
-  generateGBLError: get(state, 'tsp.generateGBLError'),
-  generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
-  error: get(state, 'tsp.error'),
-  pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
-  deliverSchema: get(state, 'swagger.spec.definitions.ActualDeliveryDate', {}),
-});
+const mapStateToProps = state => {
+  const shipment = get(state, 'tsp.shipment', {});
+  const newDutyStation = get(shipment, 'move.new_duty_station.address', {});
+  // if they do not have a delivery address, default to the station's address info
+  const deliveryAddress = shipment.has_delivery_address
+    ? shipment.delivery_address
+    : newDutyStation;
+
+  return {
+    swaggerError: state.swagger.hasErrored,
+    shipment,
+    deliveryAddress,
+    shipmentDocuments: selectShipmentDocuments(state),
+    serviceAgents: get(state, 'tsp.serviceAgents', []),
+    loadTspDependenciesHasSuccess: get(
+      state,
+      'tsp.loadTspDependenciesHasSuccess',
+    ),
+    loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
+    acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+    generateGBLError: get(state, 'tsp.generateGBLError'),
+    generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+    error: get(state, 'tsp.error'),
+    pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
+    deliverSchema: get(
+      state,
+      'swagger.spec.definitions.ActualDeliveryDate',
+      {},
+    ),
+  };
+};
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
