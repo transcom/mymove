@@ -1,13 +1,23 @@
 import React, { Component } from 'react';
 import BasicPanel from 'shared/BasicPanel';
+import PreApprovalRequestForm, {
+  formName as PreApprovalRequestFormName,
+} from 'shared/PreApprovalRequestForm';
+import { submit, isValid, isSubmitting } from 'redux-form';
 import PreApprovalRequest from 'shared/PreApprovalRequest';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 class ScratchPad extends Component {
+  onSubmit = values => {
+    console.log('onSubmit', values);
+  };
   onEdit = () => {};
   onDelete = () => {};
   onApproval = () => {};
+
   render() {
-    const accessorials = [
+    const shipment_accessorials = [
       {
         code: '105D',
         item: 'Unpack Reg Crate',
@@ -29,25 +39,45 @@ class ScratchPad extends Component {
       },
     ];
     return (
-      <div>
-        <div className="usa-grid grid-wide panels-body">
-          <div className="usa-width-one-whole">
-            <div className="usa-width-two-thirds">
-              <BasicPanel title={'TEST TITLE'}>
-                <PreApprovalRequest
-                  accessorials={accessorials}
-                  isActionable={true}
-                  onEdit={this.onEdit}
-                  onDelete={this.onDelete}
-                  onApproval={this.onApproval}
-                />
-              </BasicPanel>
-            </div>
-            <div className="usa-width-one-third">
-              <button className="usa-button-primary">
-                Click Me (I do nothing)
+      <div className="usa-grid grid-wide panels-body">
+        <div className="usa-width-one-whole">
+          <div className="usa-width-two-thirds">
+            <BasicPanel title={'TEST TITLE'}>
+              <PreApprovalRequest
+                shipment_accessorials={shipment_accessorials}
+                isActionable={true}
+                onEdit={this.onEdit}
+                onDelete={this.onDelete}
+                onApproval={this.onApproval}
+              />
+              <PreApprovalRequestForm
+                accessorials={[
+                  {
+                    id: 'sdlfkj',
+                    code: 'F9D',
+                    item: 'Long Haul',
+                  },
+                  {
+                    id: 'badfka',
+                    code: '19D',
+                    item: 'Crate',
+                  },
+                ]}
+                ref={form => (this.formReference = form)}
+                onSubmit={this.onSubmit}
+              />
+              <button
+                disabled={!this.props.formEnabled}
+                onClick={this.props.submitForm}
+              >
+                Submit
               </button>
-            </div>
+            </BasicPanel>
+          </div>
+          <div className="usa-width-one-third">
+            <button className="usa-button-primary">
+              Click Me (I do nothing)
+            </button>
           </div>
         </div>
       </div>
@@ -55,4 +85,21 @@ class ScratchPad extends Component {
   }
 }
 
-export default ScratchPad;
+function mapStateToProps(state) {
+  return {
+    formEnabled:
+      isValid(PreApprovalRequestFormName)(state) &&
+      !isSubmitting(PreApprovalRequestFormName)(state),
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  // Bind an action, which submit the form by its name
+  return bindActionCreators(
+    {
+      submitForm: () => submit(PreApprovalRequestFormName),
+    },
+    dispatch,
+  );
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ScratchPad);
