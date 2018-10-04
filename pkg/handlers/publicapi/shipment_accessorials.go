@@ -72,3 +72,52 @@ func (h GetShipmentAccessorialsHandler) Handle(params accessorialop.GetShipmentA
 	payload := payloadForShipmentAccessorialModels(shipmentAccessorials)
 	return accessorialop.NewGetShipmentAccessorialsOK().WithPayload(payload)
 }
+
+// CreateShipmentAccessorialHandler returns a particular shipment
+type CreateShipmentAccessorialHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle returns a specified shipment
+func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShipmentAccessorialParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
+
+	var shipment *models.Shipment
+	var err error
+	// If TSP user, verify TSP has shipment
+	// If office user, no verification necessary
+	// If myApp user, user is forbidden
+	if session.IsTspUser() {
+		// Check that the TSP user can access the shipment
+		_, shipment, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	} else if session.IsOfficeUser() {
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	} else {
+		return accessorialop.NewCreateShipmentAccessorialForbidden()
+	}
+
+	accessorialID := uuid.Must(uuid.FromString(params.Payload.Accessorial.ID.String()))
+	shipmentAccessorial, verrs, err := shipment.CreateShipmentAccessorial(h.DB(),
+		accessorialID,
+		params.Payload.Quantity1,
+		params.Payload.Quantity2,
+		string(params.Payload.Location),
+		params.Payload.Notes,
+	)
+	if verrs.HasAny() || err != nil {
+		h.Logger().Error("Error fetching accessorials for shipment", zap.Error(err))
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	payload := payloadForShipmentAccessorialModel(shipmentAccessorial)
+	return accessorialop.NewCreateShipmentAccessorialCreated().WithPayload(payload)
+}

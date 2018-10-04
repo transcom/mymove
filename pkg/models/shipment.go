@@ -279,6 +279,43 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	return &trafficDistributionList, nil
 }
 
+// CreateShipmentAccessorial creates a new ShipmentAccessorial tied to the Shipment
+func (s *Shipment) CreateShipmentAccessorial(db *pop.Connection, accessorialID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentAccessorial, *validate.Errors, error) {
+	var quantity2 unit.BaseQuantity
+	if q2 != nil {
+		quantity2 = unit.BaseQuantity(*q2)
+	}
+
+	var notesVal string
+	if notes != nil {
+		notesVal = *notes
+	}
+
+	shipmentAccessorial := ShipmentAccessorial{
+		ShipmentID:    s.ID,
+		AccessorialID: accessorialID,
+		Quantity1:     unit.BaseQuantity(*q1),
+		Quantity2:     quantity2,
+		Location:      ShipmentAccessorialLocation(location),
+		Notes:         notesVal,
+		SubmittedDate: time.Now(),
+		Status:        ShipmentAccessorialStatusSUBMITTED,
+	}
+
+	verrs, err := db.ValidateAndCreate(&shipmentAccessorial)
+	if verrs.HasAny() || err != nil {
+		return &ShipmentAccessorial{}, verrs, err
+	}
+
+	// Loads accessorial information
+	err = db.Load(&shipmentAccessorial)
+	if err != nil {
+		return &ShipmentAccessorial{}, validate.NewErrors(), err
+	}
+
+	return &shipmentAccessorial, validate.NewErrors(), nil
+}
+
 // AssignGBLNumber generates a new valid GBL number for the shipment
 // Note: This doens't save the Shipment, so this should always be run as part of
 // another transaction that saves the shipment after assigning a GBL number
