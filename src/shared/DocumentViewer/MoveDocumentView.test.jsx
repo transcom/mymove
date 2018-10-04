@@ -3,11 +3,21 @@ import { shallow } from 'enzyme';
 import MoveDocumentView from './MoveDocumentView';
 
 describe('MoveDocumentView', () => {
+  const defaultMoveDocument = {
+    createdAt: '',
+    notes: '',
+    status: '',
+    title: '',
+    type: '',
+  };
+
   it('calls onDidMount when the component mounts', () => {
     const onDidMountSpy = jest.fn();
     const documentView = shallow(
       <MoveDocumentView
         documentDetailUrlPrefix=""
+        moveDocument={defaultMoveDocument}
+        moveDocumentSchema={{}}
         moveDocumentId=""
         moveDocuments={[]}
         moveLocator=""
@@ -22,6 +32,8 @@ describe('MoveDocumentView', () => {
 
   const renderMoveDocumentView = ({
     documentDetailUrlPrefix = '',
+    moveDocument = defaultMoveDocument,
+    moveDocumentSchema = {},
     moveDocumentId = '',
     moveDocuments = [],
     moveLocator = '',
@@ -32,6 +44,8 @@ describe('MoveDocumentView', () => {
     shallow(
       <MoveDocumentView
         documentDetailUrlPrefix={documentDetailUrlPrefix}
+        moveDocument={moveDocument}
+        moveDocumentSchema={moveDocumentSchema}
         moveDocumentId={moveDocumentId}
         moveDocuments={moveDocuments}
         moveLocator={moveLocator}
@@ -135,6 +149,24 @@ describe('MoveDocumentView', () => {
           .dive()
           .text(),
       ).toEqual('Details');
+    });
+
+    it('renders a DocumentDetailPanelView with the appropriate props', () => {
+      const moveDocumentSchema = { properties: {} };
+      const moveDocument = {
+        ...defaultMoveDocument,
+        title: 'My Document',
+      };
+      const documentView = renderMoveDocumentView({
+        moveDocumentSchema,
+        moveDocument,
+      });
+      const documentDetail = documentView
+        .find('TabPanel')
+        .at(1)
+        .find('DocumentDetailPanelView');
+      expect(documentDetail.prop('title')).toEqual('My Document');
+      expect(documentDetail.prop('schema')).toEqual(moveDocumentSchema);
     });
   });
 });
