@@ -107,9 +107,10 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 			WHERE
 				tsp_users.transportation_service_provider_id = shipment_offers.transportation_service_provider_id
 				AND shipment_offers.shipment_id = shipments.id
+				AND shipment_offers.accepted IS NOT FALSE
 				AND tsp_users.id = $1
 				AND shipments.service_member_id = $2
-		` // TODO: Make sure the shipment is accepted.
+		`
 
 		count, err := db.RawQuery(query, session.TspUserID, serviceMember.ID).Count(TspUser{})
 		if err != nil {
