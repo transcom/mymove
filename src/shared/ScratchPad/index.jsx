@@ -6,8 +6,8 @@ import PreApprovalRequestForm, {
 import { submit, isValid, isSubmitting } from 'redux-form';
 import PreApprovalRequest from 'shared/PreApprovalRequest';
 import { connect } from 'react-redux';
+import Creator from 'shared/PreApprovalRequest/Creator';
 import { bindActionCreators } from 'redux';
-
 class ScratchPad extends Component {
   onSubmit = values => {
     console.log('onSubmit', values);
@@ -71,6 +71,9 @@ class ScratchPad extends Component {
               >
                 Submit
               </button>
+            </BasicPanel>
+            <BasicPanel title="Creator Test">
+                <Creator />
             </BasicPanel>
           </div>
           <div className="usa-width-one-third">
