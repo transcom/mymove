@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
+import { getFormValues, Field } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
-import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
+import { getLastError } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import Address from 'scenes/Moves/Hhg/Address';
-import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
+import DatePicker from 'scenes/Moves/Hhg/DatePicker';
+import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
 import {
   createOrUpdateShipment,
@@ -19,13 +19,16 @@ import {
 
 import './ShipmentWizard.css';
 
-const formName = 'shipment_form';
-const getRequestLabel = 'ShipmentForm.getShipment';
-const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+const validateMoveDateForm = validateAdditionalFields([
+  'requested_pickup_date',
+]);
 
-const ShipmentFormWizardForm = reduxifyWizardForm(formName);
+const formName = 'move_date_form';
+const getRequestLabel = 'MoveDate.getShipment';
+const createOrUpdateRequestLabel = 'MoveDate.createOrUpdateShipment';
+const MoveDateWizardForm = reduxifyWizardForm(formName, validateMoveDateForm);
 
-export class ShipmentForm extends Component {
+export class MoveDate extends Component {
   componentDidMount() {
     this.loadShipment();
   }
@@ -78,7 +81,7 @@ export class ShipmentForm extends Component {
 
     // Shipment Wizard
     return (
-      <ShipmentFormWizardForm
+      <MoveDateWizardForm
         handleSubmit={this.handleSubmit}
         className={formName}
         pageList={pages}
@@ -101,23 +104,13 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <Address
-            schema={this.props.schema}
-            error={error}
-            formValues={this.props.formValues}
-          />
-          <WeightEstimates
-            schema={this.props.schema}
-            error={error}
-            formValues={this.props.formValues}
-          />
+          <Field name="requested_pickup_date" component={DatePicker} />
         </div>
-      </ShipmentFormWizardForm>
+      </MoveDateWizardForm>
     );
   }
 }
-ShipmentForm.propTypes = {
-  schema: PropTypes.object.isRequired,
+MoveDate.propTypes = {
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
 };
@@ -131,7 +124,6 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const shipment = currentShipment(state);
   const props = {
-    schema: getSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
@@ -141,4 +133,4 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShipmentForm);
+export default connect(mapStateToProps, mapDispatchToProps)(MoveDate);

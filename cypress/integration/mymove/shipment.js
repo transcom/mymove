@@ -12,14 +12,21 @@ describe('completing the hhg flow', function() {
       .contains('Household Goods Move')
       .click()
       .nextPage();
+
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-start/);
     });
+    cy.get('button.next').should('be.disabled');
     // Calendar move date
     cy
       .get('.DayPicker-Day--today') // gets today
       .click()
       .should('have.class', 'DayPicker-Day--selected');
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-form/);
+    });
 
     // Pickup address
     cy
