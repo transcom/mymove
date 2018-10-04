@@ -1,10 +1,23 @@
-version: 2
+version: "2.1"
+
+executors:
+  mymove:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+  mymove_and_postgres:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+      - image: postgres:10.1
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+
 jobs:
 
   pre_deps_golang:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -32,9 +45,7 @@ jobs:
           when: on_fail
 
   pre_deps_yarn:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -50,9 +61,7 @@ jobs:
       - run: *announce_failure
 
   pre_test:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -87,21 +96,19 @@ jobs:
       - run: *announce_failure
 
   integration_tests:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
-      - image: postgres:10-alpine
-        environment:
-          - POSTGRES_PASSWORD: mysecretpassword
-          - POSTGRES_DB: test_db
+    executor: mymove_and_postgres
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-            - v1-go-pkg-dep
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
             - client-deps-cache-{{ checksum "yarn.lock" }}
 
       - run:
@@ -162,19 +169,13 @@ jobs:
           path: cypress/results
 
       - save_cache:
-          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/pkg/dep
-      - save_cache:
           key: client-deps-cache-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache
       - run: *announce_failure
 
   vuln_scan:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -204,13 +205,7 @@ jobs:
       - run: *announce_failure
 
   build_app:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
-      - image: postgres:latest
-        environment:
-          - POSTGRES_PASSWORD: mysecretpassword
-          - POSTGRES_DB: test_db
+    executor: mymove_and_postgres
     steps:
       - checkout
       - setup_remote_docker:
@@ -261,8 +256,7 @@ jobs:
       - run: *announce_failure
 
   build_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - setup_remote_docker:
@@ -277,8 +271,7 @@ jobs:
       - run: *announce_failure
 
   deploy_experimental_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
     steps: &deploy_migrations_steps
@@ -292,8 +285,7 @@ jobs:
       - run: *announce_failure
 
   deploy_experimental_app:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
       - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
@@ -309,8 +301,7 @@ jobs:
       - run: *announce_failure
 
   deploy_experimental_app_client_tls:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
     steps: &deploy_app_client_tls_steps
@@ -322,54 +313,46 @@ jobs:
       - run: *announce_failure
 
   deploy_staging_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
     steps: *deploy_migrations_steps
 
   deploy_staging_app:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
       - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
     steps: *deploy_app_steps
 
   deploy_staging_app_client_tls:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
     steps: *deploy_app_client_tls_steps
 
   deploy_prod_migrations:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_migrations_steps
 
   deploy_prod_app:
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
       - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
     steps: *deploy_app_steps
 
   deploy_prod_app_client_tls:
-    docker:
-      - image: trussworks/circleci-docker-primary:b57cdd9fd4b61d85f49134bf76c16961670f0257
+    executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_app_client_tls_steps
 
 
   update_dependencies:
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:b6b61600e0a99745194eb8bfcab1c9bc1e54c28d
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -408,9 +391,14 @@ workflows:
             - pre_deps_yarn
 
       #- vuln_scan # keep disabled until we work out new process
-      - integration_tests
-      - build_app
-      - build_migrations
+      #  requires:
+      #    - pre_deps_golang
+      #    - pre_deps_yarn
+
+      - integration_tests:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
 
       - build_app:
           requires:
@@ -430,21 +418,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-intermediate-cert
+              only: executors
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-intermediate-cert
+              only: executors
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-intermediate-cert
+              only: executors
 
       - deploy_staging_migrations:
           requires:

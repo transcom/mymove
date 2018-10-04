@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { compact, get } from 'lodash';
+import { get } from 'lodash';
 import qs from 'query-string';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -15,13 +15,14 @@ import { Switch, Redirect, Link } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
-import DocumentDetailPanel from 'shared/DocumentViewer/DocumentDetailPanel';
+import DocumentDetailPanel from './DocumentDetailPanel';
 
 import DocumentUploader from './DocumentUploader';
 import {
   selectAllDocumentsForMove,
   getMoveDocumentsForMove,
 } from 'shared/Entities/modules/moveDocuments';
+import { stringifyName } from 'shared/utils/serviceMember';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
@@ -39,10 +40,7 @@ class DocumentViewer extends Component {
   render() {
     const { serviceMember, move, moveDocuments } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
-    const name = compact([
-      serviceMember.last_name,
-      serviceMember.first_name,
-    ]).join(', ');
+    const name = stringifyName(serviceMember);
 
     // urls: has full url with IDs
     const defaultUrl = move ? `/moves/${move.id}/documents` : '';
