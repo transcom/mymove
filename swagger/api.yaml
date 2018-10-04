@@ -414,6 +414,8 @@ definitions:
         type: string
         example: 'Change of orders'
         x-nullable: true
+      new_duty_station:
+        $ref: '#/definitions/DutyStation'
     required:
       - orders_id
       - locator

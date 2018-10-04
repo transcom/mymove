@@ -441,7 +441,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	err := tx.Eager(
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
-		"ServiceMember.DutyStation.Address",
+		"Move.Orders.NewDutyStation.Address",
 		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",
