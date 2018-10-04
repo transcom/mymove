@@ -74,30 +74,12 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.DB(), session, moveID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
 	// Canceling move will result in canceled associated PPMs
-	err = move.Cancel(*params.CancelMove.CancelReason)
-	if err != nil {
+	canceMove := new(CancelMove)
+	cancelMove.Run(moveID, *params.CancelMove.CancelReason)
+
+	if cancelMove.err != nil {
 		h.Logger().Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	// Save move, orders, and PPMs statuses
-	verrs, err := models.SaveMoveDependencies(h.DB(), move)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-
-	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveCanceled(h.DB(), h.Logger(), session, moveID),
-	)
-
-	if err != nil {
-		h.Logger().Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
