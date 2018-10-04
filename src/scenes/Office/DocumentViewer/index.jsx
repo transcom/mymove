@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { includes, get, map } from 'lodash';
+import { includes, get } from 'lodash';
 import qs from 'query-string';
 
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
@@ -23,6 +25,7 @@ import {
   getMoveDocumentsForMove,
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
+import { convertDollarsToCents } from 'shared/utils';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
@@ -39,7 +42,12 @@ class DocumentViewer extends Component {
   }
 
   get getDocumentUploaderProps() {
-    const { docTypes, location } = this.props;
+    const {
+      docTypes,
+      location,
+      genericMoveDocSchema,
+      moveDocSchema,
+    } = this.props;
     // Parse query string parameters
     const moveDocumentType = qs.parse(location.search).moveDocumentType;
 
@@ -49,8 +57,41 @@ class DocumentViewer extends Component {
       initialValues.move_document_type = moveDocumentType;
     }
 
-    return { initialValues };
+    return {
+      initialValues,
+      genericMoveDocSchema,
+      moveDocSchema,
+      onSubmit: this.handleSubmit,
+    };
   }
+
+  handleSubmit = (uploadIds, formValues) => {
+    const { currentPpm, move } = this.props;
+    if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
+      formValues.requested_amount_cents = convertDollarsToCents(
+        formValues.requested_amount_cents,
+      );
+      return this.props.createMovingExpenseDocument(
+        move.id,
+        currentPpm.id,
+        uploadIds,
+        formValues.title,
+        formValues.moving_expense_type,
+        formValues.move_document_type,
+        formValues.requested_amount_cents,
+        formValues.payment_method,
+        formValues.notes,
+      );
+    }
+    return this.props.createMoveDocument(
+      move.id,
+      currentPpm.id,
+      uploadIds,
+      formValues.title,
+      formValues.move_document_type,
+      formValues.notes,
+    );
+  };
   render() {
     const { serviceMember, move, moveDocuments } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
@@ -176,6 +217,13 @@ DocumentViewer.propTypes = {
 };
 
 const mapStateToProps = state => ({
+  genericMoveDocSchema: get(
+    state,
+    'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+    {},
+  ),
+  moveDocSchema: get(state, 'swagger.spec.definitions.MoveDocumentPayload', {}),
+  currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
   docTypes: get(state, 'swagger.spec.definitions.MoveDocumentType.enum', []),
   swaggerError: state.swagger.hasErrored,
   orders: state.office.officeOrders || {},
@@ -190,10 +238,9 @@ const mapStateToProps = state => ({
   error: state.office.error,
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { loadMoveDependencies, getMoveDocumentsForMove },
-    dispatch,
-  );
-
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);
+export default connect(mapStateToProps, {
+  createMoveDocument,
+  createMovingExpenseDocument,
+  loadMoveDependencies,
+  getMoveDocumentsForMove,
+})(DocumentViewer);
