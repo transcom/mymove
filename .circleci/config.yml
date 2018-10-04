@@ -461,6 +461,7 @@ workflows:
             #- vuln_scan # keep disabled until we work out new process
             - build_app
             - build_migrations
+            - integration_tests
           filters:
             branches:
               only: master
