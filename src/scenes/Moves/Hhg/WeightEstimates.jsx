@@ -44,7 +44,6 @@ class WeightEstimates extends Component {
 
 WeightEstimates.propTypes = {
   schema: PropTypes.object.isRequired,
-  error: PropTypes.object,
   formValues: PropTypes.object,
 };
 
