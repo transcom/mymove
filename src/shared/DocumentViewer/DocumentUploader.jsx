@@ -19,6 +19,11 @@ import './DocumentUploader.css';
 const moveDocumentFormName = 'move_document_upload';
 
 export class DocumentUploader extends Component {
+  state = {
+    newUploads: [],
+    uploaderIsIdle: true,
+    moveDocumentCreateError: false,
+  };
   componentDidUpdate() {
     const { initialValues, location } = this.props;
     // Clear query string after initial values are set
@@ -27,21 +32,7 @@ export class DocumentUploader extends Component {
     }
   }
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      newUploads: [],
-      uploaderIsIdle: true,
-      moveDocumentCreateError: null,
-    };
-
-    this.onChange = this.onChange.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onAddFile = this.onAddFile.bind(this);
-  }
-
-  onSubmit() {
+  onSubmit = () => {
     const { formValues, currentPpm, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     this.setState({
@@ -92,7 +83,7 @@ export class DocumentUploader extends Component {
           });
         });
     }
-    //todo: we don't want to do this until the details view is working,
+    // todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
     //   if (!response.error) {
@@ -100,20 +91,20 @@ export class DocumentUploader extends Component {
     //     this.props.push(`/moves/${moveId}/documents/${moveDocumentId}`);
     //   }
     // });
-  }
+  };
 
-  onAddFile() {
+  onAddFile = () => {
     this.setState({
       uploaderIsIdle: false,
     });
-  }
+  };
 
-  onChange(newUploads, uploaderIsIdle) {
+  onChange = (newUploads, uploaderIsIdle) => {
     this.setState({
       newUploads,
       uploaderIsIdle,
     });
-  }
+  };
 
   render() {
     const {
