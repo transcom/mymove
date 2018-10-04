@@ -6,6 +6,9 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { get } from 'lodash';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
+import { convertDollarsToCents } from 'shared/utils';
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
 import {
   selectAllDocumentsForMove,
@@ -70,6 +73,34 @@ export class PaymentRequest extends Component {
       });
   }
 
+  handleSubmit = (uploadIds, formValues) => {
+    const { currentPpm } = this.props;
+    if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
+      formValues.requested_amount_cents = convertDollarsToCents(
+        formValues.requested_amount_cents,
+      );
+      return this.props.createMovingExpenseDocument(
+        this.props.match.params.moveId,
+        currentPpm.id,
+        uploadIds,
+        formValues.title,
+        formValues.moving_expense_type,
+        formValues.move_document_type,
+        formValues.requested_amount_cents,
+        formValues.payment_method,
+        formValues.notes,
+      );
+    }
+    return this.props.createMoveDocument(
+      this.props.match.params.moveId,
+      currentPpm.id,
+      uploadIds,
+      formValues.title,
+      formValues.move_document_type,
+      formValues.notes,
+    );
+  };
+
   render() {
     const { moveDocuments, updateError } = this.props;
     const { moveId } = this.props.match.params;
@@ -91,7 +122,13 @@ export class PaymentRequest extends Component {
             documents one at a time. For expenses, you’ll need to enter
             additional details.
           </div>
-          <DocumentUploader moveId={moveId} />
+          <DocumentUploader
+            form="payment-docs"
+            initialValues={{}}
+            genericMoveDocSchema={this.props.genericMoveDocSchema}
+            moveDocSchema={this.props.moveDocSchema}
+            onSubmit={this.handleSubmit}
+          />
           <RequestPaymentSection
             ppm={this.props.currentPpm}
             updatingPPM={this.props.updatingPPM}
@@ -123,9 +160,23 @@ const mapStateToProps = (state, props) => ({
   currentPpm: state.ppm.currentPpm,
   updatingPPM: state.ppm.hasSubmitInProgress,
   updateError: state.ppm.hasSubmitError,
+  genericMoveDocSchema: get(
+    state,
+    'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+    {},
+  ),
+  moveDocSchema: get(state, 'swagger.spec.definitions.MoveDocumentPayload', {}),
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ getMoveDocumentsForMove, submitExpenseDocs }, dispatch);
+  bindActionCreators(
+    {
+      getMoveDocumentsForMove,
+      submitExpenseDocs,
+      createMoveDocument,
+      createMovingExpenseDocument,
+    },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequest);
