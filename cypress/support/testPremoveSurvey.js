@@ -24,6 +24,11 @@ export function fillAndSavePremoveSurvey() {
     .type('8/5/2018')
     .blur();
   cy
+    .get('input[name="survey.pm_survey_conducted_date"]')
+    .first()
+    .type('7/20/2018')
+    .blur();
+  cy
     .get('input[name="survey.pm_survey_weight_estimate"]')
     .first()
     .type('6000')
@@ -39,7 +44,7 @@ export function fillAndSavePremoveSurvey() {
     .type('8000')
     .blur();
   cy
-    .get('input[name="survey.pm_survey_notes"]')
+    .get('textarea[name="survey.pm_survey_notes"]')
     .first()
     .type('Notes notes notes')
     .blur();
