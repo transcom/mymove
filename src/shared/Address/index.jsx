@@ -6,8 +6,12 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 export const AddressElementDisplay = ({ address, title }) => (
   <PanelField title={title}>
-    {address.street_address_1}
-    <br />
+    {address.street_address_1 && (
+      <span>
+        {address.street_address_1}
+        <br />
+      </span>
+    )}
     {address.street_address_2 && (
       <span>
         {address.street_address_2}
@@ -26,7 +30,7 @@ export const AddressElementDisplay = ({ address, title }) => (
 
 AddressElementDisplay.propTypes = {
   address: PropTypes.shape({
-    street_address_1: PropTypes.string.isRequired,
+    street_address_1: PropTypes.string,
     street_address_2: PropTypes.string,
     street_address_3: PropTypes.string,
     city: PropTypes.string.isRequired,
