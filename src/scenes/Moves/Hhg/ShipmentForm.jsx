@@ -63,8 +63,8 @@ export class ShipmentForm extends Component {
         shipment,
         currentShipmentId,
       )
-      .then(data => {
-        return this.props.setCurrentShipment(data.body);
+      .then(action => {
+        return this.props.setCurrentShipment(action.entities.shipment.id);
       })
       .catch(err => {
         this.setState({

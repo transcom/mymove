@@ -1,6 +1,9 @@
+import { denormalize } from 'normalizr';
+import { swaggerRequest } from 'shared/Swagger/request';
+import { getClient } from 'shared/Swagger/api';
+
 import { moves } from '../schema';
 import { ADD_ENTITIES } from '../actions';
-import { denormalize } from 'normalizr';
 
 export const STATE_KEY = 'moves';
 
@@ -15,6 +18,10 @@ export default function reducer(state = {}, action) {
     default:
       return state;
   }
+}
+
+export function getMove(label, moveId) {
+  return swaggerRequest(getClient, 'moves.showMove', { moveId }, { label });
 }
 
 export const selectMove = (state, id) => {

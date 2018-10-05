@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import truckIcon from 'shared/icon/truck-black.svg';
-import { formatDateSM } from 'shared/formatters';
 
 import Address from './Address';
+import HHGWeightSummary from './HHGWeightSummary';
 import './Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { movePath, shipment } = props;
+  const { movePath, shipment, entitlements } = props;
 
   const editDatePath = movePath + '/edit-hhg-date';
   const editWeightsPath = movePath + '/edit-hhg-weights';
@@ -69,8 +69,10 @@ export default function HHGShipmentSummary(props) {
             <tr>
               <td>Weight Estimate:</td>
               <td className="Todo-phase2">
-                TODO<br />
-                Great! You appear within your weight allowance.
+                <HHGWeightSummary
+                  shipment={shipment}
+                  entitlements={entitlements}
+                />
               </td>
             </tr>
           </tbody>
@@ -94,8 +96,20 @@ export default function HHGShipmentSummary(props) {
               </td>
             </tr>
             <tr>
-              <td> Estimated PPM Incentive: </td>
-              <td />
+              <td>Additional Pickup:</td>
+              <td>
+                {shipment.secondary_pickup_address && (
+                  <Address address={shipment.secondary_pickup_address} />
+                )}
+              </td>
+            </tr>
+            <tr>
+              <td>Delivery Address:</td>
+              <td>
+                {shipment.delivery_address && (
+                  <Address address={shipment.delivery_address} />
+                )}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -107,4 +121,5 @@ export default function HHGShipmentSummary(props) {
 HHGShipmentSummary.propTypes = {
   shipment: PropTypes.object.isRequired,
   movePath: PropTypes.string.isRequired,
+  entitlements: PropTypes.object.isRequired,
 };

@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { get } from 'lodash';
+import { forEach, get } from 'lodash';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { getSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
+import { getMove } from 'shared/Entities/modules/moves';
 import { currentShipment } from 'shared/UI/ducks';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -25,8 +25,8 @@ import './Review.css';
 
 export class Summary extends Component {
   componentDidMount() {
-    if (get(this.props.match.params, 'moveId')) {
-      this.props.checkEntitlement(this.props.match.params.moveId);
+    if (this.props.onDidMount) {
+      this.props.onDidMount();
     }
   }
   render() {
@@ -335,6 +335,7 @@ export class Summary extends Component {
             <HHGShipmentSummary
               shipment={currentShipment}
               movePath={rootAddressWithMoveId}
+              entitlements={entitlement}
             />
           )}
 
@@ -358,16 +359,15 @@ Summary.propTypes = {
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
-  checkEntitlement: PropTypes.func.isRequired,
   error: PropTypes.object,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   return {
     currentPpm: state.ppm.currentPpm,
     currentShipment: selectShipment(state, currentShipment(state)),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: state.moves.currentMove,
+    currentMove: getMove(state, ownProps.match.params.moveId),
     // latestMove: state.moves.latestMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
@@ -381,18 +381,17 @@ function mapStateToProps(state) {
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {
-  const { shipmentId } = ownProps.match.params;
-  return bindActionCreators(
-    {
-      onDidMount: () => {
-        dispatch(getShipment('Summary.getShipment', shipmentId));
-      },
-      checkEntitlement,
-      loadEntitlementsFromState,
-      getShipment,
+  return {
+    onDidMount: function() {
+      const moveID = ownProps.match.params.moveId;
+      dispatch(getMove('Summary.getMove', moveID)).then(function(action) {
+        forEach(action.entities.shipments, function(shipment) {
+          dispatch(getShipment('Summary.getShipment', shipment.id));
+        });
+      });
+      dispatch(checkEntitlement(moveID));
     },
-    dispatch,
-  );
+  };
 }
 export default withRouter(
   connect(mapStateToProps, mapDispatchToProps)(Summary),

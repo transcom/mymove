@@ -16,8 +16,9 @@ function mergeEntities(entities, newEntities) {
 }
 
 const initialState = {
-  shipments: {},
+  moves: {},
   moveDocuments: {},
+  shipments: {},
 };
 
 // Actions of either of these types will be merged into the store:

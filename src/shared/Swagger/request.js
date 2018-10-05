@@ -87,6 +87,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         error,
         request: updatedRequestLog,
       });
+      return Promise.reject(error);
     }
 
     return request
@@ -113,10 +114,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           );
         }
 
-        const schemaKey = successfulReturnType(
-          routeDefinition,
-          response.status,
-        );
+        let schemaKey = successfulReturnType(routeDefinition, response.status);
         if (!schemaKey) {
           throw new Error(
             `Could not find schemaKey for ${operationPath} status ${
@@ -125,18 +123,26 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           );
         }
 
+        if (schemaKey.indexOf('Payload') !== -1) {
+          const newSchemaKey = schemaKey.replace('Payload', '');
+          console.warn(
+            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
+          );
+          schemaKey = newSchemaKey;
+        }
+
         // eslint-disable-next-line security/detect-object-injection
         const payloadSchema = schema[schemaKey];
+        if (!payloadSchema) {
+          throw new Error(`Could not find a schema for ${schemaKey}`);
+        }
         action.entities = normalizePayload(
           response.body,
           payloadSchema,
         ).entities;
-        if (!payloadSchema) {
-          throw new Error(`Could not find a schema for ${schemaKey}`);
-        }
 
         dispatch(action);
-        return response;
+        return action;
       })
       .catch(response => {
         console.error(
