@@ -24,15 +24,13 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 
 	shipment := shipments[0]
 	tspUser := tspUsers[0]
-	sm := shipment.ServiceMember
-	// move := shipment.Move
 
 	upload := testdatagen.MakeUpload(suite.TestDB(), testdatagen.Assertions{
 		Upload: models.Upload{
-			UploaderID: sm.UserID,
+			UploaderID: *tspUser.UserID,
 		},
 	})
-	// upload.DocumentID = nil
+	upload.DocumentID = nil
 	suite.MustSave(&upload)
 	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
 

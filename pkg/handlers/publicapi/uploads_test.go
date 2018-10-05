@@ -1,4 +1,4 @@
-package internalapi
+package publicapi
 
 import (
 	"net/http"
@@ -7,7 +7,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
+	internaluploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
+	uploadop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -24,9 +25,9 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 	return document, params
 }
 
-func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
+func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, tspUser models.TspUser, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, serviceMember)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	params.HTTPRequest = req
 
@@ -41,17 +42,40 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	document, params := createPrereqs(suite)
 
-	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
-	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	shipment := shipments[0]
+	tspUser := tspUsers[0]
+	serviceMember := shipment.Move.Orders.ServiceMember
+
+	smAssertions := testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	}
+
+	document := testdatagen.MakeDocument(suite.TestDB(), smAssertions)
+
+	params := uploadop.NewCreateUploadParams()
+	params.DocumentID = handlers.FmtUUID(document.ID)
+	params.File = suite.Fixture("test.pdf")
+
+	response := makeRequest(suite, params, tspUser, fakeS3)
+	createdResponse, ok := response.(*internaluploadop.CreateUploadCreated)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadCreated, got %T", response)
 	}
 
 	uploadPayload := createdResponse.Payload
 	upload := models.Upload{}
-	err := suite.TestDB().Find(&upload, uploadPayload.ID)
+	err = suite.TestDB().Find(&upload, uploadPayload.ID)
 	if err != nil {
 		t.Fatalf("Couldn't find expected upload.")
 	}
@@ -65,24 +89,40 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	_, params := createPrereqs(suite)
 
-	// Create a user that is not associated with the move
-	otherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
 
-	response := makeRequest(suite, params, otherUser, fakeS3)
-	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
-	errResponse := response.(*handlers.ErrResponse)
+	shipment := shipments[0]
+	serviceMember := shipment.Move.Orders.ServiceMember
 
-	suite.Assertions.Equal(http.StatusForbidden, errResponse.Code)
+	smAssertions := testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	}
+
+	document := testdatagen.MakeDocument(suite.TestDB(), smAssertions)
+
+	params := uploadop.NewCreateUploadParams()
+	params.DocumentID = handlers.FmtUUID(document.ID)
+	params.File = suite.Fixture("test.pdf")
+
+	wrongUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+
+	response := makeRequest(suite, params, wrongUser, fakeS3)
+	suite.CheckResponseForbidden(response)
 
 	count, err := suite.TestDB().Count(&models.Upload{})
-
 	if err != nil {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
 	}
-
-	if count != 0 {
+	if count != 1 {
 		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
 	}
 }
@@ -91,12 +131,21 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	document, params := createPrereqs(suite)
 
-	// Make a document ID that is not actually associated with a document
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+
+	params := uploadop.NewCreateUploadParams()
 	params.DocumentID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
+	params.File = suite.Fixture("test.pdf")
 
-	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
+	response := makeRequest(suite, params, tspUser, fakeS3)
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
 	errResponse := response.(*handlers.ErrResponse)
 
@@ -108,7 +157,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
 	}
 
-	if count != 0 {
+	if count != 1 {
 		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
 	}
 }
@@ -117,11 +166,32 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	t := suite.T()
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	document, params := createPrereqs(suite)
 
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	shipment := shipments[0]
+	tspUser := tspUsers[0]
+	serviceMember := shipment.Move.Orders.ServiceMember
+
+	smAssertions := testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	}
+
+	document := testdatagen.MakeDocument(suite.TestDB(), smAssertions)
+
+	params := uploadop.NewCreateUploadParams()
+	params.DocumentID = handlers.FmtUUID(document.ID)
 	params.File = suite.Fixture("empty.pdf")
 
-	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
+	response := makeRequest(suite, params, tspUser, fakeS3)
 	suite.CheckResponseBadRequest(response)
 
 	count, err := suite.TestDB().Count(&models.Upload{})
@@ -130,7 +200,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
 	}
 
-	if count != 0 {
+	if count != 1 {
 		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
 	}
 }
@@ -138,9 +208,32 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
 	fakeS3 := storageTest.NewFakeS3Storage(false)
-	document, params := createPrereqs(suite)
 
-	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	shipment := shipments[0]
+	tspUser := tspUsers[0]
+	serviceMember := shipment.Move.Orders.ServiceMember
+
+	smAssertions := testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	}
+
+	document := testdatagen.MakeDocument(suite.TestDB(), smAssertions)
+
+	params := uploadop.NewCreateUploadParams()
+	params.DocumentID = handlers.FmtUUID(document.ID)
+	params.File = suite.Fixture("test.pdf")
+
+	response := makeRequest(suite, params, tspUser, fakeS3)
 	suite.CheckResponseInternalServerError(response)
 
 	count, err := suite.TestDB().Count(&models.Upload{})
@@ -149,7 +242,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
 	}
 
-	if count != 0 {
+	if count != 1 {
 		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
 	}
 }
@@ -174,7 +267,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	handler := DeleteUploadHandler{context}
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.DeleteUploadNoContent)
+	_, ok := response.(*internaluploadop.DeleteUploadNoContent)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
@@ -214,7 +307,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	handler := DeleteUploadsHandler{context}
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.DeleteUploadsNoContent)
+	_, ok := response.(*internaluploadop.DeleteUploadsNoContent)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
