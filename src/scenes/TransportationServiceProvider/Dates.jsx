@@ -188,10 +188,11 @@ DatesPanel = reduxForm({
 
 DatesPanel.propTypes = {
   shipment: PropTypes.object,
+  schema: PropTypes.object,
 };
 
 function mapStateToProps(state, props) {
-  let formValues = getFormValues(formName)(state);
+  const formValues = getFormValues(formName)(state);
 
   return {
     // reduxForm
