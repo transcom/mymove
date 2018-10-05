@@ -63,7 +63,6 @@ class ScratchPad extends Component {
                     item: 'Crate',
                   },
                 ]}
-                ref={form => (this.formReference = form)}
                 onSubmit={this.onSubmit}
               />
               <button

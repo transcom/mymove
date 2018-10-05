@@ -1,7 +1,6 @@
 import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { reduxForm, Form } from 'redux-form';
 
@@ -98,10 +97,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(
-  PreApprovalRequestForm,
-);
+export default connect(mapStateToProps)(PreApprovalRequestForm);
