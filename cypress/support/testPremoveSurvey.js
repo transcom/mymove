@@ -44,7 +44,7 @@ export function fillAndSavePremoveSurvey() {
     .type('8000')
     .blur();
   cy
-    .get('input[name="survey.pm_survey_notes"]')
+    .get('textarea[name="survey.pm_survey_notes"]')
     .first()
     .type('Notes notes notes')
     .blur();

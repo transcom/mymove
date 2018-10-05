@@ -57,7 +57,7 @@ function tspUserEntersDates() {
     .type('9/25/2018')
     .blur();
   cy
-    .get('input[name="dates.pm_survey_notes"]')
+    .get('textarea[name="dates.pm_survey_notes"]')
     .first()
     .type('Notes notes notes for dates')
     .blur();
