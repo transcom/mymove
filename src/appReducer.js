@@ -16,6 +16,7 @@ import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import { ordersReducer } from 'scenes/Orders/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';
+import { hhgReducer } from 'scenes/Moves/Hhg/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
@@ -39,6 +40,7 @@ export const appReducer = combineReducers({
   ...defaultReducers,
   submittedIssues: issuesReducer,
   moves: moveReducer,
+  hhg: hhgReducer,
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
   orders: ordersReducer,
