@@ -128,17 +128,24 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
       - run:
           name: Install YARN dependencies
           command: yarn install
       - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+          key: v1-cache-yarn-v2-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
           paths:
-            - node_modules
+            - ~/.cache/yarn/v2
+      - save_cache:
+          key: v1-mymove-node-modules-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
+          paths:
+            - ~/go/src/github.com/transcom/mymove/node_modules
       - announce_failure
 
-  pre_test:
+  test_precommit:
     executor: mymove
     steps:
       - checkout
@@ -150,7 +157,10 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+      - restore_cache:
+          keys:
+            - cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Install prettier
           command: npm install prettier@~1.12.0
@@ -161,16 +171,22 @@ jobs:
           name: Install markdown-toc
           command: npm install markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      #- run:
+      #    name: Run make server_generate
+      #    command: make server_generate
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Install dependencies
+          command: |
+            go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+            go build -i -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
+            go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
       - save_cache:
-          key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+          key: cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
           paths:
-            - ~/.cache/pre-commit
+            - ~/.cache/pre-commit/
       - announce_failure
 
   integration_tests:
@@ -187,8 +203,16 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - client-deps-cache-{{ checksum "yarn.lock" }}
-
+            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - cache-cypress-3.1.0
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
           # itself starts making database connections.
@@ -245,11 +269,10 @@ jobs:
           path: cypress/screenshots
       - store_test_results:
           path: cypress/results
-
       - save_cache:
-          key: client-deps-cache-{{ checksum "yarn.lock" }}
+          key: cache-cypress-3.1.0
           paths:
-            - ~/.cache
+            - ~/.cache/Cypress/3.1.0
       - announce_failure
 
   vuln_scan:
@@ -264,7 +287,10 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - run:
           name: Authenticate with Snyk
           command: npx snyk auth $SNYK_API_TOKEN
@@ -282,6 +308,53 @@ jobs:
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
       - announce_failure
 
+  build_gen:
+    executor: mymove_and_postgres
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+      - run:
+          name: generate server
+          command: |
+            if [[ ! -d pkg/gen ]]; then
+              go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+              mkdir -p pkg/gen
+              bin/swagger generate server -q -f swagger/internal.yaml -t pkg/gen --model-package internalmessages --server-package internalapi --api-package internaloperations --exclude-main -A mymove
+              bin/swagger generate server -q -f swagger/api.yaml -t pkg/gen --model-package apimessages --server-package restapi --api-package apioperations --exclude-main -A mymove
+              bin/swagger generate server -q -f swagger/orders.yaml -t pkg/gen --model-package ordersmessages --server-package ordersapi --api-package ordersoperations --exclude-main -A mymove
+            fi
+      - save_cache:
+          key: mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+          paths:
+            - ~/go/src/github.com/transcom/mymove/pkg/gen
+
+  build_tools:
+    executor: mymove
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+      - run:
+          name: build tools
+          command: |
+            go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
+            go build -i -o bin/generate-test-data ./cmd/generate_test_data
+            go build -i -o bin/rateengine ./cmd/demo/rateengine.go
+            go build -i -o bin/make-office-user ./cmd/make_office_user
+            go build -i -o bin/load-office-data ./cmd/load_office_data
+            go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
+            go build -i -o bin/load-user-gen ./cmd/load_user_gen
+            go build -i -o bin/paperwork ./cmd/paperwork
+
   build_app:
     executor: mymove_and_postgres
     steps:
@@ -290,14 +363,16 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-
+            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
           # itself starts making database connections.
@@ -305,11 +380,21 @@ jobs:
           command: |
             sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-9.6
-
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run: make deps
-      - run: make client_build
-      - run: make client_test
+      - run: bin/copy_swagger_ui.sh
+      - run:
+          name: make server_deps
+          command: |
+            go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
+            go build -i -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
+            go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
+            go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
+            go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+      - run: go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
+      - run: go build -o bin/mymove-server -ldflags "-linkmode external -extldflags -static" ./cmd/webserver
+      - run: go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
+      - run: yarn build
+      - run: yarn test
       - run:
           name: make server_test
           command: make server_test
@@ -322,15 +407,13 @@ jobs:
             DB_NAME: test_db
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
-      - run: make tools_build
-      - run: make server_build_docker
+      - run: docker build -f Dockerfile.ci -t ppp:web-dev .
       - run:
           name: Tag and push image
           command: |
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
-
       - announce_failure
 
   build_migrations:
@@ -447,14 +530,10 @@ workflows:
 
   app:
     jobs:
+
       - pre_deps_golang
 
       - pre_deps_yarn
-
-      - pre_test:
-          requires:
-            - pre_deps_golang
-            - pre_deps_yarn
 
       #- vuln_scan # keep disabled until we work out new process
       #  requires:
@@ -465,23 +544,42 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - build_gen
+
+      - build_gen:
+          requires:
+            - pre_deps_golang
+
+      - build_tools:
+          requires:
+            - pre_deps_golang
+            - build_gen
 
       - build_app:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - build_gen
 
       - build_migrations:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
 
+      - test_precommit:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            - build_gen
+
       - deploy_experimental_migrations:
           requires:
-            - pre_test
+            - test_precommit
             #- vuln_scan # keep disabled until we work out new process
+            # - build_tools # not required for experimental deployments
             - build_app
             - build_migrations
+            # - integration_tests # not required for experimental deployments
           filters:
             branches:
               only: mutual_tls_health_check
@@ -502,8 +600,9 @@ workflows:
 
       - deploy_staging_migrations:
           requires:
-            - pre_test
+            - test_precommit
             #- vuln_scan # keep disabled until we work out new process
+            - build_tools
             - build_app
             - build_migrations
             - integration_tests
