@@ -4,12 +4,11 @@ import { AddressElementDisplay } from 'shared/Address';
 import { LocationsDisplay } from './Locations';
 
 const defaultProps = {
+  deliveryAddress: {},
   shipment: {
     delivery_address: {},
     pickup_address: {},
     has_delivery_address: false,
-    has_secondary_pickup_address: false,
-    secondary_pickup_address: {},
     service_member: { current_station: { address: {} } },
   },
 };
@@ -31,7 +30,12 @@ describe('Locations component test', () => {
         postal_code: '094321',
       },
     };
-    const wrapper = shallow(<LocationsDisplay shipment={shipment} />);
+    const wrapper = shallow(
+      <LocationsDisplay
+        shipment={shipment}
+        deliveryAddress={shipment.delivery_address}
+      />,
+    );
     it('should render 2 headers', () => {
       const headers = wrapper.find('.column-subhead');
       expect(headers.length).toBe(2);
