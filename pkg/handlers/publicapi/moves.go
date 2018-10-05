@@ -28,5 +28,6 @@ func payloadForMoveModel(move *models.Move) *apimessages.Move {
 		Status:           apimessages.MoveStatus(move.Status),
 		Locator:          swag.String(move.Locator),
 		CancelReason:     swag.String(cancelReason),
+		NewDutyStation:   payloadForDutyStationModel(move.Orders.NewDutyStation),
 	}
 }

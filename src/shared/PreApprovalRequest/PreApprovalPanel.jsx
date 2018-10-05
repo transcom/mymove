@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 import PreApprovalRequestForm, {
   formName as PreApprovalRequestFormName,
 } from 'shared/PreApprovalRequestForm';
+import { isOfficeSite } from 'shared/constants.js';
 import { submit, isValid, isSubmitting } from 'redux-form';
-import TableList from 'shared/PreApprovalRequest/TableList.jsx';
+import PreApprovalTable from 'shared/PreApprovalRequest/PreApprovalTable.jsx';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -28,13 +29,12 @@ class PreApprovalPanel extends Component {
     return (
       <div>
         <BasicPanel title={'PreApproval Requests'}>
-          <TableList
+          <PreApprovalTable
             shipment_accessorials={this.props.shipment_accessorials}
-            // TODO: Check if office or tsp app - set true for office
             isActionable={true}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
-            onApproval={this.onApproval}
+            onApproval={isOfficeSite ? this.onApproval : null}
           />
           <PreApprovalRequestForm
             accessorials={this.props.accessorials}

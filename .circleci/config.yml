@@ -35,25 +35,67 @@ commands:
           command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - announce_failure
   deploy_app_steps:
+    parameters:
+      health_check_url:
+        type: string
     steps:
       - checkout
       - setup_remote_docker
       - deploy:
           name: Deploy app service
           command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
-      - run:
-          name: Health check app site
-          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
+      - health_check:
+          url: << parameters.health_check_url >>
       - announce_failure
   deploy_app_client_tls_steps:
+    parameters:
+      health_check_url:
+        type: string
     steps:
       - checkout
       - setup_remote_docker
       - deploy:
           name: Deploy app-client-tls service
           command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+      - health_check_tls:
+          url: << parameters.health_check_url >>
       - announce_failure
-
+  health_check:
+    parameters:
+      url:
+        type: string
+    steps:
+      - run:
+          name: Health check app site
+          command: |
+            for retry in `seq 1 10`; do
+              if curl -f -sS -o /dev/null << parameters.url >>; then
+                echo Passed.;
+                exit 0;
+              else
+                sleep $(($retry*3));
+              fi;
+            done;
+            exit 1
+  health_check_tls:
+    parameters:
+      url:
+        type: string
+    steps:
+      - run:
+          name: Health check app site
+          command: |
+            for retry in `seq 1 10`; do
+              httpResponse=$(curl << parameters.url >> --key <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" | base64 --decode) --cert <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" | base64 --decode) --cacert <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" | base64 --decode) -I)
+              statusCode=$(echo "$httpResponse" | grep HTTP/2 | awk {'print $2'})
+              if [[ "$statusCode" == "200" ]]; then
+                echo Passed.;
+                exit 0;
+              else
+                sleep $(($retry*3));
+              fi;
+            done;
+            exit 1
 
 jobs:
 
@@ -317,16 +359,17 @@ jobs:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
-      - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
     steps:
-      - deploy_app_steps
+      - deploy_app_steps:
+          health_check_url: "https://my.experimental.move.mil/health"
 
   deploy_experimental_app_client_tls:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
     steps:
-      - deploy_app_client_tls_steps
+      - deploy_app_client_tls_steps:
+          health_check_url: "https://office.experimental.move.mil/health"
 
   deploy_staging_migrations:
     executor: mymove
@@ -339,16 +382,17 @@ jobs:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
     steps:
-      - deploy_app_steps
+      - deploy_app_steps:
+          health_check_url: "https://my.staging.move.mil/health"
 
   deploy_staging_app_client_tls:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
     steps:
-      - deploy_app_client_tls_steps
+      - deploy_app_client_tls_steps:
+          health_check_url: "https://office.staging.move.mil/health"
 
   deploy_prod_migrations:
     executor: mymove
@@ -361,16 +405,17 @@ jobs:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
-      - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
     steps:
-      - deploy_app_steps
+      - deploy_app_steps:
+          health_check_url: "https://my.move.mil/health"
 
   deploy_prod_app_client_tls:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
     steps:
-      - deploy_app_client_tls_steps
+      - deploy_app_client_tls_steps:
+          health_check_url: "https://office.move.mil/health"
 
   update_dependencies:
     executor: mymove
@@ -439,21 +484,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: executors
+              only: mutual_tls_health_check
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: executors
+              only: mutual_tls_health_check
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: executors
+              only: mutual_tls_health_check
 
       - deploy_staging_migrations:
           requires:
@@ -461,6 +506,7 @@ workflows:
             #- vuln_scan # keep disabled until we work out new process
             - build_app
             - build_migrations
+            - integration_tests
           filters:
             branches:
               only: master

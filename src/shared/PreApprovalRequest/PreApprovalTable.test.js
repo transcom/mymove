@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import TableList from './TableList.jsx';
+import PreApprovalTable from './PreApprovalTable.jsx';
 
-describe('TableList tests', () => {
+describe('PreApprovalTable tests', () => {
   let wrapper, icons;
   const onEdit = jest.fn();
   const shipment_accessorials = [
@@ -29,7 +29,7 @@ describe('TableList tests', () => {
   describe('When on approval is passed in and status is submitted', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
-        <TableList
+        <PreApprovalTable
           shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}
@@ -45,7 +45,7 @@ describe('TableList tests', () => {
   describe('When on approval is NOT passed in and status is SUBMITTED', () => {
     beforeEach(() => {
       wrapper = shallow(
-        <TableList
+        <PreApprovalTable
           shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}
@@ -63,7 +63,7 @@ describe('TableList tests', () => {
       shipment_accessorials[0].status = 'APPROVED';
       shipment_accessorials[1].status = 'APPROVED';
       wrapper = shallow(
-        <TableList
+        <PreApprovalTable
           shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}
@@ -82,7 +82,7 @@ describe('TableList tests', () => {
       shipment_accessorials[0].status = 'APPROVED';
       shipment_accessorials[1].status = 'APPROVED';
       wrapper = shallow(
-        <TableList
+        <PreApprovalTable
           shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}

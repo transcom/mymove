@@ -1,0 +1,2 @@
+add_column("shipments", "pm_survey_conducted_date", "datetime", {"null": true})
+add_column("shipments", "actual_pack_date", "datetime", {"null": true})
