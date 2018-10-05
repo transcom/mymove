@@ -47,10 +47,7 @@ const DatesDisplay = props => {
           {...fieldProps}
         />
         <div className="column-subhead">Packing</div>
-        <PanelField
-          title="Original"
-          value="estimated_pickup_date - estimated_pack_days TK"
-        />
+        <PanelField title="Original" value="TODO" />
         <PanelSwaggerField
           fieldName="pm_survey_planned_pack_date"
           required
@@ -85,19 +82,14 @@ const DatesDisplay = props => {
           {...fieldProps}
         />
         <div className="column-subhead">Delivery</div>
+        <PanelField title="Original" value="TODO" />
         <PanelSwaggerField
           fieldName="pm_survey_planned_delivery_date"
           required
           title="Planned"
           {...fieldProps}
         />
-        <PanelSwaggerField
-          fieldName="actual_delivery_date"
-          required
-          title="Actual"
-          {...fieldProps}
-        />
-        <PanelField title="RDD" value="shipment.requested_delivery_date TK" />
+        <PanelField title="Current RDD" value="TODO" />
         <PanelSwaggerField
           fieldName="pm_survey_notes"
           required
@@ -131,7 +123,7 @@ const DatesEdit = props => {
             required
           />
           <div className="column-head">Packing</div>
-          <PanelField title="Original" value="Original pack date TK" />
+          <PanelField title="Original" value="TODO" />
           <SwaggerField
             fieldName="pm_survey_planned_pack_date"
             required
@@ -166,19 +158,14 @@ const DatesEdit = props => {
             swagger={schema}
           />
           <div className="column-head">Delivery</div>
+          <PanelField title="Original" value="TODO" />
           <SwaggerField
             fieldName="pm_survey_planned_delivery_date"
             required
             title="Planned"
             swagger={schema}
           />
-          <SwaggerField
-            fieldName="actual_delivery_date"
-            required
-            title="Actual"
-            swagger={schema}
-          />
-          <PanelField title="RDD" value="RDD TK" />
+          <PanelField title="Current RDD" value="TODO" />
           <SwaggerField
             fieldName="pm_survey_notes"
             title="Notes about dates"
