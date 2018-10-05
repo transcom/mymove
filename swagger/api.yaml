@@ -225,7 +225,7 @@ definitions:
         title: Base Quantity
         description: 1st Accessorial base quantity
         minimum: 0
-        example: 10000
+        example: 16.7
       quantity_2:
         type: integer
         title: 2nd Quantity
@@ -236,6 +236,7 @@ definitions:
         $ref: '#/definitions/AccessorialLocation'
       notes:
         type: string
+        format: textarea
         title: Notes
         example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       status:
@@ -261,7 +262,6 @@ definitions:
       - shipment_id
       - quantity_1
       - location
-      - notes
   Address:
     type: object
     properties:
