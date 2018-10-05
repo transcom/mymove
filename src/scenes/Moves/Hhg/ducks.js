@@ -28,11 +28,11 @@ export function fetchShipment(moveId, shipmentId) {
   };
 }
 
-export function getMoveDatesSummary(moveDate) {
+export function getMoveDatesSummary(moveId, moveDate) {
   const action = ReduxHelpers.generateAsyncActions('GET_MOVE_DATES_SUMMARY');
   return function(dispatch) {
     dispatch(action.start);
-    return GetMoveDatesSummary(moveDate)
+    return GetMoveDatesSummary(moveId, moveDate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };

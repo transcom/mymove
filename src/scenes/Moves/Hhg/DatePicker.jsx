@@ -13,12 +13,15 @@ import { getMoveDatesSummary } from './ducks';
 export class HHGDatePicker extends Component {
   handleDayClick = day => {
     this.props.input.onChange(formatSwaggerDate(day));
-    this.props.getMoveDatesSummary(day);
+    this.props.getMoveDatesSummary(this.props.shipment.move_id, day);
   };
 
   componentDidMount() {
     if (!isNil(this.props.requestedPickupDate)) {
-      this.props.getMoveDatesSummary(this.props.requestedPickupDate);
+      this.props.getMoveDatesSummary(
+        this.props.shipment.move_id,
+        this.props.requestedPickupDate,
+      );
     }
   }
 
@@ -100,6 +103,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const props = {
     requestedPickupDate: get(state.hhg, 'currentHhg.requestedPickupDate', null),
+    shipment: get(state.hhg, 'currentHhg', null),
     moveDates: state.moveDates,
   };
   return props;
