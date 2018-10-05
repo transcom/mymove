@@ -301,6 +301,7 @@ definitions:
         default: United States
     required:
       - street_address_1
+      - state
       - city
       - postal_code
   IndexBlackoutsPayload:
@@ -537,6 +538,8 @@ definitions:
         type: string
         example: 'Change of orders'
         x-nullable: true
+      new_duty_station:
+        $ref: '#/definitions/DutyStation'
     required:
       - orders_id
       - locator
@@ -654,6 +657,31 @@ definitions:
       MARINES: Marines
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
+  DutyStation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        format: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - created_at
+      - updated_at
   ServiceMember:
     type: object
     properties:
@@ -775,9 +803,9 @@ definitions:
     title: Backup Contact Permissions
     example: VIEW
     enum:
-    - NONE
-    - VIEW
-    - EDIT
+      - NONE
+      - VIEW
+      - EDIT
     x-display-value:
       NONE: Contact Only
       VIEW: View all move details
@@ -817,12 +845,19 @@ definitions:
         readOnly: true
       actual_pickup_date:
         type: string
-        format: date-time
-        example: 2018-04-21T17:32:28Z
+        format: date
+        example: '2018-04-21'
+        x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: '2018-04-21'
+        x-nullable: true
       actual_delivery_date:
         type: string
-        format: date-time
-        example: 2018-04-27T17:32:28Z
+        format: date
+        example: '2018-04-27'
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -850,8 +885,8 @@ definitions:
         example: '2018-03-15'
       requested_pickup_date:
         type: string
-        format: date-time
-        example: 2018-04-19T17:32:28Z
+        format: date
+        example: '2018-04-19'
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
@@ -922,6 +957,12 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Actual Weight
+      pm_survey_conducted_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: 'Conducted'
+        x-nullable: true
       pm_survey_planned_pack_date:
         type: string
         format: date
@@ -964,8 +1005,9 @@ definitions:
       pm_survey_notes:
         type: string
         example: This document is good to go!
+        format: textarea
         x-nullable: true
-        title: Notes
+        title: Notes about dates
       pm_survey_method:
         type: string
         title: Survey method
