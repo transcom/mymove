@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/operations"
 )
 
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
@@ -75,12 +76,12 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Canceling move will result in canceled associated PPMs
-	canceMove := new(CancelMove)
-	cancelMove.Run(moveID, *params.CancelMove.CancelReason)
+	cancelMove := operations.CancelMove{DB: h.DB(), Logger: h.Logger(), Session: session, Notifier: h.NotificationSender()}
+	move := cancelMove.Run(moveID, *params.CancelMove.CancelReason)
 
-	if cancelMove.err != nil {
-		h.Logger().Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+	if cancelMove.Err != nil {
+		h.Logger().Error("Attempted to cancel move, got invalid transition", zap.Error(cancelMove.Err), zap.String("move_status", string(move.Status)))
+		return handlers.ResponseForError(h.Logger(), cancelMove.Err)
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

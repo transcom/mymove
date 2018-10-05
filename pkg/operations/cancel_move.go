@@ -9,51 +9,38 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 )
 
-// StatusOperation is the interface for models' status operations
-type StatusOperation interface {
-	DB() *pop.Connection
-	Logger() *zap.Logger
-	Session() *auth.Session
-	Verrs() *validate.Errors
-	err() error
+// CancelMove is a struct on the service object layer to handle move cancelations
+type CancelMove struct {
+	DB       *pop.Connection
+	Logger   *zap.Logger
+	Session  *auth.Session
+	Notifier notifications.NotificationSender
+	Verrs    *validate.Errors
+	Err      error
 }
 
-type cancelMove struct {
-	db      *pop.Connection
-	logger  *zap.Logger
-	session *auth.Session
-	verrs   *validate.Errors
-	err     error
-}
-
-// DB returns a POP db connection for the operation
-func (cancelMove *cancelMove) DB() *pop.Connection {
-	return cancelMove.db
-}
-
-// Logger returns the logger to use in the operation
-func (cancelMove *cancelMove) Logger() *zap.Logger {
-	return cancelMove.logger
-}
-
-func (cancelMove *cancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.Move, err error) {
-	move, err := models.FetchMove(db, session, moveID)
+// Run runs CancelMove
+func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.Move) {
+	move, err := models.FetchMove(cm.DB, cm.Session, moveID)
 	if err != nil {
-		return nil, err
+		cm.Err = err
+		return nil
 	}
 
 	// We can cancel any move that isn't already complete.
 	if move.Status == models.MoveStatusCOMPLETED || move.Status == models.MoveStatusCANCELED {
-		return nil, errors.Wrap(models.ErrInvalidTransition, "Cancel")
+		cm.Err = errors.Wrap(models.ErrInvalidTransition, "Cancel")
+		return nil
 	}
 
 	move.Status = models.MoveStatusCANCELED
 
 	// If a reason was submitted, add it to the move record.
-	if reason != "" {
-		move.CancelReason = &reason
+	if cancelReason != "" {
+		move.CancelReason = &cancelReason
 	}
 
 	// This will work only if you use the PPM in question rather than a var representing it
@@ -61,24 +48,33 @@ func (cancelMove *cancelMove) Run(moveID uuid.UUID, cancelReason string) (move *
 	for i := range move.PersonallyProcuredMoves {
 		err := move.PersonallyProcuredMoves[i].Cancel()
 		if err != nil {
-			return nil, err
+			cm.Err = err
+			return nil
 		}
 	}
 
 	// Save move, orders, and PPMs statuses
-	verrs, err := models.SaveMoveDependencies(db, move)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+	verrs, err := models.SaveMoveDependencies(cm.DB, move)
+	if err != nil {
+		cm.Err = err
+		return nil
+	}
+	if verrs.HasAny() {
+		cm.Verrs = verrs
+		err = errors.New("Cancel move validation error failure")
+		cm.Err = err
+		return nil
 	}
 
-	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveCanceled(h.DB(), h.Logger(), session, moveID),
+	err = cm.Notifier.SendNotification(
+		notifications.NewMoveCanceled(cm.DB, cm.Logger, cm.Session, moveID),
 	)
 
 	if err != nil {
-		h.Logger().Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		cm.Logger.Error("problem sending email to user", zap.Error(err))
+		cm.Err = err
+		return nil
 	}
 
-	return &move, nil
+	return move
 }
