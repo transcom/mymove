@@ -137,7 +137,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 	suite.Assertions.IsType(&accessorialop.UpdateShipmentAccessorialOK{}, response)
 	okResponse := response.(*accessorialop.UpdateShipmentAccessorialOK)
 
-	// And: Payload is equivalent to original shipment accessorial
+	// Payload should match the UpdateShipmentAccesorial
 	suite.Equal(updateShipmentAccessorial.ID.String(), okResponse.Payload.ID.String())
 	suite.Equal(updateShipmentAccessorial.ShipmentID.String(), okResponse.Payload.ShipmentID.String())
 	suite.Equal(updateShipmentAccessorial.Location, okResponse.Payload.Location)
@@ -192,7 +192,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	suite.Assertions.IsType(&accessorialop.UpdateShipmentAccessorialOK{}, response)
 	okResponse := response.(*accessorialop.UpdateShipmentAccessorialOK)
 
-	// And: Payload is equivalent to original shipment accessorial
+	// Payload should match the UpdateShipmentAccesorial
 	suite.Equal(updateShipmentAccessorial.ID.String(), okResponse.Payload.ID.String())
 	suite.Equal(updateShipmentAccessorial.ShipmentID.String(), okResponse.Payload.ShipmentID.String())
 	suite.Equal(updateShipmentAccessorial.Location, okResponse.Payload.Location)
