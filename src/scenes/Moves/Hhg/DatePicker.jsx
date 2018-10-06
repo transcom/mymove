@@ -9,9 +9,11 @@ import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import './DatePicker.css';
 import { bindActionCreators } from 'redux';
 import { getMoveDatesSummary } from './ducks';
+import moment from 'moment';
 
 export class HHGDatePicker extends Component {
   handleDayClick = day => {
+    // TODO: make this actually work
     this.props.input.onChange(formatSwaggerDate(day));
     this.props.getMoveDatesSummary(this.props.shipment.move_id, day);
   };
@@ -26,15 +28,20 @@ export class HHGDatePicker extends Component {
   }
 
   render() {
-    // const {
-    //     packDates,
-    //     pickupDates,
-    //     transitDates,
-    //     deliveryDates,
-    //     reportDates,
-    // } = this.props.moveDates;
+    function formatDate(date) {
+      if (date) {
+        return moment(date).format('ddd, MMMM DD');
+      }
+    }
+
+    const pickupDates = get(this.props.moveDates, 'pickup', []);
+    const packDates = get(this.props.moveDates, 'pack', []);
+    const deliveryDates = get(this.props.moveDates, 'delivery', []);
+    const transitDates = get(this.props.moveDates, 'transit', []);
+    const reportDates = get(this.props.moveDates, 'report', []);
 
     const selectedDay = this.props.input.value;
+
     return (
       <div className="form-section">
         <h3 className="instruction-heading">
@@ -50,42 +57,46 @@ export class HHGDatePicker extends Component {
           </div>
 
           <div className="usa-width-two-thirds">
-            {selectedDay && (
-              <table className="Todo-phase2">
-                <tbody>
-                  <tr>
-                    <th className="Todo-phase2">
-                      Preferred Moving Dates Summary
-                    </th>
-                  </tr>
-                  <tr>
-                    <td>Movers Packing</td>
-                    <td className="Todo-phase2">
-                      Wed, June 6 - Thur, June 7{' '}
-                      <span className="estimate">*estimated</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Movers Loading Truck</td>
-                    <td className="Todo-phase2">Fri, June 8</td>
-                  </tr>
-                  <tr>
-                    <td>Moving Truck in Transit</td>
-                    <td className="Todo-phase2">Fri, June 8 - Mon, June 11</td>
-                  </tr>
-                  <tr>
-                    <td>Movers Delivering</td>
-                    <td className="Todo-phase2">
-                      Tues, June 12 <span className="estimate">*estimated</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Report By Date</td>
-                    <td className="Todo-phase2">Monday, July 16</td>
-                  </tr>
-                </tbody>
-              </table>
-            )}
+            {selectedDay &&
+              !isNil(this.props.moveDates) && (
+                <table>
+                  <tbody>
+                    <tr>
+                      <th>Preferred Moving Dates Summary</th>
+                    </tr>
+                    <tr>
+                      <td>Movers Packing</td>
+                      <td>
+                        {formatDate(packDates[0])} -{' '}
+                        {formatDate(packDates[packDates.length - 1])}
+                        <span className="estimate">*estimated</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Movers Loading Truck</td>
+                      <td>{formatDate(pickupDates[0])}</td>
+                    </tr>
+                    <tr>
+                      <td>Moving Truck in Transit</td>
+                      <td>
+                        {formatDate(transitDates[0])} -{' '}
+                        {formatDate(transitDates[transitDates.length - 1])}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Movers Delivering</td>
+                      <td>
+                        {formatDate(deliveryDates[0])}{' '}
+                        <span className="estimate">*estimated</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Report By Date</td>
+                      <td>{formatDate(reportDates[0])}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              )}
           </div>
         </div>
       </div>
@@ -103,8 +114,8 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const props = {
     requestedPickupDate: get(state.hhg, 'currentHhg.requestedPickupDate', null),
-    shipment: get(state.hhg, 'currentHhg', null),
-    moveDates: state.moveDates,
+    shipment: get(state.hhg, 'currentHhg', {}),
+    moveDates: get(state.hhg, 'moveDates', {}),
   };
   return props;
 }
