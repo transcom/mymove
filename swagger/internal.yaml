@@ -14,6 +14,122 @@ consumes:
 produces:
   - application/json
 definitions:
+  ShipmentAccessorial:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accessorial:
+        $ref: '#/definitions/Accessorial'
+      quantity_1:
+        type: integer
+        title: Base Quantity
+        description: 1st Accessorial base quantity
+        minimum: 0
+        example: 16.7
+      quantity_2:
+        type: integer
+        title: 2nd Quantity
+        description: 2nd Accessorial base quantity
+        minimum: 0
+        example: 10000
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      notes:
+        type: string
+        format: textarea
+        title: Notes
+        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+      status:
+        $ref: '#/definitions/AccessorialStatus'
+      submitted_date:
+        type: string
+        title: Submitted Date
+        format: date-time
+        example: 2018-10-21
+      approved_date:
+        type: string
+        title: Approved Date
+        format: date-time
+        example: 2018-10-21
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - shipment_id
+      - quantity_1
+      - location
+  AccessorialStatus:
+    type: string
+    title: Status
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - INVOICED
+    x-display-value:
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      INVOICED: Invoiced
+  AccessorialLocation:
+    type: string
+    title: Location
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - NEITHER
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
+      NEITHER: Neither
+  Accessorial:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        title: Code
+        example: 105B
+      discount_type:
+        type: string
+        title: Discount
+        example: dHHG
+      location:
+        $ref: '#/definitions/AccessorialLocation'
+      item:
+        type: string
+        title: Item
+        example: Linehaul Transportation
+      uom_1:
+        type: string
+        title: 1st UOM
+        example: Days
+      uom_2:
+        type: string
+        title: 2nd UOM
+        example: Net Billing Weight
+      ref_code:
+        type: string
+        title: Reference Code
+        example: Point Schedule
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
   LoggedInUserPayload:
     type: object
     properties:

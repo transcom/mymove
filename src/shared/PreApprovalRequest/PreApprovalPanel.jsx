@@ -38,7 +38,6 @@ class PreApprovalPanel extends Component {
           />
           <PreApprovalRequestForm
             accessorials={this.props.accessorials}
-            ref={form => (this.formReference = form)}
             onSubmit={this.onSubmit}
           />
           <button

@@ -5,8 +5,6 @@ import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
 
 import PreApprovalRequestForm from '.';
-// import SwaggerField from 'shared/JsonSchemaForm/JsonSchemaField';
-// import Form from 'redux-form';
 
 const simpleSchema = {
   properties: {

@@ -74,7 +74,7 @@ class PreApprovalRequestForm extends Component {
 }
 
 PreApprovalRequestForm.propTypes = {
-  ship_accessorial_schema: PropTypes.object,
+  schema: PropTypes.object,
   accessorials: PropTypes.array,
   onSubmit: PropTypes.func.isRequired,
 };
