@@ -13,12 +13,12 @@ import moment from 'moment';
 
 export class HHGDatePicker extends Component {
   handleDayClick = day => {
-    // TODO: make this actually work
     this.props.input.onChange(formatSwaggerDate(day));
     this.props.getMoveDatesSummary(this.props.shipment.move_id, day);
   };
 
   componentDidMount() {
+    // TODO: make this actually work
     if (!isNil(this.props.requestedPickupDate)) {
       this.props.getMoveDatesSummary(
         this.props.shipment.move_id,
