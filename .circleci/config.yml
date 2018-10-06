@@ -14,6 +14,89 @@ executors:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
 
+commands:
+  announce_failure:
+    parameters:
+    steps:
+      - run:
+          name: Announce failure
+          command: |
+            [[ $CIRCLE_BRANCH = master ]] || exit 0
+            bin/circleci-announce-broken-branch
+          when: on_fail
+  deploy_migrations_steps:
+    steps:
+      - checkout
+      - run:
+          name: Snapshot database
+          command: bin/rds-snapshot-app-db $APP_ENVIRONMENT
+      - run:
+          name: Run database migrations
+          command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+      - announce_failure
+  deploy_app_steps:
+    parameters:
+      health_check_url:
+        type: string
+    steps:
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy app service
+          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+      - health_check:
+          url: << parameters.health_check_url >>
+      - announce_failure
+  deploy_app_client_tls_steps:
+    parameters:
+      health_check_url:
+        type: string
+    steps:
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy app-client-tls service
+          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+      - health_check_tls:
+          url: << parameters.health_check_url >>
+      - announce_failure
+  health_check:
+    parameters:
+      url:
+        type: string
+    steps:
+      - run:
+          name: Health check app site
+          command: |
+            for retry in `seq 1 10`; do
+              if curl -f -sS -o /dev/null << parameters.url >>; then
+                echo Passed.;
+                exit 0;
+              else
+                sleep $(($retry*3));
+              fi;
+            done;
+            exit 1
+  health_check_tls:
+    parameters:
+      url:
+        type: string
+    steps:
+      - run:
+          name: Health check app site
+          command: |
+            for retry in `seq 1 10`; do
+              httpResponse=$(curl << parameters.url >> --key <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" | base64 --decode) --cert <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" | base64 --decode) --cacert <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" | base64 --decode) -I)
+              statusCode=$(echo "$httpResponse" | grep HTTP/2 | awk {'print $2'})
+              if [[ "$statusCode" == "200" ]]; then
+                echo Passed.;
+                exit 0;
+              else
+                sleep $(($retry*3));
+              fi;
+            done;
+            exit 1
+
 jobs:
 
   pre_deps_golang:
@@ -37,12 +120,7 @@ jobs:
           key: mymove-vendor-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/vendor
-      - run: &announce_failure
-          name: Announce failure
-          command: |
-            [[ $CIRCLE_BRANCH = master ]] || exit 0
-            bin/circleci-announce-broken-branch
-          when: on_fail
+      - announce_failure
 
   pre_deps_yarn:
     executor: mymove
@@ -58,7 +136,7 @@ jobs:
           key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
-      - run: *announce_failure
+      - announce_failure
 
   pre_test:
     executor: mymove
@@ -93,7 +171,7 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
-      - run: *announce_failure
+      - announce_failure
 
   integration_tests:
     executor: mymove_and_postgres
@@ -172,7 +250,7 @@ jobs:
           key: client-deps-cache-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache
-      - run: *announce_failure
+      - announce_failure
 
   vuln_scan:
     executor: mymove
@@ -202,7 +280,7 @@ jobs:
       - run:
           name: Scan Go dependencies for known vulnerabilities
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
-      - run: *announce_failure
+      - announce_failure
 
   build_app:
     executor: mymove_and_postgres
@@ -253,7 +331,7 @@ jobs:
             docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
 
-      - run: *announce_failure
+      - announce_failure
 
   build_migrations:
     executor: mymove
@@ -268,88 +346,76 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
-      - run: *announce_failure
+      - announce_failure
 
   deploy_experimental_migrations:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
-    steps: &deploy_migrations_steps
-      - checkout
-      - run:
-          name: Snapshot database
-          command: bin/rds-snapshot-app-db $APP_ENVIRONMENT
-      - run:
-          name: Run database migrations
-          command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
-      - run: *announce_failure
+    steps:
+      - deploy_migrations_steps
 
   deploy_experimental_app:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
-      - APP_HEALTH_CHECK_URL: "https://my.experimental.move.mil/health"
-    steps: &deploy_app_steps
-      - checkout
-      - setup_remote_docker
-      - deploy:
-          name: Deploy app service
-          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
-      - run:
-          name: Health check app site
-          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
-      - run: *announce_failure
+    steps:
+      - deploy_app_steps:
+          health_check_url: "https://my.experimental.move.mil/health"
 
   deploy_experimental_app_client_tls:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "experimental"
-    steps: &deploy_app_client_tls_steps
-      - checkout
-      - setup_remote_docker
-      - deploy:
-          name: Deploy app-client-tls service
-          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
-      - run: *announce_failure
+    steps:
+      - deploy_app_client_tls_steps:
+          health_check_url: "https://office.experimental.move.mil/health"
 
   deploy_staging_migrations:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
-    steps: *deploy_migrations_steps
+    steps:
+      - deploy_migrations_steps
 
   deploy_staging_app:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
-    steps: *deploy_app_steps
+    steps:
+      - deploy_app_steps:
+          health_check_url: "https://my.staging.move.mil/health"
 
   deploy_staging_app_client_tls:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "staging"
-    steps: *deploy_app_client_tls_steps
+    steps:
+      - deploy_app_client_tls_steps:
+          health_check_url: "https://office.staging.move.mil/health"
 
   deploy_prod_migrations:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
-    steps: *deploy_migrations_steps
+    steps:
+      - deploy_migrations_steps
 
   deploy_prod_app:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
-      - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
-    steps: *deploy_app_steps
+    steps:
+      - deploy_app_steps:
+          health_check_url: "https://my.move.mil/health"
 
   deploy_prod_app_client_tls:
     executor: mymove
     environment:
       - APP_ENVIRONMENT: "prod"
-    steps: *deploy_app_client_tls_steps
-
+    steps:
+      - deploy_app_client_tls_steps:
+          health_check_url: "https://office.move.mil/health"
 
   update_dependencies:
     executor: mymove
@@ -418,21 +484,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: executors
+              only: mutual_tls_health_check
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: executors
+              only: mutual_tls_health_check
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: executors
+              only: mutual_tls_health_check
 
       - deploy_staging_migrations:
           requires:
@@ -440,6 +506,7 @@ workflows:
             #- vuln_scan # keep disabled until we work out new process
             - build_app
             - build_migrations
+            - integration_tests
           filters:
             branches:
               only: master

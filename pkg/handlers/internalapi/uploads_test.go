@@ -122,10 +122,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	params.File = suite.Fixture("empty.pdf")
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
-	_, ok := response.(*uploadop.CreateUploadBadRequest)
-	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadBadRequest, got %T", response)
-	}
+	suite.CheckResponseBadRequest(response)
 
 	count, err := suite.TestDB().Count(&models.Upload{})
 
@@ -144,10 +141,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
-	_, ok := response.(*uploadop.CreateUploadInternalServerError)
-	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadInternalServerError, got %T", response)
-	}
+	suite.CheckResponseInternalServerError(response)
 
 	count, err := suite.TestDB().Count(&models.Upload{})
 
