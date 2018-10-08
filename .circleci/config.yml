@@ -428,8 +428,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
-            go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
+            go build -o bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
+            go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
       - run: docker build -f Dockerfile.migrations.ci -t ppp-migrations:dev .
       - run:
           name: Tag and push migrations image
