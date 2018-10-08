@@ -22,6 +22,11 @@ type CancelMove struct {
 	Err      error
 }
 
+// * Make transaction occur on the service object level rather than save level
+// * Check attempted transition is valid (potentially pass in accepted states) (maybe abstract this out)
+// * Return a specific error type from the operations level
+// * Write a simpler example maybe (e.g. Cancel PPM, which is called here)
+
 // Run runs CancelMove
 func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.Move) {
 	move, err := models.FetchMove(cm.DB, cm.Session, moveID)
