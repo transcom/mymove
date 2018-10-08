@@ -276,7 +276,7 @@ func (suite *HandlerSuite) TestDeleteShipmentAccessorialTSPHandler() {
 
 	// Check if we actually deleted the shipment accessorial
 	err = suite.TestDB().Find(&shipAcc1, shipAcc1.ID)
-	suite.NotNil(err)
+	suite.Error(err)
 }
 
 func (suite *HandlerSuite) TestDeleteShipmentAccessorialOfficeHandler() {
@@ -311,5 +311,5 @@ func (suite *HandlerSuite) TestDeleteShipmentAccessorialOfficeHandler() {
 
 	// Check if we actually deleted the shipment accessorial
 	err := suite.TestDB().Find(&shipAcc1, shipAcc1.ID)
-	suite.NotNil(err)
+	suite.Error(err)
 }
