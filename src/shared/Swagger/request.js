@@ -87,6 +87,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         error,
         request: updatedRequestLog,
       });
+      // return Promise.reject(error);
     }
 
     return request

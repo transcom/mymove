@@ -70,3 +70,10 @@ export const moveDocuments = new schema.Array(moveDocument);
 moveDocument.define({
   move: move,
 });
+
+// AvailableMoveDates
+export const availableMoveDates = new schema.Entity(
+  'availableMoveDates',
+  {},
+  { idAttribute: 'start_date' },
+);
