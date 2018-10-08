@@ -354,7 +354,7 @@ const mapStateToProps = state => {
     : newDutyStation;
 
   return {
-    swaggerError: state.swagger.hasErrored,
+    swaggerError: state.swaggerInternal.hasErrored,
     shipment,
     deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state),
