@@ -1,8 +1,5 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-
-import configureStore from 'redux-mock-store';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import { Creator } from './Creator';
 import { no_op } from 'shared/utils';
@@ -21,25 +18,19 @@ const accessorials = [
 ];
 const submit = jest.fn();
 const clear = jest.fn();
-const mockStore = configureStore();
-let store;
 let wrapper;
 describe('given a Creator', () => {
   describe('when the form is disabled', () => {
     beforeEach(() => {
-      store = mockStore({});
-      //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
-      wrapper = mount(
-        <Provider store={store}>
-          <Creator
-            accessorials={accessorials}
-            submitForm={submit}
-            formEnabled={false}
-            hasSubmitSucceeded={false}
-            savePreApprovalRequest={no_op}
-            clearForm={clear}
-          />
-        </Provider>,
+      wrapper = shallow(
+        <Creator
+          accessorials={accessorials}
+          submitForm={submit}
+          formEnabled={false}
+          hasSubmitSucceeded={false}
+          savePreApprovalRequest={no_op}
+          clearForm={clear}
+        />,
       );
     });
 
@@ -69,20 +60,15 @@ describe('given a Creator', () => {
   });
   describe('when the form is enabled', () => {
     beforeEach(() => {
-      submit.mockClear();
-      store = mockStore({});
-      //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
-      wrapper = mount(
-        <Provider store={store}>
-          <Creator
-            accessorials={accessorials}
-            submitForm={submit}
-            formEnabled={true}
-            hasSubmitSucceeded={false}
-            savePreApprovalRequest={no_op}
-            clearForm={clear}
-          />
-        </Provider>,
+      wrapper = shallow(
+        <Creator
+          accessorials={accessorials}
+          submitForm={submit}
+          formEnabled={true}
+          hasSubmitSucceeded={false}
+          savePreApprovalRequest={no_op}
+          clearForm={clear}
+        />,
       );
     });
 
@@ -93,31 +79,49 @@ describe('given a Creator', () => {
     it('can toggle to show the form', () => {
       wrapper.find('a').simulate('click');
       expect(wrapper.exists('div.accessorial-panel-modal')).toBe(true);
+      expect(wrapper.state().showForm).toBe(true);
     });
-    it('cancel closes the form', () => {
-      wrapper.find('a').simulate('click');
-      expect(wrapper.exists('div.accessorial-panel-modal')).toBe(true);
-      wrapper.find('a').simulate('click');
-      expect(wrapper.exists('div.accessorial-panel-modal')).toBe(false);
-    });
-    it('buttons are enabled', () => {
-      wrapper.find('a').simulate('click');
-      expect(wrapper.find('button.button-secondary').prop('disabled')).toBe(
-        false,
-      );
-      expect(wrapper.find('button.button-primary').prop('disabled')).toBe(
-        false,
-      );
-    });
-    it('clicking save & add another calls submitForm', () => {
-      wrapper.find('a').simulate('click');
-      wrapper.find('button.button-secondary').simulate('click');
-      expect(submit.mock.calls.length).toBe(1);
-    });
-    it('clicking save & close calls submitForm', () => {
-      wrapper.find('a').simulate('click');
-      wrapper.find('button.button-primary').simulate('click');
-      expect(submit.mock.calls.length).toBe(1);
+
+    describe('when the form is open', () => {
+      beforeEach(() => {
+        submit.mockClear();
+        wrapper.setState({ showForm: true });
+      });
+      it('cancel closes the form', () => {
+        wrapper.find('a').simulate('click');
+        expect(wrapper.exists('div.accessorial-panel-modal')).toBe(false);
+      });
+      it('buttons are enabled', () => {
+        expect(wrapper.find('button.button-secondary').prop('disabled')).toBe(
+          false,
+        );
+        expect(wrapper.find('button.button-primary').prop('disabled')).toBe(
+          false,
+        );
+      });
+      it('clicking save & add another calls submitForm', () => {
+        wrapper.find('button.button-secondary').simulate('click');
+        expect(submit.mock.calls.length).toBe(1);
+      });
+      it('clicking save & close calls submitForm', () => {
+        wrapper.find('button.button-primary').simulate('click');
+        expect(submit.mock.calls.length).toBe(1);
+      });
+      it('after submission of click and add another, the form is cleared', () => {
+        wrapper.find('button.button-secondary').simulate('click');
+        //redux-form will be sending this prop
+        wrapper.setProps({ hasSubmitSucceeded: true }, () => {
+          expect(clear.mock.calls.length).toBe(1);
+          expect(wrapper.state().showForm).toBe(true);
+        });
+      });
+      it('after submission of click and close, the form is closed', () => {
+        wrapper.find('button.button-primary').simulate('click');
+        //redux-form will be sending this prop
+        wrapper.setProps({ hasSubmitSucceeded: true }, () => {
+          expect(wrapper.state().showForm).toBe(false);
+        });
+      });
     });
   });
 });
