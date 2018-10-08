@@ -19,6 +19,7 @@ export class DocumentUploader extends Component {
     genericMoveDocSchema: PropTypes.object.isRequired,
     moveDocSchema: PropTypes.object,
     onSubmit: PropTypes.func.isRequired,
+    isPublic: PropTypes.bool,
   };
 
   state = {
@@ -82,6 +83,7 @@ export class DocumentUploader extends Component {
       moveDocSchema,
       genericMoveDocSchema,
       formValues,
+      isPublic,
     } = this.props;
     const isExpenseDocument =
       get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
@@ -130,6 +132,7 @@ export class DocumentUploader extends Component {
               </p>
             </div>
             <Uploader
+              isPublic={isPublic}
               onRef={ref => (this.uploader = ref)}
               onChange={this.onChange}
               onAddFile={this.onAddFile}
