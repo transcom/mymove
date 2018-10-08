@@ -161,6 +161,8 @@ class ShipmentInfo extends Component {
       gbl_number: gbl,
     } = shipment;
 
+    const shipmentId = this.props.match.params.shipmentId;
+
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
@@ -313,7 +315,10 @@ class ShipmentInfo extends Component {
                     />
                   )}
                   {showDocumentViewer && (
-                    <Link to={`/moves/${move.id}/documents`} target="_blank">
+                    <Link
+                      to={`/shipments/${shipmentId}/documents/new`}
+                      target="_blank"
+                    >
                       <FontAwesomeIcon
                         className="icon"
                         icon={faExternalLinkAlt}
@@ -323,9 +328,7 @@ class ShipmentInfo extends Component {
                 </h2>
                 {showDocumentViewer && shipmentDocuments.length ? (
                   <DocumentList
-                    detailUrlPrefix={`/moves/${
-                      this.props.match.params.shipmentId
-                    }/documents`}
+                    detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                     moveDocuments={shipmentDocuments}
                   />
                 ) : (
