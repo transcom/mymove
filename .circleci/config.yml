@@ -151,9 +151,6 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
@@ -170,10 +167,6 @@ jobs:
       - run:
           name: Install markdown-toc
           command: npm install markdown-toc
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      #- run:
-      #    name: Run make server_generate
-      #    command: make server_generate
       - run:
           name: Install dependencies
           command: |
