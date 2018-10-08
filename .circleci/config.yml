@@ -309,7 +309,7 @@ jobs:
       - announce_failure
 
   build_gen:
-    executor: mymove_and_postgres
+    executor: mymove
     steps:
       - checkout
       - restore_cache:
@@ -422,7 +422,15 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: make db_build_docker
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/sod
+            go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
+      - run: docker build -f Dockerfile.migrations.ci -t ppp-migrations:dev .
       - run:
           name: Tag and push migrations image
           command: |
@@ -564,7 +572,6 @@ workflows:
       - build_migrations:
           requires:
             - pre_deps_golang
-            - pre_deps_yarn
 
       - test_precommit:
           requires:
