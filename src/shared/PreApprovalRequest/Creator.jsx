@@ -50,11 +50,14 @@ export class Creator extends Component {
             accessorials={this.props.accessorials}
             onSubmit={this.onSubmit}
           />
-          <div className="usa-grid-full ">
-            <div className="usa-width-one-half">
-              <a onClick={this.closeForm}>Cancel</a>
+          <div className="usa-grid">
+            <div className="usa-width-one-half cancel">
+              <button className="usa-button-secondary" onClick={this.closeForm}>
+                Cancel
+              </button>
             </div>
-            <div className="usa-width-one-half align-right">
+
+            <div className="usa-width-one-half">
               <button
                 className="button button-secondary"
                 disabled={!this.props.formEnabled}
@@ -74,10 +77,12 @@ export class Creator extends Component {
         </div>
       );
     return (
-      <a onClick={this.openForm}>
-        <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-        Add a request
-      </a>
+      <div className="add-request">
+        <a onClick={this.openForm}>
+          <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
+          Add a request
+        </a>
+      </div>
     );
   }
 }
