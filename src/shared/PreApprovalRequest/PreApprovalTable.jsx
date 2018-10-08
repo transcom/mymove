@@ -52,7 +52,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   }
 }
 
-const PreApprovalRequest = ({
+const PreApprovalTable = ({
   shipment_accessorials,
   isActionable,
   onEdit,
@@ -101,7 +101,7 @@ const PreApprovalRequest = ({
   </div>
 );
 
-PreApprovalRequest.propTypes = {
+PreApprovalTable.propTypes = {
   shipment_accessorials: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,
@@ -109,4 +109,4 @@ PreApprovalRequest.propTypes = {
   onApproval: PropTypes.func,
 };
 
-export default PreApprovalRequest;
+export default PreApprovalTable;

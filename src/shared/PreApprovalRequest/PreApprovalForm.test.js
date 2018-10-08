@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
 
-import PreApprovalRequestForm from '.';
+import { PreApprovalForm } from './PreApprovalForm';
 
 const simpleSchema = {
   properties: {
@@ -88,7 +88,7 @@ beforeEach(() => {
   //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
   wrapper = mount(
     <Provider store={store}>
-      <PreApprovalRequestForm
+      <PreApprovalForm
         ship_accessorial_schema={simpleSchema}
         accessorials={accessorials}
         onSubmit={submit}
@@ -101,5 +101,5 @@ it('renders without crashing', () => {
   // eslint-disable-next-line
   expect(wrapper.exists('div.usa-grid')).toBe(true);
   // Check that it renders swagger field content
-  expect(wrapper.find('.half-width').length).toBe(1);
+  expect(wrapper.find('.half-width').length).toBe(6);
 });

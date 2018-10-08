@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import PropTypes from 'prop-types';
-import PreApprovalRequestForm, {
-  formName as PreApprovalRequestFormName,
+import PreApprovalForm, {
+  formName as PreApprovalFormName,
 } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
 import {
   submit,
@@ -46,15 +46,15 @@ export class Creator extends Component {
       return (
         <div className="accessorial-panel-modal">
           <div className="title">Add a request</div>
-          <PreApprovalRequestForm
+          <PreApprovalForm
             accessorials={this.props.accessorials}
             onSubmit={this.onSubmit}
           />
           <div className="usa-grid">
             <div className="usa-width-one-half cancel">
-              <button className="usa-button-secondary" onClick={this.closeForm}>
+              <a className="usa-button-secondary" onClick={this.closeForm}>
                 Cancel
-              </button>
+              </a>
             </div>
 
             <div className="usa-width-one-half">
@@ -98,9 +98,9 @@ Creator.propTypes = {
 function mapStateToProps(state) {
   return {
     formEnabled:
-      isValid(PreApprovalRequestFormName)(state) &&
-      !isSubmitting(PreApprovalRequestFormName)(state),
-    hasSubmitSucceeded: hasSubmitSucceeded(PreApprovalRequestFormName)(state),
+      isValid(PreApprovalFormName)(state) &&
+      !isSubmitting(PreApprovalFormName)(state),
+    hasSubmitSucceeded: hasSubmitSucceeded(PreApprovalFormName)(state),
   };
 }
 
@@ -108,8 +108,8 @@ function mapDispatchToProps(dispatch) {
   // Bind an action, which submit the form by its name
   return bindActionCreators(
     {
-      submitForm: () => submit(PreApprovalRequestFormName),
-      clearForm: () => reset(PreApprovalRequestFormName),
+      submitForm: () => submit(PreApprovalFormName),
+      clearForm: () => reset(PreApprovalFormName),
     },
     dispatch,
   );

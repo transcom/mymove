@@ -8,7 +8,7 @@ import Creator from 'shared/PreApprovalRequest/Creator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-class PreApprovalPanel extends Component {
+export class PreApprovalPanel extends Component {
   onSubmit = values => {
     return new Promise(function(resolve, reject) {
       // do a thing, possibly async, then…

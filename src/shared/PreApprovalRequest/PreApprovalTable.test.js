@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import PreApprovalTable from './PreApprovalTable.jsx';
+import PreApprovalTable from './PreApprovalTable';
 
 describe('PreApprovalTable tests', () => {
   let wrapper, icons;

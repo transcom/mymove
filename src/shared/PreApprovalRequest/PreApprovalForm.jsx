@@ -33,7 +33,7 @@ const Codes = accessorials => props => {
   );
 };
 
-class PreApprovalRequestForm extends Component {
+export class PreApprovalForm extends Component {
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
@@ -73,7 +73,7 @@ class PreApprovalRequestForm extends Component {
   }
 }
 
-PreApprovalRequestForm.propTypes = {
+PreApprovalForm.propTypes = {
   schema: PropTypes.object,
   accessorials: PropTypes.array,
   onSubmit: PropTypes.func.isRequired,
@@ -81,11 +81,11 @@ PreApprovalRequestForm.propTypes = {
 
 export const formName = 'preapproval_request_form';
 
-PreApprovalRequestForm = reduxForm({
+PreApprovalForm = reduxForm({
   form: formName,
   enableReinitialize: true,
   keepDirtyOnReinitialize: true,
-})(PreApprovalRequestForm);
+})(PreApprovalForm);
 
 function mapStateToProps(state, props) {
   return {
@@ -97,4 +97,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps)(PreApprovalRequestForm);
+export default connect(mapStateToProps)(PreApprovalForm);

@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
 
-import PreApprovalPanel from './PreApprovalPanel.jsx';
+import { PreApprovalPanel } from './PreApprovalPanel';
 
 describe('PreApprovalPanel tests', () => {
   let wrapper, icons;
@@ -60,9 +60,9 @@ describe('PreApprovalPanel tests', () => {
 
   describe('When on approval is passed in and status is submitted', () => {
     it('renders without crashing', () => {
-      const childContainer = wrapper.find('.icon');
+      const icons = wrapper.find('.icon');
       expect(wrapper.find('.accessorial-panel').length).toEqual(1);
-      expect(childContainer.length).toBe(6);
+      expect(icons.length).toBe(8);
     });
   });
 });
