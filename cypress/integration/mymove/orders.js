@@ -37,7 +37,7 @@ describe('orders entry', function() {
     cy
       .get('.duty-input-box #react-select-2-input')
       .first()
-      .type('Fort Worth{downarrow}{enter}', { force: true, delay: 150 });
+      .type('NAS Fort Worth{downarrow}{enter}', { force: true, delay: 150 });
 
     cy.nextPage();
 

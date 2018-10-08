@@ -5,7 +5,7 @@ import PreApprovalRequest from '.';
 describe('PreApprovalRequest tests', () => {
   let wrapper, icons;
   const onEdit = jest.fn();
-  const accessorials = [
+  const shipment_accessorials = [
     {
       code: '105D',
       item: 'Unpack Reg Crate',
@@ -30,7 +30,7 @@ describe('PreApprovalRequest tests', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalRequest
-          accessorials={accessorials}
+          shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -46,7 +46,7 @@ describe('PreApprovalRequest tests', () => {
     beforeEach(() => {
       wrapper = shallow(
         <PreApprovalRequest
-          accessorials={accessorials}
+          shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -60,11 +60,11 @@ describe('PreApprovalRequest tests', () => {
   });
   describe('When on approval is passed in and status is APPROVED', () => {
     beforeEach(() => {
-      accessorials[0].status = 'APPROVED';
-      accessorials[1].status = 'APPROVED';
+      shipment_accessorials[0].status = 'APPROVED';
+      shipment_accessorials[1].status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalRequest
-          accessorials={accessorials}
+          shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -79,11 +79,11 @@ describe('PreApprovalRequest tests', () => {
   });
   describe('When on approval is NOT passed in and status is APPROVED', () => {
     beforeEach(() => {
-      accessorials[0].status = 'APPROVED';
-      accessorials[1].status = 'APPROVED';
+      shipment_accessorials[0].status = 'APPROVED';
+      shipment_accessorials[1].status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalRequest
-          accessorials={accessorials}
+          shipment_accessorials={shipment_accessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
