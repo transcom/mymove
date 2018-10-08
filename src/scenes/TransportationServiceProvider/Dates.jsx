@@ -201,7 +201,7 @@ function mapStateToProps(state, props) {
       dates: pick(props.shipment, datesFields),
     },
 
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
     hasError: !!props.error,
     errorMessage: props.error,

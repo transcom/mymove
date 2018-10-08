@@ -35,6 +35,7 @@ const Codes = accessorials => props => {
 
 class PreApprovalRequestForm extends Component {
   render() {
+    console.log(this.props.ship_accessorial_schema, '*********');
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid">
@@ -91,7 +92,7 @@ function mapStateToProps(state, props) {
   return {
     ship_accessorial_schema: get(
       state,
-      'swagger.spec.definitions.ShipmentAccessorial',
+      'swaggerPublic.spec.definitions.ShipmentAccessorial',
       {},
     ),
   };

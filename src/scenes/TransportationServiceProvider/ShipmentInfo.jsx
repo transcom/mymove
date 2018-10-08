@@ -354,7 +354,7 @@ const mapStateToProps = state => {
     : newDutyStation;
 
   return {
-    swaggerError: state.swaggerInternal.hasErrored,
+    swaggerError: state.swaggerPublic.hasErrored,
     shipment,
     deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state),
@@ -368,10 +368,14 @@ const mapStateToProps = state => {
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     error: get(state, 'tsp.error'),
-    pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
+    pickupSchema: get(
+      state,
+      'swaggerPublic.spec.definitions.ActualPickupDate',
+      {},
+    ),
     deliverSchema: get(
       state,
-      'swagger.spec.definitions.ActualDeliveryDate',
+      'swaggerPublic.spec.definitions.ActualDeliveryDate',
       {},
     ),
   };

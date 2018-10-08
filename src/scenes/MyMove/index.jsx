@@ -143,7 +143,7 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
-    swaggerError: state.swagger.hasErrored,
+    swaggerError: state.swaggerInternal.hasErrored,
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     selectedMoveType: selectedMoveType(state),
     moveId: get(state, 'moves.currentMove.id'),
