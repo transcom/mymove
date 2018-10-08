@@ -32,9 +32,10 @@ export class SignedCertification extends Component {
       certificationText,
       has_advance,
       has_sit,
+      selectedMoveType,
     } = this.props;
     if (hasLoggedInUser && getCertificationSuccess && !certificationText) {
-      this.props.loadCertificationText(has_sit, has_advance);
+      this.props.loadCertificationText(has_sit, has_advance, selectedMoveType);
       return;
     }
   }
@@ -161,6 +162,7 @@ function mapStateToProps(state) {
     ...state.signedCertification,
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    selectedMoveType: get(state.moves.currentMove, 'selected_move_type', null),
   };
 }
 

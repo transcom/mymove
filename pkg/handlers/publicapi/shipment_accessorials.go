@@ -32,7 +32,7 @@ func payloadForShipmentAccessorialModel(s *models.ShipmentAccessorial) *apimessa
 		ShipmentID:    handlers.FmtUUID(s.ShipmentID),
 		Accessorial:   payloadForAccessorialModel(&s.Accessorial),
 		Location:      apimessages.AccessorialLocation(s.Location),
-		Notes:         handlers.FmtString(s.Notes),
+		Notes:         s.Notes,
 		Quantity1:     handlers.FmtInt64(int64(s.Quantity1.ToUnitInt())),
 		Quantity2:     handlers.FmtInt64(int64(s.Quantity2.ToUnitInt())),
 		Status:        apimessages.AccessorialStatus(s.Status),

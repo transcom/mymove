@@ -47,6 +47,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
 		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
+		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
 		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
@@ -62,6 +63,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		WeightEstimate:                      handlers.FmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -144,6 +146,7 @@ func patchShipmentWithPremoveSurveyFields(shipment *models.Shipment, payload *in
 	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
 	if requiredValue != nil {
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
+		shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
 		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
 		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
 		shipment.PmSurveyNotes = payload.PmSurveyNotes
@@ -158,6 +161,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 
 	if payload.ActualPickupDate != nil {
 		shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
+	}
+	if payload.ActualPackDate != nil {
+		shipment.ActualPackDate = (*time.Time)(payload.ActualPackDate)
 	}
 	if payload.RequestedPickupDate != nil {
 		shipment.RequestedPickupDate = (*time.Time)(payload.RequestedPickupDate)
