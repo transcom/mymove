@@ -112,7 +112,7 @@ func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShip
 		params.Payload.Quantity1,
 		params.Payload.Quantity2,
 		string(params.Payload.Location),
-		params.Payload.Notes,
+		handlers.FmtString(params.Payload.Notes),
 	)
 	if verrs.HasAny() || err != nil {
 		h.Logger().Error("Error fetching accessorials for shipment", zap.Error(err))

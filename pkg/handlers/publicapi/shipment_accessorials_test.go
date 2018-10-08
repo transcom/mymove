@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 	payload := apimessages.ShipmentAccessorial{
 		Accessorial: payloadForAccessorialModel(&acc),
 		Location:    apimessages.AccessorialLocationORIGIN,
-		Notes:       handlers.FmtString("Some notes"),
+		Notes:       "Some notes",
 		Quantity1:   handlers.FmtInt64(int64(5)),
 	}
 
@@ -117,6 +117,6 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 
 	// And: Payload is equivalent to original shipment accessorial
 	if suite.NotNil(okResponse.Payload.Notes) {
-		suite.Equal("Some notes", *okResponse.Payload.Notes)
+		suite.Equal("Some notes", okResponse.Payload.Notes)
 	}
 }
