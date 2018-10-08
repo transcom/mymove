@@ -9,7 +9,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
-import './PreApprovalTable.css';
+import './PreApprovalRequest.css';
 
 export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   // Only office users can approve requests.
@@ -52,7 +52,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   }
 }
 
-const PreApprovalTable = ({
+const PreApprovalRequest = ({
   shipment_accessorials,
   isActionable,
   onEdit,
@@ -101,7 +101,7 @@ const PreApprovalTable = ({
   </div>
 );
 
-PreApprovalTable.propTypes = {
+PreApprovalRequest.propTypes = {
   shipment_accessorials: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,
@@ -109,4 +109,4 @@ PreApprovalTable.propTypes = {
   onApproval: PropTypes.func,
 };
 
-export default PreApprovalTable;
+export default PreApprovalRequest;

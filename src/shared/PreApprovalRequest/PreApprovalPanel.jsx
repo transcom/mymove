@@ -1,25 +1,28 @@
 import React, { Component } from 'react';
 import BasicPanel from 'shared/BasicPanel';
 import PropTypes from 'prop-types';
-import PreApprovalRequestForm, {
-  formName as PreApprovalRequestFormName,
-} from 'shared/PreApprovalRequestForm';
 import { isOfficeSite } from 'shared/constants.js';
-import { submit, isValid, isSubmitting } from 'redux-form';
+
 import PreApprovalTable from 'shared/PreApprovalRequest/PreApprovalTable.jsx';
+import Creator from 'shared/PreApprovalRequest/Creator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 class PreApprovalPanel extends Component {
-  // TODO - should onSubmit be defined in the Creator and Editor components accordingly?
   onSubmit = values => {
-    console.log('onSubmit', values);
+    return new Promise(function(resolve, reject) {
+      // do a thing, possibly async, then…
+      setTimeout(function() {
+        console.log('onSubmit async', values);
+        resolve('success');
+      }, 50);
+    });
   };
   onEdit = () => {
-    console.log('onEdit');
+    console.log('onEdit hit');
   };
   onDelete = () => {
-    console.log('onDelete');
+    console.log('onDelete hit');
   };
   onApproval = () => {
     console.log('onApproval hit');
@@ -28,7 +31,7 @@ class PreApprovalPanel extends Component {
   render() {
     return (
       <div>
-        <BasicPanel title={'PreApproval Requests'}>
+        <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
             shipment_accessorials={this.props.shipment_accessorials}
             isActionable={true}
@@ -36,16 +39,10 @@ class PreApprovalPanel extends Component {
             onDelete={this.onDelete}
             onApproval={isOfficeSite ? this.onApproval : null}
           />
-          <PreApprovalRequestForm
+          <Creator
             accessorials={this.props.accessorials}
-            onSubmit={this.onSubmit}
+            savePreApprovalRequest={this.onSubmit}
           />
-          <button
-            disabled={!this.props.formEnabled}
-            onClick={this.props.submitForm}
-          >
-            Submit
-          </button>
         </BasicPanel>
       </div>
     );
@@ -58,20 +55,10 @@ PreApprovalPanel.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return {
-    formEnabled:
-      isValid(PreApprovalRequestFormName)(state) &&
-      !isSubmitting(PreApprovalRequestFormName)(state),
-  };
+  return {};
 }
 
 function mapDispatchToProps(dispatch) {
-  // Bind an action, which submit the form by its name
-  return bindActionCreators(
-    {
-      submitForm: () => submit(PreApprovalRequestFormName),
-    },
-    dispatch,
-  );
+  return bindActionCreators({}, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);

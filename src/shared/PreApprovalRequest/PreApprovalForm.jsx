@@ -6,7 +6,7 @@ import { reduxForm, Form } from 'redux-form';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import './index.css';
+import './PreApprovalForm.css';
 
 const Codes = accessorials => props => {
   let value, onChange;

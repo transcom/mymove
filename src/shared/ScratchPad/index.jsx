@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 
 const shipment_accessorials = [

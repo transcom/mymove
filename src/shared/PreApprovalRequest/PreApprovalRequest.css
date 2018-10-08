@@ -1,4 +1,3 @@
-
 .accessorial-panel {
   border-width: 3px;
   empty-cells: hide;
@@ -64,3 +63,18 @@
   cursor: pointer;
 }
 
+.accessorial-panel-modal {
+  border: 3px dashed #00a6d2;
+  padding-left: 1.7rem;
+  padding-right: 1.7rem;
+  padding-top: 8px;
+  padding-bottom: 9px;
+}
+
+.accessorial-panel-modal .title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+.accessorial-panel .align-right {
+  text-align: right !important;
+}
