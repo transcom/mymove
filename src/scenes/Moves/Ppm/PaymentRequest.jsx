@@ -103,7 +103,6 @@ export class PaymentRequest extends Component {
 
   render() {
     const { moveDocuments, updateError } = this.props;
-    const { moveId } = this.props.match.params;
     const numMoveDocs = get(moveDocuments, 'length', 'TBD');
     const disableSubmit = numMoveDocs === 0;
     return (
