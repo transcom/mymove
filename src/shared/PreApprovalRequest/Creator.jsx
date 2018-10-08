@@ -84,6 +84,10 @@ export class Creator extends Component {
 Creator.propTypes = {
   accessorials: PropTypes.array,
   savePreApprovalRequest: PropTypes.func.isRequired,
+  formEnabled: PropTypes.bool.isRequired,
+  hasSubmitSucceeded: PropTypes.bool.isRequired,
+  submitForm: PropTypes.func.isRequired,
+  clearForm: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
