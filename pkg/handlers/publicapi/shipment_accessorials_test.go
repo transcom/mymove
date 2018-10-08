@@ -3,9 +3,10 @@ package publicapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/gen/apimessages"
+
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -83,6 +84,44 @@ func (suite *HandlerSuite) TestGetShipmentAccessorialOfficeHandler() {
 	suite.Equal(acc1.ID.String(), okResponse.Payload[0].ID.String())
 }
 
+func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	// Two shipment accessorials tied to two different shipments
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	acc := testdatagen.MakeDummyAccessorial(suite.TestDB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	payload := apimessages.ShipmentAccessorial{
+		Accessorial: payloadForAccessorialModel(&acc),
+		Location:    apimessages.AccessorialLocationORIGIN,
+		Notes:       "Some notes",
+		Quantity1:   handlers.FmtInt64(int64(5)),
+	}
+
+	params := accessorialop.CreateShipmentAccessorialParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Payload:     &payload,
+	}
+
+	// And: get shipment is returned
+	handler := CreateShipmentAccessorialHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&accessorialop.CreateShipmentAccessorialCreated{}, response)
+	okResponse := response.(*accessorialop.CreateShipmentAccessorialCreated)
+
+	// And: Payload is equivalent to original shipment accessorial
+	if suite.NotNil(okResponse.Payload.Notes) {
+		suite.Equal("Some notes", okResponse.Payload.Notes)
+	}
+}
+
 func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 	numTspUsers := 1
 	numShipments := 1
@@ -90,7 +129,6 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
-
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
@@ -104,15 +142,13 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 			Notes:      "",
 		},
 	})
-	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 
+	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 	// create a new accessorial to test
 	updateAcc1 := testdatagen.MakeDummyAccessorial(suite.TestDB())
-
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-
 	updateShipmentAccessorial := apimessages.ShipmentAccessorial{
 		ID:          handlers.FmtUUID(shipAcc1.ID),
 		ShipmentID:  handlers.FmtUUID(shipAcc1.ShipmentID),
@@ -122,7 +158,6 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 		Notes:       "HELLO",
 		Accessorial: payloadForAccessorialModel(&updateAcc1),
 	}
-
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,
 		ShipmentAccessorialID:     strfmt.UUID(shipAcc1.ID.String()),
@@ -167,7 +202,6 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
-
 	updateShipmentAccessorial := apimessages.ShipmentAccessorial{
 		ID:          handlers.FmtUUID(shipAcc1.ID),
 		ShipmentID:  handlers.FmtUUID(shipAcc1.ShipmentID),
@@ -177,7 +211,6 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 		Notes:       "HELLO",
 		Accessorial: payloadForAccessorialModel(&updateAcc1),
 	}
-
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,
 		ShipmentAccessorialID:     strfmt.UUID(shipAcc1.ID.String()),
