@@ -28,7 +28,11 @@ func MakeDummyAccessorial(db *pop.Connection) models.Accessorial {
 
 // MakeShipmentAccessorial creates a single accessorial record
 func MakeShipmentAccessorial(db *pop.Connection, assertions Assertions) models.ShipmentAccessorial {
-	shipment := MakeShipment(db, assertions)
+	shipmentID := assertions.ShipmentAccessorial.ShipmentID
+	if isZeroUUID(shipmentID) {
+		shipment := MakeShipment(db, assertions)
+		shipmentID = shipment.ID
+	}
 
 	accessorial := assertions.ShipmentAccessorial.Accessorial
 	if isZeroUUID(accessorial.ID) {
@@ -37,7 +41,7 @@ func MakeShipmentAccessorial(db *pop.Connection, assertions Assertions) models.S
 
 	//filled in dummy data
 	shipmentAccessorial := models.ShipmentAccessorial{
-		ShipmentID:    shipment.ID,
+		ShipmentID:    shipmentID,
 		AccessorialID: accessorial.ID,
 		Accessorial:   accessorial,
 		Location:      models.ShipmentAccessorialLocationDESTINATION,
