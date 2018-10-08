@@ -39,10 +39,18 @@ class Queues extends Component {
 }
 
 class TestNewDocument extends Component {
+  handleSubmit = (uploadIds, formValues) => {};
+
   render() {
     return (
       <div>
-        <DocumentUploader />
+        <DocumentUploader
+          form="shipment-documents"
+          initialValues={{}}
+          genericMoveDocSchema={{}}
+          moveDocSchema={{}}
+          onSubmit={this.handleSubmit}
+        />
       </div>
     );
   }

@@ -66,6 +66,7 @@ class DocumentViewer extends Component {
 
   handleSubmit = (uploadIds, formValues) => {
     const { currentPpm, move } = this.props;
+    console.log('what', move.id);
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
       formValues.requested_amount_cents = convertDollarsToCents(
         formValues.requested_amount_cents,
