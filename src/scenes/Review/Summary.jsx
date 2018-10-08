@@ -154,8 +154,8 @@ export class Summary extends Component {
               <tbody>
                 <tr>
                   <th>
-                    Profile{' '}
-                    <span className="align-right">
+                    Profile
+                    <span className="edit-section-link">
                       <Link to={editProfileAddress}>Edit</Link>
                     </span>
                   </th>
@@ -200,7 +200,7 @@ export class Summary extends Component {
                       Orders
                       {moveIsApproved && '*'}
                       {!moveIsApproved && (
-                        <span className="align-right">
+                        <span className="edit-section-link">
                           <Link to={editOrdersAddress}>Edit</Link>
                         </span>
                       )}
@@ -269,8 +269,8 @@ export class Summary extends Component {
               <tbody>
                 <tr>
                   <th>
-                    Contact Info{' '}
-                    <span className="align-right">
+                    Contact Info
+                    <span className="edit-section-link">
                       <Link to={editContactInfoAddress}>Edit</Link>
                     </span>
                   </th>
@@ -312,8 +312,8 @@ export class Summary extends Component {
                 <tbody>
                   <tr>
                     <th>
-                      Backup Contact{' '}
-                      <span className="align-right">
+                      Backup Contact Info
+                      <span className="edit-section-link">
                         <Link to={editBackupContactAddress}>Edit</Link>
                       </span>
                     </th>
@@ -351,7 +351,7 @@ export class Summary extends Component {
                     <tr>
                       <th>
                         Dates & Locations
-                        <span className="align-right">
+                        <span className="edit-section-link">
                           <Link to={editDateAndLocationAddress}>Edit</Link>
                         </span>
                       </th>
@@ -392,7 +392,7 @@ export class Summary extends Component {
                     <tr>
                       <th>
                         Weight
-                        <span className="align-right">
+                        <span className="edit-section-link">
                           <Link to={editWeightAddress}>Edit</Link>
                         </span>
                       </th>
