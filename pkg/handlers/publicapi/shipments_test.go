@@ -105,6 +105,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
+		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),
@@ -138,6 +139,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {
 	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedDeliveryDate))
 	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedPickupDate))
 	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyPlannedPackDate))
+	suite.Equal(genericDate, *(*time.Time)(okResponse.Payload.PmSurveyConductedDate))
 }
 
 func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurveyWrongTSP() {
@@ -159,6 +161,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurveyWrongTSP() {
 	genericDate := time.Now()
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
+		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(&genericDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(&genericDate),
 		PmSurveyWeightEstimate:              swag.Int64(33),
@@ -360,9 +363,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if pickupDate == empty {
-			pickupDate = time.Time(responsePayload.ActualPickupDate)
+			pickupDate = time.Time(*responsePayload.ActualPickupDate)
 		} else {
-			newDT := time.Time(responsePayload.ActualPickupDate)
+			newDT := time.Time(*responsePayload.ActualPickupDate)
 			suite.True(newDT.After(pickupDate))
 			pickupDate = newDT
 		}
@@ -409,9 +412,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if pickupDate == empty {
-			pickupDate = time.Time(responsePayload.ActualPickupDate)
+			pickupDate = time.Time(*responsePayload.ActualPickupDate)
 		} else {
-			newDT := time.Time(responsePayload.ActualPickupDate)
+			newDT := time.Time(*responsePayload.ActualPickupDate)
 			suite.True(newDT.Before(pickupDate))
 			pickupDate = newDT
 		}
@@ -458,9 +461,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if deliveryDate == empty {
-			deliveryDate = time.Time(responsePayload.ActualDeliveryDate)
+			deliveryDate = time.Time(*responsePayload.ActualDeliveryDate)
 		} else {
-			newDT := time.Time(responsePayload.ActualDeliveryDate)
+			newDT := time.Time(*responsePayload.ActualDeliveryDate)
 			suite.True(newDT.After(deliveryDate))
 			deliveryDate = newDT
 		}
@@ -507,9 +510,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	empty := time.Time{}
 	for _, responsePayload := range okResponse.Payload {
 		if deliveryDate == empty {
-			deliveryDate = time.Time(responsePayload.ActualDeliveryDate)
+			deliveryDate = time.Time(*responsePayload.ActualDeliveryDate)
 		} else {
-			newDT := time.Time(responsePayload.ActualDeliveryDate)
+			newDT := time.Time(*responsePayload.ActualDeliveryDate)
 			suite.True(newDT.Before(deliveryDate))
 			deliveryDate = newDT
 		}
@@ -680,7 +683,7 @@ func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	suite.Assertions.IsType(&shipmentop.TransportShipmentOK{}, response)
 	okResponse := response.(*shipmentop.TransportShipmentOK)
 	suite.Equal("IN_TRANSIT", string(okResponse.Payload.Status))
-	suite.Equal(actualPickupDate, time.Time(okResponse.Payload.ActualPickupDate))
+	suite.Equal(actualPickupDate, time.Time(*okResponse.Payload.ActualPickupDate))
 }
 
 // TestDeliverShipmentHandler tests the api endpoint that delivers a shipment
@@ -716,5 +719,5 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	suite.Assertions.IsType(&shipmentop.DeliverShipmentOK{}, response)
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
-	suite.Equal(actualDeliveryDate, time.Time(okResponse.Payload.ActualDeliveryDate))
+	suite.Equal(actualDeliveryDate, time.Time(*okResponse.Payload.ActualDeliveryDate))
 }

@@ -16,7 +16,7 @@ func payloadForAddressModel(a *models.Address) *apimessages.Address {
 		StreetAddress2: a.StreetAddress2,
 		StreetAddress3: a.StreetAddress3,
 		City:           swag.String(a.City),
-		State:          *swag.String(a.State),
+		State:          swag.String(a.State),
 		PostalCode:     swag.String(a.PostalCode),
 		Country:        a.Country,
 	}

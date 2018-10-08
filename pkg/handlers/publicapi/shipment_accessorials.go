@@ -33,7 +33,7 @@ func payloadForShipmentAccessorialModel(s *models.ShipmentAccessorial) *apimessa
 		ShipmentID:    handlers.FmtUUID(s.ShipmentID),
 		Accessorial:   payloadForAccessorialModel(&s.Accessorial),
 		Location:      apimessages.AccessorialLocation(s.Location),
-		Notes:         handlers.FmtString(s.Notes),
+		Notes:         s.Notes,
 		Quantity1:     handlers.FmtInt64(int64(s.Quantity1)),
 		Quantity2:     handlers.FmtInt64(int64(s.Quantity2)),
 		Status:        apimessages.AccessorialStatus(s.Status),
@@ -74,6 +74,55 @@ func (h GetShipmentAccessorialsHandler) Handle(params accessorialop.GetShipmentA
 	return accessorialop.NewGetShipmentAccessorialsOK().WithPayload(payload)
 }
 
+// CreateShipmentAccessorialHandler creates a shipment_accessorial for a provided shipment_id
+type CreateShipmentAccessorialHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handles the request
+func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShipmentAccessorialParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
+
+	var shipment *models.Shipment
+	var err error
+	// If TSP user, verify TSP has shipment
+	// If office user, no verification necessary
+	// If myApp user, user is forbidden
+	if session.IsTspUser() {
+		// Check that the TSP user can access the shipment
+		_, shipment, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	} else if session.IsOfficeUser() {
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	} else {
+		return accessorialop.NewCreateShipmentAccessorialForbidden()
+	}
+
+	accessorialID := uuid.Must(uuid.FromString(params.Payload.Accessorial.ID.String()))
+	shipmentAccessorial, verrs, err := shipment.CreateShipmentAccessorial(h.DB(),
+		accessorialID,
+		params.Payload.Quantity1,
+		params.Payload.Quantity2,
+		string(params.Payload.Location),
+		handlers.FmtString(params.Payload.Notes),
+	)
+	if verrs.HasAny() || err != nil {
+		h.Logger().Error("Error fetching accessorials for shipment", zap.Error(err))
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	payload := payloadForShipmentAccessorialModel(shipmentAccessorial)
+	return accessorialop.NewCreateShipmentAccessorialCreated().WithPayload(payload)
+}
+
 // UpdateShipmentAccessorialHandler updates a particular shipment accessorial
 type UpdateShipmentAccessorialHandler struct {
 	handlers.HandlerContext
@@ -81,9 +130,7 @@ type UpdateShipmentAccessorialHandler struct {
 
 // Handle updates a specified shipment accessorial
 func (h UpdateShipmentAccessorialHandler) Handle(params accessorialop.UpdateShipmentAccessorialParams) middleware.Responder {
-
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
 	shipmentID := uuid.Must(uuid.FromString(params.UpdateShipmentAccessorial.ShipmentID.String()))
 	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
 
@@ -114,17 +161,12 @@ func (h UpdateShipmentAccessorialHandler) Handle(params accessorialop.UpdateShip
 
 	accessorialID := uuid.Must(uuid.FromString(params.UpdateShipmentAccessorial.Accessorial.ID.String()))
 
-	var notesVal string
-	if params.UpdateShipmentAccessorial.Notes != nil {
-		notesVal = *params.UpdateShipmentAccessorial.Notes
-	}
-
 	// update
 	shipmentAccessorial.AccessorialID = accessorialID
 	shipmentAccessorial.Quantity1 = unit.BaseQuantity(*params.UpdateShipmentAccessorial.Quantity1)
 	shipmentAccessorial.Quantity2 = unit.BaseQuantity(*params.UpdateShipmentAccessorial.Quantity2)
 	shipmentAccessorial.Location = models.ShipmentAccessorialLocation(params.UpdateShipmentAccessorial.Location)
-	shipmentAccessorial.Notes = notesVal
+	shipmentAccessorial.Notes = params.UpdateShipmentAccessorial.Notes
 
 	verrs, err := h.DB().ValidateAndUpdate(&shipmentAccessorial)
 	if verrs.HasAny() || err != nil {

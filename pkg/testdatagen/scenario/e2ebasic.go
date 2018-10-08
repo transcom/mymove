@@ -377,6 +377,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			ID:                          uuid.FromStringOrNil("53ebebef-be58-41ce-9635-a4930149190d"),
 			Status:                      models.ShipmentStatusAWARDED,
 			PmSurveyPlannedPackDate:     &packDate,
+			PmSurveyConductedDate:       &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
 			PmSurveyPlannedDeliveryDate: &deliveryDate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
@@ -912,6 +913,47 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg13 := offer13.Shipment
 	hhg13.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg13.Move)
+
+	/*
+	 * Service member with uploaded orders and an approved shipment
+	 */
+	email = "hhg@dates.panel"
+
+	offer14 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("444b87f1-20ad-4c50-a855-ab66e222c7c3")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1222be36-5c4c-4056-b16f-d5a6c65b8569"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("11185649-18c2-44ad-854d-da8884579f42"),
+			Locator:          "DATESP",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("feeec4fc-a2fb-45b6-a3a6-7c35357ab79a"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			ActualDeliveryDate: nil,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg14 := offer14.Shipment
+	hhg14.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg14.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
@@ -966,6 +1008,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
 			Status:                      models.ShipmentStatusAWARDED,
 			PmSurveyPlannedPackDate:     &packDate,
+			PmSurveyConductedDate:       &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
 			PmSurveyPlannedDeliveryDate: &deliveryDate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,

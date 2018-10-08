@@ -14,7 +14,6 @@ import (
 )
 
 func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
-
 	var dutyStationPayload *internalmessages.DutyStationPayload
 	dutyStationPayload = payloadForDutyStationModel(serviceMember.DutyStation)
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
