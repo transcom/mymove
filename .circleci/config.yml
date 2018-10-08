@@ -96,6 +96,22 @@ commands:
               fi;
             done;
             exit 1
+  build_tag_push:
+    parameters:
+      dockerfile:
+        type: string
+      tag:
+        type: string
+      repo:
+        type: string
+    steps:
+      - run: docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
+      - run:
+          name: Tag and push migrations image
+          command: |
+            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
 
 jobs:
 
@@ -158,24 +174,7 @@ jobs:
       - restore_cache:
           keys:
             - cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
-      - run:
-          name: Install prettier
-          command: npm install prettier@~1.12.0
-      - run:
-          name: Install markdown-spellcheck
-          command: npm install markdown-spellcheck
-      - run:
-          name: Install markdown-toc
-          command: npm install markdown-toc
-      - run:
-          name: Install dependencies
-          command: |
-            go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
-            go build -i -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
-            go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-      - run:
-          name: Run pre-commit tests
-          command: pre-commit run --all-files
+      - run: make ci_test_precommit
       - save_cache:
           key: cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
           paths:
@@ -336,17 +335,7 @@ jobs:
       - restore_cache:
           keys:
             - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
-      - run:
-          name: build tools
-          command: |
-            go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
-            go build -i -o bin/generate-test-data ./cmd/generate_test_data
-            go build -i -o bin/rateengine ./cmd/demo/rateengine.go
-            go build -i -o bin/make-office-user ./cmd/make_office_user
-            go build -i -o bin/load-office-data ./cmd/load_office_data
-            go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
-            go build -i -o bin/load-user-gen ./cmd/load_user_gen
-            go build -i -o bin/paperwork ./cmd/paperwork
+      - run: make ci_build_tools
 
   build_app:
     executor: mymove_and_postgres
@@ -373,21 +362,8 @@ jobs:
           command: |
             sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-9.6
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run: bin/copy_swagger_ui.sh
-      - run:
-          name: make server_deps
-          command: |
-            go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-            go build -i -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
-            go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
-            go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
-            go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
-      - run: go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
-      - run: go build -o bin/mymove-server -ldflags "-linkmode external -extldflags -static" ./cmd/webserver
-      - run: go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
-      - run: yarn build
-      - run: yarn test
+      #- run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: make ci_build_app
       - run:
           name: make server_test
           command: make server_test
@@ -400,13 +376,10 @@ jobs:
             DB_NAME: test_db
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
-      - run: docker build -f Dockerfile.ci -t ppp:web-dev .
-      - run:
-          name: Tag and push image
-          command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
+      - build_tag_push:
+          dockerfile: Dockerfile.ci
+          tag: ppp:web-dev
+          repo: app
       - announce_failure
 
   build_migrations:
@@ -423,13 +396,10 @@ jobs:
           command: |
             go build -o bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
             go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
-      - run: docker build -f Dockerfile.migrations.ci -t ppp-migrations:dev .
-      - run:
-          name: Tag and push migrations image
-          command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
+      - build_tag_push:
+          dockerfile: Dockerfile.migrations.ci
+          tag: ppp-migrations
+          repo: app-migrations
       - announce_failure
 
   deploy_experimental_migrations:
