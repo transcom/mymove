@@ -112,23 +112,25 @@ const DatesEdit = props => {
       <FormSection name="dates">
         <div className="editable-panel-column">
           <div className="column-head">PM Survey</div>
-          <SwaggerField
+          <PanelSwaggerField
             fieldName="pm_survey_conducted_date"
-            swagger={schema}
             required
+            title="Conducted"
+            {...fieldProps}
           />
-          <SwaggerField
+          <PanelSwaggerField
             fieldName="pm_survey_method"
-            swagger={schema}
             required
+            title="Survey method"
+            {...fieldProps}
           />
           <div className="column-head">Packing</div>
           <PanelField title="Original" value="TODO" />
-          <SwaggerField
+          <PanelSwaggerField
             fieldName="pm_survey_planned_pack_date"
             required
             title="Planned"
-            swagger={schema}
+            {...fieldProps}
           />
           <SwaggerField
             fieldName="actual_pack_date"
@@ -145,11 +147,11 @@ const DatesEdit = props => {
             title="Original"
             {...fieldProps}
           />
-          <SwaggerField
+          <PanelSwaggerField
             fieldName="pm_survey_planned_pickup_date"
             required
             title="Planned"
-            swagger={schema}
+            {...fieldProps}
           />
           <SwaggerField
             fieldName="actual_pickup_date"
@@ -159,11 +161,11 @@ const DatesEdit = props => {
           />
           <div className="column-head">Delivery</div>
           <PanelField title="Original" value="TODO" />
-          <SwaggerField
+          <PanelSwaggerField
             fieldName="pm_survey_planned_delivery_date"
             required
             title="Planned"
-            swagger={schema}
+            {...fieldProps}
           />
           <PanelField title="Current RDD" value="TODO" />
           <SwaggerField
