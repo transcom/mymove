@@ -6,7 +6,12 @@ import { reduxForm, FormSection, getFormValues } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
-const weightsFields = ['actual_weight'];
+const weightsFields = [
+  'actual_weight',
+  'pm_survey_weight_estimate',
+  'pm_survey_progear_weight_estimate',
+  'pm_survey_spouse_progear_weight_estimate',
+];
 
 const WeightsDisplay = props => {
   const fieldProps = {
@@ -82,13 +87,21 @@ const WeightsEdit = props => {
             title="Customer estimate"
             {...fieldProps}
           />
-          <PanelSwaggerField
+          <SwaggerField
+            className="short-field"
             fieldName="pm_survey_weight_estimate"
-            required
             title="TSP estimate"
-            {...fieldProps}
-          />
-          <SwaggerField fieldName="actual_weight" swagger={schema} required />
+            swagger={schema}
+            required
+          />{' '}
+          lbs
+          <SwaggerField
+            className="short-field"
+            fieldName="actual_weight"
+            swagger={schema}
+            required
+          />{' '}
+          lbs
         </div>
         <div className="editable-panel-column">
           <div className="column-subhead">Pro-gear</div>
@@ -98,11 +111,11 @@ const WeightsEdit = props => {
             title="Customer estimate"
             {...fieldProps}
           />
-          <PanelSwaggerField
+          <SwaggerField
             fieldName="pm_survey_progear_weight_estimate"
-            required
             title="TSP estimate"
-            {...fieldProps}
+            swagger={schema}
+            required
           />
           <div className="column-subhead">Spouse pro-gear</div>
           <PanelSwaggerField
@@ -111,11 +124,11 @@ const WeightsEdit = props => {
             title="Customer estimate"
             {...fieldProps}
           />
-          <PanelSwaggerField
+          <SwaggerField
             fieldName="pm_survey_spouse_progear_weight_estimate"
-            required
             title="TSP estimate"
-            {...fieldProps}
+            swagger={schema}
+            required
           />
         </div>
       </FormSection>
@@ -134,6 +147,7 @@ WeightsPanel = reduxForm({
 
 WeightsPanel.propTypes = {
   shipment: PropTypes.object,
+  schema: PropTypes.object,
 };
 
 function mapStateToProps(state, props) {

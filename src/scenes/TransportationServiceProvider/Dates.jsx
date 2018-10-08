@@ -126,9 +126,9 @@ const DatesEdit = props => {
           <PanelField title="Original" value="TODO" />
           <SwaggerField
             fieldName="pm_survey_planned_pack_date"
-            required
             title="Planned"
             swagger={schema}
+            required
           />
           <SwaggerField
             fieldName="actual_pack_date"
