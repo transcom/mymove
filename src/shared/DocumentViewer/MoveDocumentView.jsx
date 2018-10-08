@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import './index.css';
+import DocumentDetailPanelView from 'shared/DocumentViewer/DocumentDetailPanelView';
 
 class MoveDocumentView extends Component {
   componentDidMount() {
@@ -18,6 +19,8 @@ class MoveDocumentView extends Component {
   render() {
     const {
       documentDetailUrlPrefix,
+      moveDocument,
+      moveDocumentSchema,
       moveDocuments,
       moveLocator,
       newDocumentUrl,
@@ -73,7 +76,10 @@ class MoveDocumentView extends Component {
               </TabPanel>
 
               <TabPanel>
-                <p>Placeholder for document details</p>
+                <DocumentDetailPanelView
+                  schema={moveDocumentSchema}
+                  {...moveDocument}
+                />
               </TabPanel>
             </Tabs>
           </div>
@@ -85,6 +91,14 @@ class MoveDocumentView extends Component {
 
 MoveDocumentView.propTypes = {
   documentDetailUrlPrefix: PropTypes.string.isRequired,
+  moveDocument: PropTypes.shape({
+    createdAt: PropTypes.string.isRequired,
+    notes: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+  }),
+  moveDocumentSchema: PropTypes.object.isRequired,
   moveDocuments: PropTypes.array.isRequired,
   moveLocator: PropTypes.string.isRequired,
   newDocumentUrl: PropTypes.string.isRequired,

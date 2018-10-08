@@ -6,7 +6,6 @@ import (
 )
 
 func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessages.ServiceMember {
-
 	contactPayloads := make(apimessages.IndexServiceMemberBackupContacts, len(serviceMember.BackupContacts))
 	for i, contact := range serviceMember.BackupContacts {
 		contactPayload := payloadForBackupContactModel(contact)

@@ -16,7 +16,7 @@ import { Switch, Redirect, Link } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
-import DocumentDetailPanel from 'shared/DocumentViewer/DocumentDetailPanel';
+import DocumentDetailPanel from './DocumentDetailPanel';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import {
