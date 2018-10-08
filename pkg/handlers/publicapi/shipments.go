@@ -303,8 +303,17 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 		shipment.PmSurveyMethod = payload.PmSurveyMethod
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
 		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+	}
+
+	if payload.PmSurveyProgearWeightEstimate != nil {
 		shipment.PmSurveyProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
+	}
+
+	if payload.PmSurveySpouseProgearWeightEstimate != nil {
 		shipment.PmSurveySpouseProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
+	}
+
+	if payload.PmSurveyWeightEstimate != nil {
 		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
 
