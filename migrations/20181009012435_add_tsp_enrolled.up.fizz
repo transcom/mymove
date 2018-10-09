@@ -1,0 +1,1 @@
+add_column("transportation_service_providers", "enrolled", "bool", {default: false})
