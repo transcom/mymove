@@ -82,7 +82,7 @@ function mapStateToProps(state) {
     ppmId: get(state.office, 'officePPMs[0].id'),
     schemaMovingExpenseType: get(
       state,
-      'swagger.spec.definitions.MovingExpenseType',
+      'swaggerInternal.spec.definitions.MovingExpenseType',
       {},
     ),
     expenseData: get(state, 'ppmIncentive.summary'),

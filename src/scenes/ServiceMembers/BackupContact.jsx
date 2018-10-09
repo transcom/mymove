@@ -252,7 +252,7 @@ function mapStateToProps(state) {
     error: state.serviceMember.error,
     schema: get(
       state,
-      'swagger.spec.definitions.CreateServiceMemberBackupContactPayload',
+      'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload',
       {},
     ),
     values: getFormValues(formName)(state),

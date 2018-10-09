@@ -154,7 +154,7 @@ function mapStateToProps(state) {
   return {
     schema: get(
       state,
-      'swagger.spec.definitions.CreateSignedCertificationPayload',
+      'swaggerInternal.spec.definitions.CreateSignedCertificationPayload',
       {},
     ),
     hasLoggedInUser: state.loggedInUser.hasSucceeded,
