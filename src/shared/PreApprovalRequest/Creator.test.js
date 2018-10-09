@@ -18,6 +18,7 @@ const accessorials = [
 ];
 const submit = jest.fn();
 const clear = jest.fn();
+const setActivate = jest.fn();
 let wrapper;
 describe('given a Creator', () => {
   describe('when the form is disabled', () => {
@@ -30,6 +31,7 @@ describe('given a Creator', () => {
           hasSubmitSucceeded={false}
           savePreApprovalRequest={no_op}
           clearForm={clear}
+          setActivate={setActivate}
         />,
       );
     });
@@ -68,6 +70,7 @@ describe('given a Creator', () => {
           hasSubmitSucceeded={false}
           savePreApprovalRequest={no_op}
           clearForm={clear}
+          setActivate={setActivate}
         />,
       );
     });

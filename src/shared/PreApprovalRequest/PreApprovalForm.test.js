@@ -24,22 +24,24 @@ const simpleSchema = {
       example: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
     },
     quantity_1: {
-      type: 'number',
-      format: 'float',
+      type: 'integer',
+      format: 'basequantity',
       title: 'Base Quantity',
       description: 'Accessorial base quantity',
       minimum: 0,
-      example: 16.7,
+      example: 167000,
     },
     quantity_2: {
       type: 'integer',
+      format: 'basequantity',
       title: '2nd Quantity',
       description: 'Accessorial base quantity',
       minimum: 0,
       example: 10000,
     },
     location: {
-      $ref: '#/definitions/AccessorialLocation',
+      type: 'string',
+      title: 'Location',
     },
     notes: {
       type: 'string',

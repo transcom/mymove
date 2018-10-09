@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
-import { formatDate } from 'shared/formatters';
+import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -82,7 +82,7 @@ const PreApprovalTable = ({
               <td align="left">{row.code}</td>
               <td align="left">{row.item}</td>
               <td align="left"> {row.location} </td>
-              <td align="left">{row.base_quantity} </td>
+              <td align="left">{formatFromBaseQuantity(row.base_quantity)} </td>
               <td align="left">{row.notes} </td>
               <td align="left">{formatDate(row.created_at)}</td>
               <td align="left">

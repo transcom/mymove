@@ -9,6 +9,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 export class PreApprovalPanel extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isActionable: true,
+    };
+  }
   onSubmit = values => {
     return new Promise(function(resolve, reject) {
       // do a thing, possibly async, then…
@@ -27,14 +33,16 @@ export class PreApprovalPanel extends Component {
   onApproval = () => {
     console.log('onApproval hit');
   };
-
+  setActivate = activated => {
+    this.setState({ isActionable: activated });
+  };
   render() {
     return (
       <div>
         <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
             shipment_accessorials={this.props.shipment_accessorials}
-            isActionable={true}
+            isActionable={this.state.isActionable}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
             onApproval={isOfficeSite ? this.onApproval : null}
@@ -42,6 +50,7 @@ export class PreApprovalPanel extends Component {
           <Creator
             accessorials={this.props.accessorials}
             savePreApprovalRequest={this.onSubmit}
+            setActivate={this.setActivate}
           />
         </BasicPanel>
       </div>

@@ -222,12 +222,14 @@ definitions:
         $ref: '#/definitions/Accessorial'
       quantity_1:
         type: integer
+        format: basequantity
         title: Base Quantity
         description: 1st Accessorial base quantity
         minimum: 0
-        example: 16.7
+        example: 167000
       quantity_2:
         type: integer
+        format: basequantity
         title: 2nd Quantity
         description: 2nd Accessorial base quantity
         minimum: 0

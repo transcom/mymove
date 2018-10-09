@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import PreApprovalForm, {
   formName as PreApprovalFormName,
 } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
+import { formatToBaseQuantity } from 'shared/formatters';
 import {
   submit,
   isValid,
@@ -24,11 +25,17 @@ export class Creator extends Component {
   }
   openForm = () => {
     this.setState({ showForm: true });
+    this.props.setActivate(false);
   };
   closeForm = () => {
     this.setState({ showForm: false });
+    this.props.setActivate(true);
   };
   onSubmit = values => {
+    // Convert quantity_1 to base quantity unit before hitting endpoint
+    if (values.quantity_1) {
+      values.quantity_1 = formatToBaseQuantity(values.quantity_1);
+    }
     this.props.savePreApprovalRequest(values);
   };
   saveAndClear = () => {

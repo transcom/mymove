@@ -6,7 +6,7 @@ const shipment_accessorials = [
     code: '105D',
     item: 'Unpack Reg Crate',
     location: 'D',
-    base_quantity: '  16.7',
+    base_quantity: 8660000,
     notes: '',
     created_at: '2018-09-24T14:05:38.847Z',
     status: 'SUBMITTED',
@@ -15,7 +15,7 @@ const shipment_accessorials = [
     code: '105E',
     item: 'Unpack Reg Crate',
     location: 'D',
-    base_quantity: '  16.7',
+    base_quantity: 167000,
     notes:
       'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
     created_at: '2018-09-24T14:05:38.847Z',
