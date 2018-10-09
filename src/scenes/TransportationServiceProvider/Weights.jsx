@@ -52,26 +52,33 @@ const WeightsDisplay = props => {
         <div className="column-subhead">Pro-gear (Service member + spouse)</div>
         <PanelField title="Customer estimate">
           {values.progear_weight_estimate ? (
-            <span>{values.progear_weight_estimate} lbs</span>
+            <span>{values.progear_weight_estimate.toLocaleString()} lbs</span>
           ) : (
             '0 lbs'
           )}
           {values.spouse_progear_weight_estimate ? (
-            <span> + {values.spouse_progear_weight_estimate} lbs</span>
+            <span>
+              {' '}
+              + {values.spouse_progear_weight_estimate.toLocaleString()} lbs
+            </span>
           ) : (
             ' + 0 lbs'
           )}
         </PanelField>
         <PanelField title="TSP estimate">
           {values.pm_survey_progear_weight_estimate ? (
-            <span>{values.pm_survey_progear_weight_estimate} lbs</span>
+            <span>
+              {values.pm_survey_progear_weight_estimate.toLocaleString()} lbs
+            </span>
           ) : (
             '0 lbs'
           )}
           {values.pm_survey_spouse_progear_weight_estimate ? (
             <span>
               {' '}
-              + {values.pm_survey_spouse_progear_weight_estimate} lbs
+              +{' '}
+              {values.pm_survey_spouse_progear_weight_estimate.toLocaleString()}{' '}
+              lbs
             </span>
           ) : (
             ' + 0 lbs'
@@ -134,12 +141,15 @@ const WeightsEdit = props => {
           <div className="column-head">Pro-gear (Service member + spouse)</div>
           <PanelField title="Customer estimate">
             {values.progear_weight_estimate ? (
-              <span>{values.progear_weight_estimate} lbs</span>
+              <span>{values.progear_weight_estimate.toLocaleString()} lbs</span>
             ) : (
               '0 lbs'
             )}
             {values.spouse_progear_weight_estimate ? (
-              <span> + {values.spouse_progear_weight_estimate} lbs</span>
+              <span>
+                {' '}
+                + {values.spouse_progear_weight_estimate.toLocaleString()} lbs
+              </span>
             ) : (
               ' + 0 lbs'
             )}
@@ -150,7 +160,6 @@ const WeightsEdit = props => {
             fieldName="pm_survey_progear_weight_estimate"
             title="Service member"
             swagger={schema}
-            required
           />{' '}
           lbs
           <SwaggerField
@@ -158,7 +167,6 @@ const WeightsEdit = props => {
             fieldName="pm_survey_spouse_progear_weight_estimate"
             title="Spouse"
             swagger={schema}
-            required
           />{' '}
           lbs
         </div>

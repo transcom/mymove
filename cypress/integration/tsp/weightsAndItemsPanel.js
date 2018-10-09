@@ -44,7 +44,7 @@ function testReadOnlyWeights() {
   cy.get('.pm_survey_progear_weight_estimate').should($div => {
     const text = $div.text();
     expect(text).to.include('TSP estimate');
-    expect(text).to.include('7,000 lbs');
+    expect(text).to.include('700 lbs');
   });
   cy.get('.spouse_progear_weight_estimate').should($div => {
     const text = $div.text();
@@ -54,7 +54,7 @@ function testReadOnlyWeights() {
   cy.get('.pm_survey_spouse_progear_weight_estimate').should($div => {
     const text = $div.text();
     expect(text).to.include('TSP estimate');
-    expect(text).to.include('8,000 lbs');
+    expect(text).to.include('800 lbs');
   });
 }
 
@@ -156,6 +156,25 @@ function tspUserEntersNetWeight() {
       .get('input[name="weights.net_weight"]')
       .first()
       .type('40000')
+      .blur();
+
+    cy
+      .get('label[for="weights.pm_survey_progear_weight_estimate"]')
+      .should('have.text', 'Service member');
+    cy
+      .get('input[name="weights.pm_survey_progear_weight_estimate"]')
+      .clear()
+      .first()
+      .type('700')
+      .blur();
+    cy
+      .get('label[for="weights.pm_survey_spouse_progear_weight_estimate"]')
+      .should('have.text', 'Spouse');
+    cy
+      .get('input[name="weights.pm_survey_spouse_progear_weight_estimate"]')
+      .clear()
+      .first()
+      .type('800')
       .blur();
   });
 
