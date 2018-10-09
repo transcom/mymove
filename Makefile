@@ -122,14 +122,6 @@ tools_build: server_deps
 tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue
 
-tsp_build_docker:
-	docker build . -f Dockerfile.tsp -t ppp:tsp-dev
-
-tsp_run_only_docker: db_dev_run
-	docker stop tsp || true
-	docker rm tsp || true
-	docker run --name tsp ppp:tsp-dev
-
 build: server_build tools_build client_build
 
 server_test: server_deps server_generate db_dev_run db_test_reset
