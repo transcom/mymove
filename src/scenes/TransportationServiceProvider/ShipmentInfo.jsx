@@ -245,22 +245,17 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-
-                  <div className="usa-width-one-half">
-                    <Weights
-                      title="Weights & Items"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
-                  <div className="usa-width-one-half">
-                    <Locations
-                      deliveryAddress={deliveryAddress}
-                      title="Locations"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
+                  <Weights
+                    title="Weights & Items"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
+                  <Locations
+                    deliveryAddress={deliveryAddress}
+                    title="Locations"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                 </div>
               )}
             </div>

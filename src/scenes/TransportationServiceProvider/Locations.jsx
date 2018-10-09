@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { editablePanelify } from 'shared/EditablePanel';
@@ -13,18 +13,22 @@ const LocationsDisplay = ({
     secondary_pickup_address: secondaryPickupAddress,
   },
 }) => (
-  <div className="editable-panel-column">
-    <span className="column-subhead">Pickup</span>
-    <AddressElementDisplay address={pickupAddress} title="Primary" />
-    {hasSecondaryPickupAddress && (
-      <AddressElementDisplay
-        address={secondaryPickupAddress}
-        title="Secondary"
-      />
-    )}
-    <span className="column-subhead">Delivery</span>
-    <AddressElementDisplay address={deliveryAddress} title="Primary" />
-  </div>
+  <Fragment>
+    <div className="editable-panel-column">
+      <span className="column-subhead">Pickup</span>
+      <AddressElementDisplay address={pickupAddress} title="Primary" />
+      {hasSecondaryPickupAddress && (
+        <AddressElementDisplay
+          address={secondaryPickupAddress}
+          title="Secondary"
+        />
+      )}
+    </div>
+    <div className="editable-panel-column">
+      <span className="column-subhead">Delivery</span>
+      <AddressElementDisplay address={deliveryAddress} title="Primary" />
+    </div>
+  </Fragment>
 );
 
 const { shape, string, bool } = PropTypes;

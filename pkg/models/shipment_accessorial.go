@@ -73,3 +73,21 @@ func FetchAccessorialsByShipmentID(dbConnection *pop.Connection, shipmentID *uui
 
 	return accessorials, err
 }
+
+// FetchShipmentAccessorialByID returns a shipment accessorial by id
+func FetchShipmentAccessorialByID(dbConnection *pop.Connection, shipmentAccessorialID *uuid.UUID) (ShipmentAccessorial, error) {
+	var err error
+
+	if shipmentAccessorialID == nil {
+		return ShipmentAccessorial{}, errors.Wrap(err, "Missing shipmentAccessorialID")
+	}
+
+	shipmentAccessorial := ShipmentAccessorial{}
+
+	err = dbConnection.Eager().Find(&shipmentAccessorial, shipmentAccessorialID)
+	if err != nil {
+		return shipmentAccessorial, errors.Wrap(err, "Shipment accessorials query failed")
+	}
+
+	return shipmentAccessorial, err
+}
