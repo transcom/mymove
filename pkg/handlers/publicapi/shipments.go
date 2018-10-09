@@ -299,12 +299,24 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	if requiredValue != nil {
 		shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
 		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
-		shipment.PmSurveyNotes = payload.PmSurveyNotes
 		shipment.PmSurveyMethod = payload.PmSurveyMethod
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
 		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+	}
+
+	if payload.PmSurveyNotes != nil {
+		shipment.PmSurveyNotes = payload.PmSurveyNotes
+	}
+
+	if payload.PmSurveyProgearWeightEstimate != nil {
 		shipment.PmSurveyProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
+	}
+
+	if payload.PmSurveySpouseProgearWeightEstimate != nil {
 		shipment.PmSurveySpouseProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
+	}
+
+	if payload.PmSurveyWeightEstimate != nil {
 		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
 
