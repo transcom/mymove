@@ -29,7 +29,8 @@ export default function HHGShipmentSummary(props) {
             <tr>
               <th>
                 Move Dates
-                <span className="align-right">
+                <span className="edit-section-link">
+                  {' '}
                   <Link to={editDatePath}>Edit</Link>
                 </span>
               </th>
@@ -63,7 +64,8 @@ export default function HHGShipmentSummary(props) {
             <tr>
               <th>
                 Your Stuff
-                <span className="align-right">
+                <span className="edit-section-link">
+                  {' '}
                   <Link to={editWeightsPath}>Edit</Link>
                 </span>
               </th>
@@ -89,9 +91,10 @@ export default function HHGShipmentSummary(props) {
         <table>
           <tbody>
             <tr>
-              <th>
+              <th colSpan="2">
                 Pickup &amp; Delivery Locations
-                <span className="align-right">
+                <span className="edit-section-link">
+                  {' '}
                   <Link to={editLocationsPath}>Edit</Link>
                 </span>
               </th>

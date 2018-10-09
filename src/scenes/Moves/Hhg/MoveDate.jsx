@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues, Field } from 'redux-form';
 
-import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
+import { setCurrentShipmentID, getCurrentShipmentID } from 'shared/UI/ducks';
 import { getLastError } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -65,8 +65,10 @@ export class MoveDate extends Component {
         shipment,
         currentShipmentId,
       )
-      .then(data => {
-        return this.props.setCurrentShipment(data.body);
+      .then(action => {
+        return this.props.setCurrentShipmentID(
+          Object.keys(action.entities.shipments)[0],
+        );
       })
       .catch(err => {
         this.setState({
@@ -117,12 +119,12 @@ MoveDate.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment, getShipment },
+    { createOrUpdateShipment, setCurrentShipmentID, getShipment },
     dispatch,
   );
 }
 function mapStateToProps(state) {
-  const shipment = currentShipment(state);
+  const shipment = getCurrentShipmentID(state);
   const props = {
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
