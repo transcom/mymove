@@ -167,7 +167,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				PostalCode: "80011",
 			},
 			DutyStation: models.DutyStation{
-				Name: "Buckley AFB CHRIS",
+				Name: "Buckley AFB",
 			},
 		}
 		newDutyStation := MakeDutyStation(db, newDutyStationAssertions)
