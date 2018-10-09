@@ -1,8 +1,11 @@
 package publicapi
 
 import (
+	"database/sql"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -195,6 +198,11 @@ func (h DeleteShipmentAccessorialHandler) Handle(params accessorialop.DeleteShip
 	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
 	shipmentAccessorial, err := models.FetchShipmentAccessorialByID(h.DB(), &shipmentAccessorialID)
 	if err != nil {
+		if errors.Cause(err) == sql.ErrNoRows {
+			h.Logger().Error("Error shipment accessorial for shipment not found", zap.Error(err))
+			return accessorialop.NewDeleteShipmentAccessorialNotFound()
+		}
+
 		h.Logger().Error("Error fetching shipment accessorial for shipment", zap.Error(err))
 		return accessorialop.NewDeleteShipmentAccessorialInternalServerError()
 	}
