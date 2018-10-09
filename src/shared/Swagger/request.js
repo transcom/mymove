@@ -113,16 +113,21 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           );
         }
 
-        const schemaKey = successfulReturnType(
-          routeDefinition,
-          response.status,
-        );
+        let schemaKey = successfulReturnType(routeDefinition, response.status);
         if (!schemaKey) {
           throw new Error(
             `Could not find schemaKey for ${operationPath} status ${
               response.status
             }`,
           );
+        }
+
+        if (schemaKey.indexOf('Payload') !== -1) {
+          const newSchemaKey = schemaKey.replace('Payload', '');
+          console.warn(
+            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
+          );
+          schemaKey = newSchemaKey;
         }
 
         // eslint-disable-next-line security/detect-object-injection
