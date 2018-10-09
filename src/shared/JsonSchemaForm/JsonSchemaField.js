@@ -93,17 +93,15 @@ const configureCentsField = (swaggerField, props) => {
 // This field allows the form field to accept floats and converts values to
 // "base quantity" units for db storage (value * 10,000)
 const configureBaseQuantityField = (swaggerField, props) => {
-  props.type = 'text';
+  props.normalize = validator.normalizeBaseQuantity;
+  props.validate.push(
+    validator.patternMatches(
+      swaggerField.pattern,
+      'Base quantity must have only up to 4 decimals.',
+    ),
+  );
   props.validate.push(validator.isNumber);
-
-  // TODO: andrea - restrict value to 4 decimals. Prohibit entries like: '45.12345', '34,34.3.3', '23 lbs'
-  if (swaggerField.maximum != null) {
-    props.validate.push(validator.maximum(swaggerField.maximum / 10000));
-  }
-  if (swaggerField.minimum != null) {
-    props.validate.push(validator.minimum(swaggerField.minimum / 10000));
-  }
-
+  props.type = 'text';
   return props;
 };
 
