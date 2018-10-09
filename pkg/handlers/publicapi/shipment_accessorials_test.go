@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 
 	// Two shipment accessorials tied to two different shipments
 	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
-	acc := testdatagen.MakeDummy400ngItem(suite.TestDB())
+	acc := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/shipments", nil)
@@ -145,7 +145,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 
 	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 	// create a new accessorial to test
-	updateAcc1 := testdatagen.MakeDummy400ngItem(suite.TestDB())
+	updateAcc1 := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 
 	// create a new accessorial to test
-	updateAcc1 := testdatagen.MakeDummy400ngItem(suite.TestDB())
+	updateAcc1 := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)

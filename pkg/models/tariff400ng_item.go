@@ -92,12 +92,18 @@ type Tariff400ngItem struct {
 }
 
 // FetchTariff400ngItems returns a list of 400ng items
-func FetchTariff400ngItems(dbConnection *pop.Connection) ([]Tariff400ngItem, error) {
+func FetchTariff400ngItems(dbConnection *pop.Connection, onlyRequiresPreApproval bool) ([]Tariff400ngItem, error) {
 	var err error
 
 	items := []Tariff400ngItem{}
 
-	err = dbConnection.All(&items)
+	query := dbConnection.Q()
+
+	if onlyRequiresPreApproval {
+		query = query.Where("requires_pre_approval = $1", true)
+	}
+
+	err = query.All(&items)
 	if err != nil {
 		return items, errors.Wrap(err, "400ng items query failed")
 	}
