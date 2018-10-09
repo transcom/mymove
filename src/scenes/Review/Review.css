@@ -1,6 +1,7 @@
 .edit-title {
   margin-top: 1.5rem;
 }
+
 .review-content {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
@@ -36,20 +37,23 @@
   padding: 0.2rem 0rem 0.2rem 0rem;
   width: 50%;
 }
+
 .review-section td:first-child {
   color: grey;
   border: 0px;
 }
-.align-right a {
-  float: right;
-  text-align: right;
+
+.edit-section-link a {
+  margin-left: 20px;
   text-decoration: none;
   font-weight: normal;
 }
+
 .ppm-container {
   margin: 4rem 0rem 0rem 0rem;
   border: solid 1px;
 }
+
 .ppm-container h3 {
   background-color: rgb(209, 219, 233);
   padding: 1.5rem 1rem 1.5rem 1rem;
@@ -59,9 +63,11 @@
 .ppm-container img {
   height: 20px;
 }
+
 .ppm-review-section {
   padding: 2.5rem;
 }
+
 .review-todo {
   background-color: yellow;
 }
@@ -69,6 +75,7 @@
 .spacer {
   margin-top: 2em;
 }
+
 .approved-edit-warning {
   margin-top: 2em;
   color: gray;
