@@ -185,7 +185,7 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.MoveDocumentPayload',
+      'swaggerInternal.spec.definitions.MoveDocumentPayload',
       {},
     ),
     hasError: false,

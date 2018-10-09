@@ -187,3 +187,23 @@ func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
 		suite.Equal(*shipment.GBLNumber, d[1])
 	}
 }
+
+// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+func (suite *ModelSuite) TestCreateShipmentAccessorial() {
+	acc := testdatagen.MakeDummyAccessorial(suite.db)
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	q1 := int64(5)
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	shipmentAccessorial, verrs, err := shipment.CreateShipmentAccessorial(suite.db,
+		acc.ID,
+		&q1,
+		nil,
+		"O",
+		&notes)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(5, shipmentAccessorial.Quantity1.ToUnitInt())
+		suite.Equal(acc.ID.String(), shipmentAccessorial.Accessorial.ID.String())
+	}
+}

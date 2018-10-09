@@ -85,7 +85,7 @@ function mapStateToProps(state) {
   return {
     initialValues: shipment,
     // Wrapper
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
     hasError:
       state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
