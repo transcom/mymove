@@ -8,7 +8,10 @@ import (
 var TestYear = 2019
 
 // DefaultSrcGBLOC is the default GBLOC for testing.
-var DefaultSrcGBLOC = "OHAI"
+var DefaultSrcGBLOC = "KKFA"
+
+// DefaultDstGBLOC is the default GBLOC for testing.
+var DefaultDstGBLOC = "HAFC"
 
 // DefaultMarket is the default market for testing.
 var DefaultMarket = "dHHG"

@@ -43,7 +43,8 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	deliveryDate := time.Now().AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
@@ -52,6 +53,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 			Status:                  ShipmentStatusSUBMITTED,
 		},

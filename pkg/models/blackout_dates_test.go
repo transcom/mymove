@@ -18,7 +18,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	market1 := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
 			TransportationServiceProviderID: tsp.ID,
@@ -72,8 +72,10 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	market1 := "dHHG"
-	sourceGBLOC1 := "OHAI"
-	sourceGBLOC2 := "OHNO"
+	sourceGBLOC1 := "KKFA"
+	destinationGBLOC1 := "HAFC"
+	sourceGBLOC2 := "KKNO"
+	destinationGBLOC2 := "HANO"
 	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
 			TransportationServiceProviderID: tsp.ID,
@@ -89,6 +91,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 		Shipment: models.Shipment{
 			ActualPickupDate: &pickupDate,
 			SourceGBLOC:      &sourceGBLOC1,
+			DestinationGBLOC: &destinationGBLOC1,
 			Market:           &market1,
 			BookDate:         &testdatagen.DateInsidePerformancePeriod,
 			Status:           models.ShipmentStatusSUBMITTED,
@@ -99,6 +102,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 		Shipment: models.Shipment{
 			ActualPickupDate: &pickupDate,
 			SourceGBLOC:      &sourceGBLOC2,
+			DestinationGBLOC: &destinationGBLOC2,
 			BookDate:         &testdatagen.DateInsidePerformancePeriod,
 			Status:           models.ShipmentStatusSUBMITTED,
 		},

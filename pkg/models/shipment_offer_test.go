@@ -28,7 +28,8 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	tspp := testdatagen.MakeDefaultTSPPerformance(suite.db)
 
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 	market := "dHHG"
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
@@ -38,6 +39,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 		},
 	})

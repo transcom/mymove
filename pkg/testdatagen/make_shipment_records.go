@@ -46,6 +46,16 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		status = models.ShipmentStatusDRAFT
 	}
 
+	sourceGBLOC := assertions.Shipment.SourceGBLOC
+	if sourceGBLOC == nil {
+		sourceGBLOC = stringPointer(DefaultSrcGBLOC)
+	}
+
+	destinationGBLOC := assertions.Shipment.DestinationGBLOC
+	if destinationGBLOC == nil {
+		destinationGBLOC = stringPointer(DefaultDstGBLOC)
+	}
+
 	shipment := models.Shipment{
 		TrafficDistributionListID:    uuidPointer(tdl.ID),
 		TrafficDistributionList:      tdl,
@@ -53,8 +63,8 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		ServiceMember:                serviceMember,
 		ActualPickupDate:             timePointer(DateInsidePerformancePeriod),
 		ActualDeliveryDate:           timePointer(DateOutsidePerformancePeriod),
-		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
-		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
+		SourceGBLOC:                  sourceGBLOC,
+		DestinationGBLOC:             destinationGBLOC,
 		Market:                       &DefaultMarket,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),
 		RequestedPickupDate:          timePointer(PerformancePeriodStart),
@@ -111,7 +121,8 @@ func MakeShipmentData(db *pop.Connection) {
 	nowPlusOne := now.Add(oneWeek)
 	nowPlusTwo := now.Add(oneWeek * 2)
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
@@ -120,6 +131,7 @@ func MakeShipmentData(db *pop.Connection) {
 			ActualDeliveryDate:      &now,
 			TrafficDistributionList: &tdlList[0],
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 		},
 	})
@@ -131,6 +143,7 @@ func MakeShipmentData(db *pop.Connection) {
 			ActualDeliveryDate:      &nowPlusOne,
 			TrafficDistributionList: &tdlList[1],
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 		},
 	})
@@ -142,6 +155,7 @@ func MakeShipmentData(db *pop.Connection) {
 			ActualDeliveryDate:      &nowPlusTwo,
 			TrafficDistributionList: &tdlList[2],
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 		},
 	})

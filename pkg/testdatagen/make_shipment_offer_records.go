@@ -134,7 +134,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			},
 		})
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 	oneWeek, _ := time.ParseDuration("7d")
 	selectedMoveType := "HHG"
 	if len(statuses) == 0 {
@@ -158,6 +159,19 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		// Shipment Details
 		shipmentStatus := statuses[rand.Intn(len(statuses))]
 
+		// New Duty Station
+		newDutyStationAssertions := Assertions{
+			Address: models.Address{
+				City:       "Aurora",
+				State:      "CO",
+				PostalCode: "80011",
+			},
+			DutyStation: models.DutyStation{
+				Name: "Buckley AFB CHRIS",
+			},
+		}
+		newDutyStation := MakeDutyStation(db, newDutyStationAssertions)
+
 		// Move Details
 		moveStatus := models.MoveStatusSUBMITTED
 		if shipmentStatus == models.ShipmentStatusAPPROVED {
@@ -167,6 +181,10 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		shipmentAssertions := Assertions{
 			User: models.User{
 				LoginGovEmail: smEmail,
+			},
+			Order: models.Order{
+				NewDutyStationID: newDutyStation.ID,
+				NewDutyStation:   newDutyStation,
 			},
 			Move: models.Move{
 				SelectedMoveType: &selectedMoveType,
@@ -178,6 +196,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				ActualDeliveryDate:      &nowPlusTwo,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
+				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 				Status:                  shipmentStatus,
 			},

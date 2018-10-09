@@ -320,7 +320,8 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 	pickupDate := testdatagen.DateInsidePeakRateCycle
 	deliveryDate := testdatagen.DateInsidePeakRateCycle
 
@@ -330,6 +331,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 			ActualPickupDate:    &pickupDate,
 			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
+			DestinationGBLOC:    &destinationGBLOC,
 			Market:              &market,
 			BookDate:            &pickupDate,
 			Status:              models.ShipmentStatusSUBMITTED,
