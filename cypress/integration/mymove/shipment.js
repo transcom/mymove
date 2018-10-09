@@ -84,6 +84,7 @@ describe('completing the hhg flow', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
     });
+    cy.contains('Government moves all of your stuff (HHG)');
 
     // TODO: when shipment info is available on Review page, test edit of fields
 
