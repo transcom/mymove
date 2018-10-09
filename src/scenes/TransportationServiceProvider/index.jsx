@@ -14,6 +14,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
 import DocumentViewer from './DocumentViewerContainer';
+import NewDocument from './NewDocumentContainer';
 import ShipmentInfo from './ShipmentInfo';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
@@ -55,7 +56,7 @@ class TspWrapper extends Component {
                 <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute
                   path="/shipments/:shipmentId/documents/new"
-                  render={() => <div> new document will be here</div>}
+                  component={NewDocument}
                 />
                 <PrivateRoute
                   path="/shipments/:shipmentId/documents/:moveDocumentId"
