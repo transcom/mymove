@@ -190,7 +190,7 @@ func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
 
 // TestShipmentAssignGBLNumber tests that a GBL number is created correctly
 func (suite *ModelSuite) TestCreateShipmentAccessorial() {
-	acc := testdatagen.MakeDummyAccessorial(suite.db)
+	acc := testdatagen.MakeDummy400ngItem(suite.db)
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
 
 	q1 := int64(5)
