@@ -227,10 +227,10 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     serviceMemberSchema: get(
       state,
-      'swagger.spec.definitions.CreateServiceMemberPayload',
+      'swaggerInternal.spec.definitions.CreateServiceMemberPayload',
       {},
     ),
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
   };
 }
 

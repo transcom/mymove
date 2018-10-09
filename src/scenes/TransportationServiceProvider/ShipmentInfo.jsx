@@ -245,22 +245,17 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-
-                  <div className="usa-width-one-half">
-                    <Weights
-                      title="Weights & Items"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
-                  <div className="usa-width-one-half">
-                    <Locations
-                      deliveryAddress={deliveryAddress}
-                      title="Locations"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
+                  <Weights
+                    title="Weights & Items"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
+                  <Locations
+                    deliveryAddress={deliveryAddress}
+                    title="Locations"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                 </div>
               )}
             </div>
@@ -354,7 +349,7 @@ const mapStateToProps = state => {
     : newDutyStation;
 
   return {
-    swaggerError: state.swagger.hasErrored,
+    swaggerError: state.swaggerPublic.hasErrored,
     shipment,
     deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state),
@@ -368,10 +363,14 @@ const mapStateToProps = state => {
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     error: get(state, 'tsp.error'),
-    pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
+    pickupSchema: get(
+      state,
+      'swaggerPublic.spec.definitions.ActualPickupDate',
+      {},
+    ),
     deliverSchema: get(
       state,
-      'swagger.spec.definitions.ActualDeliveryDate',
+      'swaggerPublic.spec.definitions.ActualDeliveryDate',
       {},
     ),
   };
