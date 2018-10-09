@@ -2,12 +2,13 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 func payloadForTariff400ngItemModels(s []models.Tariff400ngItem) apimessages.Tariff400ngItems {
