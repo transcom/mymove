@@ -46,6 +46,7 @@ export class Creator extends Component {
   saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
+      this.props.setActivate(true);
     });
   };
   render() {
