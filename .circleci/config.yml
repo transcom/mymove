@@ -18,7 +18,7 @@
 # * `v1-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
 # * `v1-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
 # * `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
-# * `mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}` is used to cache the code generated from swagger documents.
+# * `mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}` is used to cache the code generated from swagger documents.
 # * `v1-cache-precommit-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
 #
 #
@@ -131,10 +131,10 @@ commands:
       repo:
         type: string
     steps:
-      - run: docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
       - run:
-          name: Tag and push migrations image
+          name: "Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>"
           command: |
+            docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
@@ -196,7 +196,7 @@ jobs:
             - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+            - mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
           keys:
             - v1-cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
@@ -224,7 +224,7 @@ jobs:
             - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+            - mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -308,7 +308,7 @@ jobs:
             - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+            - mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -338,7 +338,7 @@ jobs:
             - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+            - mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: generate server
           command: |
@@ -350,7 +350,7 @@ jobs:
               bin/swagger generate server -q -f swagger/orders.yaml -t pkg/gen --model-package ordersmessages --server-package ordersapi --api-package ordersoperations --exclude-main -A mymove
             fi
       - save_cache:
-          key: mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+          key: mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/go/src/github.com/transcom/mymove/pkg/gen
 
@@ -363,7 +363,7 @@ jobs:
             - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+            - mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}
       - run: make ci_build_tools
 
   build_app:
@@ -377,7 +377,7 @@ jobs:
             - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
+            - mymove-pkg-gen-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
