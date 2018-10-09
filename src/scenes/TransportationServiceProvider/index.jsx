@@ -5,7 +5,6 @@ import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import TspHeader from 'shared/Header/Tsp';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
@@ -38,24 +37,6 @@ class Queues extends Component {
   }
 }
 
-class TestNewDocument extends Component {
-  handleSubmit = (uploadIds, formValues) => {};
-
-  render() {
-    return (
-      <div>
-        <DocumentUploader
-          form="shipment-documents"
-          initialValues={{}}
-          genericMoveDocSchema={{}}
-          moveDocSchema={{}}
-          onSubmit={this.handleSubmit}
-        />
-      </div>
-    );
-  }
-}
-
 class TspWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: TSP';
@@ -74,7 +55,7 @@ class TspWrapper extends Component {
                 <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute
                   path="/shipments/:shipmentId/documents/new"
-                  component={TestNewDocument}
+                  render={() => <div> new document will be here</div>}
                 />
                 <PrivateRoute
                   path="/shipments/:shipmentId/documents/:moveDocumentId"

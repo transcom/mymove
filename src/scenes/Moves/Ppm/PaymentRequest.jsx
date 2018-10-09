@@ -4,6 +4,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { get } from 'lodash';
+import { includes } from 'lodash';
+import qs from 'query-string';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import { convertDollarsToCents } from 'shared/utils';
@@ -102,9 +104,17 @@ export class PaymentRequest extends Component {
   };
 
   render() {
-    const { moveDocuments, updateError } = this.props;
+    const { location, moveDocuments, updateError, docTypes } = this.props;
     const numMoveDocs = get(moveDocuments, 'length', 'TBD');
     const disableSubmit = numMoveDocs === 0;
+    const moveDocumentType = qs.parse(location.search).moveDocumentType;
+    const initialValues = {};
+
+    // Verify the provided doc type against the schema
+    if (includes(docTypes, moveDocumentType)) {
+      initialValues.move_document_type = moveDocumentType;
+    }
+
     return (
       <div className="usa-grid payment-request">
         <div className="usa-width-two-thirds">
@@ -123,8 +133,10 @@ export class PaymentRequest extends Component {
           </div>
           <DocumentUploader
             form="payment-docs"
-            initialValues={{}}
             genericMoveDocSchema={this.props.genericMoveDocSchema}
+            initialValues={initialValues}
+            isPublic={false}
+            location={location}
             moveDocSchema={this.props.moveDocSchema}
             onSubmit={this.handleSubmit}
           />
@@ -150,8 +162,10 @@ export class PaymentRequest extends Component {
   }
 }
 PaymentRequest.propTypes = {
-  moveDocuments: PropTypes.array,
-  moveId: PropTypes.string,
+  docTypes: PropTypes.arrayOf(PropTypes.string),
+  moveDocuments: PropTypes.arrayOf(PropTypes.object),
+  genericMoveDocSchema: PropTypes.object.isRequired,
+  moveDocSchema: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state, props) => ({
@@ -159,6 +173,7 @@ const mapStateToProps = (state, props) => ({
   currentPpm: state.ppm.currentPpm,
   updatingPPM: state.ppm.hasSubmitInProgress,
   updateError: state.ppm.hasSubmitError,
+  docTypes: get(state, 'swagger.spec.definitions.MoveDocumentType.enum', []),
   genericMoveDocSchema: get(
     state,
     'swagger.spec.definitions.CreateGenericMoveDocumentPayload',

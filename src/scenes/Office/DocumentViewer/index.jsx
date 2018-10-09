@@ -31,6 +31,15 @@ import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import './index.css';
 class DocumentViewer extends Component {
+  static propTypes = {
+    docTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+    loadMoveDependencies: PropTypes.func.isRequired,
+    getMoveDocumentsForMove: PropTypes.func.isRequired,
+    genericMoveDocSchema: PropTypes.object.isRequired,
+    moveDocSchema: PropTypes.object.isRequired,
+    moveDocuments: PropTypes.arrayOf(PropTypes.object),
+    location: PropTypes.object.isRequired,
+  };
   componentDidMount() {
     //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
@@ -57,10 +66,13 @@ class DocumentViewer extends Component {
     }
 
     return {
-      initialValues,
-      genericMoveDocSchema,
-      moveDocSchema,
+      form: 'move_document_upload',
+      isPublic: false,
       onSubmit: this.handleSubmit,
+      genericMoveDocSchema,
+      initialValues,
+      location,
+      moveDocSchema,
     };
   }
 
@@ -138,12 +150,7 @@ class DocumentViewer extends Component {
                 moveId={move.id}
                 render={() => {
                   return (
-                    <DocumentUploader
-                      moveId={move.id}
-                      form="move_document_upload"
-                      location={this.props.location}
-                      {...this.getDocumentUploaderProps}
-                    />
+                    <DocumentUploader {...this.getDocumentUploaderProps} />
                   );
                 }}
               />
@@ -211,10 +218,6 @@ class DocumentViewer extends Component {
     );
   }
 }
-
-DocumentViewer.propTypes = {
-  loadMoveDependencies: PropTypes.func.isRequired,
-};
 
 const mapStateToProps = state => ({
   genericMoveDocSchema: get(
