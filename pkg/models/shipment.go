@@ -80,7 +80,9 @@ type Shipment struct {
 	WeightEstimate                      *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
-	ActualWeight                        *unit.Pound              `json:"actual_weight" db:"actual_weight"`
+	NetWeight                           *unit.Pound              `json:"net_weight" db:"net_weight"`
+	GrossWeight                         *unit.Pound              `json:"gross_weight" db:"gross_weight"`
+	TareWeight                          *unit.Pound              `json:"tare_weight" db:"tare_weight"`
 	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 	PmSurveyConductedDate               *time.Time               `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
 	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
