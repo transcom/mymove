@@ -58,6 +58,8 @@ func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.M
 		}
 	}
 
+	// TODO: cancel any shipments
+
 	cm.DB.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
@@ -121,12 +123,4 @@ func (cm *CancelMove) savePPMsAndDependencies(move *models.Move) (*validate.Erro
 	}
 
 	return validationErrors, nil
-}
-
-func getGbloc(db *pop.Connection, dutyStationID uuid.UUID) (gbloc string, err error) {
-	transportationOffice, err := models.FetchDutyStationTransportationOffice(db, dutyStationID)
-	if err != nil {
-		return "", errors.Wrap(err, "could not load transportation office for duty station")
-	}
-	return transportationOffice.Gbloc, nil
 }
