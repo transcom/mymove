@@ -4,27 +4,25 @@ import connect from 'react-redux/es/connect/connect';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 import { get, isNil } from 'lodash';
+import moment from 'moment';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
-import './DatePicker.css';
 import { bindActionCreators } from 'redux';
 import { getMoveDatesSummary } from './ducks';
-import moment from 'moment';
+
+import './DatePicker.css';
 
 export class HHGDatePicker extends Component {
   handleDayClick = day => {
     this.props.input.onChange(formatSwaggerDate(day));
-    this.props.getMoveDatesSummary(this.props.shipment.move_id, day);
+    this.props.getMoveDatesSummary(this.props.currentShipment.move_id, day);
   };
 
   componentDidMount() {
-    // TODO: make this actually work
-    if (!isNil(this.props.requestedPickupDate)) {
-      this.props.getMoveDatesSummary(
-        this.props.shipment.move_id,
-        this.props.requestedPickupDate,
-      );
-    }
+    this.props.getMoveDatesSummary(
+      this.props.currentShipment.move_id,
+      this.props.currentShipment.requested_pickup_date,
+    );
   }
 
   render() {
@@ -33,14 +31,17 @@ export class HHGDatePicker extends Component {
         return moment(date).format('ddd, MMMM DD');
       }
     }
+    const { moveDates, currentShipment } = this.props;
 
-    const pickupDates = get(this.props.moveDates, 'pickup', []);
-    const packDates = get(this.props.moveDates, 'pack', []);
-    const deliveryDates = get(this.props.moveDates, 'delivery', []);
-    const transitDates = get(this.props.moveDates, 'transit', []);
-    const reportDates = get(this.props.moveDates, 'report', []);
+    const pickupDates = get(moveDates, 'pickup', []);
+    const packDates = get(moveDates, 'pack', []);
+    const deliveryDates = get(moveDates, 'delivery', []);
+    const transitDates = get(moveDates, 'transit', []);
+    const reportDates = get(moveDates, 'report', []);
 
-    const selectedDay = this.props.input.value;
+    let selectedDay =
+      this.props.input.value ||
+      get(currentShipment, 'requested_pickup_date', null);
 
     return (
       <div className="form-section">
@@ -105,6 +106,7 @@ export class HHGDatePicker extends Component {
 }
 HHGDatePicker.propTypes = {
   input: PropTypes.object.isRequired,
+  currentShipment: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -113,8 +115,6 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
   const props = {
-    requestedPickupDate: get(state.hhg, 'currentHhg.requestedPickupDate', null),
-    shipment: get(state.hhg, 'currentHhg', {}),
     moveDates: get(state.hhg, 'moveDates', {}),
   };
   return props;

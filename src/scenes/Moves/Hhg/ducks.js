@@ -90,7 +90,6 @@ export function hhgReducer(state = initialState, action) {
         hasDatesError: false,
       });
     case GET_MOVE_DATES_SUMMARY.success:
-      console.log('payload', action.payload);
       return Object.assign({}, state, {
         moveDates: action.payload,
         isLoadingDates: false,
