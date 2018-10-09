@@ -58,16 +58,22 @@ func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.M
 		}
 	}
 
-	// Save move, orders, and PPMs statuses
-	verrs, err := models.SaveMoveDependencies(cm.DB, move)
-	if err != nil {
-		cm.Err = err
+	// TODO: cancel any shipments
+
+	cm.DB.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		if cm.hadErrors(cm.savePPMsAndDependencies(move)) {
+			return transactionError
+		}
+
+		if cm.hadErrors(db.ValidateAndSave(move)) {
+			return transactionError
+		}
 		return nil
-	}
-	if verrs.HasAny() {
-		cm.Verrs = verrs
-		err = errors.New("Cancel move validation error failure")
-		cm.Err = err
+	})
+
+	if cm.Err != nil {
 		return nil
 	}
 
@@ -82,4 +88,39 @@ func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.M
 	}
 
 	return move
+}
+
+func (cm *CancelMove) hadErrors(verrs *validate.Errors, saveErr error) bool {
+	if saveErr != nil {
+		cm.Err = errors.Wrap(saveErr, "error saving model")
+		return true
+	}
+	if verrs.HasAny() {
+		cm.Verrs = verrs
+		cm.Err = errors.New("Model validation failure")
+		return true
+	}
+	return false
+}
+
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
+// and shipment GBLOCs.
+func (cm *CancelMove) savePPMsAndDependencies(move *models.Move) (*validate.Errors, error) {
+	validationErrors := validate.NewErrors()
+
+	for _, ppm := range move.PersonallyProcuredMoves {
+		if ppm.Advance != nil {
+			if verrs, err := cm.DB.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+				validationErrors.Append(verrs)
+				return validationErrors, errors.Wrap(err, "Error Saving Advance")
+			}
+		}
+
+		if verrs, err := cm.DB.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+			validationErrors.Append(verrs)
+			return validationErrors, errors.Wrap(err, "Error Saving PPM")
+		}
+	}
+
+	return validationErrors, nil
 }
