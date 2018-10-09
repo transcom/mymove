@@ -2196,7 +2196,7 @@ paths:
         500:
           description: server error
   /shipments/accessorials/{shipment_accessorial_id}/approve:
-    put:
+    post:
       summary: Updates a shipment accessorial item to approve status
       description: Update a shipment accessorial with approve status
       operationId: approveShipmentAccessorial
@@ -2212,6 +2212,8 @@ paths:
       responses:
         200:
           description: shipment accessorial approved
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
         400:
           description: invalid request
         401:

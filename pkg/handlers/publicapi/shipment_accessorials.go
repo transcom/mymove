@@ -236,3 +236,44 @@ func (h DeleteShipmentAccessorialHandler) Handle(params accessorialop.DeleteShip
 
 	return accessorialop.NewDeleteShipmentAccessorialOK()
 }
+
+// ApproveShipmentAccessorialHandler returns a particular shipment
+type ApproveShipmentAccessorialHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle returns a specified shipment
+func (h ApproveShipmentAccessorialHandler) Handle(params accessorialop.ApproveShipmentAccessorialParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
+
+	shipmentAccessorial, err := models.FetchShipmentAccessorialByID(h.DB(), &shipmentAccessorialID)
+	if err != nil {
+		h.Logger().Error("Error fetching accessorials for shipment", zap.Error(err))
+		return accessorialop.NewApproveShipmentAccessorialInternalServerError()
+	}
+
+	// Non-accessorial line items shouldn't require approval
+	// Only office users can approve a shipment accessorial
+	if shipmentAccessorial.Accessorial.RequiresPreApproval && session.IsOfficeUser() {
+		_, err := models.FetchShipment(h.DB(), session, shipmentAccessorial.ShipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	} else {
+		return accessorialop.NewApproveShipmentAccessorialForbidden()
+	}
+
+	// Approve and save the shipment accessorial
+	err = shipmentAccessorial.Approve()
+	if err != nil {
+		return accessorialop.NewApproveShipmentAccessorialForbidden()
+	}
+	h.DB().ValidateAndUpdate(&shipmentAccessorial)
+
+	payload := payloadForShipmentAccessorialModel(&shipmentAccessorial)
+	return accessorialop.NewApproveShipmentAccessorialOK().WithPayload(payload)
+}
