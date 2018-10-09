@@ -76,8 +76,12 @@ OrdersInfo.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
-  ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+  swaggerError: state.swaggerInternal.hasErrored,
+  ordersSchema: get(
+    state,
+    'swaggerInternal.spec.definitions.CreateUpdateOrders',
+    {},
+  ),
   orders: state.office.officeOrders || {},
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,

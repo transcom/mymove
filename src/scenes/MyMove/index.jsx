@@ -30,7 +30,7 @@ import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
-import { loadSchema } from 'shared/Swagger/ducks';
+import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
 
@@ -45,7 +45,7 @@ export class AppWrapper extends Component {
   state = { hasError: false };
   componentDidMount() {
     this.props.loadLoggedInUser();
-    this.props.loadSchema();
+    this.props.loadInternalSchema();
   }
 
   componentDidCatch(error, info) {
@@ -137,13 +137,13 @@ export class AppWrapper extends Component {
   }
 }
 AppWrapper.defaultProps = {
-  loadSchema: no_op,
+  loadInternalSchema: no_op,
   loadLoggedInUser: no_op,
 };
 
 const mapStateToProps = state => {
   return {
-    swaggerError: state.swagger.hasErrored,
+    swaggerError: state.swaggerInternal.hasErrored,
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     selectedMoveType: selectedMoveType(state),
     moveId: get(state, 'moves.currentMove.id'),
@@ -152,6 +152,6 @@ const mapStateToProps = state => {
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ push, loadSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ push, loadInternalSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

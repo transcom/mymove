@@ -69,7 +69,7 @@ function mapStateToProps(state) {
   return {
     schema: get(
       state,
-      'swagger.spec.definitions.CreateServiceMemberPayload',
+      'swaggerInternal.spec.definitions.CreateServiceMemberPayload',
       {},
     ),
     values: getFormValues(formName)(state),

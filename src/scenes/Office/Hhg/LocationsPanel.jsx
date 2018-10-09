@@ -101,8 +101,8 @@ function mapStateToProps(state) {
       deliveryAddress,
     },
     // Wrapper
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
+    addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     hasError:
       state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
