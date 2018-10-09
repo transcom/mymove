@@ -9,7 +9,10 @@ import './DatePicker.css';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export class HHGDatePicker extends Component {
-  handleDayClick = day => {
+  handleDayClick = (day, { disabled }) => {
+    if (disabled) {
+      return;
+    }
     this.props.input.onChange(formatSwaggerDate(day));
   };
 
