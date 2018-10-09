@@ -83,7 +83,7 @@ function mapStateToProps(state) {
     initialValues: state.office.officeOrders,
 
     // Wrapper
-    ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
+    ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
     hasError:
       state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
     errorMessage: state.office.error,

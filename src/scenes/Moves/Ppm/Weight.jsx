@@ -384,7 +384,7 @@ PpmWeight.propTypes = {
 function mapStateToProps(state) {
   const schema = get(
     state,
-    'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
+    'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload',
     {},
   );
   // In scheduling, PPM advances cannot go to GTCC so we filter out that method of payment.

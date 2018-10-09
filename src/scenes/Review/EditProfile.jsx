@@ -156,12 +156,20 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     schema: get(
       state,
-      'swagger.spec.definitions.CreateServiceMemberPayload',
+      'swaggerInternal.spec.definitions.CreateServiceMemberPayload',
       {},
     ),
     moveIsApproved: moveIsApproved(state),
-    schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
-    schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
+    schemaRank: get(
+      state,
+      'swaggerInternal.spec.definitions.ServiceMemberRank',
+      {},
+    ),
+    schemaAffiliation: get(
+      state,
+      'swaggerInternal.spec.definitions.Affiliation',
+      {},
+    ),
   };
 }
 

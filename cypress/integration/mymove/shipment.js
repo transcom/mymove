@@ -17,11 +17,31 @@ describe('completing the hhg flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-start/);
     });
     cy.get('button.next').should('be.disabled');
+
     // Calendar move date
     cy
-      .get('.DayPicker-Day--today') // gets today
+      .get('.DayPicker-Day--today') // gets today, which should be disabled even after clicked
       .click()
-      .should('have.class', 'DayPicker-Day--selected');
+      .should('have.class', 'DayPicker-Day--disabled');
+
+    // We may or may not have an available date in the current month.  If not, then
+    // we skip to the next month which should (at least at this point) have an available
+    // date.
+    cy
+      .get('body')
+      .then($body => {
+        if ($body.find('[class=DayPicker-Day]').length === 0) {
+          cy.get('.DayPicker-NavButton--next').click();
+        }
+      })
+      .then(() => {
+        cy
+          .get('[class=DayPicker-Day]')
+          .first()
+          .click()
+          .should('have.class', 'DayPicker-Day--selected');
+      });
+
     cy.nextPage();
 
     cy.location().should(loc => {

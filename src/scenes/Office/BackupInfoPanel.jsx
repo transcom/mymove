@@ -102,10 +102,10 @@ function mapStateToProps(state) {
       backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     },
 
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     backupContactSchema: get(
       state,
-      'swagger.spec.definitions.ServiceMemberBackupContactPayload',
+      'swaggerInternal.spec.definitions.ServiceMemberBackupContactPayload',
       {},
     ),
     backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
