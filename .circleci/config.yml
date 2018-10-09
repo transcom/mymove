@@ -1,3 +1,29 @@
+
+############
+#
+# Executors
+#
+# All jobs in this config use one of 2 executors:
+# * `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
+# * `mymove_and_postgres` adds a secondary `postgres:10.1` container and is used during testing.
+#
+# Caches
+#
+# Caches have a `v1-` prefix, since caches in CircleCI 2.0 are immutable.
+# A prefix provides an easy way to invalidate a cache.  See https://circleci.com/docs/2.0/caching/#clearing-cache
+#
+# The following caches are used in this config.
+# * `v1-go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}` is used to caches sources for dep, the Go dependency manager.
+# * `v1-mymove-vendor-{{ checksum "Gopkg.lock" }}` is used for caching the vendor directory for mymove.
+# * `v1-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
+# * `v1-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
+# * `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
+# * `mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}` is used to cache the code generated from swagger documents.
+# * `v1-cache-precommit-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+#
+#
+############
+
 version: "2.1"
 
 executors:
@@ -121,19 +147,19 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run:
           name: Install dependencies
           command: dep ensure -vendor-only
       - save_cache:
-          key: go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+          key: v1-go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/pkg/dep/sources
       - save_cache:
-          key: mymove-vendor-{{ checksum "Gopkg.lock" }}
+          key: v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/vendor
       - announce_failure
@@ -144,19 +170,19 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
           command: yarn install
       - save_cache:
-          key: v1-cache-yarn-v2-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
+          key: v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn/v2
       - save_cache:
-          key: v1-mymove-node-modules-{{ checksum "yarn.lock" }} # why v1- prefix, https://circleci.com/docs/2.0/caching/#clearing-cache
+          key: v1-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/node_modules
       - announce_failure
@@ -167,21 +193,21 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
       - restore_cache:
           keys:
-            - cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
+            - v1-cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Add Go binaries to path
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make ci_test_precommit
       - save_cache:
-          key: cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
+          key: v1-cache-precommit-{{ checksum ".pre-commit-config.yaml" }}
           paths:
-            - ~/.cache/pre-commit/
+            - ~/.cache/pre-commit
       - announce_failure
 
   integration_tests:
@@ -192,10 +218,10 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
@@ -204,7 +230,7 @@ jobs:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - cache-cypress-3.1.0
+            - v1-cache-cypress-3.1.0
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
@@ -265,7 +291,7 @@ jobs:
       - store_test_results:
           path: cypress/results
       - save_cache:
-          key: cache-cypress-3.1.0
+          key: v1-cache-cypress-3.1.0
           paths:
             - ~/.cache/Cypress/3.1.0
       - announce_failure
@@ -276,10 +302,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
@@ -309,7 +335,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
@@ -334,7 +360,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
@@ -348,7 +374,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-pkg-gen-{{ checksum "Gopkg.lock" }}-${CIRCLE_SHA1}
@@ -393,7 +419,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run:
           name: Install dependencies
           command: |
@@ -480,10 +506,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v1-mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
