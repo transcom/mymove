@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { getSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { getMove } from 'shared/Entities/modules/moves';
-import { currentShipment } from 'shared/UI/ducks';
+import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -365,7 +365,7 @@ Summary.propTypes = {
 function mapStateToProps(state, ownProps) {
   return {
     currentPpm: state.ppm.currentPpm,
-    currentShipment: selectShipment(state, currentShipment(state)),
+    currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: getMove(state, ownProps.match.params.moveId),
     // latestMove: state.moves.latestMove,

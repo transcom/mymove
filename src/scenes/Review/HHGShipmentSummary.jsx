@@ -6,6 +6,8 @@ import truckIcon from 'shared/icon/truck-black.svg';
 
 import Address from './Address';
 import HHGWeightSummary from './HHGWeightSummary';
+import HHGWeightWarning from './HHGWeightWarning';
+
 import './Review.css';
 
 export default function HHGShipmentSummary(props) {
@@ -68,8 +70,13 @@ export default function HHGShipmentSummary(props) {
             </tr>
             <tr>
               <td>Weight Estimate:</td>
-              <td className="Todo-phase2">
-                <HHGWeightSummary
+              <td>
+                <HHGWeightSummary shipment={shipment} />
+              </td>
+            </tr>
+            <tr>
+              <td colSpan="2">
+                <HHGWeightWarning
                   shipment={shipment}
                   entitlements={entitlements}
                 />

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
-import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
+import { setCurrentShipmentID, getCurrentShipmentID } from 'shared/UI/ducks';
 import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -64,7 +64,8 @@ export class ShipmentForm extends Component {
         currentShipmentId,
       )
       .then(action => {
-        return this.props.setCurrentShipment(action.entities.shipment.id);
+        const id = Object.keys(action.entities.shipments)[0];
+        return this.props.setCurrentShipmentID(id);
       })
       .catch(err => {
         this.setState({
@@ -138,12 +139,12 @@ ShipmentForm.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment, getShipment },
+    { createOrUpdateShipment, setCurrentShipmentID, getShipment },
     dispatch,
   );
 }
 function mapStateToProps(state) {
-  const shipment = currentShipment(state);
+  const shipment = getCurrentShipmentID(state);
   const props = {
     schema: getSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
