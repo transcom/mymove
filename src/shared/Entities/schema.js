@@ -70,3 +70,10 @@ export const moveDocuments = new schema.Array(moveDocument);
 moveDocument.define({
   move: move,
 });
+
+// MoveDatesSummary
+export const moveDatesSummary = new schema.Entity(
+  'moveDatesSummaries',
+  {},
+  { idAttribute: summary => summary.pickup[0] },
+);

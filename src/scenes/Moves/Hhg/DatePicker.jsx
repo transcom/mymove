@@ -8,21 +8,33 @@ import moment from 'moment';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import { bindActionCreators } from 'redux';
-import { getMoveDatesSummary } from './ducks';
+import { getMoveDatesSummary } from 'shared/Entities/modules/moves';
 
 import './DatePicker.css';
+import { selectMoveDatesSummary } from 'shared/Entities/modules/moves';
+
+const getRequestLabel = 'DatePicker.getMoveDatesSummary';
 
 export class HHGDatePicker extends Component {
   handleDayClick = day => {
+    console.log(day);
+    const moveDate = day.toISOString().split('T')[0];
     this.props.input.onChange(formatSwaggerDate(day));
-    this.props.getMoveDatesSummary(this.props.currentShipment.move_id, day);
+    this.props.getMoveDatesSummary(
+      getRequestLabel,
+      this.props.currentShipment.move_id,
+      moveDate,
+    );
   };
 
   componentDidMount() {
-    this.props.getMoveDatesSummary(
-      this.props.currentShipment.move_id,
-      this.props.currentShipment.requested_pickup_date,
-    );
+    if (this.props.currentShipment.requested_pickup_date) {
+      this.props.getMoveDatesSummary(
+        getRequestLabel,
+        this.props.currentShipment.move_id,
+        this.props.currentShipment.requested_pickup_date,
+      );
+    }
   }
 
   render() {
@@ -113,9 +125,12 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary }, dispatch);
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   const props = {
-    moveDates: get(state.hhg, 'moveDates', {}),
+    moveDates: selectMoveDatesSummary(
+      state,
+      get(ownProps.currentShipment, 'requested_pickup_date'),
+    ),
   };
   return props;
 }
