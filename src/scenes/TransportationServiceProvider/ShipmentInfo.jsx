@@ -15,6 +15,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
+  getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -34,6 +35,7 @@ import {
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
+import Dates from './Dates';
 import Locations from './Locations';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
@@ -110,7 +112,6 @@ let DeliveryDateForm = props => {
 
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
-const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
 class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
@@ -147,7 +148,13 @@ class ShipmentInfo extends Component {
     this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const { context, shipment, shipmentDocuments } = this.props;
+    const {
+      context,
+      shipment,
+      shipmentDocuments,
+      deliveryAddress,
+    } = this.props;
+
     const {
       service_member: serviceMember = {},
       move = {},
@@ -223,6 +230,11 @@ class ShipmentInfo extends Component {
             <div className="usa-width-two-thirds">
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
+                  <Dates
+                    title="Dates"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                   <PremoveSurvey
                     title="Premove Survey"
                     shipment={this.props.shipment}
@@ -233,21 +245,17 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-
-                  <div className="usa-width-one-half">
-                    <Weights
-                      title="Weights & Items"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
-                  <div className="usa-width-one-half">
-                    <Locations
-                      title="Locations"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
+                  <Weights
+                    title="Weights & Items"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
+                  <Locations
+                    deliveryAddress={deliveryAddress}
+                    title="Locations"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                 </div>
               )}
             </div>
@@ -332,23 +340,37 @@ class ShipmentInfo extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
-  shipment: get(state, 'tsp.shipment', {}),
-  shipmentDocuments: selectShipmentDocuments(state),
-  serviceAgents: get(state, 'tsp.serviceAgents', []),
-  loadTspDependenciesHasSuccess: get(
-    state,
-    'tsp.loadTspDependenciesHasSuccess',
-  ),
-  loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
-  acceptError: get(state, 'tsp.shipmentHasAcceptError'),
-  generateGBLError: get(state, 'tsp.generateGBLError'),
-  generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
-  error: get(state, 'tsp.error'),
-  pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
-  deliverSchema: get(state, 'swagger.spec.definitions.ActualDeliveryDate', {}),
-});
+const mapStateToProps = state => {
+  const shipment = get(state, 'tsp.shipment', {});
+  const newDutyStation = get(shipment, 'move.new_duty_station.address', {});
+  // if they do not have a delivery address, default to the station's address info
+  const deliveryAddress = shipment.has_delivery_address
+    ? shipment.delivery_address
+    : newDutyStation;
+
+  return {
+    swaggerError: state.swagger.hasErrored,
+    shipment,
+    deliveryAddress,
+    shipmentDocuments: selectShipmentDocuments(state),
+    serviceAgents: get(state, 'tsp.serviceAgents', []),
+    loadTspDependenciesHasSuccess: get(
+      state,
+      'tsp.loadTspDependenciesHasSuccess',
+    ),
+    loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
+    acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+    generateGBLError: get(state, 'tsp.generateGBLError'),
+    generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+    error: get(state, 'tsp.error'),
+    pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
+    deliverSchema: get(
+      state,
+      'swagger.spec.definitions.ActualDeliveryDate',
+      {},
+    ),
+  };
+};
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(

@@ -32,8 +32,8 @@ export default function PPMShipmentSummary(props) {
           <tbody>
             <tr>
               <th>
-                Dates &amp; Locations
-                <span className="align-right">
+                Dates & Locations
+                <span className="edit-section-link">
                   <Link to={editDateAndLocationAddress}>Edit</Link>
                 </span>
               </th>
@@ -44,7 +44,7 @@ export default function PPMShipmentSummary(props) {
             </tr>
             <tr>
               <td> Pickup ZIP Code: </td>
-              <td> {ppm.pickup_postal_code}</td>
+              <td> {ppm && ppm.pickup_postal_code}</td>
             </tr>
             {ppm.has_additional_postal_code && (
               <tr>
@@ -54,7 +54,7 @@ export default function PPMShipmentSummary(props) {
             )}
             <tr>
               <td> Delivery ZIP Code: </td>
-              <td> {ppm.destination_postal_code}</td>
+              <td> {ppm && ppm.destination_postal_code}</td>
             </tr>
             <tr>
               <td> Storage: </td>
@@ -69,23 +69,24 @@ export default function PPMShipmentSummary(props) {
             <tr>
               <th>
                 Weight
-                <span className="align-right">
+                <span className="edit-section-link">
                   <Link to={editWeightAddress}>Edit</Link>
                 </span>
               </th>
             </tr>
             <tr>
               <td> Estimated Weight: </td>
-              <td> {ppm.weight_estimate.toLocaleString()} lbs</td>
+              <td> {ppm && ppm.weight_estimate.toLocaleString()} lbs</td>
             </tr>
             <tr>
               <td> Estimated PPM Incentive: </td>
               <td>
                 {' '}
-                {formatCentsRange(
-                  ppm.incentive_estimate_min,
-                  ppm.incentive_estimate_max,
-                )}
+                {ppm &&
+                  formatCentsRange(
+                    ppm.incentive_estimate_min,
+                    ppm.incentive_estimate_max,
+                  )}
               </td>
             </tr>
             {ppm.has_requested_advance && (

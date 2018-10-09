@@ -1449,6 +1449,12 @@ definitions:
         example: "2018-04-26"
         readOnly: true
         x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        readOnly: true
+        x-nullable: true
       actual_delivery_date:
         type: string
         format: date
@@ -1529,6 +1535,12 @@ definitions:
         title: Spouse's Pro-Gear
         x-nullable: true
         x-formatting: weight
+      pm_survey_conducted_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: 'Conducted'
+        x-nullable: true
       pm_survey_planned_pack_date:
         type: string
         format: date
@@ -1582,9 +1594,10 @@ definitions:
         x-formatting: weight
       pm_survey_notes:
         type: string
+        format: textarea
         example: This document is good to go!
         x-nullable: true
-        title: Notes
+        title: Notes about dates
       pm_survey_method:
         type: string
         title: Survey method
@@ -4053,11 +4066,11 @@ paths:
           description: invalid request
         500:
           description: internal server error
-  /calendar/unavailable_move_dates:
+  /calendar/available_move_dates:
     get:
-      summary: Returns unavailable dates for the move calendar
-      description: Returns unavailable dates for the move calendar
-      operationId: showUnavailableMoveDates
+      summary: Returns available dates for the move calendar
+      description: Returns available dates for the move calendar
+      operationId: showAvailableMoveDates
       tags:
         - calendar
       parameters:
@@ -4066,10 +4079,10 @@ paths:
           type: string
           format: date
           required: true
-          description: Look for future unavailable dates starting from (and including) this date
+          description: Look for future available dates starting from (and including) this date
       responses:
         200:
-          description: List of unavailable dates
+          description: List of available dates
           schema:
             type: array
             items:
