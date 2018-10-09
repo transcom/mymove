@@ -53,7 +53,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
 }
 
 const PreApprovalRequest = ({
-  accessorials,
+  shipment_accessorials,
   isActionable,
   onEdit,
   onApproval,
@@ -72,7 +72,7 @@ const PreApprovalRequest = ({
           <th>Status</th>
           <th>&nbsp;</th>
         </tr>
-        {accessorials.map(row => {
+        {shipment_accessorials.map(row => {
           let status = '';
           if (isOfficeSite) {
             status = renderStatusIcon(row.status);
@@ -102,7 +102,7 @@ const PreApprovalRequest = ({
 );
 
 PreApprovalRequest.propTypes = {
-  accessorials: PropTypes.array,
+  shipment_accessorials: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
