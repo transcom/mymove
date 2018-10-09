@@ -62,6 +62,7 @@ function tspUserEntersDates() {
     .type('Notes notes notes for dates')
     .blur();
   cy.get('select[name="dates.pm_survey_method"]').select('PHONE');
+
   cy
     .get('button')
     .contains('Save')
@@ -77,8 +78,10 @@ function tspUserEntersDates() {
 
   // Refresh browser and make sure changes persist
   cy.reload();
+
   cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
   cy.get('div.actual_pack_date').contains('25-Sep-18');
+
   // Verify Premove Survey contains the same data
   cy
     .get('.editable-panel-header')

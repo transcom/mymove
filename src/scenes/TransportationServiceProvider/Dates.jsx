@@ -119,8 +119,8 @@ const DatesEdit = props => {
           />
           <SwaggerField
             fieldName="pm_survey_method"
-            required
             swagger={schema}
+            required
           />
           <div className="column-head">Packing</div>
           <PanelField title="Original" value="TODO" />
