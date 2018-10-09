@@ -1,25 +1,55 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import DocumentContent from './DocumentContent';
-import DocumentList from './DocumentList';
+import { Link } from 'react-router-dom';
+
 import { PanelField } from 'shared/EditablePanel';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
-import './index.css';
+import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import DocumentDetailPanelView from 'shared/DocumentViewer/DocumentDetailPanelView';
 
+import { createShipmentDocumentLabel } from 'shared/Entities/modules/uploads';
+import './index.css';
+
+import DocumentList from './DocumentList';
+import DocumentContent from './DocumentContent';
+
 class NewDocumentView extends Component {
+  static propTypes = {
+    documentDetailUrlPrefix: PropTypes.string.isRequired,
+    shipmentId: PropTypes.string.isRequired,
+    createShipmentDocument: PropTypes.func.isRequired,
+  };
   componentDidMount() {
     const { onDidMount } = this.props;
     onDidMount();
   }
 
+  handleSubmit = (uploadIds, formValues) => {
+    const { shipmentId } = this.props;
+    const { move_document_type, title, notes } = formValues;
+
+    const createGenericMoveDocument = {
+      shipmentId,
+      uploadIds,
+      move_document_type,
+      title,
+      notes,
+    };
+
+    return this.props.createShipmentDocument(
+      createShipmentDocumentLabel,
+      shipmentId,
+      createGenericMoveDocument,
+    );
+  };
+
   render() {
     const {
-      // documentDetailUrlPrefix,
-      // moveDocumentSchema,
+      documentDetailUrlPrefix,
+      genericMoveDocSchema,
+      moveDocSchema,
       moveDocuments,
       moveLocator,
       // newDocumentUrl,
@@ -30,14 +60,14 @@ class NewDocumentView extends Component {
         <div className="usa-width-two-thirds">
           <div className="tab-content">
             <div className="document-contents">
-              {/* TODO Ron will make this bit work */}
-              NEW DOCUMENT PAGE
-              {/*<DocumentUploader
-                moveId={move.id}
-                form="move_document_upload"
-                location={this.props.location}
-                {...this.getDocumentUploaderProps}
-                />*/}
+              <DocumentUploader
+                form="shipmment-documents"
+                initialValues={{}}
+                genericMoveDocSchema={genericMoveDocSchema}
+                moveDocSchema={moveDocSchema}
+                onSubmit={this.handleSubmit}
+                isPublic={true}
+              />
             </div>
           </div>
         </div>
@@ -63,6 +93,24 @@ class NewDocumentView extends Component {
                   </span>
                   {/* TODO Do we want to have the new doc URL on the new page? */}
                   {/* <Link to={newDocumentUrl}>Upload new document</Link> */}
+                </div>
+              </TabPanel>
+              <TabPanel>
+                <div className="pad-ns">
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon link-blue"
+                      icon={faPlusCircle}
+                    />
+                  </span>
+                  {/* <Link to={newDocumentUrl}>Upload new document</Link> */}
+                </div>
+                <div>
+                  {' '}
+                  {/* <DocumentList
+                    detailUrlPrefix={documentDetailUrlPrefix}
+                    moveDocuments={moveDocuments}
+                  /> */}
                 </div>
               </TabPanel>
             </Tabs>

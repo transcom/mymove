@@ -119,10 +119,12 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
-    this.props.getAllShipmentDocuments(
-      getShipmentDocumentsLabel,
-      this.props.match.params.shipmentId,
-    );
+    this.props
+      .getAllShipmentDocuments(
+        getShipmentDocumentsLabel,
+        this.props.match.params.shipmentId,
+      )
+      .then(() => console.log('i was called'));
   }
 
   acceptShipment = () => {

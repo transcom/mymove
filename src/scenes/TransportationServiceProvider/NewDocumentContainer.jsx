@@ -25,6 +25,16 @@ const mapStateToProps = (state, ownProps) => {
     // 'swagger.spec.definitions.MoveDocumentPayload',
     // {},
     // ),
+    genericMoveDocSchema: get(
+      state,
+      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+      {},
+    ),
+    moveDocSchema: get(
+      state,
+      'swagger.spec.definitions.MoveDocumentPayload',
+      {},
+    ),
     moveDocuments: Object.values(moveDocuments),
     moveLocator: moveLocator || '',
     // newDocumentUrl: `/shipments/${shipmentId}/documents/new`,
