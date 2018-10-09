@@ -89,7 +89,7 @@ TspWrapper.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
+  swaggerError: state.swaggerPublic.hasErrored,
 });
 
 const mapDispatchToProps = dispatch =>

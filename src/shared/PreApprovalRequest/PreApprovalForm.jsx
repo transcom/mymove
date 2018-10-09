@@ -91,7 +91,7 @@ function mapStateToProps(state, props) {
   return {
     ship_accessorial_schema: get(
       state,
-      'swagger.spec.definitions.ShipmentAccessorial',
+      'swaggerPublic.spec.definitions.ShipmentAccessorial',
       {},
     ),
   };

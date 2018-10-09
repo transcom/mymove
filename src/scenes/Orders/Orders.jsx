@@ -116,7 +116,11 @@ Orders.propTypes = {
 function mapStateToProps(state) {
   const props = {
     serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+    schema: get(
+      state,
+      'swaggerInternal.spec.definitions.CreateUpdateOrders',
+      {},
+    ),
     formValues: getFormValues(formName)(state),
     currentOrders: state.orders.currentOrders,
   };

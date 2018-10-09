@@ -162,7 +162,7 @@ function mapStateToProps(state) {
     // Wrapper
     ppmSchema: get(
       state,
-      'swagger.spec.definitions.PersonallyProcuredMovePayload',
+      'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload',
     ),
     hasError: false,
     errorMessage: get(state, 'office.error'),

@@ -30,7 +30,7 @@ const mapStateToProps = (state, ownProps) => {
     },
     moveDocumentSchema: get(
       state,
-      'swagger.spec.definitions.MoveDocumentPayload',
+      'swaggerPublic.spec.definitions.MoveDocumentPayload',
       {},
     ),
     moveDocuments: Object.values(moveDocuments),
