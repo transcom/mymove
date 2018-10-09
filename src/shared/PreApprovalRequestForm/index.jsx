@@ -35,7 +35,6 @@ const Codes = accessorials => props => {
 
 class PreApprovalRequestForm extends Component {
   render() {
-    console.log(this.props.ship_accessorial_schema, '*********');
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid">
