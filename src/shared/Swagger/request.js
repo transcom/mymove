@@ -66,8 +66,8 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
     };
     dispatch({
       type: `@@swagger/${operationPath}/START`,
-      label,
       request: requestLog,
+      label,
     });
 
     let request;
@@ -84,8 +84,9 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
       });
       dispatch({
         type: `@@swagger/${operationPath}/ERROR`,
-        error,
         request: updatedRequestLog,
+        error,
+        label,
       });
       return Promise.reject(error);
     }
@@ -102,6 +103,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           type: `@@swagger/${operationPath}/SUCCESS`,
           request: updatedRequestLog,
           response,
+          label,
         };
 
         const routeDefinition = findMatchingRoute(
@@ -154,12 +156,14 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           response,
           isLoading: false,
         });
-        dispatch({
+        const action = {
           type: `@@swagger/${operationPath}/FAILURE`,
-          response,
           request: updatedRequestLog,
-        });
-        return Promise.reject(response);
+          response,
+          label,
+        };
+        dispatch(action);
+        return Promise.reject(action);
       });
   };
 }

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
-import { setCurrentShipmentID, getCurrentShipmentID } from 'shared/UI/ducks';
+import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
 import {
   getLastError,
   getInternalSwaggerDefinition,
@@ -133,7 +133,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  const shipment = getCurrentShipmentID(state);
+  const shipment = getCurrentShipment(state);
   const props = {
     schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
