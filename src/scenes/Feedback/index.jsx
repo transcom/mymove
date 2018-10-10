@@ -52,7 +52,11 @@ Feedback.propTypes = {
 function mapStateToProps(state) {
   return {
     ...state.feedback,
-    schema: get(state, 'swagger.spec.definitions.CreateIssuePayload', {}),
+    schema: get(
+      state,
+      'swaggerInternal.spec.definitions.CreateIssuePayload',
+      {},
+    ),
   };
 }
 

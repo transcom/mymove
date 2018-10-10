@@ -11,9 +11,10 @@ import (
 func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {
 	req := httptest.NewRequest("GET", "/calendar/available_move_dates", nil)
 
+	startDate := strfmt.Date(time.Date(2018, 9, 27, 0, 0, 0, 0, time.UTC))
 	params := calendarop.ShowAvailableMoveDatesParams{
 		HTTPRequest: req,
-		StartDate:   strfmt.Date(time.Date(2018, 9, 27, 0, 0, 0, 0, time.UTC)),
+		StartDate:   startDate,
 	}
 
 	availableDates := []strfmt.Date{
@@ -80,5 +81,6 @@ func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {
 	suite.IsType(&calendarop.ShowAvailableMoveDatesOK{}, response)
 	okResponse := response.(*calendarop.ShowAvailableMoveDatesOK)
 
-	suite.Equal(availableDates, okResponse.Payload)
+	suite.Equal(startDate, *okResponse.Payload.StartDate)
+	suite.Equal(availableDates, okResponse.Payload.Available)
 }

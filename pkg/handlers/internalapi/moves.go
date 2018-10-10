@@ -247,7 +247,10 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	deliveryDays := createMoveDates(firstPossibleDeliveryDay, 1, false)
 	reportDays := []strfmt.Date{strfmt.Date(move.Orders.ReportByDate.UTC())}
 
-	moveDatesSummaryPayload := &internalmessages.MoveDatesSummaryPayload{
+	moveDatesSummary := &internalmessages.MoveDatesSummary{
+		ID:       swag.String(params.MoveID.String() + ":" + params.MoveDate.String()),
+		MoveID:   &params.MoveID,
+		MoveDate: &params.MoveDate,
 		Pack:     packDays,
 		Pickup:   pickupDays,
 		Transit:  transitDays,
@@ -255,7 +258,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 		Report:   reportDays,
 	}
 
-	return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummaryPayload)
+	return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
 }
 
 func createMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool) []strfmt.Date {
