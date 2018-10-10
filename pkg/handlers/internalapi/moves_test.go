@@ -319,7 +319,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		Order: models.Order{
 			ServiceMemberID:  serviceMember.ID,
 			ServiceMember:    serviceMember,
-			ReportByDate:     time.Date(2018, 10, 20, 0, 0, 0, 0, time.UTC),
+			ReportByDate:     time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
 		},
@@ -329,7 +329,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	req := httptest.NewRequest("GET", path, nil)
 
 	moveID := strfmt.UUID(move.ID.String())
-	moveDate := strfmt.Date(time.Date(2018, 9, 27, 0, 0, 0, 0, time.UTC))
+	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
 	params := moveop.ShowMoveDatesSummaryParams{
 		HTTPRequest: req,
 		MoveID:      moveID,
@@ -351,32 +351,32 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	suite.Equal(moveDate, *okResponse.Payload.MoveDate)
 
 	pack := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 9, 27, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 9, 28, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 1, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 4, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 5, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 9, 0, 0, 0, 0, time.UTC)),
 	}
 	suite.Equal(pack, okResponse.Payload.Pack)
 
 	pickup := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 2, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC)),
 	}
 	suite.Equal(pickup, okResponse.Payload.Pickup)
 
 	transit := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 2, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 3, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 4, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 5, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 9, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 11, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 12, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 13, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 14, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 15, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 16, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 17, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 18, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 19, 0, 0, 0, 0, time.UTC)),
 	}
 	suite.Equal(transit, okResponse.Payload.Transit)
 
 	delivery := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 16, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 22, 0, 0, 0, 0, time.UTC)),
 	}
 	suite.Equal(delivery, okResponse.Payload.Delivery)
 
