@@ -217,6 +217,19 @@ pretty:
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
 	gofmt pkg/ >> /dev/null
 
+ci_build_app:
+	bin/copy_swagger_ui.sh
+	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
+	go build -i -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
+	go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
+	go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
+	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
+	go build -o bin/mymove-server -ldflags "-linkmode external -extldflags -static" ./cmd/webserver
+	go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber  # used by deployable container
+	yarn build # creates build/static/[css|js|media]
+	yarn test
+
 clean:
 	rm .*.stamp || true
 	rm -rf ./node_modules
