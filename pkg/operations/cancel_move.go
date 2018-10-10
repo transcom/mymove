@@ -48,23 +48,23 @@ func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.M
 		move.CancelReason = &cancelReason
 	}
 
-	// This will work only if you use the PPM in question rather than a var representing it
-	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
-	for i := range move.PersonallyProcuredMoves {
-		err := move.PersonallyProcuredMoves[i].Cancel()
-		if err != nil {
-			cm.Err = err
-			return nil
-		}
-	}
-
 	// TODO: cancel any shipments
 
 	cm.DB.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		if cm.hadErrors(cm.savePPMsAndDependencies(move)) {
-			return transactionError
+		for _, ppm := range move.PersonallyProcuredMoves {
+			cancelPPM := CancelPPM{DB: db, Logger: cm.Logger, Session: cm.Session}
+			cancelPPM.Run(ppm.ID)
+
+			if cancelPPM.Err != nil {
+				cm.Err = errors.Wrap(cancelPPM.Err, "Failed to cancel PPM")
+				return nil
+			}
+			if cancelPPM.Verrs != nil {
+				cm.Verrs = cancelPPM.Verrs
+				return nil
+			}
 		}
 
 		if cm.hadErrors(db.ValidateAndSave(move)) {
@@ -101,26 +101,4 @@ func (cm *CancelMove) hadErrors(verrs *validate.Errors, saveErr error) bool {
 		return true
 	}
 	return false
-}
-
-// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
-// and shipment GBLOCs.
-func (cm *CancelMove) savePPMsAndDependencies(move *models.Move) (*validate.Errors, error) {
-	validationErrors := validate.NewErrors()
-
-	for _, ppm := range move.PersonallyProcuredMoves {
-		if ppm.Advance != nil {
-			if verrs, err := cm.DB.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
-				validationErrors.Append(verrs)
-				return validationErrors, errors.Wrap(err, "Error Saving Advance")
-			}
-		}
-
-		if verrs, err := cm.DB.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
-			validationErrors.Append(verrs)
-			return validationErrors, errors.Wrap(err, "Error Saving PPM")
-		}
-	}
-
-	return validationErrors, nil
 }
