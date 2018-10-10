@@ -24,14 +24,14 @@ export class DatesSummary extends Component {
       <table>
         <tbody>
           <tr>
-            <th>Preferred Moving Dates Summary</th>
+            <th colSpan="2">Preferred Moving Dates Summary</th>
           </tr>
           <tr>
             <td>Movers Packing</td>
             <td>
               {this.formatDate(packDates[0])} -{' '}
-              {this.formatDate(packDates[packDates.length - 1])}
-              <span className="estimate">*estimated</span>
+              {this.formatDate(packDates[packDates.length - 1])}*
+              <span className="estimate">(estimated)</span>
             </td>
           </tr>
           <tr>
@@ -49,7 +49,7 @@ export class DatesSummary extends Component {
             <td>Movers Delivering</td>
             <td>
               {this.formatDate(deliveryDates[0])}{' '}
-              <span className="estimate">*estimated</span>
+              <span className="estimate">(estimated)</span>
             </td>
           </tr>
           <tr>
