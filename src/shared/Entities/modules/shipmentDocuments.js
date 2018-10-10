@@ -3,6 +3,8 @@ import { getPublicClient } from 'shared/Swagger/api';
 import { moveDocuments } from '../schema';
 import { denormalize } from 'normalizr';
 
+export const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
+
 export function getAllShipmentDocuments(label, shipmentId) {
   return swaggerRequest(
     getPublicClient,
@@ -12,10 +14,23 @@ export function getAllShipmentDocuments(label, shipmentId) {
   );
 }
 
+export const createShipmentDocumentLabel = 'MoveDocs.createShipmentDocuments';
+
+export function createShipmentDocument(
+  label,
+  shipmentId,
+  createGenericMoveDocumentPayload,
+) {
+  return swaggerRequest(
+    getPublicClient,
+    'move_docs.createGenericMoveDocument',
+    { shipmentId, createGenericMoveDocumentPayload },
+    { label },
+  );
+}
+
 export const selectShipmentDocuments = state =>
   Object.values(state.entities.moveDocuments);
-
-export const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
 
 const defaultShipmentDocument = {
   document: { uploads: [] },

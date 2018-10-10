@@ -4,13 +4,14 @@ import NewDocumentView from 'shared/DocumentViewer/NewDocumentView';
 import {
   getAllShipmentDocuments,
   getShipmentDocumentsLabel,
+  createShipmentDocumentLabel,
+  createShipmentDocument,
 } from 'shared/Entities/modules/shipmentDocuments';
-import { createShipmentDocument } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { get } from 'lodash';
 
 const mapStateToProps = (state, ownProps) => {
-  const { shipmentId, moveDocumentId } = ownProps.match.params;
+  const { shipmentId } = ownProps.match.params;
   const {
     tsp: { shipment: { move = {}, service_member: serviceMember = {} } = {} },
     entities: { moveDocuments = {}, uploads = {} },
@@ -20,7 +21,6 @@ const mapStateToProps = (state, ownProps) => {
   const name = stringifyName(serviceMember);
 
   return {
-    // documentDetailUrlPrefix: `/shipments/${shipmentId}/documents`,
     // moveDocumentSchema: get(
     // state,
     // 'swagger.spec.definitions.MoveDocumentPayload',
@@ -39,7 +39,6 @@ const mapStateToProps = (state, ownProps) => {
     ),
     moveDocuments: Object.values(moveDocuments),
     moveLocator: moveLocator || '',
-    // newDocumentUrl: `/shipments/${shipmentId}/documents/new`,
     serviceMember: { edipi, name },
     uploads: Object.values(uploads),
   };
@@ -53,7 +52,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       dispatch(getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId));
     },
     createShipmentDocument: (shipmentId, body) =>
-      dispatch(createShipmentDocument(shipmentId, body)),
+      dispatch(
+        createShipmentDocument(createShipmentDocumentLabel, shipmentId, body),
+      ),
   };
 };
 

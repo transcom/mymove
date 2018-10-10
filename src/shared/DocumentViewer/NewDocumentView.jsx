@@ -46,14 +46,16 @@ class NewDocumentView extends Component {
 
   render() {
     const {
-      documentDetailUrlPrefix,
       genericMoveDocSchema,
       moveDocSchema,
       moveDocuments,
       moveLocator,
-      // newDocumentUrl,
+      shipmentId,
       serviceMember: { edipi, name },
     } = this.props;
+    const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
+    const documentDetailUrlPrefix = `/shipments/${shipmentId}/documents`;
+
     return (
       <div className="usa-grid doc-viewer">
         <div className="usa-width-two-thirds">
@@ -90,26 +92,14 @@ class NewDocumentView extends Component {
                       icon={faPlusCircle}
                     />
                   </span>
-                  {/* TODO Do we want to have the new doc URL on the new page? */}
-                  {/* <Link to={newDocumentUrl}>Upload new document</Link> */}
-                </div>
-              </TabPanel>
-              <TabPanel>
-                <div className="pad-ns">
-                  <span className="status">
-                    <FontAwesomeIcon
-                      className="icon link-blue"
-                      icon={faPlusCircle}
-                    />
-                  </span>
-                  {/* <Link to={newDocumentUrl}>Upload new document</Link> */}
+                  <Link to={newDocumentUrl}>Upload new document</Link>
                 </div>
                 <div>
                   {' '}
-                  {/* <DocumentList
+                  <DocumentList
                     detailUrlPrefix={documentDetailUrlPrefix}
                     moveDocuments={moveDocuments}
-                  /> */}
+                  />
                 </div>
               </TabPanel>
             </Tabs>
@@ -121,11 +111,8 @@ class NewDocumentView extends Component {
 }
 
 NewDocumentView.propTypes = {
-  // documentDetailUrlPrefix: PropTypes.string.isRequired,
-  // moveDocumentSchema: PropTypes.object.isRequired,
   moveDocuments: PropTypes.array.isRequired,
   moveLocator: PropTypes.string.isRequired,
-  // newDocumentUrl: PropTypes.string.isRequired,
   onDidMount: PropTypes.func.isRequired,
   serviceMember: PropTypes.shape({
     edipi: PropTypes.string.isRequired,
