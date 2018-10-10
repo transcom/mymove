@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';
-import { GetShipment, GetMoveDatesSummary } from './api';
+import { GetShipment } from './api';
 
 // Types
 export const GET_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
