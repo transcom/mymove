@@ -6,17 +6,34 @@ import PreApprovalRequestForm, {
 import { submit, isValid, isSubmitting } from 'redux-form';
 import PreApprovalRequest from 'shared/PreApprovalRequest';
 import { connect } from 'react-redux';
+import Creator from 'shared/PreApprovalRequest/Creator';
 import { bindActionCreators } from 'redux';
-
 class ScratchPad extends Component {
   onSubmit = values => {
-    console.log('onSubmit', values);
+    return new Promise(function(resolve, reject) {
+      // do a thing, possibly async, then…
+      setTimeout(function() {
+        console.log('onSubmit async', values);
+        resolve('success');
+      }, 50);
+    });
   };
   onEdit = () => {};
   onDelete = () => {};
   onApproval = () => {};
-
   render() {
+    const accessorials = [
+      {
+        id: 'sdlfkj',
+        code: 'F9D',
+        item: 'Long Haul',
+      },
+      {
+        id: 'badfka',
+        code: '19D',
+        item: 'Crate',
+      },
+    ];
     const shipment_accessorials = [
       {
         code: '105D',
@@ -51,18 +68,7 @@ class ScratchPad extends Component {
                 onApproval={this.onApproval}
               />
               <PreApprovalRequestForm
-                accessorials={[
-                  {
-                    id: 'sdlfkj',
-                    code: 'F9D',
-                    item: 'Long Haul',
-                  },
-                  {
-                    id: 'badfka',
-                    code: '19D',
-                    item: 'Crate',
-                  },
-                ]}
+                accessorials={accessorials}
                 onSubmit={this.onSubmit}
               />
               <button
@@ -71,6 +77,12 @@ class ScratchPad extends Component {
               >
                 Submit
               </button>
+            </BasicPanel>
+            <BasicPanel title="Creator Test">
+              <Creator
+                accessorials={accessorials}
+                savePreApprovalRequest={this.onSubmit}
+              />
             </BasicPanel>
           </div>
           <div className="usa-width-one-third">
