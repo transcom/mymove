@@ -6,10 +6,12 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
-import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
+import {
+  getLastError,
+  getInternalSwaggerDefinition,
+} from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import DatePicker from 'scenes/Moves/Hhg/DatePicker';
 import Address from 'scenes/Moves/Hhg/Address';
 import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
 
@@ -18,7 +20,7 @@ import {
   getShipment,
 } from 'shared/Entities/modules/shipments';
 
-import './ShipmentForm.css';
+import './ShipmentWizard.css';
 
 const formName = 'shipment_form';
 const getRequestLabel = 'ShipmentForm.getShipment';
@@ -74,14 +76,8 @@ export class ShipmentForm extends Component {
       });
   };
 
-  setDate = day => {
-    this.setState({ requestedPickupDate: day });
-  };
-
   render() {
-    const { pages, pageKey, error, initialValues, formValues } = this.props;
-
-    const requestedPickupDate = get(this.state, 'requestedPickupDate');
+    const { pages, pageKey, error, initialValues } = this.props;
 
     // Shipment Wizard
     return (
@@ -92,7 +88,6 @@ export class ShipmentForm extends Component {
         pageKey={pageKey}
         serverError={error}
         initialValues={initialValues}
-        additionalValues={{ requested_pickup_date: requestedPickupDate }}
       >
         <Fragment>
           {this.props.error && (
@@ -105,16 +100,10 @@ export class ShipmentForm extends Component {
             </div>
           )}
         </Fragment>
-        <div className="shipment-form">
+        <div className="shipment-wizard">
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <DatePicker
-            schema={this.props.schema}
-            error={error}
-            selectedDay={get(formValues, 'requested_pickup_date', null)}
-            setDate={this.setDate}
-          />
           <Address
             schema={this.props.schema}
             error={error}
@@ -145,7 +134,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const shipment = currentShipment(state);
   const props = {
-    schema: getSwaggerDefinition(state, 'Shipment'),
+    schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,

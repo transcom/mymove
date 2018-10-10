@@ -12,6 +12,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './index.css';
 
 const surveyFields = [
+  'pm_survey_conducted_date',
   'pm_survey_planned_pack_date',
   'pm_survey_planned_pickup_date',
   'pm_survey_planned_delivery_date',
@@ -70,14 +71,20 @@ const SurveyDisplay = props => {
       </div>
       <div className="editable-panel-3-column">
         <PanelSwaggerField
-          title="Notes"
-          fieldName="pm_survey_notes"
+          title="PM survey conducted"
+          fieldName="pm_survey_conducted_date"
+          required
           {...fieldProps}
         />
         <PanelSwaggerField
           title="Survey Method"
           fieldName="pm_survey_method"
           required
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Notes about dates"
+          fieldName="pm_survey_notes"
           {...fieldProps}
         />
       </div>
@@ -123,8 +130,18 @@ const SurveyEdit = props => {
             swagger={schema}
           />
         </div>
-        <SwaggerField fieldName="pm_survey_notes" swagger={schema} />
+        <SwaggerField
+          fieldName="pm_survey_conducted_date"
+          title="PM survey conducted"
+          swagger={schema}
+          required
+        />
         <SwaggerField fieldName="pm_survey_method" swagger={schema} required />
+        <SwaggerField
+          fieldName="pm_survey_notes"
+          title="Notes about dates"
+          swagger={schema}
+        />
       </FormSection>
     </React.Fragment>
   );
@@ -153,7 +170,7 @@ function mapStateToProps(state, props) {
       survey: pick(props.shipment, surveyFields),
     },
 
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
     hasError: !!props.error,
     errorMessage: props.error,

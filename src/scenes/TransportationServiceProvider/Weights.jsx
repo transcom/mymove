@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
-
-import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
 const weightsFields = ['actual_weight'];
 
@@ -15,7 +14,7 @@ const WeightsDisplay = props => {
     values: props.shipment,
   };
   return (
-    <React.Fragment>
+    <Fragment>
       <div className="editable-panel-column">
         <div className="column-head">Weights</div>
         <div className="column-subhead">Total weight</div>
@@ -32,6 +31,8 @@ const WeightsDisplay = props => {
           {...fieldProps}
         />
         <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
+      </div>
+      <div className="editable-panel-column">
         <div className="column-subhead">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"
@@ -59,7 +60,7 @@ const WeightsDisplay = props => {
           {...fieldProps}
         />
       </div>
-    </React.Fragment>
+    </Fragment>
   );
 };
 
@@ -70,7 +71,7 @@ const WeightsEdit = props => {
     values: props.shipment,
   };
   return (
-    <React.Fragment>
+    <Fragment>
       <FormSection name="weights">
         <div className="editable-panel-column">
           <div className="column-head">Weights</div>
@@ -88,6 +89,8 @@ const WeightsEdit = props => {
             {...fieldProps}
           />
           <SwaggerField fieldName="actual_weight" swagger={schema} required />
+        </div>
+        <div className="editable-panel-column">
           <div className="column-subhead">Pro-gear</div>
           <PanelSwaggerField
             fieldName="progear_weight_estimate"
@@ -116,7 +119,7 @@ const WeightsEdit = props => {
           />
         </div>
       </FormSection>
-    </React.Fragment>
+    </Fragment>
   );
 };
 
@@ -143,7 +146,7 @@ function mapStateToProps(state, props) {
       weights: pick(props.shipment, weightsFields),
     },
 
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
     hasError: !!props.error,
     errorMessage: props.error,

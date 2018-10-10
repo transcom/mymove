@@ -1,7 +1,12 @@
 package internalapi
 
 import (
+	"fmt"
+	"github.com/go-openapi/swag"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
@@ -260,4 +265,123 @@ func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 	suite.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 	suite.Equal(internalmessages.ShipmentStatusSUBMITTED, okResponse.Payload.Shipments[0].Status)
 	suite.NotNil(okResponse.Payload.Shipments[0].BookDate)
+}
+
+func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
+	dutyStationAddress := testdatagen.MakeAddress(suite.TestDB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "Fort Gordon",
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "30813",
+			Country:        swag.String("United States"),
+		},
+	})
+
+	dutyStation := testdatagen.MakeDutyStation(suite.TestDB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name:        "Fort Sam Houston",
+			Affiliation: internalmessages.AffiliationARMY,
+			AddressID:   dutyStationAddress.ID,
+			Address:     dutyStationAddress,
+		},
+	})
+
+	rank := models.ServiceMemberRankE4
+	serviceMember := testdatagen.MakeServiceMember(suite.TestDB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			Rank:          &rank,
+			DutyStationID: &dutyStation.ID,
+			DutyStation:   dutyStation,
+		},
+	})
+
+	newDutyStationAddress := testdatagen.MakeAddress(suite.TestDB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "n/a",
+			City:           "San Antonio",
+			State:          "TX",
+			PostalCode:     "78234",
+			Country:        swag.String("United States"),
+		},
+	})
+
+	newDutyStation := testdatagen.MakeDutyStation(suite.TestDB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name:        "Fort Gordon",
+			Affiliation: internalmessages.AffiliationARMY,
+			AddressID:   newDutyStationAddress.ID,
+			Address:     newDutyStationAddress,
+		},
+	})
+
+	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID:  serviceMember.ID,
+			ServiceMember:    serviceMember,
+			ReportByDate:     time.Date(2018, 10, 20, 0, 0, 0, 0, time.UTC),
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+		},
+	})
+
+	path := fmt.Sprintf("/moves/%s/move_dates", move.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+
+	moveID := strfmt.UUID(move.ID.String())
+	moveDate := strfmt.Date(time.Date(2018, 9, 27, 0, 0, 0, 0, time.UTC))
+	params := moveop.ShowMoveDatesSummaryParams{
+		HTTPRequest: req,
+		MoveID:      moveID,
+		MoveDate:    moveDate,
+	}
+
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetPlanner(route.NewTestingPlanner(1125))
+
+	showHandler := ShowMoveDatesSummaryHandler{context}
+	response := showHandler.Handle(params)
+
+	suite.IsType(&moveop.ShowMoveDatesSummaryOK{}, response)
+	okResponse := response.(*moveop.ShowMoveDatesSummaryOK)
+
+	id := move.ID.String() + ":" + moveDate.String()
+	suite.Equal(id, *okResponse.Payload.ID)
+	suite.Equal(moveID, *okResponse.Payload.MoveID)
+	suite.Equal(moveDate, *okResponse.Payload.MoveDate)
+
+	pack := []strfmt.Date{
+		strfmt.Date(time.Date(2018, 9, 27, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 9, 28, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 1, 0, 0, 0, 0, time.UTC)),
+	}
+	suite.Equal(pack, okResponse.Payload.Pack)
+
+	pickup := []strfmt.Date{
+		strfmt.Date(time.Date(2018, 10, 2, 0, 0, 0, 0, time.UTC)),
+	}
+	suite.Equal(pickup, okResponse.Payload.Pickup)
+
+	transit := []strfmt.Date{
+		strfmt.Date(time.Date(2018, 10, 2, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 3, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 4, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 5, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 9, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 11, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 12, 0, 0, 0, 0, time.UTC)),
+		strfmt.Date(time.Date(2018, 10, 15, 0, 0, 0, 0, time.UTC)),
+	}
+	suite.Equal(transit, okResponse.Payload.Transit)
+
+	delivery := []strfmt.Date{
+		strfmt.Date(time.Date(2018, 10, 16, 0, 0, 0, 0, time.UTC)),
+	}
+	suite.Equal(delivery, okResponse.Payload.Delivery)
+
+	report := []strfmt.Date{
+		strfmt.Date(move.Orders.ReportByDate),
+	}
+	suite.Equal(report, okResponse.Payload.Report)
 }

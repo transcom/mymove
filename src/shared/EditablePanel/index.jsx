@@ -41,9 +41,11 @@ PanelField.propTypes = {
 
 export const SwaggerValue = props => {
   const { fieldName, schema, values } = props;
-  /* eslint-disable security/detect-object-injection */
-  const swaggerProps = schema.properties[fieldName];
-
+  let swaggerProps = {};
+  if (schema.properties) {
+    /* eslint-disable security/detect-object-injection */
+    swaggerProps = schema.properties[fieldName];
+  }
   let value = values[fieldName] || '';
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
@@ -174,14 +176,9 @@ export function editablePanelify(
   editEnabled = true,
 ) {
   const Wrapper = class extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        isEditable: false,
-      };
-      // TODO: Figure out why bind is still needed when ostensibly it's not
-      this.save = this.save.bind(this);
-    }
+    state = {
+      isEditable: false,
+    };
 
     save = () => {
       let isValid = this.props.valid;

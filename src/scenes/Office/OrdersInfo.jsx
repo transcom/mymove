@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { compact, get } from 'lodash';
+import { get } from 'lodash';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { loadMoveDependencies } from './ducks.js';
+import { stringifyName } from 'shared/utils/serviceMember';
 
 import './office.css';
 
@@ -20,10 +21,7 @@ class OrdersInfo extends Component {
   render() {
     const orders = this.props.orders;
     const serviceMember = this.props.serviceMember;
-    const name = compact([
-      serviceMember.last_name,
-      serviceMember.first_name,
-    ]).join(', ');
+    const name = stringifyName(serviceMember);
 
     let uploads;
     if (orders && orders.uploaded_orders) {
@@ -78,8 +76,12 @@ OrdersInfo.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
-  ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+  swaggerError: state.swaggerInternal.hasErrored,
+  ordersSchema: get(
+    state,
+    'swaggerInternal.spec.definitions.CreateUpdateOrders',
+    {},
+  ),
   orders: state.office.officeOrders || {},
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,

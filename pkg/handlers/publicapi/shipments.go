@@ -24,8 +24,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		ID: *handlers.FmtUUID(s.ID),
 		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMember:                       payloadForServiceMemberModel(&s.ServiceMember),
-		ActualPickupDate:                    *handlers.FmtDateTimePtr(s.ActualPickupDate),
-		ActualDeliveryDate:                  *handlers.FmtDateTimePtr(s.ActualDeliveryDate),
+		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
+		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
+		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                         apimessages.GBLOC(*s.SourceGBLOC),
@@ -33,7 +34,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		GblNumber:                           s.GBLNumber,
 		Market:                              apimessages.ShipmentMarket(*s.Market),
 		BookDate:                            *handlers.FmtDatePtr(s.BookDate),
-		RequestedPickupDate:                 *handlers.FmtDateTimePtr(s.RequestedPickupDate),
+		RequestedPickupDate:                 *handlers.FmtDatePtr(s.RequestedPickupDate),
 		Move:                                payloadForMoveModel(&s.Move),
 		Status:                              apimessages.ShipmentStatus(s.Status),
 		EstimatedPackDays:                   handlers.FmtInt64(*s.EstimatedPackDays),
@@ -49,6 +50,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
 		ActualWeight:                        handlers.FmtPoundPtr(s.ActualWeight),
+		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -295,13 +297,26 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	// If any PmSurvey data was sent, update all fields
 	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
 	if requiredValue != nil {
+		shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
 		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
-		shipment.PmSurveyNotes = payload.PmSurveyNotes
 		shipment.PmSurveyMethod = payload.PmSurveyMethod
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
 		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+	}
+
+	if payload.PmSurveyNotes != nil {
+		shipment.PmSurveyNotes = payload.PmSurveyNotes
+	}
+
+	if payload.PmSurveyProgearWeightEstimate != nil {
 		shipment.PmSurveyProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyProgearWeightEstimate)
+	}
+
+	if payload.PmSurveySpouseProgearWeightEstimate != nil {
 		shipment.PmSurveySpouseProgearWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveySpouseProgearWeightEstimate)
+	}
+
+	if payload.PmSurveyWeightEstimate != nil {
 		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
 
@@ -309,8 +324,16 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 		shipment.ActualWeight = handlers.PoundPtrFromInt64Ptr(payload.ActualWeight)
 	}
 
-	if &payload.ActualPickupDate != nil {
-		shipment.ActualPickupDate = (*time.Time)(&payload.ActualPickupDate)
+	if payload.ActualPickupDate != nil {
+		shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
+	}
+
+	if payload.ActualPackDate != nil {
+		shipment.ActualPackDate = (*time.Time)(payload.ActualPackDate)
+	}
+
+	if payload.ActualDeliveryDate != nil {
+		shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
 	}
 }
 

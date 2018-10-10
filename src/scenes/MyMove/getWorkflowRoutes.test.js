@@ -68,6 +68,7 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/transition',
           '/moves/:moveId',
           '/moves/:moveId/hhg-start',
+          '/moves/:moveId/hhg-form',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -94,6 +95,7 @@ describe('when getting the routes for the current workflow', () => {
           '/moves/:moveId',
           '/moves/:moveId/hhg-transition',
           '/moves/:moveId/hhg-start',
+          '/moves/:moveId/hhg-form',
           '/moves/:moveId/ppm-transition',
           '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
@@ -175,6 +177,7 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/transition',
           '/moves/:moveId',
           '/moves/:moveId/hhg-start',
+          '/moves/:moveId/hhg-form',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -201,6 +204,7 @@ describe('when getting the routes for the current workflow', () => {
           '/moves/:moveId',
           '/moves/:moveId/hhg-transition',
           '/moves/:moveId/hhg-start',
+          '/moves/:moveId/hhg-form',
           '/moves/:moveId/ppm-transition',
           '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',

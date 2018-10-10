@@ -1,10 +1,10 @@
-import { get, compact } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import { addressElementDisplay, addressElementEdit } from './AddressElement';
+import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
@@ -15,6 +15,7 @@ import {
   SwaggerValue,
   editablePanelify,
 } from 'shared/EditablePanel';
+import { stringifyName } from 'shared/utils/serviceMember';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -27,7 +28,7 @@ const CustomerInfoDisplay = props => {
     values: props.serviceMember,
   };
   const values = props.serviceMember;
-  const name = compact([values.last_name, values.first_name]).join(', ');
+  const name = stringifyName(values);
   const address = get(values, 'residential_address', {});
 
   return (
@@ -76,7 +77,7 @@ const CustomerInfoDisplay = props => {
             </span>
           )}
         </PanelField>
-        {addressElementDisplay(address, 'Current Address')}
+        <AddressElementDisplay address={address} title="Current Address" />
       </div>
     </React.Fragment>
   );
@@ -136,7 +137,10 @@ const CustomerInfoEdit = props => {
 
         <div className="editable-panel-column">
           <FormSection name="address">
-            {addressElementEdit(addressProps, 'Current Residence Address')}
+            <AddressElementEdit
+              addressProps={addressProps}
+              title="Current Residence Address"
+            />
           </FormSection>
         </div>
       </div>
@@ -163,12 +167,12 @@ function mapStateToProps(state) {
       address: customerInfo.residential_address,
     },
 
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
 
     // CustomerInfoEdit
     serviceMemberSchema: get(
       state,
-      'swagger.spec.definitions.ServiceMemberPayload',
+      'swaggerInternal.spec.definitions.ServiceMemberPayload',
     ),
     serviceMember: state.office.officeServiceMember,
 

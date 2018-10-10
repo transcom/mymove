@@ -6,7 +6,7 @@ import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { updateBackupInfo } from './ducks';
 
-import { addressElementDisplay, addressElementEdit } from './AddressElement';
+import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField, editablePanelify } from 'shared/EditablePanel';
@@ -18,7 +18,10 @@ const BackupInfoDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        {addressElementDisplay(backupAddress, 'Backup mailing address')}
+        <AddressElementDisplay
+          address={backupAddress}
+          title="Backup mailing address"
+        />
       </div>
       <div className="editable-panel-column">
         <PanelField title="Backup contact">
@@ -68,10 +71,10 @@ const BackupInfoEdit = props => {
 
       <div className="editable-panel-column">
         <FormSection name="backupMailingAddress">
-          {addressElementEdit(
-            backupMailingAddressProps,
-            'Backup mailing address',
-          )}
+          <AddressElementEdit
+            addressProps={backupMailingAddressProps}
+            title="Backup mailing address"
+          />
         </FormSection>
       </div>
     </React.Fragment>
@@ -99,10 +102,10 @@ function mapStateToProps(state) {
       backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     },
 
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     backupContactSchema: get(
       state,
-      'swagger.spec.definitions.ServiceMemberBackupContactPayload',
+      'swaggerInternal.spec.definitions.ServiceMemberBackupContactPayload',
       {},
     ),
     backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),

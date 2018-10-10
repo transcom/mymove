@@ -217,7 +217,7 @@ function mapStateToProps(state) {
       serviceMember: get(state, 'office.officeServiceMember', {}),
     },
 
-    ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
+    ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
 
     hasError: false,
     errorMessage: state.office.error,
