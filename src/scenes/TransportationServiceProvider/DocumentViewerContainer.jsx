@@ -37,7 +37,7 @@ const mapStateToProps = (state, ownProps) => {
     moveLocator: moveLocator || '',
     newDocumentUrl: `/shipments/${shipmentId}/documents/new`,
     serviceMember: { edipi, name },
-    uploads: Object.values(uploads),
+    uploads: get(shipmentDocument, 'document.uploads', []),
   };
 };
 
