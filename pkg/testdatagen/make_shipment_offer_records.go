@@ -148,6 +148,20 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			models.ShipmentStatusINTRANSIT,
 			models.ShipmentStatusDELIVERED}
 	}
+
+	// Make the required Tariff 400 NG Zip3
+	MakeDefaultTariff400ngZip3(db)
+	MakeTariff400ngZip3(db, Assertions{
+		Tariff400ngZip3: models.Tariff400ngZip3{
+			Zip3:          "800",
+			BasepointCity: "Denver",
+			State:         "CO",
+			ServiceArea:   "145",
+			RateArea:      "US74",
+			Region:        "5",
+		},
+	})
+
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
