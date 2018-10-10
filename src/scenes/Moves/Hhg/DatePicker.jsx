@@ -3,21 +3,19 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
-import { get, isNil } from 'lodash';
-import moment from 'moment';
+import { get } from 'lodash';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import { bindActionCreators } from 'redux';
 import { getMoveDatesSummary } from 'shared/Entities/modules/moves';
+import DatesSummary from 'scenes/Moves/Hhg/DatesSummary.jsx';
 
 import './DatePicker.css';
-import { selectMoveDatesSummary } from 'shared/Entities/modules/moves';
 
 const getRequestLabel = 'DatePicker.getMoveDatesSummary';
 
 export class HHGDatePicker extends Component {
   handleDayClick = day => {
-    console.log(day);
     const moveDate = day.toISOString().split('T')[0];
     this.props.input.onChange(formatSwaggerDate(day));
     this.props.getMoveDatesSummary(
@@ -38,22 +36,9 @@ export class HHGDatePicker extends Component {
   }
 
   render() {
-    function formatDate(date) {
-      if (date) {
-        return moment(date).format('ddd, MMMM DD');
-      }
-    }
-    const { moveDates, currentShipment } = this.props;
-
-    const pickupDates = get(moveDates, 'pickup', []);
-    const packDates = get(moveDates, 'pack', []);
-    const deliveryDates = get(moveDates, 'delivery', []);
-    const transitDates = get(moveDates, 'transit', []);
-    const reportDates = get(moveDates, 'report', []);
-
     let selectedDay =
       this.props.input.value ||
-      get(currentShipment, 'requested_pickup_date', null);
+      get(this.props.currentShipment, 'requested_pickup_date');
 
     return (
       <div className="form-section">
@@ -70,46 +55,14 @@ export class HHGDatePicker extends Component {
           </div>
 
           <div className="usa-width-two-thirds">
-            {selectedDay &&
-              !isNil(this.props.moveDates) && (
-                <table>
-                  <tbody>
-                    <tr>
-                      <th>Preferred Moving Dates Summary</th>
-                    </tr>
-                    <tr>
-                      <td>Movers Packing</td>
-                      <td>
-                        {formatDate(packDates[0])} -{' '}
-                        {formatDate(packDates[packDates.length - 1])}
-                        <span className="estimate">*estimated</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Movers Loading Truck</td>
-                      <td>{formatDate(pickupDates[0])}</td>
-                    </tr>
-                    <tr>
-                      <td>Moving Truck in Transit</td>
-                      <td>
-                        {formatDate(transitDates[0])} -{' '}
-                        {formatDate(transitDates[transitDates.length - 1])}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Movers Delivering</td>
-                      <td>
-                        {formatDate(deliveryDates[0])}{' '}
-                        <span className="estimate">*estimated</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Report By Date</td>
-                      <td>{formatDate(reportDates[0])}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
+            {selectedDay && (
+              <DatesSummary
+                moveDate={
+                  this.props.input.value ||
+                  get(this.props.currentShipment, 'requested_pickup_date')
+                }
+              />
+            )}
           </div>
         </div>
       </div>
@@ -125,14 +78,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary }, dispatch);
 }
 
-function mapStateToProps(state, ownProps) {
-  const props = {
-    moveDates: selectMoveDatesSummary(
-      state,
-      get(ownProps.currentShipment, 'requested_pickup_date'),
-    ),
-  };
-  return props;
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker);
+export default connect(() => ({}), mapDispatchToProps)(HHGDatePicker);
