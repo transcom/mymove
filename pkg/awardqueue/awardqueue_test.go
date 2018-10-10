@@ -352,7 +352,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
-	const shipmentsToMake = 10
+	const shipmentsToMake = 1
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
@@ -384,7 +384,9 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
+	pop.Debug = true
 	queue.assignShipments()
+	pop.Debug = false
 
 	// Count the number of shipments offered to our TSP
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
@@ -599,6 +601,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	tspNonPeak := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
 			StandardCarrierAlphaCode: "NPEK",
+			Enrolled:                 true,
 		},
 	})
 	tspPerfNonPeak := models.TransportationServiceProviderPerformance{
@@ -740,8 +743,10 @@ func TestAwardQueueSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Panic(err)
+	}
 
 	hs := &AwardQueueSuite{db: db, logger: logger}
 	suite.Run(t, hs)
