@@ -82,14 +82,7 @@ export class HHGDatePicker extends Component {
             </div>
 
             <div className="usa-width-two-thirds">
-              {selectedDay && (
-                <DatesSummary
-                  moveDate={
-                    this.props.input.value ||
-                    get(this.props.currentShipment, 'requested_pickup_date')
-                  }
-                />
-              )}
+              {selectedDay && <DatesSummary moveDate={selectedDay} />}
             </div>
           </div>
         ) : (
