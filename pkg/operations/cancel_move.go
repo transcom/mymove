@@ -3,23 +3,17 @@ package operations
 import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
-	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
 // CancelMove is a struct on the service object layer to handle move cancelations
 type CancelMove struct {
-	DB       *pop.Connection
-	Logger   *zap.Logger
-	Session  *auth.Session
+	Operation
 	Notifier notifications.NotificationSender
-	Verrs    *validate.Errors
-	Err      error
 }
 
 // * Make transaction occur on the service object level rather than save level
@@ -54,7 +48,7 @@ func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.M
 		transactionError := errors.New("Rollback The transaction")
 
 		for _, ppm := range move.PersonallyProcuredMoves {
-			cancelPPM := CancelPPM{DB: db, Logger: cm.Logger, Session: cm.Session}
+			cancelPPM := CancelPPM{Operation: Operation{DB: db, Logger: cm.Logger, Session: cm.Session}}
 			cancelPPM.Run(ppm.ID)
 
 			if cancelPPM.Err != nil {
@@ -88,17 +82,4 @@ func (cm *CancelMove) Run(moveID uuid.UUID, cancelReason string) (move *models.M
 	}
 
 	return move
-}
-
-func (cm *CancelMove) hadErrors(verrs *validate.Errors, saveErr error) bool {
-	if saveErr != nil {
-		cm.Err = errors.Wrap(saveErr, "error saving model")
-		return true
-	}
-	if verrs.HasAny() {
-		cm.Verrs = verrs
-		cm.Err = errors.New("Model validation failure")
-		return true
-	}
-	return false
 }

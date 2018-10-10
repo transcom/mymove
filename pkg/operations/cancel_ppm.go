@@ -1,23 +1,15 @@
 package operations
 
 import (
-	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
-	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // CancelPPM is a struct on the service object layer to handle PPM cancelations
 type CancelPPM struct {
-	DB      *pop.Connection
-	Logger  *zap.Logger
-	Session *auth.Session
-	Verrs   *validate.Errors
-	Err     error
+	Operation
 }
 
 // Run runs CancelPPM
@@ -34,9 +26,7 @@ func (cp *CancelPPM) Run(ppmID uuid.UUID) (ppm *models.PersonallyProcuredMove) {
 
 	ppm.Status = models.PPMStatusCANCELED
 
-	if verrs, err := cp.DB.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
-		cp.Verrs = verrs
-		cp.Err = err
+	if cp.hadErrors(cp.DB.ValidateAndSave(ppm)) {
 		return nil
 	}
 

@@ -76,7 +76,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Canceling move will result in canceled associated PPMs
-	cancelMove := operations.CancelMove{DB: h.DB(), Logger: h.Logger(), Session: session, Notifier: h.NotificationSender()}
+	cancelMove := operations.CancelMove{Operation: operations.Operation{DB: h.DB(), Logger: h.Logger(), Session: session}, Notifier: h.NotificationSender()}
 	move := cancelMove.Run(moveID, *params.CancelMove.CancelReason)
 
 	if cancelMove.Err != nil {
