@@ -170,7 +170,7 @@ function mapStateToProps(state, props) {
       survey: pick(props.shipment, surveyFields),
     },
 
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
     hasError: !!props.error,
     errorMessage: props.error,

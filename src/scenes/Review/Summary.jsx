@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import { getSwaggerDefinition } from 'shared/Swagger/selectors';
+import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { getMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
@@ -371,9 +371,9 @@ function mapStateToProps(state, ownProps) {
     // latestMove: state.moves.latestMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
-    schemaRank: getSwaggerDefinition(state, 'ServiceMemberRank'),
-    schemaOrdersType: getSwaggerDefinition(state, 'OrdersType'),
-    schemaAffiliation: getSwaggerDefinition(state, 'Affiliation'),
+    schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
+    schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
+    schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: moveIsApproved(state),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,

@@ -45,5 +45,9 @@ export function setCurrentShipmentID(shipmentID) {
 
 // Selectors
 export function getCurrentShipmentID(state) {
+  return get(state, 'ui.currentShipmentID');
+}
+
+export function getCurrentShipment(state) {
   return selectShipment(state, get(state, 'ui.currentShipmentID'));
 }

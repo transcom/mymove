@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues, Field } from 'redux-form';
 
-import { setCurrentShipmentID, getCurrentShipmentID } from 'shared/UI/ducks';
+import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
 import { getLastError } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -16,6 +16,10 @@ import {
   createOrUpdateShipment,
   getShipment,
 } from 'shared/Entities/modules/shipments';
+import {
+  getAvailableMoveDates,
+  selectAvailableMoveDates,
+} from 'shared/Entities/modules/calendar';
 
 import './ShipmentWizard.css';
 
@@ -26,11 +30,13 @@ const validateMoveDateForm = validateAdditionalFields([
 const formName = 'move_date_form';
 const getRequestLabel = 'MoveDate.getShipment';
 const createOrUpdateRequestLabel = 'MoveDate.createOrUpdateShipment';
+const availableMoveDatesLabel = 'MoveDate.getAvailableMoveDates';
 const MoveDateWizardForm = reduxifyWizardForm(formName, validateMoveDateForm);
 
 export class MoveDate extends Component {
   componentDidMount() {
     this.loadShipment();
+    this.props.getAvailableMoveDates(availableMoveDatesLabel, this.props.today);
   }
 
   componentDidUpdate(prevProps) {
@@ -106,7 +112,11 @@ export class MoveDate extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <Field name="requested_pickup_date" component={DatePicker} />
+          <Field
+            name="requested_pickup_date"
+            component={DatePicker}
+            availableMoveDates={this.props.availableMoveDates}
+          />
         </div>
       </MoveDateWizardForm>
     );
@@ -119,17 +129,25 @@ MoveDate.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipmentID, getShipment },
+    {
+      createOrUpdateShipment,
+      setCurrentShipmentID,
+      getShipment,
+      getAvailableMoveDates,
+    },
     dispatch,
   );
 }
 function mapStateToProps(state) {
-  const shipment = getCurrentShipmentID(state);
+  const shipment = getCurrentShipment(state);
+  const today = new Date().toISOString().split('T')[0];
   const props = {
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
+    today: today,
+    availableMoveDates: selectAvailableMoveDates(state, today),
     error: getLastError(state, getRequestLabel),
   };
   return props;

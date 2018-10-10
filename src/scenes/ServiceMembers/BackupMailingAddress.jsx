@@ -85,7 +85,7 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   return {
-    schema: get(state, 'swagger.spec.definitions.Address', {}),
+    schema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     values: getFormValues(formName)(state),
     ...state.serviceMember,
   };

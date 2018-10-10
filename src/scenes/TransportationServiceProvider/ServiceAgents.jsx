@@ -92,7 +92,7 @@ function mapStateToProps(state, props) {
 
   return {
     // reduxForm
-    schema: get(state, 'swagger.spec.definitions.ServiceAgent', null),
+    schema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', null),
     initialValues,
 
     hasError: false,

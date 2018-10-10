@@ -164,7 +164,7 @@ DocumentViewer.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
+  swaggerError: state.swaggerInternal.hasErrored,
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
   moveDocuments: selectAllDocumentsForMove(

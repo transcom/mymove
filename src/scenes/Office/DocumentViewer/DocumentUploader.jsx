@@ -197,7 +197,7 @@ DocumentUploader.propTypes = {
 function mapStateToProps(state, props) {
   const docTypes = get(
     state,
-    'swagger.spec.definitions.MoveDocumentType.enum',
+    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
     [],
   );
 
@@ -212,12 +212,12 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(moveDocumentFormName)(state),
     genericMoveDocSchema: get(
       state,
-      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+      'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
       {},
     ),
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.MoveDocumentPayload',
+      'swaggerInternal.spec.definitions.MoveDocumentPayload',
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
