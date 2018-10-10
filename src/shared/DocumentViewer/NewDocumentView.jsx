@@ -26,20 +26,19 @@ class NewDocumentView extends Component {
     onDidMount();
   }
 
-  handleSubmit = (uploadIds, formValues) => {
+  handleSubmit = (upload_ids, formValues) => {
     const { shipmentId } = this.props;
     const { move_document_type, title, notes } = formValues;
 
     const createGenericMoveDocument = {
       shipmentId,
-      uploadIds,
+      upload_ids,
       move_document_type,
       title,
       notes,
     };
 
     return this.props.createShipmentDocument(
-      createShipmentDocumentLabel,
       shipmentId,
       createGenericMoveDocument,
     );

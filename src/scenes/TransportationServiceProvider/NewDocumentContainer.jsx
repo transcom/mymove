@@ -5,6 +5,7 @@ import {
   getAllShipmentDocuments,
   getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
+import { createShipmentDocument } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { get } from 'lodash';
 
@@ -25,14 +26,15 @@ const mapStateToProps = (state, ownProps) => {
     // 'swagger.spec.definitions.MoveDocumentPayload',
     // {},
     // ),
+    shipmentId,
     genericMoveDocSchema: get(
       state,
-      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+      'swaggerPublic.spec.definitions.CreateGenericMoveDocumentPayload',
       {},
     ),
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.MoveDocumentPayload',
+      'swaggerPublic.spec.definitions.MoveDocumentPayload',
       {},
     ),
     moveDocuments: Object.values(moveDocuments),
@@ -50,6 +52,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       dispatch(loadShipmentDependencies(shipmentId));
       dispatch(getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId));
     },
+    createShipmentDocument: (shipmentId, body) =>
+      dispatch(createShipmentDocument(shipmentId, body)),
   };
 };
 
