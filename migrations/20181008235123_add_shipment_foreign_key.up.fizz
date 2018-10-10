@@ -1,0 +1,3 @@
+sql("DELETE FROM shipments WHERE NOT EXISTS (SELECT id FROM moves WHERE id = shipments.move_id);")
+
+add_foreign_key("shipments", "move_id", {"moves": ["id"]}, {})
