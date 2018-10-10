@@ -5,6 +5,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
+	"github.com/rickar/cal"
 	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
 	"time"
@@ -213,7 +214,7 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
-	startDate := time.Time(params.MoveDate)
+	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// FetchMoveForMoveDates will get all the required associations used below.
@@ -238,13 +239,20 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 
 	numPackDays := models.PackDays(entitlementWeight)
 
-	packDays := createMoveDates(startDate, numPackDays, false)
-	firstPossiblePickupDay := time.Time(packDays[len(packDays)-1]).AddDate(0, 0, 1)
-	pickupDays := createMoveDates(firstPossiblePickupDay, 1, false)
-	firstPossibleTransitDay := time.Time(pickupDays[len(pickupDays)-1])
-	transitDays := createMoveDates(firstPossibleTransitDay, numTransitDays, false)
+	usCalendar := handlers.NewUSCalendar()
+
+	lastPossiblePackDay := moveDate.AddDate(0, 0, -1)
+	packDays := createPastMoveDates(lastPossiblePackDay, numPackDays, false, usCalendar)
+
+	firstPossiblePickupDay := moveDate
+	pickupDays := createFutureMoveDates(firstPossiblePickupDay, 1, false, usCalendar)
+
+	firstPossibleTransitDay := time.Time(pickupDays[len(pickupDays)-1]).AddDate(0, 0, 1)
+	transitDays := createFutureMoveDates(firstPossibleTransitDay, numTransitDays, true, usCalendar)
+
 	firstPossibleDeliveryDay := time.Time(transitDays[len(transitDays)-1]).AddDate(0, 0, 1)
-	deliveryDays := createMoveDates(firstPossibleDeliveryDay, 1, false)
+	deliveryDays := createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
+
 	reportDays := []strfmt.Date{strfmt.Date(move.Orders.ReportByDate.UTC())}
 
 	moveDatesSummary := &internalmessages.MoveDatesSummary{
@@ -261,14 +269,28 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
 }
 
-func createMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool) []strfmt.Date {
-	var dates []strfmt.Date
+func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []strfmt.Date {
+	dates := make([]strfmt.Date, 0, numDays)
 
-	usCalendar := handlers.NewUSCalendar()
 	daysAdded := 0
 	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, 1) {
-		if includeWeekendsAndHolidays || usCalendar.IsWorkday(d) {
+		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
 			dates = append(dates, strfmt.Date(d))
+			daysAdded++
+		}
+	}
+
+	return dates
+}
+
+func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []strfmt.Date {
+	dates := make([]strfmt.Date, numDays)
+
+	daysAdded := 0
+	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, -1) {
+		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
+			// Since we're working backwards, put dates at end of slice.
+			dates[numDays-daysAdded-1] = strfmt.Date(d)
 			daysAdded++
 		}
 	}

@@ -7,6 +7,7 @@ import (
 func CreateTestTsp(suite *ModelSuite) TransportationServiceProvider {
 	tsp := TransportationServiceProvider{
 		StandardCarrierAlphaCode: "TRSS",
+		Enrolled:                 true,
 	}
 	suite.mustSave(&tsp)
 	return tsp
