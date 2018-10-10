@@ -39,12 +39,12 @@ func payloadForTariff400ngItemModel(a *models.Tariff400ngItem) *apimessages.Tari
 	}
 }
 
-// GetTariff400ngItemsHandler returns a particular shipment
+// GetTariff400ngItemsHandler returns a list of 400ng items
 type GetTariff400ngItemsHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle returns a specified shipment
+// Handle returns a list of 400ng items
 func (h GetTariff400ngItemsHandler) Handle(params accessorialop.GetTariff400ngItemsParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -55,7 +55,7 @@ func (h GetTariff400ngItemsHandler) Handle(params accessorialop.GetTariff400ngIt
 	// params.RequiresPreApproval has a default so we don't need to nil-check it
 	items, err := models.FetchTariff400ngItems(h.DB(), *params.RequiresPreApproval)
 	if err != nil {
-		h.Logger().Error("Error fetching accessorials for shipment", zap.Error(err))
+		h.Logger().Error("Error fetching 400ng items", zap.Error(err))
 		return accessorialop.NewGetTariff400ngItemsInternalServerError()
 	}
 	payload := payloadForTariff400ngItemModels(items)
