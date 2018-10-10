@@ -78,7 +78,6 @@ class DocumentViewer extends Component {
 
   handleSubmit = (uploadIds, formValues) => {
     const { currentPpm, move } = this.props;
-    console.log('what', move.id);
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
       formValues.requested_amount_cents = convertDollarsToCents(
         formValues.requested_amount_cents,
@@ -222,13 +221,20 @@ class DocumentViewer extends Component {
 const mapStateToProps = state => ({
   genericMoveDocSchema: get(
     state,
-    'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+    'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
     {},
   ),
-  moveDocSchema: get(state, 'swagger.spec.definitions.MoveDocumentPayload', {}),
+  moveDocSchema: get(
+    state,
+    'swaggerInternal.spec.definitions.MoveDocumentPayload',
+    {},
+  ),
   currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
-  docTypes: get(state, 'swagger.spec.definitions.MoveDocumentType.enum', []),
-  swaggerError: state.swagger.hasErrored,
+  docTypes: get(
+    state,
+    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
+    [],
+  ),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
   moveDocuments: selectAllDocumentsForMove(
