@@ -24,11 +24,11 @@ export const selectMove = (state, id) => {
   return denormalize([id], moves, state.entities)[0];
 };
 
-export function getMoveDatesSummary(label, moveId, move_date) {
+export function getMoveDatesSummary(label, moveId, moveDate) {
   return swaggerRequest(
     getClient,
     'moves.showMoveDatesSummary',
-    { moveId, move_date },
+    { moveId, moveDate },
     { label },
   );
 }
