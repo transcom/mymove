@@ -9,13 +9,14 @@ type AdrRecord struct {
 	// The date the customer ended their association with ADR/ADW. - Date format is YYYYMMDD
 	CstrAscEndDt string `xml:"CSTR_ASC_END_DT,omitempty"` // <xsd:element minOccurs="0" name="CSTR_ASC_END_DT" type="tns:CSTR_ASC_END_DT"/>
 	// The code that represents the reason that the customer's association with ADR/ADW ended or is expected to end (see PN_LOSS_RSN_CD).
-	CstrAscErsnCd CustomerAssocEndReasonCode `xml:"CSTR_ASC_ERSN_CD,omitempty"` // <xsd:element minOccurs="0" name="CSTR_ASC_ERSN_CD" type="tns:CSTR_ASC_ERSN_CD"/>
-	PidsRecord    *PidsRecord                `xml:"PIDSRecord,omitempty"`       //	<xsd:element minOccurs="0" name="PIDSRecord" type="tns:PIDSRecord"/>
-	TidsRecord    *TidsRecord                `xml:"TIDSRecord,omitempty"`       // <xsd:element minOccurs="0" name="TIDSRecord" type="tns:TIDSRecord"/>
-	ExtsRecord    *ExtsRecord                `xml:"EXTSRecord,omitempty"`       // <xsd:element minOccurs="0" name="EXTSRecord" type="tns:EXTSRecord"/>
-	OldEdipis     []uint64                   `xml:"identifierHistory>OLD_DOD_EDI_PN_ID,omitempty"`
-	Person        *Person                    `xml:"person,omitempty"`
-	Personnel     []Personnel                `xml:"personnel,omitempty"`
+	CstrAscErsnCd *CustomerAssocEndReasonCode `xml:"CSTR_ASC_ERSN_CD,omitempty"` // <xsd:element minOccurs="0" name="CSTR_ASC_ERSN_CD" type="tns:CSTR_ASC_ERSN_CD"/>
+	PidsRecord    *PidsRecord                 `xml:"PIDSRecord,omitempty"`       // <xsd:element minOccurs="0" name="PIDSRecord" type="tns:PIDSRecord"/>
+	TidsRecord    *TidsRecord                 `xml:"TIDSRecord,omitempty"`       // <xsd:element minOccurs="0" name="TIDSRecord" type="tns:TIDSRecord"/>
+	ExtsRecord    *ExtsRecord                 `xml:"EXTSRecord,omitempty"`       // <xsd:element minOccurs="0" name="EXTSRecord" type="tns:EXTSRecord"/>
+	OldEdipis     []uint64                    `xml:"identifierHistory>OLD_DOD_EDI_PN_ID,omitempty"`
+	WorkEmail     *WkEmaRecord                `xml:"WKEMARecord,omitempty"`
+	Person        *Person                     `xml:"person,omitempty"`
+	Personnel     []Personnel                 `xml:"personnel,omitempty"`
 }
 
 // CustomerAssocEndReasonCode represents the reason that the customer's association with ADR/ADW ended or is expected to end (see PN_LOSS_RSN_CD).
