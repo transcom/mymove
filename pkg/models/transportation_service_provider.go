@@ -17,6 +17,7 @@ type TransportationServiceProvider struct {
 	CreatedAt                time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
 	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
+	Enrolled                 bool      `json:"enrolled" db:"enrolled"`
 }
 
 // TSPWithBVSAndOfferCount represents a list of TSPs along with their BVS

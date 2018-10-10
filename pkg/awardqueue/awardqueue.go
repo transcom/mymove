@@ -59,22 +59,21 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 	// administrative shipments forever.
 	firstEligibleTSPPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, *shipment.BookDate,
 		*shipment.RequestedPickupDate)
+	if err != nil {
+		return nil, err
+	}
+
 	firstTSPid := firstEligibleTSPPerformance.ID
+	tspPerformance := firstEligibleTSPPerformance
 	foundAvailableTSP := false
 	loopCount := 0
 
 	for !foundAvailableTSP {
 
-		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, *shipment.BookDate,
-			*shipment.RequestedPickupDate)
-
 		if loopCount != 0 && tspPerformance.ID == firstTSPid {
 			return nil, fmt.Errorf("could not find a TSP without blackout dates in %d tries", loopCount)
 		}
 		loopCount++
-		if err != nil {
-			return nil, err
-		}
 
 		tsp := models.TransportationServiceProvider{}
 		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
@@ -88,20 +87,22 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 
 			shipmentOffer, err = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, tspPerformance.ID, isAdministrativeShipment)
 			if err == nil {
-				if err = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
+				if tspPerformance, err = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
 					if isAdministrativeShipment == true {
 						aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 					} else {
-						// TODO: OfferCount is off by 1
-						aq.logger.Info("Shipment offered to TSP!", zap.Int("current_count", tspPerformance.OfferCount+1))
+						aq.logger.Info("Shipment offered to TSP!", zap.Int("current_count", tspPerformance.OfferCount))
 						foundAvailableTSP = true
 
 						// Award the shipment
 						if err := models.AwardShipment(aq.db, shipment.ID); err != nil {
 							aq.logger.Error("Failed to set shipment as awarded",
 								zap.Stringer("shipment ID", shipment.ID), zap.Error(err))
+							return nil, err
 						}
 					}
+				} else {
+					aq.logger.Error("Failed to increment offer count", zap.Error(err))
 				}
 			} else {
 				aq.logger.Error("Failed to offer to TSP", zap.Error(err))
@@ -109,8 +110,18 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 		}
 
 		if !foundAvailableTSP {
-			aq.logger.Info("Checking for another TSP.")
+			aq.logger.Info("Selected TSP has blackouts. Checking for another TSP.")
+
+			tspPerformance, err = models.NextEligibleTSPPerformance(aq.db, tdl.ID, *shipment.BookDate,
+				*shipment.RequestedPickupDate)
+			if err != nil {
+				return nil, err
+			}
 		}
+	}
+
+	if shipmentOffer == nil {
+		err = fmt.Errorf("shipment not awarded; no TSPs found")
 	}
 
 	return shipmentOffer, err
