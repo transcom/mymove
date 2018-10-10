@@ -110,14 +110,12 @@ export class MoveDate extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          {this.props.currentShipment && (
-            <Field
-              name="requested_pickup_date"
-              component={DatePicker}
-              availableMoveDates={this.props.availableMoveDates}
-              currentShipment={this.props.currentShipment}
-            />
-          )}
+          <Field
+            name="requested_pickup_date"
+            component={DatePicker}
+            availableMoveDates={this.props.availableMoveDates}
+            currentShipment={this.props.currentShipment}
+          />
         </div>
       </MoveDateWizardForm>
     );

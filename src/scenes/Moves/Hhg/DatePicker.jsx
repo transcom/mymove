@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { DayPicker } from 'react-day-picker';
+import { withRouter } from 'react-router-dom';
+
 import 'react-day-picker/lib/style.css';
 import { get } from 'lodash';
 import moment from 'moment';
@@ -17,6 +19,13 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 const getRequestLabel = 'DatePicker.getMoveDatesSummary';
 
 export class HHGDatePicker extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedDay: null,
+    };
+  }
+
   handleDayClick = (day, { disabled }) => {
     if (disabled) {
       return;
@@ -25,9 +34,12 @@ export class HHGDatePicker extends Component {
     this.props.input.onChange(formatSwaggerDate(day));
     this.props.getMoveDatesSummary(
       getRequestLabel,
-      this.props.currentShipment.move_id,
+      this.props.match.params.moveId,
       moveDate,
     );
+    this.setState({
+      selectedDay: moveDate,
+    });
   };
 
   isDayDisabled = day => {
@@ -48,22 +60,23 @@ export class HHGDatePicker extends Component {
       momentDay.isSame(element, 'day'),
     );
   };
-
-  componentDidMount() {
-    if (this.props.currentShipment.requested_pickup_date) {
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.currentShipment !== prevProps.currentShipment &&
+      this.props.currentShipment.requested_pickup_date
+    ) {
       this.props.getMoveDatesSummary(
         getRequestLabel,
-        this.props.currentShipment.move_id,
+        this.props.match.params.moveId,
         this.props.currentShipment.requested_pickup_date,
       );
+      this.setState({
+        selectedDay: this.props.currentShipment.requested_pickup_date,
+      });
     }
   }
 
   render() {
-    let selectedDay =
-      this.props.input.value ||
-      get(this.props.currentShipment, 'requested_pickup_date');
-
     const availableMoveDates = this.props.availableMoveDates;
     return (
       <div className="form-section">
@@ -76,13 +89,15 @@ export class HHGDatePicker extends Component {
             <div className="usa-width-one-third">
               <DayPicker
                 onDayClick={this.handleDayClick}
-                selectedDays={parseSwaggerDate(selectedDay)}
+                selectedDays={parseSwaggerDate(this.state.selectedDay)}
                 disabledDays={this.isDayDisabled}
               />
             </div>
 
             <div className="usa-width-two-thirds">
-              {selectedDay && <DatesSummary moveDate={selectedDay} />}
+              {this.state.selectedDay && (
+                <DatesSummary moveDate={this.state.selectedDay} />
+              )}
             </div>
           </div>
         ) : (
@@ -102,4 +117,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary }, dispatch);
 }
 
-export default connect(() => ({}), mapDispatchToProps)(HHGDatePicker);
+export default withRouter(
+  connect(() => ({}), mapDispatchToProps)(HHGDatePicker),
+);
