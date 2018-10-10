@@ -29,6 +29,7 @@ import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
 import MoveDate from 'scenes/Moves/Hhg/MoveDate';
 import Locations from 'scenes/Moves/Hhg/Locations';
+import WeightEstimate from 'scenes/Moves/Hhg/WeightEstimate';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -232,6 +233,15 @@ const pages = {
     },
     render: (key, pages) => ({ match }) => (
       <Locations pages={pages} pageKey={key} match={match} />
+    ),
+  },
+  '/moves/:moveId/hhg-weight': {
+    isInFlow: hasHHG,
+    isComplete: (sm, orders, move, hhg) => {
+      return every([hhg.weight_estimate]);
+    },
+    render: (key, pages) => ({ match }) => (
+      <WeightEstimate pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/hhg-form': {

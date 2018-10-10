@@ -8,17 +8,6 @@ class WeightEstimates extends Component {
     return (
       <div className="form-section">
         <h3 className="instruction-heading">
-          Enter the weight of your stuff here if you already know it
-        </h3>
-        <div className="usa-grid">
-          <div className="usa-width-one-whole">
-            <SwaggerField
-              fieldName="weight_estimate"
-              swagger={this.props.schema}
-            />
-          </div>
-        </div>
-        <h3 className="instruction-heading">
           Now enter the weight of your Pro-Gear
         </h3>
         <p>
