@@ -18,7 +18,7 @@ func MakeShipmentAccessorial(db *pop.Connection, assertions Assertions) models.S
 
 	accessorial := assertions.ShipmentAccessorial.Accessorial
 	if isZeroUUID(accessorial.ID) {
-		accessorial = MakeDefaultTariff400ngItem(db)
+		accessorial = MakeTariff400ngItem(db, assertions)
 	}
 
 	//filled in dummy data

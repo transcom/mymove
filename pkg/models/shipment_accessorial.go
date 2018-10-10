@@ -91,3 +91,12 @@ func FetchShipmentAccessorialByID(dbConnection *pop.Connection, shipmentAccessor
 
 	return shipmentAccessorial, err
 }
+
+// Approve marks the ShipmentAccessorial request as Approved. Must be in a submitted state.
+func (s *ShipmentAccessorial) Approve() error {
+	if s.Status != ShipmentAccessorialStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+	s.Status = ShipmentAccessorialStatusAPPROVED
+	return nil
+}
