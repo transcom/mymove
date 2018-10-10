@@ -1,3 +1,55 @@
+############
+#
+# Executors
+#
+# All jobs in this config use one of 2 executors:
+# * `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
+# * `mymove_and_postgres` adds a secondary `postgres:10.1` container and is used during testing.
+#
+# Jobs
+#
+# Jobs are the collection of steps that are executed as a single unit.  https://circleci.com/docs/2.0/jobs-steps/
+#
+# The following jobs are part of continuous integration.
+#
+# * `pre_deps_yarn` is used to cache yarn sources and installed node modules.
+# * `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
+# * `pre_test` runs pre-commit against all files.
+# * `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+# * `vuln_scan` runs a vulnerability scan using Snyk (currently disabled).
+# * `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
+# * `build_app` builds the application container and pushes to the container repository
+# * `build_migrations` builds the migrations container and pushes to the container repository
+#
+# The following jobs are part of continuous deployment.
+#
+# * `deploy_experimental_migrations` deploys migrations to the experimental environment
+# * `deploy_staging_migrations` deploys migrations to the staging environment
+# * `deploy_prod_migrations` deploys migrations to the staging environment
+#
+# * `deploy_experimental_app` updates the server-TLS app service in the experimental environment
+# * `deploy_staging_app` updates the server-TLS app service in staging environment
+# * `deploy_prod_app` updates the server-TLS app service in the prod environment
+#
+# * `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
+# * `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
+# * `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
+#
+# Caches
+#
+# Caches may have a `v1-` prefix, since caches in CircleCI 2.0 are immutable.
+# A prefix provides an easy way to invalidate a cache.  See https://circleci.com/docs/2.0/caching/#clearing-cache
+#
+# The following caches are used in this config.
+# * `go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}` is used to caches sources for dep, the Go dependency manager.
+# * `mymove-vendor-{{ checksum "Gopkg.lock" }}` is used for caching the vendor directory for mymove.
+# * `v1-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
+# * `v1-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
+# * `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
+# * `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+#
+############
+
 version: "2.1"
 
 executors:
