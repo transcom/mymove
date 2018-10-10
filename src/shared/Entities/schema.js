@@ -75,5 +75,6 @@ moveDocument.define({
 export const moveDatesSummary = new schema.Entity(
   'moveDatesSummaries',
   {},
-  { idAttribute: summary => summary.pickup[0] },
+  { idAttribute: summary => summary.pack[0] },
+  // TODO change to { idAttribute: summary => summary.pickup[0] }, when api gets fixed
 );
