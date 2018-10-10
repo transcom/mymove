@@ -363,7 +363,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
-	const shipmentsToMake = 1
+	const shipmentsToMake = 10
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
@@ -395,9 +395,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
-	pop.Debug = true
 	queue.assignShipments()
-	pop.Debug = false
 
 	// Count the number of shipments offered to our TSP
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
