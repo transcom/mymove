@@ -319,6 +319,23 @@ dynamike
 fillable
 symlinked
 dp3-engineering
+github.com
+namsral
+float64
+time.Time
+time.Duration
+12-factor
+pflag
+jessevdk
+unmarshal
+int64
+Francia
+bool
+truss-aws-tools
+toml
+time.Time.
+hcl
+s3
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md
