@@ -312,8 +312,8 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	suite.Equal(tspp.ID, offer.TransportationServiceProviderPerformanceID)
 }
 
-// Test that we can create a shipment that should NOT be offered because it is not in a TDL
-// with any TSPs, and that it doesn't get offered.
+// Test that a shipment does NOT get offered because it is not in a TDL with
+// any enabled TSPs.
 func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
@@ -335,6 +335,17 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
+
+	// Make a TSP in the same TDL, but that is NOT enrolled
+	tdl := *shipment.TrafficDistributionList
+	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: "NPEK",
+			Enrolled:                 false,
+		},
+	})
+	_, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	suite.Nil(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(shipment)
