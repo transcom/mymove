@@ -89,14 +89,14 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 
 	// Two shipment accessorials tied to two different shipments
 	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
-	acc := testdatagen.MakeDummyAccessorial(suite.TestDB())
+	acc := testdatagen.MakeDummy400ngItem(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/shipments", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	payload := apimessages.ShipmentAccessorial{
-		Accessorial: payloadForAccessorialModel(&acc),
+		Accessorial: payloadForTariff400ngItemModel(&acc),
 		Location:    apimessages.AccessorialLocationORIGIN,
 		Notes:       "Some notes",
 		Quantity1:   handlers.FmtInt64(int64(5)),
@@ -145,7 +145,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 
 	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 	// create a new accessorial to test
-	updateAcc1 := testdatagen.MakeDummyAccessorial(suite.TestDB())
+	updateAcc1 := testdatagen.MakeDummy400ngItem(suite.TestDB())
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 		Quantity1:   handlers.FmtInt64(int64(1)),
 		Quantity2:   handlers.FmtInt64(int64(2)),
 		Notes:       "HELLO",
-		Accessorial: payloadForAccessorialModel(&updateAcc1),
+		Accessorial: payloadForTariff400ngItemModel(&updateAcc1),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 
 	// create a new accessorial to test
-	updateAcc1 := testdatagen.MakeDummyAccessorial(suite.TestDB())
+	updateAcc1 := testdatagen.MakeDummy400ngItem(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
@@ -209,7 +209,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 		Quantity1:   handlers.FmtInt64(int64(1)),
 		Quantity2:   handlers.FmtInt64(int64(2)),
 		Notes:       "HELLO",
-		Accessorial: payloadForAccessorialModel(&updateAcc1),
+		Accessorial: payloadForTariff400ngItemModel(&updateAcc1),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,

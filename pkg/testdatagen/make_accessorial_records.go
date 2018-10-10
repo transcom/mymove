@@ -8,22 +8,22 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MakeDummyAccessorial creates a hardcoded accessorial model
+// MakeDummy400ngItem creates a hardcoded accessorial model
 // This should be deprecated quickly once we get the real codes into the db
-func MakeDummyAccessorial(db *pop.Connection) models.Accessorial {
-	accessorial := models.Accessorial{
+func MakeDummy400ngItem(db *pop.Connection) models.Tariff400ngItem {
+	item := models.Tariff400ngItem{
 		Code:             "105B",
 		Item:             "Pack Reg Crate",
-		DiscountType:     models.AccessorialDiscountTypeNONE,
-		AllowedLocation:  models.AccessorialAllowedLocationEITHER,
-		MeasurementUnit1: models.AccessorialMeasurementUnitEACH,
-		MeasurementUnit2: models.AccessorialMeasurementUnitNONE,
-		RateRefCode:      models.AccessorialRateRefCodeNONE,
+		DiscountType:     models.Tariff400ngItemDiscountTypeNONE,
+		AllowedLocation:  models.Tariff400ngItemAllowedLocationEITHER,
+		MeasurementUnit1: models.Tariff400ngItemMeasurementUnitEACH,
+		MeasurementUnit2: models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:      models.Tariff400ngItemRateRefCodeNONE,
 	}
 
-	mustCreate(db, &accessorial)
+	mustCreate(db, &item)
 
-	return accessorial
+	return item
 }
 
 // MakeShipmentAccessorial creates a single accessorial record
@@ -36,7 +36,7 @@ func MakeShipmentAccessorial(db *pop.Connection, assertions Assertions) models.S
 
 	accessorial := assertions.ShipmentAccessorial.Accessorial
 	if isZeroUUID(accessorial.ID) {
-		accessorial = MakeDummyAccessorial(db)
+		accessorial = MakeDummy400ngItem(db)
 	}
 
 	//filled in dummy data

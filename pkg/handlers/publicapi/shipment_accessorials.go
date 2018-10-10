@@ -34,7 +34,7 @@ func payloadForShipmentAccessorialModel(s *models.ShipmentAccessorial) *apimessa
 	return &apimessages.ShipmentAccessorial{
 		ID:            handlers.FmtUUID(s.ID),
 		ShipmentID:    handlers.FmtUUID(s.ShipmentID),
-		Accessorial:   payloadForAccessorialModel(&s.Accessorial),
+		Accessorial:   payloadForTariff400ngItemModel(&s.Accessorial),
 		Location:      apimessages.AccessorialLocation(s.Location),
 		Notes:         s.Notes,
 		Quantity1:     handlers.FmtInt64(int64(s.Quantity1)),

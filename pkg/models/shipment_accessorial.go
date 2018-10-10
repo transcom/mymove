@@ -37,7 +37,7 @@ type ShipmentAccessorial struct {
 	ShipmentID uuid.UUID `json:"shipment_id" db:"shipment_id"`
 
 	AccessorialID uuid.UUID                   `json:"accessorial_id" db:"accessorial_id"`
-	Accessorial   Accessorial                 `belongs_to:"accessorials"`
+	Accessorial   Tariff400ngItem             `belongs_to:"tariff400ng_items"`
 	Location      ShipmentAccessorialLocation `json:"location" db:"location"`
 
 	// Enter numbers only, no symbols or units. Examples:

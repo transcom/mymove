@@ -6,17 +6,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForAccessorialModels(s []models.Accessorial) apimessages.Accessorials {
+func payloadForTariff400ngItemModels(s []models.Tariff400ngItem) apimessages.Accessorials {
 	payloads := make(apimessages.Accessorials, len(s))
 
 	for i, acc := range s {
-		payloads[i] = payloadForAccessorialModel(&acc)
+		payloads[i] = payloadForTariff400ngItemModel(&acc)
 	}
 
 	return payloads
 }
 
-func payloadForAccessorialModel(a *models.Accessorial) *apimessages.Accessorial {
+func payloadForTariff400ngItemModel(a *models.Tariff400ngItem) *apimessages.Accessorial {
 	if a == nil {
 		return nil
 	}
