@@ -298,6 +298,18 @@ jobs:
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
       - announce_failure
 
+  build_tools:
+    executor: mymove
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run: make build_tools
+
   build_app:
     executor: mymove_and_postgres
     steps:
@@ -338,7 +350,6 @@ jobs:
             DB_NAME: test_db
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
-      - run: make tools_build
       - build_tag_push:
           dockerfile: Dockerfile
           tag: ppp:web-dev
@@ -480,6 +491,10 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
+      - build_tools:
+          requires:
+            - pre_deps_golang
+
       - build_migrations:
           requires:
             - pre_deps_golang
@@ -490,6 +505,7 @@ workflows:
             - pre_test
             #- vuln_scan # keep disabled until we work out new process
             - build_app
+            # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
           filters:
             branches:
@@ -514,6 +530,7 @@ workflows:
             - pre_test
             #- vuln_scan # keep disabled until we work out new process
             - build_app
+            - build_tools
             - build_migrations
             - integration_tests
           filters:
