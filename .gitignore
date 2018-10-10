@@ -52,6 +52,9 @@ __snapshots__
 .idea
 .vscode
 
+# In case somebody accidentally runs npm install instead of using yarn
+package-lock.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

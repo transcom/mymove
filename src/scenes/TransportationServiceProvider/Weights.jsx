@@ -31,6 +31,8 @@ const WeightsDisplay = props => {
           {...fieldProps}
         />
         <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
+      </div>
+      <div className="editable-panel-column">
         <div className="column-subhead">Pro-gear</div>
         <PanelSwaggerField
           fieldName="progear_weight_estimate"
@@ -87,6 +89,8 @@ const WeightsEdit = props => {
             {...fieldProps}
           />
           <SwaggerField fieldName="actual_weight" swagger={schema} required />
+        </div>
+        <div className="editable-panel-column">
           <div className="column-subhead">Pro-gear</div>
           <PanelSwaggerField
             fieldName="progear_weight_estimate"
@@ -142,7 +146,7 @@ function mapStateToProps(state, props) {
       weights: pick(props.shipment, weightsFields),
     },
 
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
     hasError: !!props.error,
     errorMessage: props.error,

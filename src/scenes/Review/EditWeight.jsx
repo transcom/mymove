@@ -291,7 +291,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: get(
       state,
-      'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
+      'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload',
       {},
     ),
   };

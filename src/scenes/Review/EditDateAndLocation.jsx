@@ -218,7 +218,7 @@ function mapStateToProps(state) {
   const props = {
     schema: get(
       state,
-      'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
+      'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload',
       {},
     ),
     ...state.ppm,

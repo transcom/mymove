@@ -160,11 +160,11 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       INVOICED: Invoiced
-  Accessorials:
+  Tariff400ngItems:
     type: array
     items:
-      $ref: '#/definitions/Accessorial'
-  Accessorial:
+      $ref: '#/definitions/Tariff400ngItem'
+  Tariff400ngItem:
     type: object
     properties:
       id:
@@ -219,7 +219,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       accessorial:
-        $ref: '#/definitions/Accessorial'
+        $ref: '#/definitions/Tariff400ngItem'
       quantity_1:
         type: integer
         title: Base Quantity
@@ -1277,22 +1277,28 @@ definitions:
         additionalProperties:
           type: string
 paths:
-  /accessorials:
+  /tariff_400ng_items:
     get:
-      summary: Retrieve list of accessorials
-      description: Gets a list of all accessorials.
-      operationId: getAccessorials
+      summary: Retrieve list of 400ng items
+      description: Gets a list of all 400ng items.
+      operationId: getTariff400ngItems
       tags:
         - accessorials
+      parameters:
+        - in: query
+          name: requires_pre_approval
+          type: boolean
+          default: false
+          description: restricts the list to only items that require pre-approval
       responses:
         200:
-          description: list of accessorials
+          description: list of tariff 400ng items
           schema:
-            $ref: '#/definitions/Accessorials'
+            $ref: '#/definitions/Tariff400ngItems'
         400:
           description: invalid request
-        403:
-          description: not authorized to get list of accessorials
+        401:
+          description: not authorized to get list of tariff 400ng items
         500:
           description: server error
   /blackouts:

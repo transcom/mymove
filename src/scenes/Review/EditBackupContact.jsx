@@ -100,7 +100,7 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'serviceMember.updateBackupContactError'),
     schema: get(
       state,
-      'swagger.spec.definitions.CreateServiceMemberBackupContactPayload',
+      'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload',
       {},
     ),
   };

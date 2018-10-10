@@ -161,6 +161,8 @@ class ShipmentInfo extends Component {
       gbl_number: gbl,
     } = shipment;
 
+    const shipmentId = this.props.match.params.shipmentId;
+
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
@@ -245,22 +247,17 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-
-                  <div className="usa-width-one-half">
-                    <Weights
-                      title="Weights & Items"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
-                  <div className="usa-width-one-half">
-                    <Locations
-                      deliveryAddress={deliveryAddress}
-                      title="Locations"
-                      shipment={this.props.shipment}
-                      update={this.props.patchShipment}
-                    />
-                  </div>
+                  <Weights
+                    title="Weights & Items"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
+                  <Locations
+                    deliveryAddress={deliveryAddress}
+                    title="Locations"
+                    shipment={this.props.shipment}
+                    update={this.props.patchShipment}
+                  />
                 </div>
               )}
             </div>
@@ -318,7 +315,10 @@ class ShipmentInfo extends Component {
                     />
                   )}
                   {showDocumentViewer && (
-                    <Link to={`/moves/${move.id}/documents`} target="_blank">
+                    <Link
+                      to={`/shipments/${shipmentId}/documents/new`}
+                      target="_blank"
+                    >
                       <FontAwesomeIcon
                         className="icon"
                         icon={faExternalLinkAlt}
@@ -328,9 +328,7 @@ class ShipmentInfo extends Component {
                 </h2>
                 {showDocumentViewer && shipmentDocuments.length ? (
                   <DocumentList
-                    detailUrlPrefix={`/moves/${
-                      this.props.match.params.shipmentId
-                    }/documents`}
+                    detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                     moveDocuments={shipmentDocuments}
                   />
                 ) : (
@@ -354,7 +352,7 @@ const mapStateToProps = state => {
     : newDutyStation;
 
   return {
-    swaggerError: state.swagger.hasErrored,
+    swaggerError: state.swaggerPublic.hasErrored,
     shipment,
     deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state),
@@ -368,10 +366,14 @@ const mapStateToProps = state => {
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     error: get(state, 'tsp.error'),
-    pickupSchema: get(state, 'swagger.spec.definitions.ActualPickupDate', {}),
+    pickupSchema: get(
+      state,
+      'swaggerPublic.spec.definitions.ActualPickupDate',
+      {},
+    ),
     deliverSchema: get(
       state,
-      'swagger.spec.definitions.ActualDeliveryDate',
+      'swaggerPublic.spec.definitions.ActualDeliveryDate',
       {},
     ),
   };
