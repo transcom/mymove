@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const cookieExpiresInHours = 1
+const cookieExpiresInHours = 8
 const prefix = "mymove-"
 
 // UserIDToCookie takes the UUID of the current user and returns the cookie value.
@@ -57,7 +57,14 @@ func CookieToUserID(token string) (string, error) {
 		return "", errors.Wrap(err, "Unmarshaling the cookie JSON")
 	}
 
-	// TODO: check that the cookie is not expired
+	expiresAt, err := strconv.ParseInt(values["expires_at"], 10, 64)
+	if err != nil {
+		return "", errors.Wrap(err, "Converting cookie expiration time to int")
+	}
+
+	if time.Now().Unix() > expiresAt {
+		return "", errors.New("Cookie is expired")
+	}
 
 	return values["user_id"], nil
 }

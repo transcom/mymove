@@ -28,7 +28,7 @@ func (suite *dpsAuthSuite) TestCookie() {
 		t.Error("Error generating cookie value from user ID", err)
 	}
 
-	// Mimic cookie being passed back as an API param
+	// Mimic cookie being passed back in an API call via query param
 	escaped := url.QueryEscape(cookie)
 	userIDFromCookie, err := CookieToUserID(escaped)
 	if err != nil {
