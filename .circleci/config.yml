@@ -96,6 +96,22 @@ commands:
               fi;
             done;
             exit 1
+  build_tag_push:
+    parameters:
+      dockerfile:
+        type: string
+      tag:
+        type: string
+      repo:
+        type: string
+    steps:
+      - run:
+          name: "Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>"
+          command: |
+            docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
+            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
 
 jobs:
 
@@ -323,14 +339,10 @@ jobs:
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
       - run: make tools_build
-      - run: make server_build_docker
-      - run:
-          name: Tag and push image
-          command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
-
+      - build_tag_push:
+          dockerfile: Dockerfile
+          tag: ppp:web-dev
+          repo: app
       - announce_failure
 
   build_migrations:
@@ -339,13 +351,10 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: make db_build_docker
-      - run:
-          name: Tag and push migrations image
-          command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
+      - build_tag_push:
+          dockerfile: Dockerfile.migrations
+          tag: ppp-migrations:dev
+          repo: app-migrations
       - announce_failure
 
   deploy_experimental_migrations:
