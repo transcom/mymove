@@ -82,6 +82,5 @@ export const availableMoveDates = new schema.Entity(
 export const moveDatesSummary = new schema.Entity(
   'moveDatesSummaries',
   {},
-  { idAttribute: summary => summary.pack[0] },
-  // TODO change to { idAttribute: summary => summary.pickup[0] }, when api gets fixed
+  { idAttribute: summary => summary.pickup[0] },
 );
