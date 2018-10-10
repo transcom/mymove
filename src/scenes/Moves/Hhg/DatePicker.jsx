@@ -5,7 +5,6 @@ import { DayPicker } from 'react-day-picker';
 import { withRouter } from 'react-router-dom';
 
 import 'react-day-picker/lib/style.css';
-import { get } from 'lodash';
 import moment from 'moment';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
