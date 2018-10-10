@@ -1,6 +1,6 @@
 {
   "plugins": ["security"],
-  "extends": ["react-app", "plugin:security/recommended"],
+  "extends": ["react-app", "plugin:security/recommended", "plugin:react/recommended"],
   "rules": {
     "no-debugger": "warn"
   }
