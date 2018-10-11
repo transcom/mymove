@@ -5,6 +5,7 @@ import {
   getAllShipmentDocuments,
   getShipmentDocumentsLabel,
   selectShipmentDocument,
+  selectShipmentDocuments,
 } from 'shared/Entities/modules/shipmentDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { get } from 'lodash';
@@ -13,7 +14,7 @@ const mapStateToProps = (state, ownProps) => {
   const { shipmentId, moveDocumentId } = ownProps.match.params;
   const {
     tsp: { shipment: { move = {}, service_member: serviceMember = {} } = {} },
-    entities: { moveDocuments = {}, uploads = {} },
+    entities: { moveDocuments = {} },
   } = state;
   const { locator: moveLocator } = move;
   const { edipi = '' } = serviceMember;
@@ -33,7 +34,7 @@ const mapStateToProps = (state, ownProps) => {
       'swaggerPublic.spec.definitions.MoveDocumentPayload',
       {},
     ),
-    moveDocuments: Object.values(moveDocuments),
+    moveDocuments: selectShipmentDocuments(state, shipmentId),
     moveLocator: moveLocator || '',
     newDocumentUrl: `/shipments/${shipmentId}/documents/new`,
     serviceMember: { edipi, name },

@@ -357,7 +357,7 @@ const mapStateToProps = state => {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
     deliveryAddress,
-    shipmentDocuments: selectShipmentDocuments(state),
+    shipmentDocuments: selectShipmentDocuments(state, shipment.id),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(
       state,

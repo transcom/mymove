@@ -29,8 +29,12 @@ export function createShipmentDocument(
   );
 }
 
-export const selectShipmentDocuments = state =>
-  Object.values(state.entities.moveDocuments);
+export const selectShipmentDocuments = (state, shipmentId) => {
+  console.log('what', state.entities.moveDocuments, shipmentId);
+  return Object.values(state.entities.moveDocuments).filter(
+    document => document.shipment_id === shipmentId,
+  );
+};
 
 const defaultShipmentDocument = {
   document: { uploads: [] },
