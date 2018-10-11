@@ -11,7 +11,7 @@ import (
 var ordersMoveMil = "orders.move.mil"
 
 func (suite *authSuite) TestOrdersDetectorConstructor() {
-	adm := OrdersDetectorMiddleware(suite.logger, ordersMoveMil)
+	adm := HostnameDetectorMiddleware(suite.logger, ordersMoveMil)
 	suite.NotNil(adm)
 }
 
@@ -19,7 +19,7 @@ func (suite *authSuite) TestOrdersDetector() {
 	rr := httptest.NewRecorder()
 
 	ordersDetectorTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	ordersDetector := OrdersDetectorMiddleware(suite.logger, ordersMoveMil)(ordersDetectorTestHandler)
+	ordersDetector := HostnameDetectorMiddleware(suite.logger, ordersMoveMil)(ordersDetectorTestHandler)
 
 	req, _ := http.NewRequest("GET", "/some_url", nil)
 	req.Host = ordersMoveMil
@@ -36,7 +36,7 @@ func (suite *authSuite) TestOrdersDetector() {
 	notOrdersTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		suite.Fail("Should not be called")
 	})
-	notOrdersDetector := OrdersDetectorMiddleware(suite.logger, ordersMoveMil)(notOrdersTestHandler)
+	notOrdersDetector := HostnameDetectorMiddleware(suite.logger, ordersMoveMil)(notOrdersTestHandler)
 
 	req, _ = http.NewRequest("GET", "/some_url", nil)
 	req.Host = "totally.bogus.hostname"
