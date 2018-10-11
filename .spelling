@@ -336,6 +336,7 @@ toml
 time.Time.
 hcl
 s3
+sql
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md
