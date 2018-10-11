@@ -42,8 +42,8 @@ func GetPersonUsingSSN(client http.Client, host string, custNum string, params G
 	}
 
 	resp, getErr := client.Get(urlBuilder.String())
+	// Interesting fact: RBS responds 200 OK, not 404 Not Found, if there are no matches
 	if getErr != nil {
-		fmt.Print("connection error\n")
 		return MatchReasonCodeNone, 0, nil, []Personnel{}, getErr
 	}
 

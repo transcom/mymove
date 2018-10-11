@@ -16,6 +16,7 @@ func GetPersonUsingEDIPI(client http.Client, host string, custNum string, edipi 
 		host, custNum, edipi)
 
 	resp, getErr := client.Get(url)
+	// Interesting fact: RBS responds 200 OK, not 404 Not Found, if there are no matches
 	if getErr != nil {
 		return nil, []Personnel{}, getErr
 	}

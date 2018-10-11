@@ -20,6 +20,7 @@ func GetPersonUsingWorkEmail(client http.Client, host string, custNum string, wo
 		host, custNum, workEmail)
 
 	resp, getErr := client.Get(url)
+	// Interesting fact: RBS responds 200 OK, not 404 Not Found, if there are no matches
 	if getErr != nil {
 		return 0, nil, []Personnel{}, getErr
 	}
