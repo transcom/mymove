@@ -78,6 +78,6 @@ export const availableMoveDates = new schema.Entity(
   { idAttribute: 'start_date' },
 );
 
-// Accessorials
-export const accessorial = new schema.Entity('accessorials');
-export const accessorials = new schema.Array(accessorial);
+// Tariff400ngItems
+export const tariff400ngItem = new schema.Entity('tariff400ngItems');
+export const tariff400ngItems = new schema.Array(tariff400ngItem);

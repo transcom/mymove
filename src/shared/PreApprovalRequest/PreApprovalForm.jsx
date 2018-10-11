@@ -38,11 +38,11 @@ export class PreApprovalForm extends Component {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid">
-          <div className="usa-width-one-half">
+          <div className="usa-width-two-thirds">
             <SwaggerField
               fieldName="accessorial"
               title="Code & Item"
-              className="three-quarter-width rounded"
+              className="rounded"
               component={Codes(this.props.accessorials)}
               swagger={this.props.ship_accessorial_schema}
               required
@@ -60,7 +60,7 @@ export class PreApprovalForm extends Component {
               required
             />
           </div>
-          <div className="usa-width-one-half">
+          <div className="usa-width-one-third">
             <SwaggerField
               fieldName="notes"
               className="three-quarter-width"

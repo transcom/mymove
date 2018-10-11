@@ -1,18 +1,22 @@
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getPublicClient } from 'shared/Swagger/api';
-import { accessorials } from '../schema';
+import { tariff400ngItems } from '../schema';
 import { denormalize } from 'normalizr';
 
 export function getAllAccessorials(label) {
-  return swaggerRequest(getPublicClient, 'accessorials.getTariff400ngItems', {
-    label,
-  });
+  return swaggerRequest(
+    getPublicClient,
+    'accessorials.getTariff400ngItems',
+    {},
+    { label },
+  );
 }
 
-export const selectAccessorials = state =>
-  Object.values(state.entities.accessorials);
+export const selectAccessorials = state => {
+  return Object.values(state.entities.tariff400ngItems);
+};
 
-export const getAccessorialsLabel = 'Accessorials.getAllAccessorials';
+export const getAccessorialsLabel = 'Tariff400ngItem.getAlltariff400ngItems';
 
 export const selectAccessorial = (state, id) =>
-  denormalize([id], accessorials, state.entities)[0];
+  denormalize([id], tariff400ngItems, state.entities)[0];
