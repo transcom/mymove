@@ -46,6 +46,15 @@ func FmtDate(date time.Time) *strfmt.Date {
 	return &fmtDate
 }
 
+// FmtDateSlice converts []time.Time to []strfmt.Date
+func FmtDateSlice(dates []time.Time) []strfmt.Date {
+	s := make([]strfmt.Date, len(dates))
+	for i, date := range dates {
+		s[i] = strfmt.Date(date)
+	}
+	return s
+}
+
 // FmtDatePtr converts pop type to go-swagger type
 func FmtDatePtr(date *time.Time) *strfmt.Date {
 	if date == nil {

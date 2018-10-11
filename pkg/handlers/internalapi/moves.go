@@ -1,14 +1,15 @@
 package internalapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/rickar/cal"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
-	"time"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/awardqueue"
@@ -223,10 +224,41 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	transitDistance, err := h.Planner().TransitDistance(&move.Orders.ServiceMember.DutyStation.Address,
-		&move.Orders.NewDutyStation.Address)
+	summary, err := calculateMoveDates(move, h.Planner(), moveDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	moveDatesSummary := &internalmessages.MoveDatesSummary{
+		ID:       swag.String(params.MoveID.String() + ":" + params.MoveDate.String()),
+		MoveID:   &params.MoveID,
+		MoveDate: &params.MoveDate,
+		Pack:     handlers.FmtDateSlice(summary.PackDays),
+		Pickup:   handlers.FmtDateSlice(summary.PickupDays),
+		Transit:  handlers.FmtDateSlice(summary.TransitDays),
+		Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
+		Report:   handlers.FmtDateSlice(summary.ReportDays),
+	}
+
+	return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
+}
+
+// MoveDateSummary contains the set of dates for a move
+type MoveDateSummary struct {
+	PackDays     []time.Time
+	PickupDays   []time.Time
+	TransitDays  []time.Time
+	DeliveryDays []time.Time
+	ReportDays   []time.Time
+}
+
+func calculateMoveDates(move models.Move, planner route.Planner, moveDate time.Time) (MoveDateSummary, error) {
+	summary := MoveDateSummary{}
+
+	transitDistance, err := planner.TransitDistance(&move.Orders.ServiceMember.DutyStation.Address,
+		&move.Orders.NewDutyStation.Address)
+	if err != nil {
+		return summary, err
 	}
 
 	entitlementWeight := unit.Pound(models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
@@ -234,48 +266,38 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 
 	numTransitDays, err := models.TransitDays(entitlementWeight, transitDistance)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return summary, err
 	}
 
 	numPackDays := models.PackDays(entitlementWeight)
-
 	usCalendar := handlers.NewUSCalendar()
 
 	lastPossiblePackDay := moveDate.AddDate(0, 0, -1)
-	packDays := createPastMoveDates(lastPossiblePackDay, numPackDays, false, usCalendar)
+	summary.PackDays = createPastMoveDates(lastPossiblePackDay, numPackDays, false, usCalendar)
 
 	firstPossiblePickupDay := moveDate
 	pickupDays := createFutureMoveDates(firstPossiblePickupDay, 1, false, usCalendar)
+	summary.PickupDays = pickupDays
 
 	firstPossibleTransitDay := time.Time(pickupDays[len(pickupDays)-1]).AddDate(0, 0, 1)
 	transitDays := createFutureMoveDates(firstPossibleTransitDay, numTransitDays, true, usCalendar)
+	summary.TransitDays = transitDays
 
 	firstPossibleDeliveryDay := time.Time(transitDays[len(transitDays)-1]).AddDate(0, 0, 1)
-	deliveryDays := createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
+	summary.DeliveryDays = createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
 
-	reportDays := []strfmt.Date{strfmt.Date(move.Orders.ReportByDate.UTC())}
+	summary.ReportDays = []time.Time{move.Orders.ReportByDate.UTC()}
 
-	moveDatesSummary := &internalmessages.MoveDatesSummary{
-		ID:       swag.String(params.MoveID.String() + ":" + params.MoveDate.String()),
-		MoveID:   &params.MoveID,
-		MoveDate: &params.MoveDate,
-		Pack:     packDays,
-		Pickup:   pickupDays,
-		Transit:  transitDays,
-		Delivery: deliveryDays,
-		Report:   reportDays,
-	}
-
-	return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
+	return summary, nil
 }
 
-func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []strfmt.Date {
-	dates := make([]strfmt.Date, 0, numDays)
+func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
+	dates := make([]time.Time, 0, numDays)
 
 	daysAdded := 0
 	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, 1) {
 		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
-			dates = append(dates, strfmt.Date(d))
+			dates = append(dates, d)
 			daysAdded++
 		}
 	}
@@ -283,14 +305,14 @@ func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndH
 	return dates
 }
 
-func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []strfmt.Date {
-	dates := make([]strfmt.Date, numDays)
+func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
+	dates := make([]time.Time, numDays)
 
 	daysAdded := 0
 	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, -1) {
 		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
 			// Since we're working backwards, put dates at end of slice.
-			dates[numDays-daysAdded-1] = strfmt.Date(d)
+			dates[numDays-daysAdded-1] = d
 			daysAdded++
 		}
 	}
