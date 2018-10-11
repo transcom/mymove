@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { func, object, array, string, shape } from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import { PanelField } from 'shared/EditablePanel';
@@ -7,19 +7,24 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
-import DocumentDetailPanelView from 'shared/DocumentViewer/DocumentDetailPanelView';
 
-import { createShipmentDocumentLabel } from 'shared/Entities/modules/uploads';
 import './index.css';
 
 import DocumentList from './DocumentList';
-import DocumentContent from './DocumentContent';
 
 class NewDocumentView extends Component {
   static propTypes = {
-    documentDetailUrlPrefix: PropTypes.string.isRequired,
-    shipmentId: PropTypes.string.isRequired,
-    createShipmentDocument: PropTypes.func.isRequired,
+    createShipmentDocument: func.isRequired,
+    genericMoveDocSchema: object.isRequired,
+    moveDocSchema: object.isRequired,
+    moveDocuments: array.isRequired,
+    moveLocator: string.isRequired,
+    onDidMount: func.isRequired,
+    shipmentId: string.isRequired,
+    serviceMember: shape({
+      edipi: string.isRequired,
+      name: string.isRequired,
+    }),
   };
   componentDidMount() {
     const { onDidMount } = this.props;
@@ -27,9 +32,8 @@ class NewDocumentView extends Component {
   }
 
   handleSubmit = (upload_ids, formValues) => {
-    const { shipmentId } = this.props;
+    const { createShipmentDocument, shipmentId } = this.props;
     const { move_document_type, title, notes } = formValues;
-
     const createGenericMoveDocument = {
       shipmentId,
       upload_ids,
@@ -38,10 +42,7 @@ class NewDocumentView extends Component {
       notes,
     };
 
-    return this.props.createShipmentDocument(
-      shipmentId,
-      createGenericMoveDocument,
-    );
+    return createShipmentDocument(shipmentId, createGenericMoveDocument);
   };
 
   render() {
@@ -109,15 +110,5 @@ class NewDocumentView extends Component {
     );
   }
 }
-
-NewDocumentView.propTypes = {
-  moveDocuments: PropTypes.array.isRequired,
-  moveLocator: PropTypes.string.isRequired,
-  onDidMount: PropTypes.func.isRequired,
-  serviceMember: PropTypes.shape({
-    edipi: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-  }),
-};
 
 export default NewDocumentView;

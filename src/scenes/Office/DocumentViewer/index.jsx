@@ -247,9 +247,11 @@ const mapStateToProps = state => ({
   error: state.office.error,
 });
 
-export default connect(mapStateToProps, {
+const mapDispatchToProps = {
   createMoveDocument,
   createMovingExpenseDocument,
   loadMoveDependencies,
   getMoveDocumentsForMove,
-})(DocumentViewer);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);

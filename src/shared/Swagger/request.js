@@ -160,6 +160,5 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 }
 
 function normalizePayload(body, schema) {
-  console.log('norm', normalize(body, schema));
   return normalize(body, schema);
 }

@@ -29,12 +29,11 @@ export function createShipmentDocument(
   );
 }
 
-export const selectShipmentDocuments = (state, shipmentId) => {
-  console.log('what', state.entities.moveDocuments, shipmentId);
-  return Object.values(state.entities.moveDocuments).filter(
+// Gives an array of objects of the doucments that belong to a specific shipment
+export const selectShipmentDocuments = (state, shipmentId) =>
+  Object.values(state.entities.moveDocuments).filter(
     document => document.shipment_id === shipmentId,
   );
-};
 
 const defaultShipmentDocument = {
   document: { uploads: [] },

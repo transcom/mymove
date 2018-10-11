@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
+import { string, arrayOf, object, shape, bool } from 'prop-types';
 import { connect } from 'react-redux';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { get } from 'lodash';
@@ -55,6 +54,16 @@ function RequestPaymentSection(props) {
 }
 
 export class PaymentRequest extends Component {
+  static propTypes = {
+    currentPpm: shape({ id: string.isRequired }).isRequired,
+    docTypes: arrayOf(string),
+    moveDocuments: arrayOf(object).isRequired,
+    genericMoveDocSchema: object.isRequired,
+    moveDocSchema: object.isRequired,
+    updatingPPM: bool.isRequired,
+    updateError: bool.isRequired,
+  };
+
   constructor(props) {
     super(props);
     this.submitDocs = this.submitDocs.bind(this);
@@ -161,12 +170,6 @@ export class PaymentRequest extends Component {
     );
   }
 }
-PaymentRequest.propTypes = {
-  docTypes: PropTypes.arrayOf(PropTypes.string),
-  moveDocuments: PropTypes.arrayOf(PropTypes.object),
-  genericMoveDocSchema: PropTypes.object.isRequired,
-  moveDocSchema: PropTypes.object.isRequired,
-};
 
 const mapStateToProps = (state, props) => ({
   moveDocuments: selectAllDocumentsForMove(state, props.match.params.moveId),
@@ -182,15 +185,10 @@ const mapStateToProps = (state, props) => ({
   moveDocSchema: get(state, 'swagger.spec.definitions.MoveDocumentPayload', {}),
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getMoveDocumentsForMove,
-      submitExpenseDocs,
-      createMoveDocument,
-      createMovingExpenseDocument,
-    },
-    dispatch,
-  );
-
+const mapDispatchToProps = {
+  getMoveDocumentsForMove,
+  submitExpenseDocs,
+  createMoveDocument,
+  createMovingExpenseDocument,
+};
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequest);

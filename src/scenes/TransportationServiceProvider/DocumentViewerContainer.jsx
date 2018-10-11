@@ -14,7 +14,6 @@ const mapStateToProps = (state, ownProps) => {
   const { shipmentId, moveDocumentId } = ownProps.match.params;
   const {
     tsp: { shipment: { move = {}, service_member: serviceMember = {} } = {} },
-    entities: { moveDocuments = {} },
   } = state;
   const { locator: moveLocator } = move;
   const { edipi = '' } = serviceMember;

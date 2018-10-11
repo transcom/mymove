@@ -53,7 +53,6 @@ export function hhgReducer(state = initialState, action) {
         hasLoadSuccess: false,
       });
     case GET_SHIPMENT.success:
-      console.log('payload', action.payload);
       return Object.assign({}, state, {
         currentShipment: action.payload,
         hasLoadSuccess: true,
