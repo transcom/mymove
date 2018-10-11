@@ -169,7 +169,7 @@ function tspUserEntersNetWeight() {
       .blur();
     cy
       .get('label[for="weights.pm_survey_spouse_progear_weight_estimate"]')
-      .should('have.text', 'Spouse');
+      .contains('Spouse');
     cy
       .get('input[name="weights.pm_survey_spouse_progear_weight_estimate"]')
       .clear()
