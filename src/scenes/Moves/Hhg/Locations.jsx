@@ -12,7 +12,7 @@ import {
 } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
+import Address from 'scenes/Moves/Hhg/Address';
 
 import {
   createOrUpdateShipment,
@@ -21,13 +21,13 @@ import {
 
 import './ShipmentWizard.css';
 
-const formName = 'shipment_form';
-const getRequestLabel = 'ShipmentForm.getShipment';
-const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+const formName = 'locations_form';
+const getRequestLabel = 'Locations.getShipment';
+const createOrUpdateRequestLabel = 'Locations.createOrUpdateShipment';
 
-const ShipmentFormWizardForm = reduxifyWizardForm(formName);
+const LocationsWizardForm = reduxifyWizardForm(formName);
 
-export class ShipmentForm extends Component {
+export class Locations extends Component {
   componentDidMount() {
     this.loadShipment();
   }
@@ -80,7 +80,7 @@ export class ShipmentForm extends Component {
 
     // Shipment Wizard
     return (
-      <ShipmentFormWizardForm
+      <LocationsWizardForm
         handleSubmit={this.handleSubmit}
         className={formName}
         pageList={pages}
@@ -103,17 +103,17 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <WeightEstimates
+          <Address
             schema={this.props.schema}
             error={error}
             formValues={this.props.formValues}
           />
         </div>
-      </ShipmentFormWizardForm>
+      </LocationsWizardForm>
     );
   }
 }
-ShipmentForm.propTypes = {
+Locations.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
@@ -138,4 +138,4 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShipmentForm);
+export default connect(mapStateToProps, mapDispatchToProps)(Locations);

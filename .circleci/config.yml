@@ -96,6 +96,22 @@ commands:
               fi;
             done;
             exit 1
+  build_tag_push:
+    parameters:
+      dockerfile:
+        type: string
+      tag:
+        type: string
+      repo:
+        type: string
+    steps:
+      - run:
+          name: "Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>"
+          command: |
+            docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
+            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
 
 jobs:
 
@@ -128,14 +144,21 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
           command: yarn install
       - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+          key: v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
           paths:
-            - node_modules
+            - ~/.cache/yarn/v2
+      - save_cache:
+          key: v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/go/src/github.com/transcom/mymove/node_modules
       - announce_failure
 
   pre_test:
@@ -150,16 +173,22 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Install prettier
-          command: npm install prettier@~1.12.0
+          command: yarn add prettier@~1.12.0
       - run:
           name: Install markdown-spellcheck
-          command: npm install markdown-spellcheck
+          command: yarn add markdown-spellcheck
       - run:
           name: Install markdown-toc
-          command: npm install markdown-toc
+          command: yarn add markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
           name: Run make server_generate
@@ -187,8 +216,13 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - client-deps-cache-{{ checksum "yarn.lock" }}
-
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-3.1.0
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
           # itself starts making database connections.
@@ -202,7 +236,7 @@ jobs:
             sudo apt-get -qq -y install xvfb libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
       - run:
           name: Install cypress
-          command: npm install cypress@~3.1.0
+          command: yarn add cypress@~3.1.0
       - run:
           name: Setup hostnames
           command: |
@@ -245,11 +279,10 @@ jobs:
           path: cypress/screenshots
       - store_test_results:
           path: cypress/results
-
       - save_cache:
-          key: client-deps-cache-{{ checksum "yarn.lock" }}
+          key: v1-cache-cypress-3.1.0
           paths:
-            - ~/.cache
+            - ~/.cache/Cypress/3.1.0
       - announce_failure
 
   vuln_scan:
@@ -264,7 +297,10 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Authenticate with Snyk
           command: npx snyk auth $SNYK_API_TOKEN
@@ -282,6 +318,18 @@ jobs:
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
       - announce_failure
 
+  build_tools:
+    executor: mymove
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run: make build_tools
+
   build_app:
     executor: mymove_and_postgres
     steps:
@@ -296,8 +344,10 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
-            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
           # itself starts making database connections.
@@ -322,15 +372,10 @@ jobs:
             DB_NAME: test_db
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
-      - run: make tools_build
-      - run: make server_build_docker
-      - run:
-          name: Tag and push image
-          command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            docker tag ppp:web-dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}
-
+      - build_tag_push:
+          dockerfile: Dockerfile
+          tag: ppp:web-dev
+          repo: app
       - announce_failure
 
   build_migrations:
@@ -339,13 +384,10 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: make db_build_docker
-      - run:
-          name: Tag and push migrations image
-          command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
+      - build_tag_push:
+          dockerfile: Dockerfile.migrations
+          tag: ppp-migrations:dev
+          repo: app-migrations
       - announce_failure
 
   deploy_experimental_migrations:
@@ -471,6 +513,10 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
+      - build_tools:
+          requires:
+            - pre_deps_golang
+
       - build_migrations:
           requires:
             - pre_deps_golang
@@ -481,6 +527,7 @@ workflows:
             - pre_test
             #- vuln_scan # keep disabled until we work out new process
             - build_app
+            # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
           filters:
             branches:
@@ -505,6 +552,7 @@ workflows:
             - pre_test
             #- vuln_scan # keep disabled until we work out new process
             - build_app
+            - build_tools
             - build_migrations
             - integration_tests
           filters:
