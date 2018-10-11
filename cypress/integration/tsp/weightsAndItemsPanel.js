@@ -160,7 +160,7 @@ function tspUserEntersNetWeight() {
 
     cy
       .get('label[for="weights.pm_survey_progear_weight_estimate"]')
-      .contains('Service member');
+      .should('have.text', 'Service memberOptional');
     cy
       .get('input[name="weights.pm_survey_progear_weight_estimate"]')
       .clear()
