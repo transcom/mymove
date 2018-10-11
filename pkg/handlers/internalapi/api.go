@@ -1,17 +1,28 @@
 package internalapi
 
 import (
+	"go.uber.org/dig"
 	"log"
 	"net/http"
 
 	"github.com/go-openapi/loads"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	userops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
+// Handler is a package specific type for DI checking
+type Handler http.Handler
+
+// HandlerParams bundles up the dependencies of NewInternalApiHandler
+type HandlerParams struct {
+	dig.In
+	sliuHandler userops.ShowLoggedInUserHandler
+}
+
 // NewInternalAPIHandler returns a handler for the internal API
-func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewInternalAPIHandler(params HandlerParams, context handlers.HandlerContext) Handler {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -19,7 +30,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
+	internalAPI.UsersShowLoggedInUserHandler = params.sliuHandler
 
 	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler{context}
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{context}

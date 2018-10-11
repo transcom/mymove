@@ -1094,6 +1094,18 @@
   version = "v1.3.2"
 
 [[projects]]
+  digest = "1:31554d6aed6c95a087c327c4483df76622c8e18e26ad5168a33a1bf17eb45292"
+  name = "go.uber.org/dig"
+  packages = [
+    ".",
+    "internal/digreflect",
+    "internal/dot",
+  ]
+  pruneopts = ""
+  revision = "27eb30e15ef3e7f67cd86f2b65c618e3e308c104"
+  version = "v1.5.0"
+
+[[projects]]
   digest = "1:22c7effcb4da0eacb2bb1940ee173fac010e9ef3c691f5de4b524d538bd980f5"
   name = "go.uber.org/multierr"
   packages = ["."]
@@ -1334,6 +1346,7 @@
     "github.com/tealeg/xlsx",
     "github.com/trussworks/pdfcpu/pkg/api",
     "github.com/trussworks/pdfcpu/pkg/pdfcpu",
+    "go.uber.org/dig",
     "go.uber.org/zap",
     "go.uber.org/zap/zapcore",
     "goji.io",

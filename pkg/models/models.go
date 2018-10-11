@@ -1,6 +1,8 @@
 package models
 
 import (
+	"go.uber.org/dig"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -38,4 +40,14 @@ func TimePointer(t time.Time) *time.Time {
 // It is useful for initializing bool pointer fields in model construction
 func BoolPointer(b bool) *bool {
 	return &b
+}
+
+// AddProviders adds all the DI providers from the models package
+func AddProviders(c *dig.Container) {
+	err := c.Provide(NewServiceMemberDB)
+	if err != nil {
+		c.Invoke(func(l *zap.Logger) {
+			l.Fatal("pkg.models.AddProviders(NewServiceMemberDB", zap.Error(err))
+		})
+	}
 }

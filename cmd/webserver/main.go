@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"crypto/tls"
 	"errors"
+	"github.com/aws/aws-sdk-go/service/directoryservice"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"go.uber.org/dig"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -88,6 +92,29 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func initDig(env string, debugLogging bool) *dig.Container {
+	c := dig.New()
+
+	// First set up a logger
+	err := c.Provide(func() *zap.Logger {
+		logger, err := logging.Config(env, debugLogging)
+		if err != nil {
+			log.Fatalf("Failed to initialize Zap logging due to %v", err)
+		}
+		return logger
+	})
+	if err != nil {
+		log.Fatalf("Failed to initialize logger DI creation: %v", err)
+	}
+	c.Invoke(zap.ReplaceGlobals)
+
+	// Now add providers
+	handlers.AddProviders(c)
+	services.AddProviders(c)
+	models.AddProviders(c)
+	return c
+}
+
 func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
@@ -147,11 +174,13 @@ func main() {
 
 	flag.Parse()
 
-	logger, err := logging.Config(*env, *debugLogging)
-	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
-	}
-	zap.ReplaceGlobals(logger)
+	// Set up the DI context and logging
+	diContext := initDig(*env, *debugLogging)
+	// FOR NOW, Fetch the logger from context. This will go away once the rest of the code is migrated to dig
+	var logger *zap.Logger
+	diContext.Invoke(func(l *zap.Logger) {
+		logger = l
+	})
 
 	// Honeycomb
 	useHoneycomb := false
@@ -182,13 +211,19 @@ func main() {
 	}
 
 	//DB connection
-	err = pop.AddLookupPaths(*config)
+	err := diContext.Provide(func(l *zap.Logger) *pop.Connection {
+		err := pop.AddLookupPaths(*config)
+		if err != nil {
+			l.Fatal("Adding Pop config path", zap.Error(err))
+		}
+		dbConnection, err := pop.Connect(*env)
+		if err != nil {
+			l.Fatal("Connecting to DB", zap.Error(err))
+		}
+		return dbConnection
+	})
 	if err != nil {
-		logger.Fatal("Adding Pop config path", zap.Error(err))
-	}
-	dbConnection, err := pop.Connect(*env)
-	if err != nil {
-		logger.Fatal("Connecting to DB", zap.Error(err))
+		logger.Fatal("dbConnection Provider")
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
@@ -203,59 +238,61 @@ func main() {
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
-	handlerContext.SetCookieSecret(*clientAuthSecretKey)
-	if *noSessionTimeout {
-		handlerContext.SetNoSessionTimeout()
-	}
-
-	if *emailBackend == "ses" {
-		// Setup Amazon SES (email) service
-		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
-		// below.
-		sesSession, err := awssession.NewSession(&aws.Config{
-			Region: aws.String(*awsSesRegion),
-		})
-		if err != nil {
-			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+	// For NOW configure handler context here
+	diContext.Invoke(func(ctxt handlers.HandlerContext) {
+		ctxt.SetCookieSecret(*clientAuthSecretKey)
+		if *noSessionTimeout {
+			ctxt.SetNoSessionTimeout()
 		}
-		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
-	} else {
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(logger))
-	}
+
+		if *emailBackend == "ses" {
+			// Setup Amazon SES (email) service
+			// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
+			// below.
+			sesSession, err := awssession.NewSession(&aws.Config{
+				Region: aws.String(*awsSesRegion),
+			})
+			if err != nil {
+				logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+			}
+			sesService := ses.New(sesSession)
+			ctxt.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
+		} else {
+			ctxt.SetNotificationSender(notifications.NewStubNotificationSender(logger))
+		}
+
+		// Get route planner for handlers to calculate transit distances
+		// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
+		routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
+		ctxt.SetPlanner(routePlanner)
+
+		var storer storage.FileStorer
+		if *storageBackend == "s3" {
+			zap.L().Info("Using s3 storage backend")
+			if len(*s3Bucket) == 0 {
+				log.Fatalln(errors.New("must provide aws_s3_bucket_name parameter, exiting"))
+			}
+			if *s3Region == "" {
+				log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
+			}
+			if *s3KeyNamespace == "" {
+				log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
+			}
+			aws := awssession.Must(awssession.NewSession(&aws.Config{
+				Region: s3Region,
+			}))
+
+			storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
+		} else {
+			zap.L().Info("Using filesystem storage backend")
+			fsParams := storage.DefaultFilesystemParams(logger)
+			storer = storage.NewFilesystem(fsParams)
+		}
+		ctxt.SetFileStorer(storer)
+	})
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
-
-	// Get route planner for handlers to calculate transit distances
-	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
-	handlerContext.SetPlanner(routePlanner)
-
-	var storer storage.FileStorer
-	if *storageBackend == "s3" {
-		zap.L().Info("Using s3 storage backend")
-		if len(*s3Bucket) == 0 {
-			log.Fatalln(errors.New("must provide aws_s3_bucket_name parameter, exiting"))
-		}
-		if *s3Region == "" {
-			log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
-		}
-		if *s3KeyNamespace == "" {
-			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
-		}
-		aws := awssession.Must(awssession.NewSession(&aws.Config{
-			Region: s3Region,
-		}))
-
-		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
-	} else {
-		zap.L().Info("Using filesystem storage backend")
-		fsParams := storage.DefaultFilesystemParams(logger)
-		storer = storage.NewFilesystem(fsParams)
-	}
-	handlerContext.SetFileStorer(storer)
 
 	// Base routes
 	site := goji.NewMux()
@@ -348,7 +385,7 @@ func main() {
 
 	errChan := make(chan error)
 	moveMilCerts := []server.TLSCert{
-		server.TLSCert{
+		{
 			//Append move.mil cert with CA certificate chain
 			CertPEMBlock: bytes.Join([][]byte{
 				[]byte(*moveMilDODTLSCert),
