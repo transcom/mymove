@@ -92,6 +92,9 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	// Overwrite values with those from assertions
 	mergeModels(&shipment, assertions.Shipment)
 
+	// Assign a GBL Number
+	shipment.AssignGBLNumber(db)
+
 	mustCreate(db, &shipment)
 
 	shipment.Move.Shipments = append(shipment.Move.Shipments, shipment)
