@@ -71,6 +71,10 @@
       "value": "orders.{{ .domain }}"
     },
     {
+      "name": "HTTP_DPS_SERVER_NAME",
+      "value": "dps.{{ .domain }}"
+    },
+    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     },
