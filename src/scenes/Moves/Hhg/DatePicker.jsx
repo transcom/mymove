@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { DayPicker } from 'react-day-picker';
 import { withRouter } from 'react-router-dom';
-
+import { get } from 'lodash';
 import 'react-day-picker/lib/style.css';
 import moment from 'moment';
 
@@ -59,6 +59,7 @@ export class HHGDatePicker extends Component {
       momentDay.isSame(element, 'day'),
     );
   };
+
   componentDidUpdate(prevProps) {
     if (
       this.props.currentShipment !== prevProps.currentShipment &&
@@ -70,9 +71,19 @@ export class HHGDatePicker extends Component {
         this.props.currentShipment.requested_pickup_date,
       );
       this.setState({
-        selectedDay: this.props.currentShipment.requested_pickup_date,
+        selectedDay:
+          this.props.input.value ||
+          this.props.currentShipment.requested_pickup_date,
       });
     }
+  }
+
+  componentDidMount() {
+    this.setState({
+      selectedDay:
+        this.props.input.value ||
+        get(this.props, 'currentShipment.requested_pickup_date'),
+    });
   }
 
   render() {
