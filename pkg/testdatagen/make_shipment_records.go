@@ -35,8 +35,9 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		pickupAddress = &newPickupAddress
 	}
 
+	hasDeliveryAddress := assertions.Shipment.HasDeliveryAddress
 	deliveryAddress := assertions.Shipment.DeliveryAddress
-	if deliveryAddress == nil {
+	if deliveryAddress == nil && hasDeliveryAddress {
 		newDeliveryAddress := MakeAddress2(db, Assertions{})
 		deliveryAddress = &newDeliveryAddress
 	}
@@ -68,15 +69,18 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		HasSecondaryPickupAddress:    false,
 		SecondaryPickupAddressID:     nil,
 		SecondaryPickupAddress:       nil,
-		HasDeliveryAddress:           true,
-		DeliveryAddressID:            &deliveryAddress.ID,
-		DeliveryAddress:              deliveryAddress,
+		HasDeliveryAddress:           hasDeliveryAddress,
 		HasPartialSITDeliveryAddress: false,
 		PartialSITDeliveryAddressID:  nil,
 		PartialSITDeliveryAddress:    nil,
 		WeightEstimate:               poundPointer(2000),
 		ProgearWeightEstimate:        poundPointer(225),
 		SpouseProgearWeightEstimate:  poundPointer(312),
+	}
+
+	if hasDeliveryAddress {
+		shipment.DeliveryAddressID = &deliveryAddress.ID
+		shipment.DeliveryAddress = deliveryAddress
 	}
 
 	// Overwrite values with those from assertions

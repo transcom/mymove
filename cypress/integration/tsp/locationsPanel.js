@@ -12,7 +12,15 @@ describe('TSP User Checks Shipment Locations', function() {
       state: 'CA',
       postal_code: '90210',
     };
-    tspUserViewsLocation({ shipmentId: 'BACON1', type: 'Pickup', address });
+    const expectation = text => {
+      expect(text).to.include(address.street_1);
+      expect(text).to.include(address.street_2);
+      expect(text).to.include(address.street_3);
+      expect(text).to.include(
+        `${address.city}, ${address.state} ${address.postal_code}`,
+      );
+    };
+    tspUserViewsLocation({ shipmentId: 'BACON1', type: 'Pickup', expectation });
   });
   it('tsp user primary delivery location when delivery address exists', function() {
     const address = {
@@ -23,11 +31,40 @@ describe('TSP User Checks Shipment Locations', function() {
       state: 'CA',
       postal_code: '94535',
     };
-    tspUserViewsLocation({ shipmentId: 'BACON1', type: 'Delivery', address });
+    const expectation = text => {
+      expect(text).to.include(address.street_1);
+      expect(text).to.include(address.street_2);
+      expect(text).to.include(address.street_3);
+      expect(text).to.include(
+        `${address.city}, ${address.state} ${address.postal_code}`,
+      );
+    };
+    tspUserViewsLocation({
+      shipmentId: 'BACON1',
+      type: 'Delivery',
+      expectation,
+    });
+  });
+  it('tsp user primary delivery location when delivery address does not exist', function() {
+    const address = {
+      city: 'Beverly Hills',
+      state: 'CA',
+      postal_code: '90210',
+    };
+    const expectation = text => {
+      expect(text).to.equal(
+        `${address.city}, ${address.state} ${address.postal_code}`,
+      );
+    };
+    tspUserViewsLocation({
+      shipmentId: 'DTYSTN',
+      type: 'Delivery',
+      expectation,
+    });
   });
 });
 
-function tspUserViewsLocation({ shipmentId, type, address }) {
+function tspUserViewsLocation({ shipmentId, type, expectation }) {
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -51,14 +88,10 @@ function tspUserViewsLocation({ shipmentId, type, address }) {
       cy
         .contains(type)
         .parent('.editable-panel-column')
+        .children('.panel-field')
+        .children('.field-value')
         .should($div => {
-          const text = $div.text();
-          expect(text).to.include(address.street_1);
-          expect(text).to.include(address.street_2);
-          expect(text).to.include(address.street_3);
-          expect(text).to.include(
-            `${address.city}, ${address.state} ${address.postal_code}`,
-          );
+          expectation($div.text());
         });
     });
 }
