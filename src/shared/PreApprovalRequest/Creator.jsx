@@ -25,11 +25,11 @@ export class Creator extends Component {
   }
   openForm = () => {
     this.setState({ showForm: true });
-    this.props.setActivate(false);
+    this.props.onFormActivation(false);
   };
   closeForm = () => {
     this.setState({ showForm: false });
-    this.props.setActivate(true);
+    this.props.onFormActivation(true);
   };
   onSubmit = values => {
     // Convert quantity_1 to base quantity unit before hitting endpoint
@@ -46,7 +46,7 @@ export class Creator extends Component {
   saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
-      this.props.setActivate(true);
+      this.props.onFormActivation(true);
     });
   };
   render() {
@@ -101,6 +101,7 @@ Creator.propTypes = {
   hasSubmitSucceeded: PropTypes.bool.isRequired,
   submitForm: PropTypes.func.isRequired,
   clearForm: PropTypes.func.isRequired,
+  onFormActivation: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {

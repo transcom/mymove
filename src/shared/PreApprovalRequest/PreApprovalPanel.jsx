@@ -33,8 +33,8 @@ export class PreApprovalPanel extends Component {
   onApproval = () => {
     console.log('onApproval hit');
   };
-  setActivate = activated => {
-    this.setState({ isActionable: activated });
+  onFormActivation = active => {
+    this.setState({ isActionable: active });
   };
   render() {
     return (
@@ -50,7 +50,7 @@ export class PreApprovalPanel extends Component {
           <Creator
             accessorials={this.props.accessorials}
             savePreApprovalRequest={this.onSubmit}
-            setActivate={this.setActivate}
+            onFormActivation={this.onFormActivation}
           />
         </BasicPanel>
       </div>
