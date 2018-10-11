@@ -79,8 +79,4 @@ export const availableMoveDates = new schema.Entity(
 );
 
 // MoveDatesSummary
-export const moveDatesSummary = new schema.Entity(
-  'moveDatesSummaries',
-  {},
-  { idAttribute: summary => summary.pickup[0] },
-);
+export const moveDatesSummary = new schema.Entity('moveDatesSummaries');

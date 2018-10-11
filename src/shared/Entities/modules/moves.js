@@ -33,9 +33,9 @@ export function getMoveDatesSummary(label, moveId, moveDate) {
   );
 }
 
-export function selectMoveDatesSummary(state, idAttribute) {
-  if (!idAttribute) {
+export function selectMoveDatesSummary(state, id) {
+  if (!id) {
     return null;
   }
-  return get(state, `entities.moveDatesSummaries.${idAttribute}`);
+  return get(state, `entities.moveDatesSummaries.${id}`);
 }

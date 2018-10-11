@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import { get, isNil } from 'lodash';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 import { selectMoveDatesSummary } from 'shared/Entities/modules/moves';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -77,9 +78,12 @@ DatesSummary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const props = {
-    moveDates: selectMoveDatesSummary(state, ownProps.moveDate),
+    moveDates: selectMoveDatesSummary(
+      state,
+      `${ownProps.match.params.moveId}:${ownProps.moveDate}`,
+    ),
   };
   return props;
 }
 
-export default connect(mapStateToProps)(DatesSummary);
+export default withRouter(connect(mapStateToProps)(DatesSummary));
