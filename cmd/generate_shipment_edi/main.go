@@ -40,9 +40,8 @@ func main() {
 	var shipments models.Shipments
 
 	err = db.Eager(
-		"Move.Orders",
 		"PickupAddress",
-		"DeliveryAddress",
+		"Move.Orders.NewDutyStation.Address",
 		"ServiceMember",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
 	).Where("shipment_offers.accepted=true").
