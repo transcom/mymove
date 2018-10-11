@@ -1,62 +1,21 @@
 ############
 #
-# Executors
-#
-# All jobs in this config use one of 2 executors:
-# * `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
-# * `mymove_and_postgres` adds a secondary `postgres:10.1` container and is used during testing.
-#
-# Jobs
-#
-# Jobs are the collection of steps that are executed as a single unit.  https://circleci.com/docs/2.0/jobs-steps/
-#
-# The following jobs are part of continuous integration.
-#
-# * `pre_deps_yarn` is used to cache yarn sources and installed node modules.
-# * `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
-# * `pre_test` runs pre-commit against all files.
-# * `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
-# * `vuln_scan` runs a vulnerability scan using Snyk (currently disabled).
-# * `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
-# * `build_app` builds the application container and pushes to the container repository
-# * `build_migrations` builds the migrations container and pushes to the container repository
-#
-# The following jobs are part of continuous deployment.
-#
-# * `deploy_experimental_migrations` deploys migrations to the experimental environment
-# * `deploy_staging_migrations` deploys migrations to the staging environment
-# * `deploy_prod_migrations` deploys migrations to the staging environment
-#
-# * `deploy_experimental_app` updates the server-TLS app service in the experimental environment
-# * `deploy_staging_app` updates the server-TLS app service in staging environment
-# * `deploy_prod_app` updates the server-TLS app service in the prod environment
-#
-# * `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
-# * `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
-# * `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
-#
 # Caches
 #
 # Caches may have a `v1-` prefix, since caches in CircleCI 2.0 are immutable.
 # A prefix provides an easy way to invalidate a cache.  See https://circleci.com/docs/2.0/caching/#clearing-cache
-#
-# The following caches are used in this config.
-# * `go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}` is used to caches sources for dep, the Go dependency manager.
-# * `mymove-vendor-{{ checksum "Gopkg.lock" }}` is used for caching the vendor directory for mymove.
-# * `v1-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
-# * `v1-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
-# * `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
-# * `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
 #
 ############
 
 version: "2.1"
 
 executors:
+  # `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
   mymove:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+  # `mymove_and_postgres` adds a secondary `postgres:10.1` container and is used during testing.
   mymove_and_postgres:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
@@ -167,6 +126,7 @@ commands:
 
 jobs:
 
+  # `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
   pre_deps_golang:
     executor: mymove
     steps:
@@ -180,16 +140,19 @@ jobs:
       - run:
           name: Install dependencies
           command: dep ensure -vendor-only
+      # `go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}` is used to caches sources for dep, the Go dependency manager.
       - save_cache:
           key: go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/pkg/dep/sources
+      # `mymove-vendor-{{ checksum "Gopkg.lock" }}` is used for caching the vendor directory for mymove.
       - save_cache:
           key: mymove-vendor-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/vendor
       - announce_failure
 
+  # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
   pre_deps_yarn:
     executor: mymove
     steps:
@@ -203,16 +166,19 @@ jobs:
       - run:
           name: Install YARN dependencies
           command: yarn install
+      # `v1-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn/v2
+      # `v1-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
       - save_cache:
           key: v1-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/node_modules
       - announce_failure
 
+  # `pre_test` runs pre-commit against all files.
   pre_test:
     executor: mymove
     steps:
@@ -248,12 +214,14 @@ jobs:
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
+      # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
       - announce_failure
 
+  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
     executor: mymove_and_postgres
     steps:
@@ -331,12 +299,14 @@ jobs:
           path: cypress/screenshots
       - store_test_results:
           path: cypress/results
+      # `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
       - save_cache:
           key: v1-cache-cypress-3.1.0
           paths:
             - ~/.cache/Cypress/3.1.0
       - announce_failure
 
+  # `vuln_scan` runs a vulnerability scan using Snyk (currently disabled).
   vuln_scan:
     executor: mymove
     steps:
@@ -370,6 +340,7 @@ jobs:
           command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
       - announce_failure
 
+  # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
   build_tools:
     executor: mymove
     steps:
@@ -382,6 +353,7 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run: make build_tools
 
+  # `build_app` builds the application container and pushes to the container repository
   build_app:
     executor: mymove_and_postgres
     steps:
@@ -430,6 +402,7 @@ jobs:
           repo: app
       - announce_failure
 
+  # `build_migrations` builds the migrations container and pushes to the container repository
   build_migrations:
     executor: mymove
     steps:
@@ -442,6 +415,7 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `deploy_experimental_migrations` deploys migrations to the experimental environment
   deploy_experimental_migrations:
     executor: mymove
     environment:
@@ -449,6 +423,7 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
     executor: mymove
     environment:
@@ -457,6 +432,7 @@ jobs:
       - deploy_app_steps:
           health_check_url: "https://my.experimental.move.mil/health"
 
+  # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
     executor: mymove
     environment:
@@ -465,6 +441,7 @@ jobs:
       - deploy_app_client_tls_steps:
           health_check_url: "https://office.experimental.move.mil/health"
 
+  # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
     executor: mymove
     environment:
@@ -472,6 +449,7 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
     executor: mymove
     environment:
@@ -480,6 +458,7 @@ jobs:
       - deploy_app_steps:
           health_check_url: "https://my.staging.move.mil/health"
 
+  # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
     executor: mymove
     environment:
@@ -488,6 +467,7 @@ jobs:
       - deploy_app_client_tls_steps:
           health_check_url: "https://office.staging.move.mil/health"
 
+  # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
     executor: mymove
     environment:
@@ -495,6 +475,7 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
     executor: mymove
     environment:
@@ -503,6 +484,7 @@ jobs:
       - deploy_app_steps:
           health_check_url: "https://my.move.mil/health"
 
+  # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
     executor: mymove
     environment:
