@@ -216,6 +216,11 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
+
+		// Assign a new unique GBL number using source GBLOC
+		shipment.AssignGBLNumber(db)
+		mustSave(db, &shipment)
+
 		shipmentList = append(shipmentList, shipment)
 
 		// Accepted shipments must have an OSA and DSA
