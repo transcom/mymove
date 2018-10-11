@@ -17,6 +17,11 @@ import {
   selectShipmentDocuments,
   getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
+import {
+  getAllAccessorials,
+  selectAccessorials,
+  getAccessorialsLabel,
+} from 'shared/Entities/modules/accessorials';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -39,8 +44,31 @@ import Dates from './Dates';
 import Locations from './Locations';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
+import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 
 import './tsp.css';
+
+const shipment_accessorials = [
+  {
+    code: '105D',
+    item: 'Unpack Reg Crate',
+    location: 'D',
+    base_quantity: 8660000,
+    notes: '',
+    created_at: '2018-09-24T14:05:38.847Z',
+    status: 'SUBMITTED',
+  },
+  {
+    code: '105E',
+    item: 'Unpack Reg Crate',
+    location: 'D',
+    base_quantity: 167000,
+    notes:
+      'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
+    created_at: '2018-09-24T14:05:38.847Z',
+    status: 'APPROVED',
+  },
+];
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -123,6 +151,7 @@ class ShipmentInfo extends Component {
       getShipmentDocumentsLabel,
       this.props.match.params.shipmentId,
     );
+    this.props.getAllAccessorials(getAccessorialsLabel);
   }
 
   acceptShipment = () => {
@@ -232,6 +261,10 @@ class ShipmentInfo extends Component {
             <div className="usa-width-two-thirds">
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
+                  <PreApprovalPanel
+                    shipment_accessorials={shipment_accessorials}
+                    accessorials={this.props.accessorials}
+                  />
                   <Dates
                     title="Dates"
                     shipment={this.props.shipment}
@@ -356,6 +389,7 @@ const mapStateToProps = state => {
     shipment,
     deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state),
+    accessorials: selectAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(
       state,
@@ -390,6 +424,7 @@ const mapDispatchToProps = dispatch =>
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
+      getAllAccessorials,
     },
     dispatch,
   );

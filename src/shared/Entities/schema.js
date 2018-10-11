@@ -77,3 +77,7 @@ export const availableMoveDates = new schema.Entity(
   {},
   { idAttribute: 'start_date' },
 );
+
+// Accessorials
+export const accessorial = new schema.Entity('accessorials');
+export const accessorials = new schema.Array(accessorial);
