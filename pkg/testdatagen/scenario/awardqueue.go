@@ -28,7 +28,8 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 	market := "dHHG"
 
 	// Make a source GBLOC
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 
 	// Make shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
@@ -40,6 +41,7 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 				ActualDeliveryDate:      &now,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
+				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 			},
 		})
@@ -86,7 +88,8 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 	market := "dHHG"
 
 	// Make a source GBLOC
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 
 	// Make shipments in first TDL
 	for i := 0; i < shipmentsToMake; i++ {
@@ -97,6 +100,7 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 				ActualDeliveryDate:      &shipmentDate,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
+				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 			},
 		})
