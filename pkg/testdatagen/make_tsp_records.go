@@ -27,8 +27,10 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 	if scac == "" {
 		scac = RandomSCAC()
 	}
+
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: scac,
+		Enrolled:                 assertions.TransportationServiceProvider.Enrolled,
 	}
 
 	verrs, err := db.ValidateAndCreate(&tsp)
@@ -44,7 +46,11 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 
 // MakeDefaultTSP makes a TSP with default values
 func MakeDefaultTSP(db *pop.Connection) models.TransportationServiceProvider {
-	return MakeTSP(db, Assertions{})
+	return MakeTSP(db, Assertions{
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			Enrolled: true,
+		},
+	})
 }
 
 // MakeTSPs creates numTSP number of TSP records

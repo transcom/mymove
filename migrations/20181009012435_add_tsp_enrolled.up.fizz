@@ -1,0 +1,4 @@
+add_column("transportation_service_providers", "enrolled", "bool", {"null": true})
+sql("UPDATE transportation_service_providers SET enrolled=false;")
+sql("ALTER TABLE transportation_service_providers ALTER COLUMN enrolled SET DEFAULT false;")
+sql("ALTER TABLE transportation_service_providers ALTER COLUMN enrolled SET NOT NULL;")
