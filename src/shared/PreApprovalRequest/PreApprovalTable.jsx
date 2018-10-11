@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
-import { formatDate } from 'shared/formatters';
+import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
-import './index.css';
+import './PreApprovalRequest.css';
 
 export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   // Only office users can approve requests.
@@ -52,7 +52,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   }
 }
 
-const PreApprovalRequest = ({
+const PreApprovalTable = ({
   shipment_accessorials,
   isActionable,
   onEdit,
@@ -82,7 +82,7 @@ const PreApprovalRequest = ({
               <td align="left">{row.code}</td>
               <td align="left">{row.item}</td>
               <td align="left"> {row.location} </td>
-              <td align="left">{row.base_quantity} </td>
+              <td align="left">{formatFromBaseQuantity(row.base_quantity)} </td>
               <td align="left">{row.notes} </td>
               <td align="left">{formatDate(row.created_at)}</td>
               <td align="left">
@@ -101,7 +101,7 @@ const PreApprovalRequest = ({
   </div>
 );
 
-PreApprovalRequest.propTypes = {
+PreApprovalTable.propTypes = {
   shipment_accessorials: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,
@@ -109,4 +109,4 @@ PreApprovalRequest.propTypes = {
   onApproval: PropTypes.func,
 };
 
-export default PreApprovalRequest;
+export default PreApprovalTable;
