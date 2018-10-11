@@ -38,7 +38,7 @@ export function fillAndSavePremoveSurvey() {
     .get('input[name="survey.pm_survey_progear_weight_estimate"]')
     .clear()
     .first()
-    .type('700')
+    .type('4000')
     .blur();
   cy
     .get('input[name="survey.pm_survey_spouse_progear_weight_estimate"]')
@@ -69,7 +69,7 @@ export function testPremoveSurvey() {
   fillAndSavePremoveSurvey();
 
   // Verify data has been saved in the UI
-  cy.get('span').contains('700 lbs');
+  cy.get('span').contains('4,000 lbs');
 
   // Refresh browser and make sure changes persist
   cy.reload();
@@ -77,6 +77,6 @@ export function testPremoveSurvey() {
   cy
     .get('div.pm_survey_planned_delivery_date')
     .get('span')
-    .contains('700 lbs');
+    .contains('4,000 lbs');
   cy.get('div.pm_survey_notes').contains('Notes notes notes');
 }

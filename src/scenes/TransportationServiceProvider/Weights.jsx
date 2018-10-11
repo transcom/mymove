@@ -9,6 +9,7 @@ import {
   editablePanelify,
   PanelField,
 } from 'shared/EditablePanel';
+import { formatWeight } from 'shared/formatters';
 
 const weightsFields = [
   'net_weight',
@@ -51,38 +52,20 @@ const WeightsDisplay = props => {
       <div className="editable-panel-column">
         <div className="column-subhead">Pro-gear (Service member + spouse)</div>
         <PanelField title="Customer estimate">
-          {values.progear_weight_estimate ? (
-            <span>{values.progear_weight_estimate.toLocaleString()} lbs</span>
-          ) : (
-            '0 lbs'
-          )}
-          {values.spouse_progear_weight_estimate ? (
-            <span>
-              {' '}
-              + {values.spouse_progear_weight_estimate.toLocaleString()} lbs
-            </span>
-          ) : (
-            ' + 0 lbs'
-          )}
+          <span>
+            {`${formatWeight(values.progear_weight_estimate)} + ${formatWeight(
+              values.spouse_progear_weight_estimate,
+            )}`}
+          </span>
         </PanelField>
         <PanelField title="TSP estimate">
-          {values.pm_survey_progear_weight_estimate ? (
-            <span>
-              {values.pm_survey_progear_weight_estimate.toLocaleString()} lbs
-            </span>
-          ) : (
-            '0 lbs'
-          )}
-          {values.pm_survey_spouse_progear_weight_estimate ? (
-            <span>
-              {' '}
-              +{' '}
-              {values.pm_survey_spouse_progear_weight_estimate.toLocaleString()}{' '}
-              lbs
-            </span>
-          ) : (
-            ' + 0 lbs'
-          )}
+          <span>
+            {`${formatWeight(
+              values.pm_survey_progear_weight_estimate,
+            )} + ${formatWeight(
+              values.pm_survey_spouse_progear_weight_estimate,
+            )}`}
+          </span>
         </PanelField>
       </div>
     </Fragment>
@@ -140,19 +123,11 @@ const WeightsEdit = props => {
         <div className="editable-panel-column">
           <div className="column-head">Pro-gear (Service member + spouse)</div>
           <PanelField title="Customer estimate">
-            {values.progear_weight_estimate ? (
-              <span>{values.progear_weight_estimate.toLocaleString()} lbs</span>
-            ) : (
-              '0 lbs'
-            )}
-            {values.spouse_progear_weight_estimate ? (
-              <span>
-                {' '}
-                + {values.spouse_progear_weight_estimate.toLocaleString()} lbs
-              </span>
-            ) : (
-              ' + 0 lbs'
-            )}
+            <span>
+              {`${formatWeight(
+                values.progear_weight_estimate,
+              )} + ${formatWeight(values.spouse_progear_weight_estimate)}`}
+            </span>
           </PanelField>
           <div className="column-subhead">TSP Estimate</div>
           <SwaggerField
