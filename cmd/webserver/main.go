@@ -143,6 +143,9 @@ func validateKeys(cCfg *auth.SessionCookieConfig, lgConfig *authentication.Login
 	}
 }
 
+// FOR NOW - Once handlers are implemented like
+func populateHandlerContext(ctxt handlers.HandlerContext)
+
 func main() {
 
 	// Set up the DI context and logging
@@ -156,8 +159,8 @@ func main() {
 
 	// Session management and authentication middleware
 	//	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
-	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	//	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
+	//  userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
 	// For NOW configure handler context here
 	diContext.Invoke(func(ctxt handlers.HandlerContext) {
@@ -184,7 +187,7 @@ func main() {
 
 		// Get route planner for handlers to calculate transit distances
 		// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-		routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
+		// routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
 		ctxt.SetPlanner(routePlanner)
 
 		var storer storage.FileStorer

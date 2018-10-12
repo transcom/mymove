@@ -18,8 +18,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
+// UserAuthMiddleware is a unique type for this middleware so DI can identify dependencies
+type UserAuthMiddleware func(next http.Handler) http.Handler
+
+// NewUserAuthMiddleware enforces that the incoming request is tied to a user session
+func NewUserAuthMiddleware(logger *zap.Logger) UserAuthMiddleware {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := auth.SessionFromRequestContext(r)

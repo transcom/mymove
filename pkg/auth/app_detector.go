@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"net/http"
 	"strings"
 
@@ -34,19 +35,22 @@ func (s *Session) IsMyApp() bool {
 	return s.ApplicationName == MyApp
 }
 
-// DetectorMiddleware detects which application we are serving based on the hostname
-func DetectorMiddleware(logger *zap.Logger, myHostname string, officeHostname string, tspHostname string) func(next http.Handler) http.Handler {
-	logger.Info("Creating host detector", zap.String("myHost", myHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
+// AppDetectorMiddleware is a unique type definition for this middleware, so DI can identify the right object
+type AppDetectorMiddleware func(next http.Handler) http.Handler
+
+// NewAppDetectorMiddleware detects which application we are serving based on the hostname
+func NewAppDetectorMiddleware(cfg *server.HostsConfig, l *zap.Logger) AppDetectorMiddleware {
+	l.Info("Creating host detector", zap.String("myHost", myHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := SessionFromRequestContext(r)
 			parts := strings.Split(r.Host, ":")
 			var appName application
-			if strings.EqualFold(parts[0], myHostname) {
+			if strings.EqualFold(parts[0], cfg.MyName) {
 				appName = MyApp
-			} else if strings.EqualFold(parts[0], officeHostname) {
+			} else if strings.EqualFold(parts[0], cfg.OfficeName) {
 				appName = OfficeApp
-			} else if strings.EqualFold(parts[0], tspHostname) {
+			} else if strings.EqualFold(parts[0], cfg.TspName) {
 				appName = TspApp
 			} else {
 				logger.Error("Bad hostname", zap.String("hostname", r.Host))

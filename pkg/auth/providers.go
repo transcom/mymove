@@ -8,5 +8,7 @@ import (
 // AddProviders adds all the auth providers to the DI container
 func AddProviders(c *dependencies.Container) {
 	c.MustProvide(NewSessionCookieMiddleware)
+	c.MustProvide(NewAppDetectorMiddleware)
+	c.MustProvide(authentication.NewUserAuthMiddleware)
 	c.MustProvide(authentication.NewLoginGovProvider)
 }
