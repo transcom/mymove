@@ -109,9 +109,10 @@ export class Uploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
+    const { document, isPublic } = this.props;
     const self = this;
-    const docID = this.props.document ? this.props.document.id : null;
-    CreateUpload(file, docID)
+    const docID = document ? document.id : null;
+    CreateUpload(file, docID, isPublic)
       .then(item => {
         load(item.id);
         const newFiles = concat(self.state.files, item);
@@ -125,7 +126,8 @@ export class Uploader extends Component {
   };
 
   revertFile = (uploadId, load, error) => {
-    DeleteUpload(uploadId)
+    const { onChange, isPublic } = this.props;
+    DeleteUpload(uploadId, isPublic)
       .then(item => {
         load(item);
         const newFiles = reject(
@@ -135,8 +137,8 @@ export class Uploader extends Component {
         this.setState({
           files: newFiles,
         });
-        if (this.props.onChange) {
-          this.props.onChange(newFiles, this.isIdle());
+        if (onChange) {
+          onChange(newFiles, this.isIdle());
         }
       })
       .catch(error);
@@ -158,6 +160,7 @@ Uploader.propTypes = {
   document: PropTypes.object,
   onChange: PropTypes.func,
   labelIdle: PropTypes.string,
+  isPublic: PropTypes.bool,
 };
 
 function mapStateToProps(state) {

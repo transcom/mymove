@@ -1,7 +1,0 @@
-drop_column("blackout_dates", "channel")
-drop_column("blackout_dates", "gbloc")
-drop_column("blackout_dates", "market")
-drop_column("blackout_dates", "zip3")
-drop_column("blackout_dates", "volume_move")
-change_column("blackout_dates", "code_of_service", "string", {})
-change_column("blackout_dates", "traffic_distribution_list_id", "uuid", {})

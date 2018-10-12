@@ -109,14 +109,7 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-server_build_docker:
-	docker build . -t ppp:web-dev
-server_run_only_docker: db_dev_run
-	docker stop web || true
-	docker rm web || true
-	docker run --name web -p 8080:8080 ppp:web-dev
-
-tools_build: server_deps
+build_tools: server_deps server_generate
 	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
 	go build -i -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
@@ -126,17 +119,10 @@ tools_build: server_deps
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
 
-tsp_run: tools_build db_dev_run
+tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
 
-tsp_build_docker:
-	docker build . -f Dockerfile.tsp -t ppp:tsp-dev
-tsp_run_only_docker: db_dev_run
-	docker stop tsp || true
-	docker rm tsp || true
-	docker run --name tsp ppp:tsp-dev
-
-build: server_build tools_build client_build
+build: server_build build_tools client_build
 
 server_test: server_deps server_generate db_dev_run db_test_reset
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
@@ -163,7 +149,7 @@ e2e_test: server_deps server_generate server_build client_build db_e2e_init
 e2e_test_ci: server_deps server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./bin/run-e2e-test-ci
 
-db_populate_e2e: db_dev_reset db_dev_migrate tools_build
+db_populate_e2e: db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic"
 
 db_dev_run:
@@ -194,10 +180,8 @@ db_dev_migrate_down: server_deps db_dev_run
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
 		./soda -c ../config/database.yml -p ../migrations migrate down
-db_build_docker:
-	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
 
-db_e2e_init: tools_build db_dev_run db_test_reset
+db_e2e_init: build_tools db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
 
@@ -241,6 +225,6 @@ clean:
 	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
-.PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_build_docker server_run_only_docker server_test
+.PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
 .PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset
 .PHONY: clean pretty

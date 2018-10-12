@@ -160,11 +160,11 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       INVOICED: Invoiced
-  Accessorials:
+  Tariff400ngItems:
     type: array
     items:
-      $ref: '#/definitions/Accessorial'
-  Accessorial:
+      $ref: '#/definitions/Tariff400ngItem'
+  Tariff400ngItem:
     type: object
     properties:
       id:
@@ -219,15 +219,17 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       accessorial:
-        $ref: '#/definitions/Accessorial'
+        $ref: '#/definitions/Tariff400ngItem'
       quantity_1:
         type: integer
+        format: basequantity
         title: Base Quantity
         description: 1st Accessorial base quantity
         minimum: 0
-        example: 16.7
+        example: 167000
       quantity_2:
         type: integer
+        format: basequantity
         title: 2nd Quantity
         description: 2nd Accessorial base quantity
         minimum: 0
@@ -949,14 +951,30 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Spouse Progear Weight Estimate
-      actual_weight:
+      net_weight:
         type: integer
-        description: Actual weight of the shipment in lbs
+        description: Actual net weight of the shipment in lbs
         minimum: 0
         example: 10000
         x-nullable: true
         x-formatting: weight
-        title: Actual Weight
+        title: Net
+      gross_weight:
+        type: integer
+        description: Gross weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Gross
+      tare_weight:
+        type: integer
+        description: Tare weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Tare
       pm_survey_conducted_date:
         type: string
         format: date
@@ -1277,22 +1295,28 @@ definitions:
         additionalProperties:
           type: string
 paths:
-  /accessorials:
+  /tariff_400ng_items:
     get:
-      summary: Retrieve list of accessorials
-      description: Gets a list of all accessorials.
-      operationId: getAccessorials
+      summary: Retrieve list of 400ng items
+      description: Gets a list of all 400ng items.
+      operationId: getTariff400ngItems
       tags:
         - accessorials
+      parameters:
+        - in: query
+          name: requires_pre_approval
+          type: boolean
+          default: false
+          description: restricts the list to only items that require pre-approval
       responses:
         200:
-          description: list of accessorials
+          description: list of tariff 400ng items
           schema:
-            $ref: '#/definitions/Accessorials'
+            $ref: '#/definitions/Tariff400ngItems'
         400:
           description: invalid request
-        403:
-          description: not authorized to get list of accessorials
+        401:
+          description: not authorized to get list of tariff 400ng items
         500:
           description: server error
   /blackouts:
@@ -2190,7 +2214,7 @@ paths:
         500:
           description: server error
   /shipments/accessorials/{shipment_accessorial_id}/approve:
-    put:
+    post:
       summary: Updates a shipment accessorial item to approve status
       description: Update a shipment accessorial with approve status
       operationId: approveShipmentAccessorial
@@ -2206,6 +2230,8 @@ paths:
       responses:
         200:
           description: shipment accessorial approved
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
         400:
           description: invalid request
         401:

@@ -6,10 +6,12 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
-import { getLastError, getSwaggerDefinition } from 'shared/Swagger/selectors';
+import {
+  getLastError,
+  getInternalSwaggerDefinition,
+} from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import Address from 'scenes/Moves/Hhg/Address';
 import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
 
 import {
@@ -101,11 +103,6 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <Address
-            schema={this.props.schema}
-            error={error}
-            formValues={this.props.formValues}
-          />
           <WeightEstimates
             schema={this.props.schema}
             error={error}
@@ -131,7 +128,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const shipment = currentShipment(state);
   const props = {
-    schema: getSwaggerDefinition(state, 'Shipment'),
+    schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,

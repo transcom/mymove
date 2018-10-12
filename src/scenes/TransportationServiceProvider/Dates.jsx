@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
@@ -31,7 +31,7 @@ const DatesDisplay = props => {
     values: props.shipment,
   };
   return (
-    <React.Fragment>
+    <Fragment>
       <div className="editable-panel-column">
         <div className="column-subhead">PM Survey</div>
         <PanelSwaggerField
@@ -97,7 +97,7 @@ const DatesDisplay = props => {
           {...fieldProps}
         />
       </div>
-    </React.Fragment>
+    </Fragment>
   );
 };
 
@@ -108,7 +108,7 @@ const DatesEdit = props => {
     values: props.shipment,
   };
   return (
-    <React.Fragment>
+    <Fragment>
       <FormSection name="dates">
         <div className="editable-panel-column">
           <div className="column-head">PM Survey</div>
@@ -126,9 +126,9 @@ const DatesEdit = props => {
           <PanelField title="Original" value="TODO" />
           <SwaggerField
             fieldName="pm_survey_planned_pack_date"
-            required
             title="Planned"
             swagger={schema}
+            required
           />
           <SwaggerField
             fieldName="actual_pack_date"
@@ -173,7 +173,7 @@ const DatesEdit = props => {
           />
         </div>
       </FormSection>
-    </React.Fragment>
+    </Fragment>
   );
 };
 
@@ -201,7 +201,7 @@ function mapStateToProps(state, props) {
       dates: pick(props.shipment, datesFields),
     },
 
-    shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
     hasError: !!props.error,
     errorMessage: props.error,
