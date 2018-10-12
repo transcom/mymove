@@ -173,13 +173,21 @@ const mapStateToProps = (state, props) => ({
   currentPpm: state.ppm.currentPpm,
   updatingPPM: state.ppm.hasSubmitInProgress,
   updateError: state.ppm.hasSubmitError,
-  docTypes: get(state, 'swagger.spec.definitions.MoveDocumentType.enum', []),
+  docTypes: get(
+    state,
+    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
+    [],
+  ),
   genericMoveDocSchema: get(
     state,
-    'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+    'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
     {},
   ),
-  moveDocSchema: get(state, 'swagger.spec.definitions.MoveDocumentPayload', {}),
+  moveDocSchema: get(
+    state,
+    'swaggerInternal.spec.definitions.MoveDocumentPayload',
+    {},
+  ),
 });
 
 const mapDispatchToProps = dispatch =>
