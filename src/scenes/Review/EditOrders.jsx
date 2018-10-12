@@ -210,7 +210,11 @@ function mapStateToProps(state) {
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),
-    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+    schema: get(
+      state,
+      'swaggerInternal.spec.definitions.CreateUpdateOrders',
+      {},
+    ),
   };
   return props;
 }

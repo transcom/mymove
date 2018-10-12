@@ -6,8 +6,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import TspHeader from 'shared/Header/Tsp';
-import QueueList from './QueueList';
-import QueueTable from './QueueTable';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -15,8 +13,10 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
-import ShipmentInfo from './ShipmentInfo';
 import DocumentViewer from './DocumentViewerContainer';
+import ShipmentInfo from './ShipmentInfo';
+import QueueList from './QueueList';
+import QueueTable from './QueueTable';
 
 import './tsp.css';
 
@@ -55,7 +55,7 @@ class TspWrapper extends Component {
                 <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute
                   path="/shipments/:shipmentId/documents/new"
-                  render={() => <div>Placeholder for new doc</div>}
+                  render={() => <div> new document will be here</div>}
                 />
                 <PrivateRoute
                   path="/shipments/:shipmentId/documents/:moveDocumentId"
@@ -89,7 +89,7 @@ TspWrapper.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
+  swaggerError: state.swaggerPublic.hasErrored,
 });
 
 const mapDispatchToProps = dispatch =>

@@ -1,2 +1,0 @@
-drop_column("shipments", "gbloc")
-drop_column("shipments", "market")

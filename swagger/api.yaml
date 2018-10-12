@@ -160,11 +160,11 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       INVOICED: Invoiced
-  Accessorials:
+  Tariff400ngItems:
     type: array
     items:
-      $ref: '#/definitions/Accessorial'
-  Accessorial:
+      $ref: '#/definitions/Tariff400ngItem'
+  Tariff400ngItem:
     type: object
     properties:
       id:
@@ -219,15 +219,17 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       accessorial:
-        $ref: '#/definitions/Accessorial'
+        $ref: '#/definitions/Tariff400ngItem'
       quantity_1:
         type: integer
+        format: basequantity
         title: Base Quantity
         description: 1st Accessorial base quantity
         minimum: 0
-        example: 10000
+        example: 167000
       quantity_2:
         type: integer
+        format: basequantity
         title: 2nd Quantity
         description: 2nd Accessorial base quantity
         minimum: 0
@@ -236,6 +238,7 @@ definitions:
         $ref: '#/definitions/AccessorialLocation'
       notes:
         type: string
+        format: textarea
         title: Notes
         example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       status:
@@ -261,7 +264,6 @@ definitions:
       - shipment_id
       - quantity_1
       - location
-      - notes
   Address:
     type: object
     properties:
@@ -301,6 +303,7 @@ definitions:
         default: United States
     required:
       - street_address_1
+      - state
       - city
       - postal_code
   IndexBlackoutsPayload:
@@ -537,6 +540,8 @@ definitions:
         type: string
         example: 'Change of orders'
         x-nullable: true
+      new_duty_station:
+        $ref: '#/definitions/DutyStation'
     required:
       - orders_id
       - locator
@@ -654,6 +659,31 @@ definitions:
       MARINES: Marines
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
+  DutyStation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        format: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - created_at
+      - updated_at
   ServiceMember:
     type: object
     properties:
@@ -775,9 +805,9 @@ definitions:
     title: Backup Contact Permissions
     example: VIEW
     enum:
-    - NONE
-    - VIEW
-    - EDIT
+      - NONE
+      - VIEW
+      - EDIT
     x-display-value:
       NONE: Contact Only
       VIEW: View all move details
@@ -817,12 +847,19 @@ definitions:
         readOnly: true
       actual_pickup_date:
         type: string
-        format: date-time
-        example: 2018-04-21T17:32:28Z
+        format: date
+        example: '2018-04-21'
+        x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: '2018-04-21'
+        x-nullable: true
       actual_delivery_date:
         type: string
-        format: date-time
-        example: 2018-04-27T17:32:28Z
+        format: date
+        example: '2018-04-27'
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -850,8 +887,8 @@ definitions:
         example: '2018-03-15'
       requested_pickup_date:
         type: string
-        format: date-time
-        example: 2018-04-19T17:32:28Z
+        format: date
+        example: '2018-04-19'
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
@@ -914,14 +951,36 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Spouse Progear Weight Estimate
-      actual_weight:
+      net_weight:
         type: integer
-        description: Actual weight of the shipment in lbs
+        description: Actual net weight of the shipment in lbs
         minimum: 0
         example: 10000
         x-nullable: true
         x-formatting: weight
-        title: Actual Weight
+        title: Net
+      gross_weight:
+        type: integer
+        description: Gross weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Gross
+      tare_weight:
+        type: integer
+        description: Tare weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Tare
+      pm_survey_conducted_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: 'Conducted'
+        x-nullable: true
       pm_survey_planned_pack_date:
         type: string
         format: date
@@ -964,8 +1023,9 @@ definitions:
       pm_survey_notes:
         type: string
         example: This document is good to go!
+        format: textarea
         x-nullable: true
-        title: Notes
+        title: Notes about dates
       pm_survey_method:
         type: string
         title: Survey method
@@ -1227,23 +1287,36 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
 paths:
-  /accessorials:
+  /tariff_400ng_items:
     get:
-      summary: Retrieve list of accessorials
-      description: Gets a list of all accessorials.
-      operationId: getAccessorials
+      summary: Retrieve list of 400ng items
+      description: Gets a list of all 400ng items.
+      operationId: getTariff400ngItems
       tags:
         - accessorials
+      parameters:
+        - in: query
+          name: requires_pre_approval
+          type: boolean
+          default: false
+          description: restricts the list to only items that require pre-approval
       responses:
         200:
-          description: list of accessorials
+          description: list of tariff 400ng items
           schema:
-            $ref: '#/definitions/Accessorials'
+            $ref: '#/definitions/Tariff400ngItems'
         400:
           description: invalid request
-        403:
-          description: not authorized to get list of accessorials
+        401:
+          description: not authorized to get list of tariff 400ng items
         500:
           description: server error
   /blackouts:
@@ -1497,6 +1570,97 @@ paths:
           description: move document not found
         500:
           description: internal server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+      responses:
+        204:
+          description: deleted
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+  /uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        201:
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+    delete:
+      summary: Deletes a collection of uploads
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUploads
+      tags:
+        - uploads
+      parameters:
+        - in: query
+          name: uploadIds
+          type: array
+          items:
+            type: string
+            format: uuid
+          required: true
+          description: Array of UUIDs to be deleted
+      responses:
+        204:
+          description: deleted
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
   /shipments:
     get:
       summary: Gets visible shipments
@@ -2050,7 +2214,7 @@ paths:
         500:
           description: server error
   /shipments/accessorials/{shipment_accessorial_id}/approve:
-    put:
+    post:
       summary: Updates a shipment accessorial item to approve status
       description: Update a shipment accessorial with approve status
       operationId: approveShipmentAccessorial
@@ -2066,6 +2230,8 @@ paths:
       responses:
         200:
           description: shipment accessorial approved
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
         400:
           description: invalid request
         401:

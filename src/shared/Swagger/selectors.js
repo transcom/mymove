@@ -35,6 +35,6 @@ export function getLastError(state, label) {
 }
 
 // Return the Swagger definition for the provided name
-export function getSwaggerDefinition(state, name) {
-  return get(state, `swagger.spec.definitions.${name}`, {});
+export function getInternalSwaggerDefinition(state, name) {
+  return get(state, `swaggerInternal.spec.definitions.${name}`, {});
 }

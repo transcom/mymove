@@ -96,12 +96,15 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, mps, 0, .2, .1)
 
-	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
+	performance, err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
 	if err != nil {
 		t.Fatalf("Could not increment offer_count: %v", err)
 	}
+	if performance.OfferCount != 1 {
+		t.Errorf("Wrong OfferCount returned: expected %d, got %d", 1, performance.OfferCount)
+	}
 
-	performance := TransportationServiceProviderPerformance{}
+	performance = TransportationServiceProviderPerformance{}
 	if err := suite.db.Find(&performance, perf.ID); err != nil {
 		t.Fatalf("could not find perf: %v", err)
 	}

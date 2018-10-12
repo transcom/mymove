@@ -167,12 +167,12 @@ function mapStateToProps(state) {
       address: customerInfo.residential_address,
     },
 
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
 
     // CustomerInfoEdit
     serviceMemberSchema: get(
       state,
-      'swagger.spec.definitions.ServiceMemberPayload',
+      'swaggerInternal.spec.definitions.ServiceMemberPayload',
     ),
     serviceMember: state.office.officeServiceMember,
 

@@ -8,36 +8,22 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MakeDummyAccessorial creates a hardcoded accessorial model
-// This should be deprecated quickly once we get the real codes into the db
-func MakeDummyAccessorial(db *pop.Connection) models.Accessorial {
-	accessorial := models.Accessorial{
-		Code:             "105B",
-		Item:             "Pack Reg Crate",
-		DiscountType:     models.AccessorialDiscountTypeNONE,
-		AllowedLocation:  models.AccessorialAllowedLocationEITHER,
-		MeasurementUnit1: models.AccessorialMeasurementUnitEACH,
-		MeasurementUnit2: models.AccessorialMeasurementUnitNONE,
-		RateRefCode:      models.AccessorialRateRefCodeNONE,
-	}
-
-	mustCreate(db, &accessorial)
-
-	return accessorial
-}
-
 // MakeShipmentAccessorial creates a single accessorial record
 func MakeShipmentAccessorial(db *pop.Connection, assertions Assertions) models.ShipmentAccessorial {
-	shipment := MakeShipment(db, assertions)
+	shipmentID := assertions.ShipmentAccessorial.ShipmentID
+	if isZeroUUID(shipmentID) {
+		shipment := MakeShipment(db, assertions)
+		shipmentID = shipment.ID
+	}
 
 	accessorial := assertions.ShipmentAccessorial.Accessorial
 	if isZeroUUID(accessorial.ID) {
-		accessorial = MakeDummyAccessorial(db)
+		accessorial = MakeTariff400ngItem(db, assertions)
 	}
 
 	//filled in dummy data
 	shipmentAccessorial := models.ShipmentAccessorial{
-		ShipmentID:    shipment.ID,
+		ShipmentID:    shipmentID,
 		AccessorialID: accessorial.ID,
 		Accessorial:   accessorial,
 		Location:      models.ShipmentAccessorialLocationDESTINATION,

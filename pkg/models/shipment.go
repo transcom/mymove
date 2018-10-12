@@ -51,6 +51,7 @@ type Shipment struct {
 	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
 	ServiceMember                       ServiceMember            `belongs_to:"service_member"`
 	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
+	ActualPackDate                      *time.Time               `json:"actual_pack_date" db:"actual_pack_date"`
 	ActualDeliveryDate                  *time.Time               `json:"actual_delivery_date" db:"actual_delivery_date"`
 	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
@@ -79,8 +80,11 @@ type Shipment struct {
 	WeightEstimate                      *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
-	ActualWeight                        *unit.Pound              `json:"actual_weight" db:"actual_weight"`
+	NetWeight                           *unit.Pound              `json:"net_weight" db:"net_weight"`
+	GrossWeight                         *unit.Pound              `json:"gross_weight" db:"gross_weight"`
+	TareWeight                          *unit.Pound              `json:"tare_weight" db:"tare_weight"`
 	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
+	PmSurveyConductedDate               *time.Time               `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
 	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
 	PmSurveyPlannedPickupDate           *time.Time               `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
 	PmSurveyPlannedDeliveryDate         *time.Time               `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
@@ -279,6 +283,43 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	return &trafficDistributionList, nil
 }
 
+// CreateShipmentAccessorial creates a new ShipmentAccessorial tied to the Shipment
+func (s *Shipment) CreateShipmentAccessorial(db *pop.Connection, accessorialID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentAccessorial, *validate.Errors, error) {
+	var quantity2 unit.BaseQuantity
+	if q2 != nil {
+		quantity2 = unit.BaseQuantity(*q2)
+	}
+
+	var notesVal string
+	if notes != nil {
+		notesVal = *notes
+	}
+
+	shipmentAccessorial := ShipmentAccessorial{
+		ShipmentID:    s.ID,
+		AccessorialID: accessorialID,
+		Quantity1:     unit.BaseQuantity(*q1),
+		Quantity2:     quantity2,
+		Location:      ShipmentAccessorialLocation(location),
+		Notes:         notesVal,
+		SubmittedDate: time.Now(),
+		Status:        ShipmentAccessorialStatusSUBMITTED,
+	}
+
+	verrs, err := db.ValidateAndCreate(&shipmentAccessorial)
+	if verrs.HasAny() || err != nil {
+		return &ShipmentAccessorial{}, verrs, err
+	}
+
+	// Loads accessorial information
+	err = db.Load(&shipmentAccessorial)
+	if err != nil {
+		return &ShipmentAccessorial{}, validate.NewErrors(), err
+	}
+
+	return &shipmentAccessorial, validate.NewErrors(), nil
+}
+
 // AssignGBLNumber generates a new valid GBL number for the shipment
 // Note: This doens't save the Shipment, so this should always be run as part of
 // another transaction that saves the shipment after assigning a GBL number
@@ -441,6 +482,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 	err := tx.Eager(
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
+		"Move.Orders.NewDutyStation.Address",
 		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",

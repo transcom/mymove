@@ -43,7 +43,8 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	deliveryDate := time.Now().AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: Shipment{
@@ -52,6 +53,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 			Status:                  ShipmentStatusSUBMITTED,
 		},
@@ -185,5 +187,25 @@ func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
 		suite.NoError(err)
 		suite.NotNil(shipment.GBLNumber)
 		suite.Equal(*shipment.GBLNumber, d[1])
+	}
+}
+
+// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+func (suite *ModelSuite) TestCreateShipmentAccessorial() {
+	acc := testdatagen.MakeDefaultTariff400ngItem(suite.db)
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	q1 := int64(5)
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	shipmentAccessorial, verrs, err := shipment.CreateShipmentAccessorial(suite.db,
+		acc.ID,
+		&q1,
+		nil,
+		"O",
+		&notes)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(5, shipmentAccessorial.Quantity1.ToUnitInt())
+		suite.Equal(acc.ID.String(), shipmentAccessorial.Accessorial.ID.String())
 	}
 }

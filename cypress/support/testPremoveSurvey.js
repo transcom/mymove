@@ -24,22 +24,31 @@ export function fillAndSavePremoveSurvey() {
     .type('8/5/2018')
     .blur();
   cy
+    .get('input[name="survey.pm_survey_conducted_date"]')
+    .first()
+    .type('7/20/2018')
+    .blur();
+  cy
     .get('input[name="survey.pm_survey_weight_estimate"]')
+    .clear()
     .first()
     .type('6000')
     .blur();
   cy
     .get('input[name="survey.pm_survey_progear_weight_estimate"]')
+    .clear()
     .first()
-    .type('7000')
+    .type('4000')
     .blur();
   cy
     .get('input[name="survey.pm_survey_spouse_progear_weight_estimate"]')
+    .clear()
     .first()
-    .type('8000')
+    .type('800')
     .blur();
   cy
-    .get('input[name="survey.pm_survey_notes"]')
+    .get('textarea[name="survey.pm_survey_notes"]')
+    .clear()
     .first()
     .type('Notes notes notes')
     .blur();
@@ -60,7 +69,7 @@ export function testPremoveSurvey() {
   fillAndSavePremoveSurvey();
 
   // Verify data has been saved in the UI
-  cy.get('span').contains('7,000 lbs');
+  cy.get('span').contains('4,000 lbs');
 
   // Refresh browser and make sure changes persist
   cy.reload();
@@ -68,6 +77,6 @@ export function testPremoveSurvey() {
   cy
     .get('div.pm_survey_planned_delivery_date')
     .get('span')
-    .contains('7,000 lbs');
+    .contains('4,000 lbs');
   cy.get('div.pm_survey_notes').contains('Notes notes notes');
 }

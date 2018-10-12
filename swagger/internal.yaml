@@ -1449,6 +1449,12 @@ definitions:
         example: "2018-04-26"
         readOnly: true
         x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        readOnly: true
+        x-nullable: true
       actual_delivery_date:
         type: string
         format: date
@@ -1529,6 +1535,12 @@ definitions:
         title: Spouse's Pro-Gear
         x-nullable: true
         x-formatting: weight
+      pm_survey_conducted_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: 'Conducted'
+        x-nullable: true
       pm_survey_planned_pack_date:
         type: string
         format: date
@@ -1582,9 +1594,10 @@ definitions:
         x-formatting: weight
       pm_survey_notes:
         type: string
+        format: textarea
         example: This document is good to go!
         x-nullable: true
-        title: Notes
+        title: Notes about dates
       pm_survey_method:
         type: string
         title: Survey method
@@ -2230,9 +2243,20 @@ definitions:
       - last_modified_date
       - last_modified_name
       - created_at
-  MoveDatesSummaryPayload:
+  MoveDatesSummary:
     type: object
     properties:
+      id:
+        type: string
+        example: "c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25"
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_date:
+        type: string
+        format: date
+        example: "2018-09-25"
       pack:
         type: array
         items:
@@ -2264,11 +2288,30 @@ definitions:
           format: date
           example: "2018-09-25"
     required:
+      - id
+      - move_id
+      - move_date
       - pack
       - pickup
       - transit
       - delivery
       - report
+  AvailableMoveDates:
+    type: object
+    properties:
+      start_date:
+        type: string
+        format: date
+        example: "2018-09-25"
+      available:
+        type: array
+        items:
+          type: string
+          format: date
+          example: "2018-09-25"
+    required:
+      - start_date
+      - available
 paths:
   /estimates/ppm:
     get:
@@ -3406,7 +3449,7 @@ paths:
           required: true
           description: UUID of the move
         - in: query
-          name: move_date
+          name: moveDate
           type: string
           format: date
           required: true
@@ -3415,7 +3458,7 @@ paths:
         200:
           description: List of projected move-related dates
           schema:
-            $ref: '#/definitions/MoveDatesSummaryPayload'
+            $ref: '#/definitions/MoveDatesSummary'
         400:
           description: invalid request
         401:
@@ -4062,7 +4105,7 @@ paths:
         - calendar
       parameters:
         - in: query
-          name: start_date
+          name: startDate
           type: string
           format: date
           required: true
@@ -4071,11 +4114,7 @@ paths:
         200:
           description: List of available dates
           schema:
-            type: array
-            items:
-              type: string
-              format: date
-              example: "2018-09-25"
+            $ref: '#/definitions/AvailableMoveDates'
         400:
           description: invalid request
         401:
