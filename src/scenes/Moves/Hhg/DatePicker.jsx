@@ -121,6 +121,7 @@ export class HHGDatePicker extends Component {
 HHGDatePicker.propTypes = {
   input: PropTypes.object.isRequired,
   currentShipment: PropTypes.object,
+  availableMoveDates: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
