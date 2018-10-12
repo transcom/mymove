@@ -18,10 +18,10 @@ import {
   getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
 import {
-  getAllAccessorials,
-  selectAccessorials,
-  getAccessorialsLabel,
-} from 'shared/Entities/modules/accessorials';
+  getAllTariff400ngItems,
+  selectTariff400ngItems,
+  getTariff400ngItemsLabel,
+} from 'shared/Entities/modules/tariff400ngItems';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -151,7 +151,7 @@ class ShipmentInfo extends Component {
       getShipmentDocumentsLabel,
       this.props.match.params.shipmentId,
     );
-    this.props.getAllAccessorials(getAccessorialsLabel);
+    this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
   }
 
   acceptShipment = () => {
@@ -263,7 +263,7 @@ class ShipmentInfo extends Component {
                 <div className="office-tab">
                   <PreApprovalPanel
                     shipment_accessorials={shipment_accessorials}
-                    accessorials={this.props.accessorials}
+                    tariff400ngItems={this.props.tariff400ngItems}
                   />
                   <Dates
                     title="Dates"
@@ -389,7 +389,7 @@ const mapStateToProps = state => {
     shipment,
     deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state),
-    accessorials: selectAccessorials(state),
+    tariff400ngItems: selectTariff400ngItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(
       state,
@@ -424,7 +424,7 @@ const mapDispatchToProps = dispatch =>
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
-      getAllAccessorials,
+      getAllTariff400ngItems,
     },
     dispatch,
   );

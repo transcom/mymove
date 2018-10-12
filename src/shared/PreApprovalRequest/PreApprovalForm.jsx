@@ -8,7 +8,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './PreApprovalRequest.css';
 
-const Codes = accessorials => props => {
+const Codes = tariff400ngItems => props => {
   let value, onChange;
   if (props.input) {
     value = props.input.value;
@@ -24,7 +24,7 @@ const Codes = accessorials => props => {
   return (
     <select onChange={localOnChange} value={value}>
       <option />
-      {accessorials.map(e => (
+      {tariff400ngItems.map(e => (
         <option key={e.id} value={e.id}>
           {e.code} {e.item}
         </option>
@@ -38,12 +38,12 @@ export class PreApprovalForm extends Component {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid">
-          <div className="usa-width-two-thirds">
+          <div className="usa-width-one-half">
             <SwaggerField
               fieldName="accessorial"
               title="Code & Item"
               className="rounded"
-              component={Codes(this.props.accessorials)}
+              component={Codes(this.props.tariff400ngItems)}
               swagger={this.props.ship_accessorial_schema}
               required
             />
@@ -60,7 +60,7 @@ export class PreApprovalForm extends Component {
               required
             />
           </div>
-          <div className="usa-width-one-third">
+          <div className="usa-width-one-half">
             <SwaggerField
               fieldName="notes"
               className="three-quarter-width"
@@ -75,7 +75,7 @@ export class PreApprovalForm extends Component {
 
 PreApprovalForm.propTypes = {
   schema: PropTypes.object,
-  accessorials: PropTypes.array,
+  tariff400ngItems: PropTypes.array,
   onSubmit: PropTypes.func.isRequired,
 };
 

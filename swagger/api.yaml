@@ -145,10 +145,12 @@ definitions:
       - ORIGIN
       - DESTINATION
       - NEITHER
+      - EITHER
     x-display-value:
       ORIGIN: Origin
       DESTINATION: Destination
       NEITHER: Neither
+      EITHER: Either
   AccessorialStatus:
     type: string
     title: Status
