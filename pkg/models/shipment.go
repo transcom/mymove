@@ -61,6 +61,7 @@ type Shipment struct {
 	Market                              *string                  `json:"market" db:"market"`
 	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
 	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
+	OriginalDeliveryDate                *time.Time               `json:"original_delivery_date" db:"original_delivery_date"`
 	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
 	Move                                Move                     `belongs_to:"move"`
 	Status                              ShipmentStatus           `json:"status" db:"status"`
