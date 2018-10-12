@@ -17,10 +17,14 @@ export class DatesSummary extends Component {
 
   displayDateRange(dates) {
     let span = '';
+    let firstDate = '';
     if (dates.length > 1) {
       span = ` - ${this.formatDate(dates[dates.length - 1])}`;
     }
-    return this.formatDate(dates[0]) + span;
+    if (dates.length >= 1) {
+      firstDate = this.formatDate(dates[0]);
+    }
+    return firstDate + span;
   }
 
   render() {
