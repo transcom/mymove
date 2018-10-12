@@ -23,11 +23,9 @@ If you need to change the database schema, you'll need to write a migration.
 
 Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `./bin/soda` that sets the go environment and working directory correctly.
 
-If you are generating a new model, use: `./bin/gen_model model-name column-name:type column-name:type ...`.
+If you are generating a new model, use: `./bin/gen_model model-name column-name:type column-name:type ...`. The fields `id`, `created_at`, and `updated_at` are all created automatically.
 
-`id`, `created_at`, and `updated_at` are all created automatically.
-
-If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created files.
+If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
 
 **Note**: We don't use down-migrations to revert changes to the schema; any problems are to be fixed by a follow-up migration.
 
