@@ -1,6 +1,0 @@
-rename_column("personally_procured_moves", "pickup_postal_code", "pickup_zip")
-rename_column("personally_procured_moves", "destination_postal_code", "destination_zip")
-
-drop_column("personally_procured_moves", "has_additional_postal_code", "bool", {"null": true})
-drop_column("personally_procured_moves", "has_sit", "bool", {"null": true})
-

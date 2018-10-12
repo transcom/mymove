@@ -1,1 +1,0 @@
-drop_index("blackout_dates", "blackout_dates_index")

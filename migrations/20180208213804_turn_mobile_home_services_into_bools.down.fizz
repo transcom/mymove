@@ -1,6 +1,0 @@
-add_column("form1299s", "mobile_home_services_requested", "string", { "null": true })
-drop_column("form1299s", "mobile_home_contents_packed_requested")
-drop_column("form1299s", "mobile_home_blocked_requested")
-drop_column("form1299s", "mobile_home_unblocked_requested")
-drop_column("form1299s", "mobile_home_stored_at_origin_requested")
-drop_column("form1299s", "mobile_home_stored_at_destination_requested")

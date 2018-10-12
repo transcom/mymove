@@ -1,10 +1,21 @@
+############
+#
+# Caches
+#
+# Caches may have a `v1-` prefix, since caches in CircleCI 2.0 are immutable.
+# A prefix provides an easy way to invalidate a cache.  See https://circleci.com/docs/2.0/caching/#clearing-cache
+#
+############
+
 version: "2.1"
 
 executors:
+  # `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
   mymove:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+  # `mymove_and_postgres` adds a secondary `postgres:10.1` container and is used during testing.
   mymove_and_postgres:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
@@ -115,6 +126,7 @@ commands:
 
 jobs:
 
+  # `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
   pre_deps_golang:
     executor: mymove
     steps:
@@ -128,16 +140,19 @@ jobs:
       - run:
           name: Install dependencies
           command: dep ensure -vendor-only
+      # `go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}` is used to caches sources for dep, the Go dependency manager.
       - save_cache:
           key: go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/pkg/dep/sources
+      # `mymove-vendor-{{ checksum "Gopkg.lock" }}` is used for caching the vendor directory for mymove.
       - save_cache:
           key: mymove-vendor-{{ checksum "Gopkg.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/vendor
       - announce_failure
 
+  # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
   pre_deps_yarn:
     executor: mymove
     steps:
@@ -151,16 +166,19 @@ jobs:
       - run:
           name: Install YARN dependencies
           command: yarn install
+      # `v1-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn/v2
+      # `v1-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
       - save_cache:
           key: v1-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
             - ~/go/src/github.com/transcom/mymove/node_modules
       - announce_failure
 
+  # `pre_test` runs pre-commit against all files.
   pre_test:
     executor: mymove
     steps:
@@ -196,12 +214,14 @@ jobs:
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
+      # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
       - announce_failure
 
+  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
     executor: mymove_and_postgres
     steps:
@@ -279,45 +299,63 @@ jobs:
           path: cypress/screenshots
       - store_test_results:
           path: cypress/results
+      # `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
       - save_cache:
           key: v1-cache-cypress-3.1.0
           paths:
             - ~/.cache/Cypress/3.1.0
       - announce_failure
 
-  vuln_scan:
-    executor: mymove
+  # `server_test` runs the server side Go tests
+  server_test:
+    executor: mymove_and_postgres
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          # This is needed to use `psql` to test DB connectivity, until the app
+          # itself starts making database connections.
+          name: Install postgres client
+          command: |
+            sudo apt-get -qq update
+            sudo apt-get -qq -y install postgresql-client-9.6
+      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run:
+          name: make server_test
+          command: make server_test
+          environment:
+            # Env vars needed by the `bin/apply-secure-migrations.sh` script
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
+            SECURE_MIGRATION_SOURCE: local
+
+  # `client_test` runs the client side Javascript tests
+  client_test:
+    executor: mymove
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run:
-          name: Authenticate with Snyk
-          command: npx snyk auth $SNYK_API_TOKEN
-      - run:
-          name: Add Go binaries to path
-          command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate
-          command: make server_generate
-      - run:
-          name: Scan JavaScript dependencies for known vulnerabilities
-          command: npx snyk test --file=package.json || exit 0
-      - run:
-          name: Scan Go dependencies for known vulnerabilities
-          command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
-      - announce_failure
+      - run: make client_test
 
+  # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
   build_tools:
     executor: mymove
     steps:
@@ -330,6 +368,7 @@ jobs:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run: make build_tools
 
+  # `build_app` builds the application container and pushes to the container repository
   build_app:
     executor: mymove_and_postgres
     steps:
@@ -348,36 +387,16 @@ jobs:
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run:
-          # This is needed to use `psql` to test DB connectivity, until the app
-          # itself starts making database connections.
-          name: Install postgres client
-          command: |
-            sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-9.6
-
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run: make deps
-      - run: make client_build
-      - run: make client_test
-      - run:
-          name: make server_test
-          command: make server_test
-          environment:
-            # Env vars needed by the `bin/apply-secure-migrations.sh` script
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT: 5432
-            DB_NAME: test_db
-            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+      # TODO (dynamike): Move the building chamber binary into the Makefile
+      - run: go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
+      - run: make build
       - build_tag_push:
           dockerfile: Dockerfile
           tag: ppp:web-dev
           repo: app
       - announce_failure
 
+  # `build_migrations` builds the migrations container and pushes to the container repository
   build_migrations:
     executor: mymove
     steps:
@@ -390,6 +409,7 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `deploy_experimental_migrations` deploys migrations to the experimental environment
   deploy_experimental_migrations:
     executor: mymove
     environment:
@@ -397,6 +417,7 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
     executor: mymove
     environment:
@@ -405,6 +426,7 @@ jobs:
       - deploy_app_steps:
           health_check_url: "https://my.experimental.move.mil/health"
 
+  # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
     executor: mymove
     environment:
@@ -413,6 +435,7 @@ jobs:
       - deploy_app_client_tls_steps:
           health_check_url: "https://office.experimental.move.mil/health"
 
+  # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
     executor: mymove
     environment:
@@ -420,6 +443,7 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
     executor: mymove
     environment:
@@ -428,6 +452,7 @@ jobs:
       - deploy_app_steps:
           health_check_url: "https://my.staging.move.mil/health"
 
+  # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
     executor: mymove
     environment:
@@ -436,6 +461,7 @@ jobs:
       - deploy_app_client_tls_steps:
           health_check_url: "https://office.staging.move.mil/health"
 
+  # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
     executor: mymove
     environment:
@@ -443,6 +469,7 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
     executor: mymove
     environment:
@@ -451,6 +478,7 @@ jobs:
       - deploy_app_steps:
           health_check_url: "https://my.move.mil/health"
 
+  # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
     executor: mymove
     environment:
@@ -459,6 +487,8 @@ jobs:
       - deploy_app_client_tls_steps:
           health_check_url: "https://office.move.mil/health"
 
+  # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.
+  # The changes are submitted as a pull request for review.
   update_dependencies:
     executor: mymove
     steps:
@@ -498,15 +528,18 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      #- vuln_scan # keep disabled until we work out new process
-      #  requires:
-      #    - pre_deps_golang
-      #    - pre_deps_yarn
-
       - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+
+      - client_test:
+          requires:
+            - pre_deps_yarn
+
+      - server_test:
+          requires:
+            - pre_deps_golang
 
       - build_app:
           requires:
@@ -525,32 +558,34 @@ workflows:
       - deploy_experimental_migrations:
           requires:
             - pre_test
-            #- vuln_scan # keep disabled until we work out new process
+            - client_test
+            - server_test
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
           filters:
             branches:
-              only: mutual_tls_health_check
+              only: mk-split-jobs
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mutual_tls_health_check
+              only: mk-split-jobs
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mutual_tls_health_check
+              only: mk-split-jobs
 
       - deploy_staging_migrations:
           requires:
             - pre_test
-            #- vuln_scan # keep disabled until we work out new process
+            - client_test
+            - server_test
             - build_app
             - build_tools
             - build_migrations
