@@ -1,5 +1,0 @@
-drop_foreign_key("orders", "uploaded_orders_id", {"if_exists": true})
-drop_column("orders", "uploaded_orders_id")
-
-add_column("documents", "uploader_id", "uuid", {})
-add_foreign_key("documents", "uploader_id", {"users": ["id"]}, {})

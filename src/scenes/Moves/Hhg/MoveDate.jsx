@@ -114,6 +114,7 @@ export class MoveDate extends Component {
             name="requested_pickup_date"
             component={DatePicker}
             availableMoveDates={this.props.availableMoveDates}
+            currentShipment={this.props.currentShipment}
           />
         </div>
       </MoveDateWizardForm>

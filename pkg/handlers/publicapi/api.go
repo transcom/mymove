@@ -28,6 +28,8 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
 	publicAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
 	publicAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
+	publicAPI.UploadsCreateUploadHandler = CreateUploadHandler{context}
+	publicAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{context}
 
 	// Shipments
 	publicAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler{context}
@@ -45,8 +47,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.AccessorialsUpdateShipmentAccessorialHandler = UpdateShipmentAccessorialHandler{context}
 	publicAPI.AccessorialsCreateShipmentAccessorialHandler = CreateShipmentAccessorialHandler{context}
 	publicAPI.AccessorialsDeleteShipmentAccessorialHandler = DeleteShipmentAccessorialHandler{context}
-
-	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 
 	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 

@@ -4,20 +4,32 @@ import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  editablePanelify,
+  PanelField,
+} from 'shared/EditablePanel';
+import { formatWeight } from 'shared/formatters';
 
-const weightsFields = ['actual_weight'];
+const weightsFields = [
+  'net_weight',
+  'gross_weight',
+  'tare_weight',
+  'pm_survey_weight_estimate',
+  'pm_survey_progear_weight_estimate',
+  'pm_survey_spouse_progear_weight_estimate',
+];
 
 const WeightsDisplay = props => {
   const fieldProps = {
     schema: props.shipmentSchema,
     values: props.shipment,
   };
+  const values = props.shipment;
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <div className="column-head">Weights</div>
-        <div className="column-subhead">Total weight</div>
+        <div className="column-subhead">Weight</div>
         <PanelSwaggerField
           fieldName="weight_estimate"
           required
@@ -30,35 +42,31 @@ const WeightsDisplay = props => {
           title="TSP estimate"
           {...fieldProps}
         />
-        <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
+        <PanelSwaggerField
+          title="Actual"
+          fieldName="net_weight"
+          required
+          {...fieldProps}
+        />
       </div>
       <div className="editable-panel-column">
-        <div className="column-subhead">Pro-gear</div>
-        <PanelSwaggerField
-          fieldName="progear_weight_estimate"
-          required
-          title="Customer estimate"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          fieldName="pm_survey_progear_weight_estimate"
-          required
-          title="TSP estimate"
-          {...fieldProps}
-        />
-        <div className="column-subhead">Spouse pro-gear</div>
-        <PanelSwaggerField
-          fieldName="spouse_progear_weight_estimate"
-          required
-          title="Customer estimate"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          fieldName="pm_survey_spouse_progear_weight_estimate"
-          required
-          title="TSP estimate"
-          {...fieldProps}
-        />
+        <div className="column-subhead">Pro-gear (Service member + spouse)</div>
+        <PanelField title="Customer estimate">
+          <span>
+            {`${formatWeight(values.progear_weight_estimate)} + ${formatWeight(
+              values.spouse_progear_weight_estimate,
+            )}`}
+          </span>
+        </PanelField>
+        <PanelField title="TSP estimate">
+          <span>
+            {`${formatWeight(
+              values.pm_survey_progear_weight_estimate,
+            )} + ${formatWeight(
+              values.pm_survey_spouse_progear_weight_estimate,
+            )}`}
+          </span>
+        </PanelField>
       </div>
     </Fragment>
   );
@@ -70,12 +78,12 @@ const WeightsEdit = props => {
     schema,
     values: props.shipment,
   };
+  const values = props.shipment;
   return (
     <Fragment>
       <FormSection name="weights">
         <div className="editable-panel-column">
           <div className="column-head">Weights</div>
-          <div className="column-subhead">Total weight</div>
           <PanelSwaggerField
             fieldName="weight_estimate"
             required
@@ -88,35 +96,54 @@ const WeightsEdit = props => {
             title="TSP estimate"
             {...fieldProps}
           />
-          <SwaggerField fieldName="actual_weight" swagger={schema} required />
+          <div className="column-subhead">Actual Weights</div>
+          <SwaggerField
+            className="short-field"
+            fieldName="gross_weight"
+            swagger={schema}
+            required
+          />{' '}
+          lbs
+          <SwaggerField
+            className="short-field"
+            fieldName="tare_weight"
+            swagger={schema}
+            required
+          />{' '}
+          lbs
+          <SwaggerField
+            title="Net (Gross - Tare)"
+            className="short-field"
+            fieldName="net_weight"
+            swagger={schema}
+            required
+          />{' '}
+          lbs
         </div>
         <div className="editable-panel-column">
-          <div className="column-subhead">Pro-gear</div>
-          <PanelSwaggerField
-            fieldName="progear_weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
-          <PanelSwaggerField
+          <div className="column-head">Pro-gear (Service member + spouse)</div>
+          <PanelField title="Customer estimate">
+            <span>
+              {`${formatWeight(
+                values.progear_weight_estimate,
+              )} + ${formatWeight(values.spouse_progear_weight_estimate)}`}
+            </span>
+          </PanelField>
+          <div className="column-subhead">TSP Estimate</div>
+          <SwaggerField
+            className="short-field"
             fieldName="pm_survey_progear_weight_estimate"
-            required
-            title="TSP estimate"
-            {...fieldProps}
-          />
-          <div className="column-subhead">Spouse pro-gear</div>
-          <PanelSwaggerField
-            fieldName="spouse_progear_weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
-          <PanelSwaggerField
+            title="Service member"
+            swagger={schema}
+          />{' '}
+          lbs
+          <SwaggerField
+            className="short-field"
             fieldName="pm_survey_spouse_progear_weight_estimate"
-            required
-            title="TSP estimate"
-            {...fieldProps}
-          />
+            title="Spouse"
+            swagger={schema}
+          />{' '}
+          lbs
         </div>
       </FormSection>
     </Fragment>
@@ -134,6 +161,7 @@ WeightsPanel = reduxForm({
 
 WeightsPanel.propTypes = {
   shipment: PropTypes.object,
+  schema: PropTypes.object,
 };
 
 function mapStateToProps(state, props) {
