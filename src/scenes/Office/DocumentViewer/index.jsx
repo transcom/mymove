@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { includes, get } from 'lodash';
 import qs from 'query-string';
 
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
@@ -17,18 +18,28 @@ import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import DocumentDetailPanel from './DocumentDetailPanel';
 
-import DocumentUploader from './DocumentUploader';
+import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import {
   selectAllDocumentsForMove,
   getMoveDocumentsForMove,
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
+import { convertDollarsToCents } from 'shared/utils';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import './index.css';
 class DocumentViewer extends Component {
+  static propTypes = {
+    docTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+    loadMoveDependencies: PropTypes.func.isRequired,
+    getMoveDocumentsForMove: PropTypes.func.isRequired,
+    genericMoveDocSchema: PropTypes.object.isRequired,
+    moveDocSchema: PropTypes.object.isRequired,
+    moveDocuments: PropTypes.arrayOf(PropTypes.object),
+    location: PropTypes.object.isRequired,
+  };
   componentDidMount() {
     //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
@@ -37,6 +48,61 @@ class DocumentViewer extends Component {
   componentWillUpdate() {
     document.title = 'Document Viewer';
   }
+
+  get getDocumentUploaderProps() {
+    const {
+      docTypes,
+      location,
+      genericMoveDocSchema,
+      moveDocSchema,
+    } = this.props;
+    // Parse query string parameters
+    const moveDocumentType = qs.parse(location.search).moveDocumentType;
+
+    const initialValues = {};
+    // Verify the provided doc type against the schema
+    if (includes(docTypes, moveDocumentType)) {
+      initialValues.move_document_type = moveDocumentType;
+    }
+
+    return {
+      form: 'move_document_upload',
+      isPublic: false,
+      onSubmit: this.handleSubmit,
+      genericMoveDocSchema,
+      initialValues,
+      location,
+      moveDocSchema,
+    };
+  }
+
+  handleSubmit = (uploadIds, formValues) => {
+    const { currentPpm, move } = this.props;
+    if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
+      formValues.requested_amount_cents = convertDollarsToCents(
+        formValues.requested_amount_cents,
+      );
+      return this.props.createMovingExpenseDocument(
+        move.id,
+        currentPpm.id,
+        uploadIds,
+        formValues.title,
+        formValues.moving_expense_type,
+        formValues.move_document_type,
+        formValues.requested_amount_cents,
+        formValues.payment_method,
+        formValues.notes,
+      );
+    }
+    return this.props.createMoveDocument(
+      move.id,
+      currentPpm.id,
+      uploadIds,
+      formValues.title,
+      formValues.move_document_type,
+      formValues.notes,
+    );
+  };
   render() {
     const { serviceMember, move, moveDocuments } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
@@ -50,9 +116,6 @@ class DocumentViewer extends Component {
     const defaultPath = `/moves/:moveId/documents`;
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
-
-    // Parse query string parameters
-    const queryValues = qs.parse(this.props.location.search);
 
     const defaultTabIndex =
       this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
@@ -86,11 +149,7 @@ class DocumentViewer extends Component {
                 moveId={move.id}
                 render={() => {
                   return (
-                    <DocumentUploader
-                      moveId={move.id}
-                      moveDocumentType={queryValues.move_document_type}
-                      location={this.props.location}
-                    />
+                    <DocumentUploader {...this.getDocumentUploaderProps} />
                   );
                 }}
               />
@@ -159,12 +218,23 @@ class DocumentViewer extends Component {
   }
 }
 
-DocumentViewer.propTypes = {
-  loadMoveDependencies: PropTypes.func.isRequired,
-};
-
 const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
+  genericMoveDocSchema: get(
+    state,
+    'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
+    {},
+  ),
+  moveDocSchema: get(
+    state,
+    'swaggerInternal.spec.definitions.MoveDocumentPayload',
+    {},
+  ),
+  currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+  docTypes: get(
+    state,
+    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
+    [],
+  ),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
   moveDocuments: selectAllDocumentsForMove(
@@ -177,10 +247,9 @@ const mapStateToProps = state => ({
   error: state.office.error,
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { loadMoveDependencies, getMoveDocumentsForMove },
-    dispatch,
-  );
-
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);
+export default connect(mapStateToProps, {
+  createMoveDocument,
+  createMovingExpenseDocument,
+  loadMoveDependencies,
+  getMoveDocumentsForMove,
+})(DocumentViewer);
