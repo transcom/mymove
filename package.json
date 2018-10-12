@@ -90,9 +90,6 @@
     },
     "/downloads": {
       "target": "http://localhost:8080"
-    },
-    "/dps/": {
-      "target": "http://localhost:8080"
     }
   },
   "version": "0.1.0",
