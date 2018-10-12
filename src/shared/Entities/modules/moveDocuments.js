@@ -3,7 +3,7 @@ import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
 
-import { getClient, checkResponse } from 'shared/Swagger/api';
+import { getClient, getPublicClient, checkResponse } from 'shared/Swagger/api';
 
 export const STATE_KEY = 'moveDocuments';
 
@@ -55,6 +55,26 @@ export function createMoveDocument(
         move_document_type: moveDocumentType,
         notes: notes,
       },
+    });
+    checkResponse(
+      response,
+      'failed to create move document due to server error',
+    );
+    const data = normalize(response.body, schema.moveDocument);
+    dispatch(addEntities(data.entities));
+    return response;
+  };
+}
+
+export function createShipmentDocument(
+  shipmentId,
+  createGenericMoveDocumentPayload,
+) {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getPublicClient();
+    const response = await client.apis.move_docs.createGenericMoveDocument({
+      shipmentId,
+      createGenericMoveDocumentPayload,
     });
     checkResponse(
       response,

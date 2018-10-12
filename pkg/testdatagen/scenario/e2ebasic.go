@@ -1,9 +1,10 @@
 package scenario
 
 import (
-	"github.com/go-openapi/swag"
 	"log"
 	"time"
+
+	"github.com/go-openapi/swag"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -978,8 +979,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg14.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg14.Move)
 
-	/*
-	 * Service member with an in progress for doc testing on TSP side
+	/* Service member with an in progress for doc testing on TSP side
 	 */
 	email = "doc.viewer@tsp.org"
 
@@ -1019,8 +1019,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg15.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg15.Move)
 
-	/*
-	 * Service member with an in progress for testing delivery address
+	/* Service member with an in progress for testing delivery address
 	 */
 	email = "duty.station@tsp.org"
 
@@ -1059,6 +1058,48 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg16 := offer16.Shipment
 	hhg16.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg16.Move)
+
+	/*
+	 * Service member with a in progress for doc upload testing on TSP side
+	 */
+	email = "doc.upload@tsp.org"
+
+	offer17 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("0d033463-09fd-498b-869d-30cda1c95599")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("98b21b35-9709-4da8-9d42-a2e887cf1e6c"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("9999888777"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("787c0921-7696-400e-86f5-c1bcb8bb88a3"),
+			Locator:          "DOCUPL",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("ad3ee670-6978-46e1-bcfc-686cdd4ffa87"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			ID:                 uuid.FromStringOrNil("65e00326-420e-436a-89fc-6aeb3f90b870"),
+			Status:             models.ShipmentStatusAWARDED,
+			ActualDeliveryDate: nil,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg17 := offer17.Shipment
+	hhg17.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg17.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation

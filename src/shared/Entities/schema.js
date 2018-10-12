@@ -71,6 +71,8 @@ moveDocument.define({
   move: move,
 });
 
+export const moveDocumentPayload = moveDocument;
+
 // AvailableMoveDates
 export const availableMoveDates = new schema.Entity(
   'availableMoveDates',
