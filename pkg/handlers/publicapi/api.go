@@ -48,6 +48,8 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.AccessorialsCreateShipmentAccessorialHandler = CreateShipmentAccessorialHandler{context}
 	publicAPI.AccessorialsDeleteShipmentAccessorialHandler = DeleteShipmentAccessorialHandler{context}
 
+	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
+
 	// Service Agents
 	publicAPI.ServiceAgentsIndexServiceAgentsHandler = IndexServiceAgentsHandler{context}
 	publicAPI.ServiceAgentsCreateServiceAgentHandler = CreateServiceAgentHandler{context}

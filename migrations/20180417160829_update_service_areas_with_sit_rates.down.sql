@@ -1,3 +1,0 @@
-ALTER TABLE tariff400ng_service_areas DROP COLUMN sit_185a_rate_cents;
-ALTER TABLE tariff400ng_service_areas DROP COLUMN sit_185b_rate_cents;
-ALTER TABLE tariff400ng_service_areas DROP COLUMN sit_pd_schedule;

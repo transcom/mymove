@@ -349,7 +349,11 @@ const mapStateToProps = state => {
   // if they do not have a delivery address, default to the station's address info
   const deliveryAddress = shipment.has_delivery_address
     ? shipment.delivery_address
-    : newDutyStation;
+    : {
+        city: newDutyStation.city,
+        state: newDutyStation.state,
+        postal_code: newDutyStation.postal_code,
+      };
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
