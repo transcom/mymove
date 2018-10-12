@@ -4,11 +4,11 @@ State that is specific to the UI should be set by dispatching an action and acce
 example of how this might work for managing which of a list of Shipments is currently selected in the UI:
 
 ```javascript
-// import { get } from 'lodash';
-// import PropTypes from 'prop-types';
-// import React, { Component} from 'react';
-// import { connect } from 'react-redux';
-// import { bindActionCreators } from 'redux';
+import { get } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component} from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import { lastError } from 'shared/Swagger/ducks';
 import { allShipments, selectShipment } from 'shared/Entities/modules/shipments';
