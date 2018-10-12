@@ -30,10 +30,10 @@ describe('The document viewer', function() {
   });
 
   it('can upload a new document', () => {
-    // cy.visit('/shipments/3ec119bd-1aba-433f-8ad2-c8939f4a8676/documents/new');
-    // cy.contains('Upload a new document');
+    cy.visit('/shipments/3ec119bd-1aba-433f-8ad2-c8939f4a8676/documents/new');
+    cy.contains('Upload a new document');
+    cy.get('button.submit').should('be.disabled');
     // cy.get('input[name="title"]').type('super secret info document');
-    // cy.get('button.submit').should('be.disabled');
     // cy.get('select[name="move_document_type"]').select('Other document type');
     // cy.get('input[name="notes"]').type('burn after reading');
     // cy.get('button.submit').should('be.disabled');
