@@ -33,20 +33,12 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		suite.MustSave(&newMove)
 
 		// Make a PPM
-		newMove.CreatePPM(suite.TestDB(),
-			nil,
-			models.Int64Pointer(8000),
-			models.TimePointer(testdatagen.DateInsidePeakRateCycle),
-			models.StringPointer("72017"),
-			models.BoolPointer(false),
-			nil,
-			models.StringPointer("60605"),
-			models.BoolPointer(false),
-			nil,
-			models.StringPointer("estimate sit"),
-			true,
-			nil,
-		)
+		testdatagen.MakePPM(suite.TestDB(), testdatagen.Assertions{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{
+				Move:   newMove,
+				MoveID: newMove.ID,
+			},
+		})
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
