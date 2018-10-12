@@ -55,11 +55,25 @@ function tspUserGeneratesGBL() {
   cy
     .get('button')
     .contains('Generate Bill of Lading')
+    .should('be.disabled');
+
+  cy.reload();
+
+  cy.wait(500);
+
+  cy
+    .get('button')
+    .contains('Generate Bill of Lading')
     .click();
 
   cy
-    .get('.usa-alert-warning')
+    .get('.usa-alert-warning', { timeout: 20000 })
     .contains('There is already a GBL for this shipment. ');
+
+  cy
+    .get('button')
+    .contains('Generate Bill of Lading')
+    .should('be.disabled');
 }
 
 function tspUserViewsGBL() {
