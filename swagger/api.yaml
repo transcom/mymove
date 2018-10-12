@@ -222,12 +222,14 @@ definitions:
         $ref: '#/definitions/Tariff400ngItem'
       quantity_1:
         type: integer
+        format: basequantity
         title: Base Quantity
         description: 1st Accessorial base quantity
         minimum: 0
-        example: 16.7
+        example: 167000
       quantity_2:
         type: integer
+        format: basequantity
         title: 2nd Quantity
         description: 2nd Accessorial base quantity
         minimum: 0
@@ -949,14 +951,30 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Spouse Progear Weight Estimate
-      actual_weight:
+      net_weight:
         type: integer
-        description: Actual weight of the shipment in lbs
+        description: Actual net weight of the shipment in lbs
         minimum: 0
         example: 10000
         x-nullable: true
         x-formatting: weight
-        title: Actual Weight
+        title: Net
+      gross_weight:
+        type: integer
+        description: Gross weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Gross
+      tare_weight:
+        type: integer
+        description: Tare weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Tare
       pm_survey_conducted_date:
         type: string
         format: date

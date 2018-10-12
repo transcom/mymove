@@ -1,1 +1,0 @@
-rename_column("shipments", "source_gbloc", "gbloc")

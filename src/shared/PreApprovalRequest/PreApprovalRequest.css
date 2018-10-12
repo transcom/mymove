@@ -1,0 +1,120 @@
+
+/*PreApproval Table styles*/
+.accessorial-panel {
+  border-width: 3px;
+  empty-cells: hide;
+  margin-bottom: 18px;
+}
+.accessorial-panel table {
+  table-layout: fixed;
+  display: table;
+  width: 100%;
+  border-spacing: 2px;
+}
+
+/* Custom widths for columns in the preapproval request table */
+/*Code, Loc. */
+.accessorial-panel table > tbody > tr > th:nth-child(1),
+.accessorial-panel table > tbody > tr > th:nth-child(3) {
+  width: 4%;
+}
+/*Base Quantity*/
+.accessorial-panel table > tbody > tr > th:nth-child(4) {
+  width: 7%;
+}
+/*Item*/
+.accessorial-panel table > tbody > tr > th:nth-child(2) {
+  width: 15%;
+}
+/*Notes*/
+.accessorial-panel table > tbody > tr > th:nth-child(5) {
+  width: 16%;
+}
+/*Status*/
+.accessorial-panel table > tbody > tr > th:nth-child(7) {
+  width: 12%;
+}
+/* submitted, action icons*/
+.accessorial-panel table > tbody > tr > th:nth-child(6),
+.accessorial-panel table > tbody > tr > th:nth-child(8) {
+  width: 9%;
+}
+
+.accessorial-panel th,
+.accessorial-panel td {
+  border: none;
+  text-align: left;
+}
+
+.accessorial-panel th {
+  font-weight: bold;
+  font-size: 0.8em;
+  border-bottom: solid 1px #a2a2a2;
+  text-align: left;
+  padding: 0rem 2rem 1rem 0rem;
+}
+
+.accessorial-panel table > tbody > tr > td {
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 0.8em;
+  padding: 1rem 1rem 1rem 0rem;
+}
+
+.actionable {
+  color: #0071bc;
+  cursor: pointer;
+}
+
+/*Creator styles*/
+.add-request {
+  margin: 1.5rem 0rem 1.5rem 0rem;
+  cursor: pointer;
+}
+
+.accessorial-panel-modal {
+  border: 3px dashed #00a6d2;
+  padding-left: 1.7rem;
+  padding-right: 1.7rem;
+  padding-top: 8px;
+  padding-bottom: 9px;
+}
+
+.accessorial-panel-modal .title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+.accessorial-panel .align-right {
+  text-align: right !important;
+}
+
+.cancel button {
+  -webkit-box-shadow: inset 0 0 0 0px;
+  -moz-box-shadow: inset 0 0 0 0px;
+  box-shadow: inset 0 0 0 0px;
+}
+
+.cancel button:hover {
+  -webkit-box-shadow: inset 0 0 0 0px;
+  -moz-box-shadow: inset 0 0 0 0px;
+  box-shadow: inset 0 0 0 0px;
+}
+
+/*PreApprovalForm Styles*/
+.three-quarter-width {
+  width: 75%;
+  vertical-align: top;
+}
+
+.half-width {
+  width: 50%;
+  vertical-align: top;
+}
+
+.one-third-width {
+  width: 33%;
+  vertical-align: top;
+}
+
+
+
+
