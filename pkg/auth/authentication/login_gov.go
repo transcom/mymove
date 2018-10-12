@@ -3,6 +3,7 @@ package authentication
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/transcom/mymove/pkg/server"
 	"math/rand"
 	"net/url"
 	"time"
@@ -42,16 +43,7 @@ type LoginGovProvider struct {
 	logger    *zap.Logger
 }
 
-// NewLoginGovProvider returns a new LoginGovProvider
-func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) LoginGovProvider {
-	return LoginGovProvider{
-		hostname:  hostname,
-		secretKey: secretKey,
-		logger:    logger,
-	}
-}
-
-func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, callbackProtocol string, callbackPort string) (goth.Provider, error) {
+func (p *LoginGovProvider) getOpenIDProvider(hostname string, clientID string, callbackProtocol string, callbackPort string) (goth.Provider, error) {
 	return openidConnect.New(
 		clientID,
 		p.secretKey,
@@ -62,28 +54,49 @@ func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, ca
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func (p LoginGovProvider) RegisterProvider(myHostname string, myClientID string, officeHostname string, officeClientID string, tspHostname string, tspClientID string, callbackProtocol string, callbackPort string) error {
+func (p *LoginGovProvider) RegisterProvider(cfg *LoginGovConfig, hosts *server.HostsConfig) error {
 
-	myProvider, err := p.getOpenIDProvider(myHostname, myClientID, callbackProtocol, callbackPort)
+	myProvider, err := p.getOpenIDProvider(hosts.MyName, cfg.MyClientID, cfg.CallbackProtocol, cfg.CallbackPort)
 	if err != nil {
-		p.logger.Error("getting open_id provider", zap.String("host", myHostname), zap.Error(err))
+		p.logger.Error("getting open_id provider", zap.String("host", hosts.MyName), zap.Error(err))
 		return err
 	}
 	myProvider.SetName(myProviderName)
-	officeProvider, err := p.getOpenIDProvider(officeHostname, officeClientID, callbackProtocol, callbackPort)
+	officeProvider, err := p.getOpenIDProvider(hosts.OfficeName, cfg.OfficeClientID, cfg.CallbackProtocol, cfg.CallbackPort)
 	if err != nil {
-		p.logger.Error("getting open_id provider", zap.String("host", officeHostname), zap.Error(err))
+		p.logger.Error("getting open_id provider", zap.String("host", hosts.OfficeName), zap.Error(err))
 		return err
 	}
 	officeProvider.SetName(officeProviderName)
-	tspProvider, err := p.getOpenIDProvider(tspHostname, tspClientID, callbackProtocol, callbackPort)
+	tspProvider, err := p.getOpenIDProvider(hosts.TspName, cfg.TspClientID, cfg.CallbackProtocol, cfg.CallbackPort)
 	if err != nil {
-		p.logger.Error("getting open_id provider", zap.String("host", tspHostname), zap.Error(err))
+		p.logger.Error("getting open_id provider", zap.String("host", hosts.TspName), zap.Error(err))
 		return err
 	}
 	tspProvider.SetName(tspProviderName)
 	goth.UseProviders(myProvider, officeProvider, tspProvider)
 	return nil
+}
+
+// LoginGovConfig contains values needed to register login.gov callbacks for the sites
+type LoginGovConfig struct {
+	Host             string
+	Secret           string
+	MyClientID       string
+	OfficeClientID   string
+	TspClientID      string
+	CallbackProtocol string
+	CallbackPort     string
+}
+
+// NewLoginGovProvider returns a new LoginGovProvider constructed and registered with goth
+func NewLoginGovProvider(cfg *LoginGovConfig, hosts *server.HostsConfig, l *zap.Logger) (*LoginGovProvider, error) {
+	p := &LoginGovProvider{
+		hostname:  cfg.Host,
+		secretKey: cfg.Secret,
+		logger:    l,
+	}
+	return p, p.RegisterProvider(cfg, hosts)
 }
 
 func generateNonce() string {
@@ -96,7 +109,7 @@ func generateNonce() string {
 }
 
 // AuthorizationURL returns a URL for login.gov authorization with required params
-func (p LoginGovProvider) AuthorizationURL(r *http.Request) (string, error) {
+func (p *LoginGovProvider) AuthorizationURL(r *http.Request) (string, error) {
 	provider, err := getLoginGovProviderForRequest(r)
 	if err != nil {
 		p.logger.Error("Get Goth provider", zap.Error(err))
@@ -131,7 +144,7 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (string, error) {
 }
 
 // LogoutURL returns a full URL to log out of login.gov with required params
-func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
+func (p *LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
 	/* #nosec URL is known to be good */
 	logoutPath, _ := url.Parse(fmt.Sprintf("https://%s/openid_connect/logout", p.hostname))
 	// Parameters taken from https://developers.login.gov/oidc/#logout
@@ -146,14 +159,14 @@ func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
 }
 
 // TokenURL returns a full URL to retrieve a user token from login.gov
-func (p LoginGovProvider) TokenURL() string {
+func (p *LoginGovProvider) TokenURL() string {
 	// TODO: Get the token endpoint URL from Goth instead when
 	// https://github.com/markbates/goth/pull/207 is resolved
 	return fmt.Sprintf("https://%s/api/openid_connect/token", p.hostname)
 }
 
 // TokenParams creates query params for use in the token endpoint
-func (p LoginGovProvider) TokenParams(code string, clientID string, expiry time.Time) (url.Values, error) {
+func (p *LoginGovProvider) TokenParams(code string, clientID string, expiry time.Time) (url.Values, error) {
 	clientAssertion, err := p.createClientAssertionJWT(clientID, expiry)
 	params := url.Values{
 		"client_assertion":      {clientAssertion},
@@ -165,7 +178,7 @@ func (p LoginGovProvider) TokenParams(code string, clientID string, expiry time.
 	return params, err
 }
 
-func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.Time) (string, error) {
+func (p *LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.Time) (string, error) {
 	claims := &jwt.StandardClaims{
 		Issuer:    clientID,
 		Subject:   clientID,

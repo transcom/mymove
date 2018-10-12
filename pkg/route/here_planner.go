@@ -190,15 +190,23 @@ func (p *herePlanner) TransitDistance(source *models.Address, destination *model
 	return p.LatLongTransitDistance(srcLatLong, destLatLong)
 }
 
-func addKeysToEndpoint(endpoint *string, id *string, code *string) string {
-	return fmt.Sprintf("%s?app_id=%s&app_code=%s", *endpoint, *id, *code)
+func addKeysToEndpoint(endpoint string, id string, code string) string {
+	return fmt.Sprintf("%s?app_id=%s&app_code=%s", endpoint, id, code)
+}
+
+// HEREConfig is the configuration for connecting to the HERE route planning service
+type HEREConfig struct {
+	RouteEndpoint   string
+	GeocodeEndpoint string
+	AppID           string
+	AppCode         string
 }
 
 // NewHEREPlanner constructs and returns a Planner which uses the HERE Map API to plan routes.
-func NewHEREPlanner(logger *zap.Logger, geocodeEndpoint *string, routeEndpoint *string, appID *string, appCode *string) Planner {
+func NewHEREPlanner(cfg *HEREConfig, logger *zap.Logger) Planner {
 	return &herePlanner{
 		logger:                  logger,
 		httpClient:              http.Client{Timeout: hereRequestTimeout},
-		routeEndPointWithKeys:   addKeysToEndpoint(routeEndpoint, appID, appCode),
-		geocodeEndPointWithKeys: addKeysToEndpoint(geocodeEndpoint, appID, appCode)}
+		routeEndPointWithKeys:   addKeysToEndpoint(cfg.RouteEndpoint, cfg.AppID, cfg.AppCode),
+		geocodeEndPointWithKeys: addKeysToEndpoint(cfg.GeocodeEndpoint, cfg.AppID, cfg.AppCode)}
 }

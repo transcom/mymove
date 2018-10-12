@@ -113,12 +113,21 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 	http.SetCookie(w, &cookie)
 }
 
+// SessionCookieConfig contains secret and other flags for setting session Cookies
+type SessionCookieConfig struct {
+	Secret    string
+	NoTimeout bool
+}
+
 // SessionCookieMiddleware handle serializing and de-serializing the session betweem the user_session cookie and the request context
-func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
+type SessionCookieMiddleware func(next http.Handler) http.Handler
+
+// NewSessionCookieMiddleware is the DI provider for constructing SessionCookieMiddleware
+func NewSessionCookieMiddleware(config *SessionCookieConfig, logger *zap.Logger) SessionCookieMiddleware {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := Session{}
-			claims, ok := sessionClaimsFromRequest(logger, secret, r)
+			claims, ok := sessionClaimsFromRequest(logger, config.Secret, r)
 			if ok {
 				session = claims.SessionValue
 			}
@@ -126,7 +135,7 @@ func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout
 			// And put the session info into the request context
 			ctx := SetSessionInRequestContext(r, &session)
 			// And update the cookie. May get over-ridden later
-			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger)
+			WriteSessionCookie(w, &session, config.Secret, config.NoTimeout, logger)
 			next.ServeHTTP(w, r.WithContext(ctx))
 
 		}

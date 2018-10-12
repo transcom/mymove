@@ -11,11 +11,17 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 )
 
-// Config configures a Zap logger based on the environment string and debugLevel
-func Config(env string, debugLogging bool) (*zap.Logger, error) {
+// Config contains the environment name and debug logging flag for configuring zap.Logging
+type Config struct {
+	Environment  string
+	DebugLogging bool
+}
+
+// NewLogger is the DI provider for constructing a new zap.Logger
+func NewLogger(config *Config) (*zap.Logger, error) {
 	var loggerConfig zap.Config
 
-	if env != "development" {
+	if config.Environment != "development" {
 		loggerConfig = zap.NewProductionConfig()
 	} else {
 		loggerConfig = zap.NewDevelopmentConfig()
@@ -23,12 +29,11 @@ func Config(env string, debugLogging bool) (*zap.Logger, error) {
 
 	loggerConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	if debugLogging {
+	if config.DebugLogging {
 		debug := zap.NewAtomicLevel()
 		debug.SetLevel(zap.DebugLevel)
 		loggerConfig.Level = debug
 	}
-
 	return loggerConfig.Build()
 }
 
