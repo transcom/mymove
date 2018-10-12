@@ -255,8 +255,8 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 		return CostByShipment{}, errors.New("TransportationServiceProviderPerformance is nil")
 	}
 
-	if shipment.ActualWeight == nil {
-		return CostByShipment{}, errors.New("ActualWeight is nil")
+	if shipment.NetWeight == nil {
+		return CostByShipment{}, errors.New("NetWeight is nil")
 	}
 
 	// All required relationships should exist at this point.
@@ -269,7 +269,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 
 	// Apply rate engine to shipment
 	var shipmentCost CostByShipment
-	cost, err := re.ComputeShipment(*shipment.ActualWeight,
+	cost, err := re.ComputeShipment(*shipment.NetWeight,
 		shipment.PickupAddress.PostalCode,
 		shipment.Move.Orders.NewDutyStation.Address.PostalCode,
 		time.Time(*shipment.ActualPickupDate),
