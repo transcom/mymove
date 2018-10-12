@@ -956,7 +956,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	models.SaveMoveDependencies(db, &hhg14.Move)
 
 	/*
-	 * Service member with a in progress for doc testing on TSP side
+	 * Service member with a in progress for doc viewer testing on TSP side
 	 */
 	email = "doc.viewer@tsp.org"
 
@@ -995,6 +995,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg15 := offer15.Shipment
 	hhg15.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg15.Move)
+
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
