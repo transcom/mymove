@@ -31,37 +31,52 @@ function tspUserEntersDates() {
     .click();
 
   // Enter details in form and save dates
+
+  // Conducted Date
+  cy
+    .get('input[name="dates.pm_survey_conducted_date"]')
+    .first()
+    .type('7/20/2018')
+    .blur();
+  cy.get('select[name="dates.pm_survey_method"]').select('PHONE');
+  // Pack Dates
   cy
     .get('input[name="dates.pm_survey_planned_pack_date"]')
     .first()
     .type('8/1/2018')
     .blur();
   cy
+    .get('input[name="dates.actual_pack_date"]')
+    .first()
+    .type('8/2/2018')
+    .blur();
+  // Pickup Dates
+  cy
     .get('input[name="dates.pm_survey_planned_pickup_date"]')
     .first()
     .type('8/2/2018')
     .blur();
+  cy
+    .get('input[name="dates.actual_pickup_date"]')
+    .first()
+    .type('8/3/2018')
+    .blur();
+  // Delivery Dates
   cy
     .get('input[name="dates.pm_survey_planned_delivery_date"]')
     .first()
     .type('10/7/2018')
     .blur();
   cy
-    .get('input[name="dates.pm_survey_conducted_date"]')
+    .get('input[name="dates.actual_delivery_date"]')
     .first()
-    .type('7/20/2018')
-    .blur();
-  cy
-    .get('input[name="dates.actual_pack_date"]')
-    .first()
-    .type('9/25/2018')
-    .blur();
+    .type('10/8/2018');
+  // Notes
   cy
     .get('textarea[name="dates.pm_survey_notes"]')
     .first()
     .type('Notes notes notes for dates')
     .blur();
-  cy.get('select[name="dates.pm_survey_method"]').select('PHONE');
 
   cy
     .get('button')
@@ -79,8 +94,13 @@ function tspUserEntersDates() {
   // Refresh browser and make sure changes persist
   cy.reload();
 
+  cy.get('div.pm_survey_conducted_date').contains('20-Jul-18');
+  cy.get('div.pm_survey_planned_pack_date').contains('01-Aug-18');
+  cy.get('div.actual_pack_date').contains('02-Aug-18');
+  cy.get('div.pm_survey_planned_pickup_date').contains('02-Aug-18');
+  cy.get('div.actual_pickup_date').contains('03-Aug-18');
   cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
-  cy.get('div.actual_pack_date').contains('25-Sep-18');
+  cy.get('div.actual_delivery_date').contains('08-Oct-18');
 
   // Verify Premove Survey contains the same data
   cy
