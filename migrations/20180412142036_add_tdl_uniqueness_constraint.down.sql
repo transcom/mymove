@@ -1,1 +1,0 @@
-ALTER table traffic_distribution_lists DROP constraint unique_channel_cos;

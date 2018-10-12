@@ -1,2 +1,0 @@
-rename_column("service_members", "middle_name", "middle_initial")
-rename_column("service_members", "text_message_is_preferred", "secondary_phone_is_preferred")
