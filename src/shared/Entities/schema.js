@@ -77,3 +77,6 @@ export const availableMoveDates = new schema.Entity(
   {},
   { idAttribute: 'start_date' },
 );
+
+// MoveDatesSummary
+export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
