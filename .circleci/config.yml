@@ -403,6 +403,15 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      # TODO (pjdufour-truss): Move the building of soda and chamber binaries into the Makefile
+      - run:
+          name: Build Chamber and Soda
+          command: |
+            go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
+            go build -o bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
@@ -553,7 +562,6 @@ workflows:
       - build_migrations:
           requires:
             - pre_deps_golang
-            - pre_deps_yarn
 
       - deploy_experimental_migrations:
           requires:
@@ -565,21 +573,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-split-jobs
+              only: circleci_migrations
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-split-jobs
+              only: circleci_migrations
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-split-jobs
+              only: circleci_migrations
 
       - deploy_staging_migrations:
           requires:
