@@ -14,12 +14,12 @@ import { get } from 'lodash';
 const mapStateToProps = (state, ownProps) => {
   const { shipmentId } = ownProps.match.params;
   const {
-    tsp: { shipment: { move = {}, service_member: serviceMember = {} } = {} },
+    tsp,
     entities: { uploads = {} },
   } = state;
-
-  const { locator: moveLocator } = move;
-  const { edipi = '' } = serviceMember;
+  const serviceMember = get(tsp, 'serviceMember', {});
+  const { locator: moveLocator } = get(tsp, 'shipment.move', {});
+  const { edipi = '' } = get(tsp, 'serviceMember', {});
   const name = stringifyName(serviceMember);
 
   return {
