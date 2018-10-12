@@ -297,7 +297,10 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               <div>
-                <button onClick={this.generateGBL}>
+                <button
+                  onClick={this.generateGBL}
+                  disabled={this.props.generateGBLBtnDisabled}
+                >
                   Generate Bill of Lading
                 </button>
               </div>
@@ -365,6 +368,7 @@ const mapStateToProps = state => {
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+    generateGBLBtnDisabled: get(state, 'tsp.generateGBLBtnDisabled'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(
       state,

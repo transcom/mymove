@@ -426,16 +426,19 @@ export function tspReducer(state = initialState, action) {
       return Object.assign({}, state, {
         generateGBLSuccess: false,
         generateGBLError: null,
+        generateGBLBtnDisabled: true,
       });
     case GENERATE_GBL.success:
       return Object.assign({}, state, {
         generateGBLSuccess: true,
         generateGBLError: false,
+        generateGBLBtnDisabled: true,
       });
     case GENERATE_GBL.failure:
       return Object.assign({}, state, {
         generateGBLSuccess: false,
         generateGBLError: true,
+        generateGBLBtnDisabled: action.error.statusCode === 400 ? true : false,
         error: action.error,
       });
 
