@@ -4,9 +4,7 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
 
-import PreApprovalRequestForm from '.';
-// import SwaggerField from 'shared/JsonSchemaForm/JsonSchemaField';
-// import Form from 'redux-form';
+import { PreApprovalForm } from './PreApprovalForm';
 
 const simpleSchema = {
   properties: {
@@ -26,22 +24,24 @@ const simpleSchema = {
       example: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
     },
     quantity_1: {
-      type: 'number',
-      format: 'float',
+      type: 'integer',
+      format: 'basequantity',
       title: 'Base Quantity',
       description: 'Accessorial base quantity',
       minimum: 0,
-      example: 16.7,
+      example: 167000,
     },
     quantity_2: {
       type: 'integer',
+      format: 'basequantity',
       title: '2nd Quantity',
       description: 'Accessorial base quantity',
       minimum: 0,
       example: 10000,
     },
     location: {
-      $ref: '#/definitions/AccessorialLocation',
+      type: 'string',
+      title: 'Location',
     },
     notes: {
       type: 'string',
@@ -90,7 +90,7 @@ beforeEach(() => {
   //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
   wrapper = mount(
     <Provider store={store}>
-      <PreApprovalRequestForm
+      <PreApprovalForm
         ship_accessorial_schema={simpleSchema}
         accessorials={accessorials}
         onSubmit={submit}
@@ -103,5 +103,5 @@ it('renders without crashing', () => {
   // eslint-disable-next-line
   expect(wrapper.exists('div.usa-grid')).toBe(true);
   // Check that it renders swagger field content
-  expect(wrapper.find('.half-width').length).toBe(1);
+  expect(wrapper.find('.half-width').length).toBe(6);
 });

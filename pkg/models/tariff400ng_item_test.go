@@ -6,10 +6,10 @@ import (
 )
 
 func (suite *ModelSuite) TestFetchAccessorials() {
-	accessorial := testdatagen.MakeDummyAccessorial(suite.db)
+	accessorial := testdatagen.MakeDefaultTariff400ngItem(suite.db)
 
 	//Do
-	accs, err := models.FetchAccessorials(suite.db)
+	accs, err := models.FetchTariff400ngItems(suite.db, false)
 
 	//Test
 	suite.NoError(err)

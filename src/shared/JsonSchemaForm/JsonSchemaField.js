@@ -90,6 +90,21 @@ const configureCentsField = (swaggerField, props) => {
   return props;
 };
 
+// This field allows the form field to accept floats and converts values to
+// "base quantity" units for db storage (value * 10,000)
+const configureBaseQuantityField = (swaggerField, props) => {
+  props.normalize = validator.normalizeBaseQuantity;
+  props.validate.push(
+    validator.patternMatches(
+      swaggerField.pattern,
+      'Base quantity must have only up to 4 decimals.',
+    ),
+  );
+  props.validate.push(validator.isNumber);
+  props.type = 'text';
+  return props;
+};
+
 const configureTelephoneField = (swaggerField, props) => {
   props.normalize = validator.normalizePhone;
   props.validate.push(
@@ -328,6 +343,8 @@ const createSchemaField = (
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {
       fieldProps = configureCentsField(swaggerField, fieldProps);
+    } else if (swaggerField.format === 'basequantity') {
+      fieldProps = configureBaseQuantityField(swaggerField, fieldProps);
     } else {
       fieldProps = configureNumberField(swaggerField, fieldProps);
     }
