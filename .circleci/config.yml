@@ -306,40 +306,6 @@ jobs:
             - ~/.cache/Cypress/3.1.0
       - announce_failure
 
-  # `vuln_scan` runs a vulnerability scan using Snyk (currently disabled).
-  vuln_scan:
-    executor: mymove
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run:
-          name: Authenticate with Snyk
-          command: npx snyk auth $SNYK_API_TOKEN
-      - run:
-          name: Add Go binaries to path
-          command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate
-          command: make server_generate
-      - run:
-          name: Scan JavaScript dependencies for known vulnerabilities
-          command: npx snyk test --file=package.json || exit 0
-      - run:
-          name: Scan Go dependencies for known vulnerabilities
-          command: npx snyk test --file=Gopkg.lock || exit 0 # needs to run after server_generate, so gen files exist
-      - announce_failure
-
   # `server_test` runs the server side Go tests
   server_test:
     executor: mymove_and_postgres
@@ -562,11 +528,6 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      #- vuln_scan # keep disabled until we work out new process
-      #  requires:
-      #    - pre_deps_golang
-      #    - pre_deps_yarn
-
       - integration_tests:
           requires:
             - pre_deps_golang
@@ -599,7 +560,6 @@ workflows:
             - pre_test
             - client_test
             - server_test
-            #- vuln_scan # keep disabled until we work out new process
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
@@ -626,7 +586,6 @@ workflows:
             - pre_test
             - client_test
             - server_test
-            #- vuln_scan # keep disabled until we work out new process
             - build_app
             - build_tools
             - build_migrations
