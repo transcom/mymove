@@ -1,12 +1,15 @@
 package main
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
+	"github.com/transcom/mymove/pkg/storage"
 	"go.uber.org/dig"
 	"log"
 )
@@ -43,6 +46,8 @@ type WebServerConfig struct {
 	cookie    *auth.SessionCookieConfig
 	swagger   *SwaggerConfig
 	here      *route.HEREConfig
+	sesSender *notifications.SESNotificationConfig
+	s3Config  *storage.S3StorerConfig
 }
 
 func parseConfig() WebServerConfig {
@@ -93,11 +98,13 @@ func parseConfig() WebServerConfig {
 	hereAppCode := flag.String("here_maps_app_code", "", "HERE maps App API code")
 
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
-	emailBackend := flag.String("email_backend", "local", "Email backend to use, either SES or local")
+
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
+
 	awsSesRegion := flag.String("aws_ses_region", "", "AWS region used for SES")
+	emailBackend := flag.String("email_backend", "local", "Email backend to use, either SES or local")
 
 	newRelicApplicationID := flag.String("new_relic_application_id", "", "App ID for New Relic Browser")
 	newRelicLicenseKey := flag.String("new_relic_license_key", "", "License key for New Relic Browser")
@@ -109,12 +116,22 @@ func parseConfig() WebServerConfig {
 		flag.String("honeycomb_dataset", "", "Dataset for Honeycomb"),
 		false,
 	}
+
 	flag.Parse()
 
 	if *loginGovHostname == "" {
 		log.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
+	var sesConfig *notifications.SESNotificationConfig
+	if *emailBackend == "ses" {
+		sesConfig = &notifications.SESNotificationConfig{Config: aws.Config{Region: aws.String(*awsSesRegion)}}
+	}
+
+	var s3Config *storage.S3StorerConfig
+	if *storageBackend == "s3" {
+		s3Config = &storage.S3StorerConfig{Bucket: *s3Bucket, Region: *s3Region, KeyNamespace: *s3KeyNamespace}
+	}
 	return WebServerConfig{
 		Out: dig.Out{},
 		logger: &logging.Config{
@@ -145,6 +162,7 @@ func parseConfig() WebServerConfig {
 			AppCode:         *hereAppCode,
 			AppID:           *hereAppID,
 		},
+		sesSender: sesConfig,
+		s3Config:  s3Config,
 	}
-
 }

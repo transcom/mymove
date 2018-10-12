@@ -1,11 +1,12 @@
 package storage
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
 	"io"
 	"path"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -21,17 +22,36 @@ type S3 struct {
 	fs           *afero.Afero
 }
 
-// NewS3 creates a new S3 using the provided AWS session.
-func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *session.Session) *S3 {
-	var fs = afero.NewMemMapFs()
-	client := s3.New(session)
-	return &S3{
-		bucket:       bucket,
-		keyNamespace: keyNamespace,
-		logger:       logger,
-		client:       client,
+// S3StorerConfig is the data needed to create a FileStorer which used S3
+type S3StorerConfig struct {
+	Bucket       string
+	Region       string
+	KeyNamespace string
+}
+
+// NewS3 creates an S3 FileStorer*
+func NewS3(cfg *S3StorerConfig, l *zap.Logger) (*S3, error) {
+
+	if cfg.Bucket == "" {
+		return nil, errors.New("must provide aws_s3_bucket_name parameter, exiting")
+	}
+	if cfg.Region == "" {
+		return nil, errors.New("Must provide aws_s3_region parameter, exiting")
+	}
+	if cfg.KeyNamespace == "" {
+		return nil, errors.New("Must provide aws_s3_key_namespace parameter, exiting")
+	}
+	awsSession := awssession.Must(awssession.NewSession(&aws.Config{Region: aws.String(cfg.Region)}))
+	s3Client := s3.New(awsSession)
+	fs := afero.NewMemMapFs()
+	s3Storer := &S3{
+		bucket:       cfg.Bucket,
+		keyNamespace: cfg.KeyNamespace,
+		logger:       l,
+		client:       s3Client,
 		fs:           &afero.Afero{Fs: fs},
 	}
+	return s3Storer, nil
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.

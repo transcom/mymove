@@ -5,7 +5,7 @@ import (
 )
 
 // StubNotificationSender mocks an SES client for local usage
-type StubNotificationSender NotificationSendingContext
+type StubNotificationSender SESNotificationSender
 
 // NewStubNotificationSender returns a new StubNotificationSender
 func NewStubNotificationSender(logger *zap.Logger) StubNotificationSender {

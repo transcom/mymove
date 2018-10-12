@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-gomail/gomail"
@@ -29,22 +30,28 @@ type NotificationSender interface {
 	SendNotification(notification) error
 }
 
-// NotificationSendingContext provides context to a notification sender
-type NotificationSendingContext struct {
+// SESNotificationConfig is the config needed to send notifications
+type SESNotificationConfig struct {
+	aws.Config
+}
+
+// SESNotificationSender is the state needed to send Notifications via SES
+type SESNotificationSender struct {
 	svc    sesiface.SESAPI
 	logger *zap.Logger
 }
 
-// NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationSender(svc sesiface.SESAPI, logger *zap.Logger) NotificationSendingContext {
-	return NotificationSendingContext{
-		svc:    svc,
-		logger: logger,
+// NewSESNotificationSender returns a new SESNotificationSender
+func NewSESNotificationSender(aws *aws.Config, l *zap.Logger) (*SESNotificationSender, error) {
+	sesSession, err := awssession.NewSession(aws)
+	if err != nil {
+		return nil, err
 	}
+	return &SESNotificationSender{svc: ses.New(sesSession), l: logger}, nil
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-func (n NotificationSendingContext) SendNotification(notification notification) error {
+func (n *SESNotificationSender) SendNotification(notification notification) error {
 	emails, err := notification.emails()
 	if err != nil {
 		return err

@@ -110,6 +110,8 @@ func dependencies() *dep.Container {
 	handlers.AddProviders(c)
 	auth.AddProviders(c)
 	route.AddProviders(c)
+	notifications.AddProviders(c)
+	storage.AddProviders(c)
 	return c
 }
 
@@ -143,8 +145,28 @@ func validateKeys(cCfg *auth.SessionCookieConfig, lgConfig *authentication.Login
 	}
 }
 
-// FOR NOW - Once handlers are implemented like
-func populateHandlerContext(ctxt handlers.HandlerContext)
+// PopulateHandlerContextParams is the list of dependencies needed to populate the HandlerContext
+type PopulateHandlerContextParams struct {
+	dig.In
+	cookie *auth.SessionCookieConfig
+	sender notifications.NotificationSender
+	router route.Planner
+	storer storage.FileStorer
+}
+
+// FOR NOW - Once handlers are implemented like handlers.internalapi.ShowLoggedInUserHandler and have explicit
+// dependencies we shouldn't need the big single HandlersContext
+func populateHandlerContext(ctxt handlers.HandlerContext, p PopulateHandlerContextParams) {
+
+	ctxt.SetCookieSecret(p.cookie.Secret)
+	if p.cookie.NoTimeout {
+		ctxt.SetNoSessionTimeout()
+	}
+
+	ctxt.SetNotificationSender(p.sender)
+	ctxt.SetPlanner(p.router)
+	ctxt.SetFileStorer(p.storer)
+}
 
 func main() {
 
@@ -157,63 +179,8 @@ func main() {
 	//  Validate that the keys used for RSA encryption are well formed
 	diContext.MustInvoke(validateKeys)
 
-	// Session management and authentication middleware
-	//	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	//	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
-	//  userAuthMiddleware := authentication.UserAuthMiddleware(logger)
-
-	// For NOW configure handler context here
-	diContext.Invoke(func(ctxt handlers.HandlerContext) {
-		ctxt.SetCookieSecret(*clientAuthSecretKey)
-		if *noSessionTimeout {
-			ctxt.SetNoSessionTimeout()
-		}
-
-		if *emailBackend == "ses" {
-			// Setup Amazon SES (email) service
-			// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
-			// below.
-			sesSession, err := awssession.NewSession(&aws.Config{
-				Region: aws.String(*awsSesRegion),
-			})
-			if err != nil {
-				logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
-			}
-			sesService := ses.New(sesSession)
-			ctxt.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
-		} else {
-			ctxt.SetNotificationSender(notifications.NewStubNotificationSender(logger))
-		}
-
-		// Get route planner for handlers to calculate transit distances
-		// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-		// routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
-		ctxt.SetPlanner(routePlanner)
-
-		var storer storage.FileStorer
-		if *storageBackend == "s3" {
-			zap.L().Info("Using s3 storage backend")
-			if len(*s3Bucket) == 0 {
-				log.Fatalln(errors.New("must provide aws_s3_bucket_name parameter, exiting"))
-			}
-			if *s3Region == "" {
-				log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
-			}
-			if *s3KeyNamespace == "" {
-				log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
-			}
-			aws := awssession.Must(awssession.NewSession(&aws.Config{
-				Region: s3Region,
-			}))
-
-			storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
-		} else {
-			zap.L().Info("Using filesystem storage backend")
-			fsParams := storage.DefaultFilesystemParams(logger)
-			storer = storage.NewFilesystem(fsParams)
-		}
-		ctxt.SetFileStorer(storer)
-	})
+	// FOR NOW configure handler context
+	diContext.MustInvoke(populateHandlerContext)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
