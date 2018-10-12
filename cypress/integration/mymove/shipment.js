@@ -41,6 +41,7 @@ describe('completing the hhg flow', function() {
           .click()
           .should('have.class', 'DayPicker-Day--selected');
       });
+
     // Check for calendar move dates summary
     cy.contains('Movers Packing');
     cy.nextPage();

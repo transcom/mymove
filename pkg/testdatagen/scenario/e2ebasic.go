@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"github.com/go-openapi/swag"
 	"log"
 	"time"
 
@@ -239,6 +240,25 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
+	dutyStationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "Fort Gordon",
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "30813",
+			Country:        swag.String("United States"),
+		},
+	})
+
+	dutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name:        "Fort Sam Houston",
+			Affiliation: internalmessages.AffiliationARMY,
+			AddressID:   dutyStationAddress.ID,
+			Address:     dutyStationAddress,
+		},
+	})
+
 	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("b5d1f44b-5ceb-4a0e-9119-5687808996ff"),
@@ -247,6 +267,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 			LastName:      models.StringPointer("UserPerson"),
 			Edipi:         models.StringPointer("6833908163"),
 			PersonalEmail: models.StringPointer(email),
+			DutyStationID: &dutyStation.ID,
+			DutyStation:   dutyStation,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
