@@ -21,13 +21,13 @@ import {
 
 import './ShipmentWizard.css';
 
-const formName = 'shipment_form';
-const getRequestLabel = 'ShipmentForm.getShipment';
-const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+const formName = 'progear_form';
+const getRequestLabel = 'progear.getShipment';
+const createOrUpdateRequestLabel = 'progear.createOrUpdateShipment';
 
-const ShipmentFormWizardForm = reduxifyWizardForm(formName);
+const ProgearWizardForm = reduxifyWizardForm(formName);
 
-export class ShipmentForm extends Component {
+export class Progear extends Component {
   componentDidMount() {
     this.loadShipment();
   }
@@ -80,7 +80,7 @@ export class ShipmentForm extends Component {
 
     // Shipment Wizard
     return (
-      <ShipmentFormWizardForm
+      <ProgearWizardForm
         handleSubmit={this.handleSubmit}
         className={formName}
         pageList={pages}
@@ -109,11 +109,11 @@ export class ShipmentForm extends Component {
             formValues={this.props.formValues}
           />
         </div>
-      </ShipmentFormWizardForm>
+      </ProgearWizardForm>
     );
   }
 }
-ShipmentForm.propTypes = {
+Progear.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
@@ -138,4 +138,4 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShipmentForm);
+export default connect(mapStateToProps, mapDispatchToProps)(Progear);

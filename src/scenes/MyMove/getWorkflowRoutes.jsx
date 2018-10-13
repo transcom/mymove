@@ -26,7 +26,7 @@ import Transition from 'scenes/Moves/Transition';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
-import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
+import Progear from 'scenes/Moves/Hhg/Progear';
 import MoveDate from 'scenes/Moves/Hhg/MoveDate';
 import Locations from 'scenes/Moves/Hhg/Locations';
 import WeightEstimate from 'scenes/Moves/Hhg/WeightEstimate';
@@ -244,13 +244,13 @@ const pages = {
       <WeightEstimate pages={pages} pageKey={key} match={match} />
     ),
   },
-  '/moves/:moveId/hhg-form': {
+  '/moves/:moveId/hhg-progear': {
     isInFlow: hasHHG,
     isComplete: (sm, orders, move, hhg) => {
       return every([hhg.pickup_address]);
     },
     render: (key, pages) => ({ match }) => (
-      <ShipmentForm pages={pages} pageKey={key} match={match} />
+      <Progear pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/ppm-transition': {
