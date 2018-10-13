@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-class WeightEstimates extends Component {
+class ProgearEstimates extends Component {
   render() {
     return (
       <div className="form-section">
@@ -31,9 +31,9 @@ class WeightEstimates extends Component {
   }
 }
 
-WeightEstimates.propTypes = {
+ProgearEstimates.propTypes = {
   schema: PropTypes.object.isRequired,
   formValues: PropTypes.object,
 };
 
-export default WeightEstimates;
+export default ProgearEstimates;
