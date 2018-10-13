@@ -22,9 +22,9 @@ import {
 
 import './ShipmentWizard.css';
 
-const formName = 'shipment_form';
-const getRequestLabel = 'ShipmentForm.getShipment';
-const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+const formName = 'weight_form';
+const getRequestLabel = 'WeightForm.getShipment';
+const createOrUpdateRequestLabel = 'WeightForm.createOrUpdateShipment';
 
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 

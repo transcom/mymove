@@ -77,7 +77,6 @@ export class Locations extends Component {
 
   render() {
     const { pages, pageKey, error, initialValues } = this.props;
-
     // Shipment Wizard
     return (
       <LocationsWizardForm
