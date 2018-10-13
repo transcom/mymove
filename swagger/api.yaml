@@ -2141,7 +2141,7 @@ paths:
           description: failed to meet data requirements for accessorials
         500:
           description: server error
-  /shipments/accessorials/{shipment_accessorial_id}:
+  /shipments/accessorials/{shipmentAccessorialId}:
     put:
       summary: Updates a shipment accessorial item
       description: Update a shipment accessorial with the given information
@@ -2150,7 +2150,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true
@@ -2182,7 +2182,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true
@@ -2200,7 +2200,7 @@ paths:
           description: no shipment accessorial found with that UUID
         500:
           description: server error
-  /shipments/accessorials/{shipment_accessorial_id}/approve:
+  /shipments/accessorials/{shipmentAccessorialId}/approve:
     post:
       summary: Updates a shipment accessorial item to approve status
       description: Update a shipment accessorial with approve status
@@ -2209,7 +2209,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true

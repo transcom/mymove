@@ -12,6 +12,37 @@ export function createShipmentAccessorial(label, shipmentId, createPayload) {
   );
 }
 
+export function updateShipmentAccessorial(
+  label,
+  shipmentAccessorialId,
+  updatePayload,
+) {
+  return swaggerRequest(
+    getPublicClient,
+    'accessorials.updateShipmentAccessorial',
+    { shipmentAccessorialId, updatePayload },
+    { label },
+  );
+}
+
+export function deleteShipmentAccessorial(label, shipmentAccessorialId) {
+  return swaggerRequest(
+    getPublicClient,
+    'accessorials.deleteShipmentAccessorial',
+    { shipmentAccessorialId },
+    { label },
+  );
+}
+
+export function approveShipmentAccessorial(label, shipmentAccessorialId) {
+  return swaggerRequest(
+    getPublicClient,
+    'accessorials.approveShipmentAccessorial',
+    { shipmentAccessorialId },
+    { label },
+  );
+}
+
 export function getAllShipmentAccessorials(label, shipmentId) {
   return swaggerRequest(
     getPublicClient,
