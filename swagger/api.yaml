@@ -220,8 +220,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      accessorial:
-        $ref: '#/definitions/Tariff400ngItem'
+      accessorial_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       quantity_1:
         type: integer
         format: basequantity
@@ -249,12 +251,10 @@ definitions:
         type: string
         title: Submitted Date
         format: date-time
-        example: 2018-10-21
       approved_date:
         type: string
         title: Approved Date
         format: date-time
-        example: 2018-10-21
       created_at:
         type: string
         format: date-time
@@ -264,6 +264,7 @@ definitions:
     required:
       - id
       - shipment_id
+      - accessorial_id
       - quantity_1
       - location
   Address:

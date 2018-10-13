@@ -34,7 +34,7 @@ func payloadForShipmentAccessorialModel(s *models.ShipmentAccessorial) *apimessa
 	return &apimessages.ShipmentAccessorial{
 		ID:            handlers.FmtUUID(s.ID),
 		ShipmentID:    handlers.FmtUUID(s.ShipmentID),
-		Accessorial:   payloadForTariff400ngItemModel(&s.Accessorial),
+		AccessorialID: handlers.FmtUUID(s.AccessorialID),
 		Location:      apimessages.AccessorialLocation(s.Location),
 		Notes:         s.Notes,
 		Quantity1:     handlers.FmtInt64(int64(s.Quantity1)),
@@ -110,7 +110,7 @@ func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShip
 		return accessorialop.NewCreateShipmentAccessorialForbidden()
 	}
 
-	accessorialID := uuid.Must(uuid.FromString(params.Payload.Accessorial.ID.String()))
+	accessorialID := uuid.Must(uuid.FromString(params.Payload.AccessorialID.String()))
 	shipmentAccessorial, verrs, err := shipment.CreateShipmentAccessorial(h.DB(),
 		accessorialID,
 		params.Payload.Quantity1,
@@ -162,7 +162,7 @@ func (h UpdateShipmentAccessorialHandler) Handle(params accessorialop.UpdateShip
 		return accessorialop.NewUpdateShipmentAccessorialInternalServerError()
 	}
 
-	accessorialID := uuid.Must(uuid.FromString(params.UpdateShipmentAccessorial.Accessorial.ID.String()))
+	accessorialID := uuid.Must(uuid.FromString(params.UpdateShipmentAccessorial.AccessorialID.String()))
 
 	// update
 	shipmentAccessorial.AccessorialID = accessorialID

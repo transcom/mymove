@@ -9,14 +9,8 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './PreApprovalRequest.css';
 
 const Codes = tariff400ngItems => props => {
-  let value, onChange;
-  if (props.input) {
-    value = props.input.value;
-    onChange = props.input.onChange;
-  } else {
-    value = props.value;
-    onChange = props.onChange;
-  }
+  const value = props.value;
+  const onChange = props.onChange;
 
   const localOnChange = event => {
     onChange(event.target.value);
@@ -47,6 +41,7 @@ export class PreApprovalForm extends Component {
               swagger={this.props.ship_accessorial_schema}
               required
             />
+            {/* TODO andrea - set schema location enum array to accessorial selected location value */}
             <SwaggerField
               fieldName="location"
               className="one-third-width rounded"

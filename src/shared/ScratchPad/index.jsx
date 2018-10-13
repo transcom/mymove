@@ -3,19 +3,19 @@ import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 
 const shipment_accessorials = [
   {
-    code: '105D',
-    item: 'Unpack Reg Crate',
+    id: 'sldkjf',
+    accessorial: { code: '105D', item: 'Reg Shipping' },
     location: 'D',
-    base_quantity: 8660000,
+    quantity_1: 8660000,
     notes: '',
     created_at: '2018-09-24T14:05:38.847Z',
     status: 'SUBMITTED',
   },
   {
-    code: '105E',
-    item: 'Unpack Reg Crate',
+    id: 'sldsdff',
+    accessorial: { code: '105D', item: 'Reg Shipping' },
     location: 'D',
-    base_quantity: 167000,
+    quantity_1: 167000,
     notes:
       'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
     created_at: '2018-09-24T14:05:38.847Z',
@@ -24,12 +24,12 @@ const shipment_accessorials = [
 ];
 const accessorials = [
   {
-    id: 'sdlfkj',
+    id: '23j4u9',
     code: 'F9D',
     item: 'Long Haul',
   },
   {
-    id: 'badfka',
+    id: '2348djfl',
     code: '19D',
     item: 'Crate',
   },
@@ -43,7 +43,7 @@ class ScratchPad extends Component {
           <div className="usa-width-two-thirds">
             <PreApprovalPanel
               shipment_accessorials={shipment_accessorials}
-              accessorials={accessorials}
+              tariff400ngItems={accessorials}
             />
           </div>
           <div className="usa-width-one-third">

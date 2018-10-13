@@ -22,6 +22,11 @@ import {
   selectTariff400ngItems,
   getTariff400ngItemsLabel,
 } from 'shared/Entities/modules/tariff400ngItems';
+import {
+  getAllShipmentAccessorials,
+  selectShipmentAccessorials,
+  getShipmentAccessorialsLabel,
+} from 'shared/Entities/modules/shipmentAccessorials';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -47,28 +52,6 @@ import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 
 import './tsp.css';
-
-const shipment_accessorials = [
-  {
-    code: '105D',
-    item: 'Unpack Reg Crate',
-    location: 'D',
-    base_quantity: 8660000,
-    notes: '',
-    created_at: '2018-09-24T14:05:38.847Z',
-    status: 'SUBMITTED',
-  },
-  {
-    code: '105E',
-    item: 'Unpack Reg Crate',
-    location: 'D',
-    base_quantity: 167000,
-    notes:
-      'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
-    created_at: '2018-09-24T14:05:38.847Z',
-    status: 'APPROVED',
-  },
-];
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -152,6 +135,10 @@ class ShipmentInfo extends Component {
       this.props.match.params.shipmentId,
     );
     this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+    this.props.getAllShipmentAccessorials(
+      getShipmentAccessorialsLabel,
+      this.props.match.params.shipmentId,
+    );
   }
 
   acceptShipment = () => {
@@ -183,7 +170,6 @@ class ShipmentInfo extends Component {
       shipmentDocuments,
       deliveryAddress,
     } = this.props;
-
     const {
       service_member: serviceMember = {},
       move = {},
@@ -262,7 +248,7 @@ class ShipmentInfo extends Component {
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <PreApprovalPanel
-                    shipment_accessorials={shipment_accessorials}
+                    shipment_accessorials={this.props.shipmentAccessorials}
                     tariff400ngItems={this.props.tariff400ngItems}
                   />
                   <Dates
@@ -390,6 +376,7 @@ const mapStateToProps = state => {
     deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state),
     tariff400ngItems: selectTariff400ngItems(state),
+    shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(
       state,
@@ -425,6 +412,7 @@ const mapDispatchToProps = dispatch =>
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
+      getAllShipmentAccessorials,
     },
     dispatch,
   );
