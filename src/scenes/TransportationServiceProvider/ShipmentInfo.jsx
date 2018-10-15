@@ -247,10 +247,6 @@ class ShipmentInfo extends Component {
             <div className="usa-width-two-thirds">
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
-                  <PreApprovalPanel
-                    shipment_accessorials={this.props.shipmentAccessorials}
-                    tariff400ngItems={this.props.tariff400ngItems}
-                  />
                   <Dates
                     title="Dates"
                     shipment={this.props.shipment}
@@ -260,6 +256,10 @@ class ShipmentInfo extends Component {
                     title="Premove Survey"
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
+                  />
+                  <PreApprovalPanel
+                    shipment_accessorials={this.props.shipmentAccessorials}
+                    tariff400ngItems={this.props.tariff400ngItems}
                   />
                   <ServiceAgents
                     title="ServiceAgents"

@@ -96,7 +96,6 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	payload := apimessages.ShipmentAccessorial{
-		// Accessorial: payloadForTariff400ngItemModel(&acc),
 		AccessorialID: handlers.FmtUUID(acc.ID),
 		Location:      apimessages.AccessorialLocationORIGIN,
 		Notes:         "Some notes",

@@ -12,8 +12,8 @@ describe('PreApprovalPanel tests', () => {
   const onEdit = jest.fn();
   const shipment_accessorials = [
     {
-      code: '105D',
-      item: 'Unpack Reg Crate',
+      id: 'sldkjf',
+      accessorial: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: ' 16.7',
       notes: '',
@@ -21,8 +21,8 @@ describe('PreApprovalPanel tests', () => {
       status: 'SUBMITTED',
     },
     {
-      code: '105E',
-      item: 'Unpack Reg Crate',
+      id: 'sldsdff',
+      accessorial: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: ' 16.7',
       notes:
