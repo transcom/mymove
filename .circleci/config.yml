@@ -51,7 +51,7 @@ commands:
       - setup_remote_docker
       - deploy:
           name: Deploy app service
-          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          command: bin/do-exclusively --branch ${CIRCLE_BRANCH} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
       - health_check:
           url: << parameters.health_check_url >>
       - announce_failure
@@ -64,7 +64,7 @@ commands:
       - setup_remote_docker
       - deploy:
           name: Deploy app-client-tls service
-          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          command: bin/do-exclusively --branch ${CIRCLE_BRANCH} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
       - health_check_tls:
           url: << parameters.health_check_url >>
       - announce_failure
