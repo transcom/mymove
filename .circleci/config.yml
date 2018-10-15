@@ -38,12 +38,12 @@ commands:
   deploy_migrations_steps:
     steps:
       - checkout
-      - run:
-          name: Snapshot database
-          command: bin/rds-snapshot-app-db $APP_ENVIRONMENT
+      #- run:
+      #    name: Snapshot database
+      #    command: bin/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
           name: Run database migrations
-          command: bin/do-exclusively --job-name deploy-${APP_ENVIRONMENT} ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          command: bin/do-exclusively ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - announce_failure
   deploy_app_steps:
     parameters:
@@ -54,7 +54,7 @@ commands:
       - setup_remote_docker
       - deploy:
           name: Deploy app service
-          command: bin/do-exclusively --job-name deploy-${APP_ENVIRONMENT} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
       - health_check:
           url: << parameters.health_check_url >>
       - announce_failure
@@ -67,7 +67,7 @@ commands:
       - setup_remote_docker
       - deploy:
           name: Deploy app-client-tls service
-          command: bin/do-exclusively --job-name deploy-${APP_ENVIRONMENT} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          command: deploy-${APP_ENVIRONMENT} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
       - health_check_tls:
           url: << parameters.health_check_url >>
       - announce_failure
