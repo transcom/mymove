@@ -35,8 +35,9 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		pickupAddress = &newPickupAddress
 	}
 
+	hasDeliveryAddress := assertions.Shipment.HasDeliveryAddress
 	deliveryAddress := assertions.Shipment.DeliveryAddress
-	if deliveryAddress == nil {
+	if deliveryAddress == nil && hasDeliveryAddress {
 		newDeliveryAddress := MakeAddress2(db, Assertions{})
 		deliveryAddress = &newDeliveryAddress
 	}
@@ -46,15 +47,26 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		status = models.ShipmentStatusDRAFT
 	}
 
+	sourceGBLOC := assertions.Shipment.SourceGBLOC
+	if sourceGBLOC == nil {
+		sourceGBLOC = stringPointer(DefaultSrcGBLOC)
+	}
+
+	destinationGBLOC := assertions.Shipment.DestinationGBLOC
+	if destinationGBLOC == nil {
+		destinationGBLOC = stringPointer(DefaultDstGBLOC)
+	}
+
 	shipment := models.Shipment{
 		TrafficDistributionListID:    uuidPointer(tdl.ID),
 		TrafficDistributionList:      tdl,
 		ServiceMemberID:              serviceMember.ID,
 		ServiceMember:                serviceMember,
-		ActualPickupDate:             timePointer(DateInsidePerformancePeriod),
-		ActualDeliveryDate:           timePointer(DateOutsidePerformancePeriod),
-		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
-		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
+		ActualPackDate:               nil,
+		ActualPickupDate:             nil,
+		ActualDeliveryDate:           nil,
+		SourceGBLOC:                  sourceGBLOC,
+		DestinationGBLOC:             destinationGBLOC,
 		Market:                       &DefaultMarket,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),
 		RequestedPickupDate:          timePointer(PerformancePeriodStart),
@@ -68,15 +80,18 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		HasSecondaryPickupAddress:    false,
 		SecondaryPickupAddressID:     nil,
 		SecondaryPickupAddress:       nil,
-		HasDeliveryAddress:           true,
-		DeliveryAddressID:            &deliveryAddress.ID,
-		DeliveryAddress:              deliveryAddress,
+		HasDeliveryAddress:           hasDeliveryAddress,
 		HasPartialSITDeliveryAddress: false,
 		PartialSITDeliveryAddressID:  nil,
 		PartialSITDeliveryAddress:    nil,
 		WeightEstimate:               poundPointer(2000),
 		ProgearWeightEstimate:        poundPointer(225),
 		SpouseProgearWeightEstimate:  poundPointer(312),
+	}
+
+	if hasDeliveryAddress {
+		shipment.DeliveryAddressID = &deliveryAddress.ID
+		shipment.DeliveryAddress = deliveryAddress
 	}
 
 	// Overwrite values with those from assertions
@@ -111,7 +126,8 @@ func MakeShipmentData(db *pop.Connection) {
 	nowPlusOne := now.Add(oneWeek)
 	nowPlusTwo := now.Add(oneWeek * 2)
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 
 	MakeShipment(db, Assertions{
 		Shipment: models.Shipment{
@@ -120,6 +136,7 @@ func MakeShipmentData(db *pop.Connection) {
 			ActualDeliveryDate:      &now,
 			TrafficDistributionList: &tdlList[0],
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 		},
 	})
@@ -131,6 +148,7 @@ func MakeShipmentData(db *pop.Connection) {
 			ActualDeliveryDate:      &nowPlusOne,
 			TrafficDistributionList: &tdlList[1],
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 		},
 	})
@@ -142,6 +160,7 @@ func MakeShipmentData(db *pop.Connection) {
 			ActualDeliveryDate:      &nowPlusTwo,
 			TrafficDistributionList: &tdlList[2],
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 		},
 	})

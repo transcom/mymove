@@ -9,12 +9,7 @@ import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { no_op } from 'shared/utils';
 
 const LocationsDisplay = props => {
-  const {
-    shipment,
-    pickupAddress,
-    secondaryPickupAddress,
-    deliveryAddress,
-  } = props;
+  const { shipment, pickupAddress, secondaryPickupAddress, deliveryAddress } = props;
 
   return (
     <React.Fragment>
@@ -22,10 +17,7 @@ const LocationsDisplay = props => {
         <span className="column-subhead">Pickup</span>
         <AddressElementDisplay address={pickupAddress} title="Primary" />
         {shipment.has_secondary_pickup_address && (
-          <AddressElementDisplay
-            address={secondaryPickupAddress}
-            title="Secondary"
-          />
+          <AddressElementDisplay address={secondaryPickupAddress} title="Secondary" />
         )}
       </div>
       {shipment.has_delivery_address && (
@@ -59,19 +51,14 @@ const LocationsEdit = props => {
           <span className="column-subhead">Pickup</span>
           <AddressElementEdit addressProps={pickupProps} title="Primary" />
           {shipment.has_secondary_pickup_address && (
-            <AddressElementEdit
-              addressProps={secondaryPickupProps}
-              title="Secondary"
-            />
+            <AddressElementEdit addressProps={secondaryPickupProps} title="Secondary" />
           )}
         </FormSection>
       </div>
       <div className="editable-panel-column">
         <FormSection name="deliveryAddress">
           <span className="column-subhead">Delivery</span>
-          {shipment.has_delivery_address && (
-            <AddressElementEdit addressProps={deliveryProps} title="Primary" />
-          )}
+          {shipment.has_delivery_address && <AddressElementEdit addressProps={deliveryProps} title="Primary" />}
         </FormSection>
       </div>
     </React.Fragment>
@@ -81,11 +68,7 @@ const LocationsEdit = props => {
 const formName = 'office_shipment_info_locations';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let LocationsPanel = editablePanelify(
-  LocationsDisplay,
-  LocationsEdit,
-  editEnabled,
-);
+let LocationsPanel = editablePanelify(LocationsDisplay, LocationsEdit, editEnabled);
 LocationsPanel = reduxForm({ form: formName })(LocationsPanel);
 
 function mapStateToProps(state) {
@@ -103,8 +86,7 @@ function mapStateToProps(state) {
     // Wrapper
     shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
-    hasError:
-      state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
+    hasError: state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
 
     shipment,

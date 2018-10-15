@@ -11,17 +11,9 @@ export default class Review extends Component {
     const { pages, pageKey } = this.props;
 
     return (
-      <WizardPage
-        handleSubmit={no_op}
-        pageList={pages}
-        pageKey={pageKey}
-        pageIsValid={true}
-      >
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={pageKey} pageIsValid={true}>
         <h1>Review</h1>
-        <p>
-          You're almost done! Please review your details before we finalize the
-          move.
-        </p>
+        <p>You're almost done! Please review your details before we finalize the move.</p>
         <Summary />
       </WizardPage>
     );

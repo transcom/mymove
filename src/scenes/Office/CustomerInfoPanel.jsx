@@ -9,12 +9,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
 import { updateServiceMember } from './ducks';
-import {
-  PanelSwaggerField,
-  PanelField,
-  SwaggerValue,
-  editablePanelify,
-} from 'shared/EditablePanel';
+import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 import { stringifyName } from 'shared/utils/serviceMember';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -37,26 +32,13 @@ const CustomerInfoDisplay = props => {
         <PanelField title="Name" value={name} />
         <PanelSwaggerField title="DoD ID" fieldName="edipi" {...fieldProps} />
         <PanelField title="Branch & rank">
-          <SwaggerValue fieldName="affiliation" {...fieldProps} /> -{' '}
-          <SwaggerValue fieldName="rank" {...fieldProps} />
+          <SwaggerValue fieldName="affiliation" {...fieldProps} /> - <SwaggerValue fieldName="rank" {...fieldProps} />
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          title="Phone"
-          fieldName="telephone"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Alt. Phone"
-          fieldName="secondary_telephone"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Email"
-          fieldName="personal_email"
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="Phone" fieldName="telephone" {...fieldProps} />
+        <PanelSwaggerField title="Alt. Phone" fieldName="secondary_telephone" {...fieldProps} />
+        <PanelSwaggerField title="Email" fieldName="personal_email" {...fieldProps} />
         <PanelField title="Pref. contact" className="contact-prefs">
           {values.phone_is_preferred && (
             <span>
@@ -115,21 +97,14 @@ const CustomerInfoEdit = props => {
             <div className="panel-subhead">Contact</div>
             <SwaggerField fieldName="telephone" swagger={schema} required />
             <SwaggerField fieldName="secondary_telephone" swagger={schema} />
-            <SwaggerField
-              fieldName="personal_email"
-              swagger={schema}
-              required
-            />
+            <SwaggerField fieldName="personal_email" swagger={schema} required />
 
             <fieldset key="contact_preferences">
               <legend htmlFor="contact_preferences">
                 <p>Preferred contact method</p>
               </legend>
               <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-              <SwaggerField
-                fieldName="text_message_is_preferred"
-                swagger={schema}
-              />
+              <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
               <SwaggerField fieldName="email_is_preferred" swagger={schema} />
             </fieldset>
           </FormSection>
@@ -137,10 +112,7 @@ const CustomerInfoEdit = props => {
 
         <div className="editable-panel-column">
           <FormSection name="address">
-            <AddressElementEdit
-              addressProps={addressProps}
-              title="Current Residence Address"
-            />
+            <AddressElementEdit addressProps={addressProps} title="Current Residence Address" />
           </FormSection>
         </div>
       </div>
@@ -170,15 +142,10 @@ function mapStateToProps(state) {
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
 
     // CustomerInfoEdit
-    serviceMemberSchema: get(
-      state,
-      'swaggerInternal.spec.definitions.ServiceMemberPayload',
-    ),
+    serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberPayload'),
     serviceMember: state.office.officeServiceMember,
 
-    hasError:
-      state.office.serviceMemberHasLoadError ||
-      state.office.serviceMemberHasUpdateError,
+    hasError: state.office.serviceMemberHasLoadError || state.office.serviceMemberHasUpdateError,
     errorMessage: state.office.error,
     isUpdating: false,
 

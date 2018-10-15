@@ -87,44 +87,27 @@ export class Summary extends Component {
       return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
     const currentStation = get(serviceMember, 'current_station');
-    const stationPhone = get(
-      currentStation,
-      'transportation_office.phone_lines.0',
-    );
+    const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
     const rootAddress = `/moves/review`;
-    const rootAddressWithMoveId = `/moves/${
-      this.props.match.params.moveId
-    }/review`;
+    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
     const editProfileAddress = rootAddress + '/edit-profile';
     const editBackupContactAddress = rootAddress + '/edit-backup-contact';
     const editContactInfoAddress = rootAddress + '/edit-contact-info';
     const editOrdersAddress = rootAddressWithMoveId + '/edit-orders';
-    const editDateAndLocationAddress =
-      rootAddressWithMoveId + '/edit-date-and-location';
+    const editDateAndLocationAddress = rootAddressWithMoveId + '/edit-date-and-location';
     const editWeightAddress = rootAddressWithMoveId + '/edit-weight';
-    const privateStorageString = get(
-      currentPpm,
-      'estimated_storage_reimbursement',
-    )
+    const privateStorageString = get(currentPpm, 'estimated_storage_reimbursement')
       ? `(spend up to ${currentPpm.estimated_storage_reimbursement.toLocaleString()} on private storage)`
       : '';
     const sitDisplay = get(currentPpm, 'has_sit', false)
       ? `${currentPpm.days_in_storage} days ${privateStorageString}`
       : 'Not requested';
-    const editSuccessBlurb = this.props.reviewState.editSuccess
-      ? 'Your changes have been saved. '
-      : '';
+    const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
-          <Alert
-            type="warning"
-            heading={
-              editSuccessBlurb +
-              'Your estimated weight is above your entitlement.'
-            }
-          >
+          <Alert type="warning" heading={editSuccessBlurb + 'Your estimated weight is above your entitlement.'}>
             {titleCase(this.props.reviewState.error.response.body.message)}.
           </Alert>
         )}
@@ -136,14 +119,8 @@ export class Summary extends Component {
         {currentMove &&
           this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
-            <Alert
-              type="info"
-              heading={
-                editSuccessBlurb + 'Note that the entitlement has also changed.'
-              }
-            >
-              Your weight entitlement is now {entitlement.sum.toLocaleString()}{' '}
-              lbs.
+            <Alert type="info" heading={editSuccessBlurb + 'Note that the entitlement has also changed.'}>
+              Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
           )}
 
@@ -166,21 +143,11 @@ export class Summary extends Component {
                 </tr>
                 <tr>
                   <td>Branch:</td>
-                  <td>
-                    {get(
-                      schemaAffiliation['x-display-value'],
-                      get(serviceMember, 'affiliation'),
-                    )}
-                  </td>
+                  <td>{get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation'))}</td>
                 </tr>
                 <tr>
                   <td> Rank/Pay Grade: </td>
-                  <td>
-                    {get(
-                      schemaRank['x-display-value'],
-                      get(serviceMember, 'rank'),
-                    )}
-                  </td>
+                  <td>{get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}</td>
                 </tr>
                 <tr>
                   <td> DoD ID#: </td>
@@ -208,12 +175,7 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Orders Type: </td>
-                    <td>
-                      {get(
-                        schemaOrdersType['x-display-value'],
-                        get(currentOrders, 'orders_type'),
-                      )}
-                    </td>
+                    <td>{get(schemaOrdersType['x-display-value'], get(currentOrders, 'orders_type'))}</td>
                   </tr>
                   <tr>
                     <td> Orders Date: </td>
@@ -229,27 +191,13 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Dependents?: </td>
-                    <td>
-                      {' '}
-                      {currentOrders &&
-                        yesNoMap[
-                          get(currentOrders, 'has_dependents').toString()
-                        ]}
-                    </td>
+                    <td> {currentOrders && yesNoMap[get(currentOrders, 'has_dependents').toString()]}</td>
                   </tr>
                   {currentOrders &&
                     get(currentOrders, 'spouse_has_pro_gear') && (
                       <tr>
                         <td> Spouse Pro Gear?: </td>
-                        <td>
-                          {currentOrders &&
-                            yesNoMap[
-                              get(
-                                currentOrders,
-                                'spouse_has_pro_gear',
-                              ).toString()
-                            ]}
-                        </td>
+                        <td>{currentOrders && yesNoMap[get(currentOrders, 'spouse_has_pro_gear').toString()]}</td>
                       </tr>
                     )}
                   <tr>
@@ -293,17 +241,11 @@ export class Summary extends Component {
                 </tr>
                 <tr>
                   <td> Current Mailing Address: </td>
-                  <td>
-                    {getFullAddress(get(serviceMember, 'residential_address'))}
-                  </td>
+                  <td>{getFullAddress(get(serviceMember, 'residential_address'))}</td>
                 </tr>
                 <tr>
                   <td> Backup Mailing Address: </td>
-                  <td>
-                    {getFullAddress(
-                      get(serviceMember, 'backup_mailing_address'),
-                    )}
-                  </td>
+                  <td>{getFullAddress(get(serviceMember, 'backup_mailing_address'))}</td>
                 </tr>
               </tbody>
             </table>
@@ -342,8 +284,7 @@ export class Summary extends Component {
           !lastMoveIsCanceled && (
             <div className="usa-grid-full ppm-container">
               <h3>
-                <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move
-                your stuff (PPM)
+                <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff (PPM)
               </h3>
               <div className="usa-width-one-half review-section ppm-review-section">
                 <table>
@@ -358,9 +299,7 @@ export class Summary extends Component {
                     </tr>
                     <tr>
                       <td> Move Date: </td>
-                      <td>
-                        {formatDate(get(currentPpm, 'planned_move_date'))}
-                      </td>
+                      <td>{formatDate(get(currentPpm, 'planned_move_date'))}</td>
                     </tr>
                     <tr>
                       <td> Pickup ZIP Code: </td>
@@ -374,10 +313,7 @@ export class Summary extends Component {
                     )}
                     <tr>
                       <td> Delivery ZIP Code: </td>
-                      <td>
-                        {' '}
-                        {currentPpm && currentPpm.destination_postal_code}
-                      </td>
+                      <td> {currentPpm && currentPpm.destination_postal_code}</td>
                     </tr>
                     <tr>
                       <td> Storage: </td>
@@ -399,31 +335,20 @@ export class Summary extends Component {
                     </tr>
                     <tr>
                       <td> Estimated Weight: </td>
-                      <td>
-                        {' '}
-                        {currentPpm &&
-                          currentPpm.weight_estimate.toLocaleString()}{' '}
-                        lbs
-                      </td>
+                      <td> {currentPpm && currentPpm.weight_estimate.toLocaleString()} lbs</td>
                     </tr>
                     <tr>
                       <td> Estimated PPM Incentive: </td>
                       <td>
                         {' '}
                         {currentPpm &&
-                          formatCentsRange(
-                            currentPpm.incentive_estimate_min,
-                            currentPpm.incentive_estimate_max,
-                          )}
+                          formatCentsRange(currentPpm.incentive_estimate_min, currentPpm.incentive_estimate_max)}
                       </td>
                     </tr>
                     {currentPpm.has_requested_advance && (
                       <tr>
                         <td> Advance: </td>
-                        <td>
-                          {' '}
-                          ${formatCents(currentPpm.advance.requested_amount)}
-                        </td>
+                        <td> ${formatCents(currentPpm.advance.requested_amount)}</td>
                       </tr>
                     )}
                   </tbody>
@@ -433,8 +358,7 @@ export class Summary extends Component {
           )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at{' '}
-            {get(currentStation, 'name')}{' '}
+            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
             {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
         )}
@@ -463,21 +387,9 @@ function mapStateToProps(state) {
     // latestMove: state.moves.latestMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
-    schemaRank: get(
-      state,
-      'swaggerInternal.spec.definitions.ServiceMemberRank',
-      {},
-    ),
-    schemaOrdersType: get(
-      state,
-      'swaggerInternal.spec.definitions.OrdersType',
-      {},
-    ),
-    schemaAffiliation: get(
-      state,
-      'swaggerInternal.spec.definitions.Affiliation',
-      {},
-    ),
+    schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
+    schemaOrdersType: get(state, 'swaggerInternal.spec.definitions.OrdersType', {}),
+    schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
@@ -493,6 +405,4 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Summary),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));

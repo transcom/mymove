@@ -25,32 +25,21 @@ describe('reduxHelpers', () => {
     describe('when generateAsyncActionTypes is called', () => {
       const actions = helpers.generateAsyncActionTypes(resourceName);
       it('should give me a start action', () => {
-        expect(actions).toEqual(
-          expect.objectContaining({ start: 'RESOURCE_START' }),
-        );
+        expect(actions).toEqual(expect.objectContaining({ start: 'RESOURCE_START' }));
       });
       it('should give me a success action', () => {
-        expect(actions).toEqual(
-          expect.objectContaining({ success: 'RESOURCE_SUCCESS' }),
-        );
+        expect(actions).toEqual(expect.objectContaining({ success: 'RESOURCE_SUCCESS' }));
       });
       it('should give me a failure action', () => {
-        expect(actions).toEqual(
-          expect.objectContaining({ failure: 'RESOURCE_FAILURE' }),
-        );
+        expect(actions).toEqual(expect.objectContaining({ failure: 'RESOURCE_FAILURE' }));
       });
     });
     describe('when generateAsyncActionCreator is called', () => {
       describe('when the async call is is successful', () => {
-        const mockAsyncAction = jest
-          .fn()
-          .mockImplementation(() => Promise.resolve('foo'));
+        const mockAsyncAction = jest.fn().mockImplementation(() => Promise.resolve('foo'));
         const dispatch = jest.fn();
         const actions = helpers.generateAsyncActions(resourceName);
-        const actionCreator = helpers.generateAsyncActionCreator(
-          resourceName,
-          mockAsyncAction,
-        );
+        const actionCreator = helpers.generateAsyncActionCreator(resourceName, mockAsyncAction);
 
         const func = actionCreator();
         func(dispatch);
@@ -65,15 +54,10 @@ describe('reduxHelpers', () => {
         });
       });
       describe('when async call fails', () => {
-        const mockAsyncAction = jest
-          .fn()
-          .mockImplementation(() => Promise.reject('something went wrong'));
+        const mockAsyncAction = jest.fn().mockImplementation(() => Promise.reject('something went wrong'));
         const dispatch = jest.fn();
         const actions = helpers.generateAsyncActions(resourceName);
-        const actionCreator = helpers.generateAsyncActionCreator(
-          resourceName,
-          mockAsyncAction,
-        );
+        const actionCreator = helpers.generateAsyncActionCreator(resourceName, mockAsyncAction);
         const func = actionCreator();
         func(dispatch);
         it('it should call the asyncAction', () => {
@@ -83,19 +67,14 @@ describe('reduxHelpers', () => {
           expect(dispatch).toBeCalledWith(actions.start());
         });
         it('it should dispatch the failure with the payload of foo', () => {
-          expect(dispatch).lastCalledWith(
-            actions.error('something went wrong'),
-          );
+          expect(dispatch).lastCalledWith(actions.error('something went wrong'));
         });
       });
     });
     describe('when generateAsyncReducer is called', () => {
       const actions = helpers.generateAsyncActions(resourceName);
       const onSuccessTransform = jest.fn().mockImplementation(foo => ({ foo }));
-      const reducer = helpers.generateAsyncReducer(
-        resourceName,
-        onSuccessTransform,
-      );
+      const reducer = helpers.generateAsyncReducer(resourceName, onSuccessTransform);
       it('random', () => {
         const initialState = {};
         Object.freeze(initialState);
@@ -126,10 +105,7 @@ describe('reduxHelpers', () => {
       it('failure', () => {
         const initialState = {};
         Object.freeze(initialState);
-        const newstate = reducer(
-          initialState,
-          actions.error('something is wrong'),
-        );
+        const newstate = reducer(initialState, actions.error('something is wrong'));
         expect(newstate).toEqual({
           error: 'something is wrong',
           isLoading: false,

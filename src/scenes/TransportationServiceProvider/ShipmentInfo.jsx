@@ -107,11 +107,7 @@ let DeliveryDateForm = props => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <SwaggerField
-        fieldName="actual_delivery_date"
-        swagger={schema}
-        required
-      />
+      <SwaggerField fieldName="actual_delivery_date" swagger={schema} required />
 
       <button onClick={onCancel}>Cancel</button>
       <button type="submit" disabled={submitting || !valid}>
@@ -130,15 +126,9 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
-    this.props.getAllShipmentDocuments(
-      getShipmentDocumentsLabel,
-      this.props.match.params.shipmentId,
-    );
+    this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.match.params.shipmentId);
     this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
-    this.props.getAllShipmentAccessorials(
-      getShipmentAccessorialsLabel,
-      this.props.match.params.shipmentId,
-    );
+    this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.match.params.shipmentId);
   }
 
   acceptShipment = () => {
@@ -150,32 +140,18 @@ class ShipmentInfo extends Component {
   };
 
   rejectShipment = reason => {
-    return this.props
-      .rejectShipment(this.props.shipment.id, reason)
-      .then(() => {
-        this.setState({ redirectToHome: true });
-      });
+    return this.props.rejectShipment(this.props.shipment.id, reason).then(() => {
+      this.setState({ redirectToHome: true });
+    });
   };
 
-  pickupShipment = values =>
-    this.props.transportShipment(this.props.shipment.id, values);
+  pickupShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
-  deliverShipment = values =>
-    this.props.deliverShipment(this.props.shipment.id, values);
+  deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const {
-      context,
-      shipment,
-      shipmentDocuments,
-      deliveryAddress,
-    } = this.props;
-    const {
-      service_member: serviceMember = {},
-      move = {},
-      gbl_number: gbl,
-    } = shipment;
-
+    const { context, shipment, shipmentDocuments, deliveryAddress } = this.props;
+    const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
     const shipmentId = this.props.match.params.shipmentId;
 
     const showDocumentViewer = context.flags.documentViewer;
@@ -193,8 +169,7 @@ class ShipmentInfo extends Component {
           <div className="usa-width-two-thirds">
             MOVE INFO - {move.selected_move_type} CODE D
             <h1>
-              Shipment Info: {serviceMember.last_name},{' '}
-              {serviceMember.first_name}
+              Shipment Info: {serviceMember.last_name}, {serviceMember.first_name}
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
@@ -216,25 +191,16 @@ class ShipmentInfo extends Component {
               <li>GBL# {gbl}</li>
               <li>Locator# {move.locator}</li>
               <li>
-                {this.props.shipment.source_gbloc} to{' '}
-                {this.props.shipment.destination_gbloc}
+                {this.props.shipment.source_gbloc} to {this.props.shipment.destination_gbloc}
               </li>
               <li>DoD ID# {serviceMember.edipi}</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
-                  <FontAwesomeIcon
-                    className="icon"
-                    icon={faPhone}
-                    flip="horizontal"
-                  />
+                  <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.text_message_is_preferred && (
-                  <FontAwesomeIcon className="icon" icon={faComments} />
-                )}
-                {serviceMember.email_is_preferred && (
-                  <FontAwesomeIcon className="icon" icon={faEmail} />
-                )}
+                {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
               </li>
               <li>
                 Status: <b>{capitalize(this.props.shipment.status)}</b>
@@ -247,11 +213,7 @@ class ShipmentInfo extends Component {
             <div className="usa-width-two-thirds">
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
-                  <Dates
-                    title="Dates"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
+                  <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <PremoveSurvey
                     title="Premove Survey"
                     shipment={this.props.shipment}
@@ -266,11 +228,7 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <Weights
-                    title="Weights & Items"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
+                  <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <Locations
                     deliveryAddress={deliveryAddress}
                     title="Locations"
@@ -316,9 +274,7 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               <div>
-                <button onClick={this.generateGBL}>
-                  Generate Bill of Lading
-                </button>
+                <button onClick={this.generateGBL}>Generate Bill of Lading</button>
               </div>
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
@@ -327,21 +283,10 @@ class ShipmentInfo extends Component {
               <div className="documents">
                 <h2 className="documents-list-header">
                   Documents
-                  {!showDocumentViewer && (
-                    <FontAwesomeIcon
-                      className="icon"
-                      icon={faExternalLinkAlt}
-                    />
-                  )}
+                  {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                   {showDocumentViewer && (
-                    <Link
-                      to={`/shipments/${shipmentId}/documents/new`}
-                      target="_blank"
-                    >
-                      <FontAwesomeIcon
-                        className="icon"
-                        icon={faExternalLinkAlt}
-                      />
+                    <Link to={`/shipments/${shipmentId}/documents/new`} target="_blank">
+                      <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                     </Link>
                   )}
                 </h2>
@@ -368,7 +313,11 @@ const mapStateToProps = state => {
   // if they do not have a delivery address, default to the station's address info
   const deliveryAddress = shipment.has_delivery_address
     ? shipment.delivery_address
-    : newDutyStation;
+    : {
+        city: newDutyStation.city,
+        state: newDutyStation.state,
+        postal_code: newDutyStation.postal_code,
+      };
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
@@ -378,25 +327,14 @@ const mapStateToProps = state => {
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
-    loadTspDependenciesHasSuccess: get(
-      state,
-      'tsp.loadTspDependenciesHasSuccess',
-    ),
+    loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     error: get(state, 'tsp.error'),
-    pickupSchema: get(
-      state,
-      'swaggerPublic.spec.definitions.ActualPickupDate',
-      {},
-    ),
-    deliverSchema: get(
-      state,
-      'swaggerPublic.spec.definitions.ActualDeliveryDate',
-      {},
-    ),
+    pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
+    deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
 };
 
@@ -417,6 +355,4 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default withContext(
-  connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo),
-);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));

@@ -8,10 +8,7 @@ import { MoveSummary } from './MoveSummary';
 
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 
-import {
-  createServiceMember,
-  isProfileComplete,
-} from 'scenes/ServiceMembers/ducks';
+import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
@@ -43,9 +40,7 @@ export class Landing extends Component {
   startMove = values => {
     const { serviceMember } = this.props;
     if (isEmpty(serviceMember)) {
-      console.error(
-        'With no service member, you should have been redirected already.',
-      );
+      console.error('With no service member, you should have been redirected already.');
     }
     this.props.push(`service-member/${serviceMember.id}/create`);
   };
@@ -63,16 +58,7 @@ export class Landing extends Component {
   };
 
   getNextIncompletePage = () => {
-    const {
-      selectedMoveType,
-      lastMoveIsCanceled,
-      serviceMember,
-      orders,
-      move,
-      ppm,
-      hhg,
-      backupContacts,
-    } = this.props;
+    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, hhg, backupContacts } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,
@@ -170,12 +156,7 @@ const mapStateToProps = state => ({
 });
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { push, createServiceMember, loadLoggedInUser },
-    dispatch,
-  );
+  return bindActionCreators({ push, createServiceMember, loadLoggedInUser }, dispatch);
 }
 
-export default withLastLocation(
-  connect(mapStateToProps, mapDispatchToProps)(Landing),
-);
+export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));

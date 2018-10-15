@@ -9,9 +9,7 @@ export const upload = new schema.Entity('uploads');
 export const uploads = new schema.Array(upload);
 
 // PPMs
-export const personallyProcuredMove = new schema.Entity(
-  'personallyProcuredMove',
-);
+export const personallyProcuredMove = new schema.Entity('personallyProcuredMove');
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 
 // Addresses
@@ -71,16 +69,11 @@ moveDocument.define({
   move: move,
 });
 
-// AvailableMoveDates
-export const availableMoveDates = new schema.Entity(
-  'availableMoveDates',
-  {},
-  { idAttribute: 'start_date' },
-);
+export const moveDocumentPayload = moveDocument;
 
 // Tariff400ngItems
-export const tariff400ngItem = new schema.Entity('tariff400ngItems');
 export const tariff400ngItems = new schema.Array(tariff400ngItem);
+export const tariff400ngItem = new schema.Entity('tariff400ngItems');
 
 // ShipmentAccessorial
 export const shipmentAccessorial = new schema.Entity('shipmentAccessorials', {
@@ -91,3 +84,9 @@ export const shipmentAccessorials = new schema.Array(shipmentAccessorial);
 shipmentAccessorial.define({
   tariff400ngItem: tariff400ngItem,
 });
+
+// AvailableMoveDates
+export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
+
+// MoveDatesSummary
+export const moveDatesSummary = new schema.Entity('moveDatesSummaries');

@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	suite.Equal(apimessages.AffiliationARMY, *okResponse.Payload.ServiceMember.Affiliation)
 }
 
-func (suite *HandlerSuite) TestPatchShipmentHandlerActualWeight() {
+func (suite *HandlerSuite) TestPatchShipmentHandlerNetWeight() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -66,7 +66,8 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerActualWeight() {
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	UpdatePayload := apimessages.Shipment{
-		ActualWeight: swag.Int64(17500),
+		NetWeight:   swag.Int64(17500),
+		GrossWeight: swag.Int64(12500),
 	}
 
 	params := shipmentop.PatchShipmentParams{
@@ -84,7 +85,8 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerActualWeight() {
 	okResponse := response.(*shipmentop.PatchShipmentOK)
 
 	// And: Payload has new values
-	suite.Equal(int64(17500), *okResponse.Payload.ActualWeight)
+	suite.Equal(int64(17500), *okResponse.Payload.NetWeight)
+	suite.Equal(int64(12500), *okResponse.Payload.GrossWeight)
 }
 
 func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {

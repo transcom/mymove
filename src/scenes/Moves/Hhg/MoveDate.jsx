@@ -12,20 +12,12 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
-import {
-  createOrUpdateShipment,
-  getShipment,
-} from 'shared/Entities/modules/shipments';
-import {
-  getAvailableMoveDates,
-  selectAvailableMoveDates,
-} from 'shared/Entities/modules/calendar';
+import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
+import { getAvailableMoveDates, selectAvailableMoveDates } from 'shared/Entities/modules/calendar';
 
 import './ShipmentWizard.css';
 
-const validateMoveDateForm = validateAdditionalFields([
-  'requested_pickup_date',
-]);
+const validateMoveDateForm = validateAdditionalFields(['requested_pickup_date']);
 
 const formName = 'move_date_form';
 const getRequestLabel = 'MoveDate.getShipment';
@@ -40,10 +32,7 @@ export class MoveDate extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (
-      get(this.props, 'currentShipment.id') !==
-      get(prevProps, 'currentShipment.id')
-    ) {
+    if (get(this.props, 'currentShipment.id') !== get(prevProps, 'currentShipment.id')) {
       this.loadShipment();
     }
   }
@@ -51,11 +40,7 @@ export class MoveDate extends Component {
   loadShipment() {
     const shipmentID = get(this.props, 'currentShipment.id');
     if (shipmentID) {
-      this.props.getShipment(
-        getRequestLabel,
-        shipmentID,
-        this.props.currentShipment.move_id,
-      );
+      this.props.getShipment(getRequestLabel, shipmentID, this.props.currentShipment.move_id);
     }
   }
 
@@ -65,12 +50,7 @@ export class MoveDate extends Component {
     const currentShipmentId = get(this.props, 'currentShipment.id');
 
     return this.props
-      .createOrUpdateShipment(
-        createOrUpdateRequestLabel,
-        moveId,
-        shipment,
-        currentShipmentId,
-      )
+      .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
       .then(data => {
         return this.props.setCurrentShipment(data.body);
       })
@@ -114,6 +94,7 @@ export class MoveDate extends Component {
             name="requested_pickup_date"
             component={DatePicker}
             availableMoveDates={this.props.availableMoveDates}
+            currentShipment={this.props.currentShipment}
           />
         </div>
       </MoveDateWizardForm>

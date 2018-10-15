@@ -9,19 +9,12 @@ import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
 import { formatDate, formatCents } from 'shared/formatters';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import {
-  selectMoveDocument,
-  updateMoveDocument,
-} from 'shared/Entities/modules/moveDocuments';
+import { selectMoveDocument, updateMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 
-const DocumentDetailDisplay = ({
-  isExpenseDocument,
-  moveDocument,
-  moveDocSchema,
-}) => {
+const DocumentDetailDisplay = ({ isExpenseDocument, moveDocument, moveDocSchema }) => {
   const moveDocFieldProps = {
     values: moveDocument,
     schema: moveDocSchema,
@@ -33,56 +26,25 @@ const DocumentDetailDisplay = ({
           {renderStatusIcon(moveDocument.status)}
           {moveDocument.title}
         </span>
-        <p className="uploaded-at">
-          Uploaded{' '}
-          {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}
-        </p>
-        <PanelSwaggerField
-          title="Document Title"
-          fieldName="title"
-          required
-          {...moveDocFieldProps}
-        />
+        <p className="uploaded-at">Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}</p>
+        <PanelSwaggerField title="Document Title" fieldName="title" required {...moveDocFieldProps} />
 
-        <PanelSwaggerField
-          title="Document Type"
-          fieldName="move_document_type"
-          required
-          {...moveDocFieldProps}
-        />
+        <PanelSwaggerField title="Document Type" fieldName="move_document_type" required {...moveDocFieldProps} />
         {isExpenseDocument &&
           moveDocument.moving_expense_type && (
-            <PanelSwaggerField
-              fieldName="moving_expense_type"
-              {...moveDocFieldProps}
-            />
+            <PanelSwaggerField fieldName="moving_expense_type" {...moveDocFieldProps} />
           )}
         {isExpenseDocument &&
           get(moveDocument, 'requested_amount_cents') && (
-            <PanelSwaggerField
-              fieldName="requested_amount_cents"
-              {...moveDocFieldProps}
-            />
+            <PanelSwaggerField fieldName="requested_amount_cents" {...moveDocFieldProps} />
           )}
         {isExpenseDocument &&
           get(moveDocument, 'payment_method') && (
-            <PanelSwaggerField
-              fieldName="payment_method"
-              {...moveDocFieldProps}
-            />
+            <PanelSwaggerField fieldName="payment_method" {...moveDocFieldProps} />
           )}
-        <PanelSwaggerField
-          title="Document Status"
-          fieldName="status"
-          required
-          {...moveDocFieldProps}
-        />
+        <PanelSwaggerField title="Document Status" fieldName="status" required {...moveDocFieldProps} />
 
-        <PanelSwaggerField
-          title="Notes"
-          fieldName="notes"
-          {...moveDocFieldProps}
-        />
+        <PanelSwaggerField title="Notes" fieldName="notes" {...moveDocFieldProps} />
       </div>
     </Fragment>
   );
@@ -124,21 +86,14 @@ DocumentDetailDisplay.propTypes = {
 };
 
 const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
-  const isExpenseDocument =
-    formValues.moveDocument.move_document_type === 'EXPENSE';
+  const isExpenseDocument = formValues.moveDocument.move_document_type === 'EXPENSE';
   return (
     <Fragment>
       <div>
         <FormSection name="moveDocument">
           <SwaggerField fieldName="title" swagger={moveDocSchema} required />
-          <SwaggerField
-            fieldName="move_document_type"
-            swagger={moveDocSchema}
-            required
-          />
-          {isExpenseDocument && (
-            <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
-          )}
+          <SwaggerField fieldName="move_document_type" swagger={moveDocSchema} required />
+          {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
           <SwaggerField fieldName="status" swagger={moveDocSchema} required />
           <SwaggerField fieldName="notes" swagger={moveDocSchema} />
         </FormSection>
@@ -158,10 +113,7 @@ DocumentDetailEdit.propTypes = {
 
 const formName = 'move_document_viewer';
 
-let DocumentDetailPanel = editablePanelify(
-  DocumentDetailDisplay,
-  DocumentDetailEdit,
-);
+let DocumentDetailPanel = editablePanelify(DocumentDetailDisplay, DocumentDetailEdit);
 
 DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 
@@ -183,11 +135,7 @@ function mapStateToProps(state, props) {
     },
     isExpenseDocument,
     formValues: getFormValues(formName)(state),
-    moveDocSchema: get(
-      state,
-      'swaggerInternal.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
+    moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     hasError: false,
     errorMessage: state.office.error,
     isUpdating: false,
@@ -197,29 +145,17 @@ function mapStateToProps(state, props) {
     getUpdateArgs: function() {
       // Make a copy of values to not modify moveDocument
       let values = JSON.parse(JSON.stringify(getFormValues(formName)(state)));
-      values.moveDocument.personally_procured_move_id = get(
-        state.office,
-        'officePPMs.0.id',
-      );
+      values.moveDocument.personally_procured_move_id = get(state.office, 'officePPMs.0.id');
       if (
         get(values.moveDocument, 'move_document_type', '') !== 'EXPENSE' &&
         get(values.moveDocument, 'payment_method', false)
       ) {
-        values.moveDocument = omit(values.moveDocument, [
-          'payment_method',
-          'requested_amount_cents',
-        ]);
+        values.moveDocument = omit(values.moveDocument, ['payment_method', 'requested_amount_cents']);
       }
       if (get(values.moveDocument, 'move_document_type', '') === 'EXPENSE') {
-        values.moveDocument.requested_amount_cents = convertDollarsToCents(
-          values.moveDocument.requested_amount_cents,
-        );
+        values.moveDocument.requested_amount_cents = convertDollarsToCents(values.moveDocument.requested_amount_cents);
       }
-      return [
-        get(state, 'office.officeMove.id'),
-        get(moveDocument, 'id'),
-        values.moveDocument,
-      ];
+      return [get(state, 'office.officeMove.id'), get(moveDocument, 'id'), values.moveDocument];
     },
   };
 }
@@ -233,6 +169,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  DocumentDetailPanel,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentDetailPanel);

@@ -81,10 +81,7 @@ export class DutyStationSearchBox extends Component {
     return (
       <div {...props.innerProps}>
         <components.Option {...props}>
-          <Highlighter
-            searchWords={[this.state.inputValue]}
-            textToHighlight={props.label}
-          />
+          <Highlighter searchWords={[this.state.inputValue]} textToHighlight={props.label} />
         </components.Option>
       </div>
     );
@@ -93,8 +90,7 @@ export class DutyStationSearchBox extends Component {
     const defaultTitle = 'Name of Duty Station:';
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
-    const isEmptyStation =
-      get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
+    const isEmptyStation = get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
     return (
       <Fragment>
         <div className="duty-station-search">
@@ -120,8 +116,7 @@ export class DutyStationSearchBox extends Component {
           />
           {!isEmptyStation && (
             <p className="location">
-              {this.props.input.value.address.city},{' '}
-              {this.props.input.value.address.state}{' '}
+              {this.props.input.value.address.city}, {this.props.input.value.address.state}{' '}
               {this.props.input.value.address.postal_code}
             </p>
           )}

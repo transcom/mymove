@@ -28,6 +28,8 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
 	publicAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
 	publicAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
+	publicAPI.UploadsCreateUploadHandler = CreateUploadHandler{context}
+	publicAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{context}
 
 	// Shipments
 	publicAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler{context}

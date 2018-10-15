@@ -84,11 +84,7 @@ PreApprovalForm = reduxForm({
 
 function mapStateToProps(state, props) {
   return {
-    ship_accessorial_schema: get(
-      state,
-      'swaggerPublic.spec.definitions.ShipmentAccessorial',
-      {},
-    ),
+    ship_accessorial_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentAccessorial', {}),
   };
 }
 

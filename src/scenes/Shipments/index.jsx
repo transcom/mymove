@@ -18,19 +18,13 @@ export class Shipments extends Component {
     const shipmentsStatus = this.props.match.params.shipmentsStatus;
 
     // Title with capitalized shipment status
-    const capShipmentsStatus =
-      shipmentsStatus.charAt(0).toUpperCase() + shipmentsStatus.slice(1);
+    const capShipmentsStatus = shipmentsStatus.charAt(0).toUpperCase() + shipmentsStatus.slice(1);
 
     // Handle cases of users entering invalid shipment types
-    if (
-      shipmentsStatus !== 'awarded' &&
-      shipmentsStatus !== 'available' &&
-      shipmentsStatus !== 'all'
-    ) {
+    if (shipmentsStatus !== 'awarded' && shipmentsStatus !== 'available' && shipmentsStatus !== 'all') {
       return (
         <Alert type="error" heading="Invalid Shipment Type Error">
-          You've attempted to access an inaccessible route. Invalid Shipment
-          Status: {shipmentsStatus}.
+          You've attempted to access an inaccessible route. Invalid Shipment Status: {shipmentsStatus}.
         </Alert>
       );
     }
@@ -40,16 +34,13 @@ export class Shipments extends Component {
     const filteredShipments = shipments.filter(shipment => {
       return (
         shipmentsStatus === 'all' ||
-        (shipment.transportation_service_provider_id &&
-          shipmentsStatus === 'awarded') ||
-        (!shipment.transportation_service_provider_id &&
-          shipmentsStatus === 'available')
+        (shipment.transportation_service_provider_id && shipmentsStatus === 'awarded') ||
+        (!shipment.transportation_service_provider_id && shipmentsStatus === 'available')
       );
     });
 
     const groupedShipments = filteredShipments.reduce((groups, shipment) => {
-      groups[shipment.traffic_distribution_list_id] =
-        groups[shipment.traffic_distribution_list_id] || [];
+      groups[shipment.traffic_distribution_list_id] = groups[shipment.traffic_distribution_list_id] || [];
       groups[shipment.traffic_distribution_list_id].push(shipment);
 
       return groups;

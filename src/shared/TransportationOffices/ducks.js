@@ -2,34 +2,23 @@ import { get, union } from 'lodash';
 import { showDutyStationTransportationOffice } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
-const getDutyStationTransportationOfficeType =
-  'GET_DUTY_STATION_TRANSPORTATION_OFFICE';
+const getDutyStationTransportationOfficeType = 'GET_DUTY_STATION_TRANSPORTATION_OFFICE';
 export const GET_DUTY_STATION_TRANSPORTATION_OFFICE = ReduxHelpers.generateAsyncActionTypes(
   getDutyStationTransportationOfficeType,
 );
 
 export const loadDutyStationTransportationOffice = dutyStationId => dispatch => {
-  const actions = ReduxHelpers.generateAsyncActions(
-    getDutyStationTransportationOfficeType,
-  );
+  const actions = ReduxHelpers.generateAsyncActions(getDutyStationTransportationOfficeType);
   dispatch(actions.start);
   return showDutyStationTransportationOffice(dutyStationId)
-    .then(transportationOffice =>
-      dispatch(actions.success({ transportationOffice, dutyStationId })),
-    )
+    .then(transportationOffice => dispatch(actions.success({ transportationOffice, dutyStationId })))
     .catch(error => dispatch(actions.error(error)));
 };
 
-ReduxHelpers.generateAsyncActionCreator(
-  getDutyStationTransportationOfficeType,
-  showDutyStationTransportationOffice,
-);
+ReduxHelpers.generateAsyncActionCreator(getDutyStationTransportationOfficeType, showDutyStationTransportationOffice);
 
 export const getDutyStationTransportationOffice = (state, dutyStationId) => {
-  const officeId = get(
-    state,
-    `transportationOffices.byDutyStationId[${dutyStationId}]`,
-  );
+  const officeId = get(state, `transportationOffices.byDutyStationId[${dutyStationId}]`);
   return get(state, `transportationOffices.byId.${officeId}`);
 };
 

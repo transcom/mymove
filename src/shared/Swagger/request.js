@@ -34,11 +34,7 @@ function successfulReturnType(routeDefinition, status) {
   const response = routeDefinition.responses[status];
   const [, , schemaKey] = response.schema['$$ref'].split('/');
   if (!response) {
-    console.error(
-      `No response found for operation ${
-        routeDefinition.operationId
-      } with status ${status}`,
-    );
+    console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return;
   }
   return toCamelCase(schemaKey);
@@ -104,34 +100,27 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           response,
         };
 
-        const routeDefinition = findMatchingRoute(
-          client.spec.paths,
-          operationPath,
-        );
+        const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
         if (!routeDefinition) {
-          throw new Error(
-            `Could not find routeDefinition for ${operationPath}`,
-          );
+          throw new Error(`Could not find routeDefinition for ${operationPath}`);
         }
 
-        const schemaKey = successfulReturnType(
-          routeDefinition,
-          response.status,
-        );
+        let schemaKey = successfulReturnType(routeDefinition, response.status);
         if (!schemaKey) {
-          throw new Error(
-            `Could not find schemaKey for ${operationPath} status ${
-              response.status
-            }`,
+          throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
+        }
+
+        if (schemaKey.indexOf('Payload') !== -1) {
+          const newSchemaKey = schemaKey.replace('Payload', '');
+          console.warn(
+            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
           );
+          schemaKey = newSchemaKey;
         }
 
         // eslint-disable-next-line security/detect-object-injection
         const payloadSchema = schema[schemaKey];
-        action.entities = normalizePayload(
-          response.body,
-          payloadSchema,
-        ).entities;
+        action.entities = normalizePayload(response.body, payloadSchema).entities;
         if (!payloadSchema) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
@@ -140,9 +129,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         return response;
       })
       .catch(response => {
-        console.error(
-          `Operation ${operationPath} failed: ${response} (${response.status})`,
-        );
+        console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
         const updatedRequestLog = Object.assign({}, requestLog, {
           ok: false,
           end: new Date(),

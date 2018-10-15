@@ -4,11 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import {
-  PanelSwaggerField,
-  PanelField,
-  editablePanelify,
-} from 'shared/EditablePanel';
+import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
@@ -17,9 +13,7 @@ import { loadEntitlements, updatePPM } from 'scenes/Office/ducks';
 
 const validateWeight = (value, formValues, props, fieldName) => {
   if (value && props.entitlement && value > props.entitlement.sum) {
-    return `Cannot be more than full entitlement weight (${
-      props.entitlement.sum
-    } lbs)`;
+    return `Cannot be more than full entitlement weight (${props.entitlement.sum} lbs)`;
   }
 };
 
@@ -34,44 +28,21 @@ const EstimatesDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Incentive estimate">
-          {formatCentsRange(
-            ppm.incentive_estimate_min,
-            ppm.incentive_estimate_max,
-          )}
+          {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
         </PanelField>
         <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
-        <PanelSwaggerField
-          title="Planned departure"
-          fieldName="planned_move_date"
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="Planned departure" fieldName="planned_move_date" {...fieldProps} />
         <PanelField title="Storage planned" fieldName="has_sit">
           {fieldProps.values.has_sit ? 'Yes' : 'No'}
         </PanelField>
         {fieldProps.values.has_sit && (
-          <PanelSwaggerField
-            title="Planned days in storage"
-            fieldName="days_in_storage"
-            {...fieldProps}
-          />
+          <PanelSwaggerField title="Planned days in storage" fieldName="days_in_storage" {...fieldProps} />
         )}
       </div>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          title="Origin zip code"
-          fieldName="pickup_postal_code"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Additional stop zip code"
-          fieldName="additional_pickup_postal_code"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Destination zip code"
-          fieldName="destination_postal_code"
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="Origin zip code" fieldName="pickup_postal_code" {...fieldProps} />
+        <PanelSwaggerField title="Additional stop zip code" fieldName="additional_pickup_postal_code" {...fieldProps} />
+        <PanelSwaggerField title="Destination zip code" fieldName="destination_postal_code" {...fieldProps} />
       </div>
     </React.Fragment>
   );
@@ -86,10 +57,7 @@ const EstimatesEdit = props => {
       <FormSection name="PPMEstimate">
         <div className="editable-panel-column">
           <PanelField title="Incentive estimate">
-            {formatCentsRange(
-              ppm.incentive_estimate_min,
-              ppm.incentive_estimate_max,
-            )}
+            {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
           </PanelField>
           <SwaggerField
             className="short-field"
@@ -99,45 +67,17 @@ const EstimatesEdit = props => {
             required
           />{' '}
           lbs
-          <SwaggerField
-            title="Planned departure date"
-            fieldName="planned_move_date"
-            swagger={schema}
-            required
-          />
+          <SwaggerField title="Planned departure date" fieldName="planned_move_date" swagger={schema} required />
           <div className="panel-subhead">Storage</div>
-          <SwaggerField
-            title="Storage planned?"
-            fieldName="has_sit"
-            swagger={schema}
-            component={YesNoBoolean}
-          />
+          <SwaggerField title="Storage planned?" fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
           {get(props, 'formValues.PPMEstimate.has_sit', false) && (
-            <SwaggerField
-              title="Planned days in storage"
-              fieldName="days_in_storage"
-              swagger={schema}
-            />
+            <SwaggerField title="Planned days in storage" fieldName="days_in_storage" swagger={schema} />
           )}
         </div>
         <div className="editable-panel-column">
-          <SwaggerField
-            title="Origin zip code"
-            fieldName="pickup_postal_code"
-            swagger={schema}
-            required
-          />
-          <SwaggerField
-            title="Additional stop zip code"
-            fieldName="additional_pickup_postal_code"
-            swagger={schema}
-          />
-          <SwaggerField
-            title="Destination zip code"
-            fieldName="destination_postal_code"
-            swagger={schema}
-            required
-          />
+          <SwaggerField title="Origin zip code" fieldName="pickup_postal_code" swagger={schema} required />
+          <SwaggerField title="Additional stop zip code" fieldName="additional_pickup_postal_code" swagger={schema} />
+          <SwaggerField title="Destination zip code" fieldName="destination_postal_code" swagger={schema} required />
         </div>
       </FormSection>
     </React.Fragment>
@@ -160,10 +100,7 @@ function mapStateToProps(state) {
     initialValues: { PPMEstimate: PPMEstimate },
 
     // Wrapper
-    ppmSchema: get(
-      state,
-      'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload',
-    ),
+    ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
     hasError: false,
     errorMessage: get(state, 'office.error'),
     PPMEstimate: PPMEstimate,

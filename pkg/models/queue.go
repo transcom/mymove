@@ -66,7 +66,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.status = 'APPROVED'
 		`
 	} else if lifecycleState == "hhg_accepted" {

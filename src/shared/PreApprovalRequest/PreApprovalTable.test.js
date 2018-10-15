@@ -20,8 +20,7 @@ describe('PreApprovalTable tests', () => {
       accessorial: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 788300,
-      notes:
-        'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
+      notes: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
       created_at: '2018-09-24T14:05:38.847Z',
       status: 'SUBMITTED',
     },

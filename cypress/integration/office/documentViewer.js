@@ -108,9 +108,7 @@ describe('The document viewer', function() {
     cy.contains('GTCC');
     cy.contains('Edit').click();
 
-    cy
-      .get('select[name="moveDocument.move_document_type"]')
-      .select('Other document type');
+    cy.get('select[name="moveDocument.move_document_type"]').select('Other document type');
 
     cy
       .get('button')
@@ -140,12 +138,8 @@ describe('The document viewer', function() {
     cy.contains('Edit').click();
 
     cy.get('select[name="moveDocument.move_document_type"]').select('Expense');
-    cy
-      .get('select[name="moveDocument.moving_expense_type"]')
-      .select('Contracted Expense');
-    cy
-      .get('input[name="moveDocument.requested_amount_cents"]')
-      .type('4,999.92');
+    cy.get('select[name="moveDocument.moving_expense_type"]').select('Contracted Expense');
+    cy.get('input[name="moveDocument.requested_amount_cents"]').type('4,999.92');
     cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
     cy.get('select[name="moveDocument.status"]').select('OK');
 
