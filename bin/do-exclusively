@@ -1,22 +1,11 @@
 #!/usr/bin/env bash
 
-set -o xtrace -o errexit -o pipefail -o nounset
 
-########################################################################################
-# CircleCI's current recommendation for roughly serializing a subset
-# of build commands for a given branch
-#
-# circle discussion thread - https://discuss.circleci.com/t/serializing-deployments/153
-# Code from - https://github.com/bellkev/circle-lock-test
-########################################################################################
-
-
-# sets $branch, $job_name, $tag, $rest
+# sets $branch, $tag, $rest
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case $1 in
             -b|--branch) branch="$2" ;;
-            -j|--job-name) job_name="$2" ;;
             -t|--tag) tag="$2" ;;
             *) break ;;
         esac
@@ -32,11 +21,6 @@ should_skip() {
         return 0
     fi
 
-    if [[ "$job_name" && "$CIRCLE_JOB" != "$job_name" ]]; then
-        echo "Not running $job_name. Skipping..."
-        return 0
-    fi
-
     if [[ "$tag" && "$commit_message" != *\[$tag\]* ]]; then
         echo "No [$tag] commit tag found. Skipping..."
         return 0
@@ -45,17 +29,13 @@ should_skip() {
     return 1
 }
 
-# reads $branch, $job_name, $tag
+# reads $branch, $tag
 # sets $jq_prog
 make_jq_prog() {
     local jq_filters=""
 
     if [[ $branch ]]; then
         jq_filters+=" and .branch == \"$branch\""
-    fi
-
-    if [[ $job_name ]]; then
-        jq_filters+=" and .workflows?.job_name? == \"$job_name\""
     fi
 
     if [[ $tag ]]; then
@@ -91,8 +71,8 @@ set -o pipefail
         else
             break
         fi
-        echo "Retrying in 10 seconds..."
-        sleep 10
+        echo "Retrying in 5 seconds..."
+        sleep 5
     done
 
     echo "Acquired lock"
