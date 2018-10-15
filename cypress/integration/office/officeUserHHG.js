@@ -136,8 +136,7 @@ function officeUserApprovesOnlyBasicsHHG() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('BACON6')
     .dblclick();
 
@@ -146,26 +145,22 @@ function officeUserApprovesOnlyBasicsHHG() {
   });
 
   // Approve basics
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Basics')
     .click();
 
   // disabled because not on hhg tab
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Complete Shipments')
     .should('be.disabled');
 
   cy.get('.status').contains('Approved');
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
 
@@ -174,18 +169,15 @@ function officeUserApprovesOnlyBasicsHHG() {
   });
 
   // disabled because shipment not yet accepted
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
 
   // Disabled because already approved and not delivered
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Complete Shipments')
     .should('be.disabled');
 
