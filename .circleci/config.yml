@@ -38,12 +38,12 @@ commands:
   deploy_migrations_steps:
     steps:
       - checkout
-      #- run:
-      #    name: Snapshot database
-      #    command: bin/rds-snapshot-app-db $APP_ENVIRONMENT
+      - run:
+          name: Snapshot database
+          command: bin/do-exclusively --branch ${CIRCLE_BRANCH} bin/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
           name: Run database migrations
-          command: bin/do-exclusively --branch ${CIRCLE_BRANCH} ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          command: bin/do-exclusively --branch ${CIRCLE_BRANCH} bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - announce_failure
   deploy_app_steps:
     parameters:
