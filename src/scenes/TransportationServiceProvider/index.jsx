@@ -54,26 +54,12 @@ class TspWrapper extends Component {
               <LogoutOnInactivity />
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
-                <PrivateRoute
-                  path="/shipments/:shipmentId/documents/new"
-                  component={NewDocument}
-                />
-                <PrivateRoute
-                  path="/shipments/:shipmentId/documents/:moveDocumentId"
-                  component={DocumentViewer}
-                />
-                <PrivateRoute
-                  path="/shipments/:shipmentId"
-                  component={ShipmentInfo}
-                />
+                <PrivateRoute path="/shipments/:shipmentId/documents/new" component={NewDocument} />
+                <PrivateRoute path="/shipments/:shipmentId/documents/:moveDocumentId" component={DocumentViewer} />
+                <PrivateRoute path="/shipments/:shipmentId" component={ShipmentInfo} />
                 {/* Be specific about available routes by listing them */}
-                <PrivateRoute
-                  path="/queues/:queueType(new|approved|in_transit|delivered|all)"
-                  component={Queues}
-                />
-                {!isProduction && (
-                  <PrivateRoute path="/playground" component={ScratchPad} />
-                )}
+                <PrivateRoute path="/queues/:queueType(new|approved|in_transit|delivered|all)" component={Queues} />
+                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
                 {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
               </Switch>
             </div>
@@ -93,7 +79,6 @@ const mapStateToProps = state => ({
   swaggerError: state.swaggerPublic.hasErrored,
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadPublicSchema, loadLoggedInUser }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ loadPublicSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(TspWrapper);

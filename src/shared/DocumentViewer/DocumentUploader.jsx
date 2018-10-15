@@ -78,15 +78,8 @@ export class DocumentUploader extends Component {
   };
 
   render() {
-    const {
-      handleSubmit,
-      moveDocSchema,
-      genericMoveDocSchema,
-      formValues,
-      isPublic,
-    } = this.props;
-    const isExpenseDocument =
-      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
+    const { handleSubmit, moveDocSchema, genericMoveDocSchema, formValues, isPublic } = this.props;
+    const isExpenseDocument = get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
@@ -103,33 +96,14 @@ export class DocumentUploader extends Component {
         )}
         <form onSubmit={handleSubmit(this.onSubmit)}>
           <h3>Upload a new document</h3>
-          <SwaggerField
-            title="Document type"
-            fieldName="move_document_type"
-            swagger={genericMoveDocSchema}
-            required
-          />
+          <SwaggerField title="Document type" fieldName="move_document_type" swagger={genericMoveDocSchema} required />
           <div className="uploader-box">
-            <SwaggerField
-              title="Document title"
-              fieldName="title"
-              swagger={genericMoveDocSchema}
-              required
-            />
-            {isExpenseDocument && (
-              <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
-            )}
-            <SwaggerField
-              title="Notes"
-              fieldName="notes"
-              swagger={genericMoveDocSchema}
-            />
+            <SwaggerField title="Document title" fieldName="title" swagger={genericMoveDocSchema} required />
+            {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
+            <SwaggerField title="Notes" fieldName="notes" swagger={genericMoveDocSchema} />
             <div>
               <h4>Attach PDF or image</h4>
-              <p>
-                Upload a PDF or take a picture of each page and upload the
-                images.
-              </p>
+              <p>Upload a PDF or take a picture of each page and upload the images.</p>
             </div>
             <Uploader
               isPublic={isPublic}

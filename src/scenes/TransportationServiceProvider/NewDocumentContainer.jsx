@@ -24,16 +24,8 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     shipmentId,
-    genericMoveDocSchema: get(
-      state,
-      'swaggerPublic.spec.definitions.CreateGenericMoveDocumentPayload',
-      {},
-    ),
-    moveDocSchema: get(
-      state,
-      'swaggerPublic.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
+    genericMoveDocSchema: get(state, 'swaggerPublic.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+    moveDocSchema: get(state, 'swaggerPublic.spec.definitions.MoveDocumentPayload', {}),
     moveDocuments: selectShipmentDocuments(state, shipmentId),
     moveLocator: moveLocator || '',
     serviceMember: { edipi, name },
@@ -49,9 +41,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       dispatch(getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId));
     },
     createShipmentDocument: (shipmentId, body) =>
-      dispatch(
-        createShipmentDocument(createShipmentDocumentLabel, shipmentId, body),
-      ),
+      dispatch(createShipmentDocument(createShipmentDocumentLabel, shipmentId, body)),
   };
 };
 

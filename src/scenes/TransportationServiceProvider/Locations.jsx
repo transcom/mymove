@@ -17,12 +17,7 @@ const LocationsDisplay = ({
     <div className="editable-panel-column">
       <span className="column-subhead">Pickup</span>
       <AddressElementDisplay address={pickupAddress} title="Primary" />
-      {hasSecondaryPickupAddress && (
-        <AddressElementDisplay
-          address={secondaryPickupAddress}
-          title="Secondary"
-        />
-      )}
+      {hasSecondaryPickupAddress && <AddressElementDisplay address={secondaryPickupAddress} title="Secondary" />}
     </div>
     <div className="editable-panel-column">
       <span className="column-subhead">Delivery</span>

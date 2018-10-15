@@ -18,10 +18,7 @@ const BackupInfoDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <AddressElementDisplay
-          address={backupAddress}
-          title="Backup mailing address"
-        />
+        <AddressElementDisplay address={backupAddress} title="Backup mailing address" />
       </div>
       <div className="editable-panel-column">
         <PanelField title="Backup contact">
@@ -71,10 +68,7 @@ const BackupInfoEdit = props => {
 
       <div className="editable-panel-column">
         <FormSection name="backupMailingAddress">
-          <AddressElementEdit
-            addressProps={backupMailingAddressProps}
-            title="Backup mailing address"
-          />
+          <AddressElementEdit addressProps={backupMailingAddressProps} title="Backup mailing address" />
         </FormSection>
       </div>
     </React.Fragment>
@@ -103,11 +97,7 @@ function mapStateToProps(state) {
     },
 
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
-    backupContactSchema: get(
-      state,
-      'swaggerInternal.spec.definitions.ServiceMemberBackupContactPayload',
-      {},
-    ),
+    backupContactSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberBackupContactPayload', {}),
     backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     backupContact: backupContact,
 

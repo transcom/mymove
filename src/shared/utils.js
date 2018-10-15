@@ -39,10 +39,7 @@ export const upsert = (arr, newValue) => {
 export function fetchActive(foos) {
   return (
     find(foos, i =>
-      includes(
-        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'PAYMENT_REQUESTED'],
-        get(i, 'status'),
-      ),
+      includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'PAYMENT_REQUESTED'], get(i, 'status')),
     ) || null
   );
 }
@@ -73,18 +70,13 @@ export function formatPayload(payload, def) {
   });
 }
 
-export const convertDollarsToCents = dollars =>
-  Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
+export const convertDollarsToCents = dollars => Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
 
 export function renderStatusIcon(status) {
   if (!status) {
     return;
   }
-  if (
-    status === 'AWAITING_REVIEW' ||
-    status === 'DRAFT' ||
-    status === 'SUBMITTED'
-  ) {
+  if (status === 'AWAITING_REVIEW' || status === 'DRAFT' || status === 'SUBMITTED') {
     return <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />;
   }
   if (status === 'OK') {
@@ -94,11 +86,6 @@ export function renderStatusIcon(status) {
     return <FontAwesomeIcon className="icon approved" icon={faCheck} />;
   }
   if (status === 'HAS_ISSUE') {
-    return (
-      <FontAwesomeIcon
-        className="icon approval-problem"
-        icon={faExclamationCircle}
-      />
-    );
+    return <FontAwesomeIcon className="icon approval-problem" icon={faExclamationCircle} />;
   }
 }

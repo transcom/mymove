@@ -18,22 +18,12 @@ const AccountingDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          title="Department indicator"
-          fieldName="department_indicator"
-          required
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="Department indicator" fieldName="department_indicator" required {...fieldProps} />
 
         <PanelSwaggerField title="SAC" fieldName="sac" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          title="TAC"
-          required
-          fieldName="tac"
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="TAC" required fieldName="tac" {...fieldProps} />
       </div>
     </React.Fragment>
   );
@@ -44,20 +34,10 @@ const AccountingEdit = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <SwaggerField
-          title="Department indicator"
-          fieldName="department_indicator"
-          swagger={ordersSchema}
-          required
-        />
+        <SwaggerField title="Department indicator" fieldName="department_indicator" swagger={ordersSchema} required />
       </div>
       <div className="editable-panel-column">
-        <SwaggerField
-          title="TAC"
-          fieldName="tac"
-          swagger={ordersSchema}
-          required
-        />
+        <SwaggerField title="TAC" fieldName="tac" swagger={ordersSchema} required />
       </div>
       <div className="editable-panel-column">
         <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} />
@@ -84,8 +64,7 @@ function mapStateToProps(state) {
 
     // Wrapper
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
-    hasError:
-      state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
+    hasError: state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
     errorMessage: state.office.error,
 
     orders: orders,

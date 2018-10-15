@@ -13,17 +13,11 @@ import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { upsert } from 'shared/utils';
 // Types
-export const GET_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
-  'GET_SERVICE_MEMBER',
-);
-export const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
-  'UPDATE_SERVICE_MEMBER',
-);
+export const GET_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes('GET_SERVICE_MEMBER');
+export const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes('UPDATE_SERVICE_MEMBER');
 
 const createServiceMemberType = 'CREATE_SERVICE_MEMBER';
-export const CREATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
-  createServiceMemberType,
-);
+export const CREATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(createServiceMemberType);
 
 export const createServiceMember = ReduxHelpers.generateAsyncActionCreator(
   createServiceMemberType,
@@ -34,17 +28,11 @@ const createBackupContactType = 'CREATE_BACKUP_CONTACT';
 const indexBackupContactsType = 'INDEX_BACKUP_CONTACTS';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 
-export const CREATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
-  createBackupContactType,
-);
+export const CREATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(createBackupContactType);
 
-export const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(
-  indexBackupContactsType,
-);
+export const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(indexBackupContactsType);
 
-export const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
-  updateBackupContactType,
-);
+export const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
 
 export const createBackupContact = ReduxHelpers.generateAsyncActionCreator(
   createBackupContactType,
@@ -70,11 +58,7 @@ export function updateServiceMember(serviceMember) {
     const { currentServiceMember } = state.serviceMember;
     if (currentServiceMember) {
       return UpdateServiceMember(currentServiceMember.id, serviceMember)
-        .then(item =>
-          dispatch(
-            action.success(Object.assign({}, currentServiceMember, item)),
-          ),
-        )
+        .then(item => dispatch(action.success(Object.assign({}, currentServiceMember, item))))
         .catch(error => dispatch(action.error(error)));
     } else {
       return Promise.reject();
@@ -138,11 +122,7 @@ export function serviceMemberReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
         currentServiceMember: reshape(action.payload.service_member),
-        currentBackupContacts: get(
-          action,
-          'payload.service_member.backup_contacts',
-          [],
-        ),
+        currentBackupContacts: get(action, 'payload.service_member.backup_contacts', []),
         hasLoadError: false,
         hasLoadSuccess: true,
       });

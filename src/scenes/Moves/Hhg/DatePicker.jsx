@@ -31,11 +31,7 @@ export class HHGDatePicker extends Component {
     }
     const moveDate = day.toISOString().split('T')[0];
     this.props.input.onChange(formatSwaggerDate(day));
-    this.props.getMoveDatesSummary(
-      getRequestLabel,
-      this.props.match.params.moveId,
-      moveDate,
-    );
+    this.props.getMoveDatesSummary(getRequestLabel, this.props.match.params.moveId, moveDate);
     this.setState({
       selectedDay: moveDate,
     });
@@ -48,41 +44,29 @@ export class HHGDatePicker extends Component {
     }
 
     const momentDay = moment(day);
-    if (
-      momentDay.isBefore(availableMoveDates.minDate, 'day') ||
-      momentDay.isAfter(availableMoveDates.maxDate, 'day')
-    ) {
+    if (momentDay.isBefore(availableMoveDates.minDate, 'day') || momentDay.isAfter(availableMoveDates.maxDate, 'day')) {
       return true;
     }
 
-    return !availableMoveDates.available.find(element =>
-      momentDay.isSame(element, 'day'),
-    );
+    return !availableMoveDates.available.find(element => momentDay.isSame(element, 'day'));
   };
 
   componentDidUpdate(prevProps) {
-    if (
-      this.props.currentShipment !== prevProps.currentShipment &&
-      this.props.currentShipment.requested_pickup_date
-    ) {
+    if (this.props.currentShipment !== prevProps.currentShipment && this.props.currentShipment.requested_pickup_date) {
       this.props.getMoveDatesSummary(
         getRequestLabel,
         this.props.match.params.moveId,
         this.props.currentShipment.requested_pickup_date,
       );
       this.setState({
-        selectedDay:
-          this.props.input.value ||
-          this.props.currentShipment.requested_pickup_date,
+        selectedDay: this.props.input.value || this.props.currentShipment.requested_pickup_date,
       });
     }
   }
 
   componentDidMount() {
     this.setState({
-      selectedDay:
-        this.props.input.value ||
-        get(this.props, 'currentShipment.requested_pickup_date'),
+      selectedDay: this.props.input.value || get(this.props, 'currentShipment.requested_pickup_date'),
     });
   }
 
@@ -90,9 +74,7 @@ export class HHGDatePicker extends Component {
     const availableMoveDates = this.props.availableMoveDates;
     return (
       <div className="form-section">
-        <h3 className="instruction-heading">
-          Great! Let's find a date for a moving company to move your stuff.
-        </h3>
+        <h3 className="instruction-heading">Great! Let's find a date for a moving company to move your stuff.</h3>
         {availableMoveDates ? (
           <div className="usa-grid">
             <h4>Select a move date</h4>
@@ -105,9 +87,7 @@ export class HHGDatePicker extends Component {
             </div>
 
             <div className="usa-width-two-thirds">
-              {this.state.selectedDay && (
-                <DatesSummary moveDate={this.state.selectedDay} />
-              )}
+              {this.state.selectedDay && <DatesSummary moveDate={this.state.selectedDay} />}
             </div>
           </div>
         ) : (
@@ -128,6 +108,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary }, dispatch);
 }
 
-export default withRouter(
-  connect(() => ({}), mapDispatchToProps)(HHGDatePicker),
-);
+export default withRouter(connect(() => ({}), mapDispatchToProps)(HHGDatePicker));

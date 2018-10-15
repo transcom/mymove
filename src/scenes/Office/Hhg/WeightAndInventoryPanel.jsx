@@ -36,12 +36,7 @@ const WeightAndInventoryEdit = props => {
   const { shipmentSchema } = props;
   return (
     <div className="editable-panel-column">
-      <SwaggerField
-        title="Customer Estimate"
-        fieldName="weight_estimate"
-        swagger={shipmentSchema}
-        required
-      />
+      <SwaggerField title="Customer Estimate" fieldName="weight_estimate" swagger={shipmentSchema} required />
     </div>
   );
 };
@@ -49,22 +44,15 @@ const WeightAndInventoryEdit = props => {
 const formName = 'office_shipment_info_weight_and_inventory';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let WeightAndInventoryPanel = editablePanelify(
-  WeightAndInventoryDisplay,
-  WeightAndInventoryEdit,
-  editEnabled,
-);
-WeightAndInventoryPanel = reduxForm({ form: formName })(
-  WeightAndInventoryPanel,
-);
+let WeightAndInventoryPanel = editablePanelify(WeightAndInventoryDisplay, WeightAndInventoryEdit, editEnabled);
+WeightAndInventoryPanel = reduxForm({ form: formName })(WeightAndInventoryPanel);
 
 function mapStateToProps(state) {
   let shipment = get(state, 'office.officeMove.shipments.0', {});
   return {
     // Wrapper
     shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
-    hasError:
-      state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
+    hasError: state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
 
     shipment: shipment,
@@ -87,6 +75,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  WeightAndInventoryPanel,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(WeightAndInventoryPanel);

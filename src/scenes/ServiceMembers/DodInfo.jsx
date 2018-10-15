@@ -11,12 +11,7 @@ import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-const subsetOfFields = [
-  'affiliation',
-  'edipi',
-  'social_security_number',
-  'rank',
-];
+const subsetOfFields = ['affiliation', 'edipi', 'social_security_number', 'rank'];
 
 class SSNField extends Component {
   constructor(props) {
@@ -56,28 +51,16 @@ class SSNField extends Component {
     // This is copied from JsonSchemaField to match the styling
     return (
       <div className={displayError ? 'usa-input-error' : 'usa-input'}>
-        <label
-          className={displayError ? 'usa-input-error-label' : 'usa-input-label'}
-          htmlFor={name}
-        >
+        <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={name}>
           Social security number
         </label>
         {touched &&
           error && (
-            <span
-              className="usa-input-error-message"
-              id={name + '-error'}
-              role="alert"
-            >
+            <span className="usa-input-error-message" id={name + '-error'} role="alert">
               {error}
             </span>
           )}
-        <input
-          {...this.props.input}
-          onFocus={this.localOnFocus}
-          onBlur={this.localOnBlur}
-          value={displayedValue}
-        />
+        <input {...this.props.input} onFocus={this.localOnFocus} onBlur={this.localOnBlur} value={displayedValue} />
       </div>
     );
   }
@@ -122,13 +105,9 @@ export class DodInfo extends Component {
 
   render() {
     const { pages, pageKey, error, currentServiceMember, schema } = this.props;
-    const initialValues = currentServiceMember
-      ? pick(currentServiceMember, subsetOfFields)
-      : null;
+    const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
 
-    const ssnOnServer = currentServiceMember
-      ? currentServiceMember.has_social_security_number
-      : false;
+    const ssnOnServer = currentServiceMember ? currentServiceMember.has_social_security_number : false;
 
     return (
       <DodWizardForm
@@ -141,10 +120,7 @@ export class DodInfo extends Component {
         ssnOnServer={ssnOnServer}
       >
         <h1 className="sm-heading">Create your profile</h1>
-        <p>
-          Before we can schedule your move, we need to know a little more about
-          you.
-        </p>
+        <p>Before we can schedule your move, we need to know a little more about you.</p>
         <SwaggerField fieldName="affiliation" swagger={schema} required />
         <SwaggerField fieldName="edipi" swagger={schema} required />
         <Field
@@ -170,11 +146,7 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateServiceMemberPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
     ...state.serviceMember,
   };

@@ -80,27 +80,19 @@ class NewDocumentView extends Component {
           <div className="tab-content">
             <Tabs defaultIndex={0}>
               <TabList className="doc-viewer-tabs">
-                <Tab className="title nav-tab">
-                  All Documents ({moveDocuments.length})
-                </Tab>
+                <Tab className="title nav-tab">All Documents ({moveDocuments.length})</Tab>
               </TabList>
 
               <TabPanel>
                 <div className="pad-ns">
                   <span className="status">
-                    <FontAwesomeIcon
-                      className="icon link-blue"
-                      icon={faPlusCircle}
-                    />
+                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
                   </span>
                   <Link to={newDocumentUrl}>Upload new document</Link>
                 </div>
                 <div>
                   {' '}
-                  <DocumentList
-                    detailUrlPrefix={documentDetailUrlPrefix}
-                    moveDocuments={moveDocuments}
-                  />
+                  <DocumentList detailUrlPrefix={documentDetailUrlPrefix} moveDocuments={moveDocuments} />
                 </div>
               </TabPanel>
             </Tabs>

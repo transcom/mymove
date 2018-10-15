@@ -97,11 +97,7 @@ export class PpmSize extends Component {
 
             <EntitlementBar entitlement={entitlement} />
 
-            <BigButtonGroup
-              selectedOption={selectedOption}
-              onClick={this.onMoveTypeSelected}
-              weightInfo={weightInfo}
-            />
+            <BigButtonGroup selectedOption={selectedOption} onClick={this.onMoveTypeSelected} weightInfo={weightInfo} />
           </Fragment>
         )}
       </div>
