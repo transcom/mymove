@@ -90,7 +90,7 @@ export class WeightEstimate extends Component {
             <h3 className="instruction-heading">Enter the weight of your stuff here if you already know it</h3>
             <div className="usa-grid">
               <div className="usa-width-one-whole">
-                <SwaggerField fieldName="weight_estimate" swagger={this.props.schema} />
+                <SwaggerField fieldName="weight_estimate" swagger={this.props.schema} required />
               </div>
             </div>
           </div>
