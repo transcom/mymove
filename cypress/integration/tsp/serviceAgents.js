@@ -84,8 +84,7 @@ function tspUserEntersServiceAgent(role) {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('BACON2')
     .dblclick();
 
@@ -94,8 +93,7 @@ function tspUserEntersServiceAgent(role) {
   });
 
   // Click on edit Service Agent
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains(role)
     .siblings()
     .click();
@@ -105,18 +103,15 @@ function tspUserInputsServiceAgent(role) {
   const fixture = getFixture(role);
 
   // Enter details in form
-  cy
-    .get('input[name="company"]')
+  cy.get('input[name="company"]')
     .first()
     .type(fixture.Company)
     .blur();
-  cy
-    .get('input[name="email"]')
+  cy.get('input[name="email"]')
     .first()
     .type(fixture.Email)
     .blur();
-  cy
-    .get('input[name="phone_number"]')
+  cy.get('input[name="phone_number"]')
     .first()
     .type(fixture.Phone)
     .blur();
@@ -126,42 +121,34 @@ function tspUserClearsServiceAgent(role) {
   const fixture = getFixture(role);
 
   // Clear details in form
-  cy
-    .get('input[name="company"]')
+  cy.get('input[name="company"]')
     .clear()
     .blur();
-  cy
-    .get('input[name="email"]')
+  cy.get('input[name="email"]')
     .clear()
     .blur();
-  cy
-    .get('input[name="phone_number"]')
+  cy.get('input[name="phone_number"]')
     .clear()
     .blur();
 }
 
 function tspUserCancelsServiceAgent(role) {
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Cancel')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Cancel')
     .click();
 
   // Verify data has been saved in the UI
-  cy
-    .get('div.company')
+  cy.get('div.company')
     .get('span')
     .contains('missing');
-  cy
-    .get('div.email')
+  cy.get('div.email')
     .get('span')
     .contains('missing');
-  cy
-    .get('div.phone_number')
+  cy.get('div.phone_number')
     .get('span')
     .contains('missing');
 }
@@ -169,43 +156,35 @@ function tspUserCancelsServiceAgent(role) {
 function tspUserSavesServiceAgent(role) {
   const fixture = getFixture(role);
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
   // Verify data has been saved in the UI
-  cy
-    .get('div.company')
+  cy.get('div.company')
     .get('span')
     .contains(fixture.Company);
-  cy
-    .get('div.email')
+  cy.get('div.email')
     .get('span')
     .contains(fixture.Email);
-  cy
-    .get('div.phone_number')
+  cy.get('div.phone_number')
     .get('span')
     .contains(fixture.Phone);
 
   // Refresh browser and make sure changes persist
   cy.reload();
 
-  cy
-    .get('div.company')
+  cy.get('div.company')
     .get('span')
     .contains(fixture.Company);
-  cy
-    .get('div.email')
+  cy.get('div.email')
     .get('span')
     .contains(fixture.Email);
-  cy
-    .get('div.phone_number')
+  cy.get('div.phone_number')
     .get('span')
     .contains(fixture.Phone);
 }
@@ -217,8 +196,7 @@ function tspUserAcceptsShipment() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('BACON2')
     .dblclick();
 
@@ -227,26 +205,22 @@ function tspUserAcceptsShipment() {
   });
 
   // Status should be Awarded
-  cy
-    .get('li')
+  cy.get('li')
     .get('b')
     .contains('Awarded');
 
   cy.get('a').contains('New Shipments Queue');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Accept Shipment')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Accept Shipment')
     .click();
 
   // Status should be Accepted
-  cy
-    .get('li')
+  cy.get('li')
     .get('b')
     .contains('Accepted');
 

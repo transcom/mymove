@@ -119,8 +119,7 @@ class PaymentsTable extends Component {
                 <tr>
                   <td className="payment-table-column-content">Advance </td>
                   <td className="payment-table-column-content">
-                    $
-                    {formatCents(get(advance, 'requested_amount')).toLocaleString()}
+                    ${formatCents(get(advance, 'requested_amount')).toLocaleString()}
                   </td>
                   <td className="payment-table-column-content">{advance.method_of_receipt}</td>
                   <td className="payment-table-column-content">{formatDate(advance.requested_date)}</td>
@@ -252,4 +251,7 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentsTable);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PaymentsTable);

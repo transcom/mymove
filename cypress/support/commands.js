@@ -42,26 +42,22 @@ Cypress.Commands.add('signIntoTSP', () => {
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 Cypress.Commands.add('signInAsUser', userId => {
-  cy
-    .request({
-      method: 'POST',
-      url: '/devlocal-auth/login',
-      form: true,
-      body: { id: userId },
-    })
-    .then(() => cy.visit('/'));
+  cy.request({
+    method: 'POST',
+    url: '/devlocal-auth/login',
+    form: true,
+    body: { id: userId },
+  }).then(() => cy.visit('/'));
 });
 
 Cypress.Commands.add('logout', () => {
-  cy
-    .request('/auth/logout')
+  cy.request('/auth/logout')
     .its('status')
     .should('equal', 200);
 });
 
 Cypress.Commands.add('nextPage', () => {
-  cy
-    .get('button.next')
+  cy.get('button.next')
     .should('be.enabled')
     .click();
 });

@@ -168,4 +168,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmIncentive, clearPpmIncentive }, dispatch);
 }
-export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({ form: formName })(IncentiveCalculator));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(reduxForm({ form: formName })(IncentiveCalculator));

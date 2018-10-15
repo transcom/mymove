@@ -175,4 +175,7 @@ const mapDispatchToProps = {
   createMoveDocument,
   createMovingExpenseDocument,
 };
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequest);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PaymentRequest);

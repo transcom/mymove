@@ -153,5 +153,12 @@ export const reduxifyWizardForm = (name, additionalValidations) => {
     validate: validations,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
-  })(withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)));
+  })(
+    withRouter(
+      connect(
+        null,
+        mapDispatchToProps,
+      )(wizardFormPageWithSize),
+    ),
+  );
 };

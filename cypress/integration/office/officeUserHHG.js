@@ -36,8 +36,7 @@ function officeUserViewsMoves() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('RLKBEM')
     .dblclick();
 
@@ -45,8 +44,7 @@ function officeUserViewsMoves() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('a')
+  cy.get('a')
     .contains('HHG')
     .click(); // navtab
 
@@ -63,8 +61,7 @@ function officeUserViewsDeliveredShipment() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('SCHNOO')
     .dblclick();
 
@@ -72,8 +69,7 @@ function officeUserViewsDeliveredShipment() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('a')
+  cy.get('a')
     .contains('HHG')
     .click(); // navtab
 
@@ -90,8 +86,7 @@ function officeUserViewsCompletedShipment() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('NOCHKA')
     .dblclick();
 
@@ -99,8 +94,7 @@ function officeUserViewsCompletedShipment() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('a')
+  cy.get('a')
     .contains('HHG')
     .click(); // navtab
 
@@ -117,8 +111,7 @@ function officeUserViewsAcceptedShipment() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('BACON3')
     .dblclick();
 
@@ -126,8 +119,7 @@ function officeUserViewsAcceptedShipment() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('a')
+  cy.get('a')
     .contains('HHG')
     .click(); // navtab
 
@@ -208,8 +200,7 @@ function officeUserApprovesHHG() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('BACON5')
     .dblclick();
 
@@ -218,26 +209,22 @@ function officeUserApprovesHHG() {
   });
 
   // Approve basics
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Basics')
     .click();
 
   // disabled because not on hhg tab
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Complete Shipments')
     .should('be.disabled');
 
   cy.get('.status').contains('Accepted');
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
 
@@ -246,18 +233,15 @@ function officeUserApprovesHHG() {
   });
 
   // Approve HHG
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Shipment')
     .click();
 
   // Disabled because already approved and not delivered
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Complete Shipments')
     .should('be.disabled');
 
@@ -272,8 +256,7 @@ function officeUserCompletesHHG() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('SSETZN')
     .dblclick();
 
@@ -285,8 +268,7 @@ function officeUserCompletesHHG() {
   cy.get('.status').contains('Approved');
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
 
@@ -297,13 +279,11 @@ function officeUserCompletesHHG() {
   // Complete HHG
   cy.get('.status').contains('Delivered');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Complete Shipments')
     .click();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Approve Shipment')
     .should('be.disabled');
 
@@ -318,8 +298,7 @@ function officeUserSendsShipmentInvoice() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('SSETZN')
     .dblclick();
 
@@ -331,8 +310,7 @@ function officeUserSendsShipmentInvoice() {
   cy.get('.status').contains('Approved');
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
 

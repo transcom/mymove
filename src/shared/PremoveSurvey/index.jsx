@@ -132,4 +132,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PremoveSurveyPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PremoveSurveyPanel);

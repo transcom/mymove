@@ -20,8 +20,7 @@ function tspUserGeneratesGBL() {
   });
 
   // Find shipment
-  cy
-    .get('div')
+  cy.get('div')
     .contains('GBLGBL')
     .dblclick();
 
@@ -29,8 +28,7 @@ function tspUserGeneratesGBL() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Generate Bill of Lading')
     .should('be.enabled');
 
@@ -41,8 +39,7 @@ function tspUserGeneratesGBL() {
   // If clicked too soon, there's a server error
   cy.wait(500);
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Generate Bill of Lading')
     .click();
 
@@ -50,8 +47,7 @@ function tspUserGeneratesGBL() {
   // timeout.
   cy.get('.usa-alert-success', { timeout: 20000 }).contains('GBL generated successfully.');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Generate Bill of Lading')
     .click();
 
@@ -65,8 +61,7 @@ function tspUserViewsGBL() {
   });
 
   // Find shipment
-  cy
-    .get('div')
+  cy.get('div')
     .contains('GBLGBL')
     .dblclick();
 
@@ -76,8 +71,7 @@ function tspUserViewsGBL() {
 
   cy.get('.documents').should($div => expect($div.text()).to.contain('Government Bill Of Lading'));
 
-  cy
-    .get('.documents')
+  cy.get('.documents')
     .get('a')
     .contains('Government Bill Of Lading')
     .click();

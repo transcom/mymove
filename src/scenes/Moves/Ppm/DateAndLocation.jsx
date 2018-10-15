@@ -182,4 +182,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DateAndLocation);

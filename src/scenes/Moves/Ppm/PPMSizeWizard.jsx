@@ -62,4 +62,7 @@ function mapStateToProps(state) {
     weightInfo: getRawWeightInfo(state),
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(PpmSizeWizardPage);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PpmSizeWizardPage);

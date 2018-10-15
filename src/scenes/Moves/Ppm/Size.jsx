@@ -125,4 +125,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setPendingPpmSize }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PpmSize);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PpmSize);

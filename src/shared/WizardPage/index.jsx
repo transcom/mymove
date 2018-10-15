@@ -116,4 +116,9 @@ function mapDispatchToProps(dispatch) {
 }
 
 const wizardFormPageWithSize = windowSize(WizardPage);
-export default withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize));
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps,
+  )(wizardFormPageWithSize),
+);

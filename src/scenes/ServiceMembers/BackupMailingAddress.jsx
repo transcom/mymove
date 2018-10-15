@@ -68,4 +68,7 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(BackupMailingAddress);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(BackupMailingAddress);

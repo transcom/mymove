@@ -116,4 +116,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = dispatch => bindActionCreators({ push, loadInternalSchema, loadLoggedInUser }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AppWrapper);

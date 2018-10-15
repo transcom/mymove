@@ -76,4 +76,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadMoveDependencies }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OrdersInfo);

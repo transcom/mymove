@@ -24,8 +24,7 @@ function tspUserViewsShipments() {
   });
 
   // Find shipment
-  cy
-    .get('div')
+  cy.get('div')
     .contains('BACON1')
     .dblclick();
 
@@ -42,8 +41,7 @@ function tspUserViewsInTransitShipment() {
   });
 
   // Find in transit (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('NINOPK')
     .dblclick();
 
@@ -60,8 +58,7 @@ function tspUserViewsDeliveredShipment() {
   });
 
   // Find delivered shipment (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('SCHNOO')
     .dblclick();
 
@@ -72,8 +69,7 @@ function tspUserViewsDeliveredShipment() {
 
 function tspUserViewsApprovedShipments() {
   // Open accepted shipments queue
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Approved Shipments')
     .click();
 
@@ -83,8 +79,7 @@ function tspUserViewsApprovedShipments() {
 
   // Find shipment
   cy.get('div').contains('APPRVD');
-  cy
-    .get('div')
+  cy.get('div')
     .contains('BACON1')
     .should('not.exist');
 }

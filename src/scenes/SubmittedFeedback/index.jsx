@@ -45,4 +45,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadIssues }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SubmittedFeedback);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SubmittedFeedback);

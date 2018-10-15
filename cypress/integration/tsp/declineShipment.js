@@ -17,8 +17,7 @@ function tspUserCannotRejectShipment() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('REJECT')
     .dblclick();
 
@@ -27,8 +26,7 @@ function tspUserCannotRejectShipment() {
   });
 
   // Reject button is disabled
-  cy
-    .get('.usa-button-secondary')
+  cy.get('.usa-button-secondary')
     .contains('Reject Shipment')
     .should('be.disabled');
 }

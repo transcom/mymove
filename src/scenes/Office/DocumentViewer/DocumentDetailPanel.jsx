@@ -169,4 +169,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentDetailPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DocumentDetailPanel);

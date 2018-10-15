@@ -56,4 +56,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createIssue }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Feedback);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Feedback);

@@ -12,8 +12,7 @@ describe('The document viewer', function() {
     });
 
     // Find a shipment and open it
-    cy
-      .get('div')
+    cy.get('div')
       .contains('DOCVWR')
       .dblclick();
 
@@ -22,8 +21,7 @@ describe('The document viewer', function() {
     });
 
     cy.get('.documents-list-header').within(() => {
-      cy
-        .get('a')
+      cy.get('a')
         .should('have.attr', 'href')
         .and('match', /^\/shipments\/[^/]+\/documents\/new/);
     });
@@ -40,8 +38,7 @@ describe('The document viewer', function() {
     cy.get('input[name="notes"]').type('burn after reading');
     cy.get('button.submit').should('be.disabled');
     cy.upload_file('.filepond--root', 'top-secret.png');
-    cy
-      .get('button.submit', { timeout: fileUploadTimeout })
+    cy.get('button.submit', { timeout: fileUploadTimeout })
       .should('not.be.disabled')
       .click();
     cy.get('input[name="title"]').should('be.empty');

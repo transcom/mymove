@@ -13,8 +13,7 @@ describe('TSP User Ships a Shipment', function() {
 
 function tspUserPicksUpShipment() {
   // Open approved shipments queue
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Approved Shipments')
     .click();
 
@@ -23,8 +22,7 @@ function tspUserPicksUpShipment() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
+  cy.get('div')
     .contains('SHIPME')
     .dblclick();
 
@@ -33,62 +31,52 @@ function tspUserPicksUpShipment() {
   });
 
   // Click the Transport button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Pickup')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual Pickup Date')
     .get('input')
     .click();
 
-  cy
-    .get('div')
+  cy.get('div')
     .contains('11')
     .click();
 
   // Cancel
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Cancel')
     .click();
 
   // Wash, Rinse, Repeat
   // Click the Transport button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Pickup')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual Pickup Date')
     .get('input')
     .click();
 
-  cy
-    .get('div')
+  cy.get('div')
     .contains('11')
     .click();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .click();
 
@@ -105,62 +93,52 @@ function tspUserDeliversShipment() {
   });
 
   // Click the Transport button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Delivery')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual Delivery Date')
     .get('input')
     .click();
 
-  cy
-    .get('div')
+  cy.get('div')
     .contains('13')
     .click();
 
   // Cancel
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Cancel')
     .click();
 
   // Wash, Rinse, Repeat
   // Click the Transport button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Delivery')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual Delivery Date')
     .get('input')
     .click();
 
-  cy
-    .get('div')
+  cy.get('div')
     .contains('13')
     .click();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .click();
 

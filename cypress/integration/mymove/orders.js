@@ -17,25 +17,21 @@ describe('orders entry', function() {
     });
 
     cy.get('select[name="orders_type"]').select('Permanent Change Of Station');
-    cy
-      .get('input[name="issue_date"]')
+    cy.get('input[name="issue_date"]')
       .first()
       .click();
 
-    cy
-      .get('input[name="issue_date"]')
+    cy.get('input[name="issue_date"]')
       .first()
       .type('6/2/2018{enter}')
       .blur();
 
-    cy
-      .get('input[name="report_by_date"]')
+    cy.get('input[name="report_by_date"]')
       .last()
       .type('8/9/2018{enter}')
       .blur();
 
-    cy
-      .get('.duty-input-box #react-select-2-input')
+    cy.get('.duty-input-box #react-select-2-input')
       .first()
       .type('NAS Fort Worth{downarrow}{enter}', { force: true, delay: 150 });
 

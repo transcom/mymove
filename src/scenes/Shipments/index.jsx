@@ -88,4 +88,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadShipments }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Shipments);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Shipments);
