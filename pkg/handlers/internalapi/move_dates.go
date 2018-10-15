@@ -3,6 +3,9 @@ package internalapi
 import (
 	"time"
 
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/pkg/errors"
 	"github.com/rickar/cal"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,11 +22,26 @@ type MoveDateSummary struct {
 	ReportDays   []time.Time
 }
 
-func calculateMoveDates(move models.Move, planner route.Planner, moveDate time.Time) (MoveDateSummary, error) {
-	summary := MoveDateSummary{}
+func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDateSummary, error) {
+	var summary MoveDateSummary
 
-	transitDistance, err := planner.TransitDistance(&move.Orders.ServiceMember.DutyStation.Address,
-		&move.Orders.NewDutyStation.Address)
+	// FetchMoveForMoveDates will get all the required associations used below.
+	move, err := models.FetchMoveForMoveDates(db, moveID)
+	if err != nil {
+		return summary, err
+	}
+
+	if move.Orders.ServiceMember.DutyStation.Address == (models.Address{}) {
+		return summary, errors.New("DutyStation must have an address")
+	}
+	if move.Orders.NewDutyStation.Address == (models.Address{}) {
+		return summary, errors.New("NewDutyStation must have an address")
+	}
+
+	var source = move.Orders.ServiceMember.DutyStation.Address
+	var destination = move.Orders.NewDutyStation.Address
+
+	transitDistance, err := planner.TransitDistance(&source, &destination)
 	if err != nil {
 		return summary, err
 	}

@@ -2,9 +2,11 @@ package internalapi
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/rateengine"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -46,6 +48,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		Status:                              internalmessages.ShipmentStatus(s.Status),
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
+		OriginalDeliveryDate:                handlers.FmtDatePtr(s.OriginalDeliveryDate),
 		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
 		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
 		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
@@ -248,6 +251,10 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	patchShipmentWithPayload(shipment, params.Shipment)
+	if err = h.updateShipmentDatesWithPayload(shipment, params.Shipment); err != nil {
+		fmt.Println(errors.Cause(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	// Premove survey info can only be edited by office users or TSPs
 	if session.IsOfficeUser() {
@@ -262,6 +269,29 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
+}
+
+func (h PatchShipmentHandler) updateShipmentDatesWithPayload(shipment *models.Shipment, payload *internalmessages.Shipment) error {
+	if payload.RequestedPickupDate == nil {
+		return nil
+	}
+	moveDate := time.Time(*payload.RequestedPickupDate)
+
+	summary, err := calculateMoveDates(h.DB(), h.Planner(), shipment.MoveID, moveDate)
+	if err != nil {
+		return nil
+	}
+
+	packDays := int64(len(summary.PackDays))
+	shipment.EstimatedPackDays = &packDays
+
+	transitDays := int64(len(summary.TransitDays))
+	shipment.EstimatedTransitDays = &transitDays
+
+	deliveryDate := summary.DeliveryDays[0]
+	shipment.OriginalDeliveryDate = &deliveryDate
+
+	return nil
 }
 
 // GetShipmentHandler Returns an HHG

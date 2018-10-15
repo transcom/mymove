@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -10,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -186,7 +188,6 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	newAddress := otherFakeAddressPayload()
 
 	payload := internalmessages.Shipment{
-		EstimatedPackDays:           swag.Int64(15),
 		HasSecondaryPickupAddress:   false,
 		HasDeliveryAddress:          true,
 		DeliveryAddress:             newAddress,
@@ -212,8 +213,46 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	suite.Equal(patchShipmentPayload.HasSecondaryPickupAddress, false, "HasSecondaryPickupAddress should have been updated.")
 	suite.Nil(patchShipmentPayload.SecondaryPickupAddress, "SecondaryPickupAddress should have been updated to nil.")
 
-	suite.Equal(*patchShipmentPayload.EstimatedPackDays, int64(15), "EstimatedPackDays should have been set to 15")
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")
+}
+
+func (suite *HandlerSuite) TestSetShipmentDates() {
+	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	sm := move.Orders.ServiceMember
+	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Move:   move,
+			MoveID: move.ID,
+		},
+	})
+
+	req := httptest.NewRequest("POST", "/moves/move_id/shipment/shipment_id", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	requestedPickupDate := strfmt.Date(testdatagen.DateInsideNonPeakRateCycle)
+	payload := internalmessages.Shipment{
+		RequestedPickupDate: &requestedPickupDate,
+	}
+
+	patchShipmentParams := shipmentop.PatchShipmentParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Shipment:    &payload,
+	}
+
+	planner := route.NewTestingPlanner(2000)
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler.SetPlanner(planner)
+
+	response := handler.Handle(patchShipmentParams)
+	okResponse := response.(*shipmentop.PatchShipmentOK)
+	patchShipmentPayload := okResponse.Payload
+
+	expectedOriginalDeliveryDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	suite.EqualValues(*patchShipmentPayload.EstimatedPackDays, 3, "EstimatedPackDays was not updated")
+	suite.EqualValues(*patchShipmentPayload.EstimatedTransitDays, 12, "EstimatedTransitDays was not updated")
+	suite.EqualValues(*patchShipmentPayload.RequestedPickupDate, requestedPickupDate, "RequestedPickupDate was not updated")
+	suite.EqualValues(*patchShipmentPayload.OriginalDeliveryDate, expectedOriginalDeliveryDate, "OriginalDeliveryDate was not updated")
 }
 
 func (suite *HandlerSuite) TestApproveHHGHandler() {
