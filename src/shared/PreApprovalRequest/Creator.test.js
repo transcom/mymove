@@ -52,12 +52,8 @@ describe('given a Creator', () => {
     });
     it('buttons are disabled', () => {
       wrapper.find('a').simulate('click');
-      expect(
-        wrapper.find('button.button-primary').prop('disabled'),
-      ).toBeTruthy();
-      expect(
-        wrapper.find('button.button-secondary').prop('disabled'),
-      ).toBeTruthy();
+      expect(wrapper.find('button.button-primary').prop('disabled')).toBeTruthy();
+      expect(wrapper.find('button.button-secondary').prop('disabled')).toBeTruthy();
     });
   });
   describe('when the form is enabled', () => {
@@ -95,12 +91,8 @@ describe('given a Creator', () => {
         expect(wrapper.exists('div.accessorial-panel-modal')).toBe(false);
       });
       it('buttons are enabled', () => {
-        expect(wrapper.find('button.button-secondary').prop('disabled')).toBe(
-          false,
-        );
-        expect(wrapper.find('button.button-primary').prop('disabled')).toBe(
-          false,
-        );
+        expect(wrapper.find('button.button-secondary').prop('disabled')).toBe(false);
+        expect(wrapper.find('button.button-primary').prop('disabled')).toBe(false);
       });
       it('clicking save & add another calls submitForm', () => {
         wrapper.find('button.button-secondary').simulate('click');

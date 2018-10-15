@@ -9,9 +9,7 @@ export const upload = new schema.Entity('uploads');
 export const uploads = new schema.Array(upload);
 
 // PPMs
-export const personallyProcuredMove = new schema.Entity(
-  'personallyProcuredMove',
-);
+export const personallyProcuredMove = new schema.Entity('personallyProcuredMove');
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 
 // Addresses
@@ -74,11 +72,7 @@ moveDocument.define({
 export const moveDocumentPayload = moveDocument;
 
 // AvailableMoveDates
-export const availableMoveDates = new schema.Entity(
-  'availableMoveDates',
-  {},
-  { idAttribute: 'start_date' },
-);
+export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
 
 // MoveDatesSummary
 export const moveDatesSummary = new schema.Entity('moveDatesSummaries');

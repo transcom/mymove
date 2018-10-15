@@ -75,56 +75,19 @@ export class AppWrapper extends Component {
                   <Switch>
                     <Route exact path="/" component={Landing} />
                     <Route path="/submitted" component={SubmittedFeedback} />
-                    <Route
-                      path="/shipments/:shipmentsStatus"
-                      component={Shipments}
-                    />
+                    <Route path="/shipments/:shipmentsStatus" component={Shipments} />
                     <Route path="/feedback" component={Feedback} />
-                    <Route
-                      path="/privacy-and-security-policy"
-                      component={PrivacyPolicyStatement}
-                    />
-                    <Route
-                      path="/accessibility"
-                      component={AccessibilityStatement}
-                    />
+                    <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
+                    <Route path="/accessibility" component={AccessibilityStatement} />
                     {getWorkflowRoutes(props)}
-                    <PrivateRoute
-                      exact
-                      path="/moves/:moveId/edit"
-                      component={Edit}
-                    />
-                    <PrivateRoute
-                      exact
-                      path="/moves/review/edit-profile"
-                      component={EditProfile}
-                    />
-                    <PrivateRoute
-                      exact
-                      path="/moves/review/edit-backup-contact"
-                      component={EditBackupContact}
-                    />
-                    <PrivateRoute
-                      exact
-                      path="/moves/review/edit-contact-info"
-                      component={EditContactInfo}
-                    />
-                    <PrivateRoute
-                      path="/moves/:moveId/review/edit-orders"
-                      component={EditOrders}
-                    />
-                    <PrivateRoute
-                      path="/moves/:moveId/review/edit-date-and-location"
-                      component={EditDateAndLocation}
-                    />
-                    <PrivateRoute
-                      path="/moves/:moveId/review/edit-weight"
-                      component={EditWeight}
-                    />
-                    <PrivateRoute
-                      path="/moves/:moveId/request-payment"
-                      component={PaymentRequest}
-                    />
+                    <PrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
+                    <PrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                    <PrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
+                    <PrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+                    <PrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                    <PrivateRoute path="/moves/:moveId/review/edit-date-and-location" component={EditDateAndLocation} />
+                    <PrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
+                    <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                     <Route component={NoMatch} />
                   </Switch>
                 )}
@@ -151,7 +114,6 @@ const mapStateToProps = state => {
     latestMove: get(state, 'moves.latestMove'),
   };
 };
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ push, loadInternalSchema, loadLoggedInUser }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ push, loadInternalSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

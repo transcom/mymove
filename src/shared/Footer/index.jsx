@@ -11,18 +11,12 @@ function Footer() {
           <nav className="usa-footer-nav">
             <ul className="usa-unstyled-list">
               <li className="usa-width-one-fourth usa-footer-primary-content">
-                <a
-                  className="usa-footer-primary-link"
-                  href="https://www.move.mil/"
-                >
+                <a className="usa-footer-primary-link" href="https://www.move.mil/">
                   Move.mil
                 </a>
               </li>
               <li className="usa-width-one-fourth usa-footer-primary-content">
-                <a
-                  className="usa-footer-primary-link"
-                  href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil"
-                >
+                <a className="usa-footer-primary-link" href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil">
                   Help Me
                 </a>
               </li>
@@ -32,10 +26,7 @@ function Footer() {
                 </Link>
               </li>
               <li className="usa-width-one-fourth usa-footer-primary-content">
-                <Link
-                  className="usa-footer-primary-link"
-                  to="/privacy-and-security-policy"
-                >
+                <Link className="usa-footer-primary-link" to="/privacy-and-security-policy">
                   Privacy and Security Policy
                 </Link>
               </li>
@@ -80,9 +71,7 @@ function Footer() {
               <p>
                 <a href="tel:(302) 469-6683">(302) 469-6683</a>
               </p>
-              <a href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil">
-                email us
-              </a>
+              <a href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil">email us</a>
             </address>
           </div>
         </div>

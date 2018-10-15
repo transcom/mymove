@@ -33,34 +33,12 @@ export class ResidentialAddress extends Component {
         additionalParams={{ serviceMemberId }}
       >
         <h1 className="sm-heading">Current Residence Address</h1>
-        <SwaggerField
-          fieldName="street_address_1"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          fieldName="street_address_2"
-          swagger={this.props.schema}
-        />
+        <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
+        <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
         <div className="address_inline">
-          <SwaggerField
-            fieldName="city"
-            swagger={this.props.schema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="state"
-            swagger={this.props.schema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="postal_code"
-            swagger={this.props.schema}
-            className="city_state_zip"
-            required
-          />
+          <SwaggerField fieldName="city" swagger={this.props.schema} className="city_state_zip" required />
+          <SwaggerField fieldName="state" swagger={this.props.schema} className="city_state_zip" required />
+          <SwaggerField fieldName="postal_code" swagger={this.props.schema} className="city_state_zip" required />
         </div>
       </ResidentalWizardForm>
     );

@@ -116,8 +116,7 @@ const normalizeBaseQuantity = value => {
 
   if (onlyNumsAndDots.indexOf('.') >= 0) {
     value =
-      onlyNumsAndDots.substr(0, onlyNumsAndDots.indexOf('.')) +
-      onlyNumsAndDots.substr(onlyNumsAndDots.indexOf('.'), 5);
+      onlyNumsAndDots.substr(0, onlyNumsAndDots.indexOf('.')) + onlyNumsAndDots.substr(onlyNumsAndDots.indexOf('.'), 5);
   }
   return value;
 };

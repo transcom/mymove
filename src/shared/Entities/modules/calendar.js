@@ -4,12 +4,7 @@ import { getClient } from 'shared/Swagger/api';
 import { parseSwaggerDate } from 'shared/formatters';
 
 export function getAvailableMoveDates(label, startDate) {
-  return swaggerRequest(
-    getClient,
-    'calendar.showAvailableMoveDates',
-    { startDate },
-    { label },
-  );
+  return swaggerRequest(getClient, 'calendar.showAvailableMoveDates', { startDate }, { label });
 }
 
 export function selectAvailableMoveDates(state, id) {

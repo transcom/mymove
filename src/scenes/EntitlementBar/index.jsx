@@ -10,15 +10,14 @@ const EntitlementBar = props => {
     if (props.entitlement.pro_gear_spouse > 0)
       return (
         <p>
-          {entitlementText.weight} lbs. + {entitlementText.pro_gear} lbs. of
-          pro-gear + {entitlementText.pro_gear_spouse} lbs. of spouse's pro-gear
-          = <strong>{entitlementText.sum} lbs.</strong>
+          {entitlementText.weight} lbs. + {entitlementText.pro_gear} lbs. of pro-gear +{' '}
+          {entitlementText.pro_gear_spouse} lbs. of spouse's pro-gear = <strong>{entitlementText.sum} lbs.</strong>
         </p>
       );
     return (
       <p>
-        {entitlementText.weight} lbs. + {entitlementText.pro_gear} lbs. of
-        pro-gear = <strong>{entitlementText.sum} lbs.</strong>
+        {entitlementText.weight} lbs. + {entitlementText.pro_gear} lbs. of pro-gear ={' '}
+        <strong>{entitlementText.sum} lbs.</strong>
       </p>
     );
   };

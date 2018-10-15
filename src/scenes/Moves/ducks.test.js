@@ -1,12 +1,5 @@
-import {
-  CREATE_OR_UPDATE_MOVE,
-  GET_MOVE,
-  SUBMIT_FOR_APPROVAL,
-  moveReducer,
-} from './ducks';
-import loggedInUserPayload, {
-  emptyPayload,
-} from 'shared/User/sampleLoggedInUserPayload';
+import { CREATE_OR_UPDATE_MOVE, GET_MOVE, SUBMIT_FOR_APPROVAL, moveReducer } from './ducks';
+import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
 
 const expectedMove = {
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',

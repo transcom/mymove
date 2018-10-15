@@ -1,8 +1,4 @@
-import {
-  GetCertifications,
-  GetCertificationText,
-  CreateCertification,
-} from './api.js';
+import { GetCertifications, GetCertificationText, CreateCertification } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { get } from 'lodash';
 import { SubmitForApproval } from '../Moves/ducks.js';
@@ -11,42 +7,21 @@ const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
 
 // Actions
 
-export const CREATE_SIGNED_CERT = ReduxHelpers.generateAsyncActionTypes(
-  'CREATE_SIGNED_CERT',
-);
+export const CREATE_SIGNED_CERT = ReduxHelpers.generateAsyncActionTypes('CREATE_SIGNED_CERT');
 
-export const GET_LATEST_CERT = ReduxHelpers.generateAsyncActionTypes(
-  'GET_LATEST_CERT',
-);
+export const GET_LATEST_CERT = ReduxHelpers.generateAsyncActionTypes('GET_LATEST_CERT');
 
-export const GET_CERT_TEXT = ReduxHelpers.generateAsyncActionTypes(
-  'GET_CERT_TEXT',
-);
+export const GET_CERT_TEXT = ReduxHelpers.generateAsyncActionTypes('GET_CERT_TEXT');
 
 // Action creator
-export const loadCertificationText = ReduxHelpers.generateAsyncActionCreator(
-  'GET_CERT_TEXT',
-  GetCertificationText,
-);
+export const loadCertificationText = ReduxHelpers.generateAsyncActionCreator('GET_CERT_TEXT', GetCertificationText);
 
-const createSignedCertification = ReduxHelpers.generateAsyncActionCreator(
-  'CREATE_SIGNED_CERT',
-  CreateCertification,
-);
+const createSignedCertification = ReduxHelpers.generateAsyncActionCreator('CREATE_SIGNED_CERT', CreateCertification);
 
-const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(
-  signAndSubmitForApprovalType,
-);
+const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(signAndSubmitForApprovalType);
 
-const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(
-  signAndSubmitForApprovalType,
-);
-export const signAndSubmitForApproval = (
-  moveId,
-  certificationText,
-  signature,
-  dateSigned,
-) => {
+const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitForApprovalType);
+export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned) => {
   return async function(dispatch, getState) {
     dispatch(signAndSubmitForApprovalActions.start());
     try {
@@ -97,8 +72,7 @@ export function signedCertificationReducer(state = initialState, action) {
       });
     case GET_CERT_TEXT.failure:
       return Object.assign({}, state, {
-        certificationText:
-          '## Error retrieving legalese. Please reload the page.',
+        certificationText: '## Error retrieving legalese. Please reload the page.',
         error: action.error,
       });
     case CREATE_SIGNED_CERT.success:

@@ -46,10 +46,7 @@ describe('HomePage tests', () => {
           </Provider>,
         );
 
-        const resumeMoveFn = jest.spyOn(
-          wrapper.children().instance(),
-          'resumeMove',
-        );
+        const resumeMoveFn = jest.spyOn(wrapper.children().instance(), 'resumeMove');
         wrapper.setProps({ createdServiceMemberIsLoading: true });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
       });
@@ -101,9 +98,7 @@ describe('HomePage tests', () => {
             .find('div.title')
             .first()
             .html(),
-        ).toEqual(
-          '<div class="title">Next Step: Finish setting up your move</div>',
-        );
+        ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
       });
     });
     describe('When orders have been entered but the move is not complete', () => {
@@ -144,9 +139,7 @@ describe('HomePage tests', () => {
             .find('div.title')
             .first()
             .html(),
-        ).toEqual(
-          '<div class="title">Next Step: Finish setting up your move</div>',
-        );
+        ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
       });
     });
   });

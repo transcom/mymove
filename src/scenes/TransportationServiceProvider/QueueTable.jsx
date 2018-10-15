@@ -100,46 +100,29 @@ class QueueTable extends Component {
                 accessor: 'traffic_distribution_list',
                 Cell: row => (
                   <span className="channel">
-                    {row.value.source_rate_area} to Region{' '}
-                    {row.value.destination_region}
+                    {row.value.source_rate_area} to Region {row.value.destination_region}
                   </span>
                 ),
               },
               {
                 Header: 'Requested Pickup Date',
                 accessor: 'requested_pickup_date',
-                Cell: row => (
-                  <span className="requested_pickup_date">
-                    {formatDateTime(row.value)}
-                  </span>
-                ),
+                Cell: row => <span className="requested_pickup_date">{formatDateTime(row.value)}</span>,
               },
               {
                 Header: 'Pickup Date',
                 accessor: 'pickup_date',
-                Cell: row => (
-                  <span className="pickup_date">
-                    {formatDateTime(row.value)}
-                  </span>
-                ),
+                Cell: row => <span className="pickup_date">{formatDateTime(row.value)}</span>,
               },
               {
                 Header: 'Delivery Date',
                 accessor: 'delivery_date',
-                Cell: row => (
-                  <span className="delivery_date">
-                    {formatDateTime(row.value)}
-                  </span>
-                ),
+                Cell: row => <span className="delivery_date">{formatDateTime(row.value)}</span>,
               },
               {
                 Header: 'Last modified',
                 accessor: 'updated_at',
-                Cell: row => (
-                  <span className="updated_at">
-                    {formatDateTime(row.value)}
-                  </span>
-                ),
+                Cell: row => <span className="updated_at">{formatDateTime(row.value)}</span>,
               },
             ]}
             data={this.state.data}
@@ -147,8 +130,7 @@ class QueueTable extends Component {
             pageSize={this.state.data.length}
             className="-striped -highlight"
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`/shipments/${rowInfo.original.id}`),
+              onDoubleClick: e => this.props.history.push(`/shipments/${rowInfo.original.id}`),
             })}
           />
         </div>

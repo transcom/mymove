@@ -30,8 +30,7 @@ export class DateAndLocation extends Component {
   handleSubmit = () => {
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
-      pendingValues.has_additional_postal_code =
-        pendingValues.has_additional_postal_code || false;
+      pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
       pendingValues.has_sit = pendingValues.has_sit || false;
       if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
@@ -44,20 +43,11 @@ export class DateAndLocation extends Component {
   getSitEstimate = (moveDate, sitDays, pickupZip, destZip, weight) => {
     if (!pickupZip || !destZip) return;
     if (sitDays <= 90 && pickupZip.length === 5 && destZip.length === 5) {
-      this.props.getPpmSitEstimate(
-        moveDate,
-        sitDays,
-        pickupZip,
-        destZip,
-        weight,
-      );
+      this.props.getPpmSitEstimate(moveDate, sitDays, pickupZip, destZip, weight);
     }
   };
 
-  debouncedSitEstimate = debounce(
-    bind(this.getSitEstimate, this),
-    sitEstimateDebounceTime,
-  );
+  debouncedSitEstimate = debounce(bind(this.getSitEstimate, this), sitEstimateDebounceTime);
 
   getDebouncedSitEstimate = (e, value, _, field) => {
     const { formValues, entitlement } = this.props;
@@ -73,15 +63,7 @@ export class DateAndLocation extends Component {
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      currentOrders,
-      initialValues,
-      sitReimbursement,
-      hasEstimateError,
-    } = this.props;
+    const { pages, pageKey, error, currentOrders, initialValues, sitReimbursement, hasEstimateError } = this.props;
     return (
       <DateAndLocationWizardForm
         handleSubmit={this.handleSubmit}
@@ -106,32 +88,20 @@ export class DateAndLocation extends Component {
           swagger={this.props.schema}
           required
         />
-        <SwaggerField
-          fieldName="has_additional_postal_code"
-          swagger={this.props.schema}
-          component={YesNoBoolean}
-        />
+        <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
         {get(this.props, 'formValues.has_additional_postal_code', false) && (
           <Fragment>
-            <SwaggerField
-              fieldName="additional_pickup_postal_code"
-              swagger={this.props.schema}
-              required
-            />
+            <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
             <span className="grey">
-              Making additional stops may decrease your PPM incentive.{' '}
-              <a onClick={this.openInfo}>Why</a>
+              Making additional stops may decrease your PPM incentive. <a onClick={this.openInfo}>Why</a>
             </span>
             {this.state.showInfo && (
               <Alert type="info" heading="">
-                Your PPM incentive is based primarily off two factors -- the
-                weight of your household goods and the base rate it would cost
-                the government to transport your household goods between your
-                destination and origin. When you add additional stops, your
-                overall PPM incentive will change to account for any deviations
-                from the standard route and to account for the fact that not
-                100% of your household goods travelled the entire way from
-                origin to destination. <a onClick={this.closeInfo}>Close</a>
+                Your PPM incentive is based primarily off two factors -- the weight of your household goods and the base
+                rate it would cost the government to transport your household goods between your destination and origin.
+                When you add additional stops, your overall PPM incentive will change to account for any deviations from
+                the standard route and to account for the fact that not 100% of your household goods travelled the
+                entire way from origin to destination. <a onClick={this.closeInfo}>Close</a>
               </Alert>
             )}
           </Fragment>
@@ -139,9 +109,7 @@ export class DateAndLocation extends Component {
         <h3>Destination Location</h3>
         <p>
           Enter the ZIP for your new home if you know it, or for{' '}
-          {this.props.currentOrders &&
-            this.props.currentOrders.new_duty_station.name}{' '}
-          if you don't.
+          {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
         </p>
         <SwaggerField
           fieldName="destination_postal_code"
@@ -150,15 +118,10 @@ export class DateAndLocation extends Component {
           required
         />
         <span className="grey">
-          The ZIP code for{' '}
-          {currentOrders && currentOrders.new_duty_station.name} is{' '}
+          The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
           {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
         </span>
-        <SwaggerField
-          fieldName="has_sit"
-          swagger={this.props.schema}
-          component={YesNoBoolean}
-        />
+        <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
         {get(this.props, 'formValues.has_sit', false) && (
           <Fragment>
             <SwaggerField
@@ -171,16 +134,15 @@ export class DateAndLocation extends Component {
             <span className="grey">You can choose up to 90 days.</span>
             {sitReimbursement && (
               <div className="storage-estimate">
-                You can spend up to {sitReimbursement} on private storage. Save
-                your receipts to submit with your PPM paperwork.
+                You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your PPM
+                paperwork.
               </div>
             )}
             {hasEstimateError && (
               <div className="usa-width-one-whole error-message">
                 <Alert type="warning" heading="Could not retrieve estimate">
-                  There was an issue retrieving an estimate for how much you
-                  could be reimbursed for private storage. You still qualify but
-                  may need to talk with your local PPPO.
+                  There was an issue retrieving an estimate for how much you could be reimbursed for private storage.
+                  You still qualify but may need to talk with your local PPPO.
                 </Alert>
               </div>
             )}
@@ -199,21 +161,14 @@ DateAndLocation.propTypes = {
 
 function mapStateToProps(state) {
   const props = {
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     ...state.ppm,
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
   };
-  const defaultPickupZip = get(
-    state.serviceMember,
-    'currentServiceMember.residential_address.postal_code',
-  );
+  const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   props.initialValues = props.currentPpm
     ? props.currentPpm
     : defaultPickupZip

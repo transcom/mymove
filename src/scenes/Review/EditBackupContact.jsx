@@ -24,10 +24,7 @@ let EditBackupContactForm = props => {
       <img src={profileImage} alt="" /> Backup Contact
       <hr />
       <h3 className="sm-heading">Edit Backup Contact:</h3>
-      <p>
-        Any person you assign as a backup contact must be 18 years of age or
-        older.
-      </p>
+      <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
       <SwaggerField fieldName="name" swagger={schema} required />
       <SwaggerField fieldName="email" swagger={schema} required />
       <SwaggerField fieldName="telephone" swagger={schema} />
@@ -50,17 +47,15 @@ class EditBackupContact extends Component {
     if (fieldValues.telephone === '') {
       fieldValues.telephone = null;
     }
-    return this.props
-      .updateBackupContact(fieldValues.id, fieldValues)
-      .then(() => {
-        // This promise resolves regardless of error.
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-        } else {
-          window.scrollTo(0, 0);
-        }
-      });
+    return this.props.updateBackupContact(fieldValues.id, fieldValues).then(() => {
+      // This promise resolves regardless of error.
+      if (!this.props.hasSubmitError) {
+        this.props.editSuccessful();
+        this.props.history.goBack();
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
   };
 
   render() {
@@ -81,11 +76,7 @@ class EditBackupContact extends Component {
           </div>
         )}
         <div className="usa-width-one-whole">
-          <EditBackupContactForm
-            initialValues={backupContact}
-            onSubmit={this.updateContact}
-            schema={schema}
-          />
+          <EditBackupContactForm initialValues={backupContact} onSubmit={this.updateContact} schema={schema} />
         </div>
       </div>
     );
@@ -98,11 +89,7 @@ function mapStateToProps(state) {
     serviceMember: state.serviceMember.currentServiceMember,
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.updateBackupContactError'),
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
   };
 }
 
