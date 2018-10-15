@@ -232,7 +232,4 @@ function mapStateToProps(state) {
     values: getFormValues(formName)(state),
   };
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(BackupContact);
+export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);

@@ -157,7 +157,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditProfile);
+export default connect(mapStateToProps, mapDispatchToProps)(EditProfile);

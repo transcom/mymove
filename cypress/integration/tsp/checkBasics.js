@@ -15,7 +15,8 @@ function tspUserViewsCustomerInfo() {
   });
 
   // Find a shipment and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('BACON4')
     .dblclick();
 
@@ -24,7 +25,8 @@ function tspUserViewsCustomerInfo() {
   });
 
   // Expect Customer Info to be loaded
-  cy.get('.customer-info')
+  cy
+    .get('.customer-info')
     .contains('Customer Info')
     .get('.extras.content')
     .should($div => {

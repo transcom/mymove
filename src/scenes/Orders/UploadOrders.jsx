@@ -115,7 +115,4 @@ function mapStateToProps(state) {
   };
   return props;
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(UploadOrders);
+export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);

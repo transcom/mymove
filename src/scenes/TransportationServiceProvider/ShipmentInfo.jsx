@@ -321,9 +321,4 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(ShipmentInfo),
-);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));

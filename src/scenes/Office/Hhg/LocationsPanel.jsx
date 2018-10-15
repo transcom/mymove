@@ -113,7 +113,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(LocationsPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(LocationsPanel);

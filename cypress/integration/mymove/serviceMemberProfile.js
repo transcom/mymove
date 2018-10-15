@@ -36,7 +36,8 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   //contact info
   cy.get('button.next').should('be.disabled');
   cy.get('input[name="telephone"]').type('6784567890');
-  cy.get('[type="checkbox"]')
+  cy
+    .get('[type="checkbox"]')
     .not('[disabled]')
     .check({ force: true })
     .should('be.checked');
@@ -48,7 +49,8 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //duty station
   cy.get('button.next').should('be.disabled');
-  cy.get('.duty-input-box #react-select-2-input')
+  cy
+    .get('.duty-input-box #react-select-2-input')
     .first()
     .type('Ft Carson{downarrow}{enter}', { force: true, delay: 150 });
 

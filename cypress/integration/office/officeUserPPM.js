@@ -24,7 +24,8 @@ function officeUserViewsMoves() {
   });
 
   // Find move and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('VGHEIS')
     .dblclick();
 
@@ -40,7 +41,8 @@ function officeUserVerifiesOrders() {
   });
 
   // Find move and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('VGHEIS')
     .dblclick();
 
@@ -49,14 +51,16 @@ function officeUserVerifiesOrders() {
   });
 
   // Click on Orders document link, check that link matches
-  cy.get('.panel-field')
+  cy
+    .get('.panel-field')
     .contains('Orders (')
     // .find('a')
     .should('have.attr', 'href')
     .and('match', /^\/moves\/[^/]+\/orders/);
 
   // Click on edit orders
-  cy.get('.editable-panel-header')
+  cy
+    .get('.editable-panel-header')
     .contains('Orders')
     .siblings()
     .click();
@@ -68,11 +72,13 @@ function officeUserVerifiesOrders() {
   cy.get('input[name="orders.orders_issuing_agency"]').type('ISSUING AGENCY');
   cy.get('input[name="orders.paragraph_number"]').type('FP-TP');
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .click();
 
@@ -84,7 +90,8 @@ function officeUserVerifiesOrders() {
 
   // Refresh browser and make sure changes persist
   cy.reload();
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Approve PPM')
     .should('be.disabled');
 
@@ -102,7 +109,8 @@ function officeUserVerifiesAccounting() {
   });
 
   // Find move and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('VGHEIS')
     .dblclick();
 
@@ -111,7 +119,8 @@ function officeUserVerifiesAccounting() {
   });
 
   // Enter details in form and save
-  cy.get('.editable-panel-header')
+  cy
+    .get('.editable-panel-header')
     .contains('Accounting')
     .siblings()
     .click();
@@ -120,11 +129,13 @@ function officeUserVerifiesAccounting() {
   cy.get('select[name="department_indicator"]').select('AIR_FORCE');
   cy.get('input[name="sac"]').type('N002214CSW32Y9');
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .click();
 
@@ -136,7 +147,8 @@ function officeUserVerifiesAccounting() {
 
   // Refresh browser and make sure changes persist
   cy.reload();
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Approve PPM')
     .should('be.disabled');
 
@@ -152,7 +164,8 @@ function officeUserApprovesMoveAndVerifiesPPM() {
   });
 
   // Find move and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('VGHEIS')
     .dblclick();
 
@@ -161,14 +174,17 @@ function officeUserApprovesMoveAndVerifiesPPM() {
   });
 
   // Approve the move
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Approve PPM')
     .should('be.disabled');
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Approve Basics')
     .click();
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Approve PPM')
     .should('be.enabled');
 
@@ -179,12 +195,14 @@ function officeUserApprovesMoveAndVerifiesPPM() {
   });
 
   // Open PPMs Queue
-  cy.get('span')
+  cy
+    .get('span')
     .contains('PPMs')
     .click();
 
   // Find move and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('VGHEIS')
     .dblclick();
 
@@ -193,7 +211,8 @@ function officeUserApprovesMoveAndVerifiesPPM() {
   });
 
   // Click on PPM tab
-  cy.get('span')
+  cy
+    .get('span')
     .contains('PPM')
     .click();
   cy.location().should(loc => {
@@ -204,24 +223,28 @@ function officeUserApprovesMoveAndVerifiesPPM() {
   cy.get('span').contains('8,000');
 
   // Approve PPM
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Approve PPM')
     .click();
 
   // Approve advance
   cy.get('.payment-table').within(() => {
     // Verify the status icon
-    cy.get('td svg:first')
+    cy
+      .get('td svg:first')
       .should('have.attr', 'title')
       .and('eq', 'Awaiting Review');
     // Verify the approve checkmark
-    cy.get('td svg:last')
+    cy
+      .get('td svg:last')
       .should('have.attr', 'title')
       .and('eq', 'Approve');
 
     // Approve advance and verify icon change
     cy.get('td svg:last').click();
-    cy.get('td svg:first')
+    cy
+      .get('td svg:first')
       .should('have.attr', 'title')
       .and('eq', 'Approved');
   });

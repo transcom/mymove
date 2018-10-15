@@ -93,7 +93,4 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DutyStation);
+export default connect(mapStateToProps, mapDispatchToProps)(DutyStation);

@@ -70,7 +70,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PreApprovalPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);

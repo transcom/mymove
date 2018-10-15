@@ -405,9 +405,4 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(Summary),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));

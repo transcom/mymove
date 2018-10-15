@@ -15,7 +15,8 @@ function tspUserEntersDates() {
   });
 
   // Find shipment and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('DATESP')
     .dblclick();
 
@@ -23,7 +24,8 @@ function tspUserEntersDates() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy.get('.editable-panel-header')
+  cy
+    .get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();
@@ -31,48 +33,58 @@ function tspUserEntersDates() {
   // Enter details in form and save dates
 
   // Conducted Date
-  cy.get('input[name="dates.pm_survey_conducted_date"]')
+  cy
+    .get('input[name="dates.pm_survey_conducted_date"]')
     .first()
     .type('7/20/2018')
     .blur();
   cy.get('select[name="dates.pm_survey_method"]').select('PHONE');
   // Pack Dates
-  cy.get('input[name="dates.pm_survey_planned_pack_date"]')
+  cy
+    .get('input[name="dates.pm_survey_planned_pack_date"]')
     .first()
     .type('8/1/2018')
     .blur();
-  cy.get('input[name="dates.actual_pack_date"]')
+  cy
+    .get('input[name="dates.actual_pack_date"]')
     .first()
     .type('8/2/2018')
     .blur();
   // Pickup Dates
-  cy.get('input[name="dates.pm_survey_planned_pickup_date"]')
+  cy
+    .get('input[name="dates.pm_survey_planned_pickup_date"]')
     .first()
     .type('8/2/2018')
     .blur();
-  cy.get('input[name="dates.actual_pickup_date"]')
+  cy
+    .get('input[name="dates.actual_pickup_date"]')
     .first()
     .type('8/3/2018')
     .blur();
   // Delivery Dates
-  cy.get('input[name="dates.pm_survey_planned_delivery_date"]')
+  cy
+    .get('input[name="dates.pm_survey_planned_delivery_date"]')
     .first()
     .type('10/7/2018')
     .blur();
-  cy.get('input[name="dates.actual_delivery_date"]')
+  cy
+    .get('input[name="dates.actual_delivery_date"]')
     .first()
     .type('10/8/2018');
   // Notes
-  cy.get('textarea[name="dates.pm_survey_notes"]')
+  cy
+    .get('textarea[name="dates.pm_survey_notes"]')
     .first()
     .type('Notes notes notes for dates')
     .blur();
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .click();
 
@@ -91,7 +103,8 @@ function tspUserEntersDates() {
   cy.get('div.actual_delivery_date').contains('08-Oct-18');
 
   // Verify Premove Survey contains the same data
-  cy.get('.editable-panel-header')
+  cy
+    .get('.editable-panel-header')
     .contains('Premove Survey')
     .parent()
     .parent()

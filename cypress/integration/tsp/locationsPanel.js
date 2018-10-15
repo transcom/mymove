@@ -69,7 +69,8 @@ function tspUserViewsLocation({ shipmentId, type, expectation }) {
   });
 
   // Find a shipment and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains(shipmentId)
     .dblclick();
 
@@ -78,10 +79,12 @@ function tspUserViewsLocation({ shipmentId, type, expectation }) {
   });
 
   // Expect Customer Info to be loaded
-  cy.contains('Locations')
+  cy
+    .contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy.contains(type)
+      cy
+        .contains(type)
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')
@@ -126,7 +129,8 @@ function tspUserEntersLocations() {
   });
 
   // Find shipment and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('BACON1')
     .dblclick();
 
@@ -134,94 +138,112 @@ function tspUserEntersLocations() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy.get('.editable-panel-header')
+  cy
+    .get('.editable-panel-header')
     .contains('Locations')
     .siblings()
     .click();
 
   // Enter details in form and save locations
-  cy.get('input[name="pickupAddress.street_address_1"]')
+  cy
+    .get('input[name="pickupAddress.street_address_1"]')
     .first()
     .clear()
     .type(pickupAddress.street_1)
     .blur();
-  cy.get('input[name="pickupAddress.city"]')
+  cy
+    .get('input[name="pickupAddress.city"]')
     .first()
     .clear()
     .type(pickupAddress.city)
     .blur();
-  cy.get('input[name="pickupAddress.state"]')
+  cy
+    .get('input[name="pickupAddress.state"]')
     .first()
     .clear()
     .type(pickupAddress.state)
     .blur();
-  cy.get('input[name="pickupAddress.postal_code"]')
+  cy
+    .get('input[name="pickupAddress.postal_code"]')
     .first()
     .clear()
     .type(pickupAddress.postal_code)
     .blur();
 
   // Secondary Pickup Address isn't actually required, so please remove later.
-  cy.get('input[name="secondaryPickupAddress.street_address_1"]')
+  cy
+    .get('input[name="secondaryPickupAddress.street_address_1"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.street_1)
     .blur();
-  cy.get('input[name="secondaryPickupAddress.street_address_2"]')
+  cy
+    .get('input[name="secondaryPickupAddress.street_address_2"]')
     .first()
     .clear();
-  cy.get('input[name="secondaryPickupAddress.city"]')
+  cy
+    .get('input[name="secondaryPickupAddress.city"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.city)
     .blur();
-  cy.get('input[name="secondaryPickupAddress.state"]')
+  cy
+    .get('input[name="secondaryPickupAddress.state"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.state)
     .blur();
-  cy.get('input[name="secondaryPickupAddress.postal_code"]')
+  cy
+    .get('input[name="secondaryPickupAddress.postal_code"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.postal_code)
     .blur();
 
-  cy.get('input[name="deliveryAddress.street_address_1"]')
+  cy
+    .get('input[name="deliveryAddress.street_address_1"]')
     .first()
     .clear()
     .type(deliveryAddress.street_1)
     .blur();
-  cy.get('input[name="deliveryAddress.city"]')
+  cy
+    .get('input[name="deliveryAddress.city"]')
     .first()
     .clear()
     .type(deliveryAddress.city)
     .blur();
-  cy.get('input[name="deliveryAddress.state"]')
+  cy
+    .get('input[name="deliveryAddress.state"]')
     .first()
     .clear()
     .type(deliveryAddress.state)
     .blur();
-  cy.get('input[name="deliveryAddress.postal_code"]')
+  cy
+    .get('input[name="deliveryAddress.postal_code"]')
     .first()
     .clear()
     .type(deliveryAddress.postal_code)
     .blur();
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy.get('button')
+  cy
+    .get('button')
     .contains('Save')
     .click();
 
   // Refresh browser and make sure changes persist
   cy.reload();
 
-  cy.contains('Locations')
+  cy
+    .contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy.contains('Delivery')
+      cy
+        .contains('Delivery')
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')
@@ -232,10 +254,12 @@ function tspUserEntersLocations() {
         });
     });
 
-  cy.contains('Locations')
+  cy
+    .contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy.contains('Pickup')
+      cy
+        .contains('Pickup')
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')
@@ -246,10 +270,12 @@ function tspUserEntersLocations() {
         });
     });
 
-  cy.contains('Locations')
+  cy
+    .contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy.contains('Pickup')
+      cy
+        .contains('Pickup')
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')

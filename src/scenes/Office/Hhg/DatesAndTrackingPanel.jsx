@@ -71,7 +71,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DatesAndTrackingPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(DatesAndTrackingPanel);

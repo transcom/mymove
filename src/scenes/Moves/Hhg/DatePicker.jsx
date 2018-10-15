@@ -108,9 +108,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary }, dispatch);
 }
 
-export default withRouter(
-  connect(
-    () => ({}),
-    mapDispatchToProps,
-  )(HHGDatePicker),
-);
+export default withRouter(connect(() => ({}), mapDispatchToProps)(HHGDatePicker));

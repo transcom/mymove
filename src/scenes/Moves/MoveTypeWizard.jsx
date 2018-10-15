@@ -50,7 +50,4 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return state.moves;
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(MoveTypeWizardPage);
+export default connect(mapStateToProps, mapDispatchToProps)(MoveTypeWizardPage);

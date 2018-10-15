@@ -59,11 +59,7 @@ class BigButtonGroup extends Component {
                   return (
                     <div key={key.toString()}>
                       <p>{key}</p>
-                      <ul className="smaller-text">
-                        {pros.map(item => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
+                      <ul className="smaller-text">{pros.map(item => <li key={item}>{item}</li>)}</ul>
                     </div>
                   );
                 }, this)}
@@ -196,7 +192,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setPendingMoveType }, dispatch);
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(MoveType);
+export default connect(mapStateToProps, mapDispatchToProps)(MoveType);

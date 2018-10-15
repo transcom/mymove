@@ -75,7 +75,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(WeightAndInventoryPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(WeightAndInventoryPanel);

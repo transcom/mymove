@@ -18,7 +18,8 @@ function officeUserEntersPreMoveSurvey() {
   });
 
   // Find move and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('RLKBEM')
     .dblclick();
 
@@ -27,7 +28,8 @@ function officeUserEntersPreMoveSurvey() {
   });
 
   // Click on HHG tab
-  cy.get('span')
+  cy
+    .get('span')
     .contains('HHG')
     .click();
   cy.location().should(loc => {

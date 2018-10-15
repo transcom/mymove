@@ -82,7 +82,4 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ExpensesPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(ExpensesPanel);

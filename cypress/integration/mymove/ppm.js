@@ -18,11 +18,13 @@ describe('completing the ppm flow', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
-    cy.get('input[name="planned_move_date"]')
+    cy
+      .get('input[name="planned_move_date"]')
       .first()
       .type('9/2/2018{enter}')
       .blur();
-    cy.get('input[name="pickup_postal_code"]')
+    cy
+      .get('input[name="pickup_postal_code"]')
       .clear()
       .type('80913');
     cy.get('input[name="destination_postal_code"]').type('76127');

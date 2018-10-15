@@ -202,7 +202,4 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DocumentViewer);
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);

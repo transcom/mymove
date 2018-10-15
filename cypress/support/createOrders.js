@@ -1,6 +1,7 @@
 /* global cy, Cypress*/
 export default function createOrders() {
-  cy.location()
+  cy
+    .location()
     .should(loc => {
       expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/create/);
     })

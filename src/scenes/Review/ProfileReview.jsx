@@ -59,7 +59,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push }, dispatch);
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ProfileReview);
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileReview);

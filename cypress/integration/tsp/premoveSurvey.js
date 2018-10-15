@@ -17,7 +17,8 @@ function tspUserEntersPremoveSurvey() {
   });
 
   // Find shipment and open it
-  cy.get('div')
+  cy
+    .get('div')
     .contains('PREMVE')
     .dblclick();
 

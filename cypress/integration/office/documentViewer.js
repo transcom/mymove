@@ -31,7 +31,8 @@ describe('The document viewer', function() {
     cy.get('button.submit').should('be.disabled');
 
     cy.upload_file('.filepond--root', 'top-secret.png');
-    cy.get('button.submit', { timeout: fileUploadTimeout })
+    cy
+      .get('button.submit', { timeout: fileUploadTimeout })
       .should('not.be.disabled')
       .click();
   });
@@ -39,7 +40,8 @@ describe('The document viewer', function() {
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('All Documents (1)');
     cy.contains('super secret info document');
-    cy.get('.pad-ns')
+    cy
+      .get('.pad-ns')
       .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -57,14 +59,16 @@ describe('The document viewer', function() {
     cy.get('button.submit').should('be.disabled');
 
     cy.upload_file('.filepond--root', 'top-secret.png');
-    cy.get('button.submit', { timeout: fileUploadTimeout })
+    cy
+      .get('button.submit', { timeout: fileUploadTimeout })
       .should('not.be.disabled')
       .click();
   });
   it('can select and update newly-uploaded expense document', () => {
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('expense document');
-    cy.get('.pad-ns')
+    cy
+      .get('.pad-ns')
       .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -82,7 +86,8 @@ describe('The document viewer', function() {
     cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
     cy.get('select[name="moveDocument.status"]').select('OK');
 
-    cy.get('button')
+    cy
+      .get('button')
       .contains('Save')
       .should('not.be.disabled')
       .click();
@@ -92,7 +97,8 @@ describe('The document viewer', function() {
   it('can update expense document to other doc type', () => {
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('expense document');
-    cy.get('.pad-ns')
+    cy
+      .get('.pad-ns')
       .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -104,21 +110,24 @@ describe('The document viewer', function() {
 
     cy.get('select[name="moveDocument.move_document_type"]').select('Other document type');
 
-    cy.get('button')
+    cy
+      .get('button')
       .contains('Save')
       .should('not.be.disabled')
       .click();
 
     cy.contains('Other document type');
 
-    cy.get('.field-title')
+    cy
+      .get('.field-title')
       .contains('Expense Type')
       .should('not.exist');
   });
   it('can update other document type back to expense type', () => {
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('expense document');
-    cy.get('.pad-ns')
+    cy
+      .get('.pad-ns')
       .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -134,7 +143,8 @@ describe('The document viewer', function() {
     cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
     cy.get('select[name="moveDocument.status"]').select('OK');
 
-    cy.get('button')
+    cy
+      .get('button')
       .contains('Save')
       .should('not.be.disabled')
       .click();

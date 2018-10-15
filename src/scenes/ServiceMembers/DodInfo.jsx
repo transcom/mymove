@@ -152,7 +152,4 @@ function mapStateToProps(state) {
   };
   return props;
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DodInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(DodInfo);
