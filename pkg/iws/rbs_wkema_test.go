@@ -1,8 +1,8 @@
 package iws
 
-import "encoding/xml"
+import "net/url"
 
-func (suite *iwsSuite) TestWkemaSuccessResponseUnmarshal() {
+func (suite *iwsSuite) TestParseWkEmaResponse() {
 	data := `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<record>
 	  <rule>
@@ -40,9 +40,56 @@ func (suite *iwsSuite) TestWkemaSuccessResponseUnmarshal() {
 		</personnel>
 	  </adrRecord>
 	</record>`
-	rec := Record{}
-	unmarshalErr := xml.Unmarshal([]byte(data), &rec)
-	suite.Nil(unmarshalErr)
+	edipi, person, personnel, err := parseWkEmaResponse([]byte(data))
+	suite.Nil(err)
+	suite.Equal(uint64(9995006001), edipi)
+	suite.NotNil(person)
+	suite.NotEmpty(personnel)
+}
+
+func (suite *iwsSuite) TestParseWkEmaResponseError() {
+	data := `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<RbsError>
+	  <faultCode>14030</faultCode>
+	  <faultMessage> Problem with this argument: EMA_TX</faultMessage>
+	</RbsError>`
+	edipi, person, personnel, err := parseWkEmaResponse([]byte(data))
+	suite.NotNil(err)
+	rbsError, ok := err.(*RbsError)
+	suite.True(ok)
+	suite.Equal(uint64(14030), rbsError.FaultCode)
+	suite.NotEmpty(rbsError.FaultMessage)
+	suite.Zero(edipi)
+	suite.Nil(person)
+	suite.Empty(personnel)
+}
+
+func (suite *iwsSuite) TestBuildWkEmaURL() {
+	urlString, err := buildWkEmaURL("example.com", "1234", "test@example.com")
+	suite.NotEmpty(urlString)
+	suite.Nil(err)
+	parsedURL, parseErr := url.Parse(urlString)
+	suite.Nil(parseErr)
+	suite.Equal("https", parsedURL.Scheme)
+	suite.Equal("example.com", parsedURL.Host)
+	suite.Equal("/appj/rbs/rest/op=wkEma/customer=1234/schemaName=get_cac_data/schemaVersion=1.0/EMA_TX=test@example.com", parsedURL.Path)
+}
+
+func (suite *iwsSuite) TestBuildWkEmaURLEmailInvalid() {
+	u, err := buildWkEmaURL("example.com", "1234", "invalid@")
+	suite.NotNil(err)
+	suite.Empty(u)
+}
+
+func (suite *iwsSuite) TestBuildWkEmaURLLongEmail() {
+	urlString, err := buildWkEmaURL("example.com", "1234", "pneumonoultramicroscopicsilicovolcanoconiosis_is_a_terrible_way_to_expire@unpronounceablediseases.org")
+	suite.NotEmpty(urlString)
+	suite.Nil(err)
+	parsedURL, parseErr := url.Parse(urlString)
+	suite.Nil(parseErr)
+	suite.Equal("https", parsedURL.Scheme)
+	suite.Equal("example.com", parsedURL.Host)
+	suite.Equal("/appj/rbs/rest/op=wkEma/customer=1234/schemaName=get_cac_data/schemaVersion=1.0/EMA_TX=pneumonoultramicroscopicsilicovolcanoconiosis_is_a_terrible_way_to_expire@unpron", parsedURL.Path)
 }
 
 func (suite *iwsSuite) TestGetPersonUsingWorkEmail() {
@@ -57,17 +104,6 @@ func (suite *iwsSuite) TestGetPersonUsingWorkEmailNotFound() {
 	edipi, person, personnel, err := GetPersonUsingWorkEmail(suite.client, suite.host, suite.custNum, "nobody@example.com")
 	// error should still be nil - no match is not an error like connection failure
 	suite.Nil(err)
-	suite.Zero(edipi)
-	suite.Nil(person)
-	suite.Empty(personnel)
-}
-
-func (suite *iwsSuite) TestGetPersonUsingWorkEmailInvalid() {
-	// An empty SSN should get an RbsError from the API
-	edipi, person, personnel, err := GetPersonUsingWorkEmail(suite.client, suite.host, suite.custNum, "")
-	// error should still be nil - no match is not an error like connection failure
-	suite.NotNil(err)
-	suite.IsType(&RbsError{}, err)
 	suite.Zero(edipi)
 	suite.Nil(person)
 	suite.Empty(personnel)

@@ -1,10 +1,24 @@
 package iws
 
-import (
-	"encoding/xml"
-)
+import "net/url"
 
-func (suite *iwsSuite) TestEdiSuccessResponseUnmarshal() {
+func (suite *iwsSuite) TestBuildEdiURL() {
+	urlString, err := buildEdiURL("example.com", "1234", 1234567890)
+	suite.Nil(err)
+	parsedURL, parseErr := url.Parse(urlString)
+	suite.Nil(parseErr)
+	suite.Equal("https", parsedURL.Scheme)
+	suite.Equal("example.com", parsedURL.Host)
+	suite.Equal("/appj/rbs/rest/op=edi/customer=1234/schemaName=get_cac_data/schemaVersion=1.0/DOD_EDI_PN_ID=1234567890", parsedURL.Path)
+}
+
+func (suite *iwsSuite) TestBuildEdiURLInvalidEDIPI() {
+	urlString, err := buildEdiURL("example.com", "1234", 10000000000)
+	suite.NotNil(err)
+	suite.Empty(urlString)
+}
+
+func (suite *iwsSuite) TestParseEdiResponse() {
 	data := `<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 	<record>
 		<rule>
@@ -37,9 +51,26 @@ func (suite *iwsSuite) TestEdiSuccessResponseUnmarshal() {
 			</personnel>
 		</adrRecord>
 	</record>`
-	rec := Record{}
-	unmarshalErr := xml.Unmarshal([]byte(data), &rec)
-	suite.Nil(unmarshalErr)
+	person, personnel, err := parseEdiResponse([]byte(data))
+	suite.Nil(err)
+	suite.NotNil(person)
+	suite.Equal("xxxx12345", person.ID)
+	suite.NotEmpty(personnel)
+}
+
+func (suite *iwsSuite) TestParseEdiResponseError() {
+	data := `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<RbsError>
+		<faultCode>14030</faultCode>
+		<faultMessage>DOD_EDI_PN_ID should be in the range between 1000000000 and 9999999999</faultMessage>
+	</RbsError>`
+	person, personnel, err := parseEdiResponse([]byte(data))
+	suite.Nil(person)
+	suite.Empty(personnel)
+	suite.NotNil(err)
+	rbsError, ok := err.(*RbsError)
+	suite.True(ok)
+	suite.Equal(uint64(14030), rbsError.FaultCode)
 }
 
 func (suite *iwsSuite) TestGetPersonUsingEDIPI() {

@@ -1,8 +1,8 @@
 package iws
 
-import "encoding/xml"
+import "net/url"
 
-func (suite *iwsSuite) TestPidsSuccessResponseUnmarshal() {
+func (suite *iwsSuite) TestParsePidsResponse() {
 	data := `<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 	<record>
 		<rule>
@@ -44,9 +44,69 @@ func (suite *iwsSuite) TestPidsSuccessResponseUnmarshal() {
 			</personnel>
 		</adrRecord>
 	</record>`
-	rec := Record{}
-	unmarshalErr := xml.Unmarshal([]byte(data), &rec)
-	suite.Nil(unmarshalErr)
+
+	reason, edipi, person, personnel, err := parsePidsResponse([]byte(data))
+	suite.Nil(err)
+	suite.Equal(MatchReasonCodeFull, reason)
+	suite.Equal(uint64(9995006001), edipi)
+	suite.NotNil(person)
+	suite.NotEmpty(personnel)
+}
+
+func (suite *iwsSuite) TestParsePidsResponseError() {
+	data := `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<RbsError>
+	  <faultCode>14030</faultCode>
+	  <faultMessage> Problem with this argument: PN_ID</faultMessage>
+	</RbsError>`
+	reason, edipi, person, personnel, err := parsePidsResponse([]byte(data))
+	suite.NotNil(err)
+	rbsErr, typeErr := err.(*RbsError)
+	suite.True(typeErr)
+	suite.Equal(uint64(14030), rbsErr.FaultCode)
+	suite.Equal(MatchReasonCodeNone, reason)
+	suite.Zero(edipi)
+	suite.Nil(person)
+	suite.Empty(personnel)
+}
+
+func (suite *iwsSuite) TestBuildPidsUrl() {
+	urlString, err := buildPidsURL("example.com", "1234", "000000000", "Last", "First")
+	suite.NotEmpty(urlString)
+	suite.Nil(err)
+	parsedURL, parseErr := url.Parse(urlString)
+	suite.Nil(parseErr)
+	suite.Equal("https", parsedURL.Scheme)
+	suite.Equal("example.com", parsedURL.Host)
+	suite.Equal("/appj/rbs/rest/op=pids-P/customer=1234/schemaName=get_cac_data/schemaVersion=1.0/PN_ID=000000000/PN_ID_TYP_CD=S/PN_LST_NM=Last/PN_1ST_NM=First", parsedURL.Path)
+}
+
+func (suite *iwsSuite) TestBuildPidsUrlLongNames() {
+	urlString, err := buildPidsURL("example.com", "1234", "000000000", "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "abcdefghijklmnopqrstuvwxyz")
+	suite.NotEmpty(urlString)
+	suite.Nil(err)
+	parsedURL, parseErr := url.Parse(urlString)
+	suite.Nil(parseErr)
+	suite.Equal("https", parsedURL.Scheme)
+	suite.Equal("example.com", parsedURL.Host)
+	suite.Equal("/appj/rbs/rest/op=pids-P/customer=1234/schemaName=get_cac_data/schemaVersion=1.0/PN_ID=000000000/PN_ID_TYP_CD=S/PN_LST_NM=abcdefghijklmnopqrstuvwxyz/PN_1ST_NM=abcdefghijklmnopqrst", parsedURL.Path)
+}
+
+func (suite *iwsSuite) TestBuildPidsUrlNoFirstName() {
+	urlString, err := buildPidsURL("example.com", "1234", "000000000", "Last", "")
+	suite.NotEmpty(urlString)
+	suite.Nil(err)
+	parsedURL, parseErr := url.Parse(urlString)
+	suite.Nil(parseErr)
+	suite.Equal("https", parsedURL.Scheme)
+	suite.Equal("example.com", parsedURL.Host)
+	suite.Equal("/appj/rbs/rest/op=pids-P/customer=1234/schemaName=get_cac_data/schemaVersion=1.0/PN_ID=000000000/PN_ID_TYP_CD=S/PN_LST_NM=Last", parsedURL.Path)
+}
+
+func (suite *iwsSuite) TestBuildPidsUrlBadSSN() {
+	urlString, err := buildPidsURL("example.com", "1234", "12345678", "Last", "First")
+	suite.Empty(urlString)
+	suite.NotNil(err)
 }
 
 func (suite *iwsSuite) TestGetPersonUsingSSN() {
@@ -72,23 +132,6 @@ func (suite *iwsSuite) TestGetPersonUsingSSNNotFound() {
 	reason, edipi, person, personnel, err := GetPersonUsingSSN(suite.client, suite.host, suite.custNum, params)
 	// error should still be nil - no match is not an error like connection failure
 	suite.Nil(err)
-	suite.Equal(MatchReasonCodeNone, reason)
-	suite.Zero(edipi)
-	suite.Nil(person)
-	suite.Empty(personnel)
-}
-
-func (suite *iwsSuite) TestGetPersonUsingSSNInvalid() {
-	// An empty SSN should get an RbsError from the API
-	params := GetPersonUsingSSNParams{
-		Ssn:       "",
-		LastName:  "Last",
-		FirstName: "First",
-	}
-	reason, edipi, person, personnel, err := GetPersonUsingSSN(suite.client, suite.host, suite.custNum, params)
-	// error should still be nil - no match is not an error like connection failure
-	suite.NotNil(err)
-	suite.IsType(&RbsError{}, err)
 	suite.Equal(MatchReasonCodeNone, reason)
 	suite.Zero(edipi)
 	suite.Nil(person)

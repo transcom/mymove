@@ -1,6 +1,9 @@
 package iws
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+)
 
 // RbsError is the XML root tag for error replies from DMDC's Identity Web Services: Real-time Broker Service REST API
 type RbsError struct {
@@ -10,5 +13,6 @@ type RbsError struct {
 }
 
 func (e *RbsError) Error() string {
-	return e.FaultMessage
+	// Most RbsError messages have a leading space, so don't put another leading space in this output
+	return fmt.Sprintf("%d:%s", e.FaultCode, e.FaultMessage)
 }
