@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import { editablePanelify } from 'shared/EditablePanel';
 import { reduxForm, FormSection } from 'redux-form';
 
-// import { PatchShipment } from './ducks';
-
 import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 

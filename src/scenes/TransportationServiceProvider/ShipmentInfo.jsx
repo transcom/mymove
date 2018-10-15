@@ -36,7 +36,7 @@ import {
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 import Dates from './Dates';
-import Locations from './Locations';
+import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 
@@ -148,12 +148,7 @@ class ShipmentInfo extends Component {
     this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const {
-      context,
-      shipment,
-      shipmentDocuments,
-      deliveryAddress,
-    } = this.props;
+    const { context, shipment, shipmentDocuments } = this.props;
 
     const {
       service_member: serviceMember = {},
@@ -252,14 +247,7 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
-                  <Locations
-                    deliveryAddress={deliveryAddress}
-                    title="Locations"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                    addressSchema={addressSchema}
-                    initialValues={locationsInitialValues}
-                  />
+                  <LocationsContainer update={this.props.patchShipment} />
                 </div>
               )}
             </div>
@@ -347,32 +335,17 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
-  const newDutyStation = get(shipment, 'move.new_duty_station.address', {});
-  // if they do not have a delivery address, default to the station's address info
-  const deliveryAddress = shipment.has_delivery_address
-    ? shipment.delivery_address
-    : {
-        city: newDutyStation.city,
-        state: newDutyStation.state,
-        postal_code: newDutyStation.postal_code,
-      };
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
-    deliveryAddress,
-    shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    shipmentDocuments: selectShipmentDocuments(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(
       state,
       'tsp.loadTspDependenciesHasSuccess',
     ),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
-    locationsInitialValues: {
-      pickupAddress: shipment.pickupAddress,
-      deliveryAddress: shipment.delivery_address,
-      secondaryPickupAddress: shipment.secondaryPickupAddress,
-    },
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
