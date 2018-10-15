@@ -37,7 +37,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField title="PM survey conducted" fieldName="pm_survey_conducted_date" required {...fieldProps} />
         <PanelSwaggerField title="Survey Method" fieldName="pm_survey_method" required {...fieldProps} />
         <div className="column-subhead">Packing</div>
-        <PanelField title="Original" value="TODO" />
+        <PanelField className="Todo-phase2" title="Original" value="TODO" />
         <PanelSwaggerField fieldName="pm_survey_planned_pack_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_pack_date" required title="Actual" {...fieldProps} />
       </div>
@@ -47,7 +47,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField fieldName="pm_survey_planned_pickup_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_pickup_date" required title="Actual" {...fieldProps} />
         <div className="column-subhead">Delivery</div>
-        <PanelField title="Original" value="TODO" />
+        <PanelField className="Todo-phase2" title="Original" value="TODO" />
         <PanelSwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
         {/* TODO: cgilmer 2018/10/15 - replace ORIGINAL with original_delivery_date */}
