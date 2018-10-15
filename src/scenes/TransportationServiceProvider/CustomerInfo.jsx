@@ -23,9 +23,7 @@ export const CustomerInfo = ({ serviceMember, backupContact }) => {
             {serviceMember.telephone}
             {serviceMember.secondary_telephone && <span>- {serviceMember.secondary_telephone}</span>}
             <br />
-            <a href={`mailto:${serviceMember.personal_email}`}>
-              {serviceMember.personal_email}
-            </a>
+            <a href={`mailto:${serviceMember.personal_email}`}>{serviceMember.personal_email}</a>
             <br />
             Preferred contact method:{' '}
             {serviceMember.phone_is_preferred && <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />}
@@ -47,9 +45,7 @@ export const CustomerInfo = ({ serviceMember, backupContact }) => {
                 )}
                 {backupContact.email && (
                   <span>
-                    <a href={`mailto:${backupContact.email}`}>
-                      {backupContact.email}
-                    </a>
+                    <a href={`mailto:${backupContact.email}`}>{backupContact.email}</a>
                     <br />
                   </span>
                 )}

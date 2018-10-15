@@ -185,6 +185,7 @@ class MoveInfo extends Component {
     );
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], hhg.status);
+    const hhgAccepted = hhg.status === 'ACCEPTED';
     const hhgDelivered = hhg.status === 'DELIVERED';
     const hhgCompleted = hhg.status === 'COMPLETED';
     const moveApproved = move.status === 'APPROVED';
@@ -322,7 +323,14 @@ class MoveInfo extends Component {
                 <button
                   className={`${hhgApproved ? 'btn__approve--green' : ''}`}
                   onClick={this.approveHHG}
-                  disabled={hhgApproved || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
+                  disabled={
+                    !hhgAccepted ||
+                    hhgApproved ||
+                    hhgCompleted ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
                 >
                   Approve Shipments
                   {hhgApproved && check}
