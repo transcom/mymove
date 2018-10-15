@@ -177,12 +177,13 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>GBL# {gbl}</li>
-              <li>Locator# {move.locator}</li>
+              <li>GBL# {gbl}&nbsp;</li>
+              <li>Locator# {move.locator}&nbsp;</li>
               <li>
                 {this.props.shipment.source_gbloc} to {this.props.shipment.destination_gbloc}
+                &nbsp;
               </li>
-              <li>DoD ID# {serviceMember.edipi}</li>
+              <li>DoD ID# {serviceMember.edipi}&nbsp;</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -190,9 +191,11 @@ class ShipmentInfo extends Component {
                 )}
                 {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                &nbsp;
               </li>
               <li>
                 Status: <b>{capitalize(this.props.shipment.status)}</b>
+                &nbsp;
               </li>
             </ul>
           </div>
