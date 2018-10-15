@@ -11,6 +11,7 @@ const defaultProps = {
     has_delivery_address: false,
     service_member: { current_station: { address: {} } },
   },
+  addressSchema: {},
 };
 describe('Locations component test', () => {
   describe('when LocationsDisplay is provided pickup and delivery address', () => {
