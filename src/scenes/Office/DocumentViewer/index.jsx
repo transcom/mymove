@@ -19,10 +19,7 @@ import DocumentList from 'shared/DocumentViewer/DocumentList';
 import DocumentDetailPanel from './DocumentDetailPanel';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
-import {
-  selectAllDocumentsForMove,
-  getMoveDocumentsForMove,
-} from 'shared/Entities/modules/moveDocuments';
+import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
 
@@ -50,12 +47,7 @@ class DocumentViewer extends Component {
   }
 
   get getDocumentUploaderProps() {
-    const {
-      docTypes,
-      location,
-      genericMoveDocSchema,
-      moveDocSchema,
-    } = this.props;
+    const { docTypes, location, genericMoveDocSchema, moveDocSchema } = this.props;
     // Parse query string parameters
     const moveDocumentType = qs.parse(location.search).moveDocumentType;
 
@@ -79,9 +71,7 @@ class DocumentViewer extends Component {
   handleSubmit = (uploadIds, formValues) => {
     const { currentPpm, move } = this.props;
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.requested_amount_cents = convertDollarsToCents(
-        formValues.requested_amount_cents,
-      );
+      formValues.requested_amount_cents = convertDollarsToCents(formValues.requested_amount_cents);
       return this.props.createMovingExpenseDocument(
         move.id,
         currentPpm.id,
@@ -117,13 +107,8 @@ class DocumentViewer extends Component {
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
 
-    const defaultTabIndex =
-      this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
-    if (
-      !this.props.loadDependenciesHasSuccess &&
-      !this.props.loadDependenciesHasError
-    )
-      return <LoadingPlaceholder />;
+    const defaultTabIndex = this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
+    if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
         <div className="usa-grid">
@@ -139,28 +124,16 @@ class DocumentViewer extends Component {
         <div className="usa-width-two-thirds">
           <div className="tab-content">
             <Switch>
-              <PrivateRoute
-                exact
-                path={defaultPath}
-                render={() => <Redirect replace to={newUrl} />}
-              />
+              <PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
               <PrivateRoute
                 path={newPath}
                 moveId={move.id}
                 render={() => {
-                  return (
-                    <DocumentUploader {...this.getDocumentUploaderProps} />
-                  );
+                  return <DocumentUploader {...this.getDocumentUploaderProps} />;
                 }}
               />
-              <PrivateRoute
-                path={documentPath}
-                component={DocumentUploadViewer}
-              />
-              <PrivateRoute
-                path={defaultUrl}
-                render={() => <div> document viewer coming soon</div>}
-              />
+              <PrivateRoute path={documentPath} component={DocumentUploadViewer} />
+              <PrivateRoute path={defaultUrl} render={() => <div> document viewer coming soon</div>} />
             </Switch>
           </div>
         </div>
@@ -171,32 +144,22 @@ class DocumentViewer extends Component {
           <div className="tab-content">
             <Tabs defaultIndex={defaultTabIndex}>
               <TabList className="doc-viewer-tabs">
-                <Tab className="title nav-tab">
-                  All Documents ({numMoveDocs})
-                </Tab>
+                <Tab className="title nav-tab">All Documents ({numMoveDocs})</Tab>
                 {/* TODO: Handle routing of /new route better */}
                 {this.props.match.params.moveDocumentId &&
-                  this.props.match.params.moveDocumentId !== 'new' && (
-                    <Tab className="title nav-tab">Details</Tab>
-                  )}
+                  this.props.match.params.moveDocumentId !== 'new' && <Tab className="title nav-tab">Details</Tab>}
               </TabList>
 
               <TabPanel>
                 <div className="pad-ns">
                   <span className="status">
-                    <FontAwesomeIcon
-                      className="icon link-blue"
-                      icon={faPlusCircle}
-                    />
+                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
                   </span>
                   <Link to={newUrl}>Upload new document</Link>
                 </div>
                 <div>
                   {' '}
-                  <DocumentList
-                    detailUrlPrefix={`/moves/${move.id}/documents`}
-                    moveDocuments={moveDocuments}
-                  />
+                  <DocumentList detailUrlPrefix={`/moves/${move.id}/documents`} moveDocuments={moveDocuments} />
                 </div>
               </TabPanel>
 
@@ -219,37 +182,24 @@ class DocumentViewer extends Component {
 }
 
 const mapStateToProps = state => ({
-  genericMoveDocSchema: get(
-    state,
-    'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
-    {},
-  ),
-  moveDocSchema: get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentPayload',
-    {},
-  ),
+  genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+  moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
   currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
-  docTypes: get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
-    [],
-  ),
+  docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
-  moveDocuments: selectAllDocumentsForMove(
-    state,
-    get(state, 'office.officeMove.id', ''),
-  ),
+  moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
   error: state.office.error,
 });
 
-export default connect(mapStateToProps, {
+const mapDispatchToProps = {
   createMoveDocument,
   createMovingExpenseDocument,
   loadMoveDependencies,
   getMoveDocumentsForMove,
-})(DocumentViewer);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);

@@ -18,109 +18,42 @@ import SaveCancelButtons from './SaveCancelButtons';
 const editContactFormName = 'edit_contact_info';
 
 let EditContactForm = props => {
-  const {
-    serviceMemberSchema,
-    addressSchema,
-    handleSubmit,
-    submitting,
-    valid,
-  } = props;
+  const { serviceMemberSchema, addressSchema, handleSubmit, submitting, valid } = props;
   return (
     <form className="service_member_contact_info" onSubmit={handleSubmit}>
       <FormSection name="serviceMember">
         <h2>Edit Contact Info</h2>
-        <SwaggerField
-          fieldName="telephone"
-          swagger={serviceMemberSchema}
-          required
-        />
-        <SwaggerField
-          fieldName="secondary_telephone"
-          swagger={serviceMemberSchema}
-        />
-        <SwaggerField
-          fieldName="personal_email"
-          swagger={serviceMemberSchema}
-          required
-        />
+        <SwaggerField fieldName="telephone" swagger={serviceMemberSchema} required />
+        <SwaggerField fieldName="secondary_telephone" swagger={serviceMemberSchema} />
+        <SwaggerField fieldName="personal_email" swagger={serviceMemberSchema} required />
         <fieldset key="contact_preferences">
-          <legend htmlFor="contact_preferences">
-            Preferred contact method(s) during your move:
-          </legend>
-          <SwaggerField
-            fieldName="phone_is_preferred"
-            swagger={serviceMemberSchema}
-          />
-          <SwaggerField
-            fieldName="text_message_is_preferred"
-            swagger={serviceMemberSchema}
-            disabled={true}
-          />
-          <SwaggerField
-            fieldName="email_is_preferred"
-            swagger={serviceMemberSchema}
-          />
+          <legend htmlFor="contact_preferences">Preferred contact method(s) during your move:</legend>
+          <SwaggerField fieldName="phone_is_preferred" swagger={serviceMemberSchema} />
+          <SwaggerField fieldName="text_message_is_preferred" swagger={serviceMemberSchema} disabled={true} />
+          <SwaggerField fieldName="email_is_preferred" swagger={serviceMemberSchema} />
         </fieldset>
       </FormSection>
       <hr className="spacer" />
 
       <FormSection name="resAddress">
         <h3>Current Residence Address</h3>
-        <SwaggerField
-          fieldName="street_address_1"
-          swagger={addressSchema}
-          required
-        />
+        <SwaggerField fieldName="street_address_1" swagger={addressSchema} required />
         <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
         <div className="address_inline">
-          <SwaggerField
-            fieldName="city"
-            swagger={addressSchema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="state"
-            swagger={addressSchema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="postal_code"
-            swagger={addressSchema}
-            className="city_state_zip"
-            required
-          />
+          <SwaggerField fieldName="city" swagger={addressSchema} className="city_state_zip" required />
+          <SwaggerField fieldName="state" swagger={addressSchema} className="city_state_zip" required />
+          <SwaggerField fieldName="postal_code" swagger={addressSchema} className="city_state_zip" required />
         </div>
       </FormSection>
       <hr className="spacer" />
       <FormSection name="backupAddress">
         <h3>Backup Mailing Address</h3>
-        <SwaggerField
-          fieldName="street_address_1"
-          swagger={addressSchema}
-          required
-        />
+        <SwaggerField fieldName="street_address_1" swagger={addressSchema} required />
         <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
         <div className="address_inline">
-          <SwaggerField
-            fieldName="city"
-            swagger={addressSchema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="state"
-            swagger={addressSchema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="postal_code"
-            swagger={addressSchema}
-            className="city_state_zip"
-            required
-          />
+          <SwaggerField fieldName="city" swagger={addressSchema} className="city_state_zip" required />
+          <SwaggerField fieldName="state" swagger={addressSchema} className="city_state_zip" required />
+          <SwaggerField fieldName="postal_code" swagger={addressSchema} className="city_state_zip" required />
         </div>
       </FormSection>
       <SaveCancelButtons valid={valid} submitting={submitting} />
@@ -181,18 +114,9 @@ class EditContact extends Component {
   }
 
   render() {
-    const {
-      error,
-      serviceMemberSchema,
-      addressSchema,
-      serviceMember,
-    } = this.props;
+    const { error, serviceMemberSchema, addressSchema, serviceMember } = this.props;
     let initialValues = null;
-    if (
-      serviceMember &&
-      get(serviceMember, 'residential_address') &&
-      get(serviceMember, 'backup_mailing_address')
-    )
+    if (serviceMember && get(serviceMember, 'residential_address') && get(serviceMember, 'backup_mailing_address'))
       initialValues = {
         serviceMember: serviceMember,
         resAddress: serviceMember.residential_address,
@@ -225,11 +149,7 @@ function mapStateToProps(state) {
     serviceMember: state.serviceMember.currentServiceMember,
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
-    serviceMemberSchema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateServiceMemberPayload',
-      {},
-    ),
+    serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
   };
 }

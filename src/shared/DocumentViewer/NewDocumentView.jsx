@@ -1,40 +1,75 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import DocumentContent from './DocumentContent';
-import DocumentList from './DocumentList';
+import { func, object, array, string, shape } from 'prop-types';
+import { Link } from 'react-router-dom';
+
 import { PanelField } from 'shared/EditablePanel';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
-import './index.css';
-import DocumentDetailPanelView from 'shared/DocumentViewer/DocumentDetailPanelView';
+import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 
-class MoveDocumentView extends Component {
+import './index.css';
+
+import DocumentList from './DocumentList';
+
+class NewDocumentView extends Component {
+  static propTypes = {
+    createShipmentDocument: func.isRequired,
+    genericMoveDocSchema: object.isRequired,
+    moveDocSchema: object.isRequired,
+    moveDocuments: array.isRequired,
+    moveLocator: string.isRequired,
+    onDidMount: func.isRequired,
+    shipmentId: string.isRequired,
+    serviceMember: shape({
+      edipi: string.isRequired,
+      name: string.isRequired,
+    }),
+  };
   componentDidMount() {
     const { onDidMount } = this.props;
     onDidMount();
   }
 
+  handleSubmit = (upload_ids, formValues) => {
+    const { createShipmentDocument, shipmentId } = this.props;
+    const { move_document_type, title, notes } = formValues;
+    const createGenericMoveDocument = {
+      shipmentId,
+      upload_ids,
+      move_document_type,
+      title,
+      notes,
+    };
+
+    return createShipmentDocument(shipmentId, createGenericMoveDocument);
+  };
+
   render() {
     const {
-      documentDetailUrlPrefix,
-      moveDocument,
-      moveDocumentSchema,
+      genericMoveDocSchema,
+      moveDocSchema,
       moveDocuments,
       moveLocator,
-      newDocumentUrl,
+      shipmentId,
       serviceMember: { edipi, name },
-      uploads,
     } = this.props;
+    const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
+    const documentDetailUrlPrefix = `/shipments/${shipmentId}/documents`;
+
     return (
       <div className="usa-grid doc-viewer">
         <div className="usa-width-two-thirds">
           <div className="tab-content">
             <div className="document-contents">
-              {uploads.map(({ url, filename, content_type }) => (
-                <DocumentContent key={url} url={url} filename={filename} contentType={content_type} />
-              ))}
+              <DocumentUploader
+                form="shipmment-documents"
+                initialValues={{}}
+                genericMoveDocSchema={genericMoveDocSchema}
+                moveDocSchema={moveDocSchema}
+                onSubmit={this.handleSubmit}
+                isPublic={true}
+              />
             </div>
           </div>
         </div>
@@ -46,7 +81,6 @@ class MoveDocumentView extends Component {
             <Tabs defaultIndex={0}>
               <TabList className="doc-viewer-tabs">
                 <Tab className="title nav-tab">All Documents ({moveDocuments.length})</Tab>
-                <Tab className="title nav-tab">Details</Tab>
               </TabList>
 
               <TabPanel>
@@ -61,10 +95,6 @@ class MoveDocumentView extends Component {
                   <DocumentList detailUrlPrefix={documentDetailUrlPrefix} moveDocuments={moveDocuments} />
                 </div>
               </TabPanel>
-
-              <TabPanel>
-                <DocumentDetailPanelView schema={moveDocumentSchema} {...moveDocument} />
-              </TabPanel>
             </Tabs>
           </div>
         </div>
@@ -73,25 +103,4 @@ class MoveDocumentView extends Component {
   }
 }
 
-MoveDocumentView.propTypes = {
-  documentDetailUrlPrefix: PropTypes.string.isRequired,
-  moveDocument: PropTypes.shape({
-    createdAt: PropTypes.string.isRequired,
-    notes: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-  }),
-  moveDocumentSchema: PropTypes.object.isRequired,
-  moveDocuments: PropTypes.array.isRequired,
-  moveLocator: PropTypes.string.isRequired,
-  newDocumentUrl: PropTypes.string.isRequired,
-  onDidMount: PropTypes.func.isRequired,
-  serviceMember: PropTypes.shape({
-    edipi: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-  }),
-  uploads: PropTypes.array.isRequired,
-};
-
-export default MoveDocumentView;
+export default NewDocumentView;

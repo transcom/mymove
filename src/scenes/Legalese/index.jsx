@@ -11,11 +11,7 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './index.css';
 
-import {
-  loadCertificationText,
-  loadLatestCertification,
-  signAndSubmitForApproval,
-} from './ducks';
+import { loadCertificationText, loadLatestCertification, signAndSubmitForApproval } from './ducks';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -52,12 +48,7 @@ export class SignedCertification extends Component {
       const moveId = this.props.match.params.moveId;
 
       return this.props
-        .signAndSubmitForApproval(
-          moveId,
-          this.props.certificationText,
-          pendingValues.signature,
-          pendingValues.date,
-        )
+        .signAndSubmitForApproval(moveId, this.props.certificationText, pendingValues.signature, pendingValues.date)
         .then(() => this.props.push('/'));
     }
   };
@@ -65,12 +56,7 @@ export class SignedCertification extends Component {
     window.print();
   }
   render() {
-    const {
-      hasSubmitError,
-      pages,
-      pageKey,
-      latestSignedCertification,
-    } = this.props;
+    const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
     const today = new Date(Date.now()).toISOString().split('T')[0];
     const initialValues = {
       date: get(latestSignedCertification, 'date', today),
@@ -91,24 +77,18 @@ export class SignedCertification extends Component {
               <h2>Now for the official part...</h2>
               <span className="box_top">
                 <p className="instructions">
-                  Before officially booking your move, please carefully read and
-                  then sign the following.
+                  Before officially booking your move, please carefully read and then sign the following.
                 </p>
                 <a className="pdf" onClick={this.print}>
                   Print
                 </a>
               </span>
 
-              <CertificationText
-                certificationText={this.props.certificationText}
-              />
+              <CertificationText certificationText={this.props.certificationText} />
 
               <div className="signature-box">
                 <h3>SIGNATURE</h3>
-                <p>
-                  I agree that I have read and understand the above
-                  notifications.
-                </p>
+                <p>I agree that I have read and understand the above notifications.</p>
                 <div className="signature-fields">
                   <SwaggerField
                     className="signature"
@@ -129,8 +109,7 @@ export class SignedCertification extends Component {
 
               {hasSubmitError && (
                 <Alert type="error" heading="Server Error">
-                  There was a problem saving your signature. Please reload the
-                  page.
+                  There was a problem saving your signature. Please reload the page.
                 </Alert>
               )}
             </div>
@@ -152,11 +131,7 @@ SignedCertification.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateSignedCertificationPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: state.loggedInUser.hasSucceeded,
     values: getFormValues(formName)(state),
     ...state.signedCertification,
@@ -178,6 +153,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  SignedCertification,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

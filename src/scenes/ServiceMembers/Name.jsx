@@ -24,9 +24,7 @@ export class Name extends Component {
   render() {
     const { pages, pageKey, error, currentServiceMember } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentServiceMember
-      ? pick(currentServiceMember, subsetOfFields)
-      : null;
+    const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
     const serviceMemberId = this.props.match.params.serviceMemberId;
     return (
       <NameWizardForm
@@ -39,17 +37,9 @@ export class Name extends Component {
         additionalParams={{ serviceMemberId }}
       >
         <h1 className="sm-heading">Name</h1>
-        <SwaggerField
-          fieldName="first_name"
-          swagger={this.props.schema}
-          required
-        />
+        <SwaggerField fieldName="first_name" swagger={this.props.schema} required />
         <SwaggerField fieldName="middle_name" swagger={this.props.schema} />
-        <SwaggerField
-          fieldName="last_name"
-          swagger={this.props.schema}
-          required
-        />
+        <SwaggerField fieldName="last_name" swagger={this.props.schema} required />
         <SwaggerField fieldName="suffix" swagger={this.props.schema} />
       </NameWizardForm>
     );
@@ -67,11 +57,7 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   return {
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateServiceMemberPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
     ...state.serviceMember,
   };

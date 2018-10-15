@@ -20,11 +20,7 @@ const ServiceAgentDisplay = props => {
       <div className="editable-panel-column">
         <PanelSwaggerField fieldName="company" nullWarning {...fieldProps} />
         <PanelSwaggerField fieldName="email" nullWarning {...fieldProps} />
-        <PanelSwaggerField
-          fieldName="phone_number"
-          nullWarning
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="phone_number" nullWarning {...fieldProps} />
       </div>
     </Fragment>
   );
@@ -33,11 +29,7 @@ const ServiceAgentDisplay = props => {
 const ServiceAgentEdit = 'uneditable';
 const formName = 'service_agents_panel';
 const editEnabled = false;
-let ServiceAgentPanel = editablePanelify(
-  ServiceAgentDisplay,
-  ServiceAgentEdit,
-  editEnabled,
-);
+let ServiceAgentPanel = editablePanelify(ServiceAgentDisplay, ServiceAgentEdit, editEnabled);
 ServiceAgentPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -95,16 +87,10 @@ function mapStateToProps(state, props) {
 
     // editablePanel
     getOriginUpdateArgs: function() {
-      return [
-        get(props, 'shipment.id'),
-        Object.assign({}, originFormValues, { role: 'ORIGIN' }),
-      ];
+      return [get(props, 'shipment.id'), Object.assign({}, originFormValues, { role: 'ORIGIN' })];
     },
     getDestinationUpdateArgs: function() {
-      return [
-        get(props, 'shipment.id'),
-        Object.assign({}, destFormValues, { role: 'DESTINATION' }),
-      ];
+      return [get(props, 'shipment.id'), Object.assign({}, destFormValues, { role: 'DESTINATION' })];
     },
   };
 }

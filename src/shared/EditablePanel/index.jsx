@@ -70,8 +70,7 @@ SwaggerValue.propTypes = {
 
 export const PanelSwaggerField = props => {
   const { fieldName, required, schema, values } = props;
-  const title =
-    props.title || get(schema, `properties.${fieldName}.title`, fieldName);
+  const title = props.title || get(schema, `properties.${fieldName}.title`, fieldName);
   let component = (
     <PanelField title={title} className={fieldName}>
       <SwaggerValue {...props} />
@@ -123,10 +122,7 @@ export class EditablePanel extends Component {
       controls = (
         <div>
           <p>
-            <button
-              className="usa-button-secondary editable-panel-cancel"
-              onClick={this.handleCancelClick}
-            >
+            <button className="usa-button-secondary editable-panel-cancel" onClick={this.handleCancelClick}>
               Cancel
             </button>
             <button
@@ -170,11 +166,7 @@ export class EditablePanel extends Component {
 }
 
 // Convenience function for creating an editable panel given a display component and an edit component
-export function editablePanelify(
-  DisplayComponent,
-  EditComponent,
-  editEnabled = true,
-) {
+export function editablePanelify(DisplayComponent, EditComponent, editEnabled = true) {
   const Wrapper = class extends Component {
     state = {
       isEditable: false,
@@ -201,9 +193,7 @@ export function editablePanelify(
     };
 
     render() {
-      const isEditable =
-        (editEnabled && (this.state.isEditable || this.props.isUpdating)) ||
-        false;
+      const isEditable = (editEnabled && (this.state.isEditable || this.props.isUpdating)) || false;
       const Content = isEditable ? EditComponent : DisplayComponent;
 
       return (

@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	suite.Equal(apimessages.AffiliationARMY, *okResponse.Payload.ServiceMember.Affiliation)
 }
 
-func (suite *HandlerSuite) TestPatchShipmentHandlerActualWeight() {
+func (suite *HandlerSuite) TestPatchShipmentHandlerNetWeight() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}

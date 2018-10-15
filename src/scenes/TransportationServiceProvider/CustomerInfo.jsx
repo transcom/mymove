@@ -18,38 +18,24 @@ export const CustomerInfo = ({ serviceMember, backupContact }) => {
               {serviceMember.last_name}, {serviceMember.first_name}
             </b>
             <br />
-            DoD ID#: {serviceMember.edipi} - {serviceMember.affiliation} -{' '}
-            {serviceMember.rank}
+            DoD ID#: {serviceMember.edipi} - {serviceMember.affiliation} - {serviceMember.rank}
             <br />
             {serviceMember.telephone}
-            {serviceMember.secondary_telephone && (
-              <span>- {serviceMember.secondary_telephone}</span>
-            )}
+            {serviceMember.secondary_telephone && <span>- {serviceMember.secondary_telephone}</span>}
             <br />
-            {serviceMember.personal_email}
+            <a href={`mailto:${serviceMember.personal_email}`}>{serviceMember.personal_email}</a>
             <br />
             Preferred contact method:{' '}
-            {serviceMember.phone_is_preferred && (
-              <FontAwesomeIcon
-                className="icon"
-                icon={faPhone}
-                flip="horizontal"
-              />
-            )}
-            {serviceMember.text_message_is_preferred && (
-              <FontAwesomeIcon className="icon" icon={faComments} />
-            )}
-            {serviceMember.email_is_preferred && (
-              <FontAwesomeIcon className="icon" icon={faEmail} />
-            )}
+            {serviceMember.phone_is_preferred && <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />}
+            {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
+            {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
           </p>
           <p>
             {backupContact.name && (
               <span>
                 <b>Backup Contacts</b>
                 <br />
-                {backupContact.name} ({backupContact.permission})
-                <br />
+                {backupContact.name} ({backupContact.permission})<br />
                 {backupContact.telephone && (
                   <span>
                     {backupContact.telephone}
@@ -58,7 +44,7 @@ export const CustomerInfo = ({ serviceMember, backupContact }) => {
                 )}
                 {backupContact.email && (
                   <span>
-                    {backupContact.email}
+                    <a href={`mailto:${backupContact.email}`}>{backupContact.email}</a>
                     <br />
                   </span>
                 )}
@@ -135,16 +121,8 @@ const mapStateToProps = state => {
     email: '',
     phone: '',
   };
-  const serviceMember = get(
-    state,
-    'tsp.shipment.service_member',
-    defaultServiceMember,
-  );
-  const backupContact = get(
-    state,
-    'tsp.shipment.service_member.backup_contacts[0]',
-    defaultBackupContact,
-  );
+  const serviceMember = get(state, 'tsp.shipment.service_member', defaultServiceMember);
+  const backupContact = get(state, 'tsp.shipment.service_member.backup_contacts[0]', defaultBackupContact);
 
   return {
     serviceMember,

@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
+import { string, arrayOf, object, shape, bool } from 'prop-types';
 import { connect } from 'react-redux';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { get } from 'lodash';
@@ -12,10 +11,7 @@ import { convertDollarsToCents } from 'shared/utils';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
-import {
-  selectAllDocumentsForMove,
-  getMoveDocumentsForMove,
-} from 'shared/Entities/modules/moveDocuments';
+import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import { submitExpenseDocs } from './ducks.js';
 
@@ -32,11 +28,7 @@ function RequestPaymentSection(props) {
     return (
       <Fragment>
         <h4>Done uploading documents?</h4>
-        <button
-          onClick={submitDocs}
-          className="usa-button"
-          disabled={updatingPPM || disableSubmit}
-        >
+        <button onClick={submitDocs} className="usa-button" disabled={updatingPPM || disableSubmit}>
           Submit Payment Request
         </button>
       </Fragment>
@@ -48,13 +40,21 @@ function RequestPaymentSection(props) {
       </Fragment>
     );
   } else {
-    console.error(
-      'Unexpectedly got to PaymentRequest screen without PPM approval',
-    );
+    console.error('Unexpectedly got to PaymentRequest screen without PPM approval');
   }
 }
 
 export class PaymentRequest extends Component {
+  static propTypes = {
+    currentPpm: shape({ id: string.isRequired }).isRequired,
+    docTypes: arrayOf(string),
+    moveDocuments: arrayOf(object).isRequired,
+    genericMoveDocSchema: object.isRequired,
+    moveDocSchema: object.isRequired,
+    updatingPPM: bool.isRequired,
+    updateError: bool.isRequired,
+  };
+
   constructor(props) {
     super(props);
     this.submitDocs = this.submitDocs.bind(this);
@@ -78,9 +78,7 @@ export class PaymentRequest extends Component {
   handleSubmit = (uploadIds, formValues) => {
     const { currentPpm } = this.props;
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.requested_amount_cents = convertDollarsToCents(
-        formValues.requested_amount_cents,
-      );
+      formValues.requested_amount_cents = convertDollarsToCents(formValues.requested_amount_cents);
       return this.props.createMovingExpenseDocument(
         this.props.match.params.moveId,
         currentPpm.id,
@@ -127,9 +125,8 @@ export class PaymentRequest extends Component {
           )}
           <h2>Request Payment </h2>
           <div className="instructions">
-            Please upload all your weight tickets, expenses, and storage fee
-            documents one at a time. For expenses, you’ll need to enter
-            additional details.
+            Please upload all your weight tickets, expenses, and storage fee documents one at a time. For expenses,
+            you’ll need to enter additional details.
           </div>
           <DocumentUploader
             form="payment-docs"
@@ -161,44 +158,21 @@ export class PaymentRequest extends Component {
     );
   }
 }
-PaymentRequest.propTypes = {
-  docTypes: PropTypes.arrayOf(PropTypes.string),
-  moveDocuments: PropTypes.arrayOf(PropTypes.object),
-  genericMoveDocSchema: PropTypes.object.isRequired,
-  moveDocSchema: PropTypes.object.isRequired,
-};
 
 const mapStateToProps = (state, props) => ({
   moveDocuments: selectAllDocumentsForMove(state, props.match.params.moveId),
   currentPpm: state.ppm.currentPpm,
   updatingPPM: state.ppm.hasSubmitInProgress,
   updateError: state.ppm.hasSubmitError,
-  docTypes: get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
-    [],
-  ),
-  genericMoveDocSchema: get(
-    state,
-    'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
-    {},
-  ),
-  moveDocSchema: get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentPayload',
-    {},
-  ),
+  docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
+  genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+  moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getMoveDocumentsForMove,
-      submitExpenseDocs,
-      createMoveDocument,
-      createMovingExpenseDocument,
-    },
-    dispatch,
-  );
-
+const mapDispatchToProps = {
+  getMoveDocumentsForMove,
+  submitExpenseDocs,
+  createMoveDocument,
+  createMovingExpenseDocument,
+};
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequest);

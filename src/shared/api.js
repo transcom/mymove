@@ -1,8 +1,4 @@
-import {
-  getClient as getInternalClient,
-  checkResponse,
-  getPublicClient,
-} from 'shared/Swagger/api';
+import { getClient as getInternalClient, checkResponse, getPublicClient } from 'shared/Swagger/api';
 
 export async function CreateUpload(fileUpload, documentId, isPublic = false) {
   const clientToUse = isPublic ? getPublicClient : getInternalClient;
