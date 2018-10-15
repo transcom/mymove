@@ -105,6 +105,7 @@ func dependencies() *dep.Container {
 	c.MustInvoke(zap.ReplaceGlobals)
 	// Now hook up the DI providers
 	c.MustProvide(newDatabase)
+	logging.AddProviders(c)
 	models.AddProviders(c)
 	services.AddProviders(c)
 	handlers.AddProviders(c)
@@ -168,6 +169,112 @@ func populateHandlerContext(ctxt handlers.HandlerContext, p PopulateHandlerConte
 	ctxt.SetFileStorer(p.storer)
 }
 
+type BuildSiteParams struct {
+	dig.In
+	env *server.LocalEnvConfig
+	logRequest logging.LogRequestMiddleware
+}
+
+func buildSite(p BuildSiteParams, l *zap.Logger) (http.Handler, error) {
+
+	// Base routes
+	site := goji.NewMux()
+
+	// Add sitewide middleware: they are evaluated in the reverse order in which
+	// they are added, but the resulting http.Handlers execute in "normal" order
+	// (i.e., the http.Handler returned by the first Middleware added gets
+	// called first).
+	site.Use(httpsComplianceMiddleware)
+	site.Use(securityHeadersMiddleware)
+	site.Use(limitBodySizeMiddleware)
+
+	// Stub health check
+	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+
+	// Serves files out of build folder
+	clientHandler := http.FileServer(http.Dir(p.env.SiteDir))
+	// Allow public content through without any auth or app checks
+	site.Handle(pat.Get("/static/*"), clientHandler)
+	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	site.Handle(pat.Get("/downloads/*"), clientHandler)
+	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+
+	// /orders/* has specific authentication controls
+	ordersMux := goji.SubMux()
+	ordersDetectionMiddleware := auth.OrdersDetectorMiddleware(l, *ordersHostname)
+	ordersMux.Use(ordersDetectionMiddleware)
+	ordersMux.Use(noCacheMiddleware)
+	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
+	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(p.env.SiteDir, "swagger-ui", "orders.html")))
+	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
+	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
+
+	root := goji.NewMux()
+	root.Use(sessionCookieMiddleware)
+	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
+	root.Use(p.logRequest)
+	site.Handle(pat.New("/*"), root)
+
+}
+
+
+
+
+apiMux := goji.SubMux()
+root.Handle(pat.New("/api/v1/*"), apiMux)
+apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
+apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
+
+externalAPIMux := goji.SubMux()
+apiMux.Handle(pat.New("/*"), externalAPIMux)
+externalAPIMux.Use(noCacheMiddleware)
+externalAPIMux.Use(userAuthMiddleware)
+externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
+
+internalMux := goji.SubMux()
+root.Handle(pat.New("/internal/*"), internalMux)
+internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
+internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
+
+// Mux for internal API that enforces auth
+internalAPIMux := goji.SubMux()
+internalMux.Handle(pat.New("/*"), internalAPIMux)
+internalAPIMux.Use(userAuthMiddleware)
+internalAPIMux.Use(noCacheMiddleware)
+internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
+
+authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
+authMux := goji.SubMux()
+root.Handle(pat.New("/auth/*"), authMux)
+authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
+authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
+
+if *env == "development" || *env == "test" {
+zap.L().Info("Enabling devlocal auth")
+localAuthMux := goji.SubMux()
+root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
+localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
+localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateUserHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+}
+
+if *storageBackend == "filesystem" {
+// Add a file handler to provide access to files uploaded in development
+fs := storage.NewFilesystemHandler("tmp")
+root.Handle(pat.Get("/storage/*"), fs)
+}
+
+// Serve index.html to all requests that haven't matches a previous route,
+root.HandleFunc(pat.Get("/*"), indexHandler(*build, *newRelicApplicationID, *newRelicLicenseKey, logger))
+
+var httpHandler http.Handler
+if useHoneycomb {
+httpHandler = hnynethttp.WrapHandler(site)
+} else {
+httpHandler = site
+}
+
 func main() {
 
 	// Set up the DI context and logging
@@ -182,97 +289,6 @@ func main() {
 	// FOR NOW configure handler context
 	diContext.MustInvoke(populateHandlerContext)
 
-	// Serves files out of build folder
-	clientHandler := http.FileServer(http.Dir(*build))
-
-	// Base routes
-	site := goji.NewMux()
-	// Add middleware: they are evaluated in the reverse order in which they
-	// are added, but the resulting http.Handlers execute in "normal" order
-	// (i.e., the http.Handler returned by the first Middleware added gets
-	// called first).
-	site.Use(httpsComplianceMiddleware)
-	site.Use(securityHeadersMiddleware)
-	site.Use(limitBodySizeMiddleware)
-
-	// Stub health check
-	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
-
-	// Allow public content through without any auth or app checks
-	site.Handle(pat.Get("/static/*"), clientHandler)
-	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
-	site.Handle(pat.Get("/downloads/*"), clientHandler)
-	site.Handle(pat.Get("/favicon.ico"), clientHandler)
-
-	ordersMux := goji.SubMux()
-	ordersDetectionMiddleware := auth.OrdersDetectorMiddleware(logger, *ordersHostname)
-	ordersMux.Use(ordersDetectionMiddleware)
-	ordersMux.Use(noCacheMiddleware)
-	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
-	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
-	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
-	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
-
-	root := goji.NewMux()
-	root.Use(sessionCookieMiddleware)
-	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
-	root.Use(logging.LogRequestMiddleware)
-	site.Handle(pat.New("/*"), root)
-
-	apiMux := goji.SubMux()
-	root.Handle(pat.New("/api/v1/*"), apiMux)
-	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
-	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
-
-	externalAPIMux := goji.SubMux()
-	apiMux.Handle(pat.New("/*"), externalAPIMux)
-	externalAPIMux.Use(noCacheMiddleware)
-	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
-
-	internalMux := goji.SubMux()
-	root.Handle(pat.New("/internal/*"), internalMux)
-	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
-	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-
-	// Mux for internal API that enforces auth
-	internalAPIMux := goji.SubMux()
-	internalMux.Handle(pat.New("/*"), internalAPIMux)
-	internalAPIMux.Use(userAuthMiddleware)
-	internalAPIMux.Use(noCacheMiddleware)
-	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
-
-	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
-	authMux := goji.SubMux()
-	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
-
-	if *env == "development" || *env == "test" {
-		zap.L().Info("Enabling devlocal auth")
-		localAuthMux := goji.SubMux()
-		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
-		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateUserHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
-	}
-
-	if *storageBackend == "filesystem" {
-		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler("tmp")
-		root.Handle(pat.Get("/storage/*"), fs)
-	}
-
-	// Serve index.html to all requests that haven't matches a previous route,
-	root.HandleFunc(pat.Get("/*"), indexHandler(*build, *newRelicApplicationID, *newRelicLicenseKey, logger))
-
-	var httpHandler http.Handler
-	if useHoneycomb {
-		httpHandler = hnynethttp.WrapHandler(site)
-	} else {
-		httpHandler = site
-	}
 
 	errChan := make(chan error)
 	moveMilCerts := []server.TLSCert{

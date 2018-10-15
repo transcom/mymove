@@ -48,16 +48,17 @@ type WebServerConfig struct {
 	here      *route.HEREConfig
 	sesSender *notifications.SESNotificationConfig
 	s3Config  *storage.S3StorerConfig
+	envConfig *server.LocalEnvConfig
 }
 
 func parseConfig() WebServerConfig {
 
 	// FOR NOW. PatrickD's viper proposal should hopefully simplify this
-	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-
 	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
+
+	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
@@ -135,7 +136,6 @@ func parseConfig() WebServerConfig {
 	return WebServerConfig{
 		Out: dig.Out{},
 		logger: &logging.Config{
-			Environment:  *env,
 			DebugLogging: *debugLogging},
 		honeycomb: &honeyConfig,
 		db: &DatabaseConfig{
@@ -164,5 +164,10 @@ func parseConfig() WebServerConfig {
 		},
 		sesSender: sesConfig,
 		s3Config:  s3Config,
+		envConfig: &server.LocalEnvConfig{
+			Environment: *env,
+			SiteDir:     *build,
+			ConfigDir:   *config,
+		},
 	}
 }

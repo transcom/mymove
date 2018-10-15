@@ -8,3 +8,10 @@ type HostsConfig struct {
 	TspName         string
 	OrdersName      string
 }
+
+// LocalEnvConfig contains environment type and  directories for the running server
+type LocalEnvConfig struct {
+	Environment string // Local environment
+	SiteDir     string // Where the built client site and assets are stored
+	ConfigDir   string // Local configuration directory
+}
