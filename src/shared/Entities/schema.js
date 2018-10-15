@@ -72,8 +72,8 @@ moveDocument.define({
 export const moveDocumentPayload = moveDocument;
 
 // Tariff400ngItems
-export const tariff400ngItems = new schema.Array(tariff400ngItem);
 export const tariff400ngItem = new schema.Entity('tariff400ngItems');
+export const tariff400ngItems = new schema.Array(tariff400ngItem);
 
 // ShipmentAccessorial
 export const shipmentAccessorial = new schema.Entity('shipmentAccessorials', {
