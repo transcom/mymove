@@ -41,6 +41,7 @@ import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 
 import './tsp.css';
+import { hasGBLDocument } from 'shared/utils';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
@@ -296,14 +297,17 @@ class ShipmentInfo extends Component {
                   GBL generated successfully.
                 </Alert>
               )}
-              <div>
-                <button
-                  onClick={this.generateGBL}
-                  disabled={this.props.generateGBLBtnDisabled}
-                >
-                  Generate Bill of Lading
-                </button>
-              </div>
+
+              {!hasGBLDocument(this.props.shipmentDocuments) && (
+                <div>
+                  <button
+                    onClick={this.generateGBL}
+                    disabled={this.props.generateGBLBtnDisabled}
+                  >
+                    Generate Bill of Lading
+                  </button>
+                </div>
+              )}
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
                 <CustomerInfo />
