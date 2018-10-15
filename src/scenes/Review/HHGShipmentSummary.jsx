@@ -69,7 +69,7 @@ export default function HHGShipmentSummary(props) {
             <tr>
               <td>Weight Estimate:</td>
               <td>
-                <HHGWeightSummary shipment={shipment} />
+                <HHGWeightSummary shipment={shipment} entitlements={entitlements} />
               </td>
             </tr>
             <tr>
@@ -84,7 +84,7 @@ export default function HHGShipmentSummary(props) {
         <table>
           <tbody>
             <tr>
-              <th colSpan="2">
+              <th>
                 Pickup &amp; Delivery Locations
                 <span className="edit-section-link">
                   {' '}
