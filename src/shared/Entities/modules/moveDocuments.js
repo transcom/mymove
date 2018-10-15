@@ -36,14 +36,7 @@ export const getMoveDocumentsForMove = moveId => {
   };
 };
 
-export function createMoveDocument(
-  moveId,
-  personallyProcuredMoveId,
-  uploadIds,
-  title,
-  moveDocumentType,
-  notes,
-) {
+export function createMoveDocument(moveId, personallyProcuredMoveId, uploadIds, title, moveDocumentType, notes) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.createGenericMoveDocument({
@@ -56,10 +49,7 @@ export function createMoveDocument(
         notes: notes,
       },
     });
-    checkResponse(
-      response,
-      'failed to create move document due to server error',
-    );
+    checkResponse(response, 'failed to create move document due to server error');
     const data = normalize(response.body, schema.moveDocument);
     dispatch(addEntities(data.entities));
     return response;
@@ -74,10 +64,7 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
       moveDocumentId,
       updateMoveDocument: payload,
     });
-    checkResponse(
-      response,
-      'failed to update move document due to server error',
-    );
+    checkResponse(response, 'failed to update move document due to server error');
     const data = normalize(response.body, schema.moveDocument);
     dispatch(addEntities(data.entities));
     return response;

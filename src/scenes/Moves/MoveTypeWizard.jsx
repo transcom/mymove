@@ -21,9 +21,7 @@ export class MoveTypeWizardPage extends Component {
   };
   render() {
     const { pages, pageKey, pendingMoveType, currentMove, error } = this.props;
-    const hasMoveType = Boolean(
-      pendingMoveType || get(currentMove, 'selected_move_type'),
-    );
+    const hasMoveType = Boolean(pendingMoveType || get(currentMove, 'selected_move_type'));
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}

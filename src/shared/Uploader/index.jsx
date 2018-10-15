@@ -22,10 +22,7 @@ registerPlugin(FilepondPluginFileValidateType);
 registerPlugin(FilepondPluginImageExifOrientation);
 registerPlugin(FilePondImagePreview);
 
-const idleStatuses = [
-  FileStatus.PROCESSING_COMPLETE,
-  FileStatus.PROCESSING_ERROR,
-];
+const idleStatuses = [FileStatus.PROCESSING_COMPLETE, FileStatus.PROCESSING_ERROR];
 
 export class Uploader extends Component {
   constructor(props) {
@@ -81,9 +78,7 @@ export class Uploader extends Component {
       },
       iconUndo: this.pond._pond.iconRemove,
       imagePreviewMaxHeight: 100,
-      labelIdle:
-        labelIdle ||
-        'Drag & drop or <span class="filepond--label-action">click to upload</span>',
+      labelIdle: labelIdle || 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
       labelTapToUndo: 'tap to delete',
       acceptedFileTypes: ['image/*', 'application/pdf'],
     });
@@ -128,10 +123,7 @@ export class Uploader extends Component {
     DeleteUpload(uploadId)
       .then(item => {
         load(item);
-        const newFiles = reject(
-          this.state.files,
-          upload => upload.id === uploadId,
-        );
+        const newFiles = reject(this.state.files, upload => upload.id === uploadId);
         this.setState({
           files: newFiles,
         });
@@ -145,10 +137,7 @@ export class Uploader extends Component {
   render() {
     return (
       <div>
-        <FilePond
-          ref={ref => (this.pond = ref)}
-          oninit={() => this.handlePondInit()}
-        />
+        <FilePond ref={ref => (this.pond = ref)} oninit={() => this.handlePondInit()} />
       </div>
     );
   }

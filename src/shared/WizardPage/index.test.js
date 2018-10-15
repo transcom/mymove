@@ -37,13 +37,7 @@ describe('given a WizardPage', () => {
             const pageIsValid = false;
 
             wrapper = shallow(
-              <WizardPage
-                handleSubmit={submit}
-                pageList={pageList}
-                pageKey="3"
-                pageIsValid={pageIsValid}
-                match={{}}
-              >
+              <WizardPage handleSubmit={submit} pageList={pageList} pageKey="3" pageIsValid={pageIsValid} match={{}}>
                 <div>This is page 1</div>
               </WizardPage>,
             );
@@ -61,12 +55,7 @@ describe('given a WizardPage', () => {
           const continueToNextPage = true;
 
           wrapper = shallow(
-            <WizardPage
-              handleSubmit={submit}
-              pageList={pageList}
-              pageKey="1"
-              pageIsValid={continueToNextPage}
-            >
+            <WizardPage handleSubmit={submit} pageList={pageList} pageKey="1" pageIsValid={continueToNextPage}>
               <div>This is page 1</div>
             </WizardPage>,
           );
@@ -186,13 +175,7 @@ describe('given a WizardPage', () => {
     describe('when on the first page', () => {
       beforeEach(() => {
         wrapper = shallow(
-          <WizardPage
-            handleSubmit={submit}
-            pageList={pageList}
-            pageKey="1"
-            push={mockPush}
-            match={{}}
-          >
+          <WizardPage handleSubmit={submit} pageList={pageList} pageKey="1" push={mockPush} match={{}}>
             <div>This is page 1</div>
           </WizardPage>,
         );
@@ -240,13 +223,7 @@ describe('given a WizardPage', () => {
       beforeEach(() => {
         mockPush.mockClear();
         wrapper = shallow(
-          <WizardPage
-            handleSubmit={submit}
-            pageList={pageList}
-            pageKey="2"
-            push={mockPush}
-            match={{}}
-          >
+          <WizardPage handleSubmit={submit} pageList={pageList} pageKey="2" push={mockPush} match={{}}>
             <div>This is page 2</div>
           </WizardPage>,
         );
@@ -300,13 +277,7 @@ describe('given a WizardPage', () => {
       beforeEach(() => {
         mockPush.mockClear();
         wrapper = shallow(
-          <WizardPage
-            handleSubmit={submit}
-            pageList={pageList}
-            pageKey="3"
-            push={mockPush}
-            match={{}}
-          >
+          <WizardPage handleSubmit={submit} pageList={pageList} pageKey="3" push={mockPush} match={{}}>
             <div>This is page 3</div>
           </WizardPage>,
         );

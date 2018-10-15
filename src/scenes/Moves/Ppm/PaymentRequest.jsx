@@ -7,10 +7,7 @@ import { get } from 'lodash';
 
 import DocumentUploader from 'scenes/Office/DocumentViewer/DocumentUploader';
 
-import {
-  selectAllDocumentsForMove,
-  getMoveDocumentsForMove,
-} from 'shared/Entities/modules/moveDocuments';
+import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import { submitExpenseDocs } from './ducks.js';
 
@@ -27,11 +24,7 @@ function RequestPaymentSection(props) {
     return (
       <Fragment>
         <h4>Done uploading documents?</h4>
-        <button
-          onClick={submitDocs}
-          className="usa-button"
-          disabled={updatingPPM || disableSubmit}
-        >
+        <button onClick={submitDocs} className="usa-button" disabled={updatingPPM || disableSubmit}>
           Submit Payment Request
         </button>
       </Fragment>
@@ -43,9 +36,7 @@ function RequestPaymentSection(props) {
       </Fragment>
     );
   } else {
-    console.error(
-      'Unexpectedly got to PaymentRequest screen without PPM approval',
-    );
+    console.error('Unexpectedly got to PaymentRequest screen without PPM approval');
   }
 }
 
@@ -87,9 +78,8 @@ export class PaymentRequest extends Component {
           )}
           <h2>Request Payment </h2>
           <div className="instructions">
-            Please upload all your weight tickets, expenses, and storage fee
-            documents one at a time. For expenses, you’ll need to enter
-            additional details.
+            Please upload all your weight tickets, expenses, and storage fee documents one at a time. For expenses,
+            you’ll need to enter additional details.
           </div>
           <DocumentUploader moveId={moveId} />
           <RequestPaymentSection
@@ -125,7 +115,6 @@ const mapStateToProps = (state, props) => ({
   updateError: state.ppm.hasSubmitError,
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ getMoveDocumentsForMove, submitExpenseDocs }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ getMoveDocumentsForMove, submitExpenseDocs }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequest);

@@ -59,33 +59,26 @@ export async function UpdateServiceMember(serviceMemberId, payload) {
     serviceMemberId,
     patchServiceMemberPayload: payload,
   });
-  checkResponse(
-    response,
-    'failed to update service member due to server error',
-  );
+  checkResponse(response, 'failed to update service member due to server error');
   return response.body;
 }
 
 // BACKUP CONTACT
 export async function LoadBackupContacts(serviceMemberId) {
   const client = await getClient();
-  const response = await client.apis.backup_contacts.indexServiceMemberBackupContacts(
-    {
-      serviceMemberId,
-    },
-  );
+  const response = await client.apis.backup_contacts.indexServiceMemberBackupContacts({
+    serviceMemberId,
+  });
   checkResponse(response, 'failed to load backup contacts due to server error');
   return response.body;
 }
 
 export async function UpdateBackupContact(backupContactId, payload) {
   const client = await getClient();
-  const response = await client.apis.backup_contacts.updateServiceMemberBackupContact(
-    {
-      backupContactId,
-      updateServiceMemberBackupContactPayload: payload,
-    },
-  );
+  const response = await client.apis.backup_contacts.updateServiceMemberBackupContact({
+    backupContactId,
+    updateServiceMemberBackupContactPayload: payload,
+  });
   checkResponse(response, 'failed to load backup contacts due to server error');
   return response.body;
 }
@@ -156,10 +149,7 @@ export async function ApproveReimbursement(reimbursementId) {
   const response = await client.apis.office.approveReimbursement({
     reimbursementId,
   });
-  checkResponse(
-    response,
-    'failed to approve reimbursement due to server error',
-  );
+  checkResponse(response, 'failed to approve reimbursement due to server error');
   return response.body;
 }
 
@@ -172,10 +162,7 @@ export async function CancelMove(moveId, cancelReason) {
       cancel_reason: cancelReason,
     },
   });
-  checkResponse(
-    response,
-    'failed to cancel move and associated dependencies due to server error',
-  );
+  checkResponse(response, 'failed to cancel move and associated dependencies due to server error');
   return response.body;
 }
 

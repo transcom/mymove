@@ -11,9 +11,7 @@ describe('Address component test', () => {
       state: 'NY',
       postal_code: '11217',
     };
-    const wrapper = shallow(
-      <AddressElementDisplay address={address} title="Primary" />,
-    )
+    const wrapper = shallow(<AddressElementDisplay address={address} title="Primary" />)
       .find(PanelField)
       .dive();
     const fields = wrapper.find('.field-value').props().children;
@@ -65,14 +63,10 @@ describe('Address component test', () => {
         postal_code: '11217',
       };
 
-      const wrapper = shallow(
-        <AddressElementDisplay address={address} title="primary" />,
-      )
+      const wrapper = shallow(<AddressElementDisplay address={address} title="primary" />)
         .find(PanelField)
         .dive();
-      const [, address_2, address_3] = wrapper
-        .find('.field-value')
-        .props().children;
+      const [, address_2, address_3] = wrapper.find('.field-value').props().children;
 
       expect(address_2.props.children[0]).toBe(address.street_address_2);
       expect(address_3).toBeFalsy();
@@ -86,9 +80,7 @@ describe('Address component test', () => {
         state: 'NY',
         postal_code: '11217',
       };
-      const wrapper = shallow(
-        <AddressElementDisplay address={address} title="primary" />,
-      )
+      const wrapper = shallow(<AddressElementDisplay address={address} title="primary" />)
         .find(PanelField)
         .dive();
 
@@ -113,9 +105,7 @@ describe('Address component test', () => {
       state: 'NY',
       postal_code: '11217',
     };
-    const wrapper = shallow(
-      <AddressElementDisplay address={address} title="Primary" />,
-    )
+    const wrapper = shallow(<AddressElementDisplay address={address} title="Primary" />)
       .find(PanelField)
       .dive();
     const fields = wrapper.find('.field-value').props().children;

@@ -14,9 +14,7 @@ export default function uiReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       try {
-        const activeOrders = fetchActive(
-          get(action.payload, 'service_member.orders'),
-        );
+        const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
         const activeMove = fetchActive(get(activeOrders, 'moves'));
         const activeShipment = fetchActive(get(activeMove, 'shipments'));
         return {

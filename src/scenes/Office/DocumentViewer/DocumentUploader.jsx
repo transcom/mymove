@@ -48,9 +48,7 @@ export class DocumentUploader extends Component {
       moveDocumentCreateError: null,
     });
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.requested_amount_cents = convertDollarsToCents(
-        formValues.requested_amount_cents,
-      );
+      formValues.requested_amount_cents = convertDollarsToCents(formValues.requested_amount_cents);
       this.props
         .createMovingExpenseDocument(
           moveId,
@@ -116,14 +114,8 @@ export class DocumentUploader extends Component {
   }
 
   render() {
-    const {
-      handleSubmit,
-      moveDocSchema,
-      genericMoveDocSchema,
-      formValues,
-    } = this.props;
-    const isExpenseDocument =
-      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
+    const { handleSubmit, moveDocSchema, genericMoveDocSchema, formValues } = this.props;
+    const isExpenseDocument = get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
@@ -140,39 +132,16 @@ export class DocumentUploader extends Component {
         )}
         <form onSubmit={handleSubmit(this.onSubmit)}>
           <h3>Upload a new document</h3>
-          <SwaggerField
-            title="Document type"
-            fieldName="move_document_type"
-            swagger={genericMoveDocSchema}
-            required
-          />
+          <SwaggerField title="Document type" fieldName="move_document_type" swagger={genericMoveDocSchema} required />
           <div className="uploader-box">
-            <SwaggerField
-              title="Document title"
-              fieldName="title"
-              swagger={genericMoveDocSchema}
-              required
-            />
-            {isExpenseDocument && (
-              <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
-            )}
-            <SwaggerField
-              title="Notes"
-              fieldName="notes"
-              swagger={genericMoveDocSchema}
-            />
+            <SwaggerField title="Document title" fieldName="title" swagger={genericMoveDocSchema} required />
+            {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
+            <SwaggerField title="Notes" fieldName="notes" swagger={genericMoveDocSchema} />
             <div>
               <h4>Attach PDF or image</h4>
-              <p>
-                Upload a PDF or take a picture of each page and upload the
-                images.
-              </p>
+              <p>Upload a PDF or take a picture of each page and upload the images.</p>
             </div>
-            <Uploader
-              onRef={ref => (this.uploader = ref)}
-              onChange={this.onChange}
-              onAddFile={this.onAddFile}
-            />
+            <Uploader onRef={ref => (this.uploader = ref)} onChange={this.onChange} onAddFile={this.onAddFile} />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
           <button className="submit" disabled={!isValid}>
@@ -195,11 +164,7 @@ DocumentUploader.propTypes = {
 };
 
 function mapStateToProps(state, props) {
-  const docTypes = get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
-    [],
-  );
+  const docTypes = get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []);
 
   let initialValues = {};
   // Verify the provided doc type against the schema
@@ -210,19 +175,10 @@ function mapStateToProps(state, props) {
   const newProps = {
     initialValues: initialValues,
     formValues: getFormValues(moveDocumentFormName)(state),
-    genericMoveDocSchema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
-      {},
-    ),
-    moveDocSchema: get(
-      state,
-      'swaggerInternal.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
+    genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+    moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
-    currentPpm:
-      get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+    currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
   };
   return newProps;
 }

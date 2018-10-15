@@ -46,8 +46,7 @@ const simpleSchema = {
     notes: {
       type: 'string',
       title: 'Notes',
-      example:
-        'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
+      example: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
     },
     status: {
       $ref: '#/definitions/AccessorialStatus',
@@ -90,11 +89,7 @@ beforeEach(() => {
   //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
   wrapper = mount(
     <Provider store={store}>
-      <PreApprovalRequestForm
-        ship_accessorial_schema={simpleSchema}
-        accessorials={accessorials}
-        onSubmit={submit}
-      />
+      <PreApprovalRequestForm ship_accessorial_schema={simpleSchema} accessorials={accessorials} onSubmit={submit} />
     </Provider>,
   );
 });

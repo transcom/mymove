@@ -22,15 +22,7 @@ const parseNumberField = value => {
 
 // ----- Field configuration -----
 const createCheckbox = (fieldName, field, nameAttr, isDisabled) => {
-  return (
-    <Field
-      id={fieldName}
-      name={nameAttr}
-      component="input"
-      type="checkbox"
-      disabled={isDisabled}
-    />
-  );
+  return <Field id={fieldName} name={nameAttr} component="input" type="checkbox" disabled={isDisabled} />;
 };
 
 const configureDropDown = (swaggerField, props) => {
@@ -93,10 +85,7 @@ const configureCentsField = (swaggerField, props) => {
 const configureTelephoneField = (swaggerField, props) => {
   props.normalize = validator.normalizePhone;
   props.validate.push(
-    validator.patternMatches(
-      swaggerField.pattern,
-      'Number must have 10 digits and a valid area code.',
-    ),
+    validator.patternMatches(swaggerField.pattern, 'Number must have 10 digits and a valid area code.'),
   );
   props.type = 'text';
 
@@ -105,12 +94,7 @@ const configureTelephoneField = (swaggerField, props) => {
 
 const configureZipField = (swaggerField, props) => {
   props.normalize = validator.normalizeZip;
-  props.validate.push(
-    validator.patternMatches(
-      swaggerField.pattern,
-      'Zip code must have 5 or 9 digits.',
-    ),
-  );
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Zip code must have 5 or 9 digits.'));
   props.type = 'text';
 
   return props;
@@ -139,21 +123,14 @@ const configureTextField = (swaggerField, props) => {
 };
 
 const configureEdipiField = (swaggerField, props) => {
-  props.validate.push(
-    validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'),
-  );
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'));
   props.type = 'text';
 
   return props;
 };
 
 const configureEmailField = (swaggerField, props) => {
-  props.validate.push(
-    validator.patternMatches(
-      swaggerField.pattern,
-      'Must be a valid email address',
-    ),
-  );
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid email address'));
   props.type = 'text';
 
   return props;
@@ -182,10 +159,7 @@ const renderInputField = ({
   }
 
   if (componentNameOverride && customComponent) {
-    console.error(
-      'You should not have specified a componentNameOverride as well as a customComponent. For: ',
-      title,
-    );
+    console.error('You should not have specified a componentNameOverride as well as a customComponent. For: ', title);
   }
 
   const FieldComponent = React.createElement(
@@ -201,27 +175,16 @@ const renderInputField = ({
   );
 
   const displayError = touched && error;
-  const classes = `${
-    displayError ? 'usa-input-error' : 'usa-input'
-  } ${className}`;
+  const classes = `${displayError ? 'usa-input-error' : 'usa-input'} ${className}`;
   return (
     <div className={classes}>
-      <label
-        className={displayError ? 'usa-input-error-label' : 'usa-input-label'}
-        htmlFor={input.name}
-      >
+      <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={input.name}>
         {title}
-        {!always_required &&
-          type !== 'boolean' &&
-          !customComponent && <span className="label-optional">Optional</span>}
+        {!always_required && type !== 'boolean' && !customComponent && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (
-          <span
-            className="usa-input-error-message"
-            id={input.name + '-error'}
-            role="alert"
-          >
+          <span className="usa-input-error-message" id={input.name + '-error'} role="alert">
             {error}
           </span>
         )}
@@ -231,17 +194,7 @@ const renderInputField = ({
 };
 
 export const SwaggerField = props => {
-  const {
-    fieldName,
-    swagger,
-    required,
-    className,
-    disabled,
-    component,
-    title,
-    onChange,
-    validate,
-  } = props;
+  const { fieldName, swagger, required, className, disabled, component, title, onChange, validate } = props;
   let swaggerField;
   if (swagger.properties) {
     // eslint-disable-next-line security/detect-object-injection
@@ -353,9 +306,7 @@ const createSchemaField = (
         console.error(
           "Since it's not feasible to generate a sensible error message from a regex, please add a new format and matching validator",
         );
-        fieldProps.validate.push(
-          validator.patternMatches(swaggerField.pattern, swaggerField.example),
-        );
+        fieldProps.validate.push(validator.patternMatches(swaggerField.pattern, swaggerField.example));
       }
       // The last case is the simple text field / textarea which are the same but the componentNameOverride
       if (swaggerField.format === 'textarea') {
@@ -364,18 +315,10 @@ const createSchemaField = (
       fieldProps = configureTextField(swaggerField, fieldProps);
     }
   } else {
-    console.error(
-      'ERROR: This is an unimplemented type in our JSONSchemaForm implementation',
-    );
+    console.error('ERROR: This is an unimplemented type in our JSONSchemaForm implementation');
   }
   return (
-    <Field
-      key={fieldName}
-      className={className}
-      inputProps={inputProps}
-      {...fieldProps}
-      onChange={onChange}
-    >
+    <Field key={fieldName} className={className} inputProps={inputProps} {...fieldProps} onChange={onChange}>
       {children}
     </Field>
   );

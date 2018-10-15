@@ -24,8 +24,7 @@ export default function PPMShipmentSummary(props) {
   return (
     <div className="usa-grid-full ppm-container">
       <h3>
-        <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff
-        (PPM)
+        <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff (PPM)
       </h3>
       <div className="usa-width-one-half review-section ppm-review-section">
         <table>
@@ -80,14 +79,7 @@ export default function PPMShipmentSummary(props) {
             </tr>
             <tr>
               <td> Estimated PPM Incentive: </td>
-              <td>
-                {' '}
-                {ppm &&
-                  formatCentsRange(
-                    ppm.incentive_estimate_min,
-                    ppm.incentive_estimate_max,
-                  )}
-              </td>
+              <td> {ppm && formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</td>
             </tr>
             {ppm.has_requested_advance && (
               <tr>

@@ -18,28 +18,13 @@ const WeightsDisplay = props => {
       <div className="editable-panel-column">
         <div className="column-head">Weights</div>
         <div className="column-subhead">Total weight</div>
-        <PanelSwaggerField
-          fieldName="weight_estimate"
-          required
-          title="Customer estimate"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          fieldName="pm_survey_weight_estimate"
-          required
-          title="TSP estimate"
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="weight_estimate" required title="Customer estimate" {...fieldProps} />
+        <PanelSwaggerField fieldName="pm_survey_weight_estimate" required title="TSP estimate" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_weight" required {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         <div className="column-subhead">Pro-gear</div>
-        <PanelSwaggerField
-          fieldName="progear_weight_estimate"
-          required
-          title="Customer estimate"
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="progear_weight_estimate" required title="Customer estimate" {...fieldProps} />
         <PanelSwaggerField
           fieldName="pm_survey_progear_weight_estimate"
           required
@@ -76,28 +61,13 @@ const WeightsEdit = props => {
         <div className="editable-panel-column">
           <div className="column-head">Weights</div>
           <div className="column-subhead">Total weight</div>
-          <PanelSwaggerField
-            fieldName="weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
-          <PanelSwaggerField
-            fieldName="pm_survey_weight_estimate"
-            required
-            title="TSP estimate"
-            {...fieldProps}
-          />
+          <PanelSwaggerField fieldName="weight_estimate" required title="Customer estimate" {...fieldProps} />
+          <PanelSwaggerField fieldName="pm_survey_weight_estimate" required title="TSP estimate" {...fieldProps} />
           <SwaggerField fieldName="actual_weight" swagger={schema} required />
         </div>
         <div className="editable-panel-column">
           <div className="column-subhead">Pro-gear</div>
-          <PanelSwaggerField
-            fieldName="progear_weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
+          <PanelSwaggerField fieldName="progear_weight_estimate" required title="Customer estimate" {...fieldProps} />
           <PanelSwaggerField
             fieldName="pm_survey_progear_weight_estimate"
             required

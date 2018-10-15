@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import BasicPanel from 'shared/BasicPanel';
-import PreApprovalRequestForm, {
-  formName as PreApprovalRequestFormName,
-} from 'shared/PreApprovalRequestForm';
+import PreApprovalRequestForm, { formName as PreApprovalRequestFormName } from 'shared/PreApprovalRequestForm';
 import { submit, isValid, isSubmitting } from 'redux-form';
 import PreApprovalRequest from 'shared/PreApprovalRequest';
 import { connect } from 'react-redux';
@@ -32,8 +30,7 @@ class ScratchPad extends Component {
         item: 'Unpack Reg Crate',
         location: 'D',
         base_quantity: '	16.7',
-        notes:
-          'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
+        notes: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
         created_at: '2018-09-24T14:05:38.847Z',
         status: 'APPROVED',
       },
@@ -65,18 +62,13 @@ class ScratchPad extends Component {
                 ]}
                 onSubmit={this.onSubmit}
               />
-              <button
-                disabled={!this.props.formEnabled}
-                onClick={this.props.submitForm}
-              >
+              <button disabled={!this.props.formEnabled} onClick={this.props.submitForm}>
                 Submit
               </button>
             </BasicPanel>
           </div>
           <div className="usa-width-one-third">
-            <button className="usa-button-primary">
-              Click Me (I do nothing)
-            </button>
+            <button className="usa-button-primary">Click Me (I do nothing)</button>
           </div>
         </div>
       </div>
@@ -86,9 +78,7 @@ class ScratchPad extends Component {
 
 function mapStateToProps(state) {
   return {
-    formEnabled:
-      isValid(PreApprovalRequestFormName)(state) &&
-      !isSubmitting(PreApprovalRequestFormName)(state),
+    formEnabled: isValid(PreApprovalRequestFormName)(state) && !isSubmitting(PreApprovalRequestFormName)(state),
   };
 }
 

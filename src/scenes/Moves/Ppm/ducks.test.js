@@ -1,14 +1,5 @@
-import {
-  CREATE_OR_UPDATE_PPM,
-  GET_PPM,
-  GET_SIT_ESTIMATE,
-  GET_PPM_ESTIMATE,
-  ppmReducer,
-  getMaxAdvance,
-} from './ducks';
-import loggedInUserPayload, {
-  emptyPayload,
-} from 'shared/User/sampleLoggedInUserPayload';
+import { CREATE_OR_UPDATE_PPM, GET_PPM, GET_SIT_ESTIMATE, GET_PPM_ESTIMATE, ppmReducer, getMaxAdvance } from './ducks';
+import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
 describe('Ppm Reducer', () => {
   const samplePpm = { id: 'UUID', name: 'foo' };
   describe('GET_LOGGED_IN_USER', () => {

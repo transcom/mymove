@@ -52,13 +52,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   }
 }
 
-const PreApprovalRequest = ({
-  shipment_accessorials,
-  isActionable,
-  onEdit,
-  onApproval,
-  onDelete,
-}) => (
+const PreApprovalRequest = ({ shipment_accessorials, isActionable, onEdit, onApproval, onDelete }) => (
   <div className="accessorial-panel">
     <table cellSpacing={0}>
       <tbody>
@@ -89,10 +83,7 @@ const PreApprovalRequest = ({
                 <span className="status">{status}</span>
                 {row.status}
               </td>
-              <td>
-                {isActionable &&
-                  renderActionIcons(row.status, onEdit, onApproval, onDelete)}
-              </td>
+              <td>{isActionable && renderActionIcons(row.status, onEdit, onApproval, onDelete)}</td>
             </tr>
           );
         })}

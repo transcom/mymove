@@ -28,11 +28,7 @@ const mapStateToProps = (state, ownProps) => {
       notes: shipmentDocument.notes || '',
       ...shipmentDocument,
     },
-    moveDocumentSchema: get(
-      state,
-      'swaggerPublic.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
+    moveDocumentSchema: get(state, 'swaggerPublic.spec.definitions.MoveDocumentPayload', {}),
     moveDocuments: Object.values(moveDocuments),
     moveLocator: moveLocator || '',
     newDocumentUrl: `/shipments/${shipmentId}/documents/new`,

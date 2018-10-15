@@ -12,8 +12,7 @@ import WizardPage from 'shared/WizardPage';
 
 import './UploadOrders.css';
 
-const uploaderLabelIdle =
-  'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
+const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 export class UploadOrders extends Component {
   constructor(props) {
@@ -64,14 +63,8 @@ export class UploadOrders extends Component {
       >
         <div>
           <h1 className="sm-heading">Upload Your Orders</h1>
-          <p>
-            In order to schedule your move, we need to have a complete copy of
-            your orders.
-          </p>
-          <p>
-            You can upload a PDF, or you can take a picture of each page and
-            upload the images.
-          </p>
+          <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
+          <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
         </div>
         {Boolean(uploads.length) && (
           <Fragment>
@@ -81,11 +74,7 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <Uploader
-              document={currentOrders.uploaded_orders}
-              onChange={this.onChange}
-              labelIdle={uploaderLabelIdle}
-            />
+            <Uploader document={currentOrders.uploaded_orders} onChange={this.onChange} labelIdle={uploaderLabelIdle} />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
         )}
@@ -117,10 +106,7 @@ UploadOrders.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { loadServiceMember, deleteUpload, addUploads },
-    dispatch,
-  );
+  return bindActionCreators({ loadServiceMember, deleteUpload, addUploads }, dispatch);
 }
 function mapStateToProps(state) {
   const props = {

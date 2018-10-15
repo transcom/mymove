@@ -10,13 +10,7 @@ describe('No Issues and Errors', () => {
   beforeEach(() => {
     const issues = null;
     const hasError = true;
-    wrapper = mount(
-      <SubmittedFeedback
-        hasError={hasError}
-        issues={issues}
-        loadIssues={loadIssues}
-      />,
-    );
+    wrapper = mount(<SubmittedFeedback hasError={hasError} issues={issues} loadIssues={loadIssues} />);
   });
 
   it('renders an alert', () => {
@@ -32,18 +26,9 @@ describe('Has issues', () => {
   let wrapper;
 
   beforeEach(() => {
-    const issues = [
-      { id: '10', description: 'Too few dogs.' },
-      { id: '20', description: 'Too little barking.' },
-    ];
+    const issues = [{ id: '10', description: 'Too few dogs.' }, { id: '20', description: 'Too little barking.' }];
     const hasError = false;
-    wrapper = mount(
-      <SubmittedFeedback
-        hasError={hasError}
-        issues={issues}
-        loadIssues={loadIssues}
-      />,
-    );
+    wrapper = mount(<SubmittedFeedback hasError={hasError} issues={issues} loadIssues={loadIssues} />);
   });
 
   it('renders without an alert', () => {

@@ -23,16 +23,11 @@ export class HHGDatePicker extends Component {
     }
 
     const momentDay = moment(day);
-    if (
-      momentDay.isBefore(availableMoveDates.minDate, 'day') ||
-      momentDay.isAfter(availableMoveDates.maxDate, 'day')
-    ) {
+    if (momentDay.isBefore(availableMoveDates.minDate, 'day') || momentDay.isAfter(availableMoveDates.maxDate, 'day')) {
       return true;
     }
 
-    return !availableMoveDates.available.find(element =>
-      momentDay.isSame(element, 'day'),
-    );
+    return !availableMoveDates.available.find(element => momentDay.isSame(element, 'day'));
   };
 
   render() {
@@ -40,9 +35,7 @@ export class HHGDatePicker extends Component {
     const availableMoveDates = this.props.availableMoveDates;
     return (
       <div className="form-section">
-        <h3 className="instruction-heading">
-          Great! Let's find a date for a moving company to move your stuff.
-        </h3>
+        <h3 className="instruction-heading">Great! Let's find a date for a moving company to move your stuff.</h3>
         {availableMoveDates ? (
           <div className="usa-grid">
             <h4>Select a move date</h4>
@@ -59,15 +52,12 @@ export class HHGDatePicker extends Component {
                 <table className="Todo-phase2">
                   <tbody>
                     <tr>
-                      <th className="Todo-phase2">
-                        Preferred Moving Dates Summary
-                      </th>
+                      <th className="Todo-phase2">Preferred Moving Dates Summary</th>
                     </tr>
                     <tr>
                       <td>Movers Packing</td>
                       <td className="Todo-phase2">
-                        Wed, June 6 - Thur, June 7{' '}
-                        <span className="estimate">*estimated</span>
+                        Wed, June 6 - Thur, June 7 <span className="estimate">*estimated</span>
                       </td>
                     </tr>
                     <tr>
@@ -76,9 +66,7 @@ export class HHGDatePicker extends Component {
                     </tr>
                     <tr>
                       <td>Moving Truck in Transit</td>
-                      <td className="Todo-phase2">
-                        Fri, June 8 - Mon, June 11
-                      </td>
+                      <td className="Todo-phase2">Fri, June 8 - Mon, June 11</td>
                     </tr>
                     <tr>
                       <td>Movers Delivering</td>

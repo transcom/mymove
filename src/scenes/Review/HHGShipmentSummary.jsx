@@ -20,8 +20,7 @@ export default function HHGShipmentSummary(props) {
   return (
     <div className="usa-grid-full ppm-container">
       <h3>
-        <img src={truckIcon} alt="PPM shipment" /> Shipment - Government moves
-        all of your stuff (HHG)
+        <img src={truckIcon} alt="PPM shipment" /> Shipment - Government moves all of your stuff (HHG)
       </h3>
       <div className="usa-width-one-half review-section ppm-review-section">
         <table>
@@ -54,10 +53,7 @@ export default function HHGShipmentSummary(props) {
           </tbody>
         </table>
 
-        <p>
-          Move dates are subject to change. Your mover will confirm final dates
-          after your pre-move survey.
-        </p>
+        <p>Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.</p>
 
         <table>
           <tbody>
@@ -78,10 +74,7 @@ export default function HHGShipmentSummary(props) {
             </tr>
             <tr>
               <td colSpan="2">
-                <HHGWeightWarning
-                  shipment={shipment}
-                  entitlements={entitlements}
-                />
+                <HHGWeightWarning shipment={shipment} entitlements={entitlements} />
               </td>
             </tr>
           </tbody>
@@ -107,19 +100,11 @@ export default function HHGShipmentSummary(props) {
             </tr>
             <tr>
               <td>Additional Pickup:</td>
-              <td>
-                {shipment.secondary_pickup_address && (
-                  <Address address={shipment.secondary_pickup_address} />
-                )}
-              </td>
+              <td>{shipment.secondary_pickup_address && <Address address={shipment.secondary_pickup_address} />}</td>
             </tr>
             <tr>
               <td>Delivery Address:</td>
-              <td>
-                {shipment.delivery_address && (
-                  <Address address={shipment.delivery_address} />
-                )}
-              </td>
+              <td>{shipment.delivery_address && <Address address={shipment.delivery_address} />}</td>
             </tr>
           </tbody>
         </table>

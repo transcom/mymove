@@ -12,8 +12,7 @@ function warning(name, estimatedWeight, allowedWeight) {
 
   return (
     <Alert type="warning" heading="">
-      Your {name} of {formatNumber(estimatedWeight)} is{' '}
-      {formatNumber(-remaining)} lbs over your maximum entitlement of{' '}
+      Your {name} of {formatNumber(estimatedWeight)} is {formatNumber(-remaining)} lbs over your maximum entitlement of{' '}
       {formatNumber(allowedWeight)} lbs.
     </Alert>
   );
@@ -24,16 +23,8 @@ export default function HHGWeightSummary(props) {
 
   return (
     <Fragment>
-      {warning(
-        'weight estimate',
-        shipment.weight_estimate,
-        entitlements.weight,
-      )}
-      {warning(
-        'pro-gear weight estimate',
-        shipment.progear_weight_estimate,
-        entitlements.pro_gear,
-      )}
+      {warning('weight estimate', shipment.weight_estimate, entitlements.weight)}
+      {warning('pro-gear weight estimate', shipment.progear_weight_estimate, entitlements.pro_gear)}
       {warning(
         'spouse pro-gear weight estimate',
         shipment.spouse_progear_weight_estimate,

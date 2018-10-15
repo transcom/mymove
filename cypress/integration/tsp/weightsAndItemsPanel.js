@@ -137,9 +137,7 @@ function tspUserEntersActualWeight() {
 
   // Fill out the actual weight and save it
   withinWeightsAndItemsPanel(() => {
-    cy
-      .get('label[for="weights.actual_weight"]')
-      .should('have.text', 'Actual Weight');
+    cy.get('label[for="weights.actual_weight"]').should('have.text', 'Actual Weight');
     cy
       .get('input[name="weights.actual_weight"]')
       .first()

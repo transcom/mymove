@@ -79,32 +79,19 @@ export class Summary extends Component {
     //   return `${perms[backup_contact.permission]}`;
     // }
     const currentStation = get(serviceMember, 'current_station');
-    const stationPhone = get(
-      currentStation,
-      'transportation_office.phone_lines.0',
-    );
+    const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
     const rootAddress = `/moves/review`;
-    const rootAddressWithMoveId = `/moves/${
-      this.props.match.params.moveId
-    }/review`;
+    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
     const editProfileAddress = rootAddress + '/edit-profile';
     const editBackupContactAddress = rootAddress + '/edit-backup-contact';
     const editContactInfoAddress = rootAddress + '/edit-contact-info';
     const editOrdersAddress = rootAddressWithMoveId + '/edit-orders';
-    const editSuccessBlurb = this.props.reviewState.editSuccess
-      ? 'Your changes have been saved. '
-      : '';
+    const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
-          <Alert
-            type="warning"
-            heading={
-              editSuccessBlurb +
-              'Your estimated weight is above your entitlement.'
-            }
-          >
+          <Alert type="warning" heading={editSuccessBlurb + 'Your estimated weight is above your entitlement.'}>
             {titleCase(this.props.reviewState.error.response.body.message)}.
           </Alert>
         )}
@@ -116,14 +103,8 @@ export class Summary extends Component {
         {currentMove &&
           this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
-            <Alert
-              type="info"
-              heading={
-                editSuccessBlurb + 'Note that the entitlement has also changed.'
-              }
-            >
-              Your weight entitlement is now {entitlement.sum.toLocaleString()}{' '}
-              lbs.
+            <Alert type="info" heading={editSuccessBlurb + 'Note that the entitlement has also changed.'}>
+              Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
           )}
 
@@ -146,21 +127,11 @@ export class Summary extends Component {
                 </tr>
                 <tr>
                   <td>Branch:</td>
-                  <td>
-                    {get(
-                      schemaAffiliation['x-display-value'],
-                      get(serviceMember, 'affiliation'),
-                    )}
-                  </td>
+                  <td>{get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation'))}</td>
                 </tr>
                 <tr>
                   <td> Rank/Pay Grade: </td>
-                  <td>
-                    {get(
-                      schemaRank['x-display-value'],
-                      get(serviceMember, 'rank'),
-                    )}
-                  </td>
+                  <td>{get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}</td>
                 </tr>
                 <tr>
                   <td> DoD ID#: </td>
@@ -188,12 +159,7 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Orders Type: </td>
-                    <td>
-                      {get(
-                        schemaOrdersType['x-display-value'],
-                        get(currentOrders, 'orders_type'),
-                      )}
-                    </td>
+                    <td>{get(schemaOrdersType['x-display-value'], get(currentOrders, 'orders_type'))}</td>
                   </tr>
                   <tr>
                     <td> Orders Date: </td>
@@ -201,9 +167,7 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Report-by Date: </td>
-                    <td>
-                      {formatDateSM(get(currentOrders, 'report_by_date'))}
-                    </td>
+                    <td>{formatDateSM(get(currentOrders, 'report_by_date'))}</td>
                   </tr>
                   <tr>
                     <td> New Duty Station: </td>
@@ -211,27 +175,13 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Dependents?: </td>
-                    <td>
-                      {' '}
-                      {currentOrders &&
-                        yesNoMap[
-                          get(currentOrders, 'has_dependents').toString()
-                        ]}
-                    </td>
+                    <td> {currentOrders && yesNoMap[get(currentOrders, 'has_dependents').toString()]}</td>
                   </tr>
                   {currentOrders &&
                     get(currentOrders, 'spouse_has_pro_gear') && (
                       <tr>
                         <td> Spouse Pro Gear?: </td>
-                        <td>
-                          {currentOrders &&
-                            yesNoMap[
-                              get(
-                                currentOrders,
-                                'spouse_has_pro_gear',
-                              ).toString()
-                            ]}
-                        </td>
+                        <td>{currentOrders && yesNoMap[get(currentOrders, 'spouse_has_pro_gear').toString()]}</td>
                       </tr>
                     )}
                   <tr>
@@ -276,17 +226,13 @@ export class Summary extends Component {
                 <tr>
                   <td> Current Mailing Address: </td>
                   <td>
-                    <Address
-                      address={get(serviceMember, 'residential_address')}
-                    />
+                    <Address address={get(serviceMember, 'residential_address')} />
                   </td>
                 </tr>
                 <tr>
                   <td> Backup Mailing Address: </td>
                   <td>
-                    <Address
-                      address={get(serviceMember, 'backup_mailing_address')}
-                    />
+                    <Address address={get(serviceMember, 'backup_mailing_address')} />
                   </td>
                 </tr>
               </tbody>
@@ -322,13 +268,7 @@ export class Summary extends Component {
             ))}
           </div>
         </div>
-        {currentPpm &&
-          !lastMoveIsCanceled && (
-            <PPMShipmentSummary
-              ppm={currentPpm}
-              movePath={rootAddressWithMoveId}
-            />
-          )}
+        {currentPpm && !lastMoveIsCanceled && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
 
         {currentShipment &&
           !lastMoveIsCanceled && (
@@ -341,8 +281,7 @@ export class Summary extends Component {
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at{' '}
-            {get(currentStation, 'name')}{' '}
+            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
             {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
         )}
@@ -393,6 +332,4 @@ function mapDispatchToProps(dispatch, ownProps) {
     },
   };
 }
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Summary),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));

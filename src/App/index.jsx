@@ -6,12 +6,7 @@ import './index.css';
 
 import Loadable from 'react-loadable';
 
-import {
-  AppContext,
-  defaultTspContext,
-  defaultOfficeContext,
-  defaultMyMoveContext,
-} from 'shared/AppContext';
+import { AppContext, defaultTspContext, defaultOfficeContext, defaultMyMoveContext } from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags.js';
 
 const Tsp = Loadable({
@@ -29,11 +24,7 @@ const MyMove = Loadable({
   loading: () => <div>Loading...</div>,
 });
 
-const flags = detectFlags(
-  process.env['NODE_ENV'],
-  window.location.host,
-  window.location.search,
-);
+const flags = detectFlags(process.env['NODE_ENV'], window.location.host, window.location.search);
 
 const tspContext = Object.assign({}, defaultTspContext, { flags });
 const officeContext = Object.assign({}, defaultOfficeContext, { flags });
