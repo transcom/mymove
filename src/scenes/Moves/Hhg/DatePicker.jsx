@@ -9,13 +9,44 @@ import moment from 'moment';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import { bindActionCreators } from 'redux';
-import { getMoveDatesSummary } from 'shared/Entities/modules/moves';
+import {
+  getMoveDatesSummary,
+  selectMoveDatesSummary,
+} from 'shared/Entities/modules/moves';
 import DatesSummary from 'scenes/Moves/Hhg/DatesSummary.jsx';
 
 import './DatePicker.css';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const getRequestLabel = 'DatePicker.getMoveDatesSummary';
+
+function createModifiers(moveDates) {
+  if (!moveDates) {
+    return null;
+  }
+
+  return {
+    pack: convertDateStringArray(moveDates.pack),
+    pickup: convertDateStringArray(moveDates.pickup),
+    transit: convertDateStringArray(moveDates.transit),
+    delivery: convertDateStringArray(moveDates.delivery),
+    report: convertDateStringArray(moveDates.report),
+  };
+}
+
+function convertDateStringArray(dateStrings) {
+  if (!dateStrings) {
+    return null;
+  }
+
+  const dateStringsLen = dateStrings.length;
+  const convertedArray = new Array(dateStringsLen);
+  for (let i = 0; i < dateStringsLen; i++) {
+    convertedArray[i] = parseSwaggerDate(dateStrings[i]); // eslint-disable-line security/detect-object-injection
+  }
+
+  return convertedArray;
+}
 
 export class HHGDatePicker extends Component {
   constructor(props) {
@@ -88,6 +119,7 @@ export class HHGDatePicker extends Component {
 
   render() {
     const availableMoveDates = this.props.availableMoveDates;
+    const parsedSelectedDay = parseSwaggerDate(this.state.selectedDay);
     return (
       <div className="form-section">
         <h3 className="instruction-heading">
@@ -99,14 +131,19 @@ export class HHGDatePicker extends Component {
             <div className="usa-width-one-third">
               <DayPicker
                 onDayClick={this.handleDayClick}
-                selectedDays={parseSwaggerDate(this.state.selectedDay)}
+                month={
+                  parsedSelectedDay ||
+                  (availableMoveDates && availableMoveDates.minDate)
+                }
+                selectedDays={parsedSelectedDay}
                 disabledDays={this.isDayDisabled}
+                modifiers={this.props.modifiers}
               />
             </div>
 
             <div className="usa-width-two-thirds">
               {this.state.selectedDay && (
-                <DatesSummary moveDate={this.state.selectedDay} />
+                <DatesSummary moveDates={this.props.moveDates} />
               )}
             </div>
           </div>
@@ -124,10 +161,25 @@ HHGDatePicker.propTypes = {
   availableMoveDates: PropTypes.object,
 };
 
+function mapStateToProps(state, ownProps) {
+  const moveDate =
+    ownProps.input.value ||
+    get(ownProps, 'currentShipment.requested_pickup_date');
+  const moveDates = selectMoveDatesSummary(
+    state,
+    ownProps.match.params.moveId,
+    moveDate,
+  );
+  return {
+    moveDates: moveDates,
+    modifiers: createModifiers(moveDates),
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary }, dispatch);
 }
 
 export default withRouter(
-  connect(() => ({}), mapDispatchToProps)(HHGDatePicker),
+  connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker),
 );

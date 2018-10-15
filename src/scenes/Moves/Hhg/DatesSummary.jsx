@@ -2,10 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import moment from 'moment';
 import { get, isNil } from 'lodash';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 
-import { selectMoveDatesSummary } from 'shared/Entities/modules/moves';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export class DatesSummary extends Component {
@@ -41,33 +38,48 @@ export class DatesSummary extends Component {
       <table>
         <tbody>
           <tr>
-            <th colSpan="2">Preferred Moving Dates Summary</th>
+            <th colSpan="3">Preferred Moving Dates Summary</th>
           </tr>
 
           <tr>
-            <td>Movers Packing</td>
+            <td aria-label="pattern">
+              <div className="legend-square DayPicker-Day--pack" />
+            </td>
+            <td className="legend-label">Movers Packing</td>
             <td>
               {this.displayDateRange(packDates)}
               <span className="estimate">(estimated)</span>
             </td>
           </tr>
           <tr>
-            <td> Movers Loading Truck</td>
+            <td aria-label="pattern">
+              <div className="legend-square DayPicker-Day--pickup" />
+            </td>
+            <td className="legend-label"> Movers Loading Truck</td>
             <td>{this.displayDateRange(pickupDates)}</td>
           </tr>
           <tr>
-            <td>Moving Truck in Transit</td>
+            <td aria-label="pattern">
+              <div className="legend-square DayPicker-Day--transit" />
+            </td>
+            <td className="legend-label">Moving Truck in Transit</td>
             <td>{this.displayDateRange(transitDates)}</td>
           </tr>
           <tr>
-            <td>Movers Delivering</td>
+            <td aria-label="pattern">
+              <div className="legend-square DayPicker-Day--delivery" />
+            </td>
+            <td className="legend-label">Movers Delivering</td>
             <td>
               {this.displayDateRange(deliveryDates)}
               <span className="estimate">(estimated)</span>
             </td>
           </tr>
           <tr>
-            <td>Report By Date</td>
+            <td aria-label="pattern">
+              <div className="legend-square DayPicker-Day--report" />
+            </td>
+            <td className="legend-label">Report By Date</td>
             <td>{this.displayDateRange(reportDates)}</td>
           </tr>
         </tbody>
@@ -77,17 +89,7 @@ export class DatesSummary extends Component {
 }
 
 DatesSummary.propTypes = {
-  moveDate: PropTypes.string.isRequired,
+  moveDates: PropTypes.object,
 };
 
-function mapStateToProps(state, ownProps) {
-  const props = {
-    moveDates: selectMoveDatesSummary(
-      state,
-      `${ownProps.match.params.moveId}:${ownProps.moveDate}`,
-    ),
-  };
-  return props;
-}
-
-export default withRouter(connect(mapStateToProps)(DatesSummary));
+export default DatesSummary;
