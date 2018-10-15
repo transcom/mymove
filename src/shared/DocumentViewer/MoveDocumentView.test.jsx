@@ -82,18 +82,14 @@ describe('MoveDocumentView', () => {
   it('renders the move locator', () => {
     const moveLocator = 'FBXY3M';
     const documentView = renderMoveDocumentView({ moveLocator });
-    expect(
-      documentView.find({ title: 'Move Locator' }).prop('children'),
-    ).toEqual(moveLocator);
+    expect(documentView.find({ title: 'Move Locator' }).prop('children')).toEqual(moveLocator);
   });
 
   it('renders the serviceMember edipi', () => {
     const edipi = '999999999';
     const serviceMember = { edipi, name: '' };
     const documentView = renderMoveDocumentView({ serviceMember });
-    expect(documentView.find({ title: 'DoD ID' }).prop('children')).toEqual(
-      edipi,
-    );
+    expect(documentView.find({ title: 'DoD ID' }).prop('children')).toEqual(edipi);
   });
 
   describe('All Documents tab', () => {
@@ -132,9 +128,7 @@ describe('MoveDocumentView', () => {
         .find('TabPanel')
         .at(0)
         .find('DocumentList');
-      expect(documentList.prop('detailUrlPrefix')).toEqual(
-        documentDetailUrlPrefix,
-      );
+      expect(documentList.prop('detailUrlPrefix')).toEqual(documentDetailUrlPrefix);
       expect(documentList.prop('moveDocuments')).toEqual(moveDocuments);
     });
   });

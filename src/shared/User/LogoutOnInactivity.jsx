@@ -14,10 +14,7 @@ export class LogoutOnInactivity extends React.Component {
     showLoggedOutAlert: false,
   };
   componentDidMount() {
-    this.interval = setInterval(
-      () => fetch(this.props.keepAliveEndpoint),
-      this.props.keepAliveInterval,
-    );
+    this.interval = setInterval(() => fetch(this.props.keepAliveEndpoint), this.props.keepAliveInterval);
   }
   componentWillUnmount() {
     clearInterval(this.interval);

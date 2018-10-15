@@ -16,15 +16,7 @@ describe('MoveSummary', () => {
   const entitlementObj = { sum: '10000' };
   const serviceMember = { current_station: { name: 'Ft Carson' } };
   const ordersObj = {};
-  const getShallowRender = (
-    entitlementObj,
-    serviceMember,
-    ordersObj,
-    moveObj,
-    ppmObj,
-    editMoveFn,
-    resumeMoveFn,
-  ) => {
+  const getShallowRender = (entitlementObj, serviceMember, ordersObj, moveObj, ppmObj, editMoveFn, resumeMoveFn) => {
     return shallow(
       <MoveSummary
         entitlement={entitlementObj}

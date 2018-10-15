@@ -56,9 +56,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
 
   cy.nextPage();
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(
-      /^\/service-member\/[^/]+\/residence-address/,
-    );
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/residence-address/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
@@ -70,9 +68,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="postal_code"]').type('80913');
   cy.nextPage();
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(
-      /^\/service-member\/[^/]+\/backup-mailing-address/,
-    );
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/backup-mailing-address/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place

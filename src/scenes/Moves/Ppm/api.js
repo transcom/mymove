@@ -10,13 +10,9 @@ export async function GetPpm(moveId) {
   return response.body;
 }
 
-export async function CreatePpm(
-  moveId,
-  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
-) {
+export async function CreatePpm(moveId, payload /*shape: {size, weightEstimate, estimatedIncentive}*/) {
   const client = await getClient();
-  const payloadDef =
-    client.spec.definitions.CreatePersonallyProcuredMovePayload;
+  const payloadDef = client.spec.definitions.CreatePersonallyProcuredMovePayload;
   const response = await client.apis.ppm.createPersonallyProcuredMove({
     moveId,
     createPersonallyProcuredMovePayload: formatPayload(payload, payloadDef),
@@ -41,12 +37,7 @@ export async function UpdatePpm(
   return response.body;
 }
 
-export async function GetPpmWeightEstimate(
-  moveDate,
-  originZip,
-  destZip,
-  weightEstimate,
-) {
+export async function GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMEstimate({
     planned_move_date: formatDateString(moveDate),
@@ -58,13 +49,7 @@ export async function GetPpmWeightEstimate(
   return response.body;
 }
 
-export async function GetPpmSitEstimate(
-  moveDate,
-  sitDays,
-  originZip,
-  destZip,
-  weightEstimate,
-) {
+export async function GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMSitEstimate({
     planned_move_date: formatDateString(moveDate),

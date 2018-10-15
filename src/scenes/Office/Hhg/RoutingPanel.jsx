@@ -6,12 +6,7 @@ import { reduxForm, getFormValues } from 'redux-form';
 
 import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import {
-  PanelField,
-  PanelSwaggerField,
-  SwaggerValue,
-  editablePanelify,
-} from 'shared/EditablePanel';
+import { PanelField, PanelSwaggerField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 
 // TODO: add shipment_type
 // TODO: combine source_gbloc and destination_gbloc values to one value
@@ -23,20 +18,12 @@ const RoutingPanelDisplay = props => {
   return (
     <div className="editable-panel-column">
       <PanelField title="Shipment type">HHG</PanelField>
-      <PanelSwaggerField
-        title="Shipment market"
-        fieldName="market"
-        {...fieldProps}
-      />
+      <PanelSwaggerField title="Shipment market" fieldName="market" {...fieldProps} />
       <PanelField title="Channel">
         <SwaggerValue fieldName="source_gbloc" {...fieldProps} /> -{' '}
         <SwaggerValue fieldName="destination_gbloc" {...fieldProps} />
       </PanelField>
-      <PanelSwaggerField
-        title="Code of service"
-        fieldName="code_of_service"
-        {...fieldProps}
-      />
+      <PanelSwaggerField title="Code of service" fieldName="code_of_service" {...fieldProps} />
     </div>
   );
 };
@@ -47,24 +34,9 @@ const RoutingPanelEdit = props => {
     <div className="editable-panel-column">
       <PanelField title="Shipment type">HHG</PanelField>
       <PanelField title="Market">dHHG</PanelField>
-      <SwaggerField
-        title="Source GBLOC"
-        fieldName="source_gbloc"
-        swagger={shipmentSchema}
-        required
-      />
-      <SwaggerField
-        title="Destination GBLOC"
-        fieldName="source_gbloc"
-        swagger={shipmentSchema}
-        required
-      />
-      <SwaggerField
-        title="Code of service"
-        fieldName="code_of_service"
-        swagger={shipmentSchema}
-        required
-      />
+      <SwaggerField title="Source GBLOC" fieldName="source_gbloc" swagger={shipmentSchema} required />
+      <SwaggerField title="Destination GBLOC" fieldName="source_gbloc" swagger={shipmentSchema} required />
+      <SwaggerField title="Code of service" fieldName="code_of_service" swagger={shipmentSchema} required />
     </div>
   );
 };
@@ -72,11 +44,7 @@ const RoutingPanelEdit = props => {
 const formName = 'office_shipment_routing';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let RoutingPanel = editablePanelify(
-  RoutingPanelDisplay,
-  RoutingPanelEdit,
-  editEnabled,
-);
+let RoutingPanel = editablePanelify(RoutingPanelDisplay, RoutingPanelEdit, editEnabled);
 RoutingPanel = reduxForm({ form: formName })(RoutingPanel);
 
 function mapStateToProps(state) {
@@ -86,8 +54,7 @@ function mapStateToProps(state) {
     initialValues: shipment,
     // Wrapper
     shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
-    hasError:
-      state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
+    hasError: state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
 
     shipment: shipment,

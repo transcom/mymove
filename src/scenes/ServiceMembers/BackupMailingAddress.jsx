@@ -35,39 +35,17 @@ export class BackupMailingAddress extends Component {
       >
         <h1 className="sm-heading">Backup mailing address</h1>
         <p>
-          Enter the address where mail will reach you if we can’t reach you at
-          your primary address, such as your parents’ address.
+          Enter the address where mail will reach you if we can’t reach you at your primary address, such as your
+          parents’ address.
         </p>
 
-        <SwaggerField
-          fieldName="street_address_1"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          fieldName="street_address_2"
-          swagger={this.props.schema}
-        />
+        <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
+        <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
 
         <div className="address_inline">
-          <SwaggerField
-            fieldName="city"
-            swagger={this.props.schema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="state"
-            swagger={this.props.schema}
-            className="city_state_zip"
-            required
-          />
-          <SwaggerField
-            fieldName="postal_code"
-            swagger={this.props.schema}
-            className="city_state_zip"
-            required
-          />
+          <SwaggerField fieldName="city" swagger={this.props.schema} className="city_state_zip" required />
+          <SwaggerField fieldName="state" swagger={this.props.schema} className="city_state_zip" required />
+          <SwaggerField fieldName="postal_code" swagger={this.props.schema} className="city_state_zip" required />
         </div>
       </BackupMailingWizardForm>
     );
@@ -90,6 +68,4 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(
-  BackupMailingAddress,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(BackupMailingAddress);

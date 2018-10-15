@@ -4,11 +4,7 @@ import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import {
-  PanelSwaggerField,
-  editablePanelify,
-  PanelField,
-} from 'shared/EditablePanel';
+import { PanelSwaggerField, editablePanelify, PanelField } from 'shared/EditablePanel';
 import { formatWeight } from 'shared/formatters';
 
 const weightsFields = [
@@ -30,39 +26,20 @@ const WeightsDisplay = props => {
     <Fragment>
       <div className="editable-panel-column">
         <div className="column-subhead">Weight</div>
-        <PanelSwaggerField
-          fieldName="weight_estimate"
-          required
-          title="Customer estimate"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          fieldName="pm_survey_weight_estimate"
-          required
-          title="TSP estimate"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Actual"
-          fieldName="net_weight"
-          required
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="weight_estimate" required title="Customer estimate" {...fieldProps} />
+        <PanelSwaggerField fieldName="pm_survey_weight_estimate" required title="TSP estimate" {...fieldProps} />
+        <PanelSwaggerField title="Actual" fieldName="net_weight" required {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         <div className="column-subhead">Pro-gear (Service member + spouse)</div>
         <PanelField title="Customer estimate">
           <span>
-            {`${formatWeight(values.progear_weight_estimate)} + ${formatWeight(
-              values.spouse_progear_weight_estimate,
-            )}`}
+            {`${formatWeight(values.progear_weight_estimate)} + ${formatWeight(values.spouse_progear_weight_estimate)}`}
           </span>
         </PanelField>
         <PanelField title="TSP estimate">
           <span>
-            {`${formatWeight(
-              values.pm_survey_progear_weight_estimate,
-            )} + ${formatWeight(
+            {`${formatWeight(values.pm_survey_progear_weight_estimate)} + ${formatWeight(
               values.pm_survey_spouse_progear_weight_estimate,
             )}`}
           </span>
@@ -84,33 +61,11 @@ const WeightsEdit = props => {
       <FormSection name="weights">
         <div className="editable-panel-column">
           <div className="column-head">Weights</div>
-          <PanelSwaggerField
-            fieldName="weight_estimate"
-            required
-            title="Customer estimate"
-            {...fieldProps}
-          />
-          <PanelSwaggerField
-            fieldName="pm_survey_weight_estimate"
-            required
-            title="TSP estimate"
-            {...fieldProps}
-          />
+          <PanelSwaggerField fieldName="weight_estimate" required title="Customer estimate" {...fieldProps} />
+          <PanelSwaggerField fieldName="pm_survey_weight_estimate" required title="TSP estimate" {...fieldProps} />
           <div className="column-subhead">Actual Weights</div>
-          <SwaggerField
-            className="short-field"
-            fieldName="gross_weight"
-            swagger={schema}
-            required
-          />{' '}
-          lbs
-          <SwaggerField
-            className="short-field"
-            fieldName="tare_weight"
-            swagger={schema}
-            required
-          />{' '}
-          lbs
+          <SwaggerField className="short-field" fieldName="gross_weight" swagger={schema} required /> lbs
+          <SwaggerField className="short-field" fieldName="tare_weight" swagger={schema} required /> lbs
           <SwaggerField
             title="Net (Gross - Tare)"
             className="short-field"
@@ -124,9 +79,9 @@ const WeightsEdit = props => {
           <div className="column-head">Pro-gear (Service member + spouse)</div>
           <PanelField title="Customer estimate">
             <span>
-              {`${formatWeight(
-                values.progear_weight_estimate,
-              )} + ${formatWeight(values.spouse_progear_weight_estimate)}`}
+              {`${formatWeight(values.progear_weight_estimate)} + ${formatWeight(
+                values.spouse_progear_weight_estimate,
+              )}`}
             </span>
           </PanelField>
           <div className="column-subhead">TSP Estimate</div>

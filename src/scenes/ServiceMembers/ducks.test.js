@@ -9,9 +9,7 @@ import {
   serviceMemberReducer,
 } from './ducks';
 
-import loggedInUserPayload, {
-  emptyPayload,
-} from 'shared/User/sampleLoggedInUserPayload';
+import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
 const smPayload = { ...loggedInUserPayload.payload.service_member };
 const expectedSM = {
   affiliation: 'ARMY',
@@ -58,8 +56,7 @@ const expectedSM = {
   updated_at: '2018-05-25T21:39:10.484Z',
   user_id: 'b46e651e-9d1c-4be5-bb88-bba58e817696',
 };
-const expectedBackupContacts =
-  loggedInUserPayload.payload.service_member.backup_contacts;
+const expectedBackupContacts = loggedInUserPayload.payload.service_member.backup_contacts;
 describe('Service Member Reducer', () => {
   describe('GET_LOGGED_IN_USER', () => {
     it('should handle SUCCESS', () => {

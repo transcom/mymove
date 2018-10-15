@@ -18,30 +18,17 @@ export const CustomerInfo = ({ serviceMember, backupContact }) => {
               {serviceMember.last_name}, {serviceMember.first_name}
             </b>
             <br />
-            DoD ID#: {serviceMember.edipi} - {serviceMember.affiliation} -{' '}
-            {serviceMember.rank}
+            DoD ID#: {serviceMember.edipi} - {serviceMember.affiliation} - {serviceMember.rank}
             <br />
             {serviceMember.telephone}
-            {serviceMember.secondary_telephone && (
-              <span>- {serviceMember.secondary_telephone}</span>
-            )}
+            {serviceMember.secondary_telephone && <span>- {serviceMember.secondary_telephone}</span>}
             <br />
             {serviceMember.personal_email}
             <br />
             Preferred contact method:{' '}
-            {serviceMember.phone_is_preferred && (
-              <FontAwesomeIcon
-                className="icon"
-                icon={faPhone}
-                flip="horizontal"
-              />
-            )}
-            {serviceMember.text_message_is_preferred && (
-              <FontAwesomeIcon className="icon" icon={faComments} />
-            )}
-            {serviceMember.email_is_preferred && (
-              <FontAwesomeIcon className="icon" icon={faEmail} />
-            )}
+            {serviceMember.phone_is_preferred && <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />}
+            {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
+            {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
           </p>
           <p>
             {backupContact.name && (
@@ -135,16 +122,8 @@ const mapStateToProps = state => {
     email: '',
     phone: '',
   };
-  const serviceMember = get(
-    state,
-    'tsp.shipment.service_member',
-    defaultServiceMember,
-  );
-  const backupContact = get(
-    state,
-    'tsp.shipment.service_member.backup_contacts[0]',
-    defaultBackupContact,
-  );
+  const serviceMember = get(state, 'tsp.shipment.service_member', defaultServiceMember);
+  const backupContact = get(state, 'tsp.shipment.service_member.backup_contacts[0]', defaultBackupContact);
 
   return {
     serviceMember,

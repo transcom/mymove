@@ -2,10 +2,7 @@ import { get } from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { formatCents } from 'shared/formatters';
-import {
-  getTabularExpenses,
-  getPpmExpenseSummary,
-} from 'scenes/Office/Ppm/ducks';
+import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
 
 const dollar = cents => (cents ? '$' + formatCents(cents) : null);
@@ -15,16 +12,12 @@ class ExpensesPanel extends Component {
     if (this.props.ppmId) this.props.getPpmExpenseSummary(this.props.ppmId);
   }
   componentDidUpdate(prevProps) {
-    if (this.props.ppmId && this.props.ppmId !== prevProps.ppmId)
-      this.props.getPpmExpenseSummary(this.props.ppmId);
+    if (this.props.ppmId && this.props.ppmId !== prevProps.ppmId) this.props.getPpmExpenseSummary(this.props.ppmId);
   }
   render() {
     const { schemaMovingExpenseType, expenseData } = this.props;
 
-    const tabularData = getTabularExpenses(
-      expenseData,
-      schemaMovingExpenseType,
-    );
+    const tabularData = getTabularExpenses(expenseData, schemaMovingExpenseType);
     return (
       <div className="calculator-panel expense-panel">
         <div className="calculator-panel-title">Expenses</div>
@@ -39,11 +32,7 @@ class ExpensesPanel extends Component {
                 <th colSpan={2}>&nbsp;</th>
               </tr>
               <tr>
-                <th
-                  className="expense-header"
-                  width="40%"
-                  style={{ textAlign: 'left' }}
-                >
+                <th className="expense-header" width="40%" style={{ textAlign: 'left' }}>
                   Items
                 </th>
                 <th className="expense-header" width="10%">
@@ -80,11 +69,7 @@ class ExpensesPanel extends Component {
 function mapStateToProps(state) {
   return {
     ppmId: get(state.office, 'officePPMs[0].id'),
-    schemaMovingExpenseType: get(
-      state,
-      'swaggerInternal.spec.definitions.MovingExpenseType',
-      {},
-    ),
+    schemaMovingExpenseType: get(state, 'swaggerInternal.spec.definitions.MovingExpenseType', {}),
     expenseData: get(state, 'ppmIncentive.summary'),
   };
 }

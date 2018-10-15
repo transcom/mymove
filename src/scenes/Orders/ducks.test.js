@@ -6,9 +6,7 @@ import {
   ADD_UPLOADS,
   ordersReducer,
 } from './ducks';
-import loggedInUserPayload, {
-  emptyPayload,
-} from 'shared/User/sampleLoggedInUserPayload';
+import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
 
 const expectedOrders = {
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
@@ -339,9 +337,7 @@ describe('orders Reducer', () => {
         payload: [expectedOrders.uploaded_orders.uploads[1]],
       });
 
-      expect(initialState.currentOrders.uploaded_orders.uploads.length).toEqual(
-        1,
-      );
+      expect(initialState.currentOrders.uploaded_orders.uploads.length).toEqual(1);
       expect(newState).toEqual({
         currentOrders: expectedOrders,
         hasSubmitError: false,

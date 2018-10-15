@@ -5,9 +5,6 @@ export async function ValidateEntitlement(moveId) {
   const response = await client.apis.entitlements.validateEntitlement({
     moveId,
   });
-  checkResponse(
-    response,
-    'failed to validate entitlement due to server error.',
-  );
+  checkResponse(response, 'failed to validate entitlement due to server error.');
   return response.body;
 }

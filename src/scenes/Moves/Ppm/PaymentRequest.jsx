@@ -11,10 +11,7 @@ import { convertDollarsToCents } from 'shared/utils';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
-import {
-  selectAllDocumentsForMove,
-  getMoveDocumentsForMove,
-} from 'shared/Entities/modules/moveDocuments';
+import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import { submitExpenseDocs } from './ducks.js';
 
@@ -31,11 +28,7 @@ function RequestPaymentSection(props) {
     return (
       <Fragment>
         <h4>Done uploading documents?</h4>
-        <button
-          onClick={submitDocs}
-          className="usa-button"
-          disabled={updatingPPM || disableSubmit}
-        >
+        <button onClick={submitDocs} className="usa-button" disabled={updatingPPM || disableSubmit}>
           Submit Payment Request
         </button>
       </Fragment>
@@ -47,9 +40,7 @@ function RequestPaymentSection(props) {
       </Fragment>
     );
   } else {
-    console.error(
-      'Unexpectedly got to PaymentRequest screen without PPM approval',
-    );
+    console.error('Unexpectedly got to PaymentRequest screen without PPM approval');
   }
 }
 
@@ -87,9 +78,7 @@ export class PaymentRequest extends Component {
   handleSubmit = (uploadIds, formValues) => {
     const { currentPpm } = this.props;
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.requested_amount_cents = convertDollarsToCents(
-        formValues.requested_amount_cents,
-      );
+      formValues.requested_amount_cents = convertDollarsToCents(formValues.requested_amount_cents);
       return this.props.createMovingExpenseDocument(
         this.props.match.params.moveId,
         currentPpm.id,
@@ -136,9 +125,8 @@ export class PaymentRequest extends Component {
           )}
           <h2>Request Payment </h2>
           <div className="instructions">
-            Please upload all your weight tickets, expenses, and storage fee
-            documents one at a time. For expenses, you’ll need to enter
-            additional details.
+            Please upload all your weight tickets, expenses, and storage fee documents one at a time. For expenses,
+            you’ll need to enter additional details.
           </div>
           <DocumentUploader
             form="payment-docs"
@@ -176,21 +164,9 @@ const mapStateToProps = (state, props) => ({
   currentPpm: state.ppm.currentPpm,
   updatingPPM: state.ppm.hasSubmitInProgress,
   updateError: state.ppm.hasSubmitError,
-  docTypes: get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentType.enum',
-    [],
-  ),
-  genericMoveDocSchema: get(
-    state,
-    'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload',
-    {},
-  ),
-  moveDocSchema: get(
-    state,
-    'swaggerInternal.spec.definitions.MoveDocumentPayload',
-    {},
-  ),
+  docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
+  genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+  moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
 });
 
 const mapDispatchToProps = {

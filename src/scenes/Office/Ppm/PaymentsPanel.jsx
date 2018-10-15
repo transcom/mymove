@@ -39,27 +39,23 @@ class PaymentsTable extends Component {
 
   startDownload = docTypes => {
     this.setState({ disableDownload: true });
-    this.props
-      .downloadPPMAttachments(this.props.ppm.id, docTypes)
-      .then(response => {
-        if (response.payload) {
-          // Taken from https://mathiasbynens.github.io/rel-noopener/
-          let win = window.open();
-          // win can be null if a pop-up blocker is used
-          if (win) {
-            win.opener = null;
-            win.location = response.payload.url;
-          }
+    this.props.downloadPPMAttachments(this.props.ppm.id, docTypes).then(response => {
+      if (response.payload) {
+        // Taken from https://mathiasbynens.github.io/rel-noopener/
+        let win = window.open();
+        // win can be null if a pop-up blocker is used
+        if (win) {
+          win.opener = null;
+          win.location = response.payload.url;
         }
-        this.setState({ disableDownload: false });
-      });
+      }
+      this.setState({ disableDownload: false });
+    });
   };
 
   documentUpload = () => {
     const move = this.props.move;
-    this.props.push(
-      `/moves/${move.id}/documents/new?move_document_type=SHIPMENT_SUMMARY`,
-    );
+    this.props.push(`/moves/${move.id}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
   };
 
   downloadShipmentSummary = () => {
@@ -74,12 +70,7 @@ class PaymentsTable extends Component {
         return (
           <React.Fragment>
             <div onClick={this.approveReimbursement}>
-              <FontAwesomeIcon
-                aria-hidden
-                className="icon approval-ready"
-                icon={faCheck}
-                title="Approve"
-              />
+              <FontAwesomeIcon aria-hidden className="icon approval-ready" icon={faCheck} title="Approve" />
               <span className="tooltiptext">Approve</span>
             </div>
           </React.Fragment>
@@ -94,9 +85,7 @@ class PaymentsTable extends Component {
             icon={faCheck}
             title="Can't approve payment until shipment is approved."
           />
-          <span className="tooltiptext">
-            Can't approve payment until shipment is approved.
-          </span>
+          <span className="tooltiptext">Can't approve payment until shipment is approved.</span>
         </React.Fragment>
       );
     }
@@ -105,9 +94,7 @@ class PaymentsTable extends Component {
   render() {
     const attachmentsError = this.props.attachmentsError;
     const advance = this.props.advance;
-    const paperworkIcon = this.state.showPaperwork
-      ? faMinusSquare
-      : faPlusSquare;
+    const paperworkIcon = this.state.showPaperwork ? faMinusSquare : faPlusSquare;
 
     return (
       <div className="payment-panel">
@@ -133,25 +120,14 @@ class PaymentsTable extends Component {
                   <td className="payment-table-column-content">Advance </td>
                   <td className="payment-table-column-content">
                     $
-                    {formatCents(
-                      get(advance, 'requested_amount'),
-                    ).toLocaleString()}
+                    {formatCents(get(advance, 'requested_amount')).toLocaleString()}
                   </td>
-                  <td className="payment-table-column-content">
-                    {advance.method_of_receipt}
-                  </td>
-                  <td className="payment-table-column-content">
-                    {formatDate(advance.requested_date)}
-                  </td>
+                  <td className="payment-table-column-content">{advance.method_of_receipt}</td>
+                  <td className="payment-table-column-content">{formatDate(advance.requested_date)}</td>
                   <td className="payment-table-column-content">
                     {advance.status === 'APPROVED' ? (
                       <div>
-                        <FontAwesomeIcon
-                          aria-hidden
-                          className="icon approval-ready"
-                          icon={faCheck}
-                          title="Approved"
-                        />{' '}
+                        <FontAwesomeIcon aria-hidden className="icon approval-ready" icon={faCheck} title="Approved" />{' '}
                         Approved
                       </div>
                     ) : (
@@ -167,17 +143,13 @@ class PaymentsTable extends Component {
                     )}
                   </td>
                   <td className="payment-table-column-content">
-                    <span className="tooltip">
-                      {this.renderAdvanceAction()}
-                    </span>
+                    <span className="tooltip">{this.renderAdvanceAction()}</span>
                   </td>
                 </tr>
               </React.Fragment>
             ) : (
               <tr>
-                <th className="payment-table-subheader">
-                  No payments requested
-                </th>
+                <th className="payment-table-subheader">No payments requested</th>
               </tr>
             )}
           </tbody>
@@ -185,11 +157,7 @@ class PaymentsTable extends Component {
 
         <div className="paperwork">
           <a onClick={this.togglePaperwork}>
-            <FontAwesomeIcon
-              aria-hidden
-              className="icon"
-              icon={paperworkIcon}
-            />
+            <FontAwesomeIcon aria-hidden className="icon" icon={paperworkIcon} />
             Create payment paperwork
           </a>
           {this.state.showPaperwork && (
@@ -200,22 +168,14 @@ class PaymentsTable extends Component {
                     'Something went wrong contacting the server.'}
                 </Alert>
               )}
-              <p>
-                Complete the following steps in order to generate and file
-                paperwork for payment:
-              </p>
+              <p>Complete the following steps in order to generate and file paperwork for payment:</p>
               <div className="paperwork">
                 <div className="paperwork-step">
                   <div>
                     <p>Download Shipment Summary Worksheet</p>
-                    <p>
-                      Download and complete the worksheet, which is a fill-in
-                      PDF form.
-                    </p>
+                    <p>Download and complete the worksheet, which is a fill-in PDF form.</p>
                   </div>
-                  <button onClick={this.downloadShipmentSummary}>
-                    Download Worksheet (PDF)
-                  </button>
+                  <button onClick={this.downloadShipmentSummary}>Download Worksheet (PDF)</button>
                 </div>
 
                 <hr />
@@ -223,21 +183,11 @@ class PaymentsTable extends Component {
                 <div className="paperwork-step">
                   <div>
                     <p>Download All Attachments (PDF)</p>
-                    <p>
-                      Download bundle of PPM receipts and attach it to the
-                      completed Shipment Summary Worksheet.
-                    </p>
+                    <p>Download bundle of PPM receipts and attach it to the completed Shipment Summary Worksheet.</p>
                   </div>
                   <button
                     disabled={this.state.disableDownload}
-                    onClick={() =>
-                      this.startDownload([
-                        'OTHER',
-                        'WEIGHT_TICKET',
-                        'STORAGE_EXPENSE',
-                        'EXPENSE',
-                      ])
-                    }
+                    onClick={() => this.startDownload(['OTHER', 'WEIGHT_TICKET', 'STORAGE_EXPENSE', 'EXPENSE'])}
                   >
                     Download All Attachments (PDF)
                   </button>
@@ -249,20 +199,13 @@ class PaymentsTable extends Component {
                   <div>
                     <p>Download Orders and Weight Tickets (PDF)</p>
                     <p>
-                      Download bundle of Orders and Weight Tickets (without
-                      receipts) and attach it to the completed Shipment Summary
-                      Worksheet.
+                      Download bundle of Orders and Weight Tickets (without receipts) and attach it to the completed
+                      Shipment Summary Worksheet.
                     </p>
                   </div>
                   <button
                     disabled={this.state.disableDownload}
-                    onClick={() =>
-                      this.startDownload([
-                        'OTHER',
-                        'WEIGHT_TICKET',
-                        'STORAGE_EXPENSE',
-                      ])
-                    }
+                    onClick={() => this.startDownload(['OTHER', 'WEIGHT_TICKET', 'STORAGE_EXPENSE'])}
                   >
                     Download Orders and Weight Tickets (PDF)
                   </button>
@@ -274,13 +217,11 @@ class PaymentsTable extends Component {
                   <div>
                     <p>Upload completed packet</p>
                     <p>
-                      Save the worksheet and attachments together as one PDF.
-                      Then upload the completed packet for customer and Finance.
+                      Save the worksheet and attachments together as one PDF. Then upload the completed packet for
+                      customer and Finance.
                     </p>
                   </div>
-                  <button onClick={this.documentUpload}>
-                    Upload Completed Packet
-                  </button>
+                  <button onClick={this.documentUpload}>Upload Completed Packet</button>
                 </div>
               </div>
             </Fragment>

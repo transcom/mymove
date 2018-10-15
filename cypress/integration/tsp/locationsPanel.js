@@ -16,9 +16,7 @@ describe('TSP User Checks Shipment Locations', function() {
       expect(text).to.include(address.street_1);
       expect(text).to.include(address.street_2);
       expect(text).to.include(address.street_3);
-      expect(text).to.include(
-        `${address.city}, ${address.state} ${address.postal_code}`,
-      );
+      expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
     tspUserViewsLocation({ shipmentId: 'BACON1', type: 'Pickup', expectation });
   });
@@ -35,9 +33,7 @@ describe('TSP User Checks Shipment Locations', function() {
       expect(text).to.include(address.street_1);
       expect(text).to.include(address.street_2);
       expect(text).to.include(address.street_3);
-      expect(text).to.include(
-        `${address.city}, ${address.state} ${address.postal_code}`,
-      );
+      expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
     tspUserViewsLocation({
       shipmentId: 'BACON1',
@@ -52,9 +48,7 @@ describe('TSP User Checks Shipment Locations', function() {
       postal_code: '90210',
     };
     const expectation = text => {
-      expect(text).to.equal(
-        `${address.city}, ${address.state} ${address.postal_code}`,
-      );
+      expect(text).to.equal(`${address.city}, ${address.state} ${address.postal_code}`);
     };
     tspUserViewsLocation({
       shipmentId: 'DTYSTN',

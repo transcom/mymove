@@ -11,11 +11,7 @@ export async function RetrieveShipmentsForTSP(queueType) {
     all: [],
   };
   /* eslint-disable security/detect-object-injection */
-  const status =
-    (queueType &&
-      queueToStatus[queueType] &&
-      queueToStatus[queueType].join(',')) ||
-    '';
+  const status = (queueType && queueToStatus[queueType] && queueToStatus[queueType].join(',')) || '';
   /* eslint-enable security/detect-object-injection */
   const client = await getPublicClient();
   const response = await client.apis.shipments.indexShipments({
@@ -127,10 +123,7 @@ export async function GenerateGBL(shipmentId) {
   const response = await client.apis.shipments.createGovBillOfLading({
     shipmentId: shipmentId,
   });
-  checkResponse(
-    response,
-    'failed to create government bill of lading due to server error',
-  );
+  checkResponse(response, 'failed to create government bill of lading due to server error');
   return response.body;
 }
 
@@ -140,9 +133,6 @@ export async function GetAllShipmentDocuments(shipmentId) {
   const response = await client.apis.move_docs.indexMoveDocuments({
     shipmentId,
   });
-  checkResponse(
-    response,
-    'failed to load shipment documents due to server error',
-  );
+  checkResponse(response, 'failed to load shipment documents due to server error');
   return response.body;
 }

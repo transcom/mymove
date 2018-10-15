@@ -82,10 +82,7 @@ DatesSummary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const props = {
-    moveDates: selectMoveDatesSummary(
-      state,
-      `${ownProps.match.params.moveId}:${ownProps.moveDate}`,
-    ),
+    moveDates: selectMoveDatesSummary(state, `${ownProps.match.params.moveId}:${ownProps.moveDate}`),
   };
   return props;
 }
