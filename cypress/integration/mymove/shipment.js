@@ -93,14 +93,23 @@ describe('completing the hhg flow', function() {
     cy.nextPage();
 
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-form/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-weight/);
     });
 
-    // Weights
+    // Weight
     cy
       .get('input[name="weight_estimate"]')
       .clear()
-      .type('3000')
+      .type('3000');
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-progear/);
+    });
+
+    // Progear Weights
+    cy
       .get('input[name="progear_weight_estimate"]')
       .clear()
       .type('250')
