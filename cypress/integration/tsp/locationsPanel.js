@@ -53,6 +53,7 @@ describe('TSP User Checks Shipment Locations', function() {
     const expectation = text => {
       expect(text).to.equal(`${address.city}, ${address.state} ${address.postal_code}`);
     };
+
     tspUserViewsLocation({
       shipmentId: 'DTYSTN',
       type: 'Delivery',
@@ -138,7 +139,7 @@ function tspUserEntersLocations() {
     .siblings()
     .click();
 
-  // Enter details in form and save dates
+  // Enter details in form and save locations
   cy.get('input[name="pickupAddress.street_address_1"]')
     .first()
     .clear()
@@ -227,11 +228,7 @@ function tspUserEntersLocations() {
         .should($div => {
           const text = $div.text();
           expect(text).to.include(deliveryAddress.street_1);
-          expect(text).to.include(
-            `${deliveryAddress.city}, ${deliveryAddress.state} ${
-              deliveryAddress.postal_code
-            }`,
-          );
+          expect(text).to.include(`${deliveryAddress.city}, ${deliveryAddress.state} ${deliveryAddress.postal_code}`);
         });
     });
 
@@ -245,11 +242,7 @@ function tspUserEntersLocations() {
         .should($div => {
           const text = $div.text();
           expect(text).to.include(pickupAddress.street_1);
-          expect(text).to.include(
-            `${pickupAddress.city}, ${pickupAddress.state} ${
-              pickupAddress.postal_code
-            }`,
-          );
+          expect(text).to.include(`${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code}`);
         });
     });
 
@@ -264,9 +257,7 @@ function tspUserEntersLocations() {
           const text = $div.text();
           expect(text).to.include(secondaryPickupAddress.street_1);
           expect(text).to.include(
-            `${secondaryPickupAddress.city}, ${secondaryPickupAddress.state} ${
-              secondaryPickupAddress.postal_code
-            }`,
+            `${secondaryPickupAddress.city}, ${secondaryPickupAddress.state} ${secondaryPickupAddress.postal_code}`,
           );
         });
     });

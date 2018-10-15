@@ -345,19 +345,6 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	if payload.ActualDeliveryDate != nil {
 		shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
 	}
-	//
-	// if payload.DeliveryAddress != nil {
-	// 	shipment.DeliveryAddress = payload.DeliveryAddress
-	// 	shipment.HasDeliveryAddress = true
-	// }
-	// if payload.PickupAddress != nil {
-	// 	shipment.PickupAddress = payload.PickupAddress
-	// }
-	//
-	// if payload.SecondaryPickupAddress != nil {
-	// 	shipment.SecondaryPickupAddress = payload.SecondaryPickupAddress
-	// 	shipment.HasSecondaryPickupAddress = true
-	// }
 
 	if payload.PickupAddress != nil {
 		if shipment.PickupAddress == nil {

@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import Locations from './Locations';
-import { patchShipment } from './ducks';
 import { getFormValues } from 'redux-form';
 
 const mapStateToProps = (state, ownProps) => {

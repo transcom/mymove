@@ -76,7 +76,6 @@ export async function DeliverShipment(shipmentId, payload) {
 }
 
 export async function PatchShipment(shipmentId, shipment) {
-  debugger;
   const client = await getPublicClient();
   const payloadDef = client.spec.definitions.Shipment;
   const response = await client.apis.shipments.patchShipment({
