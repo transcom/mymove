@@ -1,121 +1,68 @@
 package dpsauth
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
-	"encoding/base64"
-	"encoding/json"
-	"io"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 )
 
-const cookieExpiresInHours = 8
+var cookieExpiresInMinutes = initCookieExpiration()
+var secretKey = initKey()
+
 const prefix = "mymove-"
 
 // UserIDToCookie takes the UUID of the current user and returns the cookie value.
 func UserIDToCookie(userID string) (string, error) {
-	expirationTime := time.Now().Add(time.Hour * time.Duration(cookieExpiresInHours)).Unix()
-	value := map[string]string{
-		"user_id":    userID,
-		"expires_at": strconv.FormatInt(expirationTime, 10),
-	}
-
-	valueJSON, err := json.Marshal(value)
+	expiration, err := strconv.Atoi(cookieExpiresInMinutes)
 	if err != nil {
-		return "", errors.Wrap(err, "Marshaling the cookie JSON")
+		return "", errors.Wrap(err, "Converting DPS_COOKIE_EXPIRES_IN_MINUTES to int")
+	}
+	expirationTime := time.Now().Add(time.Minute * time.Duration(expiration)).Unix()
+
+	claims := &jwt.StandardClaims{
+		Subject:   userID,
+		ExpiresAt: expirationTime,
 	}
 
-	encrypted, err := encrypt(valueJSON)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	jwt, err := token.SignedString(secretKey)
 	if err != nil {
-		return "", errors.Wrap(err, "Encrypting the cookie")
+		return "", errors.Wrap(err, "Signing JWT")
 	}
-
-	return prefix + encrypted, nil
+	return prefix + jwt, nil
 }
 
 // CookieToUserID takes a cookie value and returns the user's UUID only if it's a
 // valid, unexpired cookie.
-func CookieToUserID(token string) (string, error) {
-	if !strings.HasPrefix(token, prefix) {
+func CookieToUserID(cookieValue string) (string, error) {
+	if !strings.HasPrefix(cookieValue, prefix) {
 		return "", errors.New("Invalid cookie: missing prefix")
 	}
+	token, err := jwt.ParseWithClaims(cookieValue[len(prefix):], &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
 
-	decryptedToken, err := decrypt(token[len(prefix):])
-	if err != nil {
-		return "", errors.Wrap(err, "Decrypting the cookie")
+	if err != nil || token == nil || !token.Valid {
+		return "", errors.Wrap(err, "Failed token validation")
 	}
 
-	var values map[string]string
-	err = json.Unmarshal(decryptedToken, &values)
-	if err != nil {
-		return "", errors.Wrap(err, "Unmarshaling the cookie JSON")
-	}
+	claims := token.Claims.(*jwt.StandardClaims)
 
-	expiresAt, err := strconv.ParseInt(values["expires_at"], 10, 64)
-	if err != nil {
-		return "", errors.Wrap(err, "Converting cookie expiration time to int")
-	}
-
-	if time.Now().Unix() > expiresAt {
+	if time.Now().Unix() > claims.ExpiresAt {
 		return "", errors.New("Cookie is expired")
 	}
 
-	return values["user_id"], nil
+	return claims.Subject, nil
 }
 
-func encrypt(data []byte) (string, error) {
-	key := getKey()
-	c, err := aes.NewCipher([]byte(key))
-	if err != nil {
-		return "", errors.Wrap(err, "Creating a new cipher using the key")
-	}
-
-	gcm, err := cipher.NewGCM(c)
-	if err != nil {
-		return "", errors.Wrap(err, "NewGCM call")
-	}
-
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", err
-	}
-
-	encoded := gcm.Seal(nonce, nonce, data, nil)
-
-	// Use base64 URL encoding since this will be passed back as an API param
-	return base64.RawURLEncoding.EncodeToString(encoded), nil
+func initCookieExpiration() string {
+	return os.Getenv("DPS_COOKIE_EXPIRES_IN_MINUTES")
 }
 
-func decrypt(data string) ([]byte, error) {
-	key := getKey()
-	var plaintext []byte
-	c, err := aes.NewCipher([]byte(key))
-	if err != nil {
-		return plaintext, err
-	}
-	gcm, err := cipher.NewGCM(c)
-	if err != nil {
-		return plaintext, err
-	}
-	dataBytes, err := base64.RawURLEncoding.DecodeString(data)
-	if err != nil {
-		return plaintext, err
-	}
-	nonceSize := gcm.NonceSize()
-	nonce, cipher := dataBytes[:nonceSize], dataBytes[nonceSize:]
-	plaintext, err = gcm.Open(nil, nonce, cipher, nil)
-	if err != nil {
-		return plaintext, err
-	}
-	return plaintext, nil
-}
-
-func getKey() string {
-	return os.Getenv("DPS_AUTH_COOKIE_SECRET_KEY")
+func initKey() []byte {
+	return []byte(os.Getenv("DPS_AUTH_COOKIE_SECRET_KEY"))
 }

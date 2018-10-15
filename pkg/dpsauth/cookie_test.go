@@ -13,10 +13,11 @@ type dpsAuthSuite struct {
 	suite.Suite
 }
 
-func (suite *dpsAuthSuite) SetupTest() {
+func (suite *dpsAuthSuite) SetupSuite() {
 	key := os.Getenv("DPS_AUTH_COOKIE_SECRET_KEY")
-	if len(key) == 0 {
-		suite.T().Fatal("You must set the DPS_AUTH_COOKIE_SECRET_KEY environment variable to run this test")
+	exp := os.Getenv("DPS_COOKIE_EXPIRES_IN_MINUTES")
+	if len(key) == 0 || len(exp) == 0 {
+		suite.T().Fatal("You must set the DPS_AUTH_COOKIE_SECRET_KEY and DPS_COOKIE_EXPIRES_IN_MINUTES environment variables to run this test")
 	}
 }
 

@@ -41,7 +41,7 @@ func getPayload(userID string) *dpsmessages.AuthenticationUserPayload {
 		LastName:             "Doe",
 		Suffix:               &suffix,
 		LoginGovID:           strfmt.UUID(userID),
-		SocialSecurityNumber: "555-55-5555",
+		SocialSecurityNumber: "666555555",
 		Telephone:            &telephone,
 	}
 	return &payload
