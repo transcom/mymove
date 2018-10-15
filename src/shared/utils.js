@@ -102,9 +102,3 @@ export function renderStatusIcon(status) {
     );
   }
 }
-
-export function hasGBLDocument(shipmentDocuments) {
-  return find(shipmentDocuments, { move_document_type: 'GOV_BILL_OF_LADING' })
-    ? true
-    : false;
-}
