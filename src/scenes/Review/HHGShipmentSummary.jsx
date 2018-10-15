@@ -23,17 +23,16 @@ export default function HHGShipmentSummary(props) {
         <img src={truckIcon} alt="PPM shipment" /> Shipment - Government moves all of your stuff (HHG)
       </h3>
       <div className="usa-width-one-half review-section ppm-review-section">
+        <p className="heading">
+          Move Dates
+          <span className="edit-section-link">
+            {' '}
+            <Link to={editDatePath}>Edit</Link>
+          </span>
+        </p>
+
         <table>
           <tbody>
-            <tr>
-              <th>
-                Move Dates
-                <span className="edit-section-link">
-                  {' '}
-                  <Link to={editDatePath}>Edit</Link>
-                </span>
-              </th>
-            </tr>
             <tr>
               <td>Movers Packing: </td>
               <td className="Todo-phase2">TODO</td>
@@ -55,17 +54,16 @@ export default function HHGShipmentSummary(props) {
 
         <p>Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.</p>
 
+        <p className="heading">
+          Your Stuff
+          <span className="edit-section-link">
+            {' '}
+            <Link to={editWeightsPath}>Edit</Link>
+          </span>
+        </p>
+
         <table>
           <tbody>
-            <tr>
-              <th>
-                Your Stuff
-                <span className="edit-section-link">
-                  {' '}
-                  <Link to={editWeightsPath}>Edit</Link>
-                </span>
-              </th>
-            </tr>
             <tr>
               <td>Weight Estimate:</td>
               <td>
@@ -80,18 +78,17 @@ export default function HHGShipmentSummary(props) {
           </tbody>
         </table>
       </div>
+
       <div className="usa-width-one-half review-section ppm-review-section">
+        <p className="heading">
+          Pickup &amp; Delivery Locations
+          <span className="edit-section-link">
+            {' '}
+            <Link to={editLocationsPath}>Edit</Link>
+          </span>
+        </p>
         <table>
           <tbody>
-            <tr>
-              <th>
-                Pickup &amp; Delivery Locations
-                <span className="edit-section-link">
-                  {' '}
-                  <Link to={editLocationsPath}>Edit</Link>
-                </span>
-              </th>
-            </tr>
             <tr>
               <td>Pickup Address:</td>
               <td>

@@ -4,8 +4,11 @@
 
 .review-content {
   border-top: 1px solid black;
-  border-bottom: 1px solid black;
   padding-bottom: 2.5rem;
+}
+
+.review-section {
+  padding-top: 1.5rem;
 }
 
 .review-section table {
@@ -13,16 +16,15 @@
   text-align: left;
   border-collapse: collapse;
   width: 100%;
-  margin: 1.5rem 0rem 0rem 0rem;
   table-layout: fixed;
 }
 
-.review-section th {
+.review-section .heading {
   font-weight: bold;
   border: 0px;
   text-align: left;
-  padding: 1.5rem 0rem 1rem 0rem;
-  width: 50%;
+  padding: 0;
+  margin-bottom: 0.5rem;
 }
 
 .review-section tr {
@@ -35,12 +37,14 @@
   text-align: left;
   vertical-align: top;
   padding: 0.2rem 0rem 0.2rem 0rem;
-  width: 50%;
+  width: 60%;
 }
 
 .review-section td:first-child {
   color: grey;
   border: 0px;
+  width: 40%;
+  padding-right: 1em;
 }
 
 .edit-section-link a {
@@ -65,7 +69,7 @@
 }
 
 .ppm-review-section {
-  padding: 2.5rem;
+  padding: 1rem 2.5rem 2.5rem;
 }
 
 .review-todo {

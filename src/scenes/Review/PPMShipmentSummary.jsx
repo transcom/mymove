@@ -27,16 +27,15 @@ export default function PPMShipmentSummary(props) {
         <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff (PPM)
       </h3>
       <div className="usa-width-one-half review-section ppm-review-section">
+        <p className="heading">
+          Dates & Locations
+          <span className="edit-section-link">
+            <Link to={editDateAndLocationAddress}>Edit</Link>
+          </span>
+        </p>
+
         <table>
           <tbody>
-            <tr>
-              <th>
-                Dates & Locations
-                <span className="edit-section-link">
-                  <Link to={editDateAndLocationAddress}>Edit</Link>
-                </span>
-              </th>
-            </tr>
             <tr>
               <td> Move Date: </td>
               <td>{formatDateSM(get(ppm, 'planned_move_date'))}</td>
@@ -62,17 +61,17 @@ export default function PPMShipmentSummary(props) {
           </tbody>
         </table>
       </div>
+
       <div className="usa-width-one-half review-section ppm-review-section">
+        <p className="heading">
+          Weight
+          <span className="edit-section-link">
+            <Link to={editWeightAddress}>Edit</Link>
+          </span>
+        </p>
+
         <table>
           <tbody>
-            <tr>
-              <th>
-                Weight
-                <span className="edit-section-link">
-                  <Link to={editWeightAddress}>Edit</Link>
-                </span>
-              </th>
-            </tr>
             <tr>
               <td> Estimated Weight: </td>
               <td> {ppm && ppm.weight_estimate.toLocaleString()} lbs</td>
@@ -95,6 +94,6 @@ export default function PPMShipmentSummary(props) {
 }
 
 PPMShipmentSummary.propTypes = {
-  ppm: PropTypes.object.required,
-  movePath: PropTypes.string.required,
+  ppm: PropTypes.object.isRequired,
+  movePath: PropTypes.string.isRequired,
 };

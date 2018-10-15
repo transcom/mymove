@@ -111,16 +111,14 @@ export class Summary extends Component {
         <h3>Profile and Orders</h3>
         <div className="usa-grid-full review-content">
           <div className="usa-width-one-half review-section">
+            <p className="heading">
+              Profile
+              <span className="edit-section-link">
+                <Link to={editProfileAddress}>Edit</Link>
+              </span>
+            </p>
             <table>
               <tbody>
-                <tr>
-                  <th>
-                    Profile
-                    <span className="edit-section-link">
-                      <Link to={editProfileAddress}>Edit</Link>
-                    </span>
-                  </th>
-                </tr>
                 <tr>
                   <td> Name: </td>
                   <td>{getFullName()}</td>
@@ -144,69 +142,68 @@ export class Summary extends Component {
               </tbody>
             </table>
             {!lastMoveIsCanceled && (
-              <table>
-                <tbody>
-                  <tr>
-                    <th>
-                      Orders
-                      {moveIsApproved && '*'}
-                      {!moveIsApproved && (
-                        <span className="edit-section-link">
-                          <Link to={editOrdersAddress}>Edit</Link>
-                        </span>
+              <Fragment>
+                <p className="heading">
+                  Orders
+                  {moveIsApproved && '*'}
+                  {!moveIsApproved && (
+                    <span className="edit-section-link">
+                      <Link to={editOrdersAddress}>Edit</Link>
+                    </span>
+                  )}
+                </p>
+
+                <table>
+                  <tbody>
+                    <tr>
+                      <td> Orders Type: </td>
+                      <td>{get(schemaOrdersType['x-display-value'], get(currentOrders, 'orders_type'))}</td>
+                    </tr>
+                    <tr>
+                      <td> Orders Date: </td>
+                      <td> {formatDateSM(get(currentOrders, 'issue_date'))}</td>
+                    </tr>
+                    <tr>
+                      <td> Report-by Date: </td>
+                      <td>{formatDateSM(get(currentOrders, 'report_by_date'))}</td>
+                    </tr>
+                    <tr>
+                      <td> New Duty Station: </td>
+                      <td> {get(currentOrders, 'new_duty_station.name')}</td>
+                    </tr>
+                    <tr>
+                      <td> Dependents?: </td>
+                      <td> {currentOrders && yesNoMap[get(currentOrders, 'has_dependents').toString()]}</td>
+                    </tr>
+                    {currentOrders &&
+                      get(currentOrders, 'spouse_has_pro_gear') && (
+                        <tr>
+                          <td> Spouse Pro Gear?: </td>
+                          <td>{currentOrders && yesNoMap[get(currentOrders, 'spouse_has_pro_gear').toString()]}</td>
+                        </tr>
                       )}
-                    </th>
-                  </tr>
-                  <tr>
-                    <td> Orders Type: </td>
-                    <td>{get(schemaOrdersType['x-display-value'], get(currentOrders, 'orders_type'))}</td>
-                  </tr>
-                  <tr>
-                    <td> Orders Date: </td>
-                    <td> {formatDateSM(get(currentOrders, 'issue_date'))}</td>
-                  </tr>
-                  <tr>
-                    <td> Report-by Date: </td>
-                    <td>{formatDateSM(get(currentOrders, 'report_by_date'))}</td>
-                  </tr>
-                  <tr>
-                    <td> New Duty Station: </td>
-                    <td> {get(currentOrders, 'new_duty_station.name')}</td>
-                  </tr>
-                  <tr>
-                    <td> Dependents?: </td>
-                    <td> {currentOrders && yesNoMap[get(currentOrders, 'has_dependents').toString()]}</td>
-                  </tr>
-                  {currentOrders &&
-                    get(currentOrders, 'spouse_has_pro_gear') && (
-                      <tr>
-                        <td> Spouse Pro Gear?: </td>
-                        <td>{currentOrders && yesNoMap[get(currentOrders, 'spouse_has_pro_gear').toString()]}</td>
-                      </tr>
-                    )}
-                  <tr>
-                    <td> Orders Uploaded: </td>
-                    <td>
-                      {get(currentOrders, 'uploaded_orders.uploads') &&
-                        get(currentOrders, 'uploaded_orders.uploads').length}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    <tr>
+                      <td> Orders Uploaded: </td>
+                      <td>
+                        {get(currentOrders, 'uploaded_orders.uploads') &&
+                          get(currentOrders, 'uploaded_orders.uploads').length}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Fragment>
             )}
           </div>
 
           <div className="usa-width-one-half review-section">
+            <p className="heading">
+              Contact Info
+              <span className="edit-section-link">
+                <Link to={editContactInfoAddress}>Edit</Link>
+              </span>
+            </p>
             <table>
               <tbody>
-                <tr>
-                  <th>
-                    Contact Info
-                    <span className="edit-section-link">
-                      <Link to={editContactInfoAddress}>Edit</Link>
-                    </span>
-                  </th>
-                </tr>
                 <tr>
                   <td> Best Contact Phone: </td>
                   <td>{get(serviceMember, 'telephone')}</td>
@@ -238,33 +235,33 @@ export class Summary extends Component {
               </tbody>
             </table>
             {currentBackupContacts.map(contact => (
-              <table key={contact.id}>
-                <tbody>
-                  <tr>
-                    <th>
-                      Backup Contact Info
-                      <span className="edit-section-link">
-                        <Link to={editBackupContactAddress}>Edit</Link>
-                      </span>
-                    </th>
-                  </tr>
-                  <tr>
-                    <td> Backup Contact: </td>
-                    <td>
-                      {contact.name} <br />
-                      {/* getFullBackupPermission(contact) */}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td> Email: </td>
-                    <td> {contact.email} </td>
-                  </tr>
-                  <tr>
-                    <td> Phone: </td>
-                    <td> {contact.telephone}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <Fragment key={contact.id}>
+                <p className="heading">
+                  Backup Contact Info
+                  <span className="edit-section-link">
+                    <Link to={editBackupContactAddress}>Edit</Link>
+                  </span>
+                </p>
+                <table key={contact.id}>
+                  <tbody>
+                    <tr>
+                      <td> Backup Contact: </td>
+                      <td>
+                        {contact.name} <br />
+                        {/* getFullBackupPermission(contact) */}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td> Email: </td>
+                      <td> {contact.email} </td>
+                    </tr>
+                    <tr>
+                      <td> Phone: </td>
+                      <td> {contact.telephone}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Fragment>
             ))}
           </div>
         </div>
