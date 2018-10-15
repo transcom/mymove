@@ -6,6 +6,7 @@ import { reduxForm, FormSection, getFormValues } from 'redux-form';
 
 import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { formatDate } from 'shared/formatters';
 
 const datesFields = [
   'pm_survey_conducted_date',
@@ -26,6 +27,9 @@ const DatesDisplay = props => {
     schema: props.shipmentSchema,
     values: props.shipment,
   };
+  // RDD is the best known date, so it prefers actual over planned over original.
+  // TODO: cgilmer 2018/10/15 add `|| props.shipment.original_delivery_date` to this line
+  const rdd = props.shipment.actual_delivery_date || props.shipment.pm_survey_planned_delivery_date;
   return (
     <Fragment>
       <div className="editable-panel-column">
@@ -46,7 +50,8 @@ const DatesDisplay = props => {
         <PanelField title="Original" value="TODO" />
         <PanelSwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
-        <PanelField title="Current RDD" value="TODO" />
+        {/* TODO: cgilmer 2018/10/15 - replace ORIGINAL with original_delivery_date */}
+        <PanelField title="Current RDD" value={(rdd && formatDate(rdd)) || 'ORIGINAL'} />
         <PanelSwaggerField fieldName="pm_survey_notes" required title="Notes about dates" {...fieldProps} />
       </div>
     </Fragment>
