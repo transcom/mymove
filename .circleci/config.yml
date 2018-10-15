@@ -64,7 +64,7 @@ commands:
       - setup_remote_docker
       - deploy:
           name: Deploy app-client-tls service
-          command: deploy-${APP_ENVIRONMENT} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          command: bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
       - health_check_tls:
           url: << parameters.health_check_url >>
       - announce_failure
