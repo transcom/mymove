@@ -50,14 +50,3 @@ span.estimate {
   background-color: #000000;
   border-radius: 0;
 }
-
-.legend-square {
-  font-size: 1rem;
-  width: 22px;
-  height: 22px;
-  display: inline-block;
-}
-
-.legend-label {
-  padding-left: 0;
-}

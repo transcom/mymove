@@ -14,6 +14,7 @@ import DatesSummary from 'scenes/Moves/Hhg/DatesSummary.jsx';
 
 import './DatePicker.css';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 
 const getRequestLabel = 'DatePicker.getMoveDatesSummary';
 
@@ -91,12 +92,12 @@ export class HHGDatePicker extends Component {
   render() {
     const availableMoveDates = this.props.availableMoveDates;
     const parsedSelectedDay = parseSwaggerDate(this.state.selectedDay);
+    const entitlementSum = get(this.props, 'entitlement.sum');
     return (
       <div className="form-section">
-        <h3 className="instruction-heading">Great! Let's find a date for a moving company to move your stuff.</h3>
         {availableMoveDates ? (
           <div className="usa-grid">
-            <h4>Select a move date</h4>
+            <h4 className="instruction-heading">Pick a moving date.</h4>
             <div className="usa-width-one-third">
               <DayPicker
                 onDayClick={this.handleDayClick}
@@ -107,7 +108,6 @@ export class HHGDatePicker extends Component {
                 showOutsideDays
               />
             </div>
-
             <div className="usa-width-two-thirds">
               {this.state.selectedDay && <DatesSummary moveDates={this.props.moveDates} />}
             </div>
@@ -115,6 +115,20 @@ export class HHGDatePicker extends Component {
         ) : (
           <LoadingPlaceholder />
         )}
+        <div className="usa-grid entitlement-alert">
+          <div className="usa-width-one-whole">
+            <p>Can't find a date that works? Talk with a move counselor in your local Transportation office (PPPO).</p>
+            {entitlementSum ? (
+              <div className="days-for-pounds">
+                * It takes 1 day for every 5,000 lbs of stuff movers need to pack. You have an allowance of{' '}
+                {entitlementSum.toLocaleString()} lbs, so we estimate it will take {Math.ceil(entitlementSum / 5000)}{' '}
+                days to pack.
+              </div>
+            ) : (
+              <LoadingPlaceholder />
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -132,6 +146,7 @@ function mapStateToProps(state, ownProps) {
   return {
     moveDates: moveDates,
     modifiers: createModifiers(moveDates),
+    entitlement: loadEntitlementsFromState(state),
   };
 }
 
