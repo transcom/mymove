@@ -252,6 +252,46 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 	return shipmentop.NewTransportShipmentOK().WithPayload(sp)
 }
 
+// PackShipmentHandler allows a TSP to set actual pack date for a particular shipment
+type PackShipmentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h PackShipmentHandler) Handle(params shipmentop.PackShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewPackShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewPackShipmentBadRequest()
+	}
+
+	actualPackDate := (time.Time)(*params.Payload.ActualPackDate)
+
+	err = shipment.Pack(actualPackDate)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewPackShipmentOK().WithPayload(sp)
+}
+
 // DeliverShipmentHandler allows a TSP to start transporting a particular shipment
 type DeliverShipmentHandler struct {
 	handlers.HandlerContext

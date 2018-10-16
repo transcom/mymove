@@ -31,6 +31,7 @@ import {
   generateGBL,
   rejectShipment,
   transportShipment,
+  packShipment,
   deliverShipment,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
@@ -91,6 +92,23 @@ let PickupDateForm = props => {
 
 PickupDateForm = reduxForm({ form: 'pickup_shipment' })(PickupDateForm);
 
+let PackDateForm = props => {
+  const { schema, onCancel, handleSubmit, submitting, valid } = props;
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <SwaggerField fieldName="actual_pack_date" swagger={schema} required />
+
+      <button onClick={onCancel}>Cancel</button>
+      <button type="submit" disabled={submitting || !valid}>
+        Done
+      </button>
+    </form>
+  );
+};
+
+PackDateForm = reduxForm({ form: 'pack_date_shipment' })(PackDateForm);
+
 let DeliveryDateForm = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
@@ -134,7 +152,7 @@ class ShipmentInfo extends Component {
 
   pickupShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
-  deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
+  packShipment = values => this.props.packShipment(this.props.shipment.id, values);
 
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
@@ -177,18 +195,29 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>GBL# {gbl}&nbsp;</li>
-              <li>Locator# {move.locator}&nbsp;</li>
+              <li>
+                GBL# {gbl}
+                &nbsp;
+              </li>
+              <li>
+                Locator# {move.locator}
+                &nbsp;
+              </li>
               <li>
                 {this.props.shipment.source_gbloc} to {this.props.shipment.destination_gbloc}
                 &nbsp;
               </li>
-              <li>DoD ID# {serviceMember.edipi}&nbsp;</li>
+              <li>
+                DoD ID# {serviceMember.edipi}
+                &nbsp;
+              </li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />
                 )}
+                {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
                 {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
                 &nbsp;
@@ -227,6 +256,14 @@ class ShipmentInfo extends Component {
                   acceptShipment={this.acceptShipment}
                   rejectShipment={this.rejectShipment}
                   shipmentStatus={this.props.shipment.status}
+                />
+              )}
+              {approved && (
+                <FormButton
+                  FormComponent={PackDateForm}
+                  schema={this.props.packSchema}
+                  onSubmit={this.packShipment}
+                  buttonTitle="Enter Packing"
                 />
               )}
               {approved && (
@@ -308,6 +345,7 @@ const mapStateToProps = state => {
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
+    packSchema: get(state, 'swaggerPublic.spec.definitions.ActualPackDate', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
 };
@@ -321,6 +359,7 @@ const mapDispatchToProps = dispatch =>
       generateGBL,
       rejectShipment,
       transportShipment,
+      packShipment,
       deliverShipment,
       getAllShipmentDocuments,
     },

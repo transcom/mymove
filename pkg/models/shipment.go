@@ -172,6 +172,15 @@ func (s *Shipment) Transport(actualPickupDate time.Time) error {
 	return nil
 }
 
+// Pack updates the Shipment actual pack date. Must be in an Approved state.
+func (s *Shipment) Pack(actualPackDate time.Time) error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "In Transit")
+	}
+	s.ActualPackDate = &actualPackDate
+	return nil
+}
+
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
 func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	if s.Status != ShipmentStatusINTRANSIT {
