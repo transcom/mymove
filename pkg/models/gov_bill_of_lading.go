@@ -126,8 +126,8 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 	var gbl GovBillOfLadingExtractor
 	sql := `SELECT
 				-- TODO use new GBL number
-				'ABC123456' AS gbl_number_1,
-				'ABC123456' AS gbl_number_2,
+				s.gbl_number AS gbl_number_1,
+				s.gbl_number AS gbl_number_2,
 				s.book_date AS date_issued,
 				s.pm_survey_planned_pack_date AS requested_pack_date,
 				s.pm_survey_planned_pickup_date AS requested_pickup_date,

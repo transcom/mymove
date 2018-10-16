@@ -117,6 +117,14 @@ func FmtString(s string) *string {
 	return &s
 }
 
+// FmtStringPtr converts pop type to go-swagger type
+func FmtStringPtr(s *string) *string {
+	if s == nil {
+		return nil
+	}
+	return FmtString(*s)
+}
+
 // FmtSSN converts pop type to go-swagger type
 func FmtSSN(s string) *strfmt.SSN {
 	ssn := strfmt.SSN(s)
