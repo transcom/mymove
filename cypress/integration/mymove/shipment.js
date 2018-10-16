@@ -42,8 +42,9 @@ describe('completing the hhg flow', function() {
           .should('have.class', 'DayPicker-Day--selected');
       });
 
-    // Check for calendar move dates summary
+    // Check for calendar move dates summary and color-coding of calendar.
     cy.contains('Movers Packing');
+    cy.get('.DayPicker-Day.DayPicker-Day--pickup');
     cy.nextPage();
 
     cy.location().should(loc => {
@@ -93,14 +94,23 @@ describe('completing the hhg flow', function() {
     cy.nextPage();
 
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-form/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-weight/);
     });
 
-    // Weights
+    // Weight
     cy
       .get('input[name="weight_estimate"]')
       .clear()
-      .type('3000')
+      .type('3000');
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-progear/);
+    });
+
+    // Progear Weights
+    cy
       .get('input[name="progear_weight_estimate"]')
       .clear()
       .type('250')
