@@ -1,19 +1,40 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { DayPicker } from 'react-day-picker';
+import { withRouter } from 'react-router-dom';
+import { get } from 'lodash';
 import 'react-day-picker/lib/style.css';
 import moment from 'moment';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
+import { bindActionCreators } from 'redux';
+import { getMoveDatesSummary } from 'shared/Entities/modules/moves';
+import DatesSummary from 'scenes/Moves/Hhg/DatesSummary.jsx';
+
 import './DatePicker.css';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
+const getRequestLabel = 'DatePicker.getMoveDatesSummary';
+
 export class HHGDatePicker extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedDay: null,
+    };
+  }
+
   handleDayClick = (day, { disabled }) => {
     if (disabled) {
       return;
     }
+    const moveDate = day.toISOString().split('T')[0];
     this.props.input.onChange(formatSwaggerDate(day));
+    this.props.getMoveDatesSummary(getRequestLabel, this.props.match.params.moveId, moveDate);
+    this.setState({
+      selectedDay: moveDate,
+    });
   };
 
   isDayDisabled = day => {
@@ -23,77 +44,50 @@ export class HHGDatePicker extends Component {
     }
 
     const momentDay = moment(day);
-    if (
-      momentDay.isBefore(availableMoveDates.minDate, 'day') ||
-      momentDay.isAfter(availableMoveDates.maxDate, 'day')
-    ) {
+    if (momentDay.isBefore(availableMoveDates.minDate, 'day') || momentDay.isAfter(availableMoveDates.maxDate, 'day')) {
       return true;
     }
 
-    return !availableMoveDates.available.find(element =>
-      momentDay.isSame(element, 'day'),
-    );
+    return !availableMoveDates.available.find(element => momentDay.isSame(element, 'day'));
   };
 
+  componentDidUpdate(prevProps) {
+    if (this.props.currentShipment !== prevProps.currentShipment && this.props.currentShipment.requested_pickup_date) {
+      this.props.getMoveDatesSummary(
+        getRequestLabel,
+        this.props.match.params.moveId,
+        this.props.currentShipment.requested_pickup_date,
+      );
+      this.setState({
+        selectedDay: this.props.input.value || this.props.currentShipment.requested_pickup_date,
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.setState({
+      selectedDay: this.props.input.value || get(this.props, 'currentShipment.requested_pickup_date'),
+    });
+  }
+
   render() {
-    const selectedDay = this.props.input.value;
     const availableMoveDates = this.props.availableMoveDates;
     return (
       <div className="form-section">
-        <h3 className="instruction-heading">
-          Great! Let's find a date for a moving company to move your stuff.
-        </h3>
+        <h3 className="instruction-heading">Great! Let's find a date for a moving company to move your stuff.</h3>
         {availableMoveDates ? (
           <div className="usa-grid">
             <h4>Select a move date</h4>
             <div className="usa-width-one-third">
               <DayPicker
                 onDayClick={this.handleDayClick}
-                selectedDays={parseSwaggerDate(selectedDay)}
+                selectedDays={parseSwaggerDate(this.state.selectedDay)}
                 disabledDays={this.isDayDisabled}
               />
             </div>
 
             <div className="usa-width-two-thirds">
-              {selectedDay && (
-                <table className="Todo-phase2">
-                  <tbody>
-                    <tr>
-                      <th className="Todo-phase2">
-                        Preferred Moving Dates Summary
-                      </th>
-                    </tr>
-                    <tr>
-                      <td>Movers Packing</td>
-                      <td className="Todo-phase2">
-                        Wed, June 6 - Thur, June 7{' '}
-                        <span className="estimate">*estimated</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Movers Loading Truck</td>
-                      <td className="Todo-phase2">Fri, June 8</td>
-                    </tr>
-                    <tr>
-                      <td>Moving Truck in Transit</td>
-                      <td className="Todo-phase2">
-                        Fri, June 8 - Mon, June 11
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Movers Delivering</td>
-                      <td className="Todo-phase2">
-                        Tues, June 12
-                        <span className="estimate">*estimated</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Report By Date</td>
-                      <td className="Todo-phase2">Monday, July 16</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
+              {this.state.selectedDay && <DatesSummary moveDate={this.state.selectedDay} />}
             </div>
           </div>
         ) : (
@@ -106,6 +100,12 @@ export class HHGDatePicker extends Component {
 
 HHGDatePicker.propTypes = {
   input: PropTypes.object.isRequired,
+  currentShipment: PropTypes.object,
+  availableMoveDates: PropTypes.object,
 };
 
-export default HHGDatePicker;
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ getMoveDatesSummary }, dispatch);
+}
+
+export default withRouter(connect(() => ({}), mapDispatchToProps)(HHGDatePicker));

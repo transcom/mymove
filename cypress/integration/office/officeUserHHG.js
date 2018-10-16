@@ -15,6 +15,9 @@ describe('office user finds the shipment', function() {
   it('office user views completed hhg moves in queue Completed HHGs', function() {
     officeUserViewsCompletedShipment();
   });
+  it('office user approves basics for move, cannot approve HHG shipment', function() {
+    officeUserApprovesOnlyBasicsHHG();
+  });
   it('office user approves basics for move, verifies and approves HHG shipment', function() {
     officeUserApprovesHHG();
   });
@@ -131,6 +134,70 @@ function officeUserViewsAcceptedShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
+}
+
+function officeUserApprovesOnlyBasicsHHG() {
+  // Open accepted hhg queue
+  cy.visit('/queues/new');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // Find move and open it
+  cy
+    .get('div')
+    .contains('BACON6')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Approve basics
+  cy
+    .get('button')
+    .contains('Approve Basics')
+    .click();
+
+  // disabled because not on hhg tab
+  cy
+    .get('button')
+    .contains('Approve Shipment')
+    .should('be.disabled');
+  cy
+    .get('button')
+    .contains('Complete Shipments')
+    .should('be.disabled');
+
+  cy.get('.status').contains('Approved');
+
+  // Click on HHG tab
+  cy
+    .get('span')
+    .contains('HHG')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  // disabled because shipment not yet accepted
+  cy
+    .get('button')
+    .contains('Approve Shipment')
+    .should('be.disabled');
+
+  // Disabled because already approved and not delivered
+  cy
+    .get('button')
+    .contains('Approve Shipment')
+    .should('be.disabled');
+  cy
+    .get('button')
+    .contains('Complete Shipments')
+    .should('be.disabled');
+
+  cy.get('.status').contains('Awarded');
 }
 
 function officeUserApprovesHHG() {

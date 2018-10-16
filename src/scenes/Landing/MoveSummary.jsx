@@ -20,10 +20,7 @@ import { withContext } from 'shared/AppContext';
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
   const currentStation = get(profile, 'current_station');
-  const stationPhone = get(
-    currentStation,
-    'transportation_office.phone_lines.0',
-  );
+  const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
     <Fragment>
       <h2>New move</h2>
@@ -40,10 +37,8 @@ export const CanceledMoveSummary = props => {
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
                   <div>
-                    Make sure you have a copy of your move orders before you get
-                    started. Questions or need to help? Contact your local
-                    Transportation Office (PPPO) at{' '}
-                    {get(currentStation, 'name')}
+                    Make sure you have a copy of your move orders before you get started. Questions or need to help?
+                    Contact your local Transportation Office (PPPO) at {get(currentStation, 'name')}
                     {stationPhone ? ` at ${stationPhone}` : ''}.
                   </div>
                 </div>
@@ -63,12 +58,7 @@ export const DraftMoveSummary = props => {
   const { orders, profile, move, entitlement, resumeMove } = props;
   return (
     <Fragment>
-      <MoveInfoHeader
-        orders={orders}
-        profile={profile}
-        move={move}
-        entitlement={entitlement}
-      />
+      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
       <br />
       <div className="usa-width-three-fourths">
         <div className="shipment_box">
@@ -83,12 +73,10 @@ export const DraftMoveSummary = props => {
               <div className="step-contents">
                 <div className="status_box usa-width-two-thirds">
                   <div className="step">
-                    <div className="title">
-                      Next Step: Finish setting up your move
-                    </div>
+                    <div className="title">Next Step: Finish setting up your move</div>
                     <div>
-                      Questions or need help? Contact your local Transportation
-                      Office (PPPO) at {get(profile, 'current_station.name')}.
+                      Questions or need help? Contact your local Transportation Office (PPPO) at{' '}
+                      {get(profile, 'current_station.name')}.
                     </div>
                   </div>
                 </div>
@@ -118,12 +106,7 @@ export const SubmittedMoveSummary = props => {
   const { ppm, orders, profile, move, entitlement } = props;
   return (
     <Fragment>
-      <MoveInfoHeader
-        orders={orders}
-        profile={profile}
-        move={move}
-        entitlement={entitlement}
-      />
+      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
       <br />
       <div className="usa-width-three-fourths">
         <div className="shipment_box">
@@ -139,10 +122,8 @@ export const SubmittedMoveSummary = props => {
                 <div className="step">
                   <div className="title">Next Step: Awaiting approval</div>
                   <div>
-                    Your shipment is awaiting approval. This can take up to 3
-                    business days. Questions or need help? Contact your local
-                    Transportation Office (PPPO) at{' '}
-                    {profile.current_station.name}.
+                    Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help?
+                    Contact your local Transportation Office (PPPO) at {profile.current_station.name}.
                   </div>
                 </div>
               </div>
@@ -151,11 +132,7 @@ export const SubmittedMoveSummary = props => {
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
-                    <a
-                      href={ppmInfoPacket}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
                       PPM Info Packet
                     </a>
                   </div>
@@ -173,27 +150,12 @@ export const SubmittedMoveSummary = props => {
 };
 
 export const ApprovedMoveSummary = withContext(props => {
-  const {
-    ppm,
-    orders,
-    profile,
-    move,
-    entitlement,
-    requestPaymentSuccess,
-  } = props;
+  const { ppm, orders, profile, move, entitlement, requestPaymentSuccess } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
-  const moveInProgress = moment(
-    ppm.planned_move_date,
-    'YYYY-MM-DD',
-  ).isSameOrBefore();
+  const moveInProgress = moment(ppm.planned_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (
     <Fragment>
-      <MoveInfoHeader
-        orders={orders}
-        profile={profile}
-        move={move}
-        entitlement={entitlement}
-      />
+      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
       <br />
       <div className="usa-width-three-fourths">
         <div className="shipment_box">
@@ -221,17 +183,11 @@ export const ApprovedMoveSummary = withContext(props => {
                   <div className="step">
                     <div className="title">Next Step: Get ready to move</div>
                     <div>
-                      Remember to save your weight tickets and expense receipts.
-                      For more information, read the PPM info packet.
+                      Remember to save your weight tickets and expense receipts. For more information, read the PPM info
+                      packet.
                     </div>
-                    <a
-                      href={ppmInfoPacket}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <button className="usa-button-secondary">
-                        Read PPM Info Packet
-                      </button>
+                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                      <button className="usa-button-secondary">Read PPM Info Packet</button>
                     </a>
                   </div>
                 )}
@@ -239,21 +195,17 @@ export const ApprovedMoveSummary = withContext(props => {
                   <div className="step">
                     <div className="title">Your payment is in review</div>
                     <div>
-                      You will receive a notification from your destination PPPO
-                      office when it has been reviewed.
+                      You will receive a notification from your destination PPPO office when it has been reviewed.
                     </div>
                   </div>
                 ) : (
                   <div className="step">
                     <div className="title">Next Step: Request payment</div>
                     <div>
-                      Request a PPM payment, a storage payment, or an advance
-                      against your PPM payment before your move is done.
+                      Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
+                      is done.
                     </div>
-                    <Link
-                      to={`moves/${move.id}/request-payment`}
-                      className="usa-button usa-button-secondary"
-                    >
+                    <Link to={`moves/${move.id}/request-payment`} className="usa-button usa-button-secondary">
                       Request Payment
                     </Link>
                   </div>
@@ -264,11 +216,7 @@ export const ApprovedMoveSummary = withContext(props => {
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
-                    <a
-                      href={ppmInfoPacket}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
                       PPM Info Packet
                     </a>
                   </div>
@@ -293,21 +241,13 @@ const MoveDetails = props => {
   const advanceString = ppm.has_requested_advance
     ? `Advance Requested: $${formatCents(ppm.advance.requested_amount)}`
     : '';
-  const hasSitString = `Temp. Storage: ${
-    ppm.days_in_storage
-  } days ${privateStorageString}`;
+  const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
 
   return (
     <div className="titled_block">
       <div className="title">Details</div>
       <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-      <div>
-        Incentive (est.):{' '}
-        {formatCentsRange(
-          ppm.incentive_estimate_min,
-          ppm.incentive_estimate_max,
-        )}
-      </div>
+      <div>Incentive (est.): {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
     </div>
@@ -316,11 +256,7 @@ const MoveDetails = props => {
 
 const FindWeightScales = () => (
   <span>
-    <a
-      href="https://www.move.mil/resources/locator-maps"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
       Find Weight Scales
     </a>
   </span>
@@ -331,14 +267,12 @@ const MoveInfoHeader = props => {
   return (
     <Fragment>
       <h2>
-        {get(orders, 'new_duty_station.name', 'New move')} from{' '}
-        {get(profile, 'current_station.name', '')}
+        {get(orders, 'new_duty_station.name', 'New move')} from {get(profile, 'current_station.name', '')}
       </h2>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {entitlement && (
         <div>
-          Weight Entitlement:{' '}
-          <span>{entitlement.sum.toLocaleString()} lbs</span>
+          Weight Entitlement: <span>{entitlement.sum.toLocaleString()} lbs</span>
         </div>
       )}
     </Fragment>
@@ -353,32 +287,18 @@ const moveSummaryStatusComponents = {
 };
 
 export const MoveSummary = props => {
-  const {
-    profile,
-    move,
-    orders,
-    ppm,
-    editMove,
-    entitlement,
-    resumeMove,
-    reviewProfile,
-    requestPaymentSuccess,
-  } = props;
+  const { profile, move, orders, ppm, editMove, entitlement, resumeMove, reviewProfile, requestPaymentSuccess } = props;
   const move_status = get(move, 'status', 'DRAFT');
   const ppm_status = get(ppm, 'status', 'DRAFT');
   const status =
-    move_status === 'APPROVED' &&
-    (ppm_status === 'SUBMITTED' || ppm_status === 'DRAFT')
-      ? 'SUBMITTED'
-      : move_status;
+    move_status === 'APPROVED' && (ppm_status === 'SUBMITTED' || ppm_status === 'DRAFT') ? 'SUBMITTED' : move_status;
   const StatusComponent = moveSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
   return (
     <Fragment>
       {status === 'CANCELED' && (
         <Alert type="info" heading="Your move was canceled">
-          Your move from {get(profile, 'current_station.name')} to{' '}
-          {get(orders, 'new_duty_station.name')} with the move locator ID{' '}
-          {get(move, 'locator')} was canceled.
+          Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
+          locator ID {get(move, 'locator')} was canceled.
         </Alert>
       )}
 
@@ -406,15 +326,8 @@ export const MoveSummary = props => {
 
           <div className="contact_block">
             <div className="title">Contacts</div>
-            <TransportationOfficeContactInfo
-              dutyStation={profile.current_station}
-              isOrigin={true}
-            />
-            {status !== 'CANCELED' && (
-              <TransportationOfficeContactInfo
-                dutyStation={get(orders, 'new_duty_station')}
-              />
-            )}
+            <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
+            {status !== 'CANCELED' && <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />}
           </div>
         </div>
       </div>

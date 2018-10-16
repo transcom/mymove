@@ -59,21 +59,13 @@ const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
 
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
-const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
-  loadServiceMemberType,
-);
+const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(loadServiceMemberType);
 
-const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
-  updateServiceMemberType,
-);
+const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(updateServiceMemberType);
 
-const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
-  loadBackupContactType,
-);
+const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(loadBackupContactType);
 
-const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
-  updateBackupContactType,
-);
+const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
 
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
@@ -87,112 +79,59 @@ const APPROVE_HHG = ReduxHelpers.generateAsyncActionTypes(approveHHGType);
 
 const COMPLETE_HHG = ReduxHelpers.generateAsyncActionTypes(completeHHGType);
 
-const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(
-  sendHHGInvoiceType,
-);
+const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
 
-export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
-  cancelMoveType,
-);
+export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(cancelMoveType);
 
-export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
-  approveReimbursementType,
-);
+export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
 
-export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(
-  downloadPPMAttachmentsType,
-);
+export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(downloadPPMAttachmentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
-const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
-  updateBackupInfoType,
-);
+const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(updateBackupInfoType);
 
-const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(
-  updateOrdersInfoType,
-);
+const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(updateOrdersInfoType);
 
-const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
-  loadDependenciesType,
-);
+const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
 
-export const loadMove = ReduxHelpers.generateAsyncActionCreator(
-  loadMoveType,
-  LoadMove,
-);
+export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
 
-export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
-  loadOrdersType,
-  LoadOrders,
-);
+export const loadOrders = ReduxHelpers.generateAsyncActionCreator(loadOrdersType, LoadOrders);
 
-export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
-  updateOrdersType,
-  UpdateOrders,
-);
+export const updateOrders = ReduxHelpers.generateAsyncActionCreator(updateOrdersType, UpdateOrders);
 
-export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
-  patchShipmentType,
-  PatchShipment,
-);
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
-export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
-  loadServiceMemberType,
-  LoadServiceMember,
-);
+export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(loadServiceMemberType, LoadServiceMember);
 
 export const updateServiceMember = ReduxHelpers.generateAsyncActionCreator(
   updateServiceMemberType,
   UpdateServiceMember,
 );
 
-export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(
-  loadBackupContactType,
-  LoadBackupContacts,
-);
+export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(loadBackupContactType, LoadBackupContacts);
 
 export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
   updateBackupContactType,
   UpdateBackupContact,
 );
 
-export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
-  loadPPMsType,
-  LoadPPMs,
-);
+export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, LoadPPMs);
 
-export const updatePPM = ReduxHelpers.generateAsyncActionCreator(
-  updatePPMType,
-  UpdatePpm,
-);
+export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
 
-export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
-  approveBasicsType,
-  ApproveBasics,
-);
+export const approveBasics = ReduxHelpers.generateAsyncActionCreator(approveBasicsType, ApproveBasics);
 
-export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
-  approvePPMType,
-  ApprovePPM,
-);
+export const approvePPM = ReduxHelpers.generateAsyncActionCreator(approvePPMType, ApprovePPM);
 
-export const approveHHG = ReduxHelpers.generateAsyncActionCreator(
-  approveHHGType,
-  ApproveHHG,
-);
+export const approveHHG = ReduxHelpers.generateAsyncActionCreator(approveHHGType, ApproveHHG);
 
-export const completeHHG = ReduxHelpers.generateAsyncActionCreator(
-  completeHHGType,
-  CompleteHHG,
-);
+export const completeHHG = ReduxHelpers.generateAsyncActionCreator(completeHHGType, CompleteHHG);
 
-export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(
-  sendHHGInvoiceType,
-  SendHHGInvoice,
-);
+export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
   approveReimbursementType,
@@ -209,10 +148,7 @@ export const cancelMove = (moveId, changeReason) => {
   return async function(dispatch, getState) {
     dispatch(actions.start());
     return CancelMove(moveId, changeReason)
-      .then(
-        item => dispatch(actions.success(item)),
-        error => dispatch(actions.error(error)),
-      )
+      .then(item => dispatch(actions.success(item)), error => dispatch(actions.error(error)))
       .then(() => {
         setTimeout(() => dispatch(removeBanner()), 10000);
       });
@@ -231,20 +167,13 @@ export const removeBanner = () => {
 // perform their work and exist to encapsulate when multiple requests
 // need to be made in response to a user action.
 
-export function updateBackupInfo(
-  serviceMemberId,
-  serviceMemberPayload,
-  backupContactId,
-  backupContact,
-) {
+export function updateBackupInfo(serviceMemberId, serviceMemberPayload, backupContactId, backupContact) {
   const actions = ReduxHelpers.generateAsyncActions(updateBackupInfoType);
   return async function(dispatch, getState) {
     dispatch(actions.start());
     try {
       // TODO: perform these requests concurrently
-      await dispatch(
-        updateServiceMember(serviceMemberId, serviceMemberPayload),
-      );
+      await dispatch(updateServiceMember(serviceMemberId, serviceMemberPayload));
       await dispatch(updateBackupContact(backupContactId, backupContact));
       return dispatch(actions.success());
     } catch (ex) {
@@ -253,12 +182,7 @@ export function updateBackupInfo(
   };
 }
 
-export function updateOrdersInfo(
-  ordersId,
-  orders,
-  serviceMemberId,
-  serviceMember,
-) {
+export function updateOrdersInfo(ordersId, orders, serviceMemberId, serviceMember) {
   const actions = ReduxHelpers.generateAsyncActions(updateOrdersInfoType);
   return async function(dispatch, getState) {
     dispatch(actions.start());
@@ -304,11 +228,7 @@ export function loadMoveDependencies(moveId) {
 // Selectors
 export function loadEntitlements(state) {
   const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
-  const spouseHasProGear = get(
-    state,
-    'office.officeOrders.spouse_has_pro_gear',
-    null,
-  );
+  const spouseHasProGear = get(state, 'office.officeOrders.spouse_has_pro_gear', null);
   const rank = get(state, 'office.officeServiceMember.rank', null);
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;

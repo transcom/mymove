@@ -1,2 +1,0 @@
-drop_column("shipments", "requested_pickup_date")
-rename_column("shipments", "book_date", "award_date")

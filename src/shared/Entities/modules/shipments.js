@@ -13,12 +13,7 @@ export function createOrUpdateShipment(label, moveId, shipment, id) {
 }
 
 export function getShipment(label, shipmentId, moveId) {
-  return swaggerRequest(
-    getClient,
-    'shipments.getShipment',
-    { moveId, shipmentId },
-    { label },
-  );
+  return swaggerRequest(getClient, 'shipments.getShipment', { moveId, shipmentId }, { label });
 }
 
 export function createShipment(
@@ -26,12 +21,7 @@ export function createShipment(
   moveId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
-  return swaggerRequest(
-    getClient,
-    'shipments.createShipment',
-    { moveId, shipment },
-    { label },
-  );
+  return swaggerRequest(getClient, 'shipments.createShipment', { moveId, shipment }, { label });
 }
 
 export function updateShipment(
@@ -39,12 +29,7 @@ export function updateShipment(
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
-  return swaggerRequest(
-    getClient,
-    'shipments.patchShipment',
-    { shipmentId, shipment },
-    { label },
-  );
+  return swaggerRequest(getClient, 'shipments.patchShipment', { shipmentId, shipment }, { label });
 }
 
 export function selectShipment(state, id) {

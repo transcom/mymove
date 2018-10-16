@@ -21,6 +21,25 @@ export function formatCents(cents) {
   });
 }
 
+// Format a base quantity into a user-friendly number, e.g. 167000 -> 16.7000
+export function formatFromBaseQuantity(baseQuantity) {
+  if (!isFinite(baseQuantity)) {
+    return '';
+  }
+
+  return (baseQuantity / 10000).toLocaleString(undefined, {
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4,
+  });
+}
+
+// Format user-entered base quantity into base quantity, e.g. 16.7000 -> 167000
+export function formatToBaseQuantity(baseQuantity) {
+  baseQuantity = parseFloat(String(baseQuantity).replace(',', '')) * 10000;
+
+  return baseQuantity;
+}
+
 export function formatCentsRange(min, max) {
   if (!isFinite(min) || !isFinite(max)) {
     return '';
@@ -42,6 +61,15 @@ export function formatSwaggerDate(date) {
 export function parseSwaggerDate(dateString) {
   if (dateString) {
     return moment(dateString, 'YYYY-MM-DD').toDate();
+  }
+}
+
+// Format a weight with lbs following, e.g. 4000 becomes 4,000 lbs
+export function formatWeight(weight) {
+  if (weight) {
+    return `${weight.toLocaleString()} lbs`;
+  } else {
+    return '0 lbs';
   }
 }
 

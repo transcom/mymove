@@ -12,13 +12,7 @@ import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 import { mobileSize } from 'shared/constants';
 
-import {
-  getNextPagePath,
-  getPreviousPagePath,
-  isFirstPage,
-  isLastPage,
-  beforeTransition,
-} from './utils';
+import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
 export class WizardFormPage extends Component {
   constructor(props) {
@@ -33,9 +27,7 @@ export class WizardFormPage extends Component {
       /* eslint-disable security/detect-object-injection */
 
       Object.keys(this.props.additionalValues).forEach(key => {
-        if (
-          this.props.additionalValues[key] !== prevProps.additionalValues[key]
-        ) {
+        if (this.props.additionalValues[key] !== prevProps.additionalValues[key]) {
           this.props.change(key, this.props.additionalValues[key]);
         }
       });
@@ -53,9 +45,7 @@ export class WizardFormPage extends Component {
       match: { params },
       additionalParams,
     } = this.props;
-    const combinedParams = additionalParams
-      ? Object.assign({}, additionalParams, params)
-      : params;
+    const combinedParams = additionalParams ? Object.assign({}, additionalParams, params) : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
   }
@@ -74,19 +64,9 @@ export class WizardFormPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const {
-      handleSubmit,
-      className,
-      pageKey,
-      pageList,
-      children,
-      serverError,
-      valid,
-      dirty,
-    } = this.props;
+    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
     const canMoveForward = valid;
-    const canMoveBackward =
-      (valid || !dirty) && !isFirstPage(pageList, pageKey);
+    const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
       <div className="usa-grid">
         {serverError && (
@@ -104,37 +84,22 @@ export class WizardFormPage extends Component {
         <div className="usa-width-one-whole lower-nav-btns">
           {!isMobile && (
             <div className="left cancel">
-              <button
-                className="usa-button-secondary"
-                onClick={this.cancelFlow}
-              >
+              <button className="usa-button-secondary" onClick={this.cancelFlow}>
                 Cancel
               </button>
             </div>
           )}
           <div className="prev-next">
-            <button
-              className="usa-button-secondary prev"
-              onClick={this.previousPage}
-              disabled={!canMoveBackward}
-            >
+            <button className="usa-button-secondary prev" onClick={this.previousPage} disabled={!canMoveBackward}>
               Back
             </button>
             {!isLastPage(pageList, pageKey) && (
-              <button
-                className="usa-button-primary next"
-                onClick={this.nextPage}
-                disabled={!canMoveForward}
-              >
+              <button className="usa-button-primary next" onClick={this.nextPage} disabled={!canMoveForward}>
                 Next
               </button>
             )}
             {isLastPage(pageList, pageKey) && (
-              <button
-                className="usa-button-primary next"
-                onClick={handleSubmit}
-                disabled={!canMoveForward}
-              >
+              <button className="usa-button-primary next" onClick={handleSubmit} disabled={!canMoveForward}>
                 Complete
               </button>
             )}
@@ -181,10 +146,7 @@ const wizardFormPageWithSize = windowSize(WizardFormPage);
 export const reduxifyWizardForm = (name, additionalValidations) => {
   let validations = validateRequiredFields;
   if (additionalValidations) {
-    validations = composeValidations(
-      validateRequiredFields,
-      additionalValidations,
-    );
+    validations = composeValidations(validateRequiredFields, additionalValidations);
   }
   return reduxForm({
     form: name,

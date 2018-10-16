@@ -1,104 +1,53 @@
 import React, { Component } from 'react';
-import BasicPanel from 'shared/BasicPanel';
-import PreApprovalRequestForm, {
-  formName as PreApprovalRequestFormName,
-} from 'shared/PreApprovalRequestForm';
-import { submit, isValid, isSubmitting } from 'redux-form';
-import PreApprovalRequest from 'shared/PreApprovalRequest';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+
+const shipment_accessorials = [
+  {
+    code: '105D',
+    item: 'Unpack Reg Crate',
+    location: 'D',
+    base_quantity: 8660000,
+    notes: '',
+    created_at: '2018-09-24T14:05:38.847Z',
+    status: 'SUBMITTED',
+  },
+  {
+    code: '105E',
+    item: 'Unpack Reg Crate',
+    location: 'D',
+    base_quantity: 167000,
+    notes: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
+    created_at: '2018-09-24T14:05:38.847Z',
+    status: 'APPROVED',
+  },
+];
+const accessorials = [
+  {
+    id: 'sdlfkj',
+    code: 'F9D',
+    item: 'Long Haul',
+  },
+  {
+    id: 'badfka',
+    code: '19D',
+    item: 'Crate',
+  },
+];
 
 class ScratchPad extends Component {
-  onSubmit = values => {
-    console.log('onSubmit', values);
-  };
-  onEdit = () => {};
-  onDelete = () => {};
-  onApproval = () => {};
-
   render() {
-    const shipment_accessorials = [
-      {
-        code: '105D',
-        item: 'Unpack Reg Crate',
-        location: 'D',
-        base_quantity: '	16.7',
-        notes: '',
-        created_at: '2018-09-24T14:05:38.847Z',
-        status: 'SUBMITTED',
-      },
-      {
-        code: '105E',
-        item: 'Unpack Reg Crate',
-        location: 'D',
-        base_quantity: '	16.7',
-        notes:
-          'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
-        created_at: '2018-09-24T14:05:38.847Z',
-        status: 'APPROVED',
-      },
-    ];
     return (
       <div className="usa-grid grid-wide panels-body">
         <div className="usa-width-one-whole">
           <div className="usa-width-two-thirds">
-            <BasicPanel title={'TEST TITLE'}>
-              <PreApprovalRequest
-                shipment_accessorials={shipment_accessorials}
-                isActionable={true}
-                onEdit={this.onEdit}
-                onDelete={this.onDelete}
-                onApproval={this.onApproval}
-              />
-              <PreApprovalRequestForm
-                accessorials={[
-                  {
-                    id: 'sdlfkj',
-                    code: 'F9D',
-                    item: 'Long Haul',
-                  },
-                  {
-                    id: 'badfka',
-                    code: '19D',
-                    item: 'Crate',
-                  },
-                ]}
-                onSubmit={this.onSubmit}
-              />
-              <button
-                disabled={!this.props.formEnabled}
-                onClick={this.props.submitForm}
-              >
-                Submit
-              </button>
-            </BasicPanel>
+            <PreApprovalPanel shipment_accessorials={shipment_accessorials} accessorials={accessorials} />
           </div>
           <div className="usa-width-one-third">
-            <button className="usa-button-primary">
-              Click Me (I do nothing)
-            </button>
+            <button className="usa-button-primary">Click Me (I do nothing)</button>
           </div>
         </div>
       </div>
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    formEnabled:
-      isValid(PreApprovalRequestFormName)(state) &&
-      !isSubmitting(PreApprovalRequestFormName)(state),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  // Bind an action, which submit the form by its name
-  return bindActionCreators(
-    {
-      submitForm: () => submit(PreApprovalRequestFormName),
-    },
-    dispatch,
-  );
-}
-export default connect(mapStateToProps, mapDispatchToProps)(ScratchPad);
+export default ScratchPad;

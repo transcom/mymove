@@ -89,14 +89,14 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 
 	// Two shipment accessorials tied to two different shipments
 	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
-	acc := testdatagen.MakeDummyAccessorial(suite.TestDB())
+	acc := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/shipments", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	payload := apimessages.ShipmentAccessorial{
-		Accessorial: payloadForAccessorialModel(&acc),
+		Accessorial: payloadForTariff400ngItemModel(&acc),
 		Location:    apimessages.AccessorialLocationORIGIN,
 		Notes:       "Some notes",
 		Quantity1:   handlers.FmtInt64(int64(5)),
@@ -145,7 +145,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 
 	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 	// create a new accessorial to test
-	updateAcc1 := testdatagen.MakeDummyAccessorial(suite.TestDB())
+	updateAcc1 := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 		Quantity1:   handlers.FmtInt64(int64(1)),
 		Quantity2:   handlers.FmtInt64(int64(2)),
 		Notes:       "HELLO",
-		Accessorial: payloadForAccessorialModel(&updateAcc1),
+		Accessorial: payloadForTariff400ngItemModel(&updateAcc1),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	testdatagen.MakeDefaultShipmentAccessorial(suite.TestDB())
 
 	// create a new accessorial to test
-	updateAcc1 := testdatagen.MakeDummyAccessorial(suite.TestDB())
+	updateAcc1 := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
@@ -209,7 +209,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 		Quantity1:   handlers.FmtInt64(int64(1)),
 		Quantity2:   handlers.FmtInt64(int64(2)),
 		Notes:       "HELLO",
-		Accessorial: payloadForAccessorialModel(&updateAcc1),
+		Accessorial: payloadForTariff400ngItemModel(&updateAcc1),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,
@@ -312,4 +312,128 @@ func (suite *HandlerSuite) TestDeleteShipmentAccessorialOfficeHandler() {
 	// Check if we actually deleted the shipment accessorial
 	err := suite.TestDB().Find(&shipAcc1, shipAcc1.ID)
 	suite.Error(err)
+}
+
+func (suite *HandlerSuite) TestApproveShipmentAccessorialHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	// A shipment accessorial with an item that requires pre-approval
+	acc1 := testdatagen.MakeShipmentAccessorial(suite.TestDB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/shipments/accessorials/some_id/approve", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.ApproveShipmentAccessorialParams{
+		HTTPRequest:           req,
+		ShipmentAccessorialID: strfmt.UUID(acc1.ID.String()),
+	}
+
+	// And: get shipment is returned
+	handler := ApproveShipmentAccessorialHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&accessorialop.ApproveShipmentAccessorialOK{}, response)
+	okResponse := response.(*accessorialop.ApproveShipmentAccessorialOK)
+
+	// And: Payload is equivalent to original shipment accessorial
+	suite.Equal(acc1.ID.String(), okResponse.Payload.ID.String())
+	suite.Equal(apimessages.AccessorialStatusAPPROVED, okResponse.Payload.Status)
+}
+
+func (suite *HandlerSuite) TestApproveShipmentAccessorialNotRequired() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	// A shipment accessorial with an item that requires pre-approval
+	acc1 := testdatagen.MakeShipmentAccessorial(suite.TestDB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: false,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/shipments/accessorials/some_id/approve", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.ApproveShipmentAccessorialParams{
+		HTTPRequest:           req,
+		ShipmentAccessorialID: strfmt.UUID(acc1.ID.String()),
+	}
+
+	handler := ApproveShipmentAccessorialHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect user to be forbidden from approving an item that doesn't require pre-approval
+	suite.Assertions.IsType(&accessorialop.ApproveShipmentAccessorialForbidden{}, response)
+}
+
+func (suite *HandlerSuite) TestApproveShipmentAccessorialAlreadyApproved() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	// A shipment accessorial with an item that requires pre-approval
+	acc1 := testdatagen.MakeShipmentAccessorial(suite.TestDB(), testdatagen.Assertions{
+		ShipmentAccessorial: models.ShipmentAccessorial{
+			Status: models.ShipmentAccessorialStatusAPPROVED,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/shipments/accessorials/some_id/approve", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.ApproveShipmentAccessorialParams{
+		HTTPRequest:           req,
+		ShipmentAccessorialID: strfmt.UUID(acc1.ID.String()),
+	}
+
+	handler := ApproveShipmentAccessorialHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect user to be forbidden from approving an item that is already approved
+	suite.Assertions.IsType(&accessorialop.ApproveShipmentAccessorialForbidden{}, response)
+}
+
+func (suite *HandlerSuite) TestApproveShipmentAccessorialTSPUser() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// A shipment accessorial claimed by the tspUser's TSP, and item requires pre-approval
+	acc1 := testdatagen.MakeShipmentAccessorial(suite.TestDB(), testdatagen.Assertions{
+		ShipmentAccessorial: models.ShipmentAccessorial{
+			ShipmentID: shipment.ID,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/shipments/accessorials/some_id/approve", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	params := accessorialop.ApproveShipmentAccessorialParams{
+		HTTPRequest:           req,
+		ShipmentAccessorialID: strfmt.UUID(acc1.ID.String()),
+	}
+
+	handler := ApproveShipmentAccessorialHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect TSP user to be forbidden from approving
+	suite.Assertions.IsType(&accessorialop.ApproveShipmentAccessorialForbidden{}, response)
 }

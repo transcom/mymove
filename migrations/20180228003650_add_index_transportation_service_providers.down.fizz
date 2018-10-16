@@ -1,1 +1,0 @@
-drop_index("transportation_service_providers", "transportation_service_providers_index")

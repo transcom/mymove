@@ -89,8 +89,7 @@ class QueueTable extends Component {
       <div>
         {this.props.flashMessage ? (
           <Alert type="success" heading="Success">
-            Move #{this.props.moveLocator} for {this.props.lastName},{' '}
-            {this.props.firstName} has been canceled <br />
+            Move #{this.props.moveLocator} for {this.props.lastName}, {this.props.firstName} has been canceled <br />
             An email confirmation has been sent to the customer.
             <br />
           </Alert>
@@ -141,8 +140,7 @@ class QueueTable extends Component {
             pageSize={this.state.data.length}
             className="-striped -highlight"
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`new/moves/${rowInfo.original.id}`),
+              onDoubleClick: e => this.props.history.push(`new/moves/${rowInfo.original.id}`),
             })}
           />
         </div>

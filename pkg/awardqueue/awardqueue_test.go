@@ -312,15 +312,16 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	suite.Equal(tspp.ID, offer.TransportationServiceProviderPerformanceID)
 }
 
-// Test that we can create a shipment that should NOT be offered because it is not in a TDL
-// with any TSPs, and that it doesn't get offered.
+// Test that a shipment does NOT get offered because it is not in a TDL with
+// any enabled TSPs.
 func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 	pickupDate := testdatagen.DateInsidePeakRateCycle
 	deliveryDate := testdatagen.DateInsidePeakRateCycle
 
@@ -330,11 +331,23 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 			ActualPickupDate:    &pickupDate,
 			ActualDeliveryDate:  &deliveryDate,
 			SourceGBLOC:         &sourceGBLOC,
+			DestinationGBLOC:    &destinationGBLOC,
 			Market:              &market,
 			BookDate:            &pickupDate,
 			Status:              models.ShipmentStatusSUBMITTED,
 		},
 	})
+
+	// Make a TSP in the same TDL, but that is NOT enrolled
+	tdl := *shipment.TrafficDistributionList
+	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: "NPEK",
+			Enrolled:                 false,
+		},
+	})
+	_, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	suite.Nil(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(shipment)
@@ -599,6 +612,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	tspNonPeak := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
 			StandardCarrierAlphaCode: "NPEK",
+			Enrolled:                 true,
 		},
 	})
 	tspPerfNonPeak := models.TransportationServiceProviderPerformance{
@@ -740,8 +754,10 @@ func TestAwardQueueSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Panic(err)
+	}
 
 	hs := &AwardQueueSuite{db: db, logger: logger}
 	suite.Run(t, hs)

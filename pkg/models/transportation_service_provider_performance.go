@@ -100,17 +100,22 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID,
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
-			*
+			tspp.*
 		FROM
-			transportation_service_provider_performances
+			transportation_service_provider_performances AS tspp
+		LEFT JOIN
+			transportation_service_providers AS tsp ON
+				tspp.transportation_service_provider_id = tsp.id
 		WHERE
-			traffic_distribution_list_id = $1
+			tspp.traffic_distribution_list_id = $1
 			AND
-			quality_band = $2
+			tspp.quality_band = $2
 			AND
-			$3 BETWEEN performance_period_start AND performance_period_end
+			$3 BETWEEN tspp.performance_period_start AND tspp.performance_period_end
 			AND
-			$4 BETWEEN rate_cycle_start AND rate_cycle_end
+			$4 BETWEEN tspp.rate_cycle_start AND tspp.rate_cycle_end
+			AND
+			tsp.enrolled = true
 		ORDER BY
 			offer_count ASC,
 			best_value_score DESC
@@ -125,17 +130,24 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID,
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
 func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, bookDate time.Time, requestedPickupDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
+	qualityBandsWithoutTSPs := 0
+
 	for _, qualityBand := range qualityBands {
 		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, bookDate, requestedPickupDate)
 		if err != nil {
-			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
-			//zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
+			if err.Error() == "sql: no rows in result set" {
+				// Some quality bands might not have TSPs, and that's OK. We
+				// just need to make sure SOME quality bands have TSPs.
+				qualityBandsWithoutTSPs++
+			} else {
+				return tspPerformances, err
+			}
 		} else {
 			tspPerformances[qualityBand] = tspPerformance
 		}
 	}
-	if len(tspPerformances) == 0 {
-		return tspPerformances, fmt.Errorf("\tNo TSPPerformances found for TDL %s", tdlID)
+	if qualityBandsWithoutTSPs >= len(qualityBands) {
+		return tspPerformances, fmt.Errorf("Could not find any TSPs to fill quality bands in TDL: %s", tdlID)
 	}
 	return tspPerformances, nil
 }
@@ -242,19 +254,20 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 }
 
 // IncrementTSPPerformanceOfferCount increments the offer_count column by 1 and validates.
-func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
+// It returns the updated TSPPerformance record.
+func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid.UUID) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
 	if err := db.Find(&tspPerformance, tspPerformanceID); err != nil {
-		return err
+		return tspPerformance, err
 	}
 	tspPerformance.OfferCount++
 	validationErr, databaseErr := db.ValidateAndSave(&tspPerformance)
 	if databaseErr != nil {
-		return databaseErr
+		return tspPerformance, databaseErr
 	} else if validationErr.HasAny() {
-		return fmt.Errorf("Validation failure: %s", validationErr)
+		return tspPerformance, fmt.Errorf("Validation failure: %s", validationErr)
 	}
-	return nil
+	return tspPerformance, nil
 }
 
 // GetRateCycle returns the start date and end dates for a rate cycle of the

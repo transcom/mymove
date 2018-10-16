@@ -22,10 +22,7 @@ registerPlugin(FilepondPluginFileValidateType);
 registerPlugin(FilepondPluginImageExifOrientation);
 registerPlugin(FilePondImagePreview);
 
-const idleStatuses = [
-  FileStatus.PROCESSING_COMPLETE,
-  FileStatus.PROCESSING_ERROR,
-];
+const idleStatuses = [FileStatus.PROCESSING_COMPLETE, FileStatus.PROCESSING_ERROR];
 
 export class Uploader extends Component {
   constructor(props) {
@@ -81,9 +78,7 @@ export class Uploader extends Component {
       },
       iconUndo: this.pond._pond.iconRemove,
       imagePreviewMaxHeight: 100,
-      labelIdle:
-        labelIdle ||
-        'Drag & drop or <span class="filepond--label-action">click to upload</span>',
+      labelIdle: labelIdle || 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
       labelTapToUndo: 'tap to delete',
       acceptedFileTypes: ['image/*', 'application/pdf'],
     });
@@ -109,9 +104,10 @@ export class Uploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
+    const { document, isPublic } = this.props;
     const self = this;
-    const docID = this.props.document ? this.props.document.id : null;
-    CreateUpload(file, docID)
+    const docID = document ? document.id : null;
+    CreateUpload(file, docID, isPublic)
       .then(item => {
         load(item.id);
         const newFiles = concat(self.state.files, item);
@@ -125,18 +121,16 @@ export class Uploader extends Component {
   };
 
   revertFile = (uploadId, load, error) => {
-    DeleteUpload(uploadId)
+    const { onChange, isPublic } = this.props;
+    DeleteUpload(uploadId, isPublic)
       .then(item => {
         load(item);
-        const newFiles = reject(
-          this.state.files,
-          upload => upload.id === uploadId,
-        );
+        const newFiles = reject(this.state.files, upload => upload.id === uploadId);
         this.setState({
           files: newFiles,
         });
-        if (this.props.onChange) {
-          this.props.onChange(newFiles, this.isIdle());
+        if (onChange) {
+          onChange(newFiles, this.isIdle());
         }
       })
       .catch(error);
@@ -145,10 +139,7 @@ export class Uploader extends Component {
   render() {
     return (
       <div>
-        <FilePond
-          ref={ref => (this.pond = ref)}
-          oninit={() => this.handlePondInit()}
-        />
+        <FilePond ref={ref => (this.pond = ref)} oninit={() => this.handlePondInit()} />
       </div>
     );
   }
@@ -158,6 +149,7 @@ Uploader.propTypes = {
   document: PropTypes.object,
   onChange: PropTypes.func,
   labelIdle: PropTypes.string,
+  isPublic: PropTypes.bool,
 };
 
 function mapStateToProps(state) {

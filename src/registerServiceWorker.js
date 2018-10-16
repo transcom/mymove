@@ -77,10 +77,7 @@ function checkValidServiceWorker(swUrl) {
   fetch(swUrl)
     .then(response => {
       // Ensure service worker exists, and that we really are getting a JS file.
-      if (
-        response.status === 404 ||
-        response.headers.get('content-type').indexOf('javascript') === -1
-      ) {
+      if (response.status === 404 || response.headers.get('content-type').indexOf('javascript') === -1) {
         // No service worker found. Probably a different app. Reload the page.
         navigator.serviceWorker.ready.then(registration => {
           registration.unregister().then(() => {
@@ -93,9 +90,7 @@ function checkValidServiceWorker(swUrl) {
       }
     })
     .catch(() => {
-      console.log(
-        'No internet connection found. App is running in offline mode.',
-      );
+      console.log('No internet connection found. App is running in offline mode.');
     });
 }
 

@@ -12,10 +12,7 @@ import * as schema from 'shared/Entities/schema';
 
 export const history = createHistory();
 
-const middlewares = [
-  thunk.withExtraArgument({ schema }),
-  routerMiddleware(history),
-];
+const middlewares = [thunk.withExtraArgument({ schema }), routerMiddleware(history)];
 
 if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
   middlewares.push(logger);
@@ -23,14 +20,10 @@ if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
 
 const composeEnhancers = composeWithDevTools({ name: 'sm-office' });
 
-export const store = composeEnhancers(applyMiddleware(...middlewares))(
-  createStore,
-)(appReducer);
+export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(appReducer);
 
 const tspComposeEnhancers = composeWithDevTools({ name: 'tsp' });
 
-export const tspStore = tspComposeEnhancers(applyMiddleware(...middlewares))(
-  createStore,
-)(tspAppReducer);
+export const tspStore = tspComposeEnhancers(applyMiddleware(...middlewares))(createStore)(tspAppReducer);
 
 export default store;
