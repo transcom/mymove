@@ -235,7 +235,7 @@ export class Summary extends Component {
               </tbody>
             </table>
             {currentBackupContacts.map(contact => (
-              <Fragment>
+              <Fragment key={contact.id}>
                 <p className="heading">
                   Backup Contact Info
                   <span className="edit-section-link">
@@ -288,6 +288,7 @@ export class Summary extends Component {
 
 Summary.propTypes = {
   currentPpm: PropTypes.object,
+  currentShipment: PropTypes.object,
   currentBackupContacts: PropTypes.array,
   currentOrders: PropTypes.object,
   schemaRank: PropTypes.object,

@@ -47,7 +47,7 @@ export class Locations extends Component {
     return this.props
       .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
       .then(action => {
-        return this.props.setCurrentShipmentID(Object.keys(action.entities)[0]);
+        return this.props.setCurrentShipmentID(Object.keys(action.entities.shipments)[0]);
       })
       .catch(err => {
         this.setState({

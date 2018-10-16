@@ -52,7 +52,8 @@ export class MoveDate extends Component {
     return this.props
       .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
       .then(action => {
-        return this.props.setCurrentShipmentID(Object.keys(action.entities.shipments)[0]);
+        const id = Object.keys(action.entities.shipments)[0];
+        return this.props.setCurrentShipmentID(id);
       })
       .catch(err => {
         this.setState({
