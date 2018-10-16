@@ -1,7 +1,6 @@
 package publicapi
 
 import (
-	// "fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
@@ -58,10 +57,10 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 			ID:               handlers.FmtUUID(doc.ID),
 			ShipmentID:       handlers.FmtUUIDPtr(doc.ShipmentID),
 			Document:         documentPayload,
-			Title:            &doc.Title,
+			Title:            handlers.FmtStringPtr(&doc.Title),
 			MoveDocumentType: apimessages.MoveDocumentType(doc.MoveDocumentType),
 			Status:           apimessages.MoveDocumentStatus(doc.Status),
-			Notes:            doc.Notes,
+			Notes:            handlers.FmtStringPtr(doc.Notes),
 		}
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
@@ -136,7 +135,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	moveDocPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *moveDoc)
+	moveDocPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *moveDoc, shipmentID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
