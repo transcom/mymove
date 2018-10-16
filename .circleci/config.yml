@@ -617,6 +617,7 @@ workflows:
           type: approval
           requires:
             - deploy_staging_app
+            - deploy_staging_app_client_tls
 
       - deploy_prod_migrations:
           requires:
