@@ -153,6 +153,37 @@ describe('The document viewer', function() {
     cy.contains('4,999.92');
     cy.contains('GTCC');
   });
-});
 
-//F2AF74E2-61B0-40AB-9ABD-172A3863E258
+  it('can upload documents to an HHG move', () => {
+    cy.visit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');
+
+    cy.contains('Upload a new document');
+    cy.get('button.submit').should('be.disabled');
+    cy.get('select[name="move_document_type"]').select('Expense');
+    cy.get('input[name="title"]').type('expense document');
+    cy.get('select[name="moving_expense_type"]').select('Contracted Expense');
+    cy.get('input[name="requested_amount_cents"]').type('4,000.92');
+    cy.get('select[name="payment_method"]').select('Other account');
+
+    cy.get('button.submit').should('be.disabled');
+
+    cy.upload_file('.filepond--root', 'top-secret.png');
+    cy
+      .get('button.submit', { timeout: fileUploadTimeout })
+      .should('not.be.disabled')
+      .click();
+
+    cy.contains('All Documents (1)');
+
+    cy.get('select[name="move_document_type"]').select('Weight ticket');
+    cy.get('input[name="title"]').type('Wait ticket');
+    cy.get('input[name="notes"]').type('wait for this document');
+    cy.upload_file('.filepond--root', 'top-secret.png');
+    cy
+      .get('button.submit', { timeout: fileUploadTimeout })
+      .should('not.be.disabled')
+      .click();
+
+    cy.contains('All Documents (2)');
+  });
+});

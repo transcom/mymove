@@ -1146,6 +1146,47 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg18 := offer18.Shipment
 	hhg18.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg18.Move)
+
+	/*
+	 * Service member with uploaded orders and an approved shipment
+	 */
+	email = "hhg@doc.uploads"
+
+	offer19 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("5245b1ff-ae5a-4875-8a21-6b05c735b684")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("60cdcd83-6d6f-442f-a5b5-c256b312d000"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("533d176f-0bab-4c51-88cd-c899f6855b9d"),
+			Locator:          "BACON7",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("60e65f0c-aa21-4d95-a825-9d323a3dc4f1"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			HasDeliveryAddress: true,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg19 := offer19.Shipment
+	hhg19.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg19.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation

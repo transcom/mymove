@@ -15,6 +15,7 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 	pickupDate := time.Now().AddDate(0, 0, 1)
 	deliveryDate := time.Now().AddDate(0, 0, 2)
 	edipi := "123456"
+	gblNumber := "ABC12345"
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{
 			SourceGBLOC:                 &SourceTransOffice.Gbloc,
@@ -22,6 +23,7 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 			PmSurveyPlannedDeliveryDate: &deliveryDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
 			PmSurveyPlannedPackDate:     &packDate,
+			GBLNumber:                   &gblNumber,
 		},
 		ServiceMember: models.ServiceMember{
 			Edipi: &edipi,

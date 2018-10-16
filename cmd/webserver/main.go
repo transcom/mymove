@@ -27,6 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
@@ -98,9 +99,11 @@ func main() {
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
 	tspHostname := flag.String("http_tsp_server_name", "tsplocal", "Hostname according to environment.")
 	ordersHostname := flag.String("http_orders_server_name", "orderslocal", "Hostname according to environment.")
+	dpsHostname := flag.String("http_dps_server_name", "dpslocal", "Hostname according to environment.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
+	dpsSwagger := flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
@@ -277,13 +280,22 @@ func main() {
 	site.Handle(pat.Get("/favicon.ico"), clientHandler)
 
 	ordersMux := goji.SubMux()
-	ordersDetectionMiddleware := auth.OrdersDetectorMiddleware(logger, *ordersHostname)
+	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, *ordersHostname)
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
 	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
+
+	dpsMux := goji.SubMux()
+	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, *dpsHostname)
+	dpsMux.Use(dpsDetectionMiddleware)
+	dpsMux.Use(noCacheMiddleware)
+	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*dpsSwagger))
+	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "dps.html")))
+	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
+	site.Handle(pat.New("/dps/v0/*"), dpsMux)
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)

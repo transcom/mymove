@@ -5,23 +5,23 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
-import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
+import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
 
 import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
 import './ShipmentWizard.css';
 
-const formName = 'shipment_form';
-const getRequestLabel = 'ShipmentForm.getShipment';
-const createOrUpdateRequestLabel = 'ShipmentForm.createOrUpdateShipment';
+const formName = 'weight_form';
+const getRequestLabel = 'WeightForm.getShipment';
+const createOrUpdateRequestLabel = 'WeightForm.createOrUpdateShipment';
 
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 
-export class ShipmentForm extends Component {
+export class WeightEstimate extends Component {
   componentDidMount() {
     this.loadShipment();
   }
@@ -46,9 +46,8 @@ export class ShipmentForm extends Component {
 
     return this.props
       .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
-      .then(action => {
-        const id = Object.keys(action.entities.shipments)[0];
-        return this.props.setCurrentShipmentID(id);
+      .then(data => {
+        return this.props.setCurrentShipment(data.body);
       })
       .catch(err => {
         this.setState({
@@ -86,23 +85,30 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <WeightEstimates schema={this.props.schema} error={error} formValues={this.props.formValues} />
+          <div className="form-section">
+            <h3 className="instruction-heading">Enter the weight of your stuff here if you already know it</h3>
+            <div className="usa-grid">
+              <div className="usa-width-one-whole">
+                <SwaggerField fieldName="weight_estimate" swagger={this.props.schema} required />
+              </div>
+            </div>
+          </div>
         </div>
       </ShipmentFormWizardForm>
     );
   }
 }
-ShipmentForm.propTypes = {
+WeightEstimate.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdateShipment, setCurrentShipmentID, getShipment }, dispatch);
+  return bindActionCreators({ createOrUpdateShipment, setCurrentShipment, getShipment }, dispatch);
 }
 function mapStateToProps(state) {
-  const shipment = getCurrentShipment(state);
+  const shipment = currentShipment(state);
   const props = {
     schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
@@ -114,4 +120,4 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShipmentForm);
+export default connect(mapStateToProps, mapDispatchToProps)(WeightEstimate);
