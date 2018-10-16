@@ -185,6 +185,7 @@ class MoveInfo extends Component {
     );
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], hhg.status);
+    const hhgAccepted = hhg.status === 'ACCEPTED';
     const hhgDelivered = hhg.status === 'DELIVERED';
     const hhgCompleted = hhg.status === 'COMPLETED';
     const moveApproved = move.status === 'APPROVED';
@@ -221,7 +222,7 @@ class MoveInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>ID# {serviceMember.edipi}</li>
+              <li>ID# {serviceMember.edipi}&nbsp;</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -229,9 +230,10 @@ class MoveInfo extends Component {
                 )}
                 {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                &nbsp;
               </li>
-              <li>Locator# {move.locator}</li>
-              <li>Move date {formatDate(ppm.planned_move_date)}</li>
+              <li>Locator# {move.locator}&nbsp;</li>
+              <li>Move date {formatDate(ppm.planned_move_date)}&nbsp;</li>
             </ul>
           </div>
         </div>
@@ -322,7 +324,14 @@ class MoveInfo extends Component {
                 <button
                   className={`${hhgApproved ? 'btn__approve--green' : ''}`}
                   onClick={this.approveHHG}
-                  disabled={hhgApproved || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
+                  disabled={
+                    !hhgAccepted ||
+                    hhgApproved ||
+                    hhgCompleted ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
                 >
                   Approve Shipments
                   {hhgApproved && check}
