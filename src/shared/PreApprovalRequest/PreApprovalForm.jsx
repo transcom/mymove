@@ -69,7 +69,6 @@ export class PreApprovalForm extends Component {
 }
 
 PreApprovalForm.propTypes = {
-  schema: PropTypes.object,
   tariff400ngItems: PropTypes.array,
   onSubmit: PropTypes.func.isRequired,
 };

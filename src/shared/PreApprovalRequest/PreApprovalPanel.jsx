@@ -34,7 +34,7 @@ export class PreApprovalPanel extends Component {
     );
   };
   onEdit = () => {
-    console.log('onEdit hit', this.props);
+    console.log('onEdit hit');
   };
   onDelete = () => {
     console.log('onDelete hit');
