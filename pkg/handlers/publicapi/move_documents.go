@@ -136,7 +136,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	moveDocPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *moveDoc)
+	moveDocPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *moveDoc, shipmentID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
