@@ -72,27 +72,3 @@ func (suite *iwsSuite) TestParseEdiResponseError() {
 	suite.True(ok)
 	suite.Equal(uint64(14030), rbsError.FaultCode)
 }
-
-func (suite *iwsSuite) TestGetPersonUsingEDIPI() {
-	person, personnel, err := GetPersonUsingEDIPI(suite.client, suite.host, suite.custNum, 1920203960)
-	suite.Nil(err)
-	suite.NotNil(person)
-	suite.NotEmpty(personnel)
-}
-
-func (suite *iwsSuite) TestGetPersonUsingEDIPINotFound() {
-	person, personnel, err := GetPersonUsingEDIPI(suite.client, suite.host, suite.custNum, 9999999999)
-	// error should still be nil - no match is not an error like connection failure
-	suite.Nil(err)
-	suite.Nil(person)
-	suite.Empty(personnel)
-}
-
-func (suite *iwsSuite) TestGetPersonUsingEDIPIInvalid() {
-	// Lowest valid EDIPI is 1000000000, so this should get an RbsError from the API
-	person, personnel, err := GetPersonUsingEDIPI(suite.client, suite.host, suite.custNum, 0)
-	suite.NotNil(err)
-	suite.IsType(&RbsError{}, err)
-	suite.Nil(person)
-	suite.Empty(personnel)
-}

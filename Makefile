@@ -118,6 +118,7 @@ tools_build: server_deps
 	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
+	go build -i -o bin/iws ./cmd/demo/iws.go
 
 tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue

@@ -91,20 +91,3 @@ func (suite *iwsSuite) TestBuildWkEmaURLLongEmail() {
 	suite.Equal("example.com", parsedURL.Host)
 	suite.Equal("/appj/rbs/rest/op=wkEma/customer=1234/schemaName=get_cac_data/schemaVersion=1.0/EMA_TX=pneumonoultramicroscopicsilicovolcanoconiosis_is_a_terrible_way_to_expire@unpron", parsedURL.Path)
 }
-
-func (suite *iwsSuite) TestGetPersonUsingWorkEmail() {
-	edipi, person, personnel, err := GetPersonUsingWorkEmail(suite.client, suite.host, suite.custNum, "matthew.m.heitner@ctwork.com")
-	suite.Nil(err)
-	suite.Equal(uint64(1920203960), edipi)
-	suite.NotNil(person)
-	suite.NotEmpty(personnel)
-}
-
-func (suite *iwsSuite) TestGetPersonUsingWorkEmailNotFound() {
-	edipi, person, personnel, err := GetPersonUsingWorkEmail(suite.client, suite.host, suite.custNum, "nobody@example.com")
-	// error should still be nil - no match is not an error like connection failure
-	suite.Nil(err)
-	suite.Zero(edipi)
-	suite.Nil(person)
-	suite.Empty(personnel)
-}

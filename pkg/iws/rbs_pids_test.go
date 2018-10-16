@@ -108,32 +108,3 @@ func (suite *iwsSuite) TestBuildPidsUrlBadSSN() {
 	suite.Empty(urlString)
 	suite.NotNil(err)
 }
-
-func (suite *iwsSuite) TestGetPersonUsingSSN() {
-	params := GetPersonUsingSSNParams{
-		Ssn:       "666289398",
-		LastName:  "HEITNER",
-		FirstName: "MATTHEW",
-	}
-	reason, edipi, person, personnel, err := GetPersonUsingSSN(suite.client, suite.host, suite.custNum, params)
-	suite.Nil(err)
-	suite.Equal(MatchReasonCodeFull, reason)
-	suite.Equal(uint64(1920203960), edipi)
-	suite.NotNil(person)
-	suite.NotEmpty(personnel)
-}
-
-func (suite *iwsSuite) TestGetPersonUsingSSNNotFound() {
-	params := GetPersonUsingSSNParams{
-		Ssn:       "900000000",
-		LastName:  "Last",
-		FirstName: "First",
-	}
-	reason, edipi, person, personnel, err := GetPersonUsingSSN(suite.client, suite.host, suite.custNum, params)
-	// error should still be nil - no match is not an error like connection failure
-	suite.Nil(err)
-	suite.Equal(MatchReasonCodeNone, reason)
-	suite.Zero(edipi)
-	suite.Nil(person)
-	suite.Empty(personnel)
-}

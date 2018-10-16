@@ -30,6 +30,7 @@ __snapshots__
 /bin/load-user-gen
 /bin/paperwork
 /bin/rateengine
+/bin/iws
 
 /bin/soda
 /bin/golint
