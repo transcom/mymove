@@ -1,10 +1,5 @@
 import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
-import {
-  CreateOrders,
-  UpdateOrders,
-  GetOrders,
-  ShowServiceMemberOrders,
-} from './api.js';
+import { CreateOrders, UpdateOrders, GetOrders, ShowServiceMemberOrders } from './api.js';
 import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -16,24 +11,16 @@ const getOrdersType = 'GET_ORDERS';
 export const GET_ORDERS = ReduxHelpers.generateAsyncActionTypes(getOrdersType);
 
 const addUploadsType = 'ADD_UPLOADS';
-export const ADD_UPLOADS = ReduxHelpers.generateAsyncActionTypes(
-  addUploadsType,
-);
+export const ADD_UPLOADS = ReduxHelpers.generateAsyncActionTypes(addUploadsType);
 
 const createOrUpdateOrdersType = 'CREATE_OR_UPDATE_ORDERS';
-export const CREATE_OR_UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(
-  createOrUpdateOrdersType,
-);
+export const CREATE_OR_UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(createOrUpdateOrdersType);
 
 const showCurrentOrdersType = 'SHOW_CURRENT_ORDERS';
-export const SHOW_CURRENT_ORDERS = ReduxHelpers.generateAsyncActionTypes(
-  showCurrentOrdersType,
-);
+export const SHOW_CURRENT_ORDERS = ReduxHelpers.generateAsyncActionTypes(showCurrentOrdersType);
 
 const deleteUploadType = 'DELETE_UPLOAD';
-export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(
-  deleteUploadType,
-);
+export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(deleteUploadType);
 
 // Actions
 export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
@@ -44,9 +31,7 @@ export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
 export function createOrders(ordersPayload) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(createOrUpdateOrdersType);
-    const moveAction = ReduxHelpers.generateAsyncActions(
-      createOrUpdateMoveType,
-    );
+    const moveAction = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (!currentOrders) {
@@ -63,15 +48,9 @@ export function createOrders(ordersPayload) {
   };
 }
 
-export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
-  createOrUpdateOrdersType,
-  UpdateOrders,
-);
+export const updateOrders = ReduxHelpers.generateAsyncActionCreator(createOrUpdateOrdersType, UpdateOrders);
 
-export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
-  getOrdersType,
-  GetOrders,
-);
+export const loadOrders = ReduxHelpers.generateAsyncActionCreator(getOrdersType, GetOrders);
 
 // Deletes a single upload
 export function deleteUpload(uploadId) {
@@ -110,11 +89,7 @@ export function addUploads(uploads) {
     if (state.orders.currentOrders) {
       dispatch(action.success(uploads));
     } else {
-      dispatch(
-        action.error(
-          new Error("attempted to add uploads when orders don't exist"),
-        ),
-      );
+      dispatch(action.error(new Error("attempted to add uploads when orders don't exist")));
     }
   };
 }
@@ -145,29 +120,21 @@ function reshapeOrders(orders) {
 }
 const removeUploads = (uploadIds, state) => {
   const newState = cloneDeep(state);
-  newState.currentOrders.uploaded_orders.uploads = reject(
-    state.currentOrders.uploaded_orders.uploads,
-    upload => {
-      return includes(uploadIds, upload.id);
-    },
-  );
+  newState.currentOrders.uploaded_orders.uploads = reject(state.currentOrders.uploaded_orders.uploads, upload => {
+    return includes(uploadIds, upload.id);
+  });
   return newState;
 };
 const insertUploads = (uploads, state) => {
   const newState = cloneDeep(state);
-  newState.currentOrders.uploaded_orders.uploads = concat(
-    state.currentOrders.uploaded_orders.uploads,
-    ...uploads,
-  );
+  newState.currentOrders.uploaded_orders.uploads = concat(state.currentOrders.uploaded_orders.uploads, ...uploads);
   return newState;
 };
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
-        currentOrders: reshapeOrders(
-          fetchActive(get(action.payload, 'service_member.orders')),
-        ),
+        currentOrders: reshapeOrders(fetchActive(get(action.payload, 'service_member.orders'))),
         hasLoadError: false,
         hasLoadSuccess: true,
       });

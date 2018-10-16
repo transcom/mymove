@@ -1,1 +1,0 @@
-drop_index("shipment_offers", "shipment_offers_index")

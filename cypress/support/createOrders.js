@@ -6,20 +6,16 @@ export default function createOrders() {
       expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/create/);
     })
     .then(location => {
-      const serviceMemberId = location.pathname.match(
-        /^\/service-member\/([^/]+)\/create/,
-      )[1];
+      const serviceMemberId = location.pathname.match(/^\/service-member\/([^/]+)\/create/)[1];
       return serviceMemberId;
     })
     .then(serviceMemberId =>
       cy.fixture('orders.json').then(orders => {
         orders.service_member_id = serviceMemberId;
-        return cy
-          .request('internal/duty_stations?search=fort%20worth')
-          .then(result => {
-            orders.new_duty_station_id = Cypress._.get(result, 'body.[0].id');
-            return cy.request('POST', `/internal/orders`);
-          });
+        return cy.request('internal/duty_stations?search=fort%20worth').then(result => {
+          orders.new_duty_station_id = Cypress._.get(result, 'body.[0].id');
+          return cy.request('POST', `/internal/orders`);
+        });
         //         .then(result => {
         //           const ordersId  =Cypress._.get(result, 'body.[0].id');
         //           cy.fixture("orders.jpg").as("orders")

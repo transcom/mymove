@@ -11,6 +11,7 @@ const defaultProps = {
     has_delivery_address: false,
     service_member: { current_station: { address: {} } },
   },
+  addressSchema: {},
 };
 describe('Locations component test', () => {
   describe('when LocationsDisplay is provided pickup and delivery address', () => {
@@ -30,12 +31,7 @@ describe('Locations component test', () => {
         postal_code: '094321',
       },
     };
-    const wrapper = shallow(
-      <LocationsDisplay
-        shipment={shipment}
-        deliveryAddress={shipment.delivery_address}
-      />,
-    );
+    const wrapper = shallow(<LocationsDisplay shipment={shipment} deliveryAddress={shipment.delivery_address} />);
     it('should render 2 headers', () => {
       const headers = wrapper.find('.column-subhead');
       expect(headers.length).toBe(2);
@@ -77,10 +73,7 @@ describe('Locations component test', () => {
       },
     };
     const wrapper = shallow(
-      <LocationsDisplay
-        deliveryAddress={shipment.move.new_duty_station.address}
-        shipment={shipment}
-      />,
+      <LocationsDisplay deliveryAddress={shipment.move.new_duty_station.address} shipment={shipment} />,
     );
     const AddressElement = wrapper.find(AddressElementDisplay);
 

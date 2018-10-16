@@ -28,9 +28,7 @@ describe('DocumentDetailPanelView', () => {
       const status = 'SUBMITTED';
       const documentPanel = renderDocumentPanel({ status });
       // status is rendered as a FontAwesome icon
-      expect(documentPanel.find('.panel-subhead').text()).toContain(
-        'FontAwesomeIcon',
-      );
+      expect(documentPanel.find('.panel-subhead').text()).toContain('FontAwesomeIcon');
     });
 
     it('includes the title of the document', () => {
@@ -43,9 +41,7 @@ describe('DocumentDetailPanelView', () => {
   it('includes the formatted uploaded-at time', () => {
     const createdAt = '2018-09-27 08:14:38.702434';
     const documentPanel = renderDocumentPanel({ createdAt });
-    expect(documentPanel.find('.uploaded-at').text()).toEqual(
-      'Uploaded 27-Sep-18',
-    );
+    expect(documentPanel.find('.uploaded-at').text()).toEqual('Uploaded 27-Sep-18');
   });
 
   describe('swagger fields documents', () => {

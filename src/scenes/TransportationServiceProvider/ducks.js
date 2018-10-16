@@ -34,98 +34,50 @@ const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 // SINGLE RESOURCE ACTION TYPES
 const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
-const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  acceptShipmentType,
-);
-const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  rejectShipmentType,
-);
-const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  transportShipmentType,
-);
-const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  deliverShipmentType,
-);
-const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(
-  loadShipmentDocumentsType,
-);
+const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(acceptShipmentType);
+const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(rejectShipmentType);
+const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipmentType);
+const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
+const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
 
 const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
 
-const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
-  indexServiceAgentsType,
-);
+const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceAgentsType);
 
-const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
-  createServiceAgentsType,
-);
+const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(createServiceAgentsType);
 
-const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
-  updateServiceAgentsType,
-);
+const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(updateServiceAgentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
-const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
-  loadTspDependenciesType,
-);
+const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadTspDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
 
-export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
-  loadShipmentType,
-  LoadShipment,
-);
+export const loadShipment = ReduxHelpers.generateAsyncActionCreator(loadShipmentType, LoadShipment);
 
-export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
-  patchShipmentType,
-  PatchShipment,
-);
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
-export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(
-  acceptShipmentType,
-  AcceptShipment,
-);
+export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(acceptShipmentType, AcceptShipment);
 
-export const generateGBL = ReduxHelpers.generateAsyncActionCreator(
-  generateGBLType,
-  GenerateGBL,
-);
+export const generateGBL = ReduxHelpers.generateAsyncActionCreator(generateGBLType, GenerateGBL);
 
-export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(
-  rejectShipmentType,
-  RejectShipment,
-);
+export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(rejectShipmentType, RejectShipment);
 
-export const transportShipment = ReduxHelpers.generateAsyncActionCreator(
-  transportShipmentType,
-  TransportShipment,
-);
+export const transportShipment = ReduxHelpers.generateAsyncActionCreator(transportShipmentType, TransportShipment);
 
-export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(
-  deliverShipmentType,
-  DeliverShipment,
-);
+export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(deliverShipmentType, DeliverShipment);
 
 export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
   loadShipmentDocumentsType,
   GetAllShipmentDocuments,
 );
 
-export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
-  indexServiceAgentsType,
-  IndexServiceAgents,
-);
+export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(indexServiceAgentsType, IndexServiceAgents);
 
-export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(
-  createServiceAgentsType,
-  CreateServiceAgent,
-);
+export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(createServiceAgentsType, CreateServiceAgent);
 
-export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(
-  updateServiceAgentsType,
-  UpdateServiceAgent,
-);
+export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(updateServiceAgentsType, UpdateServiceAgent);
 
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
@@ -148,10 +100,7 @@ export function loadShipmentDependencies(shipmentId) {
   return async function(dispatch, getState) {
     dispatch(actions.start());
     try {
-      await Promise.all([
-        dispatch(loadShipment(shipmentId)),
-        dispatch(indexServiceAgents(shipmentId)),
-      ]);
+      await Promise.all([dispatch(loadShipment(shipmentId)), dispatch(indexServiceAgents(shipmentId))]);
       return dispatch(actions.success());
     } catch (ex) {
       return dispatch(actions.error(ex));
@@ -401,10 +350,7 @@ export function tspReducer(state = initialState, action) {
         }
       });
       if (!extant) {
-        console.log(
-          'WARNING: An updated Agent did not exist before updating: ',
-          updatedAgent.id,
-        );
+        console.log('WARNING: An updated Agent did not exist before updating: ', updatedAgent.id);
         updatedAgents.push(updatedAgent);
       }
 

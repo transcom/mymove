@@ -13,12 +13,7 @@ describe('No available shipments or errors', () => {
 
   beforeEach(() => {
     wrapper = mount(
-      <Shipments
-        hasError={hasError}
-        shipments={shipments}
-        loadShipments={loadShipments}
-        match={match}
-      />,
+      <Shipments hasError={hasError} shipments={shipments} loadShipments={loadShipments} match={match} />,
     );
   });
 
@@ -58,12 +53,7 @@ describe('Has available shipments', () => {
     ];
     const hasError = false;
     wrapper = mount(
-      <Shipments
-        hasError={hasError}
-        shipments={shipments}
-        loadShipments={loadShipments}
-        match={match}
-      />,
+      <Shipments hasError={hasError} shipments={shipments} loadShipments={loadShipments} match={match} />,
     );
   });
 
@@ -85,12 +75,7 @@ describe('No awarded shipments or errors', () => {
 
   beforeEach(() => {
     wrapper = mount(
-      <Shipments
-        hasError={hasError}
-        shipments={shipments}
-        loadShipments={loadShipments}
-        match={match}
-      />,
+      <Shipments hasError={hasError} shipments={shipments} loadShipments={loadShipments} match={match} />,
     );
   });
 
@@ -134,12 +119,7 @@ describe('Has awarded shipments', () => {
     ];
     const hasError = false;
     wrapper = mount(
-      <Shipments
-        hasError={hasError}
-        shipments={shipments}
-        loadShipments={loadShipments}
-        match={match}
-      />,
+      <Shipments hasError={hasError} shipments={shipments} loadShipments={loadShipments} match={match} />,
     );
   });
 

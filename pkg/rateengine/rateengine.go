@@ -235,17 +235,15 @@ type CostByShipment struct {
 }
 
 // HandleRunOnShipment runs the rate engine on a shipment and returns the shipment and cost.
-// Assumptions: Shipment model passed in has eagerly fetched PickupAddress, DeliveryAddress,
-// and ShipmentOffers.TransportationServiceProviderPerformance.
+// Assumptions: Shipment model passed in has eagerly fetched PickupAddress,
+// Move.Orders.NewDutyStation.Address, and ShipmentOffers.TransportationServiceProviderPerformance.
 func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipment, error) {
 	// Validate expected model relationships are available.
 	if shipment.PickupAddress == nil {
 		return CostByShipment{}, errors.New("PickupAddress is nil")
 	}
 
-	if shipment.DeliveryAddress == nil {
-		return CostByShipment{}, errors.New("DeliveryAddress is nil")
-	}
+	// NewDutyStation's address/postal code is required per model/schema, so no nil check needed.
 
 	if shipment.ShipmentOffers == nil {
 		return CostByShipment{}, errors.New("ShipmentOffers is nil")
@@ -255,6 +253,10 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 
 	if shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.ID == uuid.Nil {
 		return CostByShipment{}, errors.New("TransportationServiceProviderPerformance is nil")
+	}
+
+	if shipment.NetWeight == nil {
+		return CostByShipment{}, errors.New("NetWeight is nil")
 	}
 
 	// All required relationships should exist at this point.
@@ -267,9 +269,9 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 
 	// Apply rate engine to shipment
 	var shipmentCost CostByShipment
-	cost, err := re.ComputeShipment(unit.Pound(*shipment.WeightEstimate),
+	cost, err := re.ComputeShipment(*shipment.NetWeight,
 		shipment.PickupAddress.PostalCode,
-		shipment.DeliveryAddress.PostalCode,
+		shipment.Move.Orders.NewDutyStation.Address.PostalCode,
 		time.Time(*shipment.ActualPickupDate),
 		daysInSIT, // We don't want any SIT charges
 		lhDiscount,
