@@ -11,7 +11,7 @@ import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
 import './PreApprovalRequest.css';
 
-export function renderActionIcons(status, onEdit, onApproval, onDelete) {
+export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentAccessorialId) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
   if (status === 'APPROVED' || status === 'INVOICED') {
@@ -32,7 +32,11 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
           <span onClick={onEdit}>
             <FontAwesomeIcon className="icon actionable" icon={faPencil} />
           </span>
-          <span onClick={onDelete}>
+          <span
+            onClick={() => {
+              onDelete(shipmentAccessorialId);
+            }}
+          >
             <FontAwesomeIcon className="icon actionable" icon={faTimes} />
           </span>
         </span>
@@ -83,7 +87,7 @@ const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onAppro
                 <span className="status">{status}</span>
                 {row.status[0].toUpperCase() + row.status.substring(1).toLowerCase()}
               </td>
-              <td>{isActionable && renderActionIcons(row.status, onEdit, onApproval, onDelete)}</td>
+              <td>{isActionable && renderActionIcons(row.status, onEdit, onApproval, onDelete, row.id)}</td>
             </tr>
           );
         })}
