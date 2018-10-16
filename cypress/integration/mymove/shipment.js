@@ -125,7 +125,12 @@ describe('completing the hhg flow', function() {
     });
     cy.contains('Government moves all of your stuff (HHG)');
 
-    // TODO: when shipment info is available on Review page, test edit of fields
+    cy.contains('123 Elm Street'); // pickup address
+    cy.contains('543 Oak Street'); // secondary pickup address
+    cy.contains('678 Madrone Street'); // destination address
+
+    cy.contains('3,000 lbs + 250 lbs pro-gear + 158 lbs spouse pro-gear');
+    cy.contains('Great! You appear within your weight allowance.');
 
     cy.nextPage();
     cy.contains('SIGNATURE');
