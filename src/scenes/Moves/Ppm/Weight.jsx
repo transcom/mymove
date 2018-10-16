@@ -101,8 +101,7 @@ class RequestAdvanceForm extends Component {
                 final incentive is affected by the amount of weight you actually move, if you request a full advance and
                 then move less weight than anticipated, you may have to pay back some of your advance to the military.
                 If you would like to use a more specific move calculator to estimate your anticipated shipment weight,
-                you can do that <a href="https://www.move.mil/resources/weight-estimator">here</a>
-                .
+                you can do that <a href="https://www.move.mil/resources/weight-estimator">here</a>.
               </Alert>
               <SwaggerField
                 fieldName="requested_amount"

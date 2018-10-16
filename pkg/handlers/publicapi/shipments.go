@@ -49,7 +49,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		WeightEstimate:                      handlers.FmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
-		ActualWeight:                        handlers.FmtPoundPtr(s.ActualWeight),
+		NetWeight:                           handlers.FmtPoundPtr(s.NetWeight),
+		GrossWeight:                         handlers.FmtPoundPtr(s.GrossWeight),
+		TareWeight:                          handlers.FmtPoundPtr(s.TareWeight),
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
@@ -320,8 +322,16 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 		shipment.PmSurveyWeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.PmSurveyWeightEstimate)
 	}
 
-	if payload.ActualWeight != nil {
-		shipment.ActualWeight = handlers.PoundPtrFromInt64Ptr(payload.ActualWeight)
+	if payload.NetWeight != nil {
+		shipment.NetWeight = handlers.PoundPtrFromInt64Ptr(payload.NetWeight)
+	}
+
+	if payload.GrossWeight != nil {
+		shipment.GrossWeight = handlers.PoundPtrFromInt64Ptr(payload.GrossWeight)
+	}
+
+	if payload.TareWeight != nil {
+		shipment.TareWeight = handlers.PoundPtrFromInt64Ptr(payload.TareWeight)
 	}
 
 	if payload.ActualPickupDate != nil {
@@ -335,6 +345,38 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	if payload.ActualDeliveryDate != nil {
 		shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
 	}
+
+	if payload.PickupAddress != nil {
+		if shipment.PickupAddress == nil {
+			shipment.PickupAddress = addressModelFromPayload(payload.PickupAddress)
+		} else {
+			updateAddressWithPayload(shipment.PickupAddress, payload.PickupAddress)
+		}
+	}
+	if payload.HasSecondaryPickupAddress == false {
+		shipment.SecondaryPickupAddress = nil
+	} else if payload.HasSecondaryPickupAddress == true {
+		if payload.SecondaryPickupAddress != nil {
+			if shipment.SecondaryPickupAddress == nil {
+				shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
+			} else {
+				updateAddressWithPayload(shipment.SecondaryPickupAddress, payload.SecondaryPickupAddress)
+			}
+		}
+	}
+	shipment.HasSecondaryPickupAddress = payload.HasSecondaryPickupAddress
+	if payload.HasDeliveryAddress == false {
+		shipment.DeliveryAddress = nil
+	} else if payload.HasDeliveryAddress == true {
+		if payload.DeliveryAddress != nil {
+			if shipment.DeliveryAddress == nil {
+				shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
+			} else {
+				updateAddressWithPayload(shipment.DeliveryAddress, payload.DeliveryAddress)
+			}
+		}
+	}
+	shipment.HasDeliveryAddress = payload.HasDeliveryAddress
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment

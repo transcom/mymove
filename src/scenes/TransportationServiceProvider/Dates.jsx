@@ -13,10 +13,10 @@ const datesFields = [
   'pm_survey_planned_pickup_date',
   'pm_survey_planned_delivery_date',
   'requested_pickup_date',
-  'actual_pickup_date',
   'actual_pack_date',
-  'requested_delivery_date',
+  'actual_pickup_date',
   'actual_delivery_date',
+  'requested_delivery_date',
   'pm_survey_notes',
   'pm_survey_method',
 ];
@@ -45,6 +45,7 @@ const DatesDisplay = props => {
         <div className="column-subhead">Delivery</div>
         <PanelField title="Original" value="TODO" />
         <PanelSwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" {...fieldProps} />
+        <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
         <PanelField title="Current RDD" value="TODO" />
         <PanelSwaggerField fieldName="pm_survey_notes" required title="Notes about dates" {...fieldProps} />
       </div>
@@ -67,7 +68,7 @@ const DatesEdit = props => {
           <SwaggerField fieldName="pm_survey_method" swagger={schema} required />
           <div className="column-head">Packing</div>
           <PanelField title="Original" value="TODO" />
-          <SwaggerField fieldName="pm_survey_planned_pack_date" required title="Planned" swagger={schema} />
+          <SwaggerField fieldName="pm_survey_planned_pack_date" title="Planned" swagger={schema} required />
           <SwaggerField fieldName="actual_pack_date" required title="Actual" swagger={schema} />
         </div>
         <div className="editable-panel-column">
@@ -78,6 +79,7 @@ const DatesEdit = props => {
           <div className="column-head">Delivery</div>
           <PanelField title="Original" value="TODO" />
           <SwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" swagger={schema} />
+          <SwaggerField fieldName="actual_delivery_date" required title="Actual" swagger={schema} />
           <PanelField title="Current RDD" value="TODO" />
           <SwaggerField fieldName="pm_survey_notes" title="Notes about dates" swagger={schema} />
         </div>

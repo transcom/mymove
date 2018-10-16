@@ -14,8 +14,9 @@ export default function PPMShipmentSummary(props) {
 
   const editDateAndLocationAddress = movePath + '/edit-date-and-location';
   const editWeightAddress = movePath + '/edit-weight';
+
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-    ? `(spend up to ${ppm.estimated_storage_reimbursement.toLocaleString()} on private storage)`
+    ? `(spend up to ${formatCents(ppm.estimated_storage_reimbursement)} on private storage)`
     : '';
   const sitDisplay = get(ppm, 'has_sit', false)
     ? `${ppm.days_in_storage} days ${privateStorageString}`

@@ -24,7 +24,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *handlers.FmtDate(scenario.May15_2018),
+		PlannedMoveDate: *handlers.FmtDate(scenario.Oct1_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		WeightEstimate:  7500,
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *handlers.FmtDate(scenario.May15_2018),
+		PlannedMoveDate: *handlers.FmtDate(scenario.Oct1_2018),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		WeightEstimate:  600,

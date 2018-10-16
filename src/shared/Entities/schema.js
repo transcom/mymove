@@ -69,5 +69,10 @@ moveDocument.define({
   move: move,
 });
 
+export const moveDocumentPayload = moveDocument;
+
 // AvailableMoveDates
 export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
+
+// MoveDatesSummary
+export const moveDatesSummary = new schema.Entity('moveDatesSummaries');

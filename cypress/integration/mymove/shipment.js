@@ -42,11 +42,15 @@ describe('completing the hhg flow', function() {
           .should('have.class', 'DayPicker-Day--selected');
       });
 
+    // Check for calendar move dates summary and color-coding of calendar.
+    cy.contains('Movers Packing');
+    cy.get('.DayPicker-Day.DayPicker-Day--pickup');
     cy.nextPage();
 
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-form/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-locations/);
     });
+    cy.get('button.next').should('be.disabled');
 
     // Pickup address
     cy
@@ -86,6 +90,12 @@ describe('completing the hhg flow', function() {
       .type('Fremont');
     cy.get('select[name="delivery_address.state"]').select('CA');
     cy.get('input[name="delivery_address.postal_code"]').type('94567');
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-form/);
+    });
 
     // Weights
     cy

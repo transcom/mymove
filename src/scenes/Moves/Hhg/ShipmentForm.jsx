@@ -9,7 +9,6 @@ import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
 import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import Address from 'scenes/Moves/Hhg/Address';
 import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
 
 import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
@@ -87,7 +86,6 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <Address schema={this.props.schema} error={error} formValues={this.props.formValues} />
           <WeightEstimates schema={this.props.schema} error={error} formValues={this.props.formValues} />
         </div>
       </ShipmentFormWizardForm>

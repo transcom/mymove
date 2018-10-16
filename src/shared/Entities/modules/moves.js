@@ -1,9 +1,9 @@
+import { get } from 'lodash';
+import { moves } from '../schema';
+import { ADD_ENTITIES } from '../actions';
 import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
-
-import { moves } from '../schema';
-import { ADD_ENTITIES } from '../actions';
 
 export const STATE_KEY = 'moves';
 
@@ -27,3 +27,14 @@ export function getMove(label, moveId) {
 export const selectMove = (state, id) => {
   return denormalize([id], moves, state.entities)[0];
 };
+
+export function getMoveDatesSummary(label, moveId, moveDate) {
+  return swaggerRequest(getClient, 'moves.showMoveDatesSummary', { moveId, moveDate }, { label });
+}
+
+export function selectMoveDatesSummary(state, moveId, moveDate) {
+  if (!moveId || !moveDate) {
+    return null;
+  }
+  return get(state, `entities.moveDatesSummaries.${moveId}:${moveDate}`);
+}

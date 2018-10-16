@@ -41,7 +41,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 	return documentPayload, nil
 }
 
-func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument models.MoveDocument) (*apimessages.MoveDocumentPayload, error) {
+func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument models.MoveDocument, shipmentID uuid.UUID) (*apimessages.MoveDocumentPayload, error) {
 
 	documentPayload, err := payloadForDocumentModel(storer, moveDocument.Document)
 	if err != nil {
@@ -50,6 +50,7 @@ func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument 
 
 	genericMoveDocumentPayload := apimessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
+		ShipmentID:       handlers.FmtUUID(shipmentID),
 		Document:         documentPayload,
 		Title:            &moveDocument.Title,
 		MoveDocumentType: apimessages.MoveDocumentType(moveDocument.MoveDocumentType),
@@ -120,7 +121,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument)
+	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument, shipmentID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

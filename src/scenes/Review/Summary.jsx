@@ -88,6 +88,7 @@ export class Summary extends Component {
     const editContactInfoAddress = rootAddress + '/edit-contact-info';
     const editOrdersAddress = rootAddressWithMoveId + '/edit-orders';
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
+
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -152,7 +153,6 @@ export class Summary extends Component {
                     </span>
                   )}
                 </p>
-
                 <table>
                   <tbody>
                     <tr>
@@ -235,7 +235,7 @@ export class Summary extends Component {
               </tbody>
             </table>
             {currentBackupContacts.map(contact => (
-              <Fragment key={contact.id}>
+              <Fragment>
                 <p className="heading">
                   Backup Contact Info
                   <span className="edit-section-link">
@@ -265,8 +265,8 @@ export class Summary extends Component {
             ))}
           </div>
         </div>
-        {currentPpm && !lastMoveIsCanceled && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
 
+        {currentPpm && !lastMoveIsCanceled && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
         {currentShipment &&
           !lastMoveIsCanceled && (
             <HHGShipmentSummary
@@ -275,7 +275,6 @@ export class Summary extends Component {
               entitlements={entitlement}
             />
           )}
-
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}

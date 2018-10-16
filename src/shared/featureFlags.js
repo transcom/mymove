@@ -21,9 +21,7 @@ const environmentFlags = {
 
   experimental: Object.assign({}, defaultFlags),
 
-  staging: Object.assign({}, defaultFlags, {
-    hhg: false,
-  }),
+  staging: Object.assign({}, defaultFlags),
 
   production: Object.assign({}, defaultFlags, {
     hhg: false,
@@ -47,7 +45,7 @@ export function flagsFromURL(search) {
   return flags;
 }
 
-// Return the name of the current envirnonment as a string.
+// Return the name of the current environment as a string.
 export function detectEnvironment(nodeEnv, host) {
   if (nodeEnv !== 'production') {
     return nodeEnv;
@@ -75,8 +73,7 @@ export function detectEnvironment(nodeEnv, host) {
 }
 
 function validateFlag(name) {
-  // Warn if the value is undefined, indicating that a value is being fetched
-  // that was never set.
+  // Warn if the value being fetched was never set.
   if (Object.keys(defaultFlags).indexOf(name) === -1) {
     if (console && console.warn) {
       console.warn(`'${name}' is not a valid flag name.`);

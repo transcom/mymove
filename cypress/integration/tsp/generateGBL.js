@@ -2,10 +2,14 @@
 describe('TSP User generates GBL', function() {
   beforeEach(() => {
     cy.signIntoTSP();
-    // cy.resetDb()
   });
+
   it('tsp user generates GBL from shipment info page', function() {
     tspUserGeneratesGBL();
+  });
+
+  it('tsp user can open a GBL from the shipment info page', function() {
+    tspUserViewsGBL();
   });
 });
 
@@ -52,4 +56,33 @@ function tspUserGeneratesGBL() {
     .click();
 
   cy.get('.usa-alert-warning').contains('There is already a GBL for this shipment. ');
+}
+
+function tspUserViewsGBL() {
+  // Open new shipments queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // Find shipment
+  cy
+    .get('div')
+    .contains('GBLGBL')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  cy.get('.documents').should($div => expect($div.text()).to.contain('Government Bill Of Lading'));
+
+  cy
+    .get('.documents')
+    .get('a')
+    .contains('Government Bill Of Lading')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+\/documents\/[^/]+/);
+  });
 }

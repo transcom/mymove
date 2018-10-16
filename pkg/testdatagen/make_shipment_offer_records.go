@@ -134,7 +134,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			},
 		})
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 	oneWeek, _ := time.ParseDuration("7d")
 	selectedMoveType := "HHG"
 	if len(statuses) == 0 {
@@ -147,6 +148,20 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			models.ShipmentStatusINTRANSIT,
 			models.ShipmentStatusDELIVERED}
 	}
+
+	// Make the required Tariff 400 NG Zip3
+	MakeDefaultTariff400ngZip3(db)
+	MakeTariff400ngZip3(db, Assertions{
+		Tariff400ngZip3: models.Tariff400ngZip3{
+			Zip3:          "800",
+			BasepointCity: "Denver",
+			State:         "CO",
+			ServiceArea:   "145",
+			RateArea:      "US74",
+			Region:        "5",
+		},
+	})
+
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
@@ -158,6 +173,19 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		// Shipment Details
 		shipmentStatus := statuses[rand.Intn(len(statuses))]
 
+		// New Duty Station
+		newDutyStationAssertions := Assertions{
+			Address: models.Address{
+				City:       "Aurora",
+				State:      "CO",
+				PostalCode: "80011",
+			},
+			DutyStation: models.DutyStation{
+				Name: "Buckley AFB",
+			},
+		}
+		newDutyStation := MakeDutyStation(db, newDutyStationAssertions)
+
 		// Move Details
 		moveStatus := models.MoveStatusSUBMITTED
 		if shipmentStatus == models.ShipmentStatusAPPROVED {
@@ -168,21 +196,43 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			User: models.User{
 				LoginGovEmail: smEmail,
 			},
+			Order: models.Order{
+				NewDutyStationID: newDutyStation.ID,
+				NewDutyStation:   newDutyStation,
+			},
 			Move: models.Move{
 				SelectedMoveType: &selectedMoveType,
 				Status:           moveStatus,
 			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
-				ActualPickupDate:        &nowPlusOne,
-				ActualDeliveryDate:      &nowPlusTwo,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
+				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 				Status:                  shipmentStatus,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
+
+		// Set dates based on status
+		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
+			shipment.PmSurveyConductedDate = &now
+			shipment.PmSurveyPlannedPackDate = &nowPlusOne
+			shipment.PmSurveyPlannedPickupDate = &nowPlusOne
+			shipment.PmSurveyPlannedDeliveryDate = &nowPlusTwo
+			shipment.ActualPackDate = &now
+			shipment.ActualPickupDate = &nowPlusOne
+		}
+
+		if shipmentStatus == models.ShipmentStatusDELIVERED {
+			shipment.ActualDeliveryDate = &nowPlusTwo
+		}
+
+		// Assign a new unique GBL number using source GBLOC
+		shipment.AssignGBLNumber(db)
+		mustSave(db, &shipment)
+
 		shipmentList = append(shipmentList, shipment)
 
 		// Accepted shipments must have an OSA and DSA

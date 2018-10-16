@@ -109,7 +109,7 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-tools_build: server_deps
+build_tools: server_deps server_generate
 	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
 	go build -i -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
@@ -119,10 +119,10 @@ tools_build: server_deps
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
 
-tsp_run: tools_build db_dev_run
+tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
 
-build: server_build tools_build client_build
+build: server_build build_tools client_build
 
 server_test: server_deps server_generate db_dev_run db_test_reset
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
@@ -149,7 +149,7 @@ e2e_test: server_deps server_generate server_build client_build db_e2e_init
 e2e_test_ci: server_deps server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./bin/run-e2e-test-ci
 
-db_populate_e2e: db_dev_reset db_dev_migrate tools_build
+db_populate_e2e: db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic"
 
 db_dev_run:
@@ -181,7 +181,7 @@ db_dev_migrate_down: server_deps db_dev_run
 	cd bin && \
 		./soda -c ../config/database.yml -p ../migrations migrate down
 
-db_e2e_init: tools_build db_dev_run db_test_reset
+db_e2e_init: build_tools db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
 
