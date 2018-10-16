@@ -48,7 +48,7 @@ export class PreApprovalPanel extends Component {
             onApproval={isOfficeSite ? this.onApproval : null}
           />
           <Creator
-            accessorials={this.props.accessorials}
+            tariff400ngItems={this.props.tariff400ngItems}
             savePreApprovalRequest={this.onSubmit}
             onFormActivation={this.onFormActivation}
           />
@@ -60,7 +60,7 @@ export class PreApprovalPanel extends Component {
 
 PreApprovalPanel.propTypes = {
   shipment_accessorials: PropTypes.array,
-  accessorials: PropTypes.array,
+  tariff400ngItems: PropTypes.array,
 };
 
 function mapStateToProps(state) {
