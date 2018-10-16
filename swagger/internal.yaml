@@ -4175,3 +4175,24 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
+
+  /dps_auth/cookie:
+    post:
+      summary: Sets a cookie for DPS authentication
+      description: Sets a cookie for DPS authentication
+      operationId: setDPSAuthCookie
+      tags:
+        - dps_auth
+      parameters:
+        - in: query
+          name: cookie_name
+          type: string
+          description: The name of the cookie to set, DPS by default
+          required: false
+      responses:
+        200:
+          description: set cookie
+        400:
+          description: invalid request
+        500:
+          description: internal server error
