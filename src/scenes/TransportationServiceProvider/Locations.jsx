@@ -2,8 +2,10 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { editablePanelify } from 'shared/EditablePanel';
+import { reduxForm, FormSection } from 'redux-form';
 
-import { AddressElementDisplay } from 'shared/Address';
+import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
+import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
 const LocationsDisplay = ({
   deliveryAddress,
@@ -26,9 +28,53 @@ const LocationsDisplay = ({
   </Fragment>
 );
 
-const { shape, string, bool } = PropTypes;
+const LocationsEdit = ({
+  deliveryAddress,
+  addressSchema,
+  shipment: {
+    pickup_address: pickupAddress,
+    has_secondary_pickup_address: hasSecondaryPickupAddress,
+    secondary_pickup_address: secondaryPickupAddress,
+  },
+}) => (
+  <Fragment>
+    <div className="editable-panel-column">
+      <FormSection name="pickupAddress">
+        <AddressElementEdit
+          addressProps={{
+            swagger: addressSchema,
+            values: pickupAddress,
+          }}
+          title="Pickup Primary"
+        />
+      </FormSection>
+      <FormSection name="secondaryPickupAddress">
+        <AddressElementEdit
+          addressProps={{
+            swagger: addressSchema,
+            values: secondaryPickupAddress,
+          }}
+          title="Pickup Secondary"
+        />
+      </FormSection>
+    </div>
+    <div className="editable-panel-column">
+      <FormSection name="deliveryAddress">
+        <AddressElementEdit
+          addressProps={{
+            swagger: addressSchema,
+            values: deliveryAddress,
+          }}
+          title="Delivery Primary"
+        />
+      </FormSection>
+    </div>
+  </Fragment>
+);
 
-LocationsDisplay.propTypes = {
+const { shape, string, bool, object } = PropTypes;
+
+const propTypes = {
   deliveryAddress: shape({
     city: string.isRequired,
     postal_code: string.isRequired,
@@ -56,8 +102,24 @@ LocationsDisplay.propTypes = {
       street_address_3: string,
     }),
   }).isRequired,
+  addressSchema: object.isRequired,
 };
 
-const LocationsPanel = editablePanelify(LocationsDisplay, null, false);
+LocationsDisplay.propTypes = propTypes;
+LocationsEdit.propTypes = propTypes;
+
+const formName = 'shipment_locations';
+
+let LocationsPanel = editablePanelify(LocationsDisplay, LocationsEdit);
+LocationsPanel = reduxForm({
+  form: formName,
+  validate: validateRequiredFields,
+  enableReinitialize: true,
+  keepDirtyOnReinitialize: true,
+})(LocationsPanel);
+
+LocationsPanel.propTypes = {
+  initialValues: object.isRequired,
+};
 
 export { LocationsDisplay, LocationsPanel as default };

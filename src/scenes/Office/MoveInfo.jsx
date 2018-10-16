@@ -222,7 +222,7 @@ class MoveInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>ID# {serviceMember.edipi}</li>
+              <li>ID# {serviceMember.edipi}&nbsp;</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -230,9 +230,10 @@ class MoveInfo extends Component {
                 )}
                 {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                &nbsp;
               </li>
-              <li>Locator# {move.locator}</li>
-              <li>Move date {formatDate(ppm.planned_move_date)}</li>
+              <li>Locator# {move.locator}&nbsp;</li>
+              <li>Move date {formatDate(ppm.planned_move_date)}&nbsp;</li>
             </ul>
           </div>
         </div>

@@ -35,8 +35,7 @@ export const CustomerInfo = ({ serviceMember, backupContact }) => {
               <span>
                 <b>Backup Contacts</b>
                 <br />
-                {backupContact.name} ({backupContact.permission})
-                <br />
+                {backupContact.name} ({backupContact.permission})<br />
                 {backupContact.telephone && (
                   <span>
                     {backupContact.telephone}
