@@ -9,19 +9,19 @@ import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import Address from 'scenes/Moves/Hhg/Address';
+import ProgearEstimates from 'scenes/Moves/Hhg/ProgearEstimates';
 
 import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
 import './ShipmentWizard.css';
 
-const formName = 'locations_form';
-const getRequestLabel = 'Locations.getShipment';
-const createOrUpdateRequestLabel = 'Locations.createOrUpdateShipment';
+const formName = 'progear_form';
+const getRequestLabel = 'progear.getShipment';
+const createOrUpdateRequestLabel = 'progear.createOrUpdateShipment';
 
-const LocationsWizardForm = reduxifyWizardForm(formName);
+const ProgearWizardForm = reduxifyWizardForm(formName);
 
-export class Locations extends Component {
+export class Progear extends Component {
   componentDidMount() {
     this.loadShipment();
   }
@@ -59,9 +59,10 @@ export class Locations extends Component {
 
   render() {
     const { pages, pageKey, error, initialValues } = this.props;
+
     // Shipment Wizard
     return (
-      <LocationsWizardForm
+      <ProgearWizardForm
         handleSubmit={this.handleSubmit}
         className={formName}
         pageList={pages}
@@ -84,13 +85,13 @@ export class Locations extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <Address schema={this.props.schema} error={error} formValues={this.props.formValues} />
+          <ProgearEstimates schema={this.props.schema} formValues={this.props.formValues} />
         </div>
-      </LocationsWizardForm>
+      </ProgearWizardForm>
     );
   }
 }
-Locations.propTypes = {
+Progear.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
@@ -112,4 +113,4 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Locations);
+export default connect(mapStateToProps, mapDispatchToProps)(Progear);
