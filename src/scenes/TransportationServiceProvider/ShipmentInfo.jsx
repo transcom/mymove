@@ -311,7 +311,7 @@ const mapStateToProps = state => {
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
-    shipmentDocuments: selectShipmentDocuments(state),
+    shipmentDocuments: selectShipmentDocuments(state, shipment.id),
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
