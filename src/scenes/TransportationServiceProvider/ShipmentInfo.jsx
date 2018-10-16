@@ -222,6 +222,7 @@ class ShipmentInfo extends Component {
                   <PreApprovalPanel
                     shipment_accessorials={this.props.shipmentAccessorials}
                     tariff400ngItems={this.props.tariff400ngItems}
+                    shipmentId={this.props.match.params.shipmentId}
                   />
                   <ServiceAgents
                     title="ServiceAgents"

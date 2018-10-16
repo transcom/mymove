@@ -13,10 +13,13 @@
 }
 
 /* Custom widths for columns in the preapproval request table */
-/*Code, Loc. */
-.accessorial-panel table > tbody > tr > th:nth-child(1),
-.accessorial-panel table > tbody > tr > th:nth-child(3) {
+/*Code */
+.accessorial-panel table > tbody > tr > th:nth-child(1) {
   width: 5%;
+}
+/* Loc. */
+.accessorial-panel table > tbody > tr > th:nth-child(3) {
+  width: 9%;
 }
 /*Base Quantity*/
 .accessorial-panel table > tbody > tr > th:nth-child(4) {

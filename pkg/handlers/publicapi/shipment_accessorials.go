@@ -32,8 +32,8 @@ func payloadForShipmentAccessorialModel(s *models.ShipmentAccessorial) *apimessa
 	}
 
 	return &apimessages.ShipmentAccessorial{
-		ID:            handlers.FmtUUID(s.ID),
-		ShipmentID:    handlers.FmtUUID(s.ShipmentID),
+		ID:            *handlers.FmtUUID(s.ID),
+		ShipmentID:    *handlers.FmtUUID(s.ShipmentID),
 		Accessorial:   payloadForTariff400ngItemModel(&s.Accessorial),
 		AccessorialID: handlers.FmtUUID(s.AccessorialID),
 		Location:      apimessages.AccessorialLocation(s.Location),
@@ -88,7 +88,6 @@ func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShip
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
-
 	var shipment *models.Shipment
 	var err error
 	// If TSP user, verify TSP has shipment

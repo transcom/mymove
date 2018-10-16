@@ -3,24 +3,15 @@ import { getPublicClient } from 'shared/Swagger/api';
 import { shipmentAccessorials } from '../schema';
 import { denormalize } from 'normalizr';
 
-export function createShipmentAccessorial(label, shipmentId, createPayload) {
-  return swaggerRequest(
-    getPublicClient,
-    'accessorials.createShipmentAccessorial',
-    { shipmentId, createPayload },
-    { label },
-  );
+export function createShipmentAccessorial(label, shipmentId, payload) {
+  return swaggerRequest(getPublicClient, 'accessorials.createShipmentAccessorial', { shipmentId, payload }, { label });
 }
 
-export function updateShipmentAccessorial(
-  label,
-  shipmentAccessorialId,
-  updatePayload,
-) {
+export function updateShipmentAccessorial(label, shipmentAccessorialId, payload) {
   return swaggerRequest(
     getPublicClient,
     'accessorials.updateShipmentAccessorial',
-    { shipmentAccessorialId, updatePayload },
+    { shipmentAccessorialId, payload },
     { label },
   );
 }
@@ -44,27 +35,12 @@ export function approveShipmentAccessorial(label, shipmentAccessorialId) {
 }
 
 export function getAllShipmentAccessorials(label, shipmentId) {
-  return swaggerRequest(
-    getPublicClient,
-    'accessorials.getShipmentAccessorials',
-    { shipmentId },
-    { label },
-  );
+  return swaggerRequest(getPublicClient, 'accessorials.getShipmentAccessorials', { shipmentId }, { label });
 }
 
-export const selectShipmentAccessorials = state =>
-  Object.values(state.entities.shipmentAccessorials);
+export const selectShipmentAccessorials = state => Object.values(state.entities.shipmentAccessorials);
 
-export const getShipmentAccessorialsLabel =
-  'ShipmentAccessorials.getAllShipmentAccessorials';
+export const getShipmentAccessorialsLabel = 'ShipmentAccessorials.getAllShipmentAccessorials';
+export const createShipmentAccessorialLabel = 'ShipmentAccessorials.createShipmentAccessorial';
 
-// const defaultShipmentAccessorial = {
-//     accessorial: { uploads: [] },
-//     notes: '',
-//     status: '',
-//     title: '',
-//     type: '',
-// };
-
-export const selectShipmentAccessorial = (state, id) =>
-  denormalize([id], shipmentAccessorials, state.entities)[0];
+export const selectShipmentAccessorial = (state, id) => denormalize([id], shipmentAccessorials, state.entities)[0];

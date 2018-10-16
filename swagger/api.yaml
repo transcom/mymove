@@ -264,8 +264,6 @@ definitions:
         type: string
         format: date-time
     required:
-      - id
-      - shipment_id
       - accessorial_id
       - quantity_1
       - location

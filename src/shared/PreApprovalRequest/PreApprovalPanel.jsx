@@ -8,6 +8,13 @@ import Creator from 'shared/PreApprovalRequest/Creator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import {
+  createShipmentAccessorial,
+  createShipmentAccessorialLabel,
+} from 'shared/Entities/modules/shipmentAccessorials';
+import { selectShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
+import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+
 export class PreApprovalPanel extends Component {
   constructor() {
     super();
@@ -15,17 +22,19 @@ export class PreApprovalPanel extends Component {
       isActionable: true,
     };
   }
-  onSubmit = values => {
-    return new Promise(function(resolve, reject) {
-      // do a thing, possibly async, then…
-      setTimeout(function() {
-        console.log('onSubmit async', values);
-        resolve('success');
-      }, 50);
-    });
+  onSubmit = createPayload => {
+    return new Promise(
+      function(resolve, reject) {
+        // do a thing, possibly async, then…
+        this.props.createShipmentAccessorial(createShipmentAccessorialLabel, this.props.shipmentId, createPayload);
+        setTimeout(function() {
+          resolve('success');
+        }, 50);
+      }.bind(this),
+    );
   };
   onEdit = () => {
-    console.log('onEdit hit');
+    console.log('onEdit hit', this.props);
   };
   onDelete = () => {
     console.log('onDelete hit');
@@ -61,13 +70,17 @@ export class PreApprovalPanel extends Component {
 PreApprovalPanel.propTypes = {
   shipment_accessorials: PropTypes.array,
   tariff400ngItems: PropTypes.array,
+  shipmentId: PropTypes.string,
 };
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    shipmentAccessorials: selectShipmentAccessorials(state),
+    tariff400ngItems: selectTariff400ngItems(state),
+  };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators({ createShipmentAccessorial }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);

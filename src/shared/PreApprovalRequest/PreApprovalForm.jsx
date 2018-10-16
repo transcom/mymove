@@ -34,7 +34,7 @@ export class PreApprovalForm extends Component {
         <div className="usa-grid">
           <div className="usa-width-one-half">
             <SwaggerField
-              fieldName="accessorial"
+              fieldName="accessorial_id"
               title="Code & Item"
               className="rounded"
               component={Codes(this.props.tariff400ngItems)}
