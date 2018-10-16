@@ -11,6 +11,10 @@
   padding-top: 1.5rem;
 }
 
+.review-section .notice {
+  color: gray;
+}
+
 .review-section table {
   border: 0px;
   text-align: left;

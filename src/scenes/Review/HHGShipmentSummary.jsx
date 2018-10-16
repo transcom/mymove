@@ -52,7 +52,9 @@ export default function HHGShipmentSummary(props) {
           </tbody>
         </table>
 
-        <p>Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.</p>
+        <p className="notice">
+          Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.
+        </p>
 
         <p className="heading">
           Your Stuff
@@ -89,22 +91,32 @@ export default function HHGShipmentSummary(props) {
         </p>
         <table>
           <tbody>
-            <tr>
+            <tr className="pickup-address">
               <td>Pickup Address:</td>
               <td>
                 <Address address={shipment.pickup_address} />
               </td>
             </tr>
-            <tr>
-              <td>Additional Pickup:</td>
-              <td>{shipment.secondary_pickup_address && <Address address={shipment.secondary_pickup_address} />}</td>
-            </tr>
-            <tr>
+            {shipment.has_secondary_pickup_address && (
+              <tr className="secondary-pickup-address">
+                <td>Additional Pickup:</td>
+                <td>
+                  <Address address={shipment.secondary_pickup_address} />
+                </td>
+              </tr>
+            )}
+            <tr className="delivery-address">
               <td>Delivery Address:</td>
-              <td>{shipment.delivery_address && <Address address={shipment.delivery_address} />}</td>
+              <td>{shipment.has_delivery_address ? <Address address={shipment.delivery_address} /> : 'Not entered'}</td>
             </tr>
           </tbody>
         </table>
+        {!shipment.has_delivery_address && (
+          <p className="notice delivery-notice">
+            Note: If you don't have a delivery address before the movers arrive at your destination or you can't meet
+            the delivery truck, the movers will put your stuff in temporary storage.
+          </p>
+        )}
       </div>
     </div>
   );
