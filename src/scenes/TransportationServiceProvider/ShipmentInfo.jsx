@@ -151,7 +151,6 @@ class ShipmentInfo extends Component {
 
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
-
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
     const shipmentId = this.props.match.params.shipmentId;
 
@@ -313,7 +312,7 @@ const mapStateToProps = state => {
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
-    shipmentDocuments: selectShipmentDocuments(state),
+    shipmentDocuments: selectShipmentDocuments(state, shipment.id),
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
