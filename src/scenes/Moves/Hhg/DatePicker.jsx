@@ -104,6 +104,7 @@ export class HHGDatePicker extends Component {
                 selectedDays={parsedSelectedDay}
                 disabledDays={this.isDayDisabled}
                 modifiers={this.props.modifiers}
+                showOutsideDays
               />
             </div>
 
