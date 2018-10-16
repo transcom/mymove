@@ -12,11 +12,7 @@ export function createShipmentAccessorial(label, shipmentId, createPayload) {
   );
 }
 
-export function updateShipmentAccessorial(
-  label,
-  shipmentAccessorialId,
-  updatePayload,
-) {
+export function updateShipmentAccessorial(label, shipmentAccessorialId, updatePayload) {
   return swaggerRequest(
     getPublicClient,
     'accessorials.updateShipmentAccessorial',
@@ -44,19 +40,12 @@ export function approveShipmentAccessorial(label, shipmentAccessorialId) {
 }
 
 export function getAllShipmentAccessorials(label, shipmentId) {
-  return swaggerRequest(
-    getPublicClient,
-    'accessorials.getShipmentAccessorials',
-    { shipmentId },
-    { label },
-  );
+  return swaggerRequest(getPublicClient, 'accessorials.getShipmentAccessorials', { shipmentId }, { label });
 }
 
-export const selectShipmentAccessorials = state =>
-  Object.values(state.entities.shipmentAccessorials);
+export const selectShipmentAccessorials = state => Object.values(state.entities.shipmentAccessorials);
 
-export const getShipmentAccessorialsLabel =
-  'ShipmentAccessorials.getAllShipmentAccessorials';
+export const getShipmentAccessorialsLabel = 'ShipmentAccessorials.getAllShipmentAccessorials';
 
 // const defaultShipmentAccessorial = {
 //     accessorial: { uploads: [] },
@@ -66,5 +55,4 @@ export const getShipmentAccessorialsLabel =
 //     type: '',
 // };
 
-export const selectShipmentAccessorial = (state, id) =>
-  denormalize([id], shipmentAccessorials, state.entities)[0];
+export const selectShipmentAccessorial = (state, id) => denormalize([id], shipmentAccessorials, state.entities)[0];
