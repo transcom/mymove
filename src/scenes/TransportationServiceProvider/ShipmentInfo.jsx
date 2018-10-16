@@ -154,10 +154,12 @@ class ShipmentInfo extends Component {
 
   packShipment = values => this.props.packShipment(this.props.shipment.id, values);
 
+  deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
+
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
 
-    const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
+    const { service_member: serviceMember = {}, move = {}, gbl_number: gbl, actual_pack_date } = shipment;
 
     const shipmentId = this.props.match.params.shipmentId;
 
@@ -258,14 +260,15 @@ class ShipmentInfo extends Component {
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
-              {approved && (
-                <FormButton
-                  FormComponent={PackDateForm}
-                  schema={this.props.packSchema}
-                  onSubmit={this.packShipment}
-                  buttonTitle="Enter Packing"
-                />
-              )}
+              {approved &&
+                !actual_pack_date && (
+                  <FormButton
+                    FormComponent={PackDateForm}
+                    schema={this.props.packSchema}
+                    onSubmit={this.packShipment}
+                    buttonTitle="Enter Packing"
+                  />
+                )}
               {approved && (
                 <FormButton
                   FormComponent={PickupDateForm}

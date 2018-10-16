@@ -22,8 +22,8 @@ const acceptShipmentType = 'ACCEPT_SHIPMENT';
 const generateGBLType = 'GENERATE_GBL';
 const rejectShipmentType = 'REJECT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
-const packShipmentType = 'TRANSPORT_SHIPMENT';
-const deliverShipmentType = 'TRANSPORT_SHIPMENT';
+const packShipmentType = 'PACK_SHIPMENT';
+const deliverShipmentType = 'DELIVER_SHIPMENT';
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
