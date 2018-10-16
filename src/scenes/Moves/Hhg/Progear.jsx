@@ -85,7 +85,7 @@ export class Progear extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <ProgearEstimates schema={this.props.schema} error={error} formValues={this.props.formValues} />
+          <ProgearEstimates schema={this.props.schema} formValues={this.props.formValues} />
         </div>
       </ProgearWizardForm>
     );
