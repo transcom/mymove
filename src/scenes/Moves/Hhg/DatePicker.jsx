@@ -9,13 +9,31 @@ import moment from 'moment';
 
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import { bindActionCreators } from 'redux';
-import { getMoveDatesSummary } from 'shared/Entities/modules/moves';
+import { getMoveDatesSummary, selectMoveDatesSummary } from 'shared/Entities/modules/moves';
 import DatesSummary from 'scenes/Moves/Hhg/DatesSummary.jsx';
 
 import './DatePicker.css';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const getRequestLabel = 'DatePicker.getMoveDatesSummary';
+
+function createModifiers(moveDates) {
+  if (!moveDates) {
+    return null;
+  }
+
+  return {
+    pack: convertDateStringArray(moveDates.pack),
+    pickup: convertDateStringArray(moveDates.pickup),
+    transit: convertDateStringArray(moveDates.transit),
+    delivery: convertDateStringArray(moveDates.delivery),
+    report: convertDateStringArray(moveDates.report),
+  };
+}
+
+function convertDateStringArray(dateStrings) {
+  return dateStrings && dateStrings.map(dateString => parseSwaggerDate(dateString));
+}
 
 export class HHGDatePicker extends Component {
   constructor(props) {
@@ -72,6 +90,7 @@ export class HHGDatePicker extends Component {
 
   render() {
     const availableMoveDates = this.props.availableMoveDates;
+    const parsedSelectedDay = parseSwaggerDate(this.state.selectedDay);
     return (
       <div className="form-section">
         <h3 className="instruction-heading">Great! Let's find a date for a moving company to move your stuff.</h3>
@@ -81,13 +100,16 @@ export class HHGDatePicker extends Component {
             <div className="usa-width-one-third">
               <DayPicker
                 onDayClick={this.handleDayClick}
-                selectedDays={parseSwaggerDate(this.state.selectedDay)}
+                month={parsedSelectedDay || (availableMoveDates && availableMoveDates.minDate)}
+                selectedDays={parsedSelectedDay}
                 disabledDays={this.isDayDisabled}
+                modifiers={this.props.modifiers}
+                showOutsideDays
               />
             </div>
 
             <div className="usa-width-two-thirds">
-              {this.state.selectedDay && <DatesSummary moveDate={this.state.selectedDay} />}
+              {this.state.selectedDay && <DatesSummary moveDates={this.props.moveDates} />}
             </div>
           </div>
         ) : (
@@ -104,8 +126,17 @@ HHGDatePicker.propTypes = {
   availableMoveDates: PropTypes.object,
 };
 
+function mapStateToProps(state, ownProps) {
+  const moveDate = ownProps.input.value || get(ownProps, 'currentShipment.requested_pickup_date');
+  const moveDates = selectMoveDatesSummary(state, ownProps.match.params.moveId, moveDate);
+  return {
+    moveDates: moveDates,
+    modifiers: createModifiers(moveDates),
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary }, dispatch);
 }
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(HHGDatePicker));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker));

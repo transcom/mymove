@@ -42,8 +42,9 @@ describe('completing the hhg flow', function() {
           .should('have.class', 'DayPicker-Day--selected');
       });
 
-    // Check for calendar move dates summary
+    // Check for calendar move dates summary and color-coding of calendar.
     cy.contains('Movers Packing');
+    cy.get('.DayPicker-Day.DayPicker-Day--pickup');
     cy.nextPage();
 
     cy.location().should(loc => {
