@@ -46,6 +46,11 @@ function tspUserGeneratesGBL() {
     .contains('Generate Bill of Lading')
     .click();
 
+  cy
+    .get('button')
+    .contains('Generate Bill of Lading')
+    .should('be.disabled');
+
   // I have seen this take anywhere from 8s - 18s. Until we optimize it, giving the test a long
   // timeout.
   cy.get('.usa-alert-success', { timeout: 20000 }).contains('GBL generated successfully.');
@@ -53,16 +58,12 @@ function tspUserGeneratesGBL() {
   cy
     .get('button')
     .contains('Generate Bill of Lading')
-    .should('be.disabled');
-
-  cy.reload();
-
-  cy.wait(500);
+    .click();
 
   cy
     .get('button')
     .contains('Generate Bill of Lading')
-    .click();
+    .should('be.disabled');
 
   cy.get('.usa-alert-warning').contains('There is already a GBL for this shipment. ');
 }
