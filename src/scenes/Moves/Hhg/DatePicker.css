@@ -23,29 +23,29 @@ span.estimate {
   margin-left: 0.5rem;
 }
 
-.DayPicker-Day--pack {
+.DayPicker-Day--pack:not(.DayPicker-Day--outside) {
   background-color: #a3bddf;
   border-radius: 0;
 }
 
-.DayPicker-Day--pickup {
+.DayPicker-Day--pickup:not(.DayPicker-Day--outside) {
   background-color: #497abf;
   border-radius: 0;
 }
 
-.DayPicker-Day--transit {
+.DayPicker-Day--transit:not(.DayPicker-Day--outside) {
   background: repeating-linear-gradient(45deg, transparent, transparent 0.5em, #a3bddf 0.5em, #a3bddf 0.75em);
   border-radius: 0;
 }
 
-.DayPicker-Day--delivery {
+.DayPicker-Day--delivery:not(.DayPicker-Day--outside) {
   background-color: #a3bddf;
   border-radius: 0;
   outline: 0.25em solid #497abf;
   outline-offset: -0.25em;
 }
 
-.DayPicker-Day--report {
+.DayPicker-Day--report:not(.DayPicker-Day--outside) {
   color: white;
   background-color: #000000;
   border-radius: 0;
