@@ -35,17 +35,9 @@ function createModifiers(moveDates) {
 }
 
 function convertDateStringArray(dateStrings) {
-  if (!dateStrings) {
-    return null;
-  }
-
-  const dateStringsLen = dateStrings.length;
-  const convertedArray = new Array(dateStringsLen);
-  for (let i = 0; i < dateStringsLen; i++) {
-    convertedArray[i] = parseSwaggerDate(dateStrings[i]); // eslint-disable-line security/detect-object-injection
-  }
-
-  return convertedArray;
+  return (
+    dateStrings && dateStrings.map(dateString => parseSwaggerDate(dateString))
+  );
 }
 
 export class HHGDatePicker extends Component {
