@@ -4,27 +4,14 @@ import { renderStatusIcon } from 'shared/utils';
 import { formatDate } from 'shared/formatters';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
-const DocumentDetailPanelView = ({
-  createdAt,
-  notes,
-  schema,
-  status,
-  title,
-  type,
-}) => (
+const DocumentDetailPanelView = ({ createdAt, notes, schema, status, title, type }) => (
   <div>
     <span className="panel-subhead">
       {renderStatusIcon(status)}
       {title}
     </span>
     <p className="uploaded-at">{`Uploaded ${formatDate(createdAt)}`}</p>
-    <PanelSwaggerField
-      title="Document Title"
-      fieldName="title"
-      required
-      schema={schema}
-      values={{ title }}
-    />
+    <PanelSwaggerField title="Document Title" fieldName="title" required schema={schema} values={{ title }} />
     <PanelSwaggerField
       title="Document Type"
       fieldName="move_document_type"
@@ -32,19 +19,8 @@ const DocumentDetailPanelView = ({
       schema={schema}
       values={{ move_document_type: type }}
     />
-    <PanelSwaggerField
-      title="Document Status"
-      fieldName="status"
-      required
-      schema={schema}
-      values={{ status }}
-    />
-    <PanelSwaggerField
-      title="Notes"
-      fieldName="notes"
-      schema={schema}
-      values={{ notes }}
-    />
+    <PanelSwaggerField title="Document Status" fieldName="status" required schema={schema} values={{ status }} />
+    <PanelSwaggerField title="Notes" fieldName="notes" schema={schema} values={{ notes }} />
   </div>
 );
 

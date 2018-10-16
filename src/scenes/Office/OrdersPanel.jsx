@@ -8,12 +8,7 @@ import { Link } from 'react-router-dom';
 import { loadEntitlements, updateOrdersInfo } from './ducks';
 import { formatDate } from 'shared/formatters';
 
-import {
-  PanelSwaggerField,
-  PanelField,
-  SwaggerValue,
-  editablePanelify,
-} from 'shared/EditablePanel';
+import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -25,16 +20,10 @@ function renderEntitlements(entitlements, orders) {
   return (
     <React.Fragment>
       <span className="panel-subhead">Entitlements</span>
-      <PanelField title="Household Goods">
-        {get(entitlements, 'weight', '').toLocaleString()} lbs
-      </PanelField>
-      <PanelField title="Pro-gear">
-        {get(entitlements, 'pro_gear', '').toLocaleString()} lbs
-      </PanelField>
+      <PanelField title="Household Goods">{get(entitlements, 'weight', '').toLocaleString()} lbs</PanelField>
+      <PanelField title="Pro-gear">{get(entitlements, 'pro_gear', '').toLocaleString()} lbs</PanelField>
       {orders.spouse_has_pro_gear && (
-        <PanelField title="Spouse pro-gear">
-          {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
-        </PanelField>
+        <PanelField title="Spouse pro-gear">{get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs</PanelField>
       )}
       <PanelField title="Short-term storage">90 days</PanelField>
     </React.Fragment>
@@ -66,44 +55,20 @@ const OrdersDisplay = props => {
             </Link>
           </PanelField>
         )}
-        <PanelField
-          title="Date issued"
-          value={formatDate(props.orders.issue_date)}
-        />
+        <PanelField title="Date issued" value={formatDate(props.orders.issue_date)} />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
-        <PanelSwaggerField
-          fieldName="orders_type_detail"
-          required
-          {...fieldProps}
-        />
-        <PanelField
-          title="Report by"
-          value={formatDate(props.orders.report_by_date)}
-        />
-        <PanelField title="Current Duty Station">
-          {get(props.serviceMember, 'current_station.name', '')}
-        </PanelField>
-        <PanelField title="New Duty Station">
-          {get(props.orders, 'new_duty_station.name', '')}
-        </PanelField>
+        <PanelSwaggerField fieldName="orders_type_detail" required {...fieldProps} />
+        <PanelField title="Report by" value={formatDate(props.orders.report_by_date)} />
+        <PanelField title="Current Duty Station">{get(props.serviceMember, 'current_station.name', '')}</PanelField>
+        <PanelField title="New Duty Station">{get(props.orders, 'new_duty_station.name', '')}</PanelField>
 
-        <PanelSwaggerField
-          title="Orders Issuing Agency"
-          fieldName="orders_issuing_agency"
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="Orders Issuing Agency" fieldName="orders_issuing_agency" {...fieldProps} />
 
-        <PanelSwaggerField
-          title="Paragraph Number"
-          fieldName="paragraph_number"
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="Paragraph Number" fieldName="paragraph_number" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(props.entitlements, props.orders)}
-        {props.orders.has_dependents && (
-          <PanelField title="Dependents" value="Authorized" />
-        )}
+        {props.orders.has_dependents && <PanelField title="Dependents" value="Authorized" />}
       </div>
     </React.Fragment>
   );
@@ -115,75 +80,38 @@ const OrdersEdit = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <FormSection name="orders">
-          <SwaggerField
-            fieldName="orders_number"
-            swagger={schema}
-            className="half-width"
-            required
-          />
-          <SwaggerField
-            fieldName="issue_date"
-            swagger={schema}
-            className="half-width"
-          />
+          <SwaggerField fieldName="orders_number" swagger={schema} className="half-width" required />
+          <SwaggerField fieldName="issue_date" swagger={schema} className="half-width" />
           <SwaggerField fieldName="orders_type" swagger={schema} required />
-          <SwaggerField
-            fieldName="orders_type_detail"
-            swagger={schema}
-            required
-          />
+          <SwaggerField fieldName="orders_type_detail" swagger={schema} required />
           <SwaggerField fieldName="report_by_date" swagger={schema} />
         </FormSection>
 
         <FormSection name="serviceMember">
           <div className="usa-input duty-station">
-            <Field
-              name="current_station"
-              component={DutyStationSearchBox}
-              props={{ title: 'Current Duty Station' }}
-            />
+            <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Station' }} />
           </div>
         </FormSection>
 
         <FormSection name="orders">
           <div className="usa-input duty-station">
-            <Field
-              name="new_duty_station"
-              component={DutyStationSearchBox}
-              props={{ title: 'New Duty Station' }}
-            />
+            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Station' }} />
           </div>
         </FormSection>
 
         <FormSection name="orders">
-          <SwaggerField
-            fieldName="orders_issuing_agency"
-            swagger={schema}
-            className="half-width"
-          />
+          <SwaggerField fieldName="orders_issuing_agency" swagger={schema} className="half-width" />
 
-          <SwaggerField
-            fieldName="paragraph_number"
-            swagger={schema}
-            className="half-width"
-          />
+          <SwaggerField fieldName="paragraph_number" swagger={schema} className="half-width" />
         </FormSection>
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(props.entitlements, props.orders)}
 
         <FormSection name="orders">
-          <SwaggerField
-            fieldName="has_dependents"
-            swagger={schema}
-            title="Dependents authorized"
-          />
+          <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
           {get(props, 'formValues.orders.has_dependents', false) && (
-            <SwaggerField
-              fieldName="spouse_has_pro_gear"
-              swagger={schema}
-              title="Spouse has pro gear"
-            />
+            <SwaggerField fieldName="spouse_has_pro_gear" swagger={schema} title="Spouse has pro gear" />
           )}
         </FormSection>
       </div>

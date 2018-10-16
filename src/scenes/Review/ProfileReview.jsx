@@ -17,16 +17,7 @@ class ProfileReview extends Component {
     this.props.push(this.getNextIncompletePage());
   };
   getNextIncompletePage = () => {
-    const {
-      selectedMoveType,
-      lastMoveIsCanceled,
-      serviceMember,
-      orders,
-      move,
-      ppm,
-      hhg,
-      backupContacts,
-    } = this.props;
+    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, hhg, backupContacts } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,
@@ -47,10 +38,7 @@ class ProfileReview extends Component {
         pageIsValid={true}
       >
         <h1>Review your Profile</h1>
-        <p>
-          Has anything changed since your last move? Please check your info
-          below, especially your Rank.
-        </p>
+        <p>Has anything changed since your last move? Please check your info below, especially your Rank.</p>
         <Summary />
       </WizardPage>
     );

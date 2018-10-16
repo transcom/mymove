@@ -25,12 +25,7 @@ export const selectMove = (state, id) => {
 };
 
 export function getMoveDatesSummary(label, moveId, moveDate) {
-  return swaggerRequest(
-    getClient,
-    'moves.showMoveDatesSummary',
-    { moveId, moveDate },
-    { label },
-  );
+  return swaggerRequest(getClient, 'moves.showMoveDatesSummary', { moveId, moveDate }, { label });
 }
 
 export function selectMoveDatesSummary(state, moveId, moveDate) {

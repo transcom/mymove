@@ -4,15 +4,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import {
-  updateServiceMember,
-  createBackupContact,
-  updateBackupContact,
-} from './ducks';
-import {
-  renderField,
-  recursivelyAnnotateRequiredFields,
-} from 'shared/JsonSchemaForm';
+import { updateServiceMember, createBackupContact, updateBackupContact } from './ducks';
+import { renderField, recursivelyAnnotateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
@@ -117,13 +110,8 @@ class ContactForm extends Component {
     return (
       <form>
         <h1 className="sm-heading">Backup Contact</h1>
-        <p>
-          If we can't reach you, who can we contact (such as spouse or parent)?
-        </p>
-        <p>
-          Any person you assign as a backup contact must be 18 years of age or
-          older.
-        </p>
+        <p>If we can't reach you, who can we contact (such as spouse or parent)?</p>
+        <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
 
         {renderField('name', fields, '')}
         {renderField('email', fields, '')}
@@ -140,10 +128,7 @@ const validateContact = (values, form) => {
   let requiredErrors = {};
   /* eslint-disable security/detect-object-injection */
   ['name', 'email'].forEach(requiredFieldName => {
-    if (
-      values[requiredFieldName] === undefined ||
-      values[requiredFieldName] === ''
-    ) {
+    if (values[requiredFieldName] === undefined || values[requiredFieldName] === '') {
       requiredErrors[requiredFieldName] = 'Required.';
     }
   });
@@ -151,9 +136,7 @@ const validateContact = (values, form) => {
   return requiredErrors;
 };
 
-ContactForm = reduxForm({ form: formName, validate: validateContact })(
-  ContactForm,
-);
+ContactForm = reduxForm({ form: formName, validate: validateContact })(ContactForm);
 
 export class BackupContact extends Component {
   constructor(props) {
@@ -181,10 +164,7 @@ export class BackupContact extends Component {
         const oldOne = this.props.currentBackupContacts[0];
         return this.props.updateBackupContact(oldOne.id, pendingValues);
       } else {
-        return this.props.createBackupContact(
-          this.props.match.params.serviceMemberId,
-          pendingValues,
-        );
+        return this.props.createBackupContact(this.props.match.params.serviceMemberId, pendingValues);
       }
     }
   };
@@ -205,9 +185,7 @@ export class BackupContact extends Component {
     var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
 
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const firstInitialValues = contact1
-      ? pick(contact1, ['name', 'email', 'telephone', 'permission'])
-      : null;
+    const firstInitialValues = contact1 ? pick(contact1, ['name', 'email', 'telephone', 'permission']) : null;
 
     return (
       <WizardPage
@@ -250,11 +228,7 @@ function mapStateToProps(state) {
   return {
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     error: state.serviceMember.error,
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
     values: getFormValues(formName)(state),
   };
 }

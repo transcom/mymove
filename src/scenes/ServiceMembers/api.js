@@ -11,10 +11,7 @@ export async function CreateServiceMember(serviceMember) {
   const response = await client.apis.service_members.createServiceMember({
     createServiceMemberPayload: serviceMember,
   });
-  checkResponse(
-    response,
-    'failed to create a blank service member profile due to server error',
-  );
+  checkResponse(response, 'failed to create a blank service member profile due to server error');
   return response.body;
 }
 
@@ -27,64 +24,43 @@ export async function GetServiceMember(serviceMemberId) {
   return response.body;
 }
 
-export async function UpdateServiceMember(
-  serviceMemberId,
-  serviceMemberPayload,
-) {
+export async function UpdateServiceMember(serviceMemberId, serviceMemberPayload) {
   const client = await getClient();
   const response = await client.apis.service_members.patchServiceMember({
     serviceMemberId,
     patchServiceMemberPayload: serviceMemberPayload,
   });
-  checkResponse(
-    response,
-    'failed to update service member due to server error',
-  );
+  checkResponse(response, 'failed to update service member due to server error');
   return response.body;
 }
 
 export async function CreateBackupContactAPI(serviceMemberId, backupContact) {
   // we create service members with no data associated with them.
   const client = await getClient();
-  const response = await client.apis.backup_contacts.createServiceMemberBackupContact(
-    {
-      serviceMemberId: serviceMemberId,
-      createBackupContactPayload: backupContact,
-    },
-  );
-  checkResponse(
-    response,
-    'failed to create a backup contact due to server error',
-  );
+  const response = await client.apis.backup_contacts.createServiceMemberBackupContact({
+    serviceMemberId: serviceMemberId,
+    createBackupContactPayload: backupContact,
+  });
+  checkResponse(response, 'failed to create a backup contact due to server error');
   return response.body;
 }
 
 export async function IndexBackupContactsAPI(serviceMemberId) {
   const client = await getClient();
-  const response = await client.apis.backup_contacts.indexServiceMemberBackupContacts(
-    {
-      serviceMemberId,
-    },
-  );
+  const response = await client.apis.backup_contacts.indexServiceMemberBackupContacts({
+    serviceMemberId,
+  });
   checkResponse(response, 'failed to get backup contacts due to server error');
   return response.body;
 }
 
-export async function UpdateBackupContactAPI(
-  backupContactId,
-  backupContactPayload,
-) {
+export async function UpdateBackupContactAPI(backupContactId, backupContactPayload) {
   const client = await getClient();
-  const response = await client.apis.backup_contacts.updateServiceMemberBackupContact(
-    {
-      backupContactId,
-      updateServiceMemberBackupContactPayload: backupContactPayload,
-    },
-  );
-  checkResponse(
-    response,
-    'failed to update backup contact due to server error',
-  );
+  const response = await client.apis.backup_contacts.updateServiceMemberBackupContact({
+    backupContactId,
+    updateServiceMemberBackupContactPayload: backupContactPayload,
+  });
+  checkResponse(response, 'failed to update backup contact due to server error');
   return response.body;
 }
 

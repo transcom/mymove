@@ -10,9 +10,7 @@ class BasicPanel extends Component {
     return (
       <div className="basic-panel">
         <div className="basic-panel-title">{title}</div>
-        <div className={classnames('basic-panel-content', className)}>
-          {children}
-        </div>
+        <div className={classnames('basic-panel-content', className)}>{children}</div>
       </div>
     );
   }

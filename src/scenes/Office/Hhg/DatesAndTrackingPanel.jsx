@@ -16,9 +16,7 @@ const DatesAndTrackingDisplay = props => {
         title="Pickup Date"
         fieldName="requested_pickup_date"
         values={{
-          requested_pickup_date: formatDate(
-            props.initialValues.requested_pickup_date,
-          ),
+          requested_pickup_date: formatDate(props.initialValues.requested_pickup_date),
         }}
         schema={props.shipmentSchema}
       />
@@ -30,12 +28,7 @@ const DatesAndTrackingEdit = props => {
   const { shipmentSchema } = props;
   return (
     <div className="editable-panel-column">
-      <SwaggerField
-        title="Pickup Date"
-        fieldName="requested_pickup_date"
-        swagger={shipmentSchema}
-        required
-      />
+      <SwaggerField title="Pickup Date" fieldName="requested_pickup_date" swagger={shipmentSchema} required />
     </div>
   );
 };
@@ -43,11 +36,7 @@ const DatesAndTrackingEdit = props => {
 const formName = 'office_shipment_info_dates_and_tracking';
 const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
-let DatesAndTrackingPanel = editablePanelify(
-  DatesAndTrackingDisplay,
-  DatesAndTrackingEdit,
-  editEnabled,
-);
+let DatesAndTrackingPanel = editablePanelify(DatesAndTrackingDisplay, DatesAndTrackingEdit, editEnabled);
 DatesAndTrackingPanel = reduxForm({ form: formName })(DatesAndTrackingPanel);
 
 function mapStateToProps(state) {
@@ -59,8 +48,7 @@ function mapStateToProps(state) {
 
     // Wrapper
     shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
-    hasError:
-      state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
+    hasError: state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
 
     shipment: shipment,
@@ -83,6 +71,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  DatesAndTrackingPanel,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(DatesAndTrackingPanel);
