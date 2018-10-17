@@ -61,17 +61,17 @@ type Shipment struct {
 	ServiceAgents             ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 
 	// dates
-	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"` // when the shipment is currently scheduled to be picked up by the TSP
-	ActualPackDate       *time.Time `json:"actual_pack_date" db:"actual_pack_date"`
-	ActualDeliveryDate   *time.Time `json:"actual_delivery_date" db:"actual_delivery_date"`
-	BookDate             *time.Time `json:"book_date" db:"book_date"`                           // when the shipment was most recently offered to a TSP
-	RequestedPickupDate  *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`   // when the shipment was originally scheduled to be picked up
-	OriginalDeliveryDate *time.Time `json:"original_delivery_date" db:"original_delivery_date"` // when the shipment is to be delivered
+	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"`         // when shipment is scheduled to be picked up by the TSP
+	ActualPackDate       *time.Time `json:"actual_pack_date" db:"actual_pack_date"`             // when packing began
+	ActualDeliveryDate   *time.Time `json:"actual_delivery_date" db:"actual_delivery_date"`     // when shipment was delivered
+	BookDate             *time.Time `json:"book_date" db:"book_date"`                           // when shipment was most recently offered to a TSP
+	RequestedPickupDate  *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`   // when shipment was originally scheduled to be picked up
+	OriginalDeliveryDate *time.Time `json:"original_delivery_date" db:"original_delivery_date"` // when shipment is to be delivered
 	OriginalPackDate     *time.Time `json:"original_pack_date" db:"original_pack_date"`         // when packing is to begin
 
 	// calculated durations
-	EstimatedPackDays    *int64 `json:"estimated_pack_days" db:"estimated_pack_days"`
-	EstimatedTransitDays *int64 `json:"estimated_transit_days" db:"estimated_transit_days"`
+	EstimatedPackDays    *int64 `json:"estimated_pack_days" db:"estimated_pack_days"`       // how many days it will take to pack
+	EstimatedTransitDays *int64 `json:"estimated_transit_days" db:"estimated_transit_days"` // how many days it will take to get to destination
 
 	// addresses
 	PickupAddressID              *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`

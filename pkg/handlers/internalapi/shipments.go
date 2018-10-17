@@ -49,6 +49,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		BookDate:                            handlers.FmtDatePtr(s.BookDate),
 		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
 		OriginalDeliveryDate:                handlers.FmtDatePtr(s.OriginalDeliveryDate),
+		OriginalPackDate:                    handlers.FmtDatePtr(s.OriginalPackDate),
 		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
 		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
 		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
@@ -290,6 +291,8 @@ func (h PatchShipmentHandler) updateShipmentDatesWithPayload(shipment *models.Sh
 
 	deliveryDate := summary.DeliveryDays[0]
 	shipment.OriginalDeliveryDate = &deliveryDate
+	packDate := summary.PackDays[0]
+	shipment.OriginalPackDate = &packDate
 
 	return nil
 }

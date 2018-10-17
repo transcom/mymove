@@ -248,11 +248,15 @@ func (suite *HandlerSuite) TestSetShipmentDates() {
 	okResponse := response.(*shipmentop.PatchShipmentOK)
 	patchShipmentPayload := okResponse.Payload
 
-	expectedOriginalDeliveryDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
 	suite.EqualValues(*patchShipmentPayload.EstimatedPackDays, 3, "EstimatedPackDays was not updated")
 	suite.EqualValues(*patchShipmentPayload.EstimatedTransitDays, 12, "EstimatedTransitDays was not updated")
 	suite.EqualValues(*patchShipmentPayload.RequestedPickupDate, requestedPickupDate, "RequestedPickupDate was not updated")
-	suite.EqualValues(*patchShipmentPayload.OriginalDeliveryDate, expectedOriginalDeliveryDate, "OriginalDeliveryDate was not updated")
+
+	expectedOriginalDeliveryDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	suite.EqualValues(time.Time(*patchShipmentPayload.OriginalDeliveryDate), expectedOriginalDeliveryDate, "OriginalDeliveryDate was not updated")
+
+	expectedOriginalPackDate := time.Date(testdatagen.TestYear, time.September, 27, 0, 0, 0, 0, time.UTC)
+	suite.EqualValues(time.Time(*patchShipmentPayload.OriginalPackDate), expectedOriginalPackDate, "OriginalPackDate was not updated")
 }
 
 func (suite *HandlerSuite) TestApproveHHGHandler() {

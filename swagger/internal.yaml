@@ -1449,6 +1449,12 @@ definitions:
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+      original_pack_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
       actual_pickup_date:
         type: string
         format: date
