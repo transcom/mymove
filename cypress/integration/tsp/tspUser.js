@@ -23,7 +23,22 @@ function tspUserViewsShipments() {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
-  // Find shipment
+  // Find shipment and check properties in row
+  cy
+    .get('div')
+    .contains('div', 'BACON1')
+    .parentsUntil('div.rt-tr-group')
+    .contains('div', 'Awarded')
+    .parentsUntil('div.rt-tr-group')
+    .contains('div', 'LKBM7000002')
+    .parentsUntil('div.rt-tr-group')
+    .contains('div', 'Submitted, HHG')
+    .parentsUntil('div.rt-tr-group')
+    .contains('div', 'US88 to Region 2')
+    .parentsUntil('div.rt-tr-group')
+    .contains('div', '15-May-19');
+
+  // Find and open shipment
   cy
     .get('div')
     .contains('BACON1')
