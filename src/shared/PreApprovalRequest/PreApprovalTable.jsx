@@ -53,7 +53,7 @@ const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onAppro
           <th>Status</th>
           <th>&nbsp;</th>
         </tr>
-        {shipment_accessorials.map(row => {
+        {(shipment_accessorials || []).map(row => {
           let status = '';
           if (isOfficeSite) {
             status = renderStatusIcon(row.status);
