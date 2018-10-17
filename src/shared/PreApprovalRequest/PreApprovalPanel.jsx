@@ -36,18 +36,7 @@ export class PreApprovalPanel extends Component {
     }
   };
   onApproval = shipmentAccessorialId => {
-    let response = this.props.approveShipmentAccessorial(approveShipmentAccessorialLabel, shipmentAccessorialId);
-    let resolved = result => {
-      //do something here if successful
-      console.log('Got response success: ');
-      console.log(result);
-    };
-    let rejected = result => {
-      //do something here if unsucessful
-      console.error('Got response error: ');
-      console.error(result);
-    };
-    response.then(resolved, rejected);
+    this.props.approveShipmentAccessorial(approveShipmentAccessorialLabel, shipmentAccessorialId);
   };
   onFormActivation = active => {
     this.setState({ isActionable: active });
@@ -82,7 +71,7 @@ PreApprovalPanel.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    shipment_accessorials: selectShipmentAccessorials(state),
+    shipmentAccessorials: selectShipmentAccessorials(state),
     tariff400ngItems: selectTariff400ngItems(state),
   };
 }

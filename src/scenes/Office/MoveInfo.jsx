@@ -125,9 +125,7 @@ class MoveInfo extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // Typical usage (don't forget to compare props):
-    if (this.props.officeShipment.id !== prevProps.officeShipment.id) {
-      //todo: only load shipment if this is an HHG
+    if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
       this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.officeShipment.id);
     }
   }
