@@ -17,6 +17,16 @@ import {
   selectShipmentDocuments,
   getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
+import {
+  getAllTariff400ngItems,
+  selectTariff400ngItems,
+  getTariff400ngItemsLabel,
+} from 'shared/Entities/modules/tariff400ngItems';
+import {
+  getAllShipmentAccessorials,
+  selectShipmentAccessorials,
+  getShipmentAccessorialsLabel,
+} from 'shared/Entities/modules/shipmentAccessorials';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -39,6 +49,7 @@ import Dates from './Dates';
 import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
+import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 
 import './tsp.css';
 
@@ -116,6 +127,8 @@ class ShipmentInfo extends Component {
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
     this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.match.params.shipmentId);
+    this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+    this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.match.params.shipmentId);
   }
 
   acceptShipment = () => {
@@ -138,9 +151,7 @@ class ShipmentInfo extends Component {
 
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
-
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
-
     const shipmentId = this.props.match.params.shipmentId;
 
     const showDocumentViewer = context.flags.documentViewer;
@@ -211,6 +222,10 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
+                  <PreApprovalPanel
+                    shipment_accessorials={this.props.shipmentAccessorials}
+                    tariff400ngItems={this.props.tariff400ngItems}
+                  />
                   <ServiceAgents
                     title="ServiceAgents"
                     shipment={this.props.shipment}
@@ -257,7 +272,9 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               <div>
-                <button onClick={this.generateGBL}>Generate Bill of Lading</button>
+                <button onClick={this.generateGBL} disabled={this.props.generateGBLInProgress}>
+                  Generate Bill of Lading
+                </button>
               </div>
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
@@ -297,12 +314,15 @@ const mapStateToProps = state => {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
     shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    tariff400ngItems: selectTariff400ngItems(state),
+    shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+    generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
@@ -320,6 +340,8 @@ const mapDispatchToProps = dispatch =>
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
+      getAllTariff400ngItems,
+      getAllShipmentAccessorials,
     },
     dispatch,
   );

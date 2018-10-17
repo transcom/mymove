@@ -6,7 +6,7 @@ import thunk from 'redux-thunk';
 
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { isDevelopment } from 'shared/constants';
+import { isDevelopment, isTspSite } from 'shared/constants';
 import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
 
@@ -18,12 +18,10 @@ if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
   middlewares.push(logger);
 }
 
-const composeEnhancers = composeWithDevTools({ name: 'sm-office' });
+const composeEnhancers = composeWithDevTools({});
 
-export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(appReducer);
-
-const tspComposeEnhancers = composeWithDevTools({ name: 'tsp' });
-
-export const tspStore = tspComposeEnhancers(applyMiddleware(...middlewares))(createStore)(tspAppReducer);
+export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(
+  isTspSite ? tspAppReducer : appReducer,
+);
 
 export default store;

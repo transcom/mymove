@@ -8,15 +8,9 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './PreApprovalRequest.css';
 
-const Codes = accessorials => props => {
-  let value, onChange;
-  if (props.input) {
-    value = props.input.value;
-    onChange = props.input.onChange;
-  } else {
-    value = props.value;
-    onChange = props.onChange;
-  }
+const Codes = tariff400ngItems => props => {
+  const value = props.value;
+  const onChange = props.onChange;
 
   const localOnChange = event => {
     onChange(event.target.value);
@@ -24,7 +18,7 @@ const Codes = accessorials => props => {
   return (
     <select onChange={localOnChange} value={value}>
       <option />
-      {accessorials.map(e => (
+      {tariff400ngItems.map(e => (
         <option key={e.id} value={e.id}>
           {e.code} {e.item}
         </option>
@@ -42,11 +36,12 @@ export class PreApprovalForm extends Component {
             <SwaggerField
               fieldName="accessorial"
               title="Code & Item"
-              className="three-quarter-width rounded"
-              component={Codes(this.props.accessorials)}
+              className="rounded"
+              component={Codes(this.props.tariff400ngItems)}
               swagger={this.props.ship_accessorial_schema}
               required
             />
+            {/* TODO andrea - set schema location enum array to accessorial selected location value */}
             <SwaggerField
               fieldName="location"
               className="one-third-width rounded"
@@ -75,7 +70,7 @@ export class PreApprovalForm extends Component {
 
 PreApprovalForm.propTypes = {
   schema: PropTypes.object,
-  accessorials: PropTypes.array,
+  tariff400ngItems: PropTypes.array,
   onSubmit: PropTypes.func.isRequired,
 };
 

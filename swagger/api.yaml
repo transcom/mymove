@@ -145,10 +145,12 @@ definitions:
       - ORIGIN
       - DESTINATION
       - NEITHER
+      - EITHER
     x-display-value:
       ORIGIN: Origin
       DESTINATION: Destination
       NEITHER: Neither
+      EITHER: Either
   AccessorialStatus:
     type: string
     title: Status
@@ -220,6 +222,10 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       accessorial:
         $ref: '#/definitions/Tariff400ngItem'
+      accessorial_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       quantity_1:
         type: integer
         format: basequantity
@@ -247,12 +253,10 @@ definitions:
         type: string
         title: Submitted Date
         format: date-time
-        example: 2018-10-21
       approved_date:
         type: string
         title: Approved Date
         format: date-time
-        example: 2018-10-21
       created_at:
         type: string
         format: date-time
@@ -262,6 +266,7 @@ definitions:
     required:
       - id
       - shipment_id
+      - accessorial_id
       - quantity_1
       - location
   Address:
@@ -2151,7 +2156,7 @@ paths:
           description: failed to meet data requirements for accessorials
         500:
           description: server error
-  /shipments/accessorials/{shipment_accessorial_id}:
+  /shipments/accessorials/{shipmentAccessorialId}:
     put:
       summary: Updates a shipment accessorial item
       description: Update a shipment accessorial with the given information
@@ -2160,7 +2165,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true
@@ -2192,7 +2197,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true
@@ -2210,7 +2215,7 @@ paths:
           description: no shipment accessorial found with that UUID
         500:
           description: server error
-  /shipments/accessorials/{shipment_accessorial_id}/approve:
+  /shipments/accessorials/{shipmentAccessorialId}/approve:
     post:
       summary: Updates a shipment accessorial item to approve status
       description: Update a shipment accessorial with approve status
@@ -2219,7 +2224,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true

@@ -69,29 +69,40 @@ class DocumentViewer extends Component {
   }
 
   handleSubmit = (uploadIds, formValues) => {
-    const { currentPpm, move } = this.props;
+    const {
+      currentPpm,
+      move: { id: moveId },
+    } = this.props;
+    const {
+      title,
+      moving_expense_type: movingExpenseType,
+      move_document_type: moveDocumentType,
+      requested_amount_cents: requestedAmountCents,
+      payment_method: paymentMethod,
+      notes,
+    } = formValues;
+    const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.requested_amount_cents = convertDollarsToCents(formValues.requested_amount_cents);
-      return this.props.createMovingExpenseDocument(
-        move.id,
-        currentPpm.id,
+      return this.props.createMovingExpenseDocument({
+        moveId,
+        personallyProcuredMoveId,
         uploadIds,
-        formValues.title,
-        formValues.moving_expense_type,
-        formValues.move_document_type,
-        formValues.requested_amount_cents,
-        formValues.payment_method,
-        formValues.notes,
-      );
+        title,
+        movingExpenseType,
+        moveDocumentType,
+        requestedAmountCents: convertDollarsToCents(requestedAmountCents),
+        paymentMethod,
+        notes,
+      });
     }
-    return this.props.createMoveDocument(
-      move.id,
-      currentPpm.id,
+    return this.props.createMoveDocument({
+      moveId,
+      personallyProcuredMoveId,
       uploadIds,
-      formValues.title,
-      formValues.move_document_type,
-      formValues.notes,
-    );
+      title,
+      moveDocumentType,
+      notes,
+    });
   };
   render() {
     const { serviceMember, move, moveDocuments } = this.props;
