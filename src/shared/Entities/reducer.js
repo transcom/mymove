@@ -16,8 +16,9 @@ function mergeEntities(entities, newEntities) {
 }
 
 const initialState = {
-  shipments: {},
+  moves: {},
   moveDocuments: {},
+  shipments: {},
   tariff400ngItems: {},
   shipmentAccessorials: {},
 };
