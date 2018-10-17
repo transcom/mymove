@@ -13,6 +13,8 @@ import {
   createShipmentAccessorialLabel,
   deleteShipmentAccessorial,
   deleteShipmentAccessorialLabel,
+  approveShipmentAccessorial,
+  approveShipmentAccessorialLabel,
 } from 'shared/Entities/modules/shipmentAccessorials';
 import { selectShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
 import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
@@ -49,8 +51,19 @@ export class PreApprovalPanel extends Component {
       );
     }
   };
-  onApproval = () => {
-    console.log('onApproval hit');
+  onApproval = shipmentAccessorialId => {
+    let response = this.props.approveShipmentAccessorial(approveShipmentAccessorialLabel, shipmentAccessorialId);
+    let resolved = result => {
+      //do something here if successful
+      console.log('Got response success: ');
+      console.log(result);
+    };
+    let rejected = result => {
+      //do something here if unsucessful
+      console.error('Got response error: ');
+      console.error(result);
+    };
+    response.then(resolved, rejected);
   };
   onFormActivation = active => {
     this.setState({ isActionable: active });
@@ -91,6 +104,9 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createShipmentAccessorial, deleteShipmentAccessorial }, dispatch);
+  return bindActionCreators(
+    { createShipmentAccessorial, deleteShipmentAccessorial, approveShipmentAccessorial },
+    dispatch,
+  );
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);
