@@ -52,7 +52,7 @@ export class PreApprovalRequest extends Component {
   approveDelete = () => {
     this.props.isActive(false);
     this.props.onDelete(this.props.shipmentLineItem.id);
-    // This shouldn't be necessary after redux is hooked up, the row will be deleted
+    // We don't want the user clicking delete more than once
     this.setState({ showDeleteForm: false });
   };
   render() {

@@ -2214,6 +2214,8 @@ paths:
       responses:
         200:
           description: the shipment accessorial was successfully deleted
+          schema:
+            $ref: '#/definitions/ShipmentAccessorial'
         400:
           description: invalid request
         401:
