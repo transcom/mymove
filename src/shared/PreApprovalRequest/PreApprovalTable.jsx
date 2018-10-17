@@ -28,9 +28,11 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
           <FontAwesomeIcon className="icon actionable" icon={faPencil} />
         </span>
       )}
-      <span onClick={() => onDelete(shipmentAccessorialId)}>
-        <FontAwesomeIcon className="icon actionable" icon={faTimes} />
-      </span>
+      {false && (
+        <span onClick={() => onDelete(shipmentAccessorialId)}>
+          <FontAwesomeIcon className="icon actionable" icon={faTimes} />
+        </span>
+      )}
     </Fragment>
   );
 }
