@@ -71,6 +71,20 @@ moveDocument.define({
 
 export const moveDocumentPayload = moveDocument;
 
+// Tariff400ngItems
+export const tariff400ngItem = new schema.Entity('tariff400ngItems');
+export const tariff400ngItems = new schema.Array(tariff400ngItem);
+
+// ShipmentAccessorial
+export const shipmentAccessorial = new schema.Entity('shipmentAccessorials', {
+  tariff400ngItem: tariff400ngItem,
+});
+
+export const shipmentAccessorials = new schema.Array(shipmentAccessorial);
+shipmentAccessorial.define({
+  tariff400ngItem: tariff400ngItem,
+});
+
 // AvailableMoveDates
 export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
 

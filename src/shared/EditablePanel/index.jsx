@@ -234,7 +234,7 @@ EditablePanel.propTypes = {
   children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
   editEnabled: PropTypes.bool,
-  isValid: PropTypes.bool.isRequired,
+  isValid: PropTypes.bool,
   onCancel: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,

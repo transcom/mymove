@@ -96,10 +96,10 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	payload := apimessages.ShipmentAccessorial{
-		Accessorial: payloadForTariff400ngItemModel(&acc),
-		Location:    apimessages.AccessorialLocationORIGIN,
-		Notes:       "Some notes",
-		Quantity1:   handlers.FmtInt64(int64(5)),
+		AccessorialID: handlers.FmtUUID(acc.ID),
+		Location:      apimessages.AccessorialLocationORIGIN,
+		Notes:         "Some notes",
+		Quantity1:     handlers.FmtInt64(int64(5)),
 	}
 
 	params := accessorialop.CreateShipmentAccessorialParams{
@@ -150,13 +150,13 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 	updateShipmentAccessorial := apimessages.ShipmentAccessorial{
-		ID:          handlers.FmtUUID(shipAcc1.ID),
-		ShipmentID:  handlers.FmtUUID(shipAcc1.ShipmentID),
-		Location:    apimessages.AccessorialLocationORIGIN,
-		Quantity1:   handlers.FmtInt64(int64(1)),
-		Quantity2:   handlers.FmtInt64(int64(2)),
-		Notes:       "HELLO",
-		Accessorial: payloadForTariff400ngItemModel(&updateAcc1),
+		ID:            handlers.FmtUUID(shipAcc1.ID),
+		ShipmentID:    handlers.FmtUUID(shipAcc1.ShipmentID),
+		Location:      apimessages.AccessorialLocationORIGIN,
+		Quantity1:     handlers.FmtInt64(int64(1)),
+		Quantity2:     handlers.FmtInt64(int64(2)),
+		Notes:         "HELLO",
+		AccessorialID: handlers.FmtUUID(updateAcc1.ID),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,
@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 	suite.Equal(*updateShipmentAccessorial.Quantity1, *okResponse.Payload.Quantity1)
 	suite.Equal(*updateShipmentAccessorial.Quantity2, *okResponse.Payload.Quantity2)
 	suite.Equal(updateShipmentAccessorial.Notes, okResponse.Payload.Notes)
-	suite.Equal(updateShipmentAccessorial.Accessorial.ID.String(), okResponse.Payload.Accessorial.ID.String())
+	suite.Equal(updateShipmentAccessorial.AccessorialID.String(), okResponse.Payload.AccessorialID.String())
 }
 
 func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
@@ -203,13 +203,13 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 	updateShipmentAccessorial := apimessages.ShipmentAccessorial{
-		ID:          handlers.FmtUUID(shipAcc1.ID),
-		ShipmentID:  handlers.FmtUUID(shipAcc1.ShipmentID),
-		Location:    apimessages.AccessorialLocationORIGIN,
-		Quantity1:   handlers.FmtInt64(int64(1)),
-		Quantity2:   handlers.FmtInt64(int64(2)),
-		Notes:       "HELLO",
-		Accessorial: payloadForTariff400ngItemModel(&updateAcc1),
+		ID:            handlers.FmtUUID(shipAcc1.ID),
+		ShipmentID:    handlers.FmtUUID(shipAcc1.ShipmentID),
+		Location:      apimessages.AccessorialLocationORIGIN,
+		Quantity1:     handlers.FmtInt64(int64(1)),
+		Quantity2:     handlers.FmtInt64(int64(2)),
+		Notes:         "HELLO",
+		AccessorialID: handlers.FmtUUID(updateAcc1.ID),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
 		HTTPRequest:               req,
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	suite.Equal(*updateShipmentAccessorial.Quantity1, *okResponse.Payload.Quantity1)
 	suite.Equal(*updateShipmentAccessorial.Quantity2, *okResponse.Payload.Quantity2)
 	suite.Equal(updateShipmentAccessorial.Notes, okResponse.Payload.Notes)
-	suite.Equal(updateShipmentAccessorial.Accessorial.ID.String(), okResponse.Payload.Accessorial.ID.String())
+	suite.Equal(updateShipmentAccessorial.AccessorialID.String(), okResponse.Payload.AccessorialID.String())
 }
 
 func (suite *HandlerSuite) TestDeleteShipmentAccessorialTSPHandler() {

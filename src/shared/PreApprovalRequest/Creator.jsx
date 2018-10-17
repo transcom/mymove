@@ -46,7 +46,7 @@ export class Creator extends Component {
       return (
         <div className="accessorial-panel-modal">
           <div className="title">Add a request</div>
-          <PreApprovalForm accessorials={this.props.accessorials} onSubmit={this.onSubmit} />
+          <PreApprovalForm tariff400ngItems={this.props.tariff400ngItems} onSubmit={this.onSubmit} />
           <div className="usa-grid">
             <div className="usa-width-one-half cancel">
               <a className="usa-button-secondary" onClick={this.closeForm}>
@@ -80,7 +80,7 @@ export class Creator extends Component {
   }
 }
 Creator.propTypes = {
-  accessorials: PropTypes.array,
+  tariff400ngItems: PropTypes.array,
   savePreApprovalRequest: PropTypes.func.isRequired,
   formEnabled: PropTypes.bool.isRequired,
   hasSubmitSucceeded: PropTypes.bool.isRequired,

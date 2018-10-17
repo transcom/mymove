@@ -69,22 +69,22 @@ const DatesEdit = props => {
       <FormSection name="dates">
         <div className="editable-panel-column">
           <div className="column-head">PM Survey</div>
-          <SwaggerField fieldName="pm_survey_conducted_date" swagger={schema} required />
-          <SwaggerField fieldName="pm_survey_method" swagger={schema} required />
+          <SwaggerField fieldName="pm_survey_conducted_date" swagger={schema} />
+          <SwaggerField fieldName="pm_survey_method" swagger={schema} />
           <div className="column-head">Packing</div>
           <PanelField title="Original" value="TODO" />
-          <SwaggerField fieldName="pm_survey_planned_pack_date" title="Planned" swagger={schema} required />
-          <SwaggerField fieldName="actual_pack_date" required title="Actual" swagger={schema} />
+          <SwaggerField fieldName="pm_survey_planned_pack_date" title="Planned" swagger={schema} />
+          <SwaggerField fieldName="actual_pack_date" title="Actual" swagger={schema} />
         </div>
         <div className="editable-panel-column">
           <div className="column-head">Pickup</div>
-          <PanelSwaggerField fieldName="requested_pickup_date" required title="Original" {...fieldProps} />
-          <SwaggerField fieldName="pm_survey_planned_pickup_date" required title="Planned" swagger={schema} />
-          <SwaggerField fieldName="actual_pickup_date" required title="Actual" swagger={schema} />
+          <PanelSwaggerField fieldName="requested_pickup_date" title="Original" {...fieldProps} />
+          <SwaggerField fieldName="pm_survey_planned_pickup_date" title="Planned" swagger={schema} />
+          <SwaggerField fieldName="actual_pickup_date" title="Actual" swagger={schema} />
           <div className="column-head">Delivery</div>
           <PanelField title="Original" value="TODO" />
-          <SwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" swagger={schema} />
-          <SwaggerField fieldName="actual_delivery_date" required title="Actual" swagger={schema} />
+          <SwaggerField fieldName="pm_survey_planned_delivery_date" title="Planned" swagger={schema} />
+          <SwaggerField fieldName="actual_delivery_date" title="Actual" swagger={schema} />
           <PanelField title="Current RDD" value="TODO" />
           <SwaggerField fieldName="pm_survey_notes" title="Notes about dates" swagger={schema} />
         </div>
