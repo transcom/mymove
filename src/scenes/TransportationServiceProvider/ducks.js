@@ -144,6 +144,7 @@ const initialState = {
   serviceAgents: [],
   generateGBLSuccess: false,
   generateGBLError: null,
+  generateGBLInProgress: false,
 };
 
 export function tspReducer(state = initialState, action) {
@@ -372,16 +373,19 @@ export function tspReducer(state = initialState, action) {
       return Object.assign({}, state, {
         generateGBLSuccess: false,
         generateGBLError: null,
+        generateGBLInProgress: true,
       });
     case GENERATE_GBL.success:
       return Object.assign({}, state, {
         generateGBLSuccess: true,
         generateGBLError: false,
+        generateGBLInProgress: false,
       });
     case GENERATE_GBL.failure:
       return Object.assign({}, state, {
         generateGBLSuccess: false,
         generateGBLError: true,
+        generateGBLInProgress: false,
         error: action.error,
       });
 

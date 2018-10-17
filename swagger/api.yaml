@@ -145,6 +145,19 @@ definitions:
       - ORIGIN
       - DESTINATION
       - NEITHER
+      - EITHER
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
+      NEITHER: Neither
+      EITHER: Either
+  ShipmentAccessorialLocation:
+    type: string
+    title: Location
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - NEITHER
     x-display-value:
       ORIGIN: Origin
       DESTINATION: Destination
@@ -220,6 +233,10 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       accessorial:
         $ref: '#/definitions/Tariff400ngItem'
+      accessorial_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       quantity_1:
         type: integer
         format: basequantity
@@ -235,7 +252,7 @@ definitions:
         minimum: 0
         example: 10000
       location:
-        $ref: '#/definitions/AccessorialLocation'
+        $ref: '#/definitions/ShipmentAccessorialLocation'
       notes:
         type: string
         format: textarea
@@ -247,12 +264,10 @@ definitions:
         type: string
         title: Submitted Date
         format: date-time
-        example: 2018-10-21
       approved_date:
         type: string
         title: Approved Date
         format: date-time
-        example: 2018-10-21
       created_at:
         type: string
         format: date-time
@@ -260,8 +275,7 @@ definitions:
         type: string
         format: date-time
     required:
-      - id
-      - shipment_id
+      - accessorial_id
       - quantity_1
       - location
   Address:
@@ -563,13 +577,11 @@ definitions:
   MoveDocumentType:
     type: string
     title: Document Type
-    example: GOV_BILL_OF_LADING
+    example: WEIGHT_TICKET
     enum: &MOVEDOCUMENTTYPE
-      - GOV_BILL_OF_LADING
       - OTHER
       - WEIGHT_TICKET
     x-display-value:
-      GOV_BILL_OF_LADING: Government Bill of Lading
       OTHER: Other document type
       WEIGHT_TICKET: Weight ticket
   SelectedMoveType:
@@ -1359,8 +1371,7 @@ paths:
           description: server error
     post:
       summary: Adds a new Blackout period to the list of blackouts
-      description:
-        This is used to create a new blackout. When posting to this URL the payload Blackout should not
+      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
         contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
         result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
 
@@ -2154,7 +2165,7 @@ paths:
           description: failed to meet data requirements for accessorials
         500:
           description: server error
-  /shipments/accessorials/{shipment_accessorial_id}:
+  /shipments/accessorials/{shipmentAccessorialId}:
     put:
       summary: Updates a shipment accessorial item
       description: Update a shipment accessorial with the given information
@@ -2163,7 +2174,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true
@@ -2195,7 +2206,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true
@@ -2213,7 +2224,7 @@ paths:
           description: no shipment accessorial found with that UUID
         500:
           description: server error
-  /shipments/accessorials/{shipment_accessorial_id}/approve:
+  /shipments/accessorials/{shipmentAccessorialId}/approve:
     post:
       summary: Updates a shipment accessorial item to approve status
       description: Update a shipment accessorial with approve status
@@ -2222,7 +2233,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipment_accessorial_id
+          name: shipmentAccessorialId
           type: string
           format: uuid
           required: true

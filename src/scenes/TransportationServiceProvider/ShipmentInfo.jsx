@@ -17,6 +17,16 @@ import {
   selectShipmentDocuments,
   getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
+import {
+  getAllTariff400ngItems,
+  selectTariff400ngItems,
+  getTariff400ngItemsLabel,
+} from 'shared/Entities/modules/tariff400ngItems';
+import {
+  getAllShipmentAccessorials,
+  selectShipmentAccessorials,
+  getShipmentAccessorialsLabel,
+} from 'shared/Entities/modules/shipmentAccessorials';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -36,9 +46,10 @@ import {
 import ServiceAgents from './ServiceAgents';
 import Weights from './Weights';
 import Dates from './Dates';
-import Locations from './Locations';
+import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
+import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 
 import './tsp.css';
 
@@ -116,6 +127,8 @@ class ShipmentInfo extends Component {
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
     this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.match.params.shipmentId);
+    this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+    this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.match.params.shipmentId);
   }
 
   acceptShipment = () => {
@@ -137,10 +150,8 @@ class ShipmentInfo extends Component {
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const { context, shipment, shipmentDocuments, deliveryAddress } = this.props;
-
+    const { context, shipment, shipmentDocuments } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
-
     const shipmentId = this.props.match.params.shipmentId;
 
     const showDocumentViewer = context.flags.documentViewer;
@@ -177,12 +188,13 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>GBL# {gbl}</li>
-              <li>Locator# {move.locator}</li>
+              <li>GBL# {gbl}&nbsp;</li>
+              <li>Locator# {move.locator}&nbsp;</li>
               <li>
                 {this.props.shipment.source_gbloc} to {this.props.shipment.destination_gbloc}
+                &nbsp;
               </li>
-              <li>DoD ID# {serviceMember.edipi}</li>
+              <li>DoD ID# {serviceMember.edipi}&nbsp;</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -190,9 +202,11 @@ class ShipmentInfo extends Component {
                 )}
                 {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                &nbsp;
               </li>
               <li>
                 Status: <b>{capitalize(this.props.shipment.status)}</b>
+                &nbsp;
               </li>
             </ul>
           </div>
@@ -208,18 +222,14 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
+                  <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <ServiceAgents
                     title="ServiceAgents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <Locations
-                    deliveryAddress={deliveryAddress}
-                    title="Locations"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
+                  <LocationsContainer update={this.props.patchShipment} />
                 </div>
               )}
             </div>
@@ -259,7 +269,9 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               <div>
-                <button onClick={this.generateGBL}>Generate Bill of Lading</button>
+                <button onClick={this.generateGBL} disabled={this.props.generateGBLInProgress}>
+                  Generate Bill of Lading
+                </button>
               </div>
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
@@ -294,27 +306,20 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
-  const newDutyStation = get(shipment, 'move.new_duty_station.address', {});
-  // if they do not have a delivery address, default to the station's address info
-  const deliveryAddress = shipment.has_delivery_address
-    ? shipment.delivery_address
-    : {
-        city: newDutyStation.city,
-        state: newDutyStation.state,
-        postal_code: newDutyStation.postal_code,
-      };
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
-    deliveryAddress,
     shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    tariff400ngItems: selectTariff400ngItems(state),
+    shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+    generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
@@ -332,6 +337,8 @@ const mapDispatchToProps = dispatch =>
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
+      getAllTariff400ngItems,
+      getAllShipmentAccessorials,
     },
     dispatch,
   );
