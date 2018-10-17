@@ -38,8 +38,12 @@ export const upsert = (arr, newValue) => {
 
 export function fetchActive(foos) {
   return (
+    // includes PPM and HHG states
     find(foos, i =>
-      includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'PAYMENT_REQUESTED'], get(i, 'status')),
+      includes(
+        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_TRANSIT', 'PAYMENT_REQUESTED', 'ACCEPTED', 'AWARDED', 'COMPLETED'],
+        get(i, 'status'),
+      ),
     ) || null
   );
 }

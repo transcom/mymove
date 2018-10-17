@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import { get, includes } from 'lodash';
+import { get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
@@ -103,7 +103,14 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedMoveSummary = props => {
-  const { ppm, orders, profile, move, entitlement } = props;
+  const { ppm, shipment, orders, profile, move, entitlement } = props;
+  const nextPpmStep = `Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
+    profile.current_station.name
+  }.`;
+  const nextHhgStep =
+    'Your mover will contact you within ten days to schedule a pre-move survey, where they will provide you with a detailed weight estimate and more accurate packing and delivery dates.';
+  const isPpm = move.selected_move_type === 'PPM';
+  const nextStepText = isPpm ? nextPpmStep : nextHhgStep;
   return (
     <Fragment>
       <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
@@ -111,8 +118,12 @@ export const SubmittedMoveSummary = props => {
       <div className="usa-width-three-fourths">
         <div className="shipment_box">
           <div className="shipment_type">
-            <img className="move_sm" src={ppmCar} alt="ppm-car" />
-            Move your own stuff (PPM)
+            {isPpm ? (
+              <img className="move_sm" src={ppmCar} alt="ppm-car" />
+            ) : (
+              <img className="move_sm" src={truck} alt="hhg-truck" />
+            )}
+            {isPpm ? 'Move your own stuff (PPM)' : 'Government Movers and Packers (HHG)'}
           </div>
 
           <div className="shipment_box_contents">
@@ -120,28 +131,33 @@ export const SubmittedMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
-                  <div className="title">Next Step: Awaiting approval</div>
-                  <div>
-                    Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help?
-                    Contact your local Transportation Office (PPPO) at {profile.current_station.name}.
-                  </div>
+                  <div className="title">{isPpm ? 'Next Step: Awaiting approval' : 'Next Step: Prepare for move'}</div>
+                  <div>{nextStepText}</div>
                 </div>
               </div>
               <div className="usa-width-one-third">
-                <MoveDetails ppm={ppm} />
+                <MoveDetails ppm={ppm} hhg={shipment} />
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
-                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                      PPM Info Packet
-                    </a>
+                    {isPpm ? (
+                      <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                        PPM Info Packet
+                      </a>
+                    ) : (
+                      <a href="#" target="_blank" rel="noopener noreferrer">
+                        Pre-move tips
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-            <div className="step-links">
-              <FindWeightScales />
-            </div>
+            {isPpm && (
+              <div className="step-links">
+                <FindWeightScales />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -234,7 +250,7 @@ export const ApprovedMoveSummary = withContext(props => {
 });
 
 const MoveDetails = props => {
-  const { ppm } = props;
+  const { ppm, hhg } = props;
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -243,13 +259,18 @@ const MoveDetails = props => {
     : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
 
-  return (
+  return !isEmpty(ppm) ? (
     <div className="titled_block">
       <div className="title">Details</div>
       <div>Weight (est.): {ppm.weight_estimate} lbs</div>
       <div>Incentive (est.): {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
+    </div>
+  ) : (
+    <div className="titled_block">
+      <div className="title">Details</div>
+      <div>Weight (est.): {hhg.weight_estimate} lbs</div>
     </div>
   );
 };
@@ -267,7 +288,7 @@ const MoveInfoHeader = props => {
   return (
     <Fragment>
       <h2>
-        {get(orders, 'new_duty_station.name', 'New move')} from {get(profile, 'current_station.name', '')}
+        {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h2>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {entitlement && (
@@ -284,15 +305,43 @@ const moveSummaryStatusComponents = {
   SUBMITTED: SubmittedMoveSummary,
   APPROVED: ApprovedMoveSummary,
   CANCELED: CanceledMoveSummary,
+  AWARDED: SubmittedMoveSummary,
+  ACCEPTED: SubmittedMoveSummary,
+  COMPLETED: SubmittedMoveSummary,
+};
+
+const getStatus = (moveStatus, ppm, shipment) => {
+  let status = '';
+  if (!isEmpty(ppm)) {
+    // assign the status
+    const ppmStatus = get(ppm, 'status', 'DRAFT');
+    status =
+      moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
+  } else if (!isEmpty(shipment)) {
+    // assign the status
+    const shipmentStatus = get(shipment, 'status', 'DRAFT');
+    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED'].includes(shipmentStatus) ? shipmentStatus : 'DRAFT';
+  }
+  return status;
 };
 
 export const MoveSummary = props => {
-  const { profile, move, orders, ppm, editMove, entitlement, resumeMove, reviewProfile, requestPaymentSuccess } = props;
-  const move_status = get(move, 'status', 'DRAFT');
-  const ppm_status = get(ppm, 'status', 'DRAFT');
-  const status =
-    move_status === 'APPROVED' && (ppm_status === 'SUBMITTED' || ppm_status === 'DRAFT') ? 'SUBMITTED' : move_status;
+  const {
+    profile,
+    move,
+    orders,
+    ppm,
+    shipment,
+    editMove,
+    entitlement,
+    resumeMove,
+    reviewProfile,
+    requestPaymentSuccess,
+  } = props;
+  const moveStatus = get(move, 'status', 'DRAFT');
+  const status = getStatus(moveStatus, ppm, shipment);
   const StatusComponent = moveSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
+
   return (
     <Fragment>
       {status === 'CANCELED' && (
@@ -306,6 +355,7 @@ export const MoveSummary = props => {
         <StatusComponent
           className="status-component"
           ppm={ppm}
+          shipment={shipment}
           orders={orders}
           profile={profile}
           move={move}
@@ -328,6 +378,12 @@ export const MoveSummary = props => {
             <div className="title">Contacts</div>
             <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
             {status !== 'CANCELED' && <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />}
+            {['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'COMPLETED'].includes(status) && (
+              <div className="titled_block">
+                <strong>TSP name</strong>
+                <div>phone #</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
