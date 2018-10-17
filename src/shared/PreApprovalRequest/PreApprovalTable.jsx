@@ -17,7 +17,7 @@ export class PreApprovalTable extends Component {
     };
   };
   render() {
-    const { shipment_accessorials, isActionable, onEdit, onApproval, onDelete } = this.props;
+    const { shipmentAccessorials, isActionable, onEdit, onApproval, onDelete } = this.props;
     return (
       <div className="accessorial-panel">
         <table cellSpacing={0}>
@@ -32,7 +32,7 @@ export class PreApprovalTable extends Component {
               <th>Status</th>
               <th>&nbsp;</th>
             </tr>
-            {shipment_accessorials.map(row => {
+            {shipmentAccessorials.map(row => {
               let requestIsActionable =
                 isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
               return (
@@ -55,7 +55,7 @@ export class PreApprovalTable extends Component {
 }
 
 PreApprovalTable.propTypes = {
-  shipment_accessorials: PropTypes.array,
+  shipmentAccessorials: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,
   onRequestActivation: PropTypes.func,

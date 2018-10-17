@@ -5,7 +5,7 @@ import PreApprovalRequest from './PreApprovalRequest';
 describe('PreApprovalRequest tests', () => {
   let wrapper;
   const onEdit = jest.fn();
-  const shipment_accessorial = {
+  const shipmentAccessorial = {
     id: 'sldkjf',
     accessorial: { code: '105D', item: 'Reg Shipping' },
     location: 'D',
@@ -18,7 +18,7 @@ describe('PreApprovalRequest tests', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipment_accessorial}
+          shipmentLineItem={shipmentAccessorial}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -34,7 +34,7 @@ describe('PreApprovalRequest tests', () => {
     beforeEach(() => {
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipment_accessorial}
+          shipmentLineItem={shipmentAccessorial}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -48,10 +48,10 @@ describe('PreApprovalRequest tests', () => {
   });
   describe('When on approval is passed in and status is APPROVED', () => {
     beforeEach(() => {
-      shipment_accessorial.status = 'APPROVED';
+      shipmentAccessorial.status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipment_accessorial}
+          shipmentLineItem={shipmentAccessorial}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -66,10 +66,10 @@ describe('PreApprovalRequest tests', () => {
   });
   describe('When on approval is NOT passed in and status is APPROVED', () => {
     beforeEach(() => {
-      shipment_accessorial.status = 'APPROVED';
+      shipmentAccessorial.status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipment_accessorial}
+          shipmentLineItem={shipmentAccessorial}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}

@@ -5,7 +5,7 @@ import PreApprovalTable from './PreApprovalTable';
 describe('PreApprovalTable tests', () => {
   let wrapper;
   const onEdit = jest.fn();
-  const shipment_accessorials = [
+  const shipmentAccessorials = [
     {
       id: 'sldkjf',
       accessorial: { code: '105D', item: 'Reg Shipping' },
@@ -29,7 +29,7 @@ describe('PreApprovalTable tests', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
+          shipmentAccessorials={shipmentAccessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
