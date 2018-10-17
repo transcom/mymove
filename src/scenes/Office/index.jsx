@@ -55,22 +55,11 @@ class OfficeWrapper extends Component {
               <LogoutOnInactivity />
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
-                <PrivateRoute
-                  path="/queues/:queueType/moves/:moveId"
-                  component={MoveInfo}
-                />
+                <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
                 <PrivateRoute path="/queues/:queueType" component={Queues} />
-                <PrivateRoute
-                  path="/moves/:moveId/orders"
-                  component={OrdersInfo}
-                />
-                <PrivateRoute
-                  path="/moves/:moveId/documents/:moveDocumentId?"
-                  component={DocumentViewer}
-                />
-                {!isProduction && (
-                  <PrivateRoute path="/playground" component={ScratchPad} />
-                )}
+                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
+                <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
+                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
               </Switch>
             </div>
           </main>
@@ -91,9 +80,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { loadInternalSchema, loadPublicSchema, loadLoggedInUser },
-    dispatch,
-  );
+  bindActionCreators({ loadInternalSchema, loadPublicSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper);

@@ -293,16 +293,25 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
-	// Premove Survey values entered by TSP agent
-	requiredValue := payload.PmSurveyPlannedPackDate
 
-	// If any PmSurvey data was sent, update all fields
-	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
-	if requiredValue != nil {
+	// PM Survey fields may be updated individually in the Dates panel and so cannot be lumped into one update
+	if payload.PmSurveyConductedDate != nil {
 		shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
+	}
+
+	if payload.PmSurveyPlannedDeliveryDate != nil {
 		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
+	}
+
+	if payload.PmSurveyMethod != "" {
 		shipment.PmSurveyMethod = payload.PmSurveyMethod
+	}
+
+	if payload.PmSurveyPlannedPackDate != nil {
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
+	}
+
+	if payload.PmSurveyPlannedPickupDate != nil {
 		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
 	}
 
@@ -345,6 +354,38 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	if payload.ActualDeliveryDate != nil {
 		shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
 	}
+
+	if payload.PickupAddress != nil {
+		if shipment.PickupAddress == nil {
+			shipment.PickupAddress = addressModelFromPayload(payload.PickupAddress)
+		} else {
+			updateAddressWithPayload(shipment.PickupAddress, payload.PickupAddress)
+		}
+	}
+	if payload.HasSecondaryPickupAddress == false {
+		shipment.SecondaryPickupAddress = nil
+	} else if payload.HasSecondaryPickupAddress == true {
+		if payload.SecondaryPickupAddress != nil {
+			if shipment.SecondaryPickupAddress == nil {
+				shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
+			} else {
+				updateAddressWithPayload(shipment.SecondaryPickupAddress, payload.SecondaryPickupAddress)
+			}
+		}
+	}
+	shipment.HasSecondaryPickupAddress = payload.HasSecondaryPickupAddress
+	if payload.HasDeliveryAddress == false {
+		shipment.DeliveryAddress = nil
+	} else if payload.HasDeliveryAddress == true {
+		if payload.DeliveryAddress != nil {
+			if shipment.DeliveryAddress == nil {
+				shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
+			} else {
+				updateAddressWithPayload(shipment.DeliveryAddress, payload.DeliveryAddress)
+			}
+		}
+	}
+	shipment.HasDeliveryAddress = payload.HasDeliveryAddress
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment

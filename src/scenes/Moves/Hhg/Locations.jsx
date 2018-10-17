@@ -6,18 +6,12 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
-import {
-  getLastError,
-  getInternalSwaggerDefinition,
-} from 'shared/Swagger/selectors';
+import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Address from 'scenes/Moves/Hhg/Address';
 
-import {
-  createOrUpdateShipment,
-  getShipment,
-} from 'shared/Entities/modules/shipments';
+import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
 import './ShipmentWizard.css';
 
@@ -33,10 +27,7 @@ export class Locations extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (
-      get(this.props, 'currentShipment.id') !==
-      get(prevProps, 'currentShipment.id')
-    ) {
+    if (get(this.props, 'currentShipment.id') !== get(prevProps, 'currentShipment.id')) {
       this.loadShipment();
     }
   }
@@ -44,11 +35,7 @@ export class Locations extends Component {
   loadShipment() {
     const shipmentID = get(this.props, 'currentShipment.id');
     if (shipmentID) {
-      this.props.getShipment(
-        getRequestLabel,
-        shipmentID,
-        this.props.currentShipment.move_id,
-      );
+      this.props.getShipment(getRequestLabel, shipmentID, this.props.currentShipment.move_id);
     }
   }
 
@@ -58,12 +45,7 @@ export class Locations extends Component {
     const currentShipmentId = get(this.props, 'currentShipment.id');
 
     return this.props
-      .createOrUpdateShipment(
-        createOrUpdateRequestLabel,
-        moveId,
-        shipment,
-        currentShipmentId,
-      )
+      .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
       .then(data => {
         return this.props.setCurrentShipment(data.body);
       })
@@ -77,7 +59,6 @@ export class Locations extends Component {
 
   render() {
     const { pages, pageKey, error, initialValues } = this.props;
-
     // Shipment Wizard
     return (
       <LocationsWizardForm
@@ -103,11 +84,7 @@ export class Locations extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <Address
-            schema={this.props.schema}
-            error={error}
-            formValues={this.props.formValues}
-          />
+          <Address schema={this.props.schema} error={error} formValues={this.props.formValues} />
         </div>
       </LocationsWizardForm>
     );
@@ -120,10 +97,7 @@ Locations.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment, getShipment },
-    dispatch,
-  );
+  return bindActionCreators({ createOrUpdateShipment, setCurrentShipment, getShipment }, dispatch);
 }
 function mapStateToProps(state) {
   const shipment = currentShipment(state);

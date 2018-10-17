@@ -1,17 +1,12 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { isOfficeSite, isTspSite } from 'shared/constants.js';
-import { store, tspStore } from 'shared/store';
+import { store } from 'shared/store';
 import './index.css';
 
 import Loadable from 'react-loadable';
 
-import {
-  AppContext,
-  defaultTspContext,
-  defaultOfficeContext,
-  defaultMyMoveContext,
-} from 'shared/AppContext';
+import { AppContext, defaultTspContext, defaultOfficeContext, defaultMyMoveContext } from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags.js';
 
 const Tsp = Loadable({
@@ -29,11 +24,7 @@ const MyMove = Loadable({
   loading: () => <div>Loading...</div>,
 });
 
-const flags = detectFlags(
-  process.env['NODE_ENV'],
-  window.location.host,
-  window.location.search,
-);
+const flags = detectFlags(process.env['NODE_ENV'], window.location.host, window.location.search);
 
 const tspContext = Object.assign({}, defaultTspContext, { flags });
 const officeContext = Object.assign({}, defaultOfficeContext, { flags });
@@ -50,7 +41,7 @@ const App = () => {
     );
   else if (isTspSite)
     return (
-      <Provider store={tspStore}>
+      <Provider store={store}>
         <AppContext.Provider value={tspContext}>
           <Tsp />
         </AppContext.Provider>

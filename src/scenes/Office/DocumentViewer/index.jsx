@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { includes, get } from 'lodash';
 import qs from 'query-string';
 
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
@@ -17,18 +18,25 @@ import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import DocumentDetailPanel from './DocumentDetailPanel';
 
-import DocumentUploader from './DocumentUploader';
-import {
-  selectAllDocumentsForMove,
-  getMoveDocumentsForMove,
-} from 'shared/Entities/modules/moveDocuments';
+import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
+import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
+import { convertDollarsToCents } from 'shared/utils';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import './index.css';
 class DocumentViewer extends Component {
+  static propTypes = {
+    docTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+    loadMoveDependencies: PropTypes.func.isRequired,
+    getMoveDocumentsForMove: PropTypes.func.isRequired,
+    genericMoveDocSchema: PropTypes.object.isRequired,
+    moveDocSchema: PropTypes.object.isRequired,
+    moveDocuments: PropTypes.arrayOf(PropTypes.object),
+    location: PropTypes.object.isRequired,
+  };
   componentDidMount() {
     //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
@@ -37,6 +45,65 @@ class DocumentViewer extends Component {
   componentWillUpdate() {
     document.title = 'Document Viewer';
   }
+
+  get getDocumentUploaderProps() {
+    const { docTypes, location, genericMoveDocSchema, moveDocSchema } = this.props;
+    // Parse query string parameters
+    const moveDocumentType = qs.parse(location.search).moveDocumentType;
+
+    const initialValues = {};
+    // Verify the provided doc type against the schema
+    if (includes(docTypes, moveDocumentType)) {
+      initialValues.move_document_type = moveDocumentType;
+    }
+
+    return {
+      form: 'move_document_upload',
+      isPublic: false,
+      onSubmit: this.handleSubmit,
+      genericMoveDocSchema,
+      initialValues,
+      location,
+      moveDocSchema,
+    };
+  }
+
+  handleSubmit = (uploadIds, formValues) => {
+    const {
+      currentPpm,
+      move: { id: moveId },
+    } = this.props;
+    const {
+      title,
+      moving_expense_type: movingExpenseType,
+      move_document_type: moveDocumentType,
+      requested_amount_cents: requestedAmountCents,
+      payment_method: paymentMethod,
+      notes,
+    } = formValues;
+    const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
+    if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
+      return this.props.createMovingExpenseDocument({
+        moveId,
+        personallyProcuredMoveId,
+        uploadIds,
+        title,
+        movingExpenseType,
+        moveDocumentType,
+        requestedAmountCents: convertDollarsToCents(requestedAmountCents),
+        paymentMethod,
+        notes,
+      });
+    }
+    return this.props.createMoveDocument({
+      moveId,
+      personallyProcuredMoveId,
+      uploadIds,
+      title,
+      moveDocumentType,
+      notes,
+    });
+  };
   render() {
     const { serviceMember, move, moveDocuments } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
@@ -51,16 +118,8 @@ class DocumentViewer extends Component {
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
 
-    // Parse query string parameters
-    const queryValues = qs.parse(this.props.location.search);
-
-    const defaultTabIndex =
-      this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
-    if (
-      !this.props.loadDependenciesHasSuccess &&
-      !this.props.loadDependenciesHasError
-    )
-      return <LoadingPlaceholder />;
+    const defaultTabIndex = this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
+    if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
         <div className="usa-grid">
@@ -76,32 +135,16 @@ class DocumentViewer extends Component {
         <div className="usa-width-two-thirds">
           <div className="tab-content">
             <Switch>
-              <PrivateRoute
-                exact
-                path={defaultPath}
-                render={() => <Redirect replace to={newUrl} />}
-              />
+              <PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
               <PrivateRoute
                 path={newPath}
                 moveId={move.id}
                 render={() => {
-                  return (
-                    <DocumentUploader
-                      moveId={move.id}
-                      moveDocumentType={queryValues.move_document_type}
-                      location={this.props.location}
-                    />
-                  );
+                  return <DocumentUploader {...this.getDocumentUploaderProps} />;
                 }}
               />
-              <PrivateRoute
-                path={documentPath}
-                component={DocumentUploadViewer}
-              />
-              <PrivateRoute
-                path={defaultUrl}
-                render={() => <div> document viewer coming soon</div>}
-              />
+              <PrivateRoute path={documentPath} component={DocumentUploadViewer} />
+              <PrivateRoute path={defaultUrl} render={() => <div> document viewer coming soon</div>} />
             </Switch>
           </div>
         </div>
@@ -112,32 +155,22 @@ class DocumentViewer extends Component {
           <div className="tab-content">
             <Tabs defaultIndex={defaultTabIndex}>
               <TabList className="doc-viewer-tabs">
-                <Tab className="title nav-tab">
-                  All Documents ({numMoveDocs})
-                </Tab>
+                <Tab className="title nav-tab">All Documents ({numMoveDocs})</Tab>
                 {/* TODO: Handle routing of /new route better */}
                 {this.props.match.params.moveDocumentId &&
-                  this.props.match.params.moveDocumentId !== 'new' && (
-                    <Tab className="title nav-tab">Details</Tab>
-                  )}
+                  this.props.match.params.moveDocumentId !== 'new' && <Tab className="title nav-tab">Details</Tab>}
               </TabList>
 
               <TabPanel>
                 <div className="pad-ns">
                   <span className="status">
-                    <FontAwesomeIcon
-                      className="icon link-blue"
-                      icon={faPlusCircle}
-                    />
+                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
                   </span>
                   <Link to={newUrl}>Upload new document</Link>
                 </div>
                 <div>
                   {' '}
-                  <DocumentList
-                    detailUrlPrefix={`/moves/${move.id}/documents`}
-                    moveDocuments={moveDocuments}
-                  />
+                  <DocumentList detailUrlPrefix={`/moves/${move.id}/documents`} moveDocuments={moveDocuments} />
                 </div>
               </TabPanel>
 
@@ -159,28 +192,25 @@ class DocumentViewer extends Component {
   }
 }
 
-DocumentViewer.propTypes = {
-  loadMoveDependencies: PropTypes.func.isRequired,
-};
-
 const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
+  genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+  moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
+  currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+  docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
-  moveDocuments: selectAllDocumentsForMove(
-    state,
-    get(state, 'office.officeMove.id', ''),
-  ),
+  moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
   error: state.office.error,
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { loadMoveDependencies, getMoveDocumentsForMove },
-    dispatch,
-  );
+const mapDispatchToProps = {
+  createMoveDocument,
+  createMovingExpenseDocument,
+  loadMoveDependencies,
+  getMoveDocumentsForMove,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);

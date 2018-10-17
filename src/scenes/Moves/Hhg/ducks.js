@@ -5,9 +5,7 @@ import { fetchActive } from 'shared/utils';
 import { GetShipment } from './api';
 
 // Types
-export const GET_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  'GET_SHIPMENT',
-);
+export const GET_SHIPMENT = ReduxHelpers.generateAsyncActionTypes('GET_SHIPMENT');
 
 // Action creation
 export function fetchShipment(moveId, shipmentId) {
@@ -38,9 +36,7 @@ export function hhgReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       // Initialize state when we get the logged in user
-      const activeOrders = fetchActive(
-        get(action.payload, 'service_member.orders'),
-      );
+      const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
       const activeMove = fetchActive(get(activeOrders, 'moves'));
       const activeHhg = fetchActive(get(activeMove, 'shipments'));
       return Object.assign({}, state, {
@@ -53,7 +49,6 @@ export function hhgReducer(state = initialState, action) {
         hasLoadSuccess: false,
       });
     case GET_SHIPMENT.success:
-      console.log('payload', action.payload);
       return Object.assign({}, state, {
         currentShipment: action.payload,
         hasLoadSuccess: true,

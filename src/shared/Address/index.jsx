@@ -45,6 +45,7 @@ export const AddressElementEdit = ({ addressProps, title }) => (
     <div className="panel-subhead">{title}</div>
     <SwaggerField fieldName="street_address_1" {...addressProps} required />
     <SwaggerField fieldName="street_address_2" {...addressProps} />
+    <SwaggerField fieldName="street_address_3" {...addressProps} />
     <SwaggerField fieldName="city" {...addressProps} required />
     <SwaggerField fieldName="state" {...addressProps} required />
     <SwaggerField fieldName="postal_code" {...addressProps} required />

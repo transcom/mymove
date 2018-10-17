@@ -14,9 +14,7 @@ describe('office user finds the move', () => {
       .click();
 
     // Enter cancel reason
-    cy
-      .get('.cancel-panel textarea:first')
-      .type('Canceling this move as a test!');
+    cy.get('.cancel-panel textarea:first').type('Canceling this move as a test!');
     cy
       .get('.cancel-panel button')
       .contains('Cancel Move')
@@ -25,8 +23,6 @@ describe('office user finds the move', () => {
       .get('.cancel-panel button')
       .contains('Yes, Cancel Move')
       .click();
-    cy
-      .get('.usa-alert-success')
-      .contains('Move #CANCEL for Submitted, PPM has been canceled');
+    cy.get('.usa-alert-success').contains('Move #CANCEL for Submitted, PPM has been canceled');
   });
 });

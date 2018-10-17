@@ -46,11 +46,14 @@ function tspUserGeneratesGBL() {
     .contains('Generate Bill of Lading')
     .click();
 
+  cy
+    .get('button')
+    .contains('Generate Bill of Lading')
+    .should('be.disabled');
+
   // I have seen this take anywhere from 8s - 18s. Until we optimize it, giving the test a long
   // timeout.
-  cy
-    .get('.usa-alert-success', { timeout: 20000 })
-    .contains('GBL generated successfully.');
+  cy.get('.usa-alert-success', { timeout: 20000 }).contains('GBL generated successfully.');
 
   cy
     .get('button')
@@ -58,8 +61,11 @@ function tspUserGeneratesGBL() {
     .click();
 
   cy
-    .get('.usa-alert-warning')
-    .contains('There is already a GBL for this shipment. ');
+    .get('button')
+    .contains('Generate Bill of Lading')
+    .should('be.disabled');
+
+  cy.get('.usa-alert-warning').contains('There is already a GBL for this shipment. ');
 }
 
 function tspUserViewsGBL() {
@@ -78,11 +84,7 @@ function tspUserViewsGBL() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('.documents')
-    .should($div =>
-      expect($div.text()).to.contain('Government Bill Of Lading'),
-    );
+  cy.get('.documents').should($div => expect($div.text()).to.contain('Government Bill Of Lading'));
 
   cy
     .get('.documents')

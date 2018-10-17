@@ -9,12 +9,7 @@ import PpmSize from './Size';
 
 export class PpmSizeWizardPage extends Component {
   handleSubmit = () => {
-    const {
-      pendingPpmSize,
-      createOrUpdatePpm,
-      weightInfo,
-      currentPpm,
-    } = this.props;
+    const { pendingPpmSize, createOrUpdatePpm, weightInfo, currentPpm } = this.props;
     //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
     if (pendingPpmSize) {

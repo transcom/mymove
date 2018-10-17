@@ -1,1 +1,0 @@
-drop_column("best_value_scores", "traffic_distribution_list_id")

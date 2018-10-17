@@ -22,7 +22,6 @@ echo "Code goes here"
  [Querying the Database Safely](./docs/backend.md#querying-the-database-safely)
  have been satisfied.
 * Any new migrations/schema changes:
-  * [ ] Update the diagram in docs/schema/dp3.sqs (see [Updating and changing the model](./docs/schema/README.md#updating-and-changing-the-model))
   * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](./docs/database.md#zero-downtime-migrations))
   * [ ] Have been communicated to #dp3-engineering
 * [ ] There are no aXe warnings for UI.

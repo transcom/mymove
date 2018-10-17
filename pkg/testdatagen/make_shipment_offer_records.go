@@ -206,8 +206,6 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			},
 			Shipment: models.Shipment{
 				RequestedPickupDate:     &now,
-				ActualPickupDate:        &nowPlusOne,
-				ActualDeliveryDate:      &nowPlusTwo,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				DestinationGBLOC:        &destinationGBLOC,
@@ -216,6 +214,25 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
+
+		// Set dates based on status
+		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
+			shipment.PmSurveyConductedDate = &now
+			shipment.PmSurveyPlannedPackDate = &nowPlusOne
+			shipment.PmSurveyPlannedPickupDate = &nowPlusOne
+			shipment.PmSurveyPlannedDeliveryDate = &nowPlusTwo
+			shipment.ActualPackDate = &now
+			shipment.ActualPickupDate = &nowPlusOne
+		}
+
+		if shipmentStatus == models.ShipmentStatusDELIVERED {
+			shipment.ActualDeliveryDate = &nowPlusTwo
+		}
+
+		// Assign a new unique GBL number using source GBLOC
+		shipment.AssignGBLNumber(db)
+		mustSave(db, &shipment)
+
 		shipmentList = append(shipmentList, shipment)
 
 		// Accepted shipments must have an OSA and DSA

@@ -77,3 +77,6 @@ cypress/results
 
 # XLSX backup files
 ~$*.xlsx
+
+# SQLEditor
+*.sqs

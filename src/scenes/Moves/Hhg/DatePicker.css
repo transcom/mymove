@@ -6,8 +6,6 @@ h3.form-title {
   font-size: 2rem;
 }
 
-
-
 table th,
 table td {
   border: none;
@@ -22,4 +20,44 @@ th {
 
 span.estimate {
   color: gray;
+  margin-left: 0.5rem;
+}
+
+.DayPicker-Day--pack {
+  background-color: #a3bddf;
+  border-radius: 0;
+}
+
+.DayPicker-Day--pickup {
+  background-color: #497abf;
+  border-radius: 0;
+}
+
+.DayPicker-Day--transit {
+  background: repeating-linear-gradient(45deg, transparent, transparent 0.5em, #a3bddf 0.5em, #a3bddf 0.75em);
+  border-radius: 0;
+}
+
+.DayPicker-Day--delivery {
+  background-color: #a3bddf;
+  border-radius: 0;
+  outline: 0.25em solid #497abf;
+  outline-offset: -0.25em;
+}
+
+.DayPicker-Day--report {
+  color: white;
+  background-color: #000000;
+  border-radius: 0;
+}
+
+.legend-square {
+  font-size: 1rem;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+}
+
+.legend-label {
+  padding-left: 0;
 }

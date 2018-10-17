@@ -11,12 +11,7 @@ export const DocumentUploadViewer = ({ moveDocument }) => {
   return (
     <div className="document-contents">
       {uploadModels.map(({ url, filename, content_type }) => (
-        <DocumentContent
-          key={url}
-          url={url}
-          filename={filename}
-          contentType={content_type}
-        />
+        <DocumentContent key={url} url={url} filename={filename} contentType={content_type} />
       ))}
     </div>
   );

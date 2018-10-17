@@ -137,6 +137,13 @@ function tspUserEntersNetWeight() {
 
   // Fill out the net weight and save it
   withinWeightsAndItemsPanel(() => {
+    cy.get('label[for="weights.pm_survey_weight_estimate"]').should('have.text', 'TSP estimateOptional');
+    cy
+      .get('input[name="weights.pm_survey_weight_estimate"]')
+      .clear()
+      .first()
+      .type('5000')
+      .blur();
     cy.get('label[for="weights.gross_weight"]').should('have.text', 'Gross');
     cy
       .get('input[name="weights.gross_weight"]')
@@ -149,27 +156,21 @@ function tspUserEntersNetWeight() {
       .first()
       .type('10000')
       .blur();
-    cy
-      .get('label[for="weights.net_weight"]')
-      .should('have.text', 'Net (Gross - Tare)');
+    cy.get('label[for="weights.net_weight"]').should('have.text', 'Net (Gross - Tare)');
     cy
       .get('input[name="weights.net_weight"]')
       .first()
       .type('40000')
       .blur();
 
-    cy
-      .get('label[for="weights.pm_survey_progear_weight_estimate"]')
-      .should('have.text', 'Service memberOptional');
+    cy.get('label[for="weights.pm_survey_progear_weight_estimate"]').should('have.text', 'Service memberOptional');
     cy
       .get('input[name="weights.pm_survey_progear_weight_estimate"]')
       .clear()
       .first()
       .type('4000')
       .blur();
-    cy
-      .get('label[for="weights.pm_survey_spouse_progear_weight_estimate"]')
-      .contains('Spouse');
+    cy.get('label[for="weights.pm_survey_spouse_progear_weight_estimate"]').contains('Spouse');
     cy
       .get('input[name="weights.pm_survey_spouse_progear_weight_estimate"]')
       .clear()

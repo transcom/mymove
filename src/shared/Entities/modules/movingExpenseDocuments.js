@@ -12,7 +12,7 @@ export function isMovingExpenseDocument(moveDocument) {
   return includes(expenseTypes, type);
 }
 
-export function createMovingExpenseDocument(
+export function createMovingExpenseDocument({
   moveId,
   personallyProcuredMoveId,
   uploadIds,
@@ -22,7 +22,7 @@ export function createMovingExpenseDocument(
   requestedAmountCents,
   paymentMethod,
   notes,
-) {
+}) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.createMovingExpenseDocument({
@@ -38,10 +38,7 @@ export function createMovingExpenseDocument(
         notes: notes,
       },
     });
-    checkResponse(
-      response,
-      'failed to create moving expense document due to server error',
-    );
+    checkResponse(response, 'failed to create moving expense document due to server error');
     const data = normalize(response.body, schema.moveDocument);
     dispatch(addEntities(data.entities));
     return response;
@@ -52,9 +49,5 @@ export const selectAllMovingExpenseDocumentsForMove = (state, id) => {
   const movingExpenseDocs = filter(state.entities.moveDocuments, doc => {
     return doc.move_id === id && doc.move_document_type === 'EXPENSE';
   });
-  return denormalize(
-    map(movingExpenseDocs, 'id'),
-    moveDocuments,
-    state.entities,
-  );
+  return denormalize(map(movingExpenseDocs, 'id'), moveDocuments, state.entities);
 };

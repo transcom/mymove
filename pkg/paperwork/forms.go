@@ -159,7 +159,7 @@ func (f *FormFiller) DrawData(data interface{}) error {
 		case int64:
 			displayValue = strconv.FormatInt(v, 10)
 		case time.Time:
-			displayValue = v.Format("01-Mon-2006")
+			displayValue = v.Format("02-Jan-2006")
 		case internalmessages.ServiceMemberRank:
 			displayValue = rankDisplayValue[v]
 		case *internalmessages.ServiceMemberRank:

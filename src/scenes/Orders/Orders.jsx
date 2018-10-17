@@ -32,13 +32,9 @@ export class Orders extends Component {
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       pendingValues['spouse_has_pro_gear'] =
-        (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) ||
-        false;
+        (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) || false;
       if (this.props.currentOrders) {
-        return this.props.updateOrders(
-          this.props.currentOrders.id,
-          pendingValues,
-        );
+        return this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
         return this.props.createOrders(pendingValues);
       }
@@ -46,13 +42,7 @@ export class Orders extends Component {
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      currentOrders,
-      serviceMemberId,
-    } = this.props;
+    const { pages, pageKey, error, currentOrders, serviceMemberId } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
     return (
@@ -66,27 +56,11 @@ export class Orders extends Component {
         additionalParams={{ serviceMemberId }}
       >
         <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
-        <SwaggerField
-          fieldName="orders_type"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          fieldName="issue_date"
-          swagger={this.props.schema}
-          required
-        />
+        <SwaggerField fieldName="orders_type" swagger={this.props.schema} required />
+        <SwaggerField fieldName="issue_date" swagger={this.props.schema} required />
         <span className="grey">Date your orders were issued.</span>
-        <SwaggerField
-          fieldName="report_by_date"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          fieldName="has_dependents"
-          swagger={this.props.schema}
-          component={YesNoBoolean}
-        />
+        <SwaggerField fieldName="report_by_date" swagger={this.props.schema} required />
+        <SwaggerField fieldName="has_dependents" swagger={this.props.schema} component={YesNoBoolean} />
         {get(this.props, 'formValues.has_dependents', false) && (
           <Fragment>
             <SwaggerField
@@ -97,11 +71,7 @@ export class Orders extends Component {
             />
           </Fragment>
         )}
-        <Field
-          name="new_duty_station"
-          component={DutyStationSearchBox}
-          title="New duty station"
-        />
+        <Field name="new_duty_station" component={DutyStationSearchBox} title="New duty station" />
       </OrdersWizardForm>
     );
   }
@@ -116,11 +86,7 @@ Orders.propTypes = {
 function mapStateToProps(state) {
   const props = {
     serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateUpdateOrders',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues: getFormValues(formName)(state),
     currentOrders: state.orders.currentOrders,
   };

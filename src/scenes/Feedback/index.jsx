@@ -21,11 +21,7 @@ export class Feedback extends Component {
     return (
       <div className="usa-grid">
         <h1>Report a Bug!</h1>
-        <FeedbackForm
-          onSubmit={this.handleSubmit}
-          schema={this.props.schema}
-          uiSchema={this.props.uiSchema}
-        />
+        <FeedbackForm onSubmit={this.handleSubmit} schema={this.props.schema} uiSchema={this.props.uiSchema} />
         {hasErrored && (
           <Alert type="error" heading="Submission Error">
             Something went wrong
@@ -52,11 +48,7 @@ Feedback.propTypes = {
 function mapStateToProps(state) {
   return {
     ...state.feedback,
-    schema: get(
-      state,
-      'swaggerInternal.spec.definitions.CreateIssuePayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateIssuePayload', {}),
   };
 }
 

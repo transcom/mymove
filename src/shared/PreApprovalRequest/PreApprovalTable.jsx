@@ -52,13 +52,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   }
 }
 
-const PreApprovalTable = ({
-  shipment_accessorials,
-  isActionable,
-  onEdit,
-  onApproval,
-  onDelete,
-}) => (
+const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onApproval, onDelete }) => (
   <div className="accessorial-panel">
     <table cellSpacing={0}>
       <tbody>
@@ -78,21 +72,18 @@ const PreApprovalTable = ({
             status = renderStatusIcon(row.status);
           }
           return (
-            <tr key={row.code}>
-              <td align="left">{row.code}</td>
-              <td align="left">{row.item}</td>
-              <td align="left"> {row.location} </td>
-              <td align="left">{formatFromBaseQuantity(row.base_quantity)} </td>
+            <tr key={row.id}>
+              <td align="left">{row.accessorial.code}</td>
+              <td align="left">{row.accessorial.item}</td>
+              <td align="left"> {row.location[0].toUpperCase() + row.location.substring(1).toLowerCase()} </td>
+              <td align="left">{formatFromBaseQuantity(row.quantity_1)}</td>
               <td align="left">{row.notes} </td>
-              <td align="left">{formatDate(row.created_at)}</td>
+              <td align="left">{formatDate(row.submitted_date)}</td>
               <td align="left">
                 <span className="status">{status}</span>
-                {row.status}
+                {row.status[0].toUpperCase() + row.status.substring(1).toLowerCase()}
               </td>
-              <td>
-                {isActionable &&
-                  renderActionIcons(row.status, onEdit, onApproval, onDelete)}
-              </td>
+              <td>{isActionable && renderActionIcons(row.status, onEdit, onApproval, onDelete)}</td>
             </tr>
           );
         })}

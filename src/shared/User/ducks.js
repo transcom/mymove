@@ -10,9 +10,7 @@ import { addEntities } from 'shared/Entities/actions';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
-export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(
-  getLoggedInUserType,
-);
+export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
 
 const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 export const loadLoggedInUser = () => {

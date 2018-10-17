@@ -12,8 +12,8 @@ describe('PreApprovalPanel tests', () => {
   const onEdit = jest.fn();
   const shipment_accessorials = [
     {
-      code: '105D',
-      item: 'Unpack Reg Crate',
+      id: 'sldkjf',
+      accessorial: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: ' 16.7',
       notes: '',
@@ -21,12 +21,11 @@ describe('PreApprovalPanel tests', () => {
       status: 'SUBMITTED',
     },
     {
-      code: '105E',
-      item: 'Unpack Reg Crate',
+      id: 'sldsdff',
+      accessorial: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: ' 16.7',
-      notes:
-        'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
+      notes: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
       created_at: '2018-09-24T14:05:38.847Z',
       status: 'APPROVED',
     },
@@ -50,10 +49,7 @@ describe('PreApprovalPanel tests', () => {
     //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
     wrapper = mount(
       <Provider store={store}>
-        <PreApprovalPanel
-          shipment_accessorials={shipment_accessorials}
-          accessorials={accessorials}
-        />
+        <PreApprovalPanel shipment_accessorials={shipment_accessorials} accessorials={accessorials} />
       </Provider>,
     );
   });
