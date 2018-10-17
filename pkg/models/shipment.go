@@ -67,6 +67,7 @@ type Shipment struct {
 	BookDate             *time.Time `json:"book_date" db:"book_date"`                           // when the shipment was most recently offered to a TSP
 	RequestedPickupDate  *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`   // when the shipment was originally scheduled to be picked up
 	OriginalDeliveryDate *time.Time `json:"original_delivery_date" db:"original_delivery_date"` // when the shipment is to be delivered
+	OriginalPackDate     *time.Time `json:"original_pack_date" db:"original_pack_date"`         // when packing is to begin
 
 	// calculated durations
 	EstimatedPackDays    *int64 `json:"estimated_pack_days" db:"estimated_pack_days"`
