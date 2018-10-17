@@ -1,44 +1,64 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PreApprovalRequest from 'shared/PreApprovalRequest/PreApprovalRequest.jsx';
 
 import './PreApprovalRequest.css';
 
-const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onApproval, onDelete }) => (
-  <div className="accessorial-panel">
-    <table cellSpacing={0}>
-      <tbody>
-        <tr>
-          <th>Code</th>
-          <th>Item</th>
-          <th>Loc.</th>
-          <th>Base Quantity</th>
-          <th>Notes</th>
-          <th>Submitted</th>
-          <th>Status</th>
-          <th>&nbsp;</th>
-        </tr>
-        {shipment_accessorials.map(row => {
-          return (
-            <PreApprovalRequest
-              key={row.id}
-              shipmentLineItem={row}
-              onEdit={onEdit}
-              onApproval={onApproval}
-              onDelete={onDelete}
-              isActionable={isActionable}
-            />
-          );
-        })}
-      </tbody>
-    </table>
-  </div>
-);
+export class PreApprovalTable extends Component {
+  state = { actionRequestId: null };
+  isRequestActive = id => {
+    return isActive => {
+      this.props.onRequestActivation(isActive);
+      if (isActive) {
+        this.setState({ actionRequestId: id });
+      } else {
+        this.setState({ actionRequestId: null });
+      }
+    };
+  };
+  render() {
+    const { shipment_accessorials, isActionable, onEdit, onApproval, onDelete } = this.props;
+    return (
+      <div className="accessorial-panel">
+        <table cellSpacing={0}>
+          <tbody>
+            <tr>
+              <th>Code</th>
+              <th>Item</th>
+              <th>Loc.</th>
+              <th>Base Quantity</th>
+              <th>Notes</th>
+              <th>Submitted</th>
+              <th>Status</th>
+              <th>&nbsp;</th>
+            </tr>
+            {shipment_accessorials.map(row => {
+              let requestIsActionable =
+                isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
+              return (
+                <PreApprovalRequest
+                  key={row.id}
+                  shipmentLineItem={row}
+                  onEdit={onEdit}
+                  onApproval={onApproval}
+                  onDelete={onDelete}
+                  isActive={this.isRequestActive(row.id)}
+                  isActionable={requestIsActionable}
+                />
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+}
 
 PreApprovalTable.propTypes = {
   shipment_accessorials: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,
+  onRequestActivation: PropTypes.func,
   onDelete: PropTypes.func,
   onApproval: PropTypes.func,
 };

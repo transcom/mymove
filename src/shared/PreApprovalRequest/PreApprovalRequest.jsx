@@ -52,23 +52,32 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
 export class PreApprovalRequest extends Component {
   state = { showDeleteForm: false };
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded)
-      if (this.state.closeOnSubmit) this.setState({ showForm: false });
-      else this.props.clearForm();
+    if (!this.props.isActionable && this.state.showDeleteForm) {
+      this.cancelDelete();
+    }
   }
   onDelete = () => {
+    this.props.isActive(true);
     this.setState({ showDeleteForm: true });
   };
   cancelDelete = () => {
+    this.props.isActive(false);
+    this.setState({ showDeleteForm: false });
+  };
+  approveDelete = () => {
+    this.props.isActive(false);
+    this.props.onDelete();
+    // This shouldn't be necessary after redux is hooked up, the row will be deleted
     this.setState({ showDeleteForm: false });
   };
   render() {
-    let row = this.props.shipmentLineItem;
+    const row = this.props.shipmentLineItem;
     let status = '';
     if (isOfficeSite) {
       status = renderStatusIcon(row.status);
     }
-    let deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
+    const deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
+    const showButtons = this.props.isActionable && !this.state.showDeleteForm;
     return (
       <Fragment>
         <tr key={row.id} className={deleteActiveClass}>
@@ -83,8 +92,7 @@ export class PreApprovalRequest extends Component {
             {row.status[0].toUpperCase() + row.status.substring(1).toLowerCase()}
           </td>
           <td>
-            {this.props.isActionable &&
-              renderActionIcons(row.status, this.props.onEdit, this.props.onApproval, this.onDelete)}
+            {showButtons && renderActionIcons(row.status, this.props.onEdit, this.props.onApproval, this.onDelete)}
           </td>
         </tr>
         {this.state.showDeleteForm && (
@@ -94,7 +102,7 @@ export class PreApprovalRequest extends Component {
               <button className="usa-button usa-button-secondary" onClick={this.cancelDelete}>
                 No, do not delete
               </button>
-              <button className="usa-button usa-button-secondary" onClick={this.props.onDelete}>
+              <button className="usa-button usa-button-secondary" onClick={this.approveDelete}>
                 Yes, delete
               </button>
             </td>
@@ -109,6 +117,7 @@ PreApprovalRequest.propTypes = {
   onEdit: PropTypes.func,
   onApproval: PropTypes.func,
   onDelete: PropTypes.func,
+  isActive: PropTypes.func.isRequired,
   isActionable: PropTypes.bool.isRequired,
 };
 

@@ -5,14 +5,13 @@ import { isOfficeSite } from 'shared/constants.js';
 
 import PreApprovalTable from 'shared/PreApprovalRequest/PreApprovalTable.jsx';
 import Creator from 'shared/PreApprovalRequest/Creator';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 export class PreApprovalPanel extends Component {
   constructor() {
     super();
     this.state = {
-      isActionable: true,
+      isRequestActionable: true,
+      isCreatorActionable: true,
     };
   }
   onSubmit = values => {
@@ -33,8 +32,11 @@ export class PreApprovalPanel extends Component {
   onApproval = () => {
     console.log('onApproval hit');
   };
-  onFormActivation = active => {
-    this.setState({ isActionable: active });
+  onFormActivation = isFormActive => {
+    this.setState({ isRequestActionable: !isFormActive });
+  };
+  onRequestActivation = isRequestActive => {
+    this.setState({ isCreatorActionable: !isRequestActive });
   };
   render() {
     return (
@@ -42,16 +44,19 @@ export class PreApprovalPanel extends Component {
         <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
             shipment_accessorials={this.props.shipment_accessorials}
-            isActionable={this.state.isActionable}
+            isActionable={this.state.isRequestActionable}
+            onRequestActivation={this.onRequestActivation}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
             onApproval={isOfficeSite ? this.onApproval : null}
           />
-          <Creator
-            tariff400ngItems={this.props.tariff400ngItems}
-            savePreApprovalRequest={this.onSubmit}
-            onFormActivation={this.onFormActivation}
-          />
+          {this.state.isCreatorActionable && (
+            <Creator
+              tariff400ngItems={this.props.tariff400ngItems}
+              savePreApprovalRequest={this.onSubmit}
+              onFormActivation={this.onFormActivation}
+            />
+          )}
         </BasicPanel>
       </div>
     );
@@ -62,12 +67,4 @@ PreApprovalPanel.propTypes = {
   shipment_accessorials: PropTypes.array,
   tariff400ngItems: PropTypes.array,
 };
-
-function mapStateToProps(state) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);
+export default PreApprovalPanel;
