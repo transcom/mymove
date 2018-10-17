@@ -97,11 +97,21 @@ describe('completing the hhg flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-weight/);
     });
 
+    // Weight over entitlement
+    cy
+      .get('input[name="weight_estimate"]')
+      .clear()
+      .type('50000');
+
+    cy.contains('Entitlement exceeded');
+
     // Weight
     cy
       .get('input[name="weight_estimate"]')
       .clear()
       .type('3000');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
 
     cy.nextPage();
 

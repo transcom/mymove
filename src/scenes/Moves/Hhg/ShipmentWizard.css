@@ -1,7 +1,33 @@
 .shipment-wizard .form-section {
-  margin-top: 7rem;
+  margin-top: 3rem;
 }
 
 .shipment-wizard h3.instruction-heading {
   font-size: 2rem;
+}
+
+.shipment-wizard .weight-info-box {
+  background-color: #eff5fc;
+  padding: 1.5rem;
+  border: 1px solid #d1d1d1;
+}
+
+.shipment-wizard .weight-estimate-hr {
+  color: #ccc;
+  background-color: #ccc;
+  height: 1px;
+  border: none;
+}
+
+.shipment-wizard .weight-estimate label {
+  font-weight: bold;
+}
+
+.shipment-wizard .weight-estimate input {
+  width: 80px;
+}
+
+.shipment-wizard .weight-estimate-help {
+  padding-top: 0.5rem;
+  color: gray;
 }
