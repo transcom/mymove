@@ -8,7 +8,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
-export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentAccessorialId) {
+export function renderActionIcons(status, onEdit, onApproval, onDelete) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
   //TODO: hiding edit action until we have implementation
@@ -25,8 +25,8 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
           <FontAwesomeIcon className="icon actionable" icon={faPencil} />
         </span>
       )}
-      {false && (
-        <span onClick={() => onDelete(shipmentAccessorialId)}>
+      {onDelete && (
+        <span onClick={() => onDelete()}>
           <FontAwesomeIcon className="icon actionable" icon={faTimes} />
         </span>
       )}
@@ -51,7 +51,7 @@ export class PreApprovalRequest extends Component {
   };
   approveDelete = () => {
     this.props.isActive(false);
-    this.props.onDelete();
+    this.props.onDelete(this.props.shipmentLineItem.id);
     // This shouldn't be necessary after redux is hooked up, the row will be deleted
     this.setState({ showDeleteForm: false });
   };

@@ -33,9 +33,7 @@ export class PreApprovalPanel extends Component {
     console.log('onEdit hit');
   };
   onDelete = shipmentAccessorialId => {
-    if (window.confirm('Are you sure you want to delete this pre approval request?')) {
-      this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
-    }
+    this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
   };
   onApproval = () => {
     console.log('onApproval hit');
