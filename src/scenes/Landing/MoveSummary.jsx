@@ -102,6 +102,7 @@ export const DraftMoveSummary = props => {
   );
 };
 
+// shows summary for both ppm and hhg submitted states
 export const SubmittedMoveSummary = props => {
   const { ppm, shipment, orders, profile, move, entitlement } = props;
   const nextPpmStep = `Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
@@ -127,7 +128,34 @@ export const SubmittedMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <img className="status_icon" src={ppmSubmitted} alt="status" />
+            {isPpm && <img className="status_icon" src={ppmSubmitted} alt="status" />}
+            <div className="status_timeline">
+              <div className="status_block">
+                <div className="status_dot status_active" />
+                <div className="status_name">Scheduled</div>
+                <div>Date</div>
+              </div>
+              <div className="status_block">
+                <div className="status_dot" />
+                <div className="status_name">Packed</div>
+                <div>Date</div>
+              </div>
+              <div className="status_block">
+                <div className="status_dot" />
+                <div className="status_name">Loaded</div>
+                <div>date</div>
+              </div>
+              <div className="status_block">
+                <div className="status_dot" />
+                <div className="status_name">In transit</div>
+                <div>date range</div>
+              </div>
+              <div className="status_block">
+                <div className="status_dot" />
+                <div className="status_name">Delivered</div>
+                <div>date</div>
+              </div>
+            </div>
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">

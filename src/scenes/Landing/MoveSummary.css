@@ -67,3 +67,32 @@ a {
 .contact_block .title {
   font-size: 2.2rem;
 }
+
+.shipment_box_contents .status_timeline{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 3rem;
+  text-align: center;
+}
+
+.shipment_box_contents .status_block{
+  text-align: center;
+}
+.shipment_box_contents .status_dot{
+  width: 20px;
+  height: 20px;
+  background: #d6d7d9;
+  border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+}
+
+.shipment_box_contents .status_active{
+  background: #102e51;
+  box-shadow: 0px 0px 0px 4px #0270bc;
+}
+
+.shipment_box_contents .status_name{
+  margin: 1rem 0 .5rem 0;
+}
