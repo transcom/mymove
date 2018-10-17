@@ -6,7 +6,7 @@
   font-size: 2rem;
 }
 
-.shipment-wizard .entitlement-alert {
+.shipment-wizard .pack-days-notice {
   padding-top: 3rem;
 }
 
@@ -21,7 +21,7 @@
   padding-left: 0;
 }
 
-.shipment-wizard .days-for-pounds {
+.shipment-wizard .weight-info-box {
   background-color: #eff5fc;
   padding: 1.5rem;
   border: 1px solid #d1d1d1;

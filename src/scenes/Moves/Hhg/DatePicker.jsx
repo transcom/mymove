@@ -97,7 +97,7 @@ export class HHGDatePicker extends Component {
       <div className="form-section">
         {availableMoveDates ? (
           <div className="usa-grid">
-            <h4 className="instruction-heading">Pick a moving date.</h4>
+            <h3 className="instruction-heading">Pick a moving date.</h3>
             <div className="usa-width-one-third">
               <DayPicker
                 onDayClick={this.handleDayClick}
@@ -115,11 +115,11 @@ export class HHGDatePicker extends Component {
         ) : (
           <LoadingPlaceholder />
         )}
-        <div className="usa-grid entitlement-alert">
+        <div className="usa-grid pack-days-notice">
           <div className="usa-width-one-whole">
             <p>Can't find a date that works? Talk with a move counselor in your local Transportation office (PPPO).</p>
             {entitlementSum ? (
-              <div className="days-for-pounds">
+              <div className="weight-info-box">
                 * It takes 1 day for every 5,000 lbs of stuff movers need to pack. You have an allowance of{' '}
                 {entitlementSum.toLocaleString()} lbs, so we estimate it will take {Math.ceil(entitlementSum / 5000)}{' '}
                 days to pack.
