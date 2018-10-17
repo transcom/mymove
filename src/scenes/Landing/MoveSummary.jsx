@@ -16,6 +16,7 @@ import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import { Link } from 'react-router-dom';
 import { withContext } from 'shared/AppContext';
+import StatusTimeline from './StatusTimeline';
 
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
@@ -129,33 +130,7 @@ export const SubmittedMoveSummary = props => {
 
           <div className="shipment_box_contents">
             {isPpm && <img className="status_icon" src={ppmSubmitted} alt="status" />}
-            <div className="status_timeline">
-              <div className="status_block">
-                <div className="status_dot status_active" />
-                <div className="status_name">Scheduled</div>
-                <div>Date</div>
-              </div>
-              <div className="status_block">
-                <div className="status_dot" />
-                <div className="status_name">Packed</div>
-                <div>Date</div>
-              </div>
-              <div className="status_block">
-                <div className="status_dot" />
-                <div className="status_name">Loaded</div>
-                <div>date</div>
-              </div>
-              <div className="status_block">
-                <div className="status_dot" />
-                <div className="status_name">In transit</div>
-                <div>date range</div>
-              </div>
-              <div className="status_block">
-                <div className="status_dot" />
-                <div className="status_name">Delivered</div>
-                <div>date</div>
-              </div>
-            </div>
+            <StatusTimeline moveDate={shipment.requested_pickup_date} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
