@@ -293,16 +293,25 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
-	// Premove Survey values entered by TSP agent
-	requiredValue := payload.PmSurveyPlannedPackDate
 
-	// If any PmSurvey data was sent, update all fields
-	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
-	if requiredValue != nil {
+	// PM Survey fields may be updated individually in the Dates panel and so cannot be lumped into one update
+	if payload.PmSurveyConductedDate != nil {
 		shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
+	}
+
+	if payload.PmSurveyPlannedDeliveryDate != nil {
 		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
+	}
+
+	if payload.PmSurveyMethod != "" {
 		shipment.PmSurveyMethod = payload.PmSurveyMethod
+	}
+
+	if payload.PmSurveyPlannedPackDate != nil {
 		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
+	}
+
+	if payload.PmSurveyPlannedPickupDate != nil {
 		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
 	}
 

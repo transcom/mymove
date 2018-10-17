@@ -23,7 +23,7 @@
 }
 /*Base Quantity*/
 .accessorial-panel table > tbody > tr > th:nth-child(4) {
-  width: 7%;
+  width: 10%;
 }
 /*Item*/
 .accessorial-panel table > tbody > tr > th:nth-child(2) {
@@ -118,6 +118,20 @@
   vertical-align: top;
 }
 
+.bq-explanation {
+  font-size: .8em;
+  padding: 0rem 0rem 3rem 0rem;
+}
+
+.bq-explanation p {
+  line-height: 1rem;
+  padding: 0rem 0rem 0rem 0rem;
+}
+
+.bq-explanation li {
+  line-height: 1.5em;
+  margin: 0rem 0rem 0rem 0rem;
+}
 
 
 

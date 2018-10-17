@@ -10,7 +10,7 @@ import { PreApprovalPanel } from './PreApprovalPanel';
 describe('PreApprovalPanel tests', () => {
   let wrapper, icons;
   const onEdit = jest.fn();
-  const shipment_accessorials = [
+  const shipmentAccessorials = [
     {
       id: 'sldkjf',
       accessorial: { code: '105D', item: 'Reg Shipping' },
@@ -49,7 +49,7 @@ describe('PreApprovalPanel tests', () => {
     //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
     wrapper = mount(
       <Provider store={store}>
-        <PreApprovalPanel shipment_accessorials={shipment_accessorials} accessorials={accessorials} />
+        <PreApprovalPanel shipmentAccessorials={shipmentAccessorials} accessorials={accessorials} />
       </Provider>,
     );
   });
@@ -58,7 +58,7 @@ describe('PreApprovalPanel tests', () => {
     it('renders without crashing', () => {
       const icons = wrapper.find('.icon');
       expect(wrapper.find('.accessorial-panel').length).toEqual(1);
-      expect(icons.length).toBe(6);
+      expect(icons.length).toBe(2);
     });
   });
 });

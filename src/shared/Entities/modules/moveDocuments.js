@@ -36,7 +36,7 @@ export const getMoveDocumentsForMove = moveId => {
   };
 };
 
-export function createMoveDocument(moveId, personallyProcuredMoveId, uploadIds, title, moveDocumentType, notes) {
+export function createMoveDocument({ moveId, personallyProcuredMoveId, uploadIds, title, moveDocumentType, notes }) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.createGenericMoveDocument({

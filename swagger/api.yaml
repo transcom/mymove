@@ -151,6 +151,17 @@ definitions:
       DESTINATION: Destination
       NEITHER: Neither
       EITHER: Either
+  ShipmentAccessorialLocation:
+    type: string
+    title: Location
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - NEITHER
+    x-display-value:
+      ORIGIN: Origin
+      DESTINATION: Destination
+      NEITHER: Neither
   AccessorialStatus:
     type: string
     title: Status
@@ -241,7 +252,7 @@ definitions:
         minimum: 0
         example: 10000
       location:
-        $ref: '#/definitions/AccessorialLocation'
+        $ref: '#/definitions/ShipmentAccessorialLocation'
       notes:
         type: string
         format: textarea

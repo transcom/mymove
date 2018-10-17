@@ -3,32 +3,27 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues, Field } from 'redux-form';
+import { getFormValues } from 'redux-form';
 
 import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
-import { getLastError } from 'shared/Swagger/selectors';
+import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import DatePicker from 'scenes/Moves/Hhg/DatePicker';
-import { validateAdditionalFields } from 'shared/JsonSchemaForm';
+import ProgearEstimates from 'scenes/Moves/Hhg/ProgearEstimates';
 
 import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
-import { getAvailableMoveDates, selectAvailableMoveDates } from 'shared/Entities/modules/calendar';
 
 import './ShipmentWizard.css';
 
-const validateMoveDateForm = validateAdditionalFields(['requested_pickup_date']);
+const formName = 'progear_form';
+const getRequestLabel = 'progear.getShipment';
+const createOrUpdateRequestLabel = 'progear.createOrUpdateShipment';
 
-const formName = 'move_date_form';
-const getRequestLabel = 'MoveDate.getShipment';
-const createOrUpdateRequestLabel = 'MoveDate.createOrUpdateShipment';
-const availableMoveDatesLabel = 'MoveDate.getAvailableMoveDates';
-const MoveDateWizardForm = reduxifyWizardForm(formName, validateMoveDateForm);
+const ProgearWizardForm = reduxifyWizardForm(formName);
 
-export class MoveDate extends Component {
+export class Progear extends Component {
   componentDidMount() {
     this.loadShipment();
-    this.props.getAvailableMoveDates(availableMoveDatesLabel, this.props.today);
   }
 
   componentDidUpdate(prevProps) {
@@ -68,7 +63,7 @@ export class MoveDate extends Component {
 
     // Shipment Wizard
     return (
-      <MoveDateWizardForm
+      <ProgearWizardForm
         handleSubmit={this.handleSubmit}
         className={formName}
         pageList={pages}
@@ -91,46 +86,32 @@ export class MoveDate extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <Field
-            name="requested_pickup_date"
-            component={DatePicker}
-            availableMoveDates={this.props.availableMoveDates}
-            currentShipment={this.props.currentShipment}
-          />
+          <ProgearEstimates schema={this.props.schema} formValues={this.props.formValues} />
         </div>
-      </MoveDateWizardForm>
+      </ProgearWizardForm>
     );
   }
 }
-MoveDate.propTypes = {
+Progear.propTypes = {
+  schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      createOrUpdateShipment,
-      setCurrentShipmentID,
-      getShipment,
-      getAvailableMoveDates,
-    },
-    dispatch,
-  );
+  return bindActionCreators({ createOrUpdateShipment, setCurrentShipmentID, getShipment }, dispatch);
 }
 function mapStateToProps(state) {
   const shipment = getCurrentShipment(state);
-  const today = new Date().toISOString().split('T')[0];
   const props = {
+    schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
-    today: today,
-    availableMoveDates: selectAvailableMoveDates(state, today),
     error: getLastError(state, getRequestLabel),
   };
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MoveDate);
+export default connect(mapStateToProps, mapDispatchToProps)(Progear);
