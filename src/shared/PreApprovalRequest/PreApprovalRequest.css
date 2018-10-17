@@ -115,6 +115,31 @@
   vertical-align: top;
 }
 
+tr.delete-active {
+  border-top: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  border-bottom: 2px solid #6BD7F4;
+  background-color: #D3F3FA;
+}
 
+tr.delete-active td {
+  background-color: transparent;
+}
 
+tr.delete-confirm-row td.delete-confirm {
+  border-bottom: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  background-color: #F6FDFE;
 
+  display: table-cell;
+  border-collapse: collapse;
+
+  padding: 0;
+  font-size: 1em;
+}
+
+td.delete-confirm strong {
+  margin: 0 5%;
+}

@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import PreApprovalTable from './PreApprovalTable';
 
 describe('PreApprovalTable tests', () => {
-  let wrapper, icons;
+  let wrapper;
   const onEdit = jest.fn();
   const shipment_accessorials = [
     {
@@ -36,62 +36,7 @@ describe('PreApprovalTable tests', () => {
           onApproval={onEdit}
         />,
       );
-      const icons = wrapper.find('.icon');
-      expect(wrapper.find('.accessorial-panel').length).toEqual(1);
-      expect(icons.length).toBe(6);
-    });
-  });
-  describe('When on approval is NOT passed in and status is SUBMITTED', () => {
-    beforeEach(() => {
-      wrapper = shallow(
-        <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
-          isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-        />,
-      );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(4);
-    });
-  });
-  describe('When on approval is passed in and status is APPROVED', () => {
-    beforeEach(() => {
-      shipment_accessorials[0].status = 'APPROVED';
-      shipment_accessorials[1].status = 'APPROVED';
-      wrapper = shallow(
-        <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
-          isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-          onApproval={onEdit}
-        />,
-      );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(2);
-    });
-  });
-  describe('When on approval is NOT passed in and status is APPROVED', () => {
-    beforeEach(() => {
-      shipment_accessorials[0].status = 'APPROVED';
-      shipment_accessorials[1].status = 'APPROVED';
-      wrapper = shallow(
-        <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
-          isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-        />,
-      );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(2);
+      expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
     });
   });
 });
