@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
@@ -14,46 +14,25 @@ import './PreApprovalRequest.css';
 export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentAccessorialId) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
-  if (status === 'APPROVED' || status === 'INVOICED') {
-    return (
-      <span>
-        <span onClick={onDelete}>
-          <FontAwesomeIcon className="icon actionable" icon={faTimes} />
-        </span>
-      </span>
-    );
-  } else if (onApproval) {
-    if (status === 'SUBMITTED') {
-      return (
-        <span>
+  //TODO: hiding edit action until we have implementation
+  return (
+    <Fragment>
+      {onApproval &&
+        status === 'SUBMITTED' && (
           <span onClick={onApproval}>
             <FontAwesomeIcon className="icon actionable" icon={faCheck} />
           </span>
-          <span onClick={onEdit}>
-            <FontAwesomeIcon className="icon actionable" icon={faPencil} />
-          </span>
-          <span
-            onClick={() => {
-              onDelete(shipmentAccessorialId);
-            }}
-          >
-            <FontAwesomeIcon className="icon actionable" icon={faTimes} />
-          </span>
-        </span>
-      );
-    }
-  } else {
-    return (
-      <span>
+        )}
+      {false && (
         <span onClick={onEdit}>
           <FontAwesomeIcon className="icon actionable" icon={faPencil} />
         </span>
-        <span onClick={onDelete}>
-          <FontAwesomeIcon className="icon actionable" icon={faTimes} />
-        </span>
+      )}
+      <span onClick={() => onDelete(shipmentAccessorialId)}>
+        <FontAwesomeIcon className="icon actionable" icon={faTimes} />
       </span>
-    );
-  }
+    </Fragment>
+  );
 }
 
 const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onApproval, onDelete }) => (
