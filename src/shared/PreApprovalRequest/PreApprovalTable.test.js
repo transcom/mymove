@@ -38,7 +38,7 @@ describe('PreApprovalTable tests', () => {
       );
       const icons = wrapper.find('.icon');
       expect(wrapper.find('.accessorial-panel').length).toEqual(1);
-      expect(icons.length).toBe(4);
+      expect(icons.length).toBe(2);
     });
   });
   describe('When on approval is NOT passed in and status is SUBMITTED', () => {
@@ -54,7 +54,7 @@ describe('PreApprovalTable tests', () => {
     });
     it('it shows the appropriate number of icons.', () => {
       const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(2);
+      expect(icons.length).toBe(0);
     });
   });
   describe('When on approval is passed in and status is APPROVED', () => {
@@ -73,7 +73,7 @@ describe('PreApprovalTable tests', () => {
     });
     it('it shows the appropriate number of icons.', () => {
       const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(2);
+      expect(icons.length).toBe(0);
     });
   });
   describe('When on approval is NOT passed in and status is APPROVED', () => {
@@ -91,7 +91,7 @@ describe('PreApprovalTable tests', () => {
     });
     it('it shows the appropriate number of icons.', () => {
       const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(2);
+      expect(icons.length).toBe(0);
     });
   });
 });

@@ -58,7 +58,7 @@ describe('PreApprovalPanel tests', () => {
     it('renders without crashing', () => {
       const icons = wrapper.find('.icon');
       expect(wrapper.find('.accessorial-panel').length).toEqual(1);
-      expect(icons.length).toBe(6);
+      expect(icons.length).toBe(2);
     });
   });
 });
