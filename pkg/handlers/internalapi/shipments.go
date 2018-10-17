@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/rateengine"
 
@@ -131,6 +130,9 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
 		Market: &market,
 	}
+	if err = updateShipmentDatesWithPayload(h, &newShipment, params.Shipment); err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), &newShipment)
 
@@ -252,8 +254,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	patchShipmentWithPayload(shipment, params.Shipment)
-	if err = h.updateShipmentDatesWithPayload(shipment, params.Shipment); err != nil {
-		fmt.Println(errors.Cause(err))
+	if err = updateShipmentDatesWithPayload(h, shipment, params.Shipment); err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
@@ -272,10 +273,11 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
-func (h PatchShipmentHandler) updateShipmentDatesWithPayload(shipment *models.Shipment, payload *internalmessages.Shipment) error {
+func updateShipmentDatesWithPayload(h handlers.HandlerContext, shipment *models.Shipment, payload *internalmessages.Shipment) error {
 	if payload.RequestedPickupDate == nil {
 		return nil
 	}
+
 	moveDate := time.Time(*payload.RequestedPickupDate)
 
 	summary, err := calculateMoveDates(h.DB(), h.Planner(), shipment.MoveID, moveDate)
