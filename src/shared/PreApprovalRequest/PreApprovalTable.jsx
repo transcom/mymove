@@ -26,7 +26,11 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
     if (status === 'SUBMITTED') {
       return (
         <span>
-          <span onClick={onApproval}>
+          <span
+            onClick={() => {
+              onApproval(shipmentAccessorialId);
+            }}
+          >
             <FontAwesomeIcon className="icon actionable" icon={faCheck} />
           </span>
           <span onClick={onEdit}>
