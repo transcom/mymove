@@ -82,7 +82,7 @@ PreApprovalPanel.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    shipmentAccessorials: selectShipmentAccessorials(state),
+    shipment_accessorials: selectShipmentAccessorials(state),
     tariff400ngItems: selectTariff400ngItems(state),
   };
 }
