@@ -23,30 +23,14 @@ export class PreApprovalPanel extends Component {
     this.state = { isActionable: true };
   }
   onSubmit = createPayload => {
-    return new Promise(
-      function(resolve, reject) {
-        // do a thing, possibly async, then…
-        this.props.createShipmentAccessorial(createShipmentAccessorialLabel, this.props.shipmentId, createPayload);
-        setTimeout(function() {
-          resolve('success');
-        }, 50);
-      }.bind(this),
-    );
+    return this.props.createShipmentAccessorial(createShipmentAccessorialLabel, this.props.shipmentId, createPayload);
   };
   onEdit = () => {
     console.log('onEdit hit');
   };
   onDelete = shipmentAccessorialId => {
     if (window.confirm('Are you sure you want to delete this pre approval request?')) {
-      return new Promise(
-        function(resolve, reject) {
-          //  console.log(shipmentAccessorialId);
-          this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
-          setTimeout(function() {
-            resolve('success');
-          }, 50);
-        }.bind(this),
-      );
+      this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
     }
   };
   onApproval = () => {
