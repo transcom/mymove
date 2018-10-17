@@ -44,7 +44,7 @@ export class PreApprovalPanel extends Component {
       <div>
         <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
-            shipment_accessorials={this.props.shipment_accessorials}
+            shipmentAccessorials={this.props.shipmentAccessorials}
             isActionable={this.state.isActionable}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
@@ -62,7 +62,7 @@ export class PreApprovalPanel extends Component {
 }
 
 PreApprovalPanel.propTypes = {
-  shipment_accessorials: PropTypes.array,
+  shipmentAccessorials: PropTypes.array,
   tariff400ngItems: PropTypes.array,
   shipmentId: PropTypes.string,
 };

@@ -37,7 +37,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
   );
 }
 
-const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onApproval, onDelete }) => (
+const PreApprovalTable = ({ shipmentAccessorials, isActionable, onEdit, onApproval, onDelete }) => (
   <div className="accessorial-panel">
     <table cellSpacing={0}>
       <tbody>
@@ -51,7 +51,7 @@ const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onAppro
           <th>Status</th>
           <th>&nbsp;</th>
         </tr>
-        {shipment_accessorials.map(row => {
+        {shipmentAccessorials.map(row => {
           let status = '';
           if (isOfficeSite) {
             status = renderStatusIcon(row.status);
@@ -78,7 +78,7 @@ const PreApprovalTable = ({ shipment_accessorials, isActionable, onEdit, onAppro
 );
 
 PreApprovalTable.propTypes = {
-  shipment_accessorials: PropTypes.array,
+  shipmentAccessorials: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,

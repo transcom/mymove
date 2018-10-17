@@ -5,7 +5,7 @@ import PreApprovalTable from './PreApprovalTable';
 describe('PreApprovalTable tests', () => {
   let wrapper, icons;
   const onEdit = jest.fn();
-  const shipment_accessorials = [
+  const shipmentAccessorials = [
     {
       id: 'sldkjf',
       accessorial: { code: '105D', item: 'Reg Shipping' },
@@ -29,7 +29,7 @@ describe('PreApprovalTable tests', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
+          shipmentAccessorials={shipmentAccessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -45,7 +45,7 @@ describe('PreApprovalTable tests', () => {
     beforeEach(() => {
       wrapper = shallow(
         <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
+          shipmentAccessorials={shipmentAccessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -59,11 +59,11 @@ describe('PreApprovalTable tests', () => {
   });
   describe('When on approval is passed in and status is APPROVED', () => {
     beforeEach(() => {
-      shipment_accessorials[0].status = 'APPROVED';
-      shipment_accessorials[1].status = 'APPROVED';
+      shipmentAccessorials[0].status = 'APPROVED';
+      shipmentAccessorials[1].status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
+          shipmentAccessorials={shipmentAccessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -78,11 +78,11 @@ describe('PreApprovalTable tests', () => {
   });
   describe('When on approval is NOT passed in and status is APPROVED', () => {
     beforeEach(() => {
-      shipment_accessorials[0].status = 'APPROVED';
-      shipment_accessorials[1].status = 'APPROVED';
+      shipmentAccessorials[0].status = 'APPROVED';
+      shipmentAccessorials[1].status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
+          shipmentAccessorials={shipmentAccessorials}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}

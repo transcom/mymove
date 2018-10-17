@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestCreateShipmentAccessorialHandler() {
 
 	payload := apimessages.ShipmentAccessorial{
 		AccessorialID: handlers.FmtUUID(acc.ID),
-		Location:      apimessages.AccessorialLocationORIGIN,
+		Location:      apimessages.ShipmentAccessorialLocationORIGIN,
 		Notes:         "Some notes",
 		Quantity1:     handlers.FmtInt64(int64(5)),
 	}
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 	updateShipmentAccessorial := apimessages.ShipmentAccessorial{
 		ID:            *handlers.FmtUUID(shipAcc1.ID),
 		ShipmentID:    *handlers.FmtUUID(shipAcc1.ShipmentID),
-		Location:      apimessages.AccessorialLocationORIGIN,
+		Location:      apimessages.ShipmentAccessorialLocationORIGIN,
 		Quantity1:     handlers.FmtInt64(int64(1)),
 		Quantity2:     handlers.FmtInt64(int64(2)),
 		Notes:         "HELLO",
@@ -205,7 +205,7 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 	updateShipmentAccessorial := apimessages.ShipmentAccessorial{
 		ID:            *handlers.FmtUUID(shipAcc1.ID),
 		ShipmentID:    *handlers.FmtUUID(shipAcc1.ShipmentID),
-		Location:      apimessages.AccessorialLocationORIGIN,
+		Location:      apimessages.ShipmentAccessorialLocationORIGIN,
 		Quantity1:     handlers.FmtInt64(int64(1)),
 		Quantity2:     handlers.FmtInt64(int64(2)),
 		Notes:         "HELLO",
