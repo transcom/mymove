@@ -61,4 +61,51 @@ describe('PreApprovalPanel tests', () => {
       expect(icons.length).toBe(6);
     });
   });
+  describe('When creator and request sub-components are activated', () => {
+    it('a request activation hides the creator', () => {
+      expect(wrapper.find('Creator').length).toBe(1);
+      wrapper
+        .find('PreApprovalPanel')
+        .instance()
+        .onRequestActivation(true);
+      wrapper.update();
+      expect(wrapper.find('Creator').length).toBe(0);
+      wrapper
+        .find('PreApprovalPanel')
+        .instance()
+        .onRequestActivation(false);
+      wrapper.update();
+      expect(wrapper.find('Creator').length).toBe(1);
+    });
+    it('a creator activation deactivates the table', () => {
+      expect(
+        wrapper
+          .find('PreApprovalTable')
+          .first()
+          .prop('isActionable'),
+      ).toBe(true);
+      wrapper
+        .find('PreApprovalPanel')
+        .instance()
+        .onFormActivation(true);
+      wrapper.update();
+      expect(
+        wrapper
+          .find('PreApprovalTable')
+          .first()
+          .prop('isActionable'),
+      ).toBe(false);
+      wrapper
+        .find('PreApprovalPanel')
+        .instance()
+        .onFormActivation(false);
+      wrapper.update();
+      expect(
+        wrapper
+          .find('PreApprovalTable')
+          .first()
+          .prop('isActionable'),
+      ).toBe(true);
+    });
+  });
 });

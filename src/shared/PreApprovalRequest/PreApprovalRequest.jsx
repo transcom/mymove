@@ -16,17 +16,17 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
     <Fragment>
       {onApproval &&
         status === 'SUBMITTED' && (
-          <span onClick={onApproval}>
+          <span data-test="approve-request" onClick={onApproval}>
             <FontAwesomeIcon className="icon actionable" icon={faCheck} />
           </span>
         )}
       {false && (
-        <span onClick={onEdit}>
+        <span data-test="edit-request" onClick={onEdit}>
           <FontAwesomeIcon className="icon actionable" icon={faPencil} />
         </span>
       )}
       {onDelete && (
-        <span onClick={() => onDelete()}>
+        <span data-test="delete-request" onClick={() => onDelete()}>
           <FontAwesomeIcon className="icon actionable" icon={faTimes} />
         </span>
       )}
@@ -85,10 +85,14 @@ export class PreApprovalRequest extends Component {
           <tr className="delete-confirm-row">
             <td colSpan="8" className="delete-confirm">
               <strong>Are you sure you want to delete?</strong>
-              <button className="usa-button usa-button-secondary" onClick={this.cancelDelete}>
+              <button className="usa-button usa-button-secondary" onClick={this.cancelDelete} data-test="cancel-delete">
                 No, do not delete
               </button>
-              <button className="usa-button usa-button-secondary" onClick={this.approveDelete}>
+              <button
+                className="usa-button usa-button-secondary"
+                onClick={this.approveDelete}
+                data-test="approve-delete"
+              >
                 Yes, delete
               </button>
             </td>

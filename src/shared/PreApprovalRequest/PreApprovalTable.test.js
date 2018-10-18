@@ -25,7 +25,7 @@ describe('PreApprovalTable tests', () => {
       status: 'SUBMITTED',
     },
   ];
-  describe('When on approval is passed in and status is submitted', () => {
+  describe('When shipmentAccessorials exist', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalTable
@@ -37,6 +37,31 @@ describe('PreApprovalTable tests', () => {
         />,
       );
       expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
+    });
+  });
+  describe('When a request is being acted upon', () => {
+    it('is the only request that is actionable', () => {
+      const onActivation = jest.fn();
+      wrapper = shallow(
+        <PreApprovalTable
+          shipmentAccessorials={shipmentAccessorials}
+          onRequestActivation={onActivation}
+          isActionable={true}
+          onEdit={onEdit}
+          onDelete={onEdit}
+          onApproval={onEdit}
+        />,
+      );
+      wrapper.setState({ actionRequestId: shipmentAccessorials[0].id });
+      const requests = wrapper.find('PreApprovalRequest');
+      expect(requests.length).toEqual(2);
+      requests.forEach(req => {
+        if (req.prop('shipmentLineItem').id === shipmentAccessorials[0].id) {
+          expect(req.prop('isActionable')).toBe(true);
+        } else {
+          expect(req.prop('isActionable')).toBe(false);
+        }
+      });
     });
   });
 });

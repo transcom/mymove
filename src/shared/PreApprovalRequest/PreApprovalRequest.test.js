@@ -4,7 +4,8 @@ import PreApprovalRequest from './PreApprovalRequest';
 
 describe('PreApprovalRequest tests', () => {
   let wrapper;
-  const onEdit = jest.fn();
+  let onDelete;
+  const dummyFn = function() {};
   const shipmentAccessorial = {
     id: 'sldkjf',
     accessorial: { code: '105D', item: 'Reg Shipping' },
@@ -20,9 +21,9 @@ describe('PreApprovalRequest tests', () => {
         <PreApprovalRequest
           shipmentLineItem={shipmentAccessorial}
           isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-          onApproval={onEdit}
+          isActive={dummyFn}
+          onDelete={dummyFn}
+          onApproval={dummyFn}
         />,
       );
       const icons = wrapper.find('.icon');
@@ -36,8 +37,8 @@ describe('PreApprovalRequest tests', () => {
         <PreApprovalRequest
           shipmentLineItem={shipmentAccessorial}
           isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
+          isActive={dummyFn}
+          onDelete={dummyFn}
         />,
       );
     });
@@ -53,9 +54,9 @@ describe('PreApprovalRequest tests', () => {
         <PreApprovalRequest
           shipmentLineItem={shipmentAccessorial}
           isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-          onApproval={onEdit}
+          isActive={dummyFn}
+          onDelete={dummyFn}
+          onApproval={dummyFn}
         />,
       );
     });
@@ -71,14 +72,51 @@ describe('PreApprovalRequest tests', () => {
         <PreApprovalRequest
           shipmentLineItem={shipmentAccessorial}
           isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
+          isActive={dummyFn}
+          onDelete={dummyFn}
         />,
       );
     });
     it('it shows the appropriate number of icons.', () => {
       const icons = wrapper.find('.icon');
       expect(icons.length).toBe(1);
+    });
+  });
+  describe('When on delete is passed in', () => {
+    onDelete = jest.fn();
+    beforeEach(() => {
+      shipmentAccessorial.status = 'APPROVED';
+      wrapper = shallow(
+        <PreApprovalRequest
+          shipmentLineItem={shipmentAccessorial}
+          isActionable={true}
+          isActive={dummyFn}
+          onDelete={onDelete}
+        />,
+      );
+    });
+    it('it shows the appropriate number of icons.', () => {
+      const icons = wrapper.find('.icon');
+      expect(icons.length).toBe(1);
+    });
+    it('it shows a confirmation prompt when delete icon is clicked.', () => {
+      wrapper.find('[data-test="delete-request"]').simulate('click');
+      const buttons = wrapper.find('button');
+      expect(wrapper.find('.delete-confirm').length).toBe(1);
+      expect(buttons.length).toBe(2);
+    });
+    it('it dismisses the delete confirmation when no is clicked.', () => {
+      wrapper.find('[data-test="delete-request"]').simulate('click');
+      const confirm = wrapper.find('td.delete-confirm').first();
+      confirm.find('[data-test="cancel-delete"]').simulate('click');
+      expect(wrapper.find('.delete-confirm').length).toBe(0);
+    });
+    it('it calls the delete callback when yes is clicked.', () => {
+      wrapper.find('[data-test="delete-request"]').simulate('click');
+      const confirm = wrapper.find('td.delete-confirm').first();
+      confirm.find('[data-test="approve-delete"]').simulate('click');
+      expect(onDelete.mock.calls.length).toBe(1);
+      expect(wrapper.find('.delete-confirm').length).toBe(0);
     });
   });
 });
