@@ -176,7 +176,7 @@ func (s *Shipment) Transport(actualPickupDate time.Time) error {
 // TODO: cgilmer 2018/10/18 - fold this into the Transport() state change when the fields are merged in the UI
 func (s *Shipment) Pack(actualPackDate time.Time) error {
 	if s.Status != ShipmentStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, "In Transit")
+		return errors.Wrap(ErrInvalidTransition, "Approved")
 	}
 	s.ActualPackDate = &actualPackDate
 	return nil
