@@ -10,13 +10,6 @@ const mapStateToProps = (state, ownProps) => {
   const formName = 'shipment_locations';
   const newDutyStation = get(shipment, 'move.new_duty_station.address', {});
   // if they do not have a delivery address, default to the station's address info
-  const deliveryAddress = shipment.has_delivery_address
-    ? shipment.delivery_address
-    : {
-        city: newDutyStation.city,
-        state: newDutyStation.state,
-        postal_code: newDutyStation.postal_code,
-      };
   const schema = getPublicSwaggerDefinition(state, 'Shipment');
   const formValues = getFormValues(formName)(state);
 
@@ -24,34 +17,33 @@ const mapStateToProps = (state, ownProps) => {
     addressSchema: get(state, 'swaggerPublic.spec.definitions.Address'),
     schema,
     formValues,
+    newDutyStation,
 
-    deliveryAddress,
     initialValues: {
-      pickupAddress: shipment.pickup_address,
-      deliveryAddress: deliveryAddress,
-      secondaryPickupAddress: shipment.secondary_pickup_address,
-      hasDeliveryAddress: shipment.has_delivery_address,
-      hasSecondaryPickupAddress: shipment.has_secondary_pickup_address,
+      pickup_address: shipment.pickup_address,
+      delivery_address: get(shipment, 'delivery_address', {}),
+      secondary_pickup_address: get(shipment, 'secondary_pickup_address', {}),
+      has_delivery_address: shipment.has_delivery_address,
+      has_secondary_pickup_address: shipment.has_secondary_pickup_address,
     },
     shipment,
-    hasDeliveryAddress: shipment.has_delivery_address,
-    hasSecondaryPickupAddress: shipment.has_secondary_pickup_address,
     title: 'Locations',
     update: ownProps.update,
 
-    // TO-DO: don't set has_properties automatically to true
     getUpdateArgs: () => {
-      // const values = getFormValues(formName)(state);
-      return [
-        shipment.id,
-        {
-          delivery_address: formValues.deliveryAddress,
-          pickup_address: formValues.pickupAddress,
-          secondary_pickup_address: formValues.secondaryPickupAddress,
-          has_secondary_pickup_address: formValues.has_secondary_pickup_address,
-          has_delivery_address: formValues.has_delivery_address,
-        },
-      ];
+      const params = {
+        pickup_address: formValues.pickup_address,
+        has_secondary_pickup_address: formValues.has_secondary_pickup_address,
+        has_delivery_address: formValues.has_delivery_address,
+      };
+      // Avoid sending empty objects as addresses
+      if (formValues.has_secondary_pickup_address) {
+        params.secondary_pickup_address = formValues.secondary_pickup_address;
+      }
+      if (formValues.has_delivery_address) {
+        params.delivery_address = formValues.delivery_address;
+      }
+      return [shipment.id, params];
     },
   };
 };

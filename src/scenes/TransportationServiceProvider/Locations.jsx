@@ -11,7 +11,13 @@ import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const LocationsDisplay = props => {
-  const { deliveryAddress } = props;
+  const deliveryAddress = props.shipment.has_delivery_address
+    ? props.shipment.delivery_address
+    : {
+        city: props.newDutyStation.city,
+        state: props.newDutyStation.state,
+        postal_code: props.newDutyStation.postal_code,
+      };
   const pickupAddress = props.shipment.pickup_address;
   const hasSecondaryPickupAddress = props.shipment.has_secondary_pickup_address;
   const secondaryPickupAddress = props.shipment.secondary_pickup_address;
@@ -20,7 +26,7 @@ const LocationsDisplay = props => {
       <div className="editable-panel-column">
         <span className="column-subhead">Pickup</span>
         <AddressElementDisplay address={pickupAddress} title="Primary" />
-        {hasSecondaryPickupAddress && <AddressElementDisplay address={secondaryPickupAddress} title="Secondary" />}
+        {hasSecondaryPickupAddress && <AddressElementDisplay address={secondaryPickupAddress} title="Additional" />}
       </div>
       <div className="editable-panel-column">
         <span className="column-subhead">Delivery</span>
@@ -31,59 +37,70 @@ const LocationsDisplay = props => {
 };
 
 const LocationsEdit = props => {
-  const { deliveryAddress, addressSchema, schema } = props;
-  const hasDeliveryAddress = get(props, 'formValues.hasDeliveryAddress', false);
-  const hasSecondaryPickupAddress = get(props, 'formValues.hasSecondaryPickupAddress', false);
-  const pickupAddress = props.shipment.pickup_address;
-  const secondaryPickupAddress = props.shipment.secondary_pickup_address;
+  const { addressSchema, schema } = props;
+  const newDutyStation = {
+    city: props.newDutyStation.city,
+    state: props.newDutyStation.state,
+    postal_code: props.newDutyStation.postal_code,
+  };
+  const deliveryAddress = get(props, 'formValues.delivery_address', {});
+  const hasDeliveryAddress = get(props, 'formValues.has_delivery_address');
+  const hasSecondaryPickupAddress = get(props, 'formValues.has_secondary_pickup_address');
+  const secondaryPickupAddress = get(props, 'formValues.secondary_pickup_address', {});
+  const pickupAddress = get(props, 'formValues.pickup_address', {});
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <FormSection name="pickupAddress">
+        <span className="column-subhead">Pickup</span>
+        <FormSection name="pickup_address">
           <AddressElementEdit
             addressProps={{
               swagger: addressSchema,
               values: pickupAddress,
             }}
-            title="Pickup Primary"
+            title="Primary address"
+            required
           />
         </FormSection>
-        <FormSection name="secondaryPickupAddress">
-          <SwaggerField
-            className="radio-title"
-            fieldName="has_secondary_pickup_address"
-            swagger={schema}
-            component={YesNoBoolean}
-          />
+        <SwaggerField
+          className="radio-title"
+          fieldName="has_secondary_pickup_address"
+          swagger={schema}
+          component={YesNoBoolean}
+          title="Are there household goods at any other pickup location?"
+        />
+        <FormSection name="secondary_pickup_address">
           {hasSecondaryPickupAddress && (
             <AddressElementEdit
               addressProps={{
                 swagger: addressSchema,
                 values: secondaryPickupAddress,
               }}
-              title="Pickup Secondary"
+              title="Additional address"
             />
           )}
         </FormSection>
       </div>
       <div className="editable-panel-column">
-        <FormSection name="deliveryAddress">
-          <SwaggerField
-            className="radio-title"
-            fieldName="has_delivery_address"
-            swagger={schema}
-            component={YesNoBoolean}
-          />
+        <span className="column-subhead">Delivery</span>
+        <SwaggerField
+          className="radio-title"
+          fieldName="has_delivery_address"
+          swagger={schema}
+          component={YesNoBoolean}
+          title="Do you know the delivery address at destination yet?"
+        />
+        <FormSection name="delivery_address">
           {hasDeliveryAddress ? (
             <AddressElementEdit
               addressProps={{
                 swagger: addressSchema,
                 values: deliveryAddress,
               }}
-              title="Delivery Primary"
+              title="Primary address"
             />
           ) : (
-            <AddressElementDisplay address={deliveryAddress} title="Delivery Primary (Duty Station)" />
+            <AddressElementDisplay address={newDutyStation} title="Delivery Primary (Duty Station)" />
           )}
         </FormSection>
       </div>
