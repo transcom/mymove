@@ -284,13 +284,6 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {awarded && (
-                <AcceptShipmentPanel
-                  acceptShipment={this.acceptShipment}
-                  rejectShipment={this.rejectShipment}
-                  shipmentStatus={this.props.shipment.status}
-                />
-              )}
               {approved &&
                 !actual_pack_date && (
                   <FormButton
