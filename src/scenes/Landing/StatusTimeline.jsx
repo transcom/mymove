@@ -26,9 +26,13 @@ export class StatusTimelineContainer extends PureComponent {
     return (
       <div className="status_timeline">
         <StatusBlock name="Scheduled" dates={[this.props.bookDate]} formatType={formatType} active={true} />
+        <div className="status_line" />
         <StatusBlock name="Packed" dates={packDates} formatType="condensed" />
+        <div className="status_line" />
         <StatusBlock name="Loaded" dates={pickupDates} formatType="condensed" />
+        <div className="status_line" />
         <StatusBlock name="In transit" dates={transitDates} formatType="condensed" />
+        <div className="status_line" />
         <StatusBlock name="Delivered" dates={deliveryDates} formatType="condensed" />
       </div>
     );

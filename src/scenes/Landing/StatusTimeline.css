@@ -6,6 +6,15 @@
   text-align: center;
 }
 
+/*.shipment_box_contents .status_line{*/
+  /*flex: 1;*/
+  /*height: 3px;*/
+  /*background: #d6d7d9;*/
+  /*!*display: flex;*!*/
+  /*!*flex-direction: column;*!*/
+  /*align-items: center;*/
+/*}*/
+
 .shipment_box_contents .status_block{
   flex: 1;
   display: flex;
