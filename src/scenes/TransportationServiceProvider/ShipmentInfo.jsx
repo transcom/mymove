@@ -268,7 +268,7 @@ class ShipmentInfo extends Component {
                   <div className="usa-grid usa-alert-no-padding">
                     <div className="usa-width-one-half">Click the button to view, print, or download the GBL.</div>
                     <div className="usa-width-one-half">
-                      <Link to={`${this.props.gblDoc}`} className="usa-alert-right" target="_blank">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
                         <button>View GBL</button>
                       </Link>
                     </div>
@@ -327,7 +327,7 @@ const mapStateToProps = state => {
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
-    gblDoc: get(state, 'tsp.gblDoc'),
+    gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),

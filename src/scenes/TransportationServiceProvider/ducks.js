@@ -145,7 +145,7 @@ const initialState = {
   generateGBLSuccess: false,
   generateGBLError: null,
   generateGBLInProgress: false,
-  gblDoc: null,
+  gblDocUrl: null,
 };
 
 export function tspReducer(state = initialState, action) {
@@ -375,14 +375,14 @@ export function tspReducer(state = initialState, action) {
         generateGBLSuccess: false,
         generateGBLError: null,
         generateGBLInProgress: true,
-        gblDoc: null,
+        gblDocUrl: null,
       });
     case GENERATE_GBL.success:
       return Object.assign({}, state, {
         generateGBLSuccess: true,
         generateGBLError: false,
         generateGBLInProgress: false,
-        gblDoc: action.payload.url,
+        gblDocUrl: action.payload.url,
       });
     case GENERATE_GBL.failure:
       return Object.assign({}, state, {
@@ -390,7 +390,7 @@ export function tspReducer(state = initialState, action) {
         generateGBLError: true,
         generateGBLInProgress: false,
         error: action.error,
-        gblDoc: null,
+        gblDocUrl: null,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES
