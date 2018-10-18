@@ -265,10 +265,10 @@ class ShipmentInfo extends Component {
               )}
               {this.props.generateGBLSuccess && (
                 <Alert type="success" heading="GBL has been created">
-                  <div className="usa-grid">
+                  <div className="usa-grid usa-alert-no-padding">
                     <div className="usa-width-one-half">Click the button to view, print, or download the GBL.</div>
                     <div className="usa-width-one-half">
-                      <button className="right">View GBL</button>
+                      <button className="usa-alert-right">View GBL</button>
                     </div>
                   </div>
                 </Alert>
