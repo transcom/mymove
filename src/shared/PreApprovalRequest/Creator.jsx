@@ -48,10 +48,12 @@ export class Creator extends Component {
           <div className="title">Add a request</div>
           <PreApprovalForm tariff400ngItems={this.props.tariff400ngItems} onSubmit={this.onSubmit} />
           <div className="usa-grid">
-            <div className="usa-width-one-half cancel">
-              <a className="usa-button-secondary" onClick={this.closeForm}>
-                Cancel
-              </a>
+            <div className="usa-width-one-half">
+              <p className="cancel-link">
+                <a className="usa-button-secondary" onClick={this.closeForm}>
+                  Cancel
+                </a>
+              </p>
             </div>
 
             <div className="usa-width-one-half">
