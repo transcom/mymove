@@ -59,7 +59,7 @@ type GovBillOfLadingExtractor struct {
 	// From Shipment pickup address, or NTS address and details (weight, lot number, etc.)
 	PickupAddressID uuid.UUID `db:"pickup_address_id"`
 	PickupAddress   Address   `belongs_to:"address"`
-	// From Shipment.DestinationGBLOC (look up Transportatoin office name from gbloc)
+	// From Shipment.DestinationGBLOC (look up Transportation office name from gbloc)
 	ResponsibleDestinationOffice string `db:"responsible_destination_office"`
 	// From Shipment.DestinationGBLOC
 	DestinationGbloc string `db:"destination_gbloc"`
@@ -93,7 +93,7 @@ type GovBillOfLadingExtractor struct {
 	// ¿Officer in JPPSO/PPSO - the one who approved orders? leave blank for now
 	IssuingOfficerFullName string
 	IssuingOfficerTitle    string
-	// From Shipment.SourceGBLOC (look up Transportatoin office name from gbloc)
+	// From Shipment.SourceGBLOC (look up Transportation office name from gbloc)
 	IssuingOfficeName      string    `db:"issuing_office_name"`
 	IssuingOfficeAddressID uuid.UUID `db:"issuing_office_address_id"`
 	IssuingOfficeAddress   Address   `belongs_to:"address"`
@@ -125,7 +125,6 @@ type GovBillOfLadingExtractor struct {
 func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (GovBillOfLadingExtractor, error) {
 	var gbl GovBillOfLadingExtractor
 	sql := `SELECT
-				-- TODO use new GBL number
 				s.gbl_number AS gbl_number_1,
 				s.gbl_number AS gbl_number_2,
 				s.book_date AS date_issued,
@@ -174,7 +173,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 			LEFT JOIN transportation_service_providers tsp
 				ON so.transportation_service_provider_id = tsp.id
 			LEFT JOIN transportation_service_provider_performances perf
-				ON tsp.id = perf.transportation_service_provider_id
+				ON so.transportation_service_provider_performance_id = perf.transportation_service_provider_id
 			LEFT JOIN traffic_distribution_lists tdl
 				ON s.traffic_distribution_list_id = tdl.id
 			WHERE s.id = $1
