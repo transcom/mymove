@@ -139,7 +139,6 @@ describe('completing the hhg flow', function() {
     // Status summary page
     cy.nextPage();
     cy.contains('Success');
-    cy.contains('Next Step: Awaiting approval');
     cy.contains('Government Movers and Packers');
   });
 });
