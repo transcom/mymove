@@ -9,7 +9,6 @@ const mapStateToProps = (state, ownProps) => {
   const shipment = get(state, 'tsp.shipment', {});
   const formName = 'shipment_locations';
   const newDutyStation = get(shipment, 'move.new_duty_station.address', {});
-  // if they do not have a delivery address, default to the station's address info
   const schema = getPublicSwaggerDefinition(state, 'Shipment');
   const formValues = getFormValues(formName)(state);
 
@@ -48,7 +47,4 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  // mapDispatchToProps,
-)(Locations);
+export default connect(mapStateToProps)(Locations);

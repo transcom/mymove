@@ -11,6 +11,7 @@ import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const LocationsDisplay = props => {
+  // if they do not have a delivery address, default to the station's address info
   const deliveryAddress = props.shipment.has_delivery_address
     ? props.shipment.delivery_address
     : {
