@@ -28,6 +28,10 @@ export const AddressElementDisplay = ({ address, title }) => (
   </PanelField>
 );
 
+AddressElementDisplay.defaultProps = {
+  address: {},
+};
+
 AddressElementDisplay.propTypes = {
   address: PropTypes.shape({
     street_address_1: PropTypes.string,

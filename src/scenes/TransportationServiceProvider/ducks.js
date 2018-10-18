@@ -103,7 +103,8 @@ export function loadShipmentDependencies(shipmentId) {
       await Promise.all([dispatch(loadShipment(shipmentId)), dispatch(indexServiceAgents(shipmentId))]);
       return dispatch(actions.success());
     } catch (ex) {
-      return dispatch(actions.error(ex));
+      dispatch(actions.error(ex));
+      throw new Error(ex);
     }
   };
 }
@@ -138,6 +139,9 @@ const initialState = {
   serviceAgentIsUpdating: false,
   serviceAgentHasUpdatedSucces: false,
   serviceAgentHasUpdatedError: null,
+  shipment: {
+    address: {},
+  },
   loadTspDependenciesHasSuccess: false,
   loadTspDependenciesHasError: null,
   flashMessage: false,
@@ -169,7 +173,6 @@ export function tspReducer(state = initialState, action) {
         shipmentIsLoading: false,
         shipmentHasLoadSuccess: false,
         shipmentHasLoadError: null,
-        shipment: null,
         error: action.error.message,
       });
     case PATCH_SHIPMENT.start:
