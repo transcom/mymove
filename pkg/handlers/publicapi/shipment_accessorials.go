@@ -245,7 +245,6 @@ type ApproveShipmentAccessorialHandler struct {
 
 // Handle returns a specified shipment
 func (h ApproveShipmentAccessorialHandler) Handle(params accessorialop.ApproveShipmentAccessorialParams) middleware.Responder {
-
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
@@ -265,12 +264,14 @@ func (h ApproveShipmentAccessorialHandler) Handle(params accessorialop.ApproveSh
 			return handlers.ResponseForError(h.Logger(), err)
 		}
 	} else {
+		h.Logger().Error("Error does not require pre-approval for shipment")
 		return accessorialop.NewApproveShipmentAccessorialForbidden()
 	}
 
 	// Approve and save the shipment accessorial
 	err = shipmentAccessorial.Approve()
 	if err != nil {
+		h.Logger().Error("Error approving shipment accessorial for shipment", zap.Error(err))
 		return accessorialop.NewApproveShipmentAccessorialForbidden()
 	}
 	h.DB().ValidateAndUpdate(&shipmentAccessorial)
