@@ -16,7 +16,6 @@ echo "Code goes here"
 
 ## Code Review Verification Steps
 
-* [ ] End to end tests pass (`make e2e_test`).
 * [ ] Code follows the guidelines for [Logging](./docs/backend.md#logging)
 * [ ] The requirements listed in
  [Querying the Database Safely](./docs/backend.md#querying-the-database-safely)

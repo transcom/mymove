@@ -20,6 +20,10 @@ export default function reducer(state = {}, action) {
   }
 }
 
+export function getMove(label, moveId) {
+  return swaggerRequest(getClient, 'moves.showMove', { moveId }, { label });
+}
+
 export const selectMove = (state, id) => {
   return denormalize([id], moves, state.entities)[0];
 };

@@ -8,30 +8,35 @@ import Creator from 'shared/PreApprovalRequest/Creator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import {
+  createShipmentAccessorial,
+  createShipmentAccessorialLabel,
+  deleteShipmentAccessorial,
+  deleteShipmentAccessorialLabel,
+  approveShipmentAccessorial,
+  approveShipmentAccessorialLabel,
+} from 'shared/Entities/modules/shipmentAccessorials';
+import { selectShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
+import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+
 export class PreApprovalPanel extends Component {
   constructor() {
     super();
-    this.state = {
-      isActionable: true,
-    };
+    this.state = { isActionable: true };
   }
-  onSubmit = values => {
-    return new Promise(function(resolve, reject) {
-      // do a thing, possibly async, then…
-      setTimeout(function() {
-        console.log('onSubmit async', values);
-        resolve('success');
-      }, 50);
-    });
+  onSubmit = createPayload => {
+    return this.props.createShipmentAccessorial(createShipmentAccessorialLabel, this.props.shipmentId, createPayload);
   };
   onEdit = () => {
     console.log('onEdit hit');
   };
-  onDelete = () => {
-    console.log('onDelete hit');
+  onDelete = shipmentAccessorialId => {
+    if (window.confirm('Are you sure you want to delete this pre approval request?')) {
+      this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
+    }
   };
-  onApproval = () => {
-    console.log('onApproval hit');
+  onApproval = shipmentAccessorialId => {
+    this.props.approveShipmentAccessorial(approveShipmentAccessorialLabel, shipmentAccessorialId);
   };
   onFormActivation = active => {
     this.setState({ isActionable: active });
@@ -41,7 +46,7 @@ export class PreApprovalPanel extends Component {
       <div>
         <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
-            shipment_accessorials={this.props.shipment_accessorials}
+            shipmentAccessorials={this.props.shipmentAccessorials}
             isActionable={this.state.isActionable}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
@@ -59,15 +64,22 @@ export class PreApprovalPanel extends Component {
 }
 
 PreApprovalPanel.propTypes = {
-  shipment_accessorials: PropTypes.array,
+  shipmentAccessorials: PropTypes.array,
   tariff400ngItems: PropTypes.array,
+  shipmentId: PropTypes.string,
 };
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    shipmentAccessorials: selectShipmentAccessorials(state),
+    tariff400ngItems: selectTariff400ngItems(state),
+  };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators(
+    { createShipmentAccessorial, deleteShipmentAccessorial, approveShipmentAccessorial },
+    dispatch,
+  );
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);

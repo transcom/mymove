@@ -62,8 +62,8 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
     };
     dispatch({
       type: `@@swagger/${operationPath}/START`,
-      label,
       request: requestLog,
+      label,
     });
 
     let request;
@@ -80,8 +80,9 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
       });
       dispatch({
         type: `@@swagger/${operationPath}/ERROR`,
-        error,
         request: updatedRequestLog,
+        error,
+        label,
       });
       return Promise.reject(error);
     }
@@ -98,6 +99,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           type: `@@swagger/${operationPath}/SUCCESS`,
           request: updatedRequestLog,
           response,
+          label,
         };
 
         const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
@@ -120,13 +122,13 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
         // eslint-disable-next-line security/detect-object-injection
         const payloadSchema = schema[schemaKey];
-        action.entities = normalizePayload(response.body, payloadSchema).entities;
         if (!payloadSchema) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
+        action.entities = normalizePayload(response.body, payloadSchema).entities;
 
         dispatch(action);
-        return response;
+        return action;
       })
       .catch(response => {
         console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
@@ -136,12 +138,14 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           response,
           isLoading: false,
         });
-        dispatch({
+        const action = {
           type: `@@swagger/${operationPath}/FAILURE`,
-          response,
           request: updatedRequestLog,
-        });
-        return Promise.reject(response);
+          response,
+          label,
+        };
+        dispatch(action);
+        return Promise.reject(action);
       });
   };
 }
