@@ -109,15 +109,23 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 
 	shipDate := time.Now()
 
+	// Can pack shipment
+	err = shipment.Pack(shipDate)
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
+	suite.Equal(*shipment.ActualPackDate, shipDate, "expected Actual Pack Date to be set")
+
 	// Can transport shipment
 	err = shipment.Transport(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
+	suite.Equal(*shipment.ActualPickupDate, shipDate, "expected Actual Pickup Date to be set")
 
 	// Can deliver shipment
 	err = shipment.Deliver(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
+	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
 
 	// Can complete shipment
 	err = shipment.Complete()
