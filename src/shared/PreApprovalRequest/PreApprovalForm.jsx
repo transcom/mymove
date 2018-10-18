@@ -1,31 +1,52 @@
 import { get } from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import Select, { createFilter } from 'react-select';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { reduxForm, Form } from 'redux-form';
-
+import { reduxForm, Form, Field } from 'redux-form';
+import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './PreApprovalRequest.css';
 
-const Codes = tariff400ngItems => props => {
-  const value = props.value;
-  const onChange = props.onChange;
+const getOptionValue = option => (option ? option.id : '');
+const getOptionLabel = option => (option ? option.code + ' ' + option.item : '');
+const stringify = option => option.label;
+const filterOption = createFilter({ ignoreCase: true, stringify });
 
-  const localOnChange = event => {
-    onChange(event.target.value);
-  };
-  return (
-    <select onChange={localOnChange} value={value}>
-      <option />
-      {tariff400ngItems.map(e => (
-        <option key={e.id} value={e.id}>
-          {e.code} {e.item}
-        </option>
-      ))}
-    </select>
-  );
-};
+export class Tariff400ngItemSearch extends Component {
+  constructor(props) {
+    super(props);
+    this.localOnChange = this.localOnChange.bind(this);
+  }
+
+  localOnChange(value) {
+    if (value && value.id) {
+      this.props.input.onChange(value.id);
+      return value.id;
+    } else {
+      this.props.input.onChange(null);
+      return null;
+    }
+  }
+  render() {
+    return (
+      <Fragment>
+        <label className="usa-input-label">{this.props.title}</label>
+        <Select
+          options={this.props.tariff400ngItems}
+          getOptionLabel={getOptionLabel}
+          getOptionValue={getOptionValue}
+          onChange={this.localOnChange}
+          placeholder="Select an item..."
+          className="tariff400-select"
+          classNamePrefix="tariff400"
+          filterOption={filterOption}
+        />
+      </Fragment>
+    );
+  }
+}
 
 export class PreApprovalForm extends Component {
   render() {
@@ -33,14 +54,14 @@ export class PreApprovalForm extends Component {
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid">
           <div className="usa-width-one-half">
-            <SwaggerField
-              fieldName="accessorial_id"
-              title="Code & Item"
-              className="rounded"
-              component={Codes(this.props.tariff400ngItems)}
-              swagger={this.props.ship_accessorial_schema}
-              required
-            />
+            <div className="tariff400-select">
+              <Field
+                name="accessorial_id"
+                title="Code & Item"
+                component={Tariff400ngItemSearch}
+                tariff400ngItems={this.props.tariff400ngItems}
+              />
+            </div>
             {/* TODO andrea - set schema location enum array to accessorial selected location value */}
             <SwaggerField
               fieldName="location"
@@ -90,12 +111,14 @@ PreApprovalForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
+const validateItemSelect = validateAdditionalFields(['accessorial_id']);
 export const formName = 'preapproval_request_form';
 
 PreApprovalForm = reduxForm({
   form: formName,
   enableReinitialize: true,
   keepDirtyOnReinitialize: true,
+  validate: validateItemSelect,
 })(PreApprovalForm);
 
 function mapStateToProps(state, props) {

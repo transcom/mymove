@@ -163,3 +163,11 @@ tr.delete-confirm-row td.delete-confirm {
 td.delete-confirm strong {
   margin: 0 5%;
 }
+
+.tariff400__control {
+  height: 5rem;
+  border-color: #5b616b !important;
+  background-color: rgb(248, 248, 248) !important;
+  box-shadow: none !important;
+  border-radius: 7px !important;
+}

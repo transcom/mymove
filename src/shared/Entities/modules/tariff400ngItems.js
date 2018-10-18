@@ -3,8 +3,8 @@ import { getPublicClient } from 'shared/Swagger/api';
 import { tariff400ngItems } from '../schema';
 import { denormalize } from 'normalizr';
 
-export function getAllTariff400ngItems(label) {
-  return swaggerRequest(getPublicClient, 'accessorials.getTariff400ngItems', {}, { label });
+export function getAllTariff400ngItems(requires_pre_approval, label) {
+  return swaggerRequest(getPublicClient, 'accessorials.getTariff400ngItems', { requires_pre_approval }, { label });
 }
 
 export const selectTariff400ngItems = state => {
