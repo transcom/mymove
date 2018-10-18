@@ -62,9 +62,7 @@ describe('swaggerRequest', function() {
         ok: true,
         status: 200,
         body: {
-          shipment: {
-            id: 'abcd-1234',
-          },
+          id: 'abcd-1234',
         },
       };
 
@@ -103,23 +101,23 @@ describe('swaggerRequest', function() {
         resolveCallback(response);
       });
 
-      result.then(function(response) {
-        expect(dispatch).toHaveBeenLastCalledWith(
-          expect.objectContaining({
-            type: '@@swagger/shipments.getShipment/SUCCESS',
-            label: 'testRequest',
-            entities: expect.objectContaining({
-              shipments: expect.objectContaining({
-                'abcd-1234': expect.objectContaining({
-                  id: 'abcd-1234',
-                }),
-              }),
-            }),
-          }),
-        );
+      const expected = expect.objectContaining({
+        type: '@@swagger/shipments.getShipment/SUCCESS',
+        label: 'testRequest',
+        entities: {
+          shipments: {
+            'abcd-1234': {
+              id: 'abcd-1234',
+            },
+          },
+        },
       });
 
-      return expect(result).resolves.toEqual(response);
+      result.then(function(response) {
+        expect(dispatch).toHaveBeenLastCalledWith(expected);
+      });
+
+      return expect(result).resolves.toEqual(expected);
     });
 
     it('makes a failed request', function() {
@@ -175,16 +173,16 @@ describe('swaggerRequest', function() {
         rejectCallback(response);
       });
 
-      result.catch(function(response) {
-        expect(dispatch).toHaveBeenLastCalledWith(
-          expect.objectContaining({
-            type: '@@swagger/shipments.getShipment/FAILURE',
-            label: 'testRequest',
-          }),
-        );
+      const failedAction = expect.objectContaining({
+        type: '@@swagger/shipments.getShipment/FAILURE',
+        label: 'testRequest',
       });
 
-      return expect(result).rejects.toEqual(response);
+      result.catch(function(response) {
+        expect(dispatch).toHaveBeenLastCalledWith(failedAction);
+      });
+
+      return expect(result).rejects.toEqual(failedAction);
     });
   });
 });

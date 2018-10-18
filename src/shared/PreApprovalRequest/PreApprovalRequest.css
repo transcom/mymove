@@ -1,4 +1,3 @@
-
 /*PreApproval Table styles*/
 .accessorial-panel {
   border-width: 3px;
@@ -13,14 +12,17 @@
 }
 
 /* Custom widths for columns in the preapproval request table */
-/*Code, Loc. */
-.accessorial-panel table > tbody > tr > th:nth-child(1),
-.accessorial-panel table > tbody > tr > th:nth-child(3) {
+/*Code */
+.accessorial-panel table > tbody > tr > th:nth-child(1) {
   width: 5%;
+}
+/* Loc. */
+.accessorial-panel table > tbody > tr > th:nth-child(3) {
+  width: 9%;
 }
 /*Base Quantity*/
 .accessorial-panel table > tbody > tr > th:nth-child(4) {
-  width: 7%;
+  width: 10%;
 }
 /*Item*/
 .accessorial-panel table > tbody > tr > th:nth-child(2) {
@@ -40,6 +42,9 @@
   width: 9%;
 }
 
+.cancel-link {
+  padding: 1em;
+}
 .accessorial-panel th,
 .accessorial-panel td {
   border: none;
@@ -115,6 +120,54 @@
   vertical-align: top;
 }
 
+.bq-explanation {
+  font-size: 0.8em;
+  padding: 0rem 0rem 3rem 0rem;
+}
 
+.bq-explanation p {
+  line-height: 1rem;
+  padding: 0rem 0rem 0rem 0rem;
+}
 
+.bq-explanation li {
+  line-height: 1.5em;
+  margin: 0rem 0rem 0rem 0rem;
+}
 
+tr.delete-active {
+  border-top: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  border-bottom: 2px solid #6BD7F4;
+  background-color: #D3F3FA;
+}
+
+tr.delete-active td {
+  background-color: transparent;
+}
+
+tr.delete-confirm-row td.delete-confirm {
+  border-bottom: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  background-color: #F6FDFE;
+
+  display: table-cell;
+  border-collapse: collapse;
+
+  padding: 0;
+  font-size: 1em;
+}
+
+td.delete-confirm strong {
+  margin: 0 5%;
+}
+
+.tariff400__control {
+  height: 5rem;
+  border-color: #5b616b !important;
+  background-color: rgb(248, 248, 248) !important;
+  box-shadow: none !important;
+  border-radius: 7px !important;
+}

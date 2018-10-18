@@ -40,60 +40,70 @@ const (
 )
 
 // Shipment represents a single shipment within a Service Member's move.
-// ActualPickupDate: when the shipment is currently scheduled to be picked up by the TSP
-// RequestedPickupDate: when the shipment was originally scheduled to be picked up
-// DeliveryDate: when the shipment is to be delivered
-// BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
-	ID                                  uuid.UUID                `json:"id" db:"id"`
-	TrafficDistributionListID           *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	TrafficDistributionList             *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
-	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
-	ServiceMember                       ServiceMember            `belongs_to:"service_member"`
-	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
-	ActualPackDate                      *time.Time               `json:"actual_pack_date" db:"actual_pack_date"`
-	ActualDeliveryDate                  *time.Time               `json:"actual_delivery_date" db:"actual_delivery_date"`
-	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
-	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
-	SourceGBLOC                         *string                  `json:"source_gbloc" db:"source_gbloc"`
-	DestinationGBLOC                    *string                  `json:"destination_gbloc" db:"destination_gbloc"`
-	GBLNumber                           *string                  `json:"gbl_number" db:"gbl_number"`
-	Market                              *string                  `json:"market" db:"market"`
-	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
-	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
-	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
-	Move                                Move                     `belongs_to:"move"`
-	Status                              ShipmentStatus           `json:"status" db:"status"`
-	EstimatedPackDays                   *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
-	EstimatedTransitDays                *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
-	PickupAddressID                     *uuid.UUID               `json:"pickup_address_id" db:"pickup_address_id"`
-	PickupAddress                       *Address                 `belongs_to:"address"`
-	HasSecondaryPickupAddress           bool                     `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
-	SecondaryPickupAddressID            *uuid.UUID               `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
-	SecondaryPickupAddress              *Address                 `belongs_to:"address"`
-	HasDeliveryAddress                  bool                     `json:"has_delivery_address" db:"has_delivery_address"`
-	DeliveryAddressID                   *uuid.UUID               `json:"delivery_address_id" db:"delivery_address_id"`
-	DeliveryAddress                     *Address                 `belongs_to:"address"`
-	HasPartialSITDeliveryAddress        bool                     `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
-	PartialSITDeliveryAddressID         *uuid.UUID               `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
-	PartialSITDeliveryAddress           *Address                 `belongs_to:"address"`
-	WeightEstimate                      *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
-	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
-	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
-	NetWeight                           *unit.Pound              `json:"net_weight" db:"net_weight"`
-	GrossWeight                         *unit.Pound              `json:"gross_weight" db:"gross_weight"`
-	TareWeight                          *unit.Pound              `json:"tare_weight" db:"tare_weight"`
-	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
-	PmSurveyConductedDate               *time.Time               `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
-	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
-	PmSurveyPlannedPickupDate           *time.Time               `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
-	PmSurveyPlannedDeliveryDate         *time.Time               `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
-	PmSurveyWeightEstimate              *unit.Pound              `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
-	PmSurveyProgearWeightEstimate       *unit.Pound              `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
-	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
-	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
-	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
-	ShipmentOffers                      ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
+	ID               uuid.UUID      `json:"id" db:"id"`
+	Status           ShipmentStatus `json:"status" db:"status"`
+	SourceGBLOC      *string        `json:"source_gbloc" db:"source_gbloc"`
+	DestinationGBLOC *string        `json:"destination_gbloc" db:"destination_gbloc"`
+	GBLNumber        *string        `json:"gbl_number" db:"gbl_number"`
+	Market           *string        `json:"market" db:"market"`
+	CreatedAt        time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time      `json:"updated_at" db:"updated_at"`
+
+	// associations
+	TrafficDistributionListID *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	TrafficDistributionList   *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
+	ServiceMemberID           uuid.UUID                `json:"service_member_id" db:"service_member_id"`
+	ServiceMember             ServiceMember            `belongs_to:"service_member"`
+	MoveID                    uuid.UUID                `json:"move_id" db:"move_id"`
+	Move                      Move                     `belongs_to:"move"`
+	ShipmentOffers            ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
+	ServiceAgents             ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
+
+	// dates
+	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"`         // when shipment is scheduled to be picked up by the TSP
+	ActualPackDate       *time.Time `json:"actual_pack_date" db:"actual_pack_date"`             // when packing began
+	ActualDeliveryDate   *time.Time `json:"actual_delivery_date" db:"actual_delivery_date"`     // when shipment was delivered
+	BookDate             *time.Time `json:"book_date" db:"book_date"`                           // when shipment was most recently offered to a TSP
+	RequestedPickupDate  *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`   // when shipment was originally scheduled to be picked up
+	OriginalDeliveryDate *time.Time `json:"original_delivery_date" db:"original_delivery_date"` // when shipment is to be delivered
+	OriginalPackDate     *time.Time `json:"original_pack_date" db:"original_pack_date"`         // when packing is to begin
+
+	// calculated durations
+	EstimatedPackDays    *int64 `json:"estimated_pack_days" db:"estimated_pack_days"`       // how many days it will take to pack
+	EstimatedTransitDays *int64 `json:"estimated_transit_days" db:"estimated_transit_days"` // how many days it will take to get to destination
+
+	// addresses
+	PickupAddressID              *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
+	PickupAddress                *Address   `belongs_to:"address"`
+	HasSecondaryPickupAddress    bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
+	SecondaryPickupAddressID     *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
+	SecondaryPickupAddress       *Address   `belongs_to:"address"`
+	HasDeliveryAddress           bool       `json:"has_delivery_address" db:"has_delivery_address"`
+	DeliveryAddressID            *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
+	DeliveryAddress              *Address   `belongs_to:"address"`
+	HasPartialSITDeliveryAddress bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
+	PartialSITDeliveryAddressID  *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
+	PartialSITDeliveryAddress    *Address   `belongs_to:"address"`
+
+	// weights
+	WeightEstimate              *unit.Pound `json:"weight_estimate" db:"weight_estimate"`
+	ProgearWeightEstimate       *unit.Pound `json:"progear_weight_estimate" db:"progear_weight_estimate"`
+	SpouseProgearWeightEstimate *unit.Pound `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
+	NetWeight                   *unit.Pound `json:"net_weight" db:"net_weight"`
+	GrossWeight                 *unit.Pound `json:"gross_weight" db:"gross_weight"`
+	TareWeight                  *unit.Pound `json:"tare_weight" db:"tare_weight"`
+
+	// pre-move survey
+	PmSurveyConductedDate               *time.Time  `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
+	PmSurveyPlannedPackDate             *time.Time  `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
+	PmSurveyPlannedPickupDate           *time.Time  `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
+	PmSurveyPlannedDeliveryDate         *time.Time  `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
+	PmSurveyWeightEstimate              *unit.Pound `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
+	PmSurveyProgearWeightEstimate       *unit.Pound `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
+	PmSurveySpouseProgearWeightEstimate *unit.Pound `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
+	PmSurveyNotes                       *string     `json:"pm_survey_notes" db:"pm_survey_notes"`
+	PmSurveyMethod                      string      `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
 // Shipments is not required by pop and may be deleted

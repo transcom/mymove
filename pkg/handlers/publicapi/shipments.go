@@ -333,17 +333,45 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
-	// Premove Survey values entered by TSP agent
-	requiredValue := payload.PmSurveyPlannedPackDate
 
-	// If any PmSurvey data was sent, update all fields
-	// This takes advantage of the fact that all PmSurvey data is updated at once and allows us to null out optional fields
-	if requiredValue != nil {
-		shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
-		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
+	// Comparint against the zero time allows users to set dates to nil via PATCH
+	zeroTime := time.Time{}
+
+	// PM Survey fields may be updated individually in the Dates panel and so cannot be lumped into one update
+	if payload.PmSurveyConductedDate != nil {
+		if zeroTime == (time.Time)(*payload.PmSurveyConductedDate) {
+			shipment.PmSurveyConductedDate = nil
+		} else {
+			shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
+		}
+	}
+
+	if payload.PmSurveyPlannedDeliveryDate != nil {
+		if zeroTime == (time.Time)(*payload.PmSurveyPlannedDeliveryDate) {
+			shipment.PmSurveyPlannedDeliveryDate = nil
+		} else {
+			shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
+		}
+	}
+
+	if payload.PmSurveyMethod != "" {
 		shipment.PmSurveyMethod = payload.PmSurveyMethod
-		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
-		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+	}
+
+	if payload.PmSurveyPlannedPackDate != nil {
+		if zeroTime == (time.Time)(*payload.PmSurveyPlannedPackDate) {
+			shipment.PmSurveyPlannedPackDate = nil
+		} else {
+			shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
+		}
+	}
+
+	if payload.PmSurveyPlannedPickupDate != nil {
+		if zeroTime == (time.Time)(*payload.PmSurveyPlannedPickupDate) {
+			shipment.PmSurveyPlannedPickupDate = nil
+		} else {
+			shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+		}
 	}
 
 	if payload.PmSurveyNotes != nil {
@@ -375,15 +403,27 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	}
 
 	if payload.ActualPickupDate != nil {
-		shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
+		if zeroTime == (time.Time)(*payload.ActualPickupDate) {
+			shipment.ActualPickupDate = nil
+		} else {
+			shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
+		}
 	}
 
 	if payload.ActualPackDate != nil {
-		shipment.ActualPackDate = (*time.Time)(payload.ActualPackDate)
+		if zeroTime == (time.Time)(*payload.ActualPackDate) {
+			shipment.ActualPackDate = nil
+		} else {
+			shipment.ActualPackDate = (*time.Time)(payload.ActualPackDate)
+		}
 	}
 
 	if payload.ActualDeliveryDate != nil {
-		shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
+		if zeroTime == (time.Time)(*payload.ActualDeliveryDate) {
+			shipment.ActualDeliveryDate = nil
+		} else {
+			shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
+		}
 	}
 
 	if payload.PickupAddress != nil {

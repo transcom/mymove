@@ -1,57 +1,70 @@
 import React, { Component } from 'react';
-import BasicPanel from 'shared/BasicPanel';
 import PropTypes from 'prop-types';
-import { isOfficeSite } from 'shared/constants.js';
 
-import PreApprovalTable from 'shared/PreApprovalRequest/PreApprovalTable.jsx';
-import Creator from 'shared/PreApprovalRequest/Creator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
+import BasicPanel from 'shared/BasicPanel';
+import { isOfficeSite } from 'shared/constants.js';
+import PreApprovalTable from 'shared/PreApprovalRequest/PreApprovalTable.jsx';
+import Creator from 'shared/PreApprovalRequest/Creator';
+
+import {
+  createShipmentAccessorial,
+  createShipmentAccessorialLabel,
+  deleteShipmentAccessorial,
+  deleteShipmentAccessorialLabel,
+  approveShipmentAccessorial,
+  approveShipmentAccessorialLabel,
+} from 'shared/Entities/modules/shipmentAccessorials';
+import { selectShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
+import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 
 export class PreApprovalPanel extends Component {
   constructor() {
     super();
     this.state = {
-      isActionable: true,
+      isRequestActionable: true,
+      isCreatorActionable: true,
     };
   }
-  onSubmit = values => {
-    return new Promise(function(resolve, reject) {
-      // do a thing, possibly async, then…
-      setTimeout(function() {
-        console.log('onSubmit async', values);
-        resolve('success');
-      }, 50);
-    });
+  onSubmit = createPayload => {
+    return this.props.createShipmentAccessorial(createShipmentAccessorialLabel, this.props.shipmentId, createPayload);
   };
   onEdit = () => {
     console.log('onEdit hit');
   };
-  onDelete = () => {
-    console.log('onDelete hit');
+  onDelete = shipmentAccessorialId => {
+    this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
   };
-  onApproval = () => {
-    console.log('onApproval hit');
+  onApproval = shipmentAccessorialId => {
+    this.props.approveShipmentAccessorial(approveShipmentAccessorialLabel, shipmentAccessorialId);
   };
-  onFormActivation = active => {
-    this.setState({ isActionable: active });
+  onFormActivation = isFormActive => {
+    this.setState({ isRequestActionable: !isFormActive });
+  };
+  onRequestActivation = isRequestActive => {
+    this.setState({ isCreatorActionable: !isRequestActive });
   };
   render() {
     return (
       <div>
         <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
-            shipment_accessorials={this.props.shipment_accessorials}
-            isActionable={this.state.isActionable}
+            shipmentAccessorials={this.props.shipmentAccessorials}
+            isActionable={this.state.isRequestActionable}
+            onRequestActivation={this.onRequestActivation}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
             onApproval={isOfficeSite ? this.onApproval : null}
           />
-          <Creator
-            tariff400ngItems={this.props.tariff400ngItems}
-            savePreApprovalRequest={this.onSubmit}
-            onFormActivation={this.onFormActivation}
-          />
+          {this.state.isCreatorActionable && (
+            <Creator
+              tariff400ngItems={this.props.tariff400ngItems}
+              savePreApprovalRequest={this.onSubmit}
+              onFormActivation={this.onFormActivation}
+            />
+          )}
         </BasicPanel>
       </div>
     );
@@ -59,15 +72,22 @@ export class PreApprovalPanel extends Component {
 }
 
 PreApprovalPanel.propTypes = {
-  shipment_accessorials: PropTypes.array,
+  shipmentAccessorials: PropTypes.array,
   tariff400ngItems: PropTypes.array,
+  shipmentId: PropTypes.string,
 };
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    shipmentAccessorials: selectShipmentAccessorials(state),
+    tariff400ngItems: selectTariff400ngItems(state),
+  };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators(
+    { createShipmentAccessorial, deleteShipmentAccessorial, approveShipmentAccessorial },
+    dispatch,
+  );
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);

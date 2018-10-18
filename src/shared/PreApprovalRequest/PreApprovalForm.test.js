@@ -89,7 +89,7 @@ beforeEach(() => {
   //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
   wrapper = mount(
     <Provider store={store}>
-      <PreApprovalForm ship_accessorial_schema={simpleSchema} accessorials={accessorials} onSubmit={submit} />
+      <PreApprovalForm ship_accessorial_schema={simpleSchema} tariff400ngItems={accessorials} onSubmit={submit} />
     </Provider>,
   );
 });

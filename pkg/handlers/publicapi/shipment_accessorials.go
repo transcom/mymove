@@ -32,11 +32,11 @@ func payloadForShipmentAccessorialModel(s *models.ShipmentAccessorial) *apimessa
 	}
 
 	return &apimessages.ShipmentAccessorial{
-		ID:            handlers.FmtUUID(s.ID),
-		ShipmentID:    handlers.FmtUUID(s.ShipmentID),
+		ID:            *handlers.FmtUUID(s.ID),
+		ShipmentID:    *handlers.FmtUUID(s.ShipmentID),
 		Accessorial:   payloadForTariff400ngItemModel(&s.Accessorial),
 		AccessorialID: handlers.FmtUUID(s.AccessorialID),
-		Location:      apimessages.AccessorialLocation(s.Location),
+		Location:      apimessages.ShipmentAccessorialLocation(s.Location),
 		Notes:         s.Notes,
 		Quantity1:     handlers.FmtInt64(int64(s.Quantity1)),
 		Quantity2:     handlers.FmtInt64(int64(s.Quantity2)),
@@ -88,7 +88,6 @@ func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShip
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
-
 	var shipment *models.Shipment
 	var err error
 	// If TSP user, verify TSP has shipment
@@ -235,7 +234,8 @@ func (h DeleteShipmentAccessorialHandler) Handle(params accessorialop.DeleteShip
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	return accessorialop.NewDeleteShipmentAccessorialOK()
+	payload := payloadForShipmentAccessorialModel(&shipmentAccessorial)
+	return accessorialop.NewDeleteShipmentAccessorialOK().WithPayload(payload)
 }
 
 // ApproveShipmentAccessorialHandler returns a particular shipment
@@ -245,7 +245,6 @@ type ApproveShipmentAccessorialHandler struct {
 
 // Handle returns a specified shipment
 func (h ApproveShipmentAccessorialHandler) Handle(params accessorialop.ApproveShipmentAccessorialParams) middleware.Responder {
-
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
@@ -265,12 +264,14 @@ func (h ApproveShipmentAccessorialHandler) Handle(params accessorialop.ApproveSh
 			return handlers.ResponseForError(h.Logger(), err)
 		}
 	} else {
+		h.Logger().Error("Error does not require pre-approval for shipment")
 		return accessorialop.NewApproveShipmentAccessorialForbidden()
 	}
 
 	// Approve and save the shipment accessorial
 	err = shipmentAccessorial.Approve()
 	if err != nil {
+		h.Logger().Error("Error approving shipment accessorial for shipment", zap.Error(err))
 		return accessorialop.NewApproveShipmentAccessorialForbidden()
 	}
 	h.DB().ValidateAndUpdate(&shipmentAccessorial)

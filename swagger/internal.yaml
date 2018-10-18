@@ -22,7 +22,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       service_member:
-        $ref: "#/definitions/ServiceMemberPayload"
+        $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
     required:
       - id
@@ -128,7 +128,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
-        example: "2018-04-26"
+        example: '2018-04-26'
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -136,7 +136,7 @@ definitions:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
@@ -147,14 +147,14 @@ definitions:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
@@ -191,14 +191,14 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         title: When do you plan to move?
         x-nullable: true
       pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
@@ -209,14 +209,14 @@ definitions:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
@@ -253,7 +253,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
-        example: "2018-04-26"
+        example: '2018-04-26'
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -261,7 +261,7 @@ definitions:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
@@ -272,14 +272,14 @@ definitions:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
@@ -318,13 +318,13 @@ definitions:
         type: string
         format: date
         title: When do you plan to move?
-        example: "2018-04-26"
+        example: '2018-04-26'
         x-nullable: true
       pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
@@ -335,14 +335,14 @@ definitions:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
@@ -491,7 +491,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       locator:
         type: string
-        example: "12432"
+        example: '12432'
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
       status:
@@ -510,7 +510,7 @@ definitions:
           $ref: '#/definitions/Shipment'
       cancel_reason:
         type: string
-        example: "Change of orders"
+        example: 'Change of orders'
         x-nullable: true
     required:
       - id
@@ -523,7 +523,7 @@ definitions:
     properties:
       cancel_reason:
         type: string
-        example: "Change of orders"
+        example: 'Change of orders'
         x-nullable: true
     required:
       - cancel_reason
@@ -1058,9 +1058,9 @@ definitions:
   BackupContactPermission:
     type: string
     enum:
-    - NONE
-    - VIEW
-    - EDIT
+      - NONE
+      - VIEW
+      - EDIT
     title: Permissions
     x-display-value:
       NONE: Contact Only
@@ -1435,41 +1435,55 @@ definitions:
       book_date:
         type: string
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         readOnly: true
         x-nullable: true
       requested_pickup_date:
         type: string
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
+        x-nullable: true
+      original_delivery_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      original_pack_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
         x-nullable: true
       actual_pickup_date:
         type: string
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         readOnly: true
         x-nullable: true
       actual_pack_date:
         type: string
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         readOnly: true
         x-nullable: true
       actual_delivery_date:
         type: string
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         readOnly: true
         x-nullable: true
       estimated_pack_days:
         type: integer
         minimum: 0
         example: 3
+        readOnly: true
         x-nullable: true
       estimated_transit_days:
         type: integer
         minimum: 0
         example: 30
+        readOnly: true
         x-nullable: true
       pickup_address_id:
         type: string
@@ -1544,32 +1558,32 @@ definitions:
       pm_survey_planned_pack_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned pack date"
+        example: '2018-04-26'
+        title: 'Planned pack date'
         x-nullable: true
       pm_survey_planned_pickup_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned pickup date"
+        example: '2018-04-26'
+        title: 'Planned pickup date'
         x-nullable: true
       pm_survey_planned_delivery_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Planned delivery date"
+        example: '2018-04-26'
+        title: 'Planned delivery date'
         x-nullable: true
       pm_survey_earliest_delivery_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Earliest delivery date"
+        example: '2018-04-26'
+        title: 'Earliest delivery date'
         x-nullable: true
       pm_survey_latest_delivery_date:
         type: string
         format: date
-        example: "2018-04-26"
-        title: "Latest delivery date"
+        example: '2018-04-26'
+        title: 'Latest delivery date'
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
@@ -1826,13 +1840,13 @@ definitions:
         type: string
         format: zip
         title: ZIP/Postal Code
-        example: "90210"
+        example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
       country:
         type: string
         title: Country
         x-nullable: true
-        example: "United States"
+        example: 'United States'
         default: United States
     required:
       - street_address_1
@@ -1850,7 +1864,7 @@ definitions:
         title: Requested Amount
         description: unit is cents
       method_of_receipt:
-        $ref: "#/definitions/MethodOfReceipt"
+        $ref: '#/definitions/MethodOfReceipt'
     required:
       - requested_amount
       - method_of_receipt
@@ -1869,13 +1883,13 @@ definitions:
         title: Requested Amount
         description: unit is cents
       method_of_receipt:
-        $ref: "#/definitions/MethodOfReceipt"
+        $ref: '#/definitions/MethodOfReceipt'
       status:
-        $ref: "#/definitions/ReimbursementStatus"
+        $ref: '#/definitions/ReimbursementStatus'
       requested_date:
         x-nullable: true
         type: string
-        example: "2018-04-26"
+        example: '2018-04-26'
         format: date
         title: Requested Date
     required:
@@ -2023,20 +2037,20 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         title: Date issued
       report_by_date:
         type: string
         description: Report By Date
         format: date
-        example: "2018-04-26"
-        title:  Report by
+        example: '2018-04-26'
+        title: Report by
       status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
-        $ref: "#/definitions/OrdersType"
+        $ref: '#/definitions/OrdersType'
       orders_type_detail:
-        $ref: "#/definitions/OrdersTypeDetail"
+        $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -2053,17 +2067,17 @@ definitions:
         type: string
         title: Orders Number
         x-nullable: true
-        example: "030-00362"
+        example: '030-00362'
       paragraph_number:
         type: string
         title: Paragraph Number
         x-nullable: true
-        example: "RI-JP"
+        example: 'RI-JP'
       orders_issuing_agency:
         type: string
         title: Orders Issuing Agency
         x-nullable: true
-        example: "COMNAVPERSCOM MILLINGTON"
+        example: 'COMNAVPERSCOM MILLINGTON'
       created_at:
         type: string
         format: date-time
@@ -2073,12 +2087,12 @@ definitions:
       tac:
         type: string
         title: TAC
-        example: "F8J1"
+        example: 'F8J1'
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -2105,18 +2119,18 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         title: Orders date
       report_by_date:
         type: string
         description: Report By Date
         format: date
-        example: "2018-04-26"
-        title:  Report-by date
+        example: '2018-04-26'
+        title: Report-by date
       orders_type:
-        $ref: "#/definitions/OrdersType"
+        $ref: '#/definitions/OrdersType'
       orders_type_detail:
-        $ref: "#/definitions/OrdersTypeDetail"
+        $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -2135,7 +2149,7 @@ definitions:
         type: string
         title: Orders Number
         x-nullable: true
-        example: "030-00362"
+        example: '030-00362'
       paragraph_number:
         type: string
         title: Paragraph Number
@@ -2147,12 +2161,12 @@ definitions:
       tac:
         type: string
         title: TAC
-        example: "F8J1"
+        example: 'F8J1'
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
@@ -2189,7 +2203,7 @@ definitions:
         example: ACCEPTED
       locator:
         type: string
-        example: "12432"
+        example: '12432'
       customer_name:
         type: string
         example: Thedog, Nino
@@ -2248,7 +2262,7 @@ definitions:
     properties:
       id:
         type: string
-        example: "c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25"
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25'
       move_id:
         type: string
         format: uuid
@@ -2256,37 +2270,37 @@ definitions:
       move_date:
         type: string
         format: date
-        example: "2018-09-25"
+        example: '2018-09-25'
       pack:
         type: array
         items:
           type: string
           format: date
-          example: "2018-09-25"
+          example: '2018-09-25'
       pickup:
         type: array
         items:
           type: string
           format: date
-          example: "2018-09-25"
+          example: '2018-09-25'
       transit:
         type: array
         items:
           type: string
           format: date
-          example: "2018-09-25"
+          example: '2018-09-25'
       delivery:
         type: array
         items:
           type: string
           format: date
-          example: "2018-09-25"
+          example: '2018-09-25'
       report:
         type: array
         items:
           type: string
           format: date
-          example: "2018-09-25"
+          example: '2018-09-25'
     required:
       - id
       - move_id
@@ -2302,13 +2316,13 @@ definitions:
       start_date:
         type: string
         format: date
-        example: "2018-09-25"
+        example: '2018-09-25'
       available:
         type: array
         items:
           type: string
           format: date
-          example: "2018-09-25"
+          example: '2018-09-25'
     required:
       - start_date
       - available
@@ -3135,14 +3149,14 @@ paths:
       description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
       operationId: sendHHGInvoice
       tags:
-      - shipments
+        - shipments
       parameters:
-      - name: shipmentId
-        in: path
-        type: string
-        format: uuid
-        required: true
-        description: UUID of the shipment
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
       responses:
         200:
           description: invoice was submitted successfully
@@ -4031,13 +4045,13 @@ paths:
           name: queueType
           type: string
           enum:
-          - new
-          - troubleshooting
-          - ppm
-          - hhg_accepted
-          - hhg_delivered
-          - hhg_completed
-          - all
+            - new
+            - troubleshooting
+            - ppm
+            - hhg_accepted
+            - hhg_delivered
+            - hhg_completed
+            - all
           required: true
           description: Queue type to show
       responses:
