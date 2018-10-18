@@ -1,0 +1,1 @@
+add_column("shipments", "original_pack_date", "date", {"null": true})
