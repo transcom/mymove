@@ -139,9 +139,7 @@ const initialState = {
   serviceAgentIsUpdating: false,
   serviceAgentHasUpdatedSucces: false,
   serviceAgentHasUpdatedError: null,
-  shipment: {
-    address: {},
-  },
+  shipment: {},
   loadTspDependenciesHasSuccess: false,
   loadTspDependenciesHasError: null,
   flashMessage: false,
