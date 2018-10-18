@@ -6,7 +6,7 @@ describe('The document viewer', function() {
     cy.signIntoTSP();
   });
 
-  it('has a new document link', () => {
+  it('has a new document links', () => {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/queues\/new/);
     });
@@ -21,12 +21,21 @@ describe('The document viewer', function() {
       expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
     });
 
-    cy.get('.documents-list-header').within(() => {
-      cy
-        .get('a')
-        .should('have.attr', 'href')
-        .and('match', /^\/shipments\/[^/]+\/documents\/new/);
-    });
+    cy
+      .get('.usa-heading')
+      .contains('Documents')
+      .within(() => {
+        cy
+          .get('a')
+          .should('have.attr', 'href')
+          .and('match', /^\/shipments\/[^/]+\/documents\/new/);
+      });
+
+    cy
+      .get('.documents > .status')
+      .contains('Upload new document')
+      .should('have.attr', 'href')
+      .and('match', /^\/shipments\/[^/]+\/documents\/new/);
   });
 
   it('can upload a new document', () => {
