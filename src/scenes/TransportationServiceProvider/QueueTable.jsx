@@ -78,7 +78,7 @@ class QueueTable extends Component {
               {
                 Header: 'Status',
                 accessor: 'status',
-                Cell: row => <span classname="status">{capitalize(row.value.replace('_', ' '))}</span>,
+                Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
               },
               {
                 Header: 'GBL',
