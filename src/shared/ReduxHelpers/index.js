@@ -60,7 +60,10 @@ export function generateAsyncActionCreator(resourceName, asyncAction) {
       dispatch(actions.start());
       return asyncAction(...args)
         .then(item => dispatch(actions.success(item)))
-        .catch(error => dispatch(actions.error(error)));
+        .catch(error => {
+          dispatch(actions.error(error));
+          return Promise.reject(error);
+        });
     };
   };
 }
