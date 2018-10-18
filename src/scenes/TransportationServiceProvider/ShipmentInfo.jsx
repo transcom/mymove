@@ -171,7 +171,13 @@ class ShipmentInfo extends Component {
 
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
-    const { service_member: serviceMember = {}, move = {}, gbl_number: gbl, actual_pack_date } = shipment;
+    const {
+      service_member: serviceMember = {},
+      move = {},
+      gbl_number: gbl,
+      actual_pack_date,
+      actual_pickup_date,
+    } = shipment;
 
     const shipmentId = this.props.match.params.shipmentId;
 
@@ -283,14 +289,16 @@ class ShipmentInfo extends Component {
                     buttonTitle="Enter Packing"
                   />
                 )}
-              {approved && (
-                <FormButton
-                  FormComponent={PickupDateForm}
-                  schema={this.props.pickupSchema}
-                  onSubmit={this.pickupShipment}
-                  buttonTitle="Enter Pickup"
-                />
-              )}
+              {approved &&
+                actual_pack_date &&
+                !actual_pickup_date && (
+                  <FormButton
+                    FormComponent={PickupDateForm}
+                    schema={this.props.pickupSchema}
+                    onSubmit={this.pickupShipment}
+                    buttonTitle="Enter Pickup"
+                  />
+                )}
               {inTransit && (
                 <FormButton
                   FormComponent={DeliveryDateForm}
