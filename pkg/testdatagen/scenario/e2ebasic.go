@@ -1187,6 +1187,47 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg19 := offer19.Shipment
 	hhg19.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg19.Move)
+
+	/*
+	 * Service member with uploaded orders and an approved shipment. Use this to test zeroing dates.
+	 */
+	email = "hhg@dates.panel"
+
+	offer20 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("cf1b1f09-8ea2-4f68-872e-a056c3a5f22f")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("6c4bc296-927c-4c6b-a01e-1f064c5d5f9b"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("da9af941-253a-45e0-b012-8ee0385e28f8"),
+			Locator:          "DATESZ",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("9728e6a1-0469-4718-9ba1-5d7baace1191"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			ActualDeliveryDate: nil,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg20 := offer20.Shipment
+	hhg20.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg20.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation

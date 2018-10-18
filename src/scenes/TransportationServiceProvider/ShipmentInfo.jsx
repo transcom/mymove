@@ -125,10 +125,17 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
-    this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.match.params.shipmentId);
-    this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
-    this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.match.params.shipmentId);
+    this.props.loadShipmentDependencies(this.props.match.params.shipmentId).catch(err => {
+      this.props.history.replace('/');
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.shipment.id && this.props.shipment.id) {
+      this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
+      this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+      this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
+    }
   }
 
   acceptShipment = () => {
@@ -222,10 +229,7 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
-                  <PreApprovalPanel
-                    shipment_accessorials={this.props.shipmentAccessorials}
-                    tariff400ngItems={this.props.tariff400ngItems}
-                  />
+                  <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <ServiceAgents
                     title="ServiceAgents"
                     shipment={this.props.shipment}
