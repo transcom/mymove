@@ -19,7 +19,11 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
     <Fragment>
       {onApproval &&
         status === 'SUBMITTED' && (
-          <span onClick={onApproval}>
+          <span
+            onClick={() => {
+              onApproval(shipmentAccessorialId);
+            }}
+          >
             <FontAwesomeIcon className="icon actionable" icon={faCheck} />
           </span>
         )}
@@ -51,7 +55,7 @@ const PreApprovalTable = ({ shipmentAccessorials, isActionable, onEdit, onApprov
           <th>Status</th>
           <th>&nbsp;</th>
         </tr>
-        {shipmentAccessorials.map(row => {
+        {(shipmentAccessorials || []).map(row => {
           let status = '';
           if (isOfficeSite) {
             status = renderStatusIcon(row.status);

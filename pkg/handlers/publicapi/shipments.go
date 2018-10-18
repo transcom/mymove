@@ -294,13 +294,24 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
 
+	// Comparint against the zero time allows users to set dates to nil via PATCH
+	zeroTime := time.Time{}
+
 	// PM Survey fields may be updated individually in the Dates panel and so cannot be lumped into one update
 	if payload.PmSurveyConductedDate != nil {
-		shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
+		if zeroTime == (time.Time)(*payload.PmSurveyConductedDate) {
+			shipment.PmSurveyConductedDate = nil
+		} else {
+			shipment.PmSurveyConductedDate = (*time.Time)(payload.PmSurveyConductedDate)
+		}
 	}
 
 	if payload.PmSurveyPlannedDeliveryDate != nil {
-		shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
+		if zeroTime == (time.Time)(*payload.PmSurveyPlannedDeliveryDate) {
+			shipment.PmSurveyPlannedDeliveryDate = nil
+		} else {
+			shipment.PmSurveyPlannedDeliveryDate = (*time.Time)(payload.PmSurveyPlannedDeliveryDate)
+		}
 	}
 
 	if payload.PmSurveyMethod != "" {
@@ -308,11 +319,19 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	}
 
 	if payload.PmSurveyPlannedPackDate != nil {
-		shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
+		if zeroTime == (time.Time)(*payload.PmSurveyPlannedPackDate) {
+			shipment.PmSurveyPlannedPackDate = nil
+		} else {
+			shipment.PmSurveyPlannedPackDate = (*time.Time)(payload.PmSurveyPlannedPackDate)
+		}
 	}
 
 	if payload.PmSurveyPlannedPickupDate != nil {
-		shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+		if zeroTime == (time.Time)(*payload.PmSurveyPlannedPickupDate) {
+			shipment.PmSurveyPlannedPickupDate = nil
+		} else {
+			shipment.PmSurveyPlannedPickupDate = (*time.Time)(payload.PmSurveyPlannedPickupDate)
+		}
 	}
 
 	if payload.PmSurveyNotes != nil {
@@ -344,15 +363,27 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	}
 
 	if payload.ActualPickupDate != nil {
-		shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
+		if zeroTime == (time.Time)(*payload.ActualPickupDate) {
+			shipment.ActualPickupDate = nil
+		} else {
+			shipment.ActualPickupDate = (*time.Time)(payload.ActualPickupDate)
+		}
 	}
 
 	if payload.ActualPackDate != nil {
-		shipment.ActualPackDate = (*time.Time)(payload.ActualPackDate)
+		if zeroTime == (time.Time)(*payload.ActualPackDate) {
+			shipment.ActualPackDate = nil
+		} else {
+			shipment.ActualPackDate = (*time.Time)(payload.ActualPackDate)
+		}
 	}
 
 	if payload.ActualDeliveryDate != nil {
-		shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
+		if zeroTime == (time.Time)(*payload.ActualDeliveryDate) {
+			shipment.ActualDeliveryDate = nil
+		} else {
+			shipment.ActualDeliveryDate = (*time.Time)(payload.ActualDeliveryDate)
+		}
 	}
 
 	if payload.PickupAddress != nil {

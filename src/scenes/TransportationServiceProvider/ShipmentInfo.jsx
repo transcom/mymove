@@ -125,10 +125,17 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
-    this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.match.params.shipmentId);
-    this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
-    this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.match.params.shipmentId);
+    this.props.loadShipmentDependencies(this.props.match.params.shipmentId).catch(err => {
+      this.props.history.replace('/');
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.shipment.id && this.props.shipment.id) {
+      this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
+      this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+      this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
+    }
   }
 
   acceptShipment = () => {
@@ -214,6 +221,13 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide panels-body">
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
+              {awarded && (
+                <AcceptShipmentPanel
+                  acceptShipment={this.acceptShipment}
+                  rejectShipment={this.rejectShipment}
+                  shipmentStatus={this.props.shipment.status}
+                />
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -234,13 +248,6 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {awarded && (
-                <AcceptShipmentPanel
-                  acceptShipment={this.acceptShipment}
-                  rejectShipment={this.rejectShipment}
-                  shipmentStatus={this.props.shipment.status}
-                />
-              )}
               {approved && (
                 <FormButton
                   FormComponent={PickupDateForm}

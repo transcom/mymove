@@ -13,6 +13,8 @@ import {
   createShipmentAccessorialLabel,
   deleteShipmentAccessorial,
   deleteShipmentAccessorialLabel,
+  approveShipmentAccessorial,
+  approveShipmentAccessorialLabel,
 } from 'shared/Entities/modules/shipmentAccessorials';
 import { selectShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
 import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
@@ -33,8 +35,8 @@ export class PreApprovalPanel extends Component {
       this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
     }
   };
-  onApproval = () => {
-    console.log('onApproval hit');
+  onApproval = shipmentAccessorialId => {
+    this.props.approveShipmentAccessorial(approveShipmentAccessorialLabel, shipmentAccessorialId);
   };
   onFormActivation = active => {
     this.setState({ isActionable: active });
@@ -75,6 +77,9 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createShipmentAccessorial, deleteShipmentAccessorial }, dispatch);
+  return bindActionCreators(
+    { createShipmentAccessorial, deleteShipmentAccessorial, approveShipmentAccessorial },
+    dispatch,
+  );
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);

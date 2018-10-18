@@ -47,7 +47,7 @@ func main() {
 
 	// Attempt to load the Truss TSP
 	var tsp models.TransportationServiceProvider
-	db.Where("standard_carrier_alpha_code = $1", "TRSS").First(&tsp)
+	db.Where("standard_carrier_alpha_code = $1", "TRS1").First(&tsp)
 	if tsp.ID == uuid.Nil {
 		// TSP not found, create one for Truss
 		tsp = models.TransportationServiceProvider{
