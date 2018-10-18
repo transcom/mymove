@@ -38,7 +38,7 @@ This decision record is meant to pick a path forward to increase the visibility 
 
 ## Decision Outcome
 
-Honeycomb straddles a difficult balance that provides a pretty good user interface for debugging complex datasets, but also provides a mechanism to encrypt any data we send before it leaves the MyMove infrastructure. Below is an example of using Honeycomb to see the 99th percentile request latencies (in milliseconds) for the slowest API calls. We’ve been testing the service in the MyMove staging environment to verify its usefulness before moving forward with a roll out to production. We did this to understand what data we will and won’t send to Honeycomb. Also it allowed us to understand what sorts of security controls are in place to protect and manage the data we do send.
+Honeycomb straddles a difficult balance that provides a pretty good user interface for debugging complex datasets, but also provides a mechanism to encrypt any data we send before it leaves the MyMove infrastructure. We’ve been testing the service in the MyMove staging environment to verify its usefulness before moving forward with a roll out to production. We did this to understand what data we will and won’t send to Honeycomb. Also it allowed us to understand what sorts of security controls are in place to protect and manage the data we do send.
 
 ## Pros and Cons of the Options
 
