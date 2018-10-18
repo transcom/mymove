@@ -1954,7 +1954,7 @@ paths:
   /shipments/{shipmentId}/pack:
     post:
       summary: Updates the pack date of the shipment
-      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT.
+      description: Updates the pack date of the shipment.
       operationId: packShipment
       tags:
         - shipments
@@ -1972,7 +1972,7 @@ paths:
             $ref: '#/definitions/ActualPackDate'
       responses:
         200:
-          description: returns updated (in_transit) shipment object
+          description: returns updated shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:
@@ -1990,7 +1990,7 @@ paths:
   /shipments/{shipmentId}/transport:
     post:
       summary: Places an accepted shipment into transit state
-      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT.
+      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT and the pickup date will be set.
       operationId: transportShipment
       tags:
         - shipments
