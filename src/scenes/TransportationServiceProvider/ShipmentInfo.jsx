@@ -221,6 +221,13 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide panels-body">
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
+              {awarded && (
+                <AcceptShipmentPanel
+                  acceptShipment={this.acceptShipment}
+                  rejectShipment={this.rejectShipment}
+                  shipmentStatus={this.props.shipment.status}
+                />
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -241,13 +248,6 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {awarded && (
-                <AcceptShipmentPanel
-                  acceptShipment={this.acceptShipment}
-                  rejectShipment={this.rejectShipment}
-                  shipmentStatus={this.props.shipment.status}
-                />
-              )}
               {approved && (
                 <FormButton
                   FormComponent={PickupDateForm}
