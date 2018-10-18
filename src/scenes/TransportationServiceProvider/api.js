@@ -71,7 +71,7 @@ export async function PackShipment(shipmentId, payload) {
     shipmentId,
     payload: formatPayload(payload, payloadDef),
   });
-  checkResponse(response, 'failed to pick up shipment due to server error');
+  checkResponse(response, 'failed to pack shipment due to server error');
   return response.body;
 }
 
@@ -82,7 +82,7 @@ export async function DeliverShipment(shipmentId, payload) {
     shipmentId,
     payload: formatPayload(payload, payloadDef),
   });
-  checkResponse(response, 'failed to pick up shipment due to server error');
+  checkResponse(response, 'failed to deliver shipment due to server error');
   return response.body;
 }
 
