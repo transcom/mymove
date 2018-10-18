@@ -1,4 +1,4 @@
-import { get, uniqueId } from 'lodash';
+import { get, some, uniqueId } from 'lodash';
 import { normalize } from 'normalizr';
 
 // Given a schema path (e.g. shipments.getShipment), return the
@@ -8,9 +8,10 @@ function findMatchingRoute(paths, operationPath) {
 
   let routeDefinition;
   Object.values(paths).some(function(path) {
-    return Object.values(path).some(function(route) {
+    return some(path, function(route, method) {
       if (route.operationId === operationId && route.tags[0] === tagName) {
         routeDefinition = route;
+        routeDefinition.method = method;
         return true;
       }
       return false;
@@ -95,17 +96,18 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           isLoading: false,
         });
 
-        const action = {
-          type: `@@swagger/${operationPath}/SUCCESS`,
-          request: updatedRequestLog,
-          response,
-          label,
-        };
-
         const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
         if (!routeDefinition) {
           throw new Error(`Could not find routeDefinition for ${operationPath}`);
         }
+
+        const action = {
+          type: `@@swagger/${operationPath}/SUCCESS`,
+          request: updatedRequestLog,
+          method: routeDefinition.method,
+          response,
+          label,
+        };
 
         let schemaKey = successfulReturnType(routeDefinition, response.status);
         if (!schemaKey) {

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import BasicPanel from 'shared/BasicPanel';
 import PropTypes from 'prop-types';
-import { isOfficeSite } from 'shared/constants.js';
 
-import PreApprovalTable from 'shared/PreApprovalRequest/PreApprovalTable.jsx';
-import Creator from 'shared/PreApprovalRequest/Creator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
+import BasicPanel from 'shared/BasicPanel';
+import { isOfficeSite } from 'shared/constants.js';
+import PreApprovalTable from 'shared/PreApprovalRequest/PreApprovalTable.jsx';
+import Creator from 'shared/PreApprovalRequest/Creator';
 
 import {
   createShipmentAccessorial,
@@ -22,7 +23,10 @@ import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems
 export class PreApprovalPanel extends Component {
   constructor() {
     super();
-    this.state = { isActionable: true };
+    this.state = {
+      isRequestActionable: true,
+      isCreatorActionable: true,
+    };
   }
   onSubmit = createPayload => {
     return this.props.createShipmentAccessorial(createShipmentAccessorialLabel, this.props.shipmentId, createPayload);
@@ -31,15 +35,16 @@ export class PreApprovalPanel extends Component {
     console.log('onEdit hit');
   };
   onDelete = shipmentAccessorialId => {
-    if (window.confirm('Are you sure you want to delete this pre approval request?')) {
-      this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
-    }
+    this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
   };
   onApproval = shipmentAccessorialId => {
     this.props.approveShipmentAccessorial(approveShipmentAccessorialLabel, shipmentAccessorialId);
   };
-  onFormActivation = active => {
-    this.setState({ isActionable: active });
+  onFormActivation = isFormActive => {
+    this.setState({ isRequestActionable: !isFormActive });
+  };
+  onRequestActivation = isRequestActive => {
+    this.setState({ isCreatorActionable: !isRequestActive });
   };
   render() {
     return (
@@ -47,16 +52,19 @@ export class PreApprovalPanel extends Component {
         <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
             shipmentAccessorials={this.props.shipmentAccessorials}
-            isActionable={this.state.isActionable}
+            isActionable={this.state.isRequestActionable}
+            onRequestActivation={this.onRequestActivation}
             onEdit={this.onEdit}
             onDelete={this.onDelete}
             onApproval={isOfficeSite ? this.onApproval : null}
           />
-          <Creator
-            tariff400ngItems={this.props.tariff400ngItems}
-            savePreApprovalRequest={this.onSubmit}
-            onFormActivation={this.onFormActivation}
-          />
+          {this.state.isCreatorActionable && (
+            <Creator
+              tariff400ngItems={this.props.tariff400ngItems}
+              savePreApprovalRequest={this.onSubmit}
+              onFormActivation={this.onFormActivation}
+            />
+          )}
         </BasicPanel>
       </div>
     );

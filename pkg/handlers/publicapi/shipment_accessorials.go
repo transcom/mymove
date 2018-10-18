@@ -234,7 +234,8 @@ func (h DeleteShipmentAccessorialHandler) Handle(params accessorialop.DeleteShip
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	return accessorialop.NewDeleteShipmentAccessorialOK()
+	payload := payloadForShipmentAccessorialModel(&shipmentAccessorial)
+	return accessorialop.NewDeleteShipmentAccessorialOK().WithPayload(payload)
 }
 
 // ApproveShipmentAccessorialHandler returns a particular shipment

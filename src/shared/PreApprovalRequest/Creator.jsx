@@ -17,11 +17,11 @@ export class Creator extends Component {
   }
   openForm = () => {
     this.setState({ showForm: true });
-    this.props.onFormActivation(false);
+    this.props.onFormActivation(true);
   };
   closeForm = () => {
     this.setState({ showForm: false });
-    this.props.onFormActivation(true);
+    this.props.onFormActivation(false);
   };
   onSubmit = values => {
     // Convert quantity_1 to base quantity unit before hitting endpoint
@@ -38,7 +38,7 @@ export class Creator extends Component {
   saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
-      this.props.onFormActivation(true);
+      this.props.onFormActivation(false);
     });
   };
   render() {
