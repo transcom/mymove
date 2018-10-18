@@ -130,7 +130,7 @@ export const SubmittedMoveSummary = props => {
 
           <div className="shipment_box_contents">
             {isPpm && <img className="status_icon" src={ppmSubmitted} alt="status" />}
-            <StatusTimeline moveDate={shipment.requested_pickup_date} />
+            <StatusTimeline moveDate={shipment.requested_pickup_date} moveId={shipment.move_id} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">

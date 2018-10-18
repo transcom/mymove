@@ -7,7 +7,7 @@ import { withLastLocation } from 'react-router-last-location';
 
 import { MoveSummary } from './MoveSummary';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { currentShipment } from 'shared/UI/ducks';
+import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { loadLoggedInUser } from 'shared/User/ducks';
@@ -136,7 +136,7 @@ export class Landing extends Component {
 }
 
 const mapStateToProps = state => {
-  const shipment = currentShipment(state);
+  const shipment = getCurrentShipment(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
