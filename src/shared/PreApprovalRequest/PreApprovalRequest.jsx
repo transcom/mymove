@@ -22,11 +22,12 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
             <FontAwesomeIcon className="icon actionable" icon={faCheck} />
           </span>
         )}
-      {onEdit && (
-        <span data-test="edit-request" onClick={onEdit}>
-          <FontAwesomeIcon className="icon actionable" icon={faPencil} />
-        </span>
-      )}
+      {onEdit &&
+        status === 'SUBMITTED' && (
+          <span data-test="edit-request" onClick={onEdit}>
+            <FontAwesomeIcon className="icon actionable" icon={faPencil} />
+          </span>
+        )}
       {onDelete && (
         <span data-test="delete-request" onClick={onDelete}>
           <FontAwesomeIcon className="icon actionable" icon={faTimes} />

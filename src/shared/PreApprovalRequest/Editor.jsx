@@ -17,7 +17,6 @@ export class Editor extends Component {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
     values.accessorial_id = values.accessorial.id;
-    debugger;
     this.props.saveEdit(this.props.shipmentAccessorial.id, values);
   };
   render() {
@@ -63,7 +62,6 @@ Editor.propTypes = {
   formEnabled: PropTypes.bool.isRequired,
   hasSubmitSucceeded: PropTypes.bool.isRequired,
   submitForm: PropTypes.func.isRequired,
-  clearForm: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -81,7 +79,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       submitForm: () => submit(PreApprovalFormName),
-      clearForm: () => reset(PreApprovalFormName),
     },
     dispatch,
   );

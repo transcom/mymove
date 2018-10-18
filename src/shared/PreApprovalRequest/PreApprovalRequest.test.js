@@ -10,7 +10,7 @@ describe('PreApprovalRequest tests', () => {
     id: 'sldkjf',
     accessorial: { code: '105D', item: 'Reg Shipping' },
     location: 'D',
-    base_quantity: 167000,
+    quantity_1: 167000,
     notes: '',
     created_at: '2018-09-24T14:05:38.847Z',
     status: 'SUBMITTED',
@@ -28,7 +28,7 @@ describe('PreApprovalRequest tests', () => {
       );
       const icons = wrapper.find('.icon');
       expect(wrapper.find('tr').length).toEqual(1);
-      expect(icons.length).toBe(2);
+      expect(icons.length).toBe(3);
     });
   });
   describe('When on approval is NOT passed in and status is SUBMITTED', () => {
@@ -44,7 +44,7 @@ describe('PreApprovalRequest tests', () => {
     });
     it('it shows the appropriate number of icons.', () => {
       const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(1);
+      expect(icons.length).toBe(2);
     });
   });
   describe('When on approval is passed in and status is APPROVED', () => {
