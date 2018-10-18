@@ -24,6 +24,7 @@ const numQualBands = 4
 
 // Minimum Performance Score (MPS) is the lowest BVS a TSP can have and still be assigned shipments.
 // TODO: This will eventually need to be configurable; implement as something other than a constant.
+//       Setting to zero for now to make sure that no TSPs are accidentally excluded.
 const mps = 0
 
 // AwardQueue encapsulates the TSP award queue process
