@@ -1,7 +1,10 @@
 import { GetCertifications, GetCertificationText, CreateCertification } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import { SubmitForApproval } from '../Moves/ducks.js';
+import { normalize } from 'normalizr';
+import { move } from 'shared/Entities/schema';
+import { addEntities } from '../../shared/Entities/actions';
 
 const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
 
@@ -35,7 +38,10 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
           },
         }),
       );
-      await dispatch(SubmitForApproval(moveId));
+      const response = await dispatch(SubmitForApproval(moveId));
+      const data = normalize(response.payload, move);
+      const filtered = pick(data.entities, ['shipments', 'moves']);
+      dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
       return dispatch(signAndSubmitForApprovalActions.error(error));
