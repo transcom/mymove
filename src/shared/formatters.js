@@ -21,7 +21,7 @@ export function formatCents(cents) {
   });
 }
 
-// Format a base quantity into a user-friendly number, e.g. 167000 -> 16.7000
+// Format a base quantity into a user-friendly number string, e.g. 167000 -> "16.7000"
 export function formatFromBaseQuantity(baseQuantity) {
   if (!isFinite(baseQuantity)) {
     return '';
@@ -31,6 +31,15 @@ export function formatFromBaseQuantity(baseQuantity) {
     minimumFractionDigits: 4,
     maximumFractionDigits: 4,
   });
+}
+
+// Format a base quantity into a user-friendly number, e.g. 167000 -> 16.7
+export function convertFromBaseQuantity(baseQuantity) {
+  if (!isFinite(baseQuantity)) {
+    return null;
+  }
+
+  return baseQuantity / 10000;
 }
 
 // Format user-entered base quantity into base quantity, e.g. 16.7000 -> 167000

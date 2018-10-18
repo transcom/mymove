@@ -2180,7 +2180,7 @@ paths:
           required: true
           description: UUID of the shipment accessorial model
         - in: body
-          name: updateShipmentAccessorial
+          name: payload
           required: true
           schema:
             $ref: '#/definitions/ShipmentAccessorial'

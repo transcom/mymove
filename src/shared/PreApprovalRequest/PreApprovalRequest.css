@@ -44,6 +44,7 @@
 
 .cancel-link {
   padding: 1em;
+  cursor: pointer;
 }
 .accessorial-panel th,
 .accessorial-panel td {
@@ -90,6 +91,10 @@
 }
 .accessorial-panel .align-right {
   text-align: right !important;
+}
+
+.accessorial-form {
+  font-size: inherit !important;
 }
 
 .cancel button {

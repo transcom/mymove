@@ -44,5 +44,6 @@ export const getShipmentAccessorialsLabel = 'ShipmentAccessorials.getAllShipment
 export const createShipmentAccessorialLabel = 'ShipmentAccessorials.createShipmentAccessorial';
 export const deleteShipmentAccessorialLabel = 'ShipmentAccessorials.deleteShipmentAccessorial';
 export const approveShipmentAccessorialLabel = 'ShipmentAccessorials.approveShipmentAccessorial';
+export const updateShipmentAccessorialLabel = 'ShipmentAccessorials.updateShipmentAccessorial';
 
 export const selectShipmentAccessorial = (state, id) => denormalize([id], shipmentAccessorials, state.entities)[0];
