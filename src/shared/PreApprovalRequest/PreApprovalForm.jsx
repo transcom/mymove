@@ -38,9 +38,9 @@ export class Tariff400ngItemSearch extends Component {
           getOptionLabel={getOptionLabel}
           getOptionValue={getOptionValue}
           onChange={this.localOnChange}
-          placeholder={'Select an item...'}
-          className={'tariff400-select'}
-          classNamePrefix={'tariff400'}
+          placeholder="Select an item..."
+          className="tariff400-select"
+          classNamePrefix="tariff400"
           filterOption={filterOption}
         />
       </Fragment>
