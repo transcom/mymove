@@ -16,7 +16,7 @@ import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import { Link } from 'react-router-dom';
 import { withContext } from 'shared/AppContext';
-import StatusTimeline from './StatusTimeline';
+import StatusTimelineContainer from './StatusTimeline';
 
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
@@ -130,7 +130,11 @@ export const SubmittedMoveSummary = props => {
 
           <div className="shipment_box_contents">
             {isPpm && <img className="status_icon" src={ppmSubmitted} alt="status" />}
-            <StatusTimeline moveDate={shipment.requested_pickup_date} moveId={shipment.move_id} />
+            <StatusTimelineContainer
+              moveDate={shipment.requested_pickup_date}
+              moveId={shipment.move_id}
+              bookDate={shipment.book_date}
+            />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
@@ -148,7 +152,7 @@ export const SubmittedMoveSummary = props => {
                         PPM Info Packet
                       </a>
                     ) : (
-                      <a href="#" target="_blank" rel="noopener noreferrer">
+                      <a href="placeholder" target="_blank" rel="noopener noreferrer">
                         Pre-move tips
                       </a>
                     )}
@@ -314,7 +318,7 @@ const moveSummaryStatusComponents = {
 };
 
 const getStatus = (moveStatus, ppm, shipment) => {
-  let status = '';
+  let status = 'DRAFT';
   if (!isEmpty(ppm)) {
     // assign the status
     const ppmStatus = get(ppm, 'status', 'DRAFT');
