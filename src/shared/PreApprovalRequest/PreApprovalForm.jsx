@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { reduxForm, Form, Field } from 'redux-form';
-
+import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './PreApprovalRequest.css';
@@ -53,7 +53,6 @@ export class PreApprovalForm extends Component {
         <div className="usa-grid">
           <div className="usa-width-one-half">
             <div className="tariff400-select">
-              {/* // TODO: this should be required in the UI*/}
               <Field
                 name="accessorial_id"
                 title="Code & Item"
@@ -110,12 +109,14 @@ PreApprovalForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
+const validateItemSelect = validateAdditionalFields(['accessorial_id']);
 export const formName = 'preapproval_request_form';
 
 PreApprovalForm = reduxForm({
   form: formName,
   enableReinitialize: true,
   keepDirtyOnReinitialize: true,
+  validate: validateItemSelect,
 })(PreApprovalForm);
 
 function mapStateToProps(state, props) {
