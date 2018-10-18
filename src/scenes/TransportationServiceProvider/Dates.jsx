@@ -52,7 +52,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
         {/* TODO: cgilmer 2018/10/15 - replace ORIGINAL with original_delivery_date */}
         <PanelField className="rdd" title="Current RDD" value={(rdd && formatDate(rdd)) || 'ORIGINAL'} />
-        <PanelSwaggerField fieldName="pm_survey_notes" required title="Notes about dates" {...fieldProps} />
+        <PanelSwaggerField fieldName="pm_survey_notes" title="Notes" {...fieldProps} />
       </div>
     </Fragment>
   );
@@ -86,7 +86,7 @@ const DatesEdit = props => {
           <SwaggerField fieldName="pm_survey_planned_delivery_date" title="Planned" swagger={schema} />
           <SwaggerField fieldName="actual_delivery_date" title="Actual" swagger={schema} />
           <PanelField title="Current RDD" value="TODO" />
-          <SwaggerField fieldName="pm_survey_notes" title="Notes about dates" swagger={schema} />
+          <SwaggerField fieldName="pm_survey_notes" title="Notes" swagger={schema} />
         </div>
       </FormSection>
     </Fragment>
