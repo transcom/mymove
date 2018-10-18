@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 import React, { Component, Fragment } from 'react';
-import Select from 'react-select';
+import Select, { createFilter } from 'react-select';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { reduxForm, Form, Field } from 'redux-form';
@@ -11,6 +11,8 @@ import './PreApprovalRequest.css';
 
 const getOptionValue = option => (option ? option.id : '');
 const getOptionLabel = option => (option ? option.code + ' ' + option.item : '');
+const stringify = option => option.label;
+const filterOption = createFilter({ ignoreCase: true, stringify });
 
 export class Tariff400ngItemSearch extends Component {
   constructor(props) {
@@ -27,7 +29,6 @@ export class Tariff400ngItemSearch extends Component {
       return null;
     }
   }
-
   render() {
     return (
       <Fragment>
@@ -40,6 +41,7 @@ export class Tariff400ngItemSearch extends Component {
           placeholder={'Select an item...'}
           className={'tariff400-select'}
           classNamePrefix={'tariff400'}
+          filterOption={filterOption}
         />
       </Fragment>
     );

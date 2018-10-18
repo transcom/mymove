@@ -127,7 +127,7 @@ class ShipmentInfo extends Component {
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
     this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.match.params.shipmentId);
-    this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+    this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
     this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.match.params.shipmentId);
   }
 
