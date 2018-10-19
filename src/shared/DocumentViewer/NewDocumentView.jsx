@@ -61,16 +61,14 @@ class NewDocumentView extends Component {
       <div className="usa-grid doc-viewer">
         <div className="usa-width-two-thirds">
           <div className="tab-content">
-            <div className="document-contents">
-              <DocumentUploader
-                form="shipmment-documents"
-                initialValues={{}}
-                genericMoveDocSchema={genericMoveDocSchema}
-                moveDocSchema={moveDocSchema}
-                onSubmit={this.handleSubmit}
-                isPublic={true}
-              />
-            </div>
+            <DocumentUploader
+              form="shipment-documents"
+              initialValues={{}}
+              genericMoveDocSchema={genericMoveDocSchema}
+              moveDocSchema={moveDocSchema}
+              onSubmit={this.handleSubmit}
+              isPublic={true}
+            />
           </div>
         </div>
         <div className="usa-width-one-third">
