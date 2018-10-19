@@ -27,17 +27,17 @@ describe('MoveSummary', () => {
         editMove={editMoveFn}
         resumeMove={resumeMoveFn}
       />,
-      div,
     );
   };
   describe('when a move is in canceled state', () => {
     it('renders cancel content', () => {
-      const moveObj = { status: 'CANCELED' };
+      const moveObj = { selected_move_type: 'PPM', status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
+        status: 'CANCELED',
       };
       const subComponent = getShallowRender(
         entitlementObj,
@@ -47,10 +47,11 @@ describe('MoveSummary', () => {
         ppmObj,
         editMoveFn,
         resumeMoveFn,
-      ).find(CanceledMoveSummary);
-      expect(subComponent).not.toBeNull();
+      );
+      expect(subComponent.find(CanceledMoveSummary).length).toBe(1);
       expect(
         subComponent
+          .find(CanceledMoveSummary)
           .dive()
           .find('h2')
           .html(),
