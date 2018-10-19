@@ -205,12 +205,14 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				Status:           moveStatus,
 			},
 			Shipment: models.Shipment{
-				RequestedPickupDate:     &now,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 				Status:                  shipmentStatus,
+				OriginalPackDate:        &now,
+				RequestedPickupDate:     &now,
+				OriginalDeliveryDate:    &nowPlusOne,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
