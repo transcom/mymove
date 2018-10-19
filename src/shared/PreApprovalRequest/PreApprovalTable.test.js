@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import PreApprovalTable from './PreApprovalTable';
 
 describe('PreApprovalTable tests', () => {
-  let wrapper, icons;
+  let wrapper;
   const onEdit = jest.fn();
   const shipmentAccessorials = [
     {
@@ -25,7 +25,7 @@ describe('PreApprovalTable tests', () => {
       status: 'SUBMITTED',
     },
   ];
-  describe('When on approval is passed in and status is submitted', () => {
+  describe('When shipmentAccessorials exist', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalTable
@@ -36,62 +36,32 @@ describe('PreApprovalTable tests', () => {
           onApproval={onEdit}
         />,
       );
-      const icons = wrapper.find('.icon');
-      expect(wrapper.find('.accessorial-panel').length).toEqual(1);
-      expect(icons.length).toBe(2);
+      expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
     });
   });
-  describe('When on approval is NOT passed in and status is SUBMITTED', () => {
-    beforeEach(() => {
+  describe('When a request is being acted upon', () => {
+    it('is the only request that is actionable', () => {
+      const onActivation = jest.fn();
       wrapper = shallow(
         <PreApprovalTable
           shipmentAccessorials={shipmentAccessorials}
-          isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-        />,
-      );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(0);
-    });
-  });
-  describe('When on approval is passed in and status is APPROVED', () => {
-    beforeEach(() => {
-      shipmentAccessorials[0].status = 'APPROVED';
-      shipmentAccessorials[1].status = 'APPROVED';
-      wrapper = shallow(
-        <PreApprovalTable
-          shipmentAccessorials={shipmentAccessorials}
+          onRequestActivation={onActivation}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
           onApproval={onEdit}
         />,
       );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(0);
-    });
-  });
-  describe('When on approval is NOT passed in and status is APPROVED', () => {
-    beforeEach(() => {
-      shipmentAccessorials[0].status = 'APPROVED';
-      shipmentAccessorials[1].status = 'APPROVED';
-      wrapper = shallow(
-        <PreApprovalTable
-          shipmentAccessorials={shipmentAccessorials}
-          isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-        />,
-      );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(0);
+      wrapper.setState({ actionRequestId: shipmentAccessorials[0].id });
+      const requests = wrapper.find('PreApprovalRequest');
+      expect(requests.length).toEqual(2);
+      requests.forEach(req => {
+        if (req.prop('shipmentLineItem').id === shipmentAccessorials[0].id) {
+          expect(req.prop('isActionable')).toBe(true);
+        } else {
+          expect(req.prop('isActionable')).toBe(false);
+        }
+      });
     });
   });
 });

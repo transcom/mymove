@@ -5,6 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
+import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
@@ -133,7 +134,7 @@ class ShipmentInfo extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.shipment.id && this.props.shipment.id) {
       this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
-      this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
       this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
     }
   }
@@ -160,7 +161,7 @@ class ShipmentInfo extends Component {
     const { context, shipment, shipmentDocuments } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
     const shipmentId = this.props.match.params.shipmentId;
-
+    const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
@@ -271,8 +272,15 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               {this.props.generateGBLSuccess && (
-                <Alert type="success" heading="Success!">
-                  GBL generated successfully.
+                <Alert type="success" heading="GBL has been created">
+                  <span className="usa-grid usa-alert-no-padding">
+                    <span className="usa-width-one-half">Click the button to view, print, or download the GBL.</span>
+                    <span className="usa-width-one-half">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                        <button>View GBL</button>
+                      </Link>
+                    </span>
+                  </span>
                 </Alert>
               )}
               <div>
@@ -285,11 +293,11 @@ class ShipmentInfo extends Component {
                 <CustomerInfo />
               </div>
               <div className="documents">
-                <h2 className="documents-list-header">
+                <h2 className="extras usa-heading">
                   Documents
                   {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                   {showDocumentViewer && (
-                    <Link to={`/shipments/${shipmentId}/documents/new`} target="_blank">
+                    <Link to={newDocumentUrl} target="_blank">
                       <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                     </Link>
                   )}
@@ -300,7 +308,12 @@ class ShipmentInfo extends Component {
                     moveDocuments={shipmentDocuments}
                   />
                 ) : (
-                  <p>No orders have been uploaded.</p>
+                  <Link className="status" to={newDocumentUrl} target="_blank">
+                    <span>
+                      <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
+                    </span>
+                    Upload new document
+                  </Link>
                 )}
               </div>
             </div>
@@ -327,6 +340,7 @@ const mapStateToProps = state => {
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
+    gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
