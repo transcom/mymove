@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { withRouter } from 'react-router-dom';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { bindActionCreators } from 'redux';
 
