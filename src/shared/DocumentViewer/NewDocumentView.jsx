@@ -56,6 +56,7 @@ class NewDocumentView extends Component {
     } = this.props;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const documentDetailUrlPrefix = `/shipments/${shipmentId}/documents`;
+    const currentMoveDocumentId = this.props.match.params.moveDocumentId;
 
     return (
       <div className="usa-grid doc-viewer">
@@ -90,7 +91,11 @@ class NewDocumentView extends Component {
                 </div>
                 <div>
                   {' '}
-                  <DocumentList detailUrlPrefix={documentDetailUrlPrefix} moveDocuments={moveDocuments} />
+                  <DocumentList
+                    currentMoveDocumentId={currentMoveDocumentId}
+                    detailUrlPrefix={documentDetailUrlPrefix}
+                    moveDocuments={moveDocuments}
+                  />
                 </div>
               </TabPanel>
             </Tabs>
