@@ -5,7 +5,7 @@ import {
   CanceledMoveSummary,
   ApprovedMoveSummary,
   DraftMoveSummary,
-  SubmittedMoveSummary,
+  SubmittedPpmMoveSummary,
 } from './MoveSummary';
 import moment from 'moment';
 
@@ -30,8 +30,8 @@ describe('MoveSummary', () => {
       div,
     );
   };
-  describe('when a move is in canceled state', () => {
-    it('renders submitted content', () => {
+  describe.only('when a move is in canceled state', () => {
+    it('renders cancel content', () => {
       const moveObj = { status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
@@ -74,7 +74,7 @@ describe('MoveSummary', () => {
         ppmObj,
         editMoveFn,
         resumeMoveFn,
-      ).find(SubmittedMoveSummary);
+      ).find(SubmittedPpmMoveSummary);
       expect(subComponent).not.toBeNull();
       expect(
         subComponent
@@ -104,7 +104,7 @@ describe('MoveSummary', () => {
         ppmObj,
         editMoveFn,
         resumeMoveFn,
-      ).find(SubmittedMoveSummary);
+      ).find(SubmittedPpmMoveSummary);
       expect(subComponent).not.toBeNull();
       expect(
         subComponent
