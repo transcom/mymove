@@ -62,7 +62,9 @@ const SurveyDisplay = props => {
       <div className="editable-panel-3-column">
         <PanelSwaggerField title="PM survey conducted" fieldName="pm_survey_conducted_date" required {...fieldProps} />
         <PanelSwaggerField title="Survey Method" fieldName="pm_survey_method" required {...fieldProps} />
-        <PanelSwaggerField title="Notes" fieldName="pm_survey_notes" {...fieldProps} />
+        <div className="notes">
+          <PanelSwaggerField title="Notes" fieldName="pm_survey_notes" {...fieldProps} />
+        </div>
       </div>
     </React.Fragment>
   );
