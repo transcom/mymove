@@ -41,7 +41,7 @@ export function fetchActive(foos) {
     // includes PPM and HHG states
     find(foos, i =>
       includes(
-        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_TRANSIT', 'PAYMENT_REQUESTED', 'ACCEPTED', 'AWARDED', 'COMPLETED'],
+        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_TRANSIT', 'PAYMENT_REQUESTED', 'ACCEPTED', 'AWARDED'],
         get(i, 'status'),
       ),
     ) || null

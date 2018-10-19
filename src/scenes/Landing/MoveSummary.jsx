@@ -103,16 +103,8 @@ export const DraftMoveSummary = props => {
   );
 };
 
-// shows summary for both ppm and hhg submitted states
-export const SubmittedMoveSummary = props => {
-  const { ppm, shipment, orders, profile, move, entitlement } = props;
-  const nextPpmStep = `Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
-    profile.current_station.name
-  }.`;
-  const nextHhgStep =
-    'Your mover will contact you within ten days to schedule a pre-move survey, where they will provide you with a detailed weight estimate and more accurate packing and delivery dates.';
-  const isPpm = move.selected_move_type === 'PPM';
-  const nextStepText = isPpm ? nextPpmStep : nextHhgStep;
+export const SubmittedPpmMoveSummary = props => {
+  const { ppm, orders, profile, move, entitlement } = props;
   return (
     <Fragment>
       <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
@@ -120,16 +112,58 @@ export const SubmittedMoveSummary = props => {
       <div className="usa-width-three-fourths">
         <div className="shipment_box">
           <div className="shipment_type">
-            {isPpm ? (
-              <img className="move_sm" src={ppmCar} alt="ppm-car" />
-            ) : (
-              <img className="move_sm" src={truck} alt="hhg-truck" />
-            )}
-            {isPpm ? 'Move your own stuff (PPM)' : 'Government Movers and Packers (HHG)'}
+            <img className="move_sm" src={ppmCar} alt="ppm-car" />
+            Move your own stuff (PPM)
           </div>
 
           <div className="shipment_box_contents">
-            {isPpm && <img className="status_icon" src={ppmSubmitted} alt="status" />}
+            <img className="status_icon" src={ppmSubmitted} alt="status" />
+            <div className="step-contents">
+              <div className="status_box usa-width-two-thirds">
+                <div className="step">
+                  <div className="title">Next Step: Awaiting approval</div>
+                  <div
+                  >{`Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
+                    profile.current_station.name
+                  }.`}</div>
+                </div>
+              </div>
+              <div className="usa-width-one-third">
+                <MoveDetails ppm={ppm} />
+                <div className="titled_block">
+                  <div className="title">Documents</div>
+                  <div className="details-links">
+                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                      PPM Info Packet
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="step-links">
+              <FindWeightScales />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Fragment>
+  );
+};
+
+export const SubmittedHhgMoveSummary = props => {
+  const { shipment, orders, profile, move, entitlement } = props;
+  return (
+    <Fragment>
+      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
+      <br />
+      <div className="usa-width-three-fourths">
+        <div className="shipment_box">
+          <div className="shipment_type">
+            <img className="move_sm" src={truck} alt="hhg-truck" />
+            Government Movers and Packers (HHG)
+          </div>
+
+          <div className="shipment_box_contents">
             <StatusTimelineContainer
               moveDate={shipment.requested_pickup_date}
               moveId={shipment.move_id}
@@ -138,33 +172,25 @@ export const SubmittedMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
-                  <div className="title">{isPpm ? 'Next Step: Awaiting approval' : 'Next Step: Prepare for move'}</div>
-                  <div>{nextStepText}</div>
+                  <div className="title">Next Step: Prepare for move</div>
+                  <div>
+                    Your mover will contact you within ten days to schedule a pre-move survey, where they will provide
+                    you with a detailed weight estimate and more accurate packing and delivery dates.
+                  </div>
                 </div>
               </div>
               <div className="usa-width-one-third">
-                <MoveDetails ppm={ppm} hhg={shipment} />
+                <HhgMoveDetails hhg={shipment} />
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
-                    {isPpm ? (
-                      <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                        PPM Info Packet
-                      </a>
-                    ) : (
-                      <a href="placeholder" target="_blank" rel="noopener noreferrer">
-                        Pre-move tips
-                      </a>
-                    )}
+                    <a href="placeholder" target="_blank" rel="noopener noreferrer">
+                      Pre-move tips
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
-            {isPpm && (
-              <div className="step-links">
-                <FindWeightScales />
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -282,6 +308,15 @@ const MoveDetails = props => {
   );
 };
 
+const HhgMoveDetails = props => {
+  return (
+    <div className="titled_block">
+      <div className="title">Details</div>
+      <div>Weight (est.): {props.hhg.weight_estimate} lbs</div>
+    </div>
+  );
+};
+
 const FindWeightScales = () => (
   <span>
     <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
@@ -307,24 +342,31 @@ const MoveInfoHeader = props => {
   );
 };
 
-const moveSummaryStatusComponents = {
+const ppmSummaryStatusComponents = {
   DRAFT: DraftMoveSummary,
-  SUBMITTED: SubmittedMoveSummary,
+  SUBMITTED: SubmittedPpmMoveSummary,
   APPROVED: ApprovedMoveSummary,
   CANCELED: CanceledMoveSummary,
-  AWARDED: SubmittedMoveSummary,
-  ACCEPTED: SubmittedMoveSummary,
-  COMPLETED: SubmittedMoveSummary,
 };
 
-const getStatus = (moveStatus, ppm, shipment) => {
+const hhgSummaryStatusComponents = {
+  DRAFT: DraftMoveSummary,
+  SUBMITTED: SubmittedHhgMoveSummary,
+  APPROVED: ApprovedMoveSummary,
+  CANCELED: CanceledMoveSummary,
+  AWARDED: SubmittedHhgMoveSummary,
+  ACCEPTED: SubmittedHhgMoveSummary,
+  COMPLETED: SubmittedHhgMoveSummary,
+};
+
+const getStatus = (moveStatus, moveType, ppm, shipment) => {
   let status = 'DRAFT';
-  if (!isEmpty(ppm)) {
+  if (moveType === 'PPM') {
     // assign the status
     const ppmStatus = get(ppm, 'status', 'DRAFT');
     status =
       moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
-  } else if (!isEmpty(shipment)) {
+  } else if (moveType === 'HHG') {
     // assign the status
     const shipmentStatus = get(shipment, 'status', 'DRAFT');
     status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED'].includes(shipmentStatus) ? shipmentStatus : 'DRAFT';
@@ -346,9 +388,9 @@ export const MoveSummary = props => {
     requestPaymentSuccess,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
-  const status = getStatus(moveStatus, ppm, shipment);
-  const StatusComponent = moveSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
-
+  const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
+  const StatusComponent =
+    move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
   return (
     <Fragment>
       {status === 'CANCELED' && (

@@ -4,7 +4,7 @@ import { get, pick } from 'lodash';
 import { SubmitForApproval } from '../Moves/ducks.js';
 import { normalize } from 'normalizr';
 import { move } from 'shared/Entities/schema';
-import { addEntities } from '../../shared/Entities/actions';
+import { addEntities } from 'shared/Entities/actions';
 
 const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
 
