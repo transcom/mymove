@@ -218,7 +218,9 @@ func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups
 	var perfs TransportationServiceProviderPerformances
 	err := db.
 		Select("traffic_distribution_list_id", "performance_period_start", "performance_period_end", "rate_cycle_start", "rate_cycle_end").
-		Where("quality_band is NULL").
+		Join("transportation_service_providers AS tsp", "tsp.id = transportation_service_provider_performances.transportation_service_provider_id").
+		Where("quality_band IS NULL").
+		Where("enrolled = true").
 		GroupBy("traffic_distribution_list_id", "performance_period_start", "performance_period_end", "rate_cycle_start", "rate_cycle_end").
 		Order("traffic_distribution_list_id, performance_period_start, rate_cycle_start").
 		All(&perfs)

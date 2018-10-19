@@ -254,6 +254,46 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 	return shipmentop.NewTransportShipmentOK().WithPayload(sp)
 }
 
+// PackShipmentHandler allows a TSP to set actual pack date for a particular shipment
+type PackShipmentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h PackShipmentHandler) Handle(params shipmentop.PackShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewPackShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewPackShipmentBadRequest()
+	}
+
+	actualPackDate := (time.Time)(*params.Payload.ActualPackDate)
+
+	err = shipment.Pack(actualPackDate)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	verrs, err := h.DB().ValidateAndUpdate(shipment)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewPackShipmentOK().WithPayload(sp)
+}
+
 // DeliverShipmentHandler allows a TSP to start transporting a particular shipment
 type DeliverShipmentHandler struct {
 	handlers.HandlerContext
@@ -522,7 +562,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	aFile, err := h.FileStorer().FileSystem().Create("some name")
+	aFile, err := h.FileStorer().FileSystem().Create(gbl.GBLNumber1)
 	if err != nil {
 		h.Logger().Error("Error creating a new afero file for GBL form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
@@ -543,7 +583,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment
-	_, verrs, err = shipment.Move.CreateMoveDocument(h.DB(),
+	doc, verrs, err := shipment.Move.CreateMoveDocument(h.DB(),
 		uploads,
 		&shipmentID,
 		models.MoveDocumentTypeGOVBILLOFLADING,
@@ -554,25 +594,24 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	url, err := uploader.PresignedURL(upload)
+
+	documentPayload, err := payloadForDocumentModel(h.FileStorer(), doc.Document)
 	if err != nil {
-		h.Logger().Error("failed to get presigned url", zap.Error(err))
+		h.Logger().Error("Error fetching document for gbl doc", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	// TODO: (andrea) Return a document payload instead, once the HHG document is defined in public swagger
-	// This one is copy pasted from internal.yaml to api.yaml :/
-	uploadPayload := &apimessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	moveDocumentPayload := &apimessages.MoveDocumentPayload{
+		ID:               handlers.FmtUUID(doc.ID),
+		ShipmentID:       handlers.FmtUUIDPtr(doc.ShipmentID),
+		Document:         documentPayload,
+		Title:            handlers.FmtStringPtr(&doc.Title),
+		MoveDocumentType: apimessages.MoveDocumentType(doc.MoveDocumentType),
+		Status:           apimessages.MoveDocumentStatus(doc.Status),
+		Notes:            handlers.FmtStringPtr(doc.Notes),
 	}
-	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(uploadPayload)
 
+	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(moveDocumentPayload)
 }
 
 // GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment

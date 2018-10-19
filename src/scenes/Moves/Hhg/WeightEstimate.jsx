@@ -3,15 +3,16 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
+import { getFormValues, change } from 'redux-form';
 
-import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
+import { getCurrentShipment, setCurrentShipmentID } from 'shared/UI/ducks';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
+import { getInternalSwaggerDefinition, getLastError } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import WeightCalculator from 'scenes/Moves/Hhg/WeightCalculator';
 
 import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
@@ -74,6 +75,12 @@ export class WeightEstimate extends Component {
       });
   };
 
+  handleEstimate = pounds => {
+    if (pounds > 0) {
+      this.props.change(formName, 'weight_estimate', pounds);
+    }
+  };
+
   render() {
     const { pages, pageKey, error, initialValues, entitlement } = this.props;
     const weight_estimate = get(this.props, 'formValues.weight_estimate');
@@ -132,24 +139,25 @@ export class WeightEstimate extends Component {
                     </a>
                   </Alert>
                 )}
-                <p className="review-todo">TODO</p>
-                <hr className="weight-estimate-hr" />
-                <SwaggerField
-                  title="Your estimated weight (in pounds):"
-                  className="weight-estimate"
-                  fieldName="weight_estimate"
-                  swagger={this.props.schema}
-                  required
-                />
-                <div className="weight-estimate-help">
-                  If you already know the weight of your stuff, type it in the box.
+                <WeightCalculator onEstimate={this.handleEstimate} />
+                <div className="weight-estimate">
+                  <hr className="weight-estimate-hr" />
+                  <SwaggerField
+                    title="Your estimated weight (in pounds):"
+                    fieldName="weight_estimate"
+                    swagger={this.props.schema}
+                    required
+                  />
+                  <div className="weight-estimate-help">
+                    If you already know the weight of your stuff, type it in the box.
+                  </div>
+                  {entitlement &&
+                    (weight_estimate && weight_estimate > entitlement.weight) && (
+                      <Alert type="warning" heading="Entitlement exceeded">
+                        You have exceeded your entitlement weight of {entitlement.weight.toLocaleString()} lbs.
+                      </Alert>
+                    )}
                 </div>
-                {entitlement &&
-                  (weight_estimate && weight_estimate > entitlement.weight) && (
-                    <Alert type="warning" heading="Entitlement exceeded">
-                      You have exceeded your entitlement weight of {entitlement.weight.toLocaleString()} lbs.
-                    </Alert>
-                  )}
               </div>
             </div>
           </div>
@@ -158,6 +166,7 @@ export class WeightEstimate extends Component {
     );
   }
 }
+
 WeightEstimate.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
@@ -165,8 +174,9 @@ WeightEstimate.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdateShipment, setCurrentShipmentID, getShipment }, dispatch);
+  return bindActionCreators({ createOrUpdateShipment, setCurrentShipmentID, getShipment, change }, dispatch);
 }
+
 function mapStateToProps(state) {
   const shipment = getCurrentShipment(state);
   const props = {

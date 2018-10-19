@@ -5,6 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
+import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
@@ -41,6 +42,7 @@ import {
   generateGBL,
   rejectShipment,
   transportShipment,
+  packShipment,
   deliverShipment,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
@@ -102,6 +104,23 @@ let PickupDateForm = props => {
 
 PickupDateForm = reduxForm({ form: 'pickup_shipment' })(PickupDateForm);
 
+let PackDateForm = props => {
+  const { schema, onCancel, handleSubmit, submitting, valid } = props;
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <SwaggerField fieldName="actual_pack_date" swagger={schema} required />
+
+      <button onClick={onCancel}>Cancel</button>
+      <button type="submit" disabled={submitting || !valid}>
+        Done
+      </button>
+    </form>
+  );
+};
+
+PackDateForm = reduxForm({ form: 'pack_date_shipment' })(PackDateForm);
+
 let DeliveryDateForm = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
@@ -133,7 +152,7 @@ class ShipmentInfo extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.shipment.id && this.props.shipment.id) {
       this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
-      this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
       this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
     }
   }
@@ -154,13 +173,22 @@ class ShipmentInfo extends Component {
 
   pickupShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
+  packShipment = values => this.props.packShipment(this.props.shipment.id, values);
+
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
     const { context, shipment, shipmentDocuments } = this.props;
-    const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
-    const shipmentId = this.props.match.params.shipmentId;
+    const {
+      service_member: serviceMember = {},
+      move = {},
+      gbl_number: gbl,
+      actual_pack_date,
+      actual_pickup_date,
+    } = shipment;
 
+    const shipmentId = this.props.match.params.shipmentId;
+    const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
@@ -195,13 +223,22 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>GBL# {gbl}&nbsp;</li>
-              <li>Locator# {move.locator}&nbsp;</li>
+              <li>
+                GBL# {gbl}
+                &nbsp;
+              </li>
+              <li>
+                Locator# {move.locator}
+                &nbsp;
+              </li>
               <li>
                 {this.props.shipment.source_gbloc} to {this.props.shipment.destination_gbloc}
                 &nbsp;
               </li>
-              <li>DoD ID# {serviceMember.edipi}&nbsp;</li>
+              <li>
+                DoD ID# {serviceMember.edipi}
+                &nbsp;
+              </li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -221,6 +258,13 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide panels-body">
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
+              {awarded && (
+                <AcceptShipmentPanel
+                  acceptShipment={this.acceptShipment}
+                  rejectShipment={this.rejectShipment}
+                  shipmentStatus={this.props.shipment.status}
+                />
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -241,21 +285,25 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {awarded && (
-                <AcceptShipmentPanel
-                  acceptShipment={this.acceptShipment}
-                  rejectShipment={this.rejectShipment}
-                  shipmentStatus={this.props.shipment.status}
-                />
-              )}
-              {approved && (
-                <FormButton
-                  FormComponent={PickupDateForm}
-                  schema={this.props.pickupSchema}
-                  onSubmit={this.pickupShipment}
-                  buttonTitle="Enter Pickup"
-                />
-              )}
+              {approved &&
+                !actual_pack_date && (
+                  <FormButton
+                    FormComponent={PackDateForm}
+                    schema={this.props.packSchema}
+                    onSubmit={this.packShipment}
+                    buttonTitle="Enter Packing"
+                  />
+                )}
+              {approved &&
+                actual_pack_date &&
+                !actual_pickup_date && (
+                  <FormButton
+                    FormComponent={PickupDateForm}
+                    schema={this.props.pickupSchema}
+                    onSubmit={this.pickupShipment}
+                    buttonTitle="Enter Pickup"
+                  />
+                )}
               {inTransit && (
                 <FormButton
                   FormComponent={DeliveryDateForm}
@@ -271,8 +319,15 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               {this.props.generateGBLSuccess && (
-                <Alert type="success" heading="Success!">
-                  GBL generated successfully.
+                <Alert type="success" heading="GBL has been created">
+                  <span className="usa-grid usa-alert-no-padding">
+                    <span className="usa-width-one-half">Click the button to view, print, or download the GBL.</span>
+                    <span className="usa-width-one-half">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                        <button>View GBL</button>
+                      </Link>
+                    </span>
+                  </span>
                 </Alert>
               )}
               <div>
@@ -285,11 +340,11 @@ class ShipmentInfo extends Component {
                 <CustomerInfo />
               </div>
               <div className="documents">
-                <h2 className="documents-list-header">
+                <h2 className="extras usa-heading">
                   Documents
                   {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                   {showDocumentViewer && (
-                    <Link to={`/shipments/${shipmentId}/documents/new`} target="_blank">
+                    <Link to={newDocumentUrl} target="_blank">
                       <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                     </Link>
                   )}
@@ -300,7 +355,12 @@ class ShipmentInfo extends Component {
                     moveDocuments={shipmentDocuments}
                   />
                 ) : (
-                  <p>No orders have been uploaded.</p>
+                  <Link className="status" to={newDocumentUrl} target="_blank">
+                    <span>
+                      <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
+                    </span>
+                    Upload new document
+                  </Link>
                 )}
               </div>
             </div>
@@ -327,8 +387,10 @@ const mapStateToProps = state => {
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
+    gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
+    packSchema: get(state, 'swaggerPublic.spec.definitions.ActualPackDate', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
 };
@@ -342,6 +404,7 @@ const mapDispatchToProps = dispatch =>
       generateGBL,
       rejectShipment,
       transportShipment,
+      packShipment,
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,

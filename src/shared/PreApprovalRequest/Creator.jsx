@@ -17,17 +17,18 @@ export class Creator extends Component {
   }
   openForm = () => {
     this.setState({ showForm: true });
-    this.props.onFormActivation(false);
+    this.props.onFormActivation(true);
   };
   closeForm = () => {
     this.setState({ showForm: false });
-    this.props.onFormActivation(true);
+    this.props.onFormActivation(false);
   };
   onSubmit = values => {
     // Convert quantity_1 to base quantity unit before hitting endpoint
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
+    values.accessorial_id = values.accessorial.id;
     this.props.savePreApprovalRequest(values);
   };
   saveAndClear = () => {
@@ -38,7 +39,7 @@ export class Creator extends Component {
   saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
-      this.props.onFormActivation(true);
+      this.props.onFormActivation(false);
     });
   };
   render() {
@@ -56,7 +57,7 @@ export class Creator extends Component {
               </p>
             </div>
 
-            <div className="usa-width-one-half">
+            <div className="usa-width-one-half align-right">
               <button
                 className="button button-secondary"
                 disabled={!this.props.formEnabled}

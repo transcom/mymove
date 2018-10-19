@@ -8,6 +8,8 @@ import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/Editable
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDate } from 'shared/formatters';
 
+import './Dates.css';
+
 const datesFields = [
   'pm_survey_conducted_date',
   'pm_survey_planned_pack_date',
@@ -50,7 +52,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
         <PanelField className="rdd" title="RDD" value={rdd && formatDate(rdd)} />
-        <PanelSwaggerField fieldName="pm_survey_notes" required title="Notes about dates" {...fieldProps} />
+        <PanelSwaggerField fieldName="pm_survey_notes" title="Notes" className="notes" {...fieldProps} />
       </div>
     </Fragment>
   );

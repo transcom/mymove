@@ -159,9 +159,9 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialTSPHandler() {
 		AccessorialID: handlers.FmtUUID(updateAcc1.ID),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
-		HTTPRequest:               req,
-		ShipmentAccessorialID:     strfmt.UUID(shipAcc1.ID.String()),
-		UpdateShipmentAccessorial: &updateShipmentAccessorial,
+		HTTPRequest:           req,
+		ShipmentAccessorialID: strfmt.UUID(shipAcc1.ID.String()),
+		Payload:               &updateShipmentAccessorial,
 	}
 
 	// And: get shipment is returned
@@ -212,9 +212,9 @@ func (suite *HandlerSuite) TestUpdateShipmentAccessorialOfficeHandler() {
 		AccessorialID: handlers.FmtUUID(updateAcc1.ID),
 	}
 	params := accessorialop.UpdateShipmentAccessorialParams{
-		HTTPRequest:               req,
-		ShipmentAccessorialID:     strfmt.UUID(shipAcc1.ID.String()),
-		UpdateShipmentAccessorial: &updateShipmentAccessorial,
+		HTTPRequest:           req,
+		ShipmentAccessorialID: strfmt.UUID(shipAcc1.ID.String()),
+		Payload:               &updateShipmentAccessorial,
 	}
 
 	// And: get shipment is returned

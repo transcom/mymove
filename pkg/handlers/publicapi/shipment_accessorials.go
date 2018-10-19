@@ -134,26 +134,7 @@ type UpdateShipmentAccessorialHandler struct {
 // Handle updates a specified shipment accessorial
 func (h UpdateShipmentAccessorialHandler) Handle(params accessorialop.UpdateShipmentAccessorialParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	shipmentID := uuid.Must(uuid.FromString(params.UpdateShipmentAccessorial.ShipmentID.String()))
 	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
-
-	// authorization
-	if session.IsTspUser() {
-		// Check that the TSP user can access the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-	} else if session.IsOfficeUser() {
-		_, err := models.FetchShipment(h.DB(), session, shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-	} else {
-		return accessorialop.NewUpdateShipmentAccessorialForbidden()
-	}
 
 	// Fetch shipment accessorial
 	shipmentAccessorial, err := models.FetchShipmentAccessorialByID(h.DB(), &shipmentAccessorialID)
@@ -162,14 +143,34 @@ func (h UpdateShipmentAccessorialHandler) Handle(params accessorialop.UpdateShip
 		return accessorialop.NewUpdateShipmentAccessorialInternalServerError()
 	}
 
-	accessorialID := uuid.Must(uuid.FromString(params.UpdateShipmentAccessorial.AccessorialID.String()))
+	// authorization
+	if session.IsTspUser() {
+		// Check that the TSP user can access the shipment
+		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentAccessorial.ShipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	} else if session.IsOfficeUser() {
+		_, err := models.FetchShipment(h.DB(), session, shipmentAccessorial.ShipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	} else {
+		return accessorialop.NewUpdateShipmentAccessorialForbidden()
+	}
+
+	accessorialID := uuid.Must(uuid.FromString(params.Payload.AccessorialID.String()))
 
 	// update
 	shipmentAccessorial.AccessorialID = accessorialID
-	shipmentAccessorial.Quantity1 = unit.BaseQuantity(*params.UpdateShipmentAccessorial.Quantity1)
-	shipmentAccessorial.Quantity2 = unit.BaseQuantity(*params.UpdateShipmentAccessorial.Quantity2)
-	shipmentAccessorial.Location = models.ShipmentAccessorialLocation(params.UpdateShipmentAccessorial.Location)
-	shipmentAccessorial.Notes = params.UpdateShipmentAccessorial.Notes
+	shipmentAccessorial.Quantity1 = unit.BaseQuantity(*params.Payload.Quantity1)
+	if params.Payload.Quantity2 != nil {
+		shipmentAccessorial.Quantity2 = unit.BaseQuantity(*params.Payload.Quantity2)
+	}
+	shipmentAccessorial.Location = models.ShipmentAccessorialLocation(params.Payload.Location)
+	shipmentAccessorial.Notes = params.Payload.Notes
 
 	verrs, err := h.DB().ValidateAndUpdate(&shipmentAccessorial)
 	if verrs.HasAny() || err != nil {
@@ -234,7 +235,8 @@ func (h DeleteShipmentAccessorialHandler) Handle(params accessorialop.DeleteShip
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	return accessorialop.NewDeleteShipmentAccessorialOK()
+	payload := payloadForShipmentAccessorialModel(&shipmentAccessorial)
+	return accessorialop.NewDeleteShipmentAccessorialOK().WithPayload(payload)
 }
 
 // ApproveShipmentAccessorialHandler returns a particular shipment

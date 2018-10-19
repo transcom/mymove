@@ -44,6 +44,7 @@
 
 .cancel-link {
   padding: 1em;
+  cursor: pointer;
 }
 .accessorial-panel th,
 .accessorial-panel td {
@@ -84,12 +85,20 @@
   padding-bottom: 9px;
 }
 
+.accessorial-edit {
+  background-color: #F6FDFE;
+}
+
 .accessorial-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;
 }
 .accessorial-panel .align-right {
   text-align: right !important;
+}
+
+.accessorial-form {
+  font-size: inherit !important;
 }
 
 .cancel button {
@@ -133,6 +142,35 @@
 .bq-explanation li {
   line-height: 1.5em;
   margin: 0rem 0rem 0rem 0rem;
+}
+
+tr.delete-active {
+  border-top: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  border-bottom: 2px solid #6BD7F4;
+  background-color: #D3F3FA;
+}
+
+tr.delete-active td {
+  background-color: transparent;
+}
+
+tr.delete-confirm-row td.delete-confirm {
+  border-bottom: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  background-color: #F6FDFE;
+
+  display: table-cell;
+  border-collapse: collapse;
+
+  padding: 0;
+  font-size: 1em;
+}
+
+td.delete-confirm strong {
+  margin: 0 5%;
 }
 
 .tariff400__control {

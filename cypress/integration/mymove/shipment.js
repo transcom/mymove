@@ -97,6 +97,16 @@ describe('completing the hhg flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-weight/);
     });
 
+    // Weight calculator
+    cy
+      .get('input[name="rooms"]')
+      .clear()
+      .type('9');
+
+    cy.get('select[name="stuff"]').select('more');
+
+    cy.get('input[name="weight_estimate"]').should('have.value', '13500');
+
     // Weight over entitlement
     cy
       .get('input[name="weight_estimate"]')
@@ -149,6 +159,6 @@ describe('completing the hhg flow', function() {
     // Status summary page
     cy.nextPage();
     cy.contains('Success');
-    cy.contains('Next Step: Awaiting approval');
+    cy.contains('Government Movers and Packers');
   });
 });
