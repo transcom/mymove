@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -76,6 +77,16 @@ type errInvalidStatusCode struct {
 
 func (e *errInvalidStatusCode) Error() string {
 	return "invalid status code " + strconv.Itoa(e.Code)
+}
+
+type errHealthCheck struct {
+	URL        string
+	StatusCode int
+	Tries      int
+}
+
+func (e *errHealthCheck) Error() string {
+	return "request to url " + e.URL + " returned invalid status code " + strconv.Itoa(e.StatusCode) + " after " + strconv.Itoa(e.Tries) + " tries"
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -177,7 +188,7 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSki
 	return tlsConfig, nil
 }
 
-func createHTTPClient(v *viper.Viper, log *zap.Logger) (*http.Client, error) {
+func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) {
 
 	verbose := v.GetBool("verbose")
 
@@ -187,7 +198,7 @@ func createHTTPClient(v *viper.Viper, log *zap.Logger) (*http.Client, error) {
 
 	if verbose {
 		if skipVerify {
-			log.Info("Skipping client-side certificate validation")
+			logger.Info("Skipping client-side certificate validation")
 		}
 	}
 
@@ -258,13 +269,13 @@ func createHTTPClient(v *viper.Viper, log *zap.Logger) (*http.Client, error) {
 
 }
 
-func checkURL(httpClient *http.Client, url string, validStatusCodes intSlice, maxTries int, backoff int, log *zap.Logger) error {
+func checkURL(httpClient *http.Client, url string, validStatusCodes intSlice, maxTries int, backoff int, logger *zap.Logger) error {
 	for tries := 0; tries < maxTries; tries++ {
 		resp, err := httpClient.Get(url)
 		if err != nil {
 			return errors.Wrap(err, "error calling GET on url "+url)
 		}
-		log.Info(
+		logger.Info(
 			"HTTP GET request completed",
 			zap.Int("try", tries),
 			zap.String("url", url),
@@ -274,15 +285,11 @@ func checkURL(httpClient *http.Client, url string, validStatusCodes intSlice, ma
 		} else {
 			if tries < maxTries-1 {
 				sleepPeriod := time.Duration((tries+1)*backoff) * time.Second
-				log.Info("sleeping", zap.Duration("period", sleepPeriod))
+				logger.Info("sleeping", zap.Duration("period", sleepPeriod))
 				time.Sleep(sleepPeriod)
 				continue
 			}
-			log.Fatal(
-				"request returned invalid status code on last try",
-				zap.String("url", url),
-				zap.Int("maxTries", maxTries),
-				zap.Int("code", resp.StatusCode))
+			return &errHealthCheck{URL: url, StatusCode: resp.StatusCode, Tries: maxTries}
 		}
 	}
 	return nil
@@ -304,7 +311,8 @@ func createLogger(env string, level string) (*zap.Logger, error) {
 	}
 	loggerConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	loggerConfig.Level = atomicLevel
-	return loggerConfig.Build()
+	loggerConfig.DisableStacktrace = true
+	return loggerConfig.Build(zap.AddStacktrace(zap.ErrorLevel))
 }
 
 func main() {
@@ -324,6 +332,7 @@ func main() {
 	flag.Bool("skip-verify", false, "skip certifiate validation")
 	flag.Int("tries", 5, "number of tries")
 	flag.Int("backoff", 1, "backoff in seconds")
+	flag.Bool("exit-on-error", false, "exit on first health check error")
 	flag.String("log-env", "development", "logging config: development or production")
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")
 
@@ -335,7 +344,7 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	log, err := createLogger(v.GetString("log-env"), v.GetString("log-level"))
+	logger, err := createLogger(v.GetString("log-env"), v.GetString("log-level"))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -344,13 +353,13 @@ func main() {
 	if err != nil {
 		switch e := err.(type) {
 		case *errInvalidPath:
-			log.Fatal(e.Error(), zap.String("path", e.Path))
+			logger.Fatal(e.Error(), zap.String("path", e.Path))
 		case *errInvalidScheme:
-			log.Fatal(e.Error(), zap.String("scheme", e.Scheme))
+			logger.Fatal(e.Error(), zap.String("scheme", e.Scheme))
 		case *errInvalidStatusCode:
-			log.Fatal(e.Error(), zap.Int("code", e.Code))
+			logger.Fatal(e.Error(), zap.Int("code", e.Code))
 		}
-		log.Fatal(err.Error())
+		logger.Fatal(err.Error())
 	}
 
 	verbose := v.GetBool("verbose")
@@ -359,27 +368,56 @@ func main() {
 	paths := strings.Split(strings.TrimSpace(v.GetString("paths")), ",")
 	statusCodes, _ := stringSliceToIntSlice(strings.Split(strings.TrimSpace(v.GetString("status-codes")), ","))
 
-	httpClient, err := createHTTPClient(v, log)
+	httpClient, err := createHTTPClient(v, logger)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "error creating http client").Error())
+		logger.Fatal(errors.Wrap(err, "error creating http client").Error())
 	}
 
 	maxTries := v.GetInt("tries")
 	backoff := v.GetInt("backoff")
+	exitOnError := v.GetBool("exit-on-error")
 
+	healthCheckErrors := make([]error, 0)
 	for _, scheme := range schemes {
 		for _, host := range hosts {
 			for _, path := range paths {
 				url := scheme + "://" + host + path
 				if verbose {
-					log.Info("checking url", zap.String("url", url))
+					logger.Info("checking url", zap.String("url", url))
 				}
-				err := checkURL(httpClient, url, statusCodes, maxTries, backoff, log)
+				err := checkURL(httpClient, url, statusCodes, maxTries, backoff, logger)
 				if err != nil {
-					log.Fatal(err.Error())
+					if exitOnError {
+						switch e := err.(type) {
+						case *errHealthCheck:
+							logger.Fatal(
+								"health check failed",
+								zap.String("url", e.URL),
+								zap.Int("statusCode", e.StatusCode),
+								zap.Int("tries", e.Tries))
+						default:
+							logger.Fatal(err.Error())
+						}
+					} else {
+						switch e := err.(type) {
+						case *errHealthCheck:
+							logger.Warn(
+								"health check failed",
+								zap.String("url", e.URL),
+								zap.Int("statusCode", e.StatusCode),
+								zap.Int("tries", e.Tries))
+						default:
+							logger.Warn(err.Error())
+						}
+						healthCheckErrors = append(healthCheckErrors, err)
+					}
 				}
 			}
 		}
+	}
+
+	if len(healthCheckErrors) > 0 {
+		os.Exit(1)
 	}
 
 }
