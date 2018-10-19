@@ -159,7 +159,7 @@ function tspUserEntersDates() {
   cy.get('div.original_delivery_date').contains('15-May-19');
   cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
   cy.get('div.actual_delivery_date').contains('08-Oct-18');
-  cy.get('div.rdd').contains('08-Oct-18');
+  cy.get('div.rdd').contains('07-Oct-18');
 
   // Notes
   cy
@@ -299,7 +299,7 @@ function tspUserEntersAndRemovesDates() {
   cy.get('div.original_delivery_date').contains('15-May-19');
   cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
   cy.get('div.actual_delivery_date').contains('08-Oct-18');
-  cy.get('div.rdd').contains('08-Oct-18');
+  cy.get('div.rdd').contains('07-Oct-18');
   cy.get('div.pm_survey_notes').contains('Notes notes notes for dates');
 
   // Now remove all the dates
