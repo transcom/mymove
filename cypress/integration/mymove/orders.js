@@ -7,7 +7,7 @@ describe('orders entry', function() {
 
   it('will accept orders information', function() {
     createServiceMember().then(() => cy.visit('/'));
-    cy.contains('New move from Ft Carson');
+    cy.contains('New move (from Ft Carson)');
     cy.contains('No detail');
     cy.contains('No documents');
     cy.contains('Continue Move Setup').click();
@@ -46,7 +46,7 @@ describe('orders entry', function() {
     });
 
     cy.visit('/');
-    cy.contains('NAS Fort Worth from Ft Carson');
+    cy.contains('NAS Fort Worth (from Ft Carson)');
     cy.get('.whole_box > :nth-child(3) > span').contains('7,000 lbs');
     cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {

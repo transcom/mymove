@@ -6,12 +6,13 @@ describe('TSP User Ships a Shipment', function() {
     cy.signIntoTSP();
   });
   it('tsp user Picks Up a shipment', function() {
+    tspUserPacksShipment();
     tspUserPicksUpShipment();
     tspUserDeliversShipment();
   });
 });
 
-function tspUserPicksUpShipment() {
+function tspUserPacksShipment() {
   // Open approved shipments queue
   cy
     .get('div')
@@ -28,6 +29,73 @@ function tspUserPicksUpShipment() {
     .contains('SHIPME')
     .dblclick();
 
+  // Click the Pack button
+  cy
+    .get('div')
+    .contains('Enter Packing')
+    .click();
+
+  // Done button should be disabled.
+  cy
+    .get('button')
+    .contains('Done')
+    .should('be.disabled');
+
+  // Pick a date!
+  cy
+    .get('div')
+    .contains('Actual Pack Date')
+    .get('input')
+    .click();
+
+  cy
+    .get('div.DayPicker-Month')
+    .contains('10')
+    .click();
+
+  // Cancel
+  cy
+    .get('button')
+    .contains('Cancel')
+    .click();
+
+  // Check that the date doesn't appear in dates panel
+  cy.get('div.actual_pack_date').contains('missing');
+
+  // Wash, Rinse, Repeat
+  // Click the Pack button
+  cy
+    .get('div')
+    .contains('Enter Packing')
+    .click();
+
+  // Done button should be disabled.
+  cy
+    .get('button')
+    .contains('Done')
+    .should('be.disabled');
+
+  // Pick a date!
+  cy
+    .get('div')
+    .contains('Actual Pack Date')
+    .get('input')
+    .click();
+
+  cy
+    .get('div.DayPicker-Month')
+    .contains('10')
+    .click();
+
+  cy
+    .get('button')
+    .contains('Done')
+    .click();
+
+  // Appears in dates panel
+  cy.get('div.actual_pack_date').contains('10');
+}
+function tspUserPicksUpShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });

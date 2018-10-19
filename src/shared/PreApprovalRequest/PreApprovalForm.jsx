@@ -22,7 +22,7 @@ export class Tariff400ngItemSearch extends Component {
 
   localOnChange(value) {
     if (value && value.id) {
-      this.props.input.onChange(value.id);
+      this.props.input.onChange(value);
       return value.id;
     } else {
       this.props.input.onChange(null);
@@ -42,6 +42,7 @@ export class Tariff400ngItemSearch extends Component {
           className="tariff400-select"
           classNamePrefix="tariff400"
           filterOption={filterOption}
+          defaultValue={this.props.meta.initial}
         />
       </Fragment>
     );
@@ -56,7 +57,7 @@ export class PreApprovalForm extends Component {
           <div className="usa-width-one-half">
             <div className="tariff400-select">
               <Field
-                name="accessorial_id"
+                name="accessorial"
                 title="Code & Item"
                 component={Tariff400ngItemSearch}
                 tariff400ngItems={this.props.tariff400ngItems}

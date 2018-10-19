@@ -4,16 +4,17 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
+
 import { MoveSummary } from './MoveSummary';
-
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-
+import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
+
 export class Landing extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
@@ -84,6 +85,7 @@ export class Landing extends Component {
       orders,
       move,
       ppm,
+      currentShipment,
       requestPaymentSuccess,
     } = this.props;
     return (
@@ -119,6 +121,7 @@ export class Landing extends Component {
                   orders={orders}
                   move={move}
                   ppm={ppm}
+                  shipment={currentShipment}
                   editMove={this.editMove}
                   resumeMove={this.resumeMove}
                   reviewProfile={this.reviewProfile}
@@ -132,28 +135,33 @@ export class Landing extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  lastMoveIsCanceled: lastMoveIsCanceled(state),
-  selectedMoveType: selectedMoveType(state),
-  isLoggedIn: state.user.isLoggedIn,
-  isProfileComplete: isProfileComplete(state),
-  serviceMember: state.serviceMember.currentServiceMember || {},
-  backupContacts: state.serviceMember.currentBackupContacts || [],
-  orders: state.orders.currentOrders || {},
-  move: state.moves.currentMove || state.moves.latestMove || {},
-  ppm: state.ppm.currentPpm || {},
-  loggedInUser: state.loggedInUser.loggedInUser,
-  loggedInUserIsLoading: state.loggedInUser.isLoading,
-  loggedInUserError: state.loggedInUser.error,
-  loggedInUserSuccess: state.loggedInUser.hasSucceeded,
-  createdServiceMemberIsLoading: state.serviceMember.isLoading,
-  createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
-  createdServiceMemberError: state.serviceMember.error,
-  createdServiceMember: state.serviceMember.currentServiceMember,
-  moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
-  entitlement: loadEntitlementsFromState(state),
-  requestPaymentSuccess: state.ppm.requestPaymentSuccess,
-});
+const mapStateToProps = state => {
+  const shipment = getCurrentShipment(state);
+  const props = {
+    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    selectedMoveType: selectedMoveType(state),
+    isLoggedIn: state.user.isLoggedIn,
+    isProfileComplete: isProfileComplete(state),
+    serviceMember: state.serviceMember.currentServiceMember || {},
+    backupContacts: state.serviceMember.currentBackupContacts || [],
+    orders: state.orders.currentOrders || {},
+    move: state.moves.currentMove || state.moves.latestMove || {},
+    ppm: state.ppm.currentPpm || {},
+    currentShipment: shipment || {},
+    loggedInUser: state.loggedInUser.loggedInUser,
+    loggedInUserIsLoading: state.loggedInUser.isLoading,
+    loggedInUserError: state.loggedInUser.error,
+    loggedInUserSuccess: state.loggedInUser.hasSucceeded,
+    createdServiceMemberIsLoading: state.serviceMember.isLoading,
+    createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
+    createdServiceMemberError: state.serviceMember.error,
+    createdServiceMember: state.serviceMember.currentServiceMember,
+    moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
+    entitlement: loadEntitlementsFromState(state),
+    requestPaymentSuccess: state.ppm.requestPaymentSuccess,
+  };
+  return props;
+};
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, loadLoggedInUser }, dispatch);

@@ -1254,6 +1254,17 @@ definitions:
       DELIVERED: Delivered
       COMPLETED: Completed
       CANCELED: Canceled
+  ActualPackDate:
+    type: object
+    properties:
+      actual_pack_date:
+        type: string
+        format: date
+        example: '2018-04-02'
+        title: Actual Pack Date
+        x-nullable: true
+    required:
+      - actual_pack_date
   ActualPickupDate:
     type: object
     properties:
@@ -1949,10 +1960,46 @@ paths:
             $ref: '#/definitions/Shipment'
         500:
           description: server error
+  /shipments/{shipmentId}/pack:
+    post:
+      summary: Updates the pack date of the shipment
+      description: Updates the pack date of the shipment.
+      operationId: packShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/ActualPackDate'
+      responses:
+        200:
+          description: returns updated shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
   /shipments/{shipmentId}/transport:
     post:
       summary: Places an accepted shipment into transit state
-      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT.
+      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT and the pickup date will be set.
       operationId: transportShipment
       tags:
         - shipments
@@ -2094,7 +2141,7 @@ paths:
         201:
           description: successfully created GBL move document for shipment
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
         400:
           description: invalid request
         401:
@@ -2180,7 +2227,7 @@ paths:
           required: true
           description: UUID of the shipment accessorial model
         - in: body
-          name: updateShipmentAccessorial
+          name: payload
           required: true
           schema:
             $ref: '#/definitions/ShipmentAccessorial'

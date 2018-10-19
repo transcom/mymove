@@ -44,6 +44,7 @@
 
 .cancel-link {
   padding: 1em;
+  cursor: pointer;
 }
 .accessorial-panel th,
 .accessorial-panel td {
@@ -84,12 +85,20 @@
   padding-bottom: 9px;
 }
 
+.accessorial-edit {
+  background-color: #F6FDFE;
+}
+
 .accessorial-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;
 }
 .accessorial-panel .align-right {
   text-align: right !important;
+}
+
+.accessorial-form {
+  font-size: inherit !important;
 }
 
 .cancel button {

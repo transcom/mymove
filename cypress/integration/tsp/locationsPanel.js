@@ -122,6 +122,11 @@ function tspUserEntersLocations() {
     state: 'NJ',
     postal_code: '66666',
   };
+  const newDutyStation = {
+    city: 'Beverly Hills',
+    state: 'CA',
+    postal_code: '90210',
+  };
 
   // Open new shipments queue
   cy.location().should(loc => {
@@ -146,80 +151,86 @@ function tspUserEntersLocations() {
 
   // Enter details in form and save locations
   cy
-    .get('input[name="pickupAddress.street_address_1"]')
+    .get('input[name="pickup_address.street_address_1"]')
     .first()
     .clear()
     .type(pickupAddress.street_1)
     .blur();
   cy
-    .get('input[name="pickupAddress.city"]')
+    .get('input[name="pickup_address.city"]')
     .first()
     .clear()
     .type(pickupAddress.city)
     .blur();
   cy
-    .get('input[name="pickupAddress.state"]')
+    .get('input[name="pickup_address.state"]')
     .first()
     .clear()
     .type(pickupAddress.state)
     .blur();
   cy
-    .get('input[name="pickupAddress.postal_code"]')
+    .get('input[name="pickup_address.postal_code"]')
     .first()
     .clear()
     .type(pickupAddress.postal_code)
     .blur();
 
-  // Secondary Pickup Address isn't actually required, so please remove later.
+  // Set Secondary Pickup Address to required.
   cy
-    .get('input[name="secondaryPickupAddress.street_address_1"]')
+    .get('label[for="has_secondary_pickup_address"]')
+    .siblings()
+    .get('[type="radio"]')
+    .first()
+    .check({ force: true });
+  cy
+    .get('input[name="secondary_pickup_address.street_address_1"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.street_1)
     .blur();
   cy
-    .get('input[name="secondaryPickupAddress.street_address_2"]')
+    .get('input[name="secondary_pickup_address.street_address_2"]')
     .first()
     .clear();
   cy
-    .get('input[name="secondaryPickupAddress.city"]')
+    .get('input[name="secondary_pickup_address.city"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.city)
     .blur();
   cy
-    .get('input[name="secondaryPickupAddress.state"]')
+    .get('input[name="secondary_pickup_address.state"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.state)
     .blur();
   cy
-    .get('input[name="secondaryPickupAddress.postal_code"]')
+    .get('input[name="secondary_pickup_address.postal_code"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.postal_code)
     .blur();
 
   cy
-    .get('input[name="deliveryAddress.street_address_1"]')
+    .get('input[name="delivery_address.street_address_1"]')
     .first()
     .clear()
     .type(deliveryAddress.street_1)
     .blur();
   cy
-    .get('input[name="deliveryAddress.city"]')
+    .get('input[name="delivery_address.city"]')
     .first()
     .clear()
     .type(deliveryAddress.city)
     .blur();
   cy
-    .get('input[name="deliveryAddress.state"]')
+    .get('input[name="delivery_address.state"]')
     .first()
     .clear()
     .type(deliveryAddress.state)
     .blur();
   cy
-    .get('input[name="deliveryAddress.postal_code"]')
+    .get('input[name="delivery_address.postal_code"]')
     .first()
     .clear()
     .type(deliveryAddress.postal_code)
@@ -285,6 +296,49 @@ function tspUserEntersLocations() {
           expect(text).to.include(
             `${secondaryPickupAddress.city}, ${secondaryPickupAddress.state} ${secondaryPickupAddress.postal_code}`,
           );
+        });
+    });
+  cy
+    .get('.editable-panel-header')
+    .contains('Locations')
+    .siblings()
+    .click();
+
+  // Click every radio button, which means you'll end up with two 'No's selected
+  cy
+    .get('[type="radio"]')
+    .eq(1)
+    .check({ force: true });
+  cy
+    .get('[type="radio"]')
+    .eq(3)
+    .check({ force: true });
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  // Refresh browser and make sure changes persist
+  cy.reload();
+
+  cy
+    .contains('Locations')
+    .parents('.editable-panel')
+    .within(() => {
+      cy
+        .contains('Delivery')
+        .parent('.editable-panel-column')
+        .children('.panel-field')
+        .children('.field-value')
+        .should($div => {
+          const text = $div.text();
+          expect(text).to.include(`${newDutyStation.city}, ${newDutyStation.state} ${newDutyStation.postal_code}`);
         });
     });
 }

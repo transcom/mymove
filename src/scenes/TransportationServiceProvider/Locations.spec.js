@@ -4,34 +4,32 @@ import { AddressElementDisplay } from 'shared/Address';
 import { LocationsDisplay } from './Locations';
 
 const defaultProps = {
-  deliveryAddress: {},
-  shipment: {
-    delivery_address: {},
-    pickup_address: {},
-    has_delivery_address: false,
-    service_member: { current_station: { address: {} } },
-  },
   addressSchema: {},
+  schema: {},
 };
 describe('Locations component test', () => {
   describe('when LocationsDisplay is provided pickup and delivery address', () => {
-    const shipment = {
-      ...defaultProps.shipment,
-      pickup_address: {
-        street_address_1: '123 Disney Rd',
-        city: 'Los Angeles',
-        state: 'CA',
-        postal_code: '90210',
-      },
-      has_delivery_address: true,
-      delivery_address: {
-        street_address_1: '560 State Street',
-        city: 'New York',
-        state: 'NY',
-        postal_code: '094321',
+    const props = {
+      ...defaultProps,
+      shipment: {
+        pickup_address: {
+          street_address_1: '123 Disney Rd',
+          city: 'Los Angeles',
+          state: 'CA',
+          postal_code: '90210',
+        },
+        has_delivery_address: true,
+        has_secondary_pickup_address: false,
+        delivery_address: {
+          street_address_1: '560 State Street',
+          city: 'New York',
+          state: 'NY',
+          postal_code: '094321',
+        },
       },
     };
-    const wrapper = shallow(<LocationsDisplay shipment={shipment} deliveryAddress={shipment.delivery_address} />);
+
+    const wrapper = shallow(<LocationsDisplay {...props} />);
     it('should render 2 headers', () => {
       const headers = wrapper.find('.column-subhead');
       expect(headers.length).toBe(2);
@@ -54,27 +52,25 @@ describe('Locations component test', () => {
     });
   });
   describe('when LocationsDisplay is provided pickup and no delivery address it defaults to duty station', () => {
-    const shipment = {
-      ...defaultProps.shipment,
-      pickup_address: {
-        street_address_1: '123 Disney Rd',
-        city: 'Los Angeles',
-        state: 'CA',
-        postal_code: '90210',
-      },
-      move: {
-        new_duty_station: {
-          address: {
-            city: 'San Diego',
-            state: 'CA',
-            postal_code: '92104',
-          },
+    const props = {
+      ...defaultProps,
+      shipment: {
+        pickup_address: {
+          street_address_1: '123 Disney Rd',
+          city: 'Los Angeles',
+          state: 'CA',
+          postal_code: '90210',
         },
+        has_delivery_address: false,
+        has_secondary_pickup_address: false,
+      },
+      newDutyStation: {
+        city: 'San Diego',
+        state: 'CA',
+        postal_code: '92104',
       },
     };
-    const wrapper = shallow(
-      <LocationsDisplay deliveryAddress={shipment.move.new_duty_station.address} shipment={shipment} />,
-    );
+    const wrapper = shallow(<LocationsDisplay {...props} />);
     const AddressElement = wrapper.find(AddressElementDisplay);
 
     it('should still render 2 AddressElementDisplays', () => {
