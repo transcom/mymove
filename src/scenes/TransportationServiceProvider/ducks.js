@@ -379,11 +379,12 @@ export function tspReducer(state = initialState, action) {
         gblDocUrl: null,
       });
     case GENERATE_GBL.success:
+      const gblDocumentUrl = '/shipments/' + action.payload.shipment_id + '/documents/' + action.payload.id;
       return Object.assign({}, state, {
         generateGBLSuccess: true,
         generateGBLError: false,
         generateGBLInProgress: false,
-        gblDocUrl: action.payload.url,
+        gblDocUrl: gblDocumentUrl,
       });
     case GENERATE_GBL.failure:
       return Object.assign({}, state, {

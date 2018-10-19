@@ -541,7 +541,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment
-	_, verrs, err = shipment.Move.CreateMoveDocument(h.DB(),
+	doc, verrs, err := shipment.Move.CreateMoveDocument(h.DB(),
 		uploads,
 		&shipmentID,
 		models.MoveDocumentTypeGOVBILLOFLADING,
@@ -552,25 +552,24 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	url, err := uploader.PresignedURL(upload)
+
+	documentPayload, err := payloadForDocumentModel(h.FileStorer(), doc.Document)
 	if err != nil {
-		h.Logger().Error("failed to get presigned url", zap.Error(err))
+		h.Logger().Error("Error fetching document for gbl doc", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	// TODO: (andrea) Return a document payload instead, once the HHG document is defined in public swagger
-	// This one is copy pasted from internal.yaml to api.yaml :/
-	uploadPayload := &apimessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	moveDocumentPayload := &apimessages.MoveDocumentPayload{
+		ID:               handlers.FmtUUID(doc.ID),
+		ShipmentID:       handlers.FmtUUIDPtr(doc.ShipmentID),
+		Document:         documentPayload,
+		Title:            handlers.FmtStringPtr(&doc.Title),
+		MoveDocumentType: apimessages.MoveDocumentType(doc.MoveDocumentType),
+		Status:           apimessages.MoveDocumentStatus(doc.Status),
+		Notes:            handlers.FmtStringPtr(doc.Notes),
 	}
-	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(uploadPayload)
 
+	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(moveDocumentPayload)
 }
 
 // GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment

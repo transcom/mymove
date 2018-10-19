@@ -2094,7 +2094,7 @@ paths:
         201:
           description: successfully created GBL move document for shipment
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
         400:
           description: invalid request
         401:
