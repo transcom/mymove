@@ -54,9 +54,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
         {/* TODO: cgilmer 2018/10/15 - replace ORIGINAL with original_delivery_date */}
         <PanelField className="rdd" title="Current RDD" value={(rdd && formatDate(rdd)) || 'ORIGINAL'} />
-        <div className="notes">
-          <PanelSwaggerField fieldName="pm_survey_notes" title="Notes" {...fieldProps} />
-        </div>
+        <PanelSwaggerField fieldName="pm_survey_notes" title="Notes" className="notes" {...fieldProps} />
       </div>
     </Fragment>
   );
