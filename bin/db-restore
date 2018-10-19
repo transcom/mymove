@@ -1,0 +1,24 @@
+#!/bin/bash
+# Restore the contents of the development database from an earlier dump.
+
+set -eu -o pipefail
+
+export DB_NAME=dev_db
+export PGPASSWORD="mysecretpassword"
+
+readonly name=${1:-}
+if [[ -z "$name" ]]; then
+  echo "usage: $0 <name of dump to restore>"
+  exit 1
+fi
+
+readonly path="tmp/db/$name"
+if [[ ! -f "$path" ]]; then
+  echo "No dump found with name '$name'. Available dumps are:"
+  # shellcheck disable=SC2012
+  ls -lctohT tmp/db | awk '{printf "%20s %6s %5s %2s %s\n", $9, $4, $5, $6, $7, $8}'
+  echo
+  exit 1
+fi
+
+psql -h localhost -U postgres -q < "$path" > /dev/null

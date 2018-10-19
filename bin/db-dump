@@ -1,0 +1,16 @@
+#!/bin/bash
+# Dump the contents of the development database for later restore.
+
+set -eu -o pipefail
+
+export DB_NAME=dev_db
+export PGPASSWORD="mysecretpassword"
+
+readonly name=${1:-}
+if [[ -z "$name" ]]; then
+  echo "usage: $0 <name for dump>"
+  exit 1
+fi
+
+mkdir -p tmp/db
+pg_dump -h localhost -U postgres -c dev_db > "tmp/db/$name"
