@@ -78,9 +78,9 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		// Sets headers to prevent rendering our page in an iframe, prevents clickjacking
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-		w.Header().Set("X-Frame-Options", "deny")
+		w.Header().Set("X-Frame-Options", "self")
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		inner.ServeHTTP(w, r)
