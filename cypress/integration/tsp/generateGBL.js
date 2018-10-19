@@ -55,6 +55,8 @@ function tspUserGeneratesGBL() {
   // timeout.
   cy.get('.usa-alert-success', { timeout: 20000 }).contains('GBL has been created');
 
+  cy.get('.usa-alert-success').contains('Click the button to view, print, or download the GBL.');
+
   cy
     .get('button')
     .contains('View GBL')
