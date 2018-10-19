@@ -27,11 +27,8 @@ const DatesDisplay = props => {
     schema: props.shipmentSchema,
     values: props.shipment,
   };
-  // RDD is the best known date, so it prefers actual over planned over original.
-  const rdd =
-    props.shipment.actual_delivery_date ||
-    props.shipment.pm_survey_planned_delivery_date ||
-    props.shipment.original_delivery_date;
+  // RDD is the best known date, so it prefers planned over original but does not include actual.
+  const rdd = props.shipment.pm_survey_planned_delivery_date || props.shipment.original_delivery_date;
   return (
     <Fragment>
       <div className="editable-panel-column">
@@ -52,7 +49,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField fieldName="original_delivery_date" title="Original" {...fieldProps} />
         <PanelSwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
-        <PanelField className="rdd" title="Current RDD" value={rdd && formatDate(rdd)} />
+        <PanelField className="rdd" title="RDD" value={rdd && formatDate(rdd)} />
         <PanelSwaggerField fieldName="pm_survey_notes" required title="Notes about dates" {...fieldProps} />
       </div>
     </Fragment>
@@ -65,11 +62,8 @@ const DatesEdit = props => {
     schema,
     values: props.shipment,
   };
-  // RDD is the best known date, so it prefers actual over planned over original.
-  const rdd =
-    props.shipment.actual_delivery_date ||
-    props.shipment.pm_survey_planned_delivery_date ||
-    props.shipment.original_delivery_date;
+  // RDD is the best known date, so it prefers planned over original but does not include actual.
+  const rdd = props.shipment.pm_survey_planned_delivery_date || props.shipment.original_delivery_date;
   return (
     <Fragment>
       <FormSection name="dates">
@@ -91,7 +85,7 @@ const DatesEdit = props => {
           <PanelSwaggerField fieldName="original_delivery_date" title="Original" {...fieldProps} />
           <SwaggerField fieldName="pm_survey_planned_delivery_date" title="Planned" swagger={schema} />
           <SwaggerField fieldName="actual_delivery_date" title="Actual" swagger={schema} />
-          <PanelField className="rdd" title="Current RDD" value={rdd && formatDate(rdd)} />
+          <PanelField className="rdd" title="RDD" value={rdd && formatDate(rdd)} />
           <SwaggerField fieldName="pm_survey_notes" title="Notes about dates" swagger={schema} />
         </div>
       </FormSection>
