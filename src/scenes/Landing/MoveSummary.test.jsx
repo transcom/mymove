@@ -60,7 +60,7 @@ describe('MoveSummary', () => {
   });
   describe('when a move is in submitted state', () => {
     it('renders submitted content', () => {
-      const moveObj = { status: 'SUBMITTED' };
+      const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
@@ -76,9 +76,10 @@ describe('MoveSummary', () => {
         editMoveFn,
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
-      expect(subComponent).not.toBeNull();
+      expect(subComponent.find(SubmittedPpmMoveSummary).length).toBe(1);
       expect(
         subComponent
+          .find(SubmittedPpmMoveSummary)
           .dive()
           .find('.step')
           .find('div.title')
@@ -89,7 +90,7 @@ describe('MoveSummary', () => {
   });
   describe('when a move is in approved state but ppm is submitted state', () => {
     it('renders submitted rather than approved content', () => {
-      const moveObj = { status: 'APPROVED' };
+      const moveObj = { selected_move_type: 'PPM', status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
@@ -106,9 +107,10 @@ describe('MoveSummary', () => {
         editMoveFn,
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
-      expect(subComponent).not.toBeNull();
+      expect(subComponent.find(SubmittedPpmMoveSummary).length).toBe(1);
       expect(
         subComponent
+          .find(SubmittedPpmMoveSummary)
           .dive()
           .find('.step')
           .find('div.title')
