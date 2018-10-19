@@ -133,7 +133,7 @@ class ShipmentInfo extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.shipment.id && this.props.shipment.id) {
       this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
-      this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
       this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
     }
   }
@@ -271,8 +271,15 @@ class ShipmentInfo extends Component {
                 </Alert>
               )}
               {this.props.generateGBLSuccess && (
-                <Alert type="success" heading="Success!">
-                  GBL generated successfully.
+                <Alert type="success" heading="GBL has been created">
+                  <span className="usa-grid usa-alert-no-padding">
+                    <span className="usa-width-one-half">Click the button to view, print, or download the GBL.</span>
+                    <span className="usa-width-one-half">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                        <button>View GBL</button>
+                      </Link>
+                    </span>
+                  </span>
                 </Alert>
               )}
               <div>
@@ -327,6 +334,7 @@ const mapStateToProps = state => {
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
+    gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
     pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),

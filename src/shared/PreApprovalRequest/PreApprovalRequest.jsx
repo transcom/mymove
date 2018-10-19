@@ -4,13 +4,12 @@ import PropTypes from 'prop-types';
 import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
 import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
+import Editor from 'shared/PreApprovalRequest/Editor.jsx';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
-import Editor from 'shared/PreApprovalRequest/Editor.jsx';
-
-export function renderActionIcons(status, onEdit, onApproval, onDelete) {
+export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentAccessorialId) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
   //TODO: hiding edit action until we have implementation
@@ -18,7 +17,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete) {
     <Fragment>
       {onApproval &&
         status === 'SUBMITTED' && (
-          <span data-test="approve-request" onClick={onApproval}>
+          <span data-test="approve-request" onClick={() => onApproval(shipmentAccessorialId)}>
             <FontAwesomeIcon className="icon actionable" icon={faCheck} />
           </span>
         )}

@@ -121,7 +121,7 @@ class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
-    this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+    this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
   }
 
   componentDidUpdate(prevProps) {
