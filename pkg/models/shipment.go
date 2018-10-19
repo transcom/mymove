@@ -182,6 +182,16 @@ func (s *Shipment) Transport(actualPickupDate time.Time) error {
 	return nil
 }
 
+// Pack updates the Shipment actual pack date. Must be in an Approved state.
+// TODO: cgilmer 2018/10/18 - fold this into the Transport() state change when the fields are merged in the UI
+func (s *Shipment) Pack(actualPackDate time.Time) error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Approved")
+	}
+	s.ActualPackDate = &actualPackDate
+	return nil
+}
+
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
 func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	if s.Status != ShipmentStatusINTRANSIT {
