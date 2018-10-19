@@ -86,7 +86,7 @@ const DatesEdit = props => {
           <SwaggerField fieldName="pm_survey_planned_delivery_date" title="Planned" swagger={schema} />
           <SwaggerField fieldName="actual_delivery_date" title="Actual" swagger={schema} />
           <PanelField title="Current RDD" value="TODO" />
-          <SwaggerField fieldName="pm_survey_notes" title="Notes" swagger={schema} />
+          <SwaggerField fieldName="pm_survey_notes" title="Notes about dates" swagger={schema} />
         </div>
       </FormSection>
     </Fragment>
