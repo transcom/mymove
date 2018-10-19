@@ -30,7 +30,7 @@ describe('MoveSummary', () => {
       div,
     );
   };
-  describe.only('when a move is in canceled state', () => {
+  describe('when a move is in canceled state', () => {
     it('renders cancel content', () => {
       const moveObj = { status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
