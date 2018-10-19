@@ -1,79 +1,86 @@
 /* global cy, Cypress*/
 export function fillAndSavePreApprovalRequest() {
-  // Click on edit Pre Approval Request
-  cy.get('.add-request').click();
-
-  //  Enter details in form and save orders
+  // Click on add Pre Approval Request
   cy
-    .get('input[name="survey.pm_survey_planned_pack_date"]')
+    .get('.add-request')
+    .contains('Add a request')
+    .click();
+
+  //  Enter details in form and create pre approval request
+  cy
+    .get('.tariff400-select #react-select-2-input')
     .first()
-    .type('8/1/2018')
-    .blur();
+    .type('Article{downarrow}{enter}', { force: true, delay: 150 });
 
-  //      cy
-  //        .get('input[name="survey.pm_survey_planned_pickup_date"]')
-  //        .first()
-  //        .type('8/2/2018')
-  //        .blur();
-  //      cy
-  //        .get('input[name="survey.pm_survey_planned_delivery_date"]')
-  //        .first()
-  //        .type('8/5/2018')
-  //        .blur();
-  //      cy
-  //        .get('input[name="survey.pm_survey_conducted_date"]')
-  //        .first()
-  //        .type('7/20/2018')
-  //        .blur();
-  //      cy
-  //        .get('input[name="survey.pm_survey_weight_estimate"]')
-  //        .clear()
-  //        .first()
-  //        .type('6000')
-  //        .blur();
-  //      cy
-  //        .get('input[name="survey.pm_survey_progear_weight_estimate"]')
-  //        .clear()
-  //        .first()
-  //        .type('4000')
-  //        .blur();
-  //      cy
-  //        .get('input[name="survey.pm_survey_spouse_progear_weight_estimate"]')
-  //        .clear()
-  //        .first()
-  //        .type('800')
-  //        .blur();
-  //      cy
-  //        .get('textarea[name="survey.pm_survey_notes"]')
-  //        .clear()
-  //        .first()
-  //        .type('Notes notes notes')
-  //        .blur();
-  //      cy.get('select[name="survey.pm_survey_method"]').select('PHONE');
+  cy.get('select[name="location"]').select('ORIGIN');
 
-  //      cy
-  //        .get('button')
-  //        .contains('Save')
-  //        .should('be.enabled');
+  cy
+    .get('input[name="quantity_1"]')
+    .first()
+    .type('2', { force: true, delay: 150 });
 
-  //      cy
-  //        .get('button')
-  //        .contains('Save')
-  //        .click();
+  cy
+    .get('textarea[name="notes"]')
+    .first()
+    .type('notes notes', { force: true, delay: 150 });
+
+  cy
+    .get('button')
+    .contains('Save & Close')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save & Close')
+    .click();
 }
 
-export function testCreatePreApprovalRequest() {
-  fillAndSavePreApprovalRequest();
+export function editPreApprovalRequest() {
+  cy
+    .get('[data-test=edit-request]')
+    .first()
+    .click();
 
-  // Verify data has been saved in the UI
-  // cy.get('span').contains('4,000 lbs');
+  cy
+    .get('textarea[name="notes"]')
+    .first()
+    .type(' edited', { force: true, delay: 150 });
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
 
-  // // Refresh browser and make sure changes persist
-  // cy.reload();
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+}
 
-  // cy
-  //     .get('div.pm_survey_planned_delivery_date')
-  //     .get('span')
-  //     .contains('4,000 lbs');
-  // cy.get('div.pm_survey_notes').contains('Notes notes notes');
+export function approvePreApprovalRequest() {
+  cy.get('[data-test=approve-request]').should('exist');
+  cy
+    .get('[data-test=approve-request]')
+    .first()
+    .click();
+}
+
+export function deletePreApprovalRequest() {
+  cy
+    .get('[data-test=delete-request]')
+    .first()
+    .click();
+  cy
+    .get('button')
+    .contains('No, do not delete')
+    .click();
+
+  cy
+    .get('[data-test=delete-request]')
+    .first()
+    .click();
+
+  cy
+    .get('button')
+    .contains('Yes, delete')
+    .click();
 }
