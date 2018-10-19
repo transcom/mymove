@@ -85,6 +85,10 @@
   padding-bottom: 9px;
 }
 
+.accessorial-edit {
+  background-color: #F6FDFE;
+}
+
 .accessorial-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;

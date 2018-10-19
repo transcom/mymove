@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PreApprovalForm, { formName as PreApprovalFormName } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
 import { formatToBaseQuantity, convertFromBaseQuantity } from 'shared/formatters';
-import { submit, isValid, isDirty, isSubmitting, reset, hasSubmitSucceeded } from 'redux-form';
+import { submit, isValid, isDirty, isSubmitting, hasSubmitSucceeded } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -23,7 +23,7 @@ export class Editor extends Component {
     let initialValues = cloneDeep(this.props.shipmentAccessorial);
     initialValues.quantity_1 = convertFromBaseQuantity(initialValues.quantity_1);
     return (
-      <div className="accessorial-panel-modal">
+      <div className="accessorial-panel-modal accessorial-edit">
         <div className="title">Edit request</div>
         <PreApprovalForm
           tariff400ngItems={this.props.tariff400ngItems}
