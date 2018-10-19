@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import { get, includes, isEmpty } from 'lodash';
+import { get, includes } from 'lodash';
 import moment from 'moment';
 
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
