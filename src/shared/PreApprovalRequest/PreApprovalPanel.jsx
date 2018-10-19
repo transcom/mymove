@@ -16,6 +16,8 @@ import {
   deleteShipmentAccessorialLabel,
   approveShipmentAccessorial,
   approveShipmentAccessorialLabel,
+  updateShipmentAccessorial,
+  updateShipmentAccessorialLabel,
 } from 'shared/Entities/modules/shipmentAccessorials';
 import { selectShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
 import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
@@ -31,8 +33,8 @@ export class PreApprovalPanel extends Component {
   onSubmit = createPayload => {
     return this.props.createShipmentAccessorial(createShipmentAccessorialLabel, this.props.shipmentId, createPayload);
   };
-  onEdit = () => {
-    console.log('onEdit hit');
+  onEdit = (shipmentAccessorialId, editPayload) => {
+    this.props.updateShipmentAccessorial(updateShipmentAccessorialLabel, shipmentAccessorialId, editPayload);
   };
   onDelete = shipmentAccessorialId => {
     this.props.deleteShipmentAccessorial(deleteShipmentAccessorialLabel, shipmentAccessorialId);
@@ -48,9 +50,10 @@ export class PreApprovalPanel extends Component {
   };
   render() {
     return (
-      <div>
+      <div className="accessorial-panel">
         <BasicPanel title={'Pre-Approval Requests'}>
           <PreApprovalTable
+            tariff400ngItems={this.props.tariff400ngItems}
             shipmentAccessorials={this.props.shipmentAccessorials}
             isActionable={this.state.isRequestActionable}
             onRequestActivation={this.onRequestActivation}
@@ -86,7 +89,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createShipmentAccessorial, deleteShipmentAccessorial, approveShipmentAccessorial },
+    { createShipmentAccessorial, deleteShipmentAccessorial, approveShipmentAccessorial, updateShipmentAccessorial },
     dispatch,
   );
 }

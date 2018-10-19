@@ -25,7 +25,7 @@ describe('given a Creator', () => {
     beforeEach(() => {
       wrapper = shallow(
         <Creator
-          accessorials={accessorials}
+          tariff400ngItems={accessorials}
           submitForm={submit}
           formEnabled={false}
           hasSubmitSucceeded={false}
@@ -60,7 +60,7 @@ describe('given a Creator', () => {
     beforeEach(() => {
       wrapper = shallow(
         <Creator
-          accessorials={accessorials}
+          tariff400ngItems={accessorials}
           submitForm={submit}
           formEnabled={true}
           hasSubmitSucceeded={false}
