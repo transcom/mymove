@@ -39,6 +39,13 @@
   padding: 2rem 0rem 2rem 0rem;
 }
 
+.chosen-document {
+  /* override anchor tag link style */
+  color: black !important;
+  background: #efefef;
+  font-weight: bold;
+}
+
 .document-contents {
   background: lightgray;
 }

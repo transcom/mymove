@@ -27,6 +27,7 @@ class MoveDocumentView extends Component {
       serviceMember: { edipi, name },
       uploads,
     } = this.props;
+    const currentMoveDocumentId = this.props.match.params.moveDocumentId;
     return (
       <div className="usa-grid doc-viewer">
         <div className="usa-width-two-thirds">
@@ -58,7 +59,11 @@ class MoveDocumentView extends Component {
                 </div>
                 <div>
                   {' '}
-                  <DocumentList detailUrlPrefix={documentDetailUrlPrefix} moveDocuments={moveDocuments} />
+                  <DocumentList
+                    currentMoveDocumentId={currentMoveDocumentId}
+                    detailUrlPrefix={documentDetailUrlPrefix}
+                    moveDocuments={moveDocuments}
+                  />
                 </div>
               </TabPanel>
 
