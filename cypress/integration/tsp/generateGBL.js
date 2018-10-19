@@ -53,7 +53,12 @@ function tspUserGeneratesGBL() {
 
   // I have seen this take anywhere from 8s - 18s. Until we optimize it, giving the test a long
   // timeout.
-  cy.get('.usa-alert-success', { timeout: 20000 }).contains('GBL generated successfully.');
+  cy.get('.usa-alert-success', { timeout: 20000 }).contains('GBL has been created');
+
+  cy
+    .get('button')
+    .contains('View GBL')
+    .should('be.enabled');
 
   cy
     .get('button')
