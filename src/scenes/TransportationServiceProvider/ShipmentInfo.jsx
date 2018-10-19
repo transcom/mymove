@@ -133,7 +133,7 @@ class ShipmentInfo extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.shipment.id && this.props.shipment.id) {
       this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
-      this.props.getAllTariff400ngItems(getTariff400ngItemsLabel);
+      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
       this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
     }
   }
