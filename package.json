@@ -33,6 +33,7 @@
     "react-highlight-words": "^0.11.0",
     "react-idle-timer": "^3.0.0",
     "react-loadable": "^5.3.1",
+    "react-numeric-input": "^2.2.3",
     "react-rangeslider": "^2.2.0",
     "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.2",
