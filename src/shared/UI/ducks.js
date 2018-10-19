@@ -17,6 +17,7 @@ export default function uiReducer(state = initialState, action) {
         const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
         const activeMove = fetchActive(get(activeOrders, 'moves'));
         const activeShipment = fetchActive(get(activeMove, 'shipments'));
+
         return {
           ...state,
           currentShipmentID: activeShipment ? activeShipment.id : null,

@@ -3,15 +3,20 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { renderStatusIcon } from 'shared/utils';
 
-const DocumentList = ({ moveDocuments, detailUrlPrefix, disableLinks }) => (
+const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks }) => (
   <div>
     {moveDocuments.map(doc => {
+      const chosenDocument = currentMoveDocumentId === doc.id ? 'chosen-document' : null;
       const status = renderStatusIcon(doc.status);
       const detailUrl = `${detailUrlPrefix}/${doc.id}`;
       return (
-        <div className="panel-field" key={doc.id}>
+        <div className={`panel-field ${chosenDocument}`} key={doc.id}>
           <span className="status">{status}</span>
-          {!disableLinks && <Link to={detailUrl}>{doc.title}</Link>}
+          {!disableLinks && (
+            <Link className={chosenDocument} to={detailUrl}>
+              {doc.title}
+            </Link>
+          )}
           {disableLinks && <span>{doc.title}</span>}
         </div>
       );
@@ -20,6 +25,7 @@ const DocumentList = ({ moveDocuments, detailUrlPrefix, disableLinks }) => (
 );
 
 DocumentList.propTypes = {
+  currentMoveDocumentId: PropTypes.string,
   detailUrlPrefix: PropTypes.string.isRequired,
   disableLinks: PropTypes.bool,
   moveDocuments: PropTypes.arrayOf(

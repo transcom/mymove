@@ -33,11 +33,49 @@
   border: 1px solid #d1d1d1;
 }
 
+.shipment-wizard .weight-calculator {
+  padding-top: 0.5rem;
+}
+
+.shipment-wizard .weight-calculator label {
+  max-width: none;
+}
+
+.shipment-wizard .weight-calculator-contents {
+  padding-left: 2rem;
+}
+
+.shipment-wizard .weight-calculator-help {
+  color: gray;
+  font-size: 0.85em;
+}
+
+.shipment-wizard .weight-calculator .react-numeric-input input {
+  border: 0.1rem solid #5b616b !important;
+  padding: 1rem 0.7rem !important;
+  width: 75px;
+}
+
+.shipment-wizard .weight-calculator .help-icon {
+  width: 1em;
+  margin: 0 1rem;
+}
+
+.shipment-wizard .weight-calculator .usa-alert {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .shipment-wizard .weight-estimate-hr {
   color: #ccc;
   background-color: #ccc;
   height: 1px;
   border: none;
+  margin-top: 3rem;
+}
+
+.shipment-wizard .weight-estimate {
+  padding-left: 2rem;
 }
 
 .shipment-wizard .weight-estimate label {

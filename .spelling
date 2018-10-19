@@ -339,6 +339,18 @@ time.Time.
 hcl
 s3
 sql
+elliottdotgov
+hlieberman-gov
+ntwyman
+CloudWatch
+SaaS
+Elasticsearch
+Logstash
+Kibana
+JSONPath
+dataset
+FedRAMP
+ad-hoc
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md

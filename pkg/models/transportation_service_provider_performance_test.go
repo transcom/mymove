@@ -514,6 +514,21 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
 
+	unenrolledTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US14",
+			DestinationRegion: "4",
+			CodeOfService:     "2",
+		},
+	})
+
+	unenrolledTSP := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
+		TransportationServiceProvider: TransportationServiceProvider{
+			Enrolled: false,
+		},
+	})
+	testdatagen.MakeTSPPerformanceDeprecated(suite.db, unenrolledTSP, unenrolledTDL, nil, float64(mps+1), 0, .4, .3)
+
 	perfGroups, err := FetchUnbandedTSPPerformanceGroups(suite.db)
 	if err != nil {
 		t.Fatal(err)
