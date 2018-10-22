@@ -13,8 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MoveDateSummary contains the set of dates for a move
-type MoveDateSummary struct {
+// MoveDatesSummary contains the set of dates for a move
+type MoveDatesSummary struct {
 	PackDays     []time.Time
 	PickupDays   []time.Time
 	TransitDays  []time.Time
@@ -22,8 +22,8 @@ type MoveDateSummary struct {
 	ReportDays   []time.Time
 }
 
-func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDateSummary, error) {
-	var summary MoveDateSummary
+func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDatesSummary, error) {
+	var summary MoveDatesSummary
 
 	// FetchMoveForMoveDates will get all the required associations used below.
 	move, err := models.FetchMoveForMoveDates(db, moveID)
