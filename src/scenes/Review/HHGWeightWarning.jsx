@@ -4,6 +4,9 @@ import { formatNumber } from 'shared/formatters';
 import Alert from 'shared/Alert';
 
 function warning(name, estimatedWeight, allowedWeight) {
+  if (!estimatedWeight) {
+    return null;
+  }
   const remaining = allowedWeight - estimatedWeight;
 
   if (remaining >= 0) {
