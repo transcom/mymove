@@ -32,22 +32,37 @@ export class PreApprovalTable extends Component {
               <th>Status</th>
               <th>&nbsp;</th>
             </tr>
-            {shipmentAccessorials.map(row => {
-              let requestIsActionable =
-                isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
-              return (
-                <PreApprovalRequest
-                  key={row.id}
-                  shipmentLineItem={row}
-                  onEdit={onEdit}
-                  onApproval={onApproval}
-                  onDelete={onDelete}
-                  isActive={this.isRequestActive(row.id)}
-                  isActionable={requestIsActionable}
-                  tariff400ngItems={this.props.tariff400ngItems}
-                />
-              );
-            })}
+            {shipmentAccessorials
+              .sort((sa1, sa2) => {
+                //ignore case
+                let status1 = sa1.status.toUpperCase();
+                let status2 = sa2.status.toUpperCase();
+                if (status1 < status2) {
+                  return -1;
+                }
+                if (status1 > status2) {
+                  return 1;
+                }
+
+                // must be equal
+                return 0;
+              })
+              .map(row => {
+                let requestIsActionable =
+                  isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
+                return (
+                  <PreApprovalRequest
+                    key={row.id}
+                    shipmentLineItem={row}
+                    onEdit={onEdit}
+                    onApproval={onApproval}
+                    onDelete={onDelete}
+                    isActive={this.isRequestActive(row.id)}
+                    isActionable={requestIsActionable}
+                    tariff400ngItems={this.props.tariff400ngItems}
+                  />
+                );
+              })}
           </tbody>
         </table>
       </div>
