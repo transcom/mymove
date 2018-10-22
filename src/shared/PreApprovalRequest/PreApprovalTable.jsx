@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PreApprovalRequest from 'shared/PreApprovalRequest/PreApprovalRequest.jsx';
+import { orderBy } from 'lodash';
 
 import './PreApprovalRequest.css';
+import { SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG } from 'constants';
 
 export class PreApprovalTable extends Component {
   state = { actionRequestId: null };
@@ -32,22 +34,8 @@ export class PreApprovalTable extends Component {
               <th>Status</th>
               <th>&nbsp;</th>
             </tr>
-            {shipmentAccessorials
-              .sort((sa1, sa2) => {
-                //ignore case
-                let status1 = sa1.status.toUpperCase();
-                let status2 = sa2.status.toUpperCase();
-                if (status1 < status2) {
-                  return -1;
-                }
-                if (status1 > status2) {
-                  return 1;
-                }
-
-                // must be equal
-                return 0;
-              })
-              .map(row => {
+            {orderBy(shipmentAccessorials, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']).map(
+              row => {
                 let requestIsActionable =
                   isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
                 return (
@@ -62,7 +50,8 @@ export class PreApprovalTable extends Component {
                     tariff400ngItems={this.props.tariff400ngItems}
                   />
                 );
-              })}
+              },
+            )}
           </tbody>
         </table>
       </div>
