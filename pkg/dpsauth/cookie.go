@@ -15,8 +15,8 @@ var secretKey = initKey()
 
 const prefix = "mymove-"
 
-// UserIDToCookie takes the UUID of the current user and returns the cookie value.
-func UserIDToCookie(userID string) (string, error) {
+// ServiceMemberIDToCookie takes the service member UUID of the current user and returns the cookie value.
+func ServiceMemberIDToCookie(userID string) (string, error) {
 	expiration, err := strconv.Atoi(cookieExpiresInMinutes)
 	if err != nil {
 		return "", errors.Wrap(err, "Converting DPS_COOKIE_EXPIRES_IN_MINUTES to int")
@@ -36,9 +36,9 @@ func UserIDToCookie(userID string) (string, error) {
 	return prefix + jwt, nil
 }
 
-// CookieToUserID takes a cookie value and returns the user's UUID only if it's a
+// CookieToServiceMemberID takes a cookie value and returns the service member's UUID only if it's a
 // valid, unexpired cookie.
-func CookieToUserID(cookieValue string) (string, error) {
+func CookieToServiceMemberID(cookieValue string) (string, error) {
 	if !strings.HasPrefix(cookieValue, prefix) {
 		return "", errors.New("Invalid cookie: missing prefix")
 	}
