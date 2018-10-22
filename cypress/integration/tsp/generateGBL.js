@@ -31,7 +31,7 @@ function tspUserGeneratesGBL() {
 
   cy
     .get('button')
-    .contains('Generate Bill of Lading')
+    .contains('Generate the GBL')
     .should('be.enabled');
 
   cy.location().should(loc => {
@@ -43,12 +43,12 @@ function tspUserGeneratesGBL() {
 
   cy
     .get('button')
-    .contains('Generate Bill of Lading')
+    .contains('Generate the GBL')
     .click();
 
   cy
     .get('button')
-    .contains('Generate Bill of Lading')
+    .contains('Generate the GBL')
     .should('be.disabled');
 
   // I have seen this take anywhere from 8s - 18s. Until we optimize it, giving the test a long
@@ -64,12 +64,12 @@ function tspUserGeneratesGBL() {
 
   cy
     .get('button')
-    .contains('Generate Bill of Lading')
+    .contains('Generate the GBL')
     .click();
 
   cy
     .get('button')
-    .contains('Generate Bill of Lading')
+    .contains('Generate the GBL')
     .should('be.disabled');
 
   cy.get('.usa-alert-warning').contains('There is already a GBL for this shipment. ');

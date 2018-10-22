@@ -57,7 +57,7 @@ import './tsp.css';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
-  417: 'Missing data required to generate a Bill of Lading.',
+  417: 'Missing data required to generate a GBL.',
 };
 
 class AcceptShipmentPanel extends Component {
@@ -332,7 +332,7 @@ class ShipmentInfo extends Component {
               )}
               <div>
                 <button onClick={this.generateGBL} disabled={this.props.generateGBLInProgress}>
-                  Generate Bill of Lading
+                  Generate the GBL
                 </button>
               </div>
               <div className="customer-info">
