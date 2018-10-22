@@ -64,6 +64,8 @@ const ServiceAgents = props => {
       <ServiceAgentPanel
         form="origin_service_agent"
         title="Origin Service Agent"
+        editOriginServiceAgent={props.editOriginServiceAgent}
+        setEditServiceAgent={props.setEditServiceAgent}
         update={props.update}
         schema={props.schema}
         initialValues={props.initialValues.ORIGIN}

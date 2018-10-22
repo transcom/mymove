@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -34,7 +35,6 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-
 import {
   loadShipmentDependencies,
   patchShipment,
@@ -138,9 +138,17 @@ let DeliveryDateForm = props => {
 
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
+const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
+
 class ShipmentInfo extends Component {
+  constructor(props) {
+    super(props);
+
+    this.assignServiceMember = React.createRef();
+  }
   state = {
     redirectToHome: false,
+    editOriginServiceAgent: false,
   };
 
   componentDidMount() {
@@ -177,8 +185,16 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
+  setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
+
+  toggleEditOriginServiceAgent = () => {
+    const domNode = ReactDOM.findDOMNode(this.assignServiceMember.current);
+    this.setEditServiceAgent(true);
+    domNode.scrollIntoView();
+  };
+
   render() {
-    const { context, shipment, shipmentDocuments } = this.props;
+    const { context, shipment, shipmentDocuments, serviceAgents } = this.props;
     const {
       service_member: serviceMember = {},
       move = {},
@@ -190,9 +206,11 @@ class ShipmentInfo extends Component {
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
-    const awarded = shipment.status === 'AWARDED';
-    const approved = shipment.status === 'APPROVED';
+    const isAwarded = shipment.status === 'AWARDED';
+    const isApproved = shipment.status === 'APPROVED';
+    const isAccepted = shipment.status === 'ACCEPTED';
     const inTransit = shipment.status === 'IN_TRANSIT';
+    const canAssignServiceAgents = (isApproved || isAccepted) && !hasOriginServiceAgent(serviceAgents);
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -208,12 +226,12 @@ class ShipmentInfo extends Component {
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
-            {awarded && (
+            {isAwarded && (
               <NavLink to="/queues/new" activeClassName="usa-current">
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
-            {!awarded && (
+            {!isAwarded && (
               <NavLink to="/queues/all" activeClassName="usa-current">
                 <span>All Shipments Queue</span>
               </NavLink>
@@ -258,12 +276,17 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide panels-body">
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
-              {awarded && (
+              {isAwarded && (
                 <AcceptShipmentPanel
                   acceptShipment={this.acceptShipment}
                   rejectShipment={this.rejectShipment}
                   shipmentStatus={this.props.shipment.status}
                 />
+              )}
+              {canAssignServiceAgents && (
+                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
+                  Assign Service Agents
+                </button>
               )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
@@ -275,6 +298,9 @@ class ShipmentInfo extends Component {
                   />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <ServiceAgents
+                    ref={this.assignServiceMember}
+                    editOriginServiceAgent={this.state.editOriginServiceAgent}
+                    setEditServiceAgent={this.setEditServiceAgent}
                     title="ServiceAgents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
@@ -285,7 +311,7 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {approved &&
+              {isApproved &&
                 !actual_pack_date && (
                   <FormButton
                     FormComponent={PackDateForm}
@@ -294,7 +320,7 @@ class ShipmentInfo extends Component {
                     buttonTitle="Enter Packing"
                   />
                 )}
-              {approved &&
+              {isApproved &&
                 actual_pack_date &&
                 !actual_pickup_date && (
                   <FormButton
