@@ -1,4 +1,4 @@
-.shipment_box_contents .status_timeline{
+.shipment_box_contents .status_timeline {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -6,22 +6,16 @@
   text-align: center;
 }
 
-/*.shipment_box_contents .status_line{*/
-  /*flex: 1;*/
-  /*height: 3px;*/
-  /*background: #d6d7d9;*/
-  /*!*display: flex;*!*/
-  /*!*flex-direction: column;*!*/
-  /*align-items: center;*/
-/*}*/
-
-.shipment_box_contents .status_block{
+.shipment_box_contents .status_block {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  font-size: 0.9em;
 }
-.shipment_box_contents .status_dot{
+
+.shipment_box_contents .status_dot {
   display: block;
   width: 20px;
   height: 20px;
@@ -29,13 +23,67 @@
   border-radius: 50%;
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
+  z-index: 10;
 }
 
-.shipment_box_contents .status_active{
+.status_block.status_completed,
+.status_block.status_current .status_name {
+  font-weight: bold;
+}
+
+.status_block.packed .status_dates,
+.status_block.delivered .status_dates {
+  font-style: italic;
+  color: #999;
+}
+.status_block.packed .status_dates:after,
+.status_block.delivered .status_dates:after {
+  content: ' *';
+}
+
+.status_block.status_completed .status_dot {
+  background: #102e51;
+  box-shadow: 0px 0px 0px 2px #102e51;
+}
+
+.status_block.status_current .status_dot {
   background: #102e51;
   box-shadow: 0px 0px 0px 4px #0270bc;
 }
 
-.shipment_box_contents .status_name{
-  margin: 1rem 0 .5rem 0;
+.status_block:after {
+  display: block;
+  content: ' ';
+  width: 100%;
+  height: 3px;
+  background: #d6d7d9;
+  position: absolute;
+  right: 50%;
+  top: 10px;
+  z-index: 1;
+}
+
+.status_block:first-child:after {
+  display: none;
+}
+
+.status_block.status_completed:after,
+.status_block.status_current:after {
+  background: #102e51;
+}
+
+.status_block.status_completed:first-child:after {
+  display: none;
+}
+
+.shipment_box_contents .status_name {
+  margin: 1rem 0 0.2rem 0;
+}
+
+.status_timeline .legend {
+  font-style: italic;
+  color: #999;
+  position: absolute;
+  bottom: 2rem;
+  left: 1rem;
 }
