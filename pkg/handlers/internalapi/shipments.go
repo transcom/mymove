@@ -35,6 +35,18 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		serviceAgentPayloads = append(serviceAgentPayloads, payload)
 	}
 
+	summary, err := calculateMoveDatesFromShipment(&s)
+	if err != nil {
+		fmt.Print(err) // placeholder until proper error
+	}
+
+	var moveDatesSummary = &internalmessages.ShipmentMoveDatesSummary{
+		Pack:     handlers.FmtDateSlice(summary.PackDays),
+		Pickup:   handlers.FmtDateSlice(summary.PickupDays),
+		Transit:  handlers.FmtDateSlice(summary.TransitDays),
+		Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
+	}
+
 	shipmentPayload := &internalmessages.Shipment{
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
@@ -52,6 +64,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
 		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
 		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
+		MoveDatesSummary:                    moveDatesSummary,
 		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
 		EstimatedPackDays:                   s.EstimatedPackDays,
