@@ -193,6 +193,16 @@ class ShipmentInfo extends Component {
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
+    const pmSurveyComplete = Boolean(
+      shipment.pm_survey_conducted_date &&
+        shipment.pm_survey_method &&
+        shipment.pm_survey_planned_pack_date &&
+        shipment.pm_survey_planned_pickup_date &&
+        shipment.pm_survey_planned_delivery_date &&
+        shipment.pm_survey_weight_estimate,
+    );
+    const gblGenerated =
+      shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -265,6 +275,33 @@ class ShipmentInfo extends Component {
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
+              {this.props.generateGBLError && (
+                <Alert type="warning" heading="An error occurred">
+                  {attachmentsErrorMessages[this.props.error.statusCode] ||
+                    'Something went wrong contacting the server.'}
+                </Alert>
+              )}
+              {this.props.generateGBLSuccess && (
+                <Alert type="success" heading="GBL has been created">
+                  <span className="usa-grid usa-alert-no-padding">
+                    <span className="usa-width-one-half">Click the button to view, print, or download the GBL.</span>
+                    <span className="usa-width-one-half">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                        <button>View GBL</button>
+                      </Link>
+                    </span>
+                  </span>
+                </Alert>
+              )}
+              {approved &&
+                pmSurveyComplete &&
+                !gblGenerated && (
+                  <div>
+                    <button onClick={this.generateGBL} disabled={this.props.generateGBLInProgress}>
+                      Generate the GBL
+                    </button>
+                  </div>
+                )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -312,29 +349,6 @@ class ShipmentInfo extends Component {
                   buttonTitle="Enter Delivery"
                 />
               )}
-              {this.props.generateGBLError && (
-                <Alert type="warning" heading="An error occurred">
-                  {attachmentsErrorMessages[this.props.error.statusCode] ||
-                    'Something went wrong contacting the server.'}
-                </Alert>
-              )}
-              {this.props.generateGBLSuccess && (
-                <Alert type="success" heading="GBL has been created">
-                  <span className="usa-grid usa-alert-no-padding">
-                    <span className="usa-width-one-half">Click the button to view, print, or download the GBL.</span>
-                    <span className="usa-width-one-half">
-                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
-                        <button>View GBL</button>
-                      </Link>
-                    </span>
-                  </span>
-                </Alert>
-              )}
-              <div>
-                <button onClick={this.generateGBL} disabled={this.props.generateGBLInProgress}>
-                  Generate the GBL
-                </button>
-              </div>
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
                 <CustomerInfo />
