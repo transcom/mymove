@@ -282,22 +282,28 @@ class ShipmentInfo extends Component {
                 />
               )}
               {this.props.generateGBLError && (
-                <Alert type="warning" heading="An error occurred">
-                  {attachmentsErrorMessages[this.props.error.statusCode] ||
-                    'Something went wrong contacting the server.'}
-                </Alert>
+                <p>
+                  <Alert type="warning" heading="An error occurred">
+                    {attachmentsErrorMessages[this.props.error.statusCode] ||
+                      'Something went wrong contacting the server.'}
+                  </Alert>
+                </p>
               )}
               {this.props.generateGBLSuccess && (
-                <Alert type="success" heading="GBL has been created">
-                  <span className="usa-grid usa-alert-no-padding">
-                    <span className="usa-width-one-half">Click the button to view, print, or download the GBL.</span>
-                    <span className="usa-width-one-half">
-                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
-                        <button>View GBL</button>
-                      </Link>
+                <p>
+                  <Alert type="success" heading="GBL has been created">
+                    <span className="usa-grid usa-alert-no-padding">
+                      <span className="usa-width-two-thirds">
+                        Click the button to view, print, or download the GBL.
+                      </span>
+                      <span className="usa-width-one-third">
+                        <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                          <button>View GBL</button>
+                        </Link>
+                      </span>
                     </span>
-                  </span>
-                </Alert>
+                  </Alert>
+                </p>
               )}
               {approved &&
                 pmSurveyComplete &&
