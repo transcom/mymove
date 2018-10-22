@@ -46,12 +46,13 @@ func (h DPSAuthCookieHandler) Handle(params dps_auth.SetDPSAuthCookieParams) mid
 	}
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	cookieValue, err := dpsauth.UserIDToCookie(session.UserID.String())
+	cookie, err := dpsauth.UserIDToCookie(session.UserID.String())
 	if err != nil {
 		h.Logger().Error("Converting user ID to cookie value", zap.Error(err))
 		return dps_auth.NewSetDPSAuthCookieInternalServerError()
 	}
 
-	cookie := http.Cookie{Name: cookieName, Value: cookieValue}
-	return NewSetDPSAuthCookieOKResponder(cookie)
+	cookie.Name = cookieName
+	cookie.Domain = ".sddc.army.mil"
+	return NewSetDPSAuthCookieOKResponder(*cookie)
 }
