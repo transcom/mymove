@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { bindActionCreators } from 'redux';
 
 import { getMoveDatesSummary, selectMoveDatesSummary } from 'shared/Entities/modules/moves';
-import { displayDateRange } from '../Moves/Hhg/DatesSummary';
+import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
 const getRequestLabel = 'StatusTimeline.getMoveDatesSummary';

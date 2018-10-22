@@ -7,6 +7,7 @@ import truckIcon from 'shared/icon/truck-black.svg';
 import Address from './Address';
 import HHGWeightSummary from './HHGWeightSummary';
 import HHGWeightWarning from './HHGWeightWarning';
+import { displayDateRange } from 'shared/formatters';
 
 import './Review.css';
 
@@ -35,19 +36,19 @@ export default function HHGShipmentSummary(props) {
           <tbody>
             <tr>
               <td>Movers Packing: </td>
-              <td className="Todo-phase2">TODO</td>
+              <td>{displayDateRange(shipment.move_dates_summary.pack)}</td>
             </tr>
             <tr>
               <td>Loading Truck: </td>
-              <td className="Todo-phase2">TODO</td>
+              <td>{displayDateRange(shipment.move_dates_summary.pickup)}</td>
             </tr>
             <tr>
               <td>Move in Transit:</td>
-              <td className="Todo-phase2">TODO</td>
+              <td>{displayDateRange(shipment.move_dates_summary.transit)}</td>
             </tr>
             <tr>
               <td>Delivery:</td>
-              <td className="Todo-phase2">TODO</td>
+              <td>{displayDateRange(shipment.move_dates_summary.delivery, 'condensed')}</td>
             </tr>
           </tbody>
         </table>
