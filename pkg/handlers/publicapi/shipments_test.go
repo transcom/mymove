@@ -331,8 +331,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
+	threeDayList := []time.Time{testdatagen.Now, testdatagen.NowPlusOneDay, testdatagen.NowPlusTwoDays}
+
+	// Save ActualPickupDates on the model
+	for i, shipment := range shipments {
+		shipment.ActualPickupDate = &threeDayList[i]
+		suite.MustSave(&shipment)
+	}
 
 	tspUser := tspUsers[0]
 
@@ -380,8 +387,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
+	threeDayList := []time.Time{testdatagen.Now, testdatagen.NowPlusOneDay, testdatagen.NowPlusTwoDays}
+
+	// Add ActualPickupDates to the shipments so they can be sorted
+	for i, shipment := range shipments {
+		shipment.ActualPickupDate = &threeDayList[i]
+		suite.MustSave(&shipment)
+	}
 
 	tspUser := tspUsers[0]
 
@@ -429,8 +443,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
+	threeDayList := []time.Time{testdatagen.Now, testdatagen.NowPlusOneDay, testdatagen.NowPlusTwoDays}
+
+	// Add ActualDeliveryDate to the shipments so they can be sorted
+	for i, shipment := range shipments {
+		shipment.ActualDeliveryDate = &threeDayList[i]
+		suite.MustSave(&shipment)
+	}
 
 	tspUser := tspUsers[0]
 
@@ -478,8 +499,15 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
+	threeDayList := []time.Time{testdatagen.Now, testdatagen.NowPlusOneDay, testdatagen.NowPlusTwoDays}
+
+	// Add ActualDeliveryDate to the shipments so they can be sorted
+	for i, shipment := range shipments {
+		shipment.ActualDeliveryDate = &threeDayList[i]
+		suite.MustSave(&shipment)
+	}
 
 	tspUser := tspUsers[0]
 

@@ -136,7 +136,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
 	destinationGBLOC := "HAFC"
-	oneWeek, _ := time.ParseDuration("7d")
+	oneWeek := time.Hour * 168
 	selectedMoveType := "HHG"
 	if len(statuses) == 0 {
 		// Statuses for shipments attached to a shipment offer should not be DRAFT or SUBMITTED

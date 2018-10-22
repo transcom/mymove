@@ -74,3 +74,15 @@ var DefaultDepartmentIndicator = "57 - United States Air Force"
 
 // DefaultTransportationAccountingCode (TAC) is an accounting code used for orders.
 var DefaultTransportationAccountingCode = "F8J1"
+
+// OneDay creates a 1 day period
+var OneDay = time.Hour * 24
+
+// Now is whatever the current date is
+var Now = time.Now()
+
+// NowPlusOneDay is whatever the current date is plus one day
+var NowPlusOneDay = Now.Add(OneDay)
+
+// NowPlusTwoDays is whatever the current date is plus two days
+var NowPlusTwoDays = Now.Add(OneDay * 2)

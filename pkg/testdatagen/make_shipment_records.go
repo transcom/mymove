@@ -123,7 +123,7 @@ func MakeShipmentData(db *pop.Connection) {
 	}
 
 	// Add three shipment table records using UUIDs from TDLs
-	oneWeek, _ := time.ParseDuration("7d")
+	oneWeek := time.Hour * 168
 	now := time.Now()
 	nowPlusOne := now.Add(oneWeek)
 	nowPlusTwo := now.Add(oneWeek * 2)
