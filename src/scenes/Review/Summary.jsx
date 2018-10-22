@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { Link } from 'react-router-dom';
 import { forEach, get } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -14,12 +13,11 @@ import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
-import { formatDateSM } from 'shared/formatters';
 
 import { checkEntitlement } from './ducks';
+import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
 import HHGShipmentSummary from './HHGShipmentSummary';
-import Address from './Address';
 
 import './Review.css';
 
@@ -40,54 +38,16 @@ export class Summary extends Component {
       schemaAffiliation,
       schemaOrdersType,
       moveIsApproved,
-      lastMoveIsCanceled,
       serviceMember,
       entitlement,
     } = this.props;
-    const yesNoMap = { true: 'Yes', false: 'No' };
-    function getFullName() {
-      if (!serviceMember) return;
-      return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${
-        serviceMember.last_name
-      } ${serviceMember.suffix || ''}`;
-    }
-    function getFullContactPreferences() {
-      if (!serviceMember) return;
-      const prefs = {
-        phone_is_preferred: 'Phone',
-        text_message_is_preferred: 'Text',
-        email_is_preferred: 'Email',
-      };
-      const preferredMethods = [];
-      Object.keys(prefs).forEach(propertyName => {
-        /* eslint-disable */
-        if (serviceMember[propertyName]) {
-          preferredMethods.push(prefs[propertyName]);
-        }
-        /* eslint-enable */
-      });
-      return preferredMethods.join(', ');
-    }
-    // TODO: Uncomment function below after backup contact auth is implemented.
-    // function getFullBackupPermission(backup_contact) {
-    //   const perms = {
-    //     NONE: '',
-    //     VIEW: 'View all aspects of this move',
-    //     EDIT:
-    //       'Authorized to represent me in all aspects of this move (letter of authorization)',
-    //   };
-    //   return `${perms[backup_contact.permission]}`;
-    // }
+
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddress = `/moves/review`;
     const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
-    const editProfileAddress = rootAddress + '/edit-profile';
-    const editBackupContactAddress = rootAddress + '/edit-backup-contact';
-    const editContactInfoAddress = rootAddress + '/edit-contact-info';
-    const editOrdersAddress = rootAddressWithMoveId + '/edit-orders';
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
+    const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
 
     return (
       <Fragment>
@@ -109,172 +69,21 @@ export class Summary extends Component {
             </Alert>
           )}
 
-        <h3>Profile and Orders</h3>
-        <div className="usa-grid-full review-content">
-          <div className="usa-width-one-half review-section">
-            <p className="heading">
-              Profile
-              <span className="edit-section-link">
-                <Link to={editProfileAddress}>Edit</Link>
-              </span>
-            </p>
-            <table>
-              <tbody>
-                <tr>
-                  <td> Name: </td>
-                  <td>{getFullName()}</td>
-                </tr>
-                <tr>
-                  <td>Branch:</td>
-                  <td>{get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation'))}</td>
-                </tr>
-                <tr>
-                  <td> Rank/Pay Grade: </td>
-                  <td>{get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}</td>
-                </tr>
-                <tr>
-                  <td> DoD ID#: </td>
-                  <td>{get(serviceMember, 'edipi')}</td>
-                </tr>
-                <tr>
-                  <td> Current Duty Station: </td>
-                  <td>{get(serviceMember, 'current_station.name')}</td>
-                </tr>
-              </tbody>
-            </table>
-            {!lastMoveIsCanceled && (
-              <Fragment>
-                <p className="heading">
-                  Orders
-                  {moveIsApproved && '*'}
-                  {!moveIsApproved && (
-                    <span className="edit-section-link">
-                      <Link to={editOrdersAddress}>Edit</Link>
-                    </span>
-                  )}
-                </p>
-                <table>
-                  <tbody>
-                    <tr>
-                      <td> Orders Type: </td>
-                      <td>{get(schemaOrdersType['x-display-value'], get(currentOrders, 'orders_type'))}</td>
-                    </tr>
-                    <tr>
-                      <td> Orders Date: </td>
-                      <td> {formatDateSM(get(currentOrders, 'issue_date'))}</td>
-                    </tr>
-                    <tr>
-                      <td> Report-by Date: </td>
-                      <td>{formatDateSM(get(currentOrders, 'report_by_date'))}</td>
-                    </tr>
-                    <tr>
-                      <td> New Duty Station: </td>
-                      <td> {get(currentOrders, 'new_duty_station.name')}</td>
-                    </tr>
-                    <tr>
-                      <td> Dependents?: </td>
-                      <td> {currentOrders && yesNoMap[get(currentOrders, 'has_dependents').toString()]}</td>
-                    </tr>
-                    {currentOrders &&
-                      get(currentOrders, 'spouse_has_pro_gear') && (
-                        <tr>
-                          <td> Spouse Pro Gear?: </td>
-                          <td>{currentOrders && yesNoMap[get(currentOrders, 'spouse_has_pro_gear').toString()]}</td>
-                        </tr>
-                      )}
-                    <tr>
-                      <td> Orders Uploaded: </td>
-                      <td>
-                        {get(currentOrders, 'uploaded_orders.uploads') &&
-                          get(currentOrders, 'uploaded_orders.uploads').length}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </Fragment>
-            )}
-          </div>
+        <ServiceMemberSummary
+          orders={currentOrders}
+          backupContacts={currentBackupContacts}
+          serviceMember={serviceMember}
+          schemaRank={schemaRank}
+          schemaAffiliation={schemaAffiliation}
+          schemaOrdersType={schemaOrdersType}
+          moveIsApproved={moveIsApproved}
+          editOrdersPath={editOrdersPath}
+        />
 
-          <div className="usa-width-one-half review-section">
-            <p className="heading">
-              Contact Info
-              <span className="edit-section-link">
-                <Link to={editContactInfoAddress}>Edit</Link>
-              </span>
-            </p>
-            <table>
-              <tbody>
-                <tr>
-                  <td> Best Contact Phone: </td>
-                  <td>{get(serviceMember, 'telephone')}</td>
-                </tr>
-                <tr>
-                  <td> Alt. Phone: </td>
-                  <td>{get(serviceMember, 'secondary_telephone')}</td>
-                </tr>
-                <tr>
-                  <td> Personal Email: </td>
-                  <td>{get(serviceMember, 'personal_email')}</td>
-                </tr>
-                <tr>
-                  <td> Preferred Contact Method: </td>
-                  <td>{getFullContactPreferences()}</td>
-                </tr>
-                <tr>
-                  <td> Current Mailing Address: </td>
-                  <td>
-                    <Address address={get(serviceMember, 'residential_address')} />
-                  </td>
-                </tr>
-                <tr>
-                  <td> Backup Mailing Address: </td>
-                  <td>
-                    <Address address={get(serviceMember, 'backup_mailing_address')} />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            {currentBackupContacts.map(contact => (
-              <Fragment key={contact.id}>
-                <p className="heading">
-                  Backup Contact Info
-                  <span className="edit-section-link">
-                    <Link to={editBackupContactAddress}>Edit</Link>
-                  </span>
-                </p>
-                <table key={contact.id}>
-                  <tbody>
-                    <tr>
-                      <td> Backup Contact: </td>
-                      <td>
-                        {contact.name} <br />
-                        {/* getFullBackupPermission(contact) */}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td> Email: </td>
-                      <td> {contact.email} </td>
-                    </tr>
-                    <tr>
-                      <td> Phone: </td>
-                      <td> {contact.telephone}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </Fragment>
-            ))}
-          </div>
-        </div>
-
-        {currentPpm && !lastMoveIsCanceled && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
-        {currentShipment &&
-          !lastMoveIsCanceled && (
-            <HHGShipmentSummary
-              shipment={currentShipment}
-              movePath={rootAddressWithMoveId}
-              entitlements={entitlement}
-            />
-          )}
+        {currentPpm && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
+        {currentShipment && (
+          <HHGShipmentSummary shipment={currentShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
+        )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
@@ -287,10 +96,11 @@ export class Summary extends Component {
 }
 
 Summary.propTypes = {
+  currentBackupContacts: PropTypes.array,
+  currentMove: PropTypes.object,
+  currentOrders: PropTypes.object,
   currentPpm: PropTypes.object,
   currentShipment: PropTypes.object,
-  currentBackupContacts: PropTypes.array,
-  currentOrders: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
@@ -304,7 +114,6 @@ function mapStateToProps(state, ownProps) {
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: getMove(state, ownProps.match.params.moveId),
-    // latestMove: state.moves.latestMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
