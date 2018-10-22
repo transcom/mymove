@@ -136,7 +136,6 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
 	destinationGBLOC := "HAFC"
-	oneWeek := time.Hour * 168
 	selectedMoveType := "HHG"
 	if len(statuses) == 0 {
 		// Statuses for shipments attached to a shipment offer should not be DRAFT or SUBMITTED
@@ -163,10 +162,6 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	})
 
 	for i := 1; i <= numShipments; i++ {
-		now := time.Now()
-		nowPlusOne := now.Add(oneWeek)
-		nowPlusTwo := now.Add(oneWeek * 2)
-
 		// Service Member Details
 		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
 
@@ -210,25 +205,31 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 				Status:                  shipmentStatus,
-				OriginalPackDate:        &now,
-				RequestedPickupDate:     &now,
-				OriginalDeliveryDate:    &nowPlusOne,
+				OriginalPackDate:        &Now,
+				RequestedPickupDate:     &Now,
+				OriginalDeliveryDate:    &NowPlusOneWeek,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
 
+		durIndex := time.Duration(i + 1)
+
 		// Set dates based on status
 		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
-			shipment.PmSurveyConductedDate = &now
-			shipment.PmSurveyPlannedPackDate = &nowPlusOne
-			shipment.PmSurveyPlannedPickupDate = &nowPlusOne
-			shipment.PmSurveyPlannedDeliveryDate = &nowPlusTwo
-			shipment.ActualPackDate = &now
-			shipment.ActualPickupDate = &nowPlusOne
+			shipment.PmSurveyConductedDate = &Now
+			shipment.PmSurveyPlannedPackDate = &NowPlusOneWeek
+			shipment.PmSurveyPlannedPickupDate = &NowPlusOneWeek
+			shipment.PmSurveyPlannedDeliveryDate = &NowPlusTwoWeeks
+			shipment.ActualPackDate = &Now
+			// For sortability, we need varying pickup dates
+			pickupDate := Now.Add(OneDay * durIndex)
+			shipment.ActualPickupDate = &pickupDate
 		}
 
 		if shipmentStatus == models.ShipmentStatusDELIVERED {
-			shipment.ActualDeliveryDate = &nowPlusTwo
+			// For sortability, we need varying delivery dates
+			deliveryDate := Now.Add(OneWeek * durIndex)
+			shipment.ActualDeliveryDate = &deliveryDate
 		}
 
 		// Assign a new unique GBL number using source GBLOC

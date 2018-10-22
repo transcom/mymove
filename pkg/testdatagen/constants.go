@@ -78,6 +78,9 @@ var DefaultTransportationAccountingCode = "F8J1"
 // OneDay creates a 1 day period
 var OneDay = time.Hour * 24
 
+// OneWeek creates a 1 week period
+var OneWeek = time.Hour * 168
+
 // Now is whatever the current date is
 var Now = time.Now()
 
@@ -86,3 +89,9 @@ var NowPlusOneDay = Now.Add(OneDay)
 
 // NowPlusTwoDays is whatever the current date is plus two days
 var NowPlusTwoDays = Now.Add(OneDay * 2)
+
+// NowPlusOneWeek is whatever the current date is plus one week
+var NowPlusOneWeek = Now.Add(OneWeek)
+
+// NowPlusTwoWeeks is whatever the current date is plus two weeks
+var NowPlusTwoWeeks = Now.Add(OneWeek * 2)
