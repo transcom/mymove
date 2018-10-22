@@ -104,7 +104,7 @@ PanelSwaggerField.propTypes = {
 export class EditablePanel extends Component {
   handleEditClick = e => {
     e.preventDefault();
-    this.props.onEdit(true);
+    this.props.onEdit();
   };
 
   handleCancelClick = e => {
@@ -174,30 +174,23 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
       isEditable: false,
     };
 
-    componentDidUpdate = (prevProps, prevState) => {
-      if (!prevProps.editOriginServiceAgent && this.props.editOriginServiceAgent) {
-        this.setIsEditable(true);
-      }
-    };
-
     save = () => {
       let isValid = this.props.valid;
       if (isValid) {
         let args = this.props.getUpdateArgs();
         this.props.update(...args);
-        this.setIsEditable(false);
+        this.toggleEdit();
       }
+    };
+
+    toggleEdit = () => {
+      this.setState({ isEditable: !this.state.isEditable });
     };
 
     cancel = () => {
       this.props.reset();
-      this.setIsEditable(false);
-      if (this.props.title === 'Origin Service Agent') {
-        this.props.setEditServiceAgent(false);
-      }
+      this.toggleEdit();
     };
-
-    setIsEditable = isEditable => this.setState({ isEditable });
 
     render() {
       const isEditable = (editEnabled && (this.state.isEditable || this.props.isUpdating)) || false;
@@ -214,7 +207,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
             title={this.props.title}
             className={this.props.className}
             onSave={this.save}
-            onEdit={this.setIsEditable}
+            onEdit={this.toggleEdit}
             onCancel={this.cancel}
             isEditable={isEditable}
             editEnabled={editEnabled}
