@@ -21,39 +21,51 @@ import (
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
-		ID: *handlers.FmtUUID(s.ID),
-		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
-		ServiceMember:                       payloadForServiceMemberModel(&s.ServiceMember),
-		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
-		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
-		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
-		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
-		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
-		SourceGbloc:                         apimessages.GBLOC(*s.SourceGBLOC),
-		DestinationGbloc:                    apimessages.GBLOC(*s.DestinationGBLOC),
-		GblNumber:                           s.GBLNumber,
-		Market:                              apimessages.ShipmentMarket(*s.Market),
-		BookDate:                            *handlers.FmtDatePtr(s.BookDate),
-		OriginalPackDate:                    *handlers.FmtDatePtr(s.OriginalPackDate),
-		RequestedPickupDate:                 *handlers.FmtDatePtr(s.RequestedPickupDate),
-		OriginalDeliveryDate:                *handlers.FmtDatePtr(s.OriginalDeliveryDate),
-		Move:                                payloadForMoveModel(&s.Move),
-		Status:                              apimessages.ShipmentStatus(s.Status),
-		EstimatedPackDays:                   handlers.FmtInt64(*s.EstimatedPackDays),
-		EstimatedTransitDays:                handlers.FmtInt64(*s.EstimatedTransitDays),
-		PickupAddress:                       payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:           *handlers.FmtBool(s.HasSecondaryPickupAddress),
-		SecondaryPickupAddress:              payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:                  *handlers.FmtBool(s.HasDeliveryAddress),
-		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress:        *handlers.FmtBool(s.HasPartialSITDeliveryAddress),
-		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:                      handlers.FmtPoundPtr(s.WeightEstimate),
-		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
-		NetWeight:                           handlers.FmtPoundPtr(s.NetWeight),
-		GrossWeight:                         handlers.FmtPoundPtr(s.GrossWeight),
-		TareWeight:                          handlers.FmtPoundPtr(s.TareWeight),
+		ID:               *handlers.FmtUUID(s.ID),
+		Status:           apimessages.ShipmentStatus(s.Status),
+		SourceGbloc:      apimessages.GBLOC(*s.SourceGBLOC),
+		DestinationGbloc: apimessages.GBLOC(*s.DestinationGBLOC),
+		GblNumber:        s.GBLNumber,
+		Market:           apimessages.ShipmentMarket(*s.Market),
+		CreatedAt:        strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
+
+		// associations
+		TrafficDistributionList: payloadForTrafficDistributionListModel(s.TrafficDistributionList),
+		ServiceMember:           payloadForServiceMemberModel(&s.ServiceMember),
+		Move:                    payloadForMoveModel(&s.Move),
+
+		// dates
+		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
+		ActualPackDate:       handlers.FmtDatePtr(s.ActualPackDate),
+		ActualDeliveryDate:   handlers.FmtDatePtr(s.ActualDeliveryDate),
+		BookDate:             *handlers.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:  *handlers.FmtDatePtr(s.RequestedPickupDate),
+		OriginalDeliveryDate: *handlers.FmtDatePtr(s.OriginalDeliveryDate),
+		OriginalPackDate:     *handlers.FmtDatePtr(s.OriginalPackDate),
+
+		// calculated durations
+		EstimatedPackDays:    handlers.FmtInt64(*s.EstimatedPackDays),
+		EstimatedTransitDays: handlers.FmtInt64(*s.EstimatedTransitDays),
+
+		// addresses
+		PickupAddress:                payloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    handlers.FmtBool(s.HasSecondaryPickupAddress),
+		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           handlers.FmtBool(s.HasDeliveryAddress),
+		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: *handlers.FmtBool(s.HasPartialSITDeliveryAddress),
+		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
+
+		// weights
+		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
+		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
+		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
+
+		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
@@ -435,9 +447,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 			updateAddressWithPayload(shipment.PickupAddress, payload.PickupAddress)
 		}
 	}
-	if payload.HasSecondaryPickupAddress == false {
+	if *payload.HasSecondaryPickupAddress == false {
 		shipment.SecondaryPickupAddress = nil
-	} else if payload.HasSecondaryPickupAddress == true {
+	} else if *payload.HasSecondaryPickupAddress == true {
 		if payload.SecondaryPickupAddress != nil {
 			if shipment.SecondaryPickupAddress == nil {
 				shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
@@ -446,10 +458,10 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 			}
 		}
 	}
-	shipment.HasSecondaryPickupAddress = payload.HasSecondaryPickupAddress
-	if payload.HasDeliveryAddress == false {
+	shipment.HasSecondaryPickupAddress = *payload.HasSecondaryPickupAddress
+	if *payload.HasDeliveryAddress == false {
 		shipment.DeliveryAddress = nil
-	} else if payload.HasDeliveryAddress == true {
+	} else if *payload.HasDeliveryAddress == true {
 		if payload.DeliveryAddress != nil {
 			if shipment.DeliveryAddress == nil {
 				shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
@@ -458,7 +470,7 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 			}
 		}
 	}
-	shipment.HasDeliveryAddress = payload.HasDeliveryAddress
+	shipment.HasDeliveryAddress = *payload.HasDeliveryAddress
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment
