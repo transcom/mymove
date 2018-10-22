@@ -206,11 +206,11 @@ class ShipmentInfo extends Component {
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
-    const isAwarded = shipment.status === 'AWARDED';
-    const isApproved = shipment.status === 'APPROVED';
-    const isAccepted = shipment.status === 'ACCEPTED';
+    const awarded = shipment.status === 'AWARDED';
+    const approved = shipment.status === 'APPROVED';
+    const accepted = shipment.status === 'ACCEPTED';
     const inTransit = shipment.status === 'IN_TRANSIT';
-    const canAssignServiceAgents = (isApproved || isAccepted) && !hasOriginServiceAgent(serviceAgents);
+    const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -226,12 +226,12 @@ class ShipmentInfo extends Component {
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
-            {isAwarded && (
+            {awarded && (
               <NavLink to="/queues/new" activeClassName="usa-current">
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
-            {!isAwarded && (
+            {!awarded && (
               <NavLink to="/queues/all" activeClassName="usa-current">
                 <span>All Shipments Queue</span>
               </NavLink>
@@ -276,7 +276,7 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide panels-body">
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
-              {isAwarded && (
+              {awarded && (
                 <AcceptShipmentPanel
                   acceptShipment={this.acceptShipment}
                   rejectShipment={this.rejectShipment}
@@ -311,7 +311,7 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {isApproved &&
+              {approved &&
                 !actual_pack_date && (
                   <FormButton
                     FormComponent={PackDateForm}
@@ -320,7 +320,7 @@ class ShipmentInfo extends Component {
                     buttonTitle="Enter Packing"
                   />
                 )}
-              {isApproved &&
+              {approved &&
                 actual_pack_date &&
                 !actual_pickup_date && (
                   <FormButton

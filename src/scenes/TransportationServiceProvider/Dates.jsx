@@ -38,17 +38,17 @@ const DatesDisplay = props => {
         <PanelSwaggerField title="PM survey conducted" fieldName="pm_survey_conducted_date" required {...fieldProps} />
         <PanelSwaggerField title="Survey Method" fieldName="pm_survey_method" required {...fieldProps} />
         <div className="column-subhead">Packing</div>
-        {/* <PanelSwaggerField fieldName="original_pack_date" title="Original" {...fieldProps} /> */}
+        <PanelSwaggerField fieldName="original_pack_date" title="Original" {...fieldProps} />
         <PanelSwaggerField fieldName="pm_survey_planned_pack_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_pack_date" required title="Actual" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         <div className="column-subhead">Pickup</div>
-        {/* <PanelSwaggerField fieldName="requested_pickup_date" required title="Original" {...fieldProps} /> */}
+        <PanelSwaggerField fieldName="requested_pickup_date" required title="Original" {...fieldProps} />
         <PanelSwaggerField fieldName="pm_survey_planned_pickup_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_pickup_date" required title="Actual" {...fieldProps} />
         <div className="column-subhead">Delivery</div>
-        {/* <PanelSwaggerField fieldName="original_delivery_date" title="Original" {...fieldProps} /> */}
+        <PanelSwaggerField fieldName="original_delivery_date" title="Original" {...fieldProps} />
         <PanelSwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
         <PanelField className="rdd" title="RDD" value={rdd && formatDate(rdd)} />
@@ -74,17 +74,17 @@ const DatesEdit = props => {
           <SwaggerField fieldName="pm_survey_conducted_date" swagger={schema} />
           <SwaggerField fieldName="pm_survey_method" swagger={schema} />
           <div className="column-head">Packing</div>
-          {/* <PanelSwaggerField fieldName="original_pack_date" title="Original" {...fieldProps} /> */}
+          <PanelSwaggerField fieldName="original_pack_date" title="Original" {...fieldProps} />
           <SwaggerField fieldName="pm_survey_planned_pack_date" title="Planned" swagger={schema} />
           <SwaggerField fieldName="actual_pack_date" title="Actual" swagger={schema} />
         </div>
         <div className="editable-panel-column">
           <div className="column-head">Pickup</div>
-          {/* <PanelSwaggerField fieldName="requested_pickup_date" title="Original" {...fieldProps} /> */}
+          <PanelSwaggerField fieldName="requested_pickup_date" title="Original" {...fieldProps} />
           <SwaggerField fieldName="pm_survey_planned_pickup_date" title="Planned" swagger={schema} />
           <SwaggerField fieldName="actual_pickup_date" title="Actual" swagger={schema} />
           <div className="column-head">Delivery</div>
-          {/* <PanelSwaggerField fieldName="original_delivery_date" title="Original" {...fieldProps} /> */}
+          <PanelSwaggerField fieldName="original_delivery_date" title="Original" {...fieldProps} />
           <SwaggerField fieldName="pm_survey_planned_delivery_date" title="Planned" swagger={schema} />
           <SwaggerField fieldName="actual_delivery_date" title="Actual" swagger={schema} />
           <PanelField className="rdd" title="RDD" value={rdd && formatDate(rdd)} />
