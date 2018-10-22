@@ -4,7 +4,6 @@ import PreApprovalRequest from 'shared/PreApprovalRequest/PreApprovalRequest.jsx
 import { orderBy } from 'lodash';
 
 import './PreApprovalRequest.css';
-import { SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG } from 'constants';
 
 export class PreApprovalTable extends Component {
   state = { actionRequestId: null };
