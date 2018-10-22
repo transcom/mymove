@@ -223,11 +223,17 @@ class ShipmentInfo extends Component {
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
-            {!awarded && (
-              <NavLink to="/queues/all" activeClassName="usa-current">
-                <span>All Shipments Queue</span>
+            {approved && (
+              <NavLink to="/queues/approved" activeClassName="usa-current">
+                <span>Approved Shipments Queue</span>
               </NavLink>
             )}
+            {!awarded &&
+              !approved && (
+                <NavLink to="/queues/all" activeClassName="usa-current">
+                  <span>All Shipments Queue</span>
+                </NavLink>
+              )}
           </div>
         </div>
         <div className="usa-grid grid-wide">
