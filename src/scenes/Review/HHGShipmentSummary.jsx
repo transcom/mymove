@@ -48,7 +48,7 @@ export default function HHGShipmentSummary(props) {
             </tr>
             <tr>
               <td>Delivery:</td>
-              <td>{displayDateRange(shipment.move_dates_summary.delivery, 'condensed')}</td>
+              <td>{displayDateRange(shipment.move_dates_summary.delivery)}</td>
             </tr>
           </tbody>
         </table>
