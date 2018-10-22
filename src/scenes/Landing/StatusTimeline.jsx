@@ -23,17 +23,15 @@ export class StatusTimelineContainer extends PureComponent {
     const deliveryDates = get(moveDates, 'delivery', []);
     const transitDates = get(moveDates, 'transit', []);
     const formatType = 'condensed';
+
     return (
       <div className="status_timeline">
-        <StatusBlock name="Scheduled" dates={[this.props.bookDate]} formatType={formatType} active={true} />
-        <div className="status_line" />
-        <StatusBlock name="Packed" dates={packDates} formatType="condensed" />
-        <div className="status_line" />
+        <StatusBlock name="Scheduled" dates={[this.props.bookDate]} formatType={formatType} completed={true} />
+        <StatusBlock name="Packed" dates={packDates} formatType="condensed" current={true} />
         <StatusBlock name="Loaded" dates={pickupDates} formatType="condensed" />
-        <div className="status_line" />
         <StatusBlock name="In transit" dates={transitDates} formatType="condensed" />
-        <div className="status_line" />
         <StatusBlock name="Delivered" dates={deliveryDates} formatType="condensed" />
+        <div className="legend">* Estimated</div>
       </div>
     );
   }
@@ -61,12 +59,15 @@ function mapStateToProps(state, ownProps) {
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(StatusTimelineContainer));
 
 const StatusBlock = props => {
-  let active = props.active ? 'status_active' : '';
+  let classes = ['status_block', props.name.toLowerCase()];
+  if (props.completed) classes.push('status_completed');
+  if (props.current) classes.push('status_current');
+
   return (
-    <div className="status_block">
-      <div className={`status_dot ${active}`} />
+    <div className={classes.join(' ')}>
+      <div className="status_dot" />
       <div className="status_name">{props.name}</div>
-      {props.dates && <div>{displayDateRange(props.dates, props.formatType)}</div>}
+      {props.dates && <div className="status_dates">{displayDateRange(props.dates, props.formatType)}</div>}
     </div>
   );
 };

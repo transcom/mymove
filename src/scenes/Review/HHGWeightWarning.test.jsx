@@ -27,8 +27,18 @@ describe('HHG with too high a weight estimate', function() {
   });
 });
 
-describe('With valid weights', function() {
+describe('with valid weights', function() {
   const shipment = { weight_estimate: 1000, progear_weight_estimate: 200, spouse_progear_weight_estimate: 200 };
+  const entitlements = { weight: 2000, pro_gear: 300, pro_gear_spouse: 300 };
+  const wrapper = shallow(<HHGWeightWarning shipment={shipment} entitlements={entitlements} />);
+
+  it('shows no alerts', function() {
+    expect(wrapper.containsMatchingElement(Alert)).toEqual(false);
+  });
+});
+
+describe('with no estimates', function() {
+  const shipment = {};
   const entitlements = { weight: 2000, pro_gear: 300, pro_gear_spouse: 300 };
   const wrapper = shallow(<HHGWeightWarning shipment={shipment} entitlements={entitlements} />);
 

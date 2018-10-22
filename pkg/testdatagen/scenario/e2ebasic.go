@@ -1280,6 +1280,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	packDate := time.Now().AddDate(0, 0, 1)
 	pickupDate := time.Now().AddDate(0, 0, 5)
 	deliveryDate := time.Now().AddDate(0, 0, 10)
+	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "ABCD",
@@ -1320,17 +1321,20 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		},
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
-			Status:                      models.ShipmentStatusAWARDED,
-			PmSurveyPlannedPackDate:     &packDate,
+			Status:                      models.ShipmentStatusAPPROVED,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
 			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+			Accepted:                        models.BoolPointer(true),
 		},
 	})
 
