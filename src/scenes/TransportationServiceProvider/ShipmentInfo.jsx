@@ -178,7 +178,14 @@ class ShipmentInfo extends Component {
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const { context, shipment, shipmentDocuments } = this.props;
+    const {
+      context,
+      shipment,
+      shipmentDocuments,
+      generateGBLSuccess,
+      generateGBLError,
+      generateGBLInProgress,
+    } = this.props;
     const {
       service_member: serviceMember = {},
       move = {},
@@ -281,7 +288,7 @@ class ShipmentInfo extends Component {
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
-              {this.props.generateGBLError && (
+              {generateGBLError && (
                 <p>
                   <Alert type="warning" heading="An error occurred">
                     {attachmentsErrorMessages[this.props.error.statusCode] ||
@@ -289,7 +296,7 @@ class ShipmentInfo extends Component {
                   </Alert>
                 </p>
               )}
-              {this.props.generateGBLSuccess && (
+              {generateGBLSuccess && (
                 <p>
                   <Alert type="success" heading="GBL has been created">
                     <span className="usa-grid usa-alert-no-padding">
@@ -309,7 +316,7 @@ class ShipmentInfo extends Component {
                 pmSurveyComplete &&
                 !gblGenerated && (
                   <div>
-                    <button onClick={this.generateGBL} disabled={this.props.generateGBLInProgress}>
+                    <button onClick={this.generateGBL} disabled={generateGBLInProgress}>
                       Generate the GBL
                     </button>
                   </div>
