@@ -79,8 +79,9 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
 	// TODO: handle errors
 	usCalendar := handlers.NewUSCalendar()
-	// pack days- original pack date and future dates given estimated transit days
-	packDates := createFutureMoveDates(*shipment.OriginalPackDate, int(*shipment.EstimatedTransitDays), false, usCalendar)
+	// pack days
+	lastPossiblePackDay := time.Time(*shipment.RequestedPickupDate).AddDate(0, 0, -1)
+	packDates := createPastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)
 	// pickup days
 	pickupDates := createFutureMoveDates(*shipment.RequestedPickupDate, 1, false, usCalendar)
 	//transit days
