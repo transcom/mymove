@@ -14,9 +14,12 @@ describe('TSP User generates GBL', function() {
 });
 
 function tspUserGeneratesGBL() {
-  // Open new shipments queue
+  const gblButtonText = 'Generate the GBL';
+
+  // Open approved shipments queue
+  cy.visit('/queues/approved');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
+    expect(loc.pathname).to.match(/^\/queues\/approved/);
   });
 
   // Find shipment
@@ -31,7 +34,7 @@ function tspUserGeneratesGBL() {
 
   cy
     .get('button')
-    .contains('Generate the GBL')
+    .contains(gblButtonText)
     .should('be.enabled');
 
   cy.location().should(loc => {
@@ -43,12 +46,12 @@ function tspUserGeneratesGBL() {
 
   cy
     .get('button')
-    .contains('Generate the GBL')
+    .contains(gblButtonText)
     .click();
 
   cy
     .get('button')
-    .contains('Generate the GBL')
+    .contains(gblButtonText)
     .should('be.disabled');
 
   // I have seen this take anywhere from 8s - 18s. Until we optimize it, giving the test a long
@@ -64,21 +67,22 @@ function tspUserGeneratesGBL() {
 
   cy
     .get('button')
-    .contains('Generate the GBL')
+    .contains(gblButtonText)
     .click();
 
   cy
     .get('button')
-    .contains('Generate the GBL')
+    .contains(gblButtonText)
     .should('be.disabled');
 
   cy.get('.usa-alert-warning').contains('There is already a GBL for this shipment. ');
 }
 
 function tspUserViewsGBL() {
-  // Open new shipments queue
+  // Open approved shipments queue
+  cy.visit('/queues/approved');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
+    expect(loc.pathname).to.match(/^\/queues\/approved/);
   });
 
   // Find shipment
