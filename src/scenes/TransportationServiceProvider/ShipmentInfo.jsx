@@ -57,7 +57,7 @@ import './tsp.css';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
-  417: 'Missing data required to generate a Bill of Lading.',
+  417: 'Missing data required to generate a GBL.',
 };
 
 class AcceptShipmentPanel extends Component {
@@ -178,7 +178,14 @@ class ShipmentInfo extends Component {
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   render() {
-    const { context, shipment, shipmentDocuments } = this.props;
+    const {
+      context,
+      shipment,
+      shipmentDocuments,
+      generateGBLSuccess,
+      generateGBLError,
+      generateGBLInProgress,
+    } = this.props;
     const {
       service_member: serviceMember = {},
       move = {},
@@ -193,6 +200,16 @@ class ShipmentInfo extends Component {
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
+    const pmSurveyComplete = Boolean(
+      shipment.pm_survey_conducted_date &&
+        shipment.pm_survey_method &&
+        shipment.pm_survey_planned_pack_date &&
+        shipment.pm_survey_planned_pickup_date &&
+        shipment.pm_survey_planned_delivery_date &&
+        shipment.pm_survey_weight_estimate,
+    );
+    const gblGenerated =
+      shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -213,11 +230,17 @@ class ShipmentInfo extends Component {
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
-            {!awarded && (
-              <NavLink to="/queues/all" activeClassName="usa-current">
-                <span>All Shipments Queue</span>
+            {approved && (
+              <NavLink to="/queues/approved" activeClassName="usa-current">
+                <span>Approved Shipments Queue</span>
               </NavLink>
             )}
+            {!awarded &&
+              !approved && (
+                <NavLink to="/queues/all" activeClassName="usa-current">
+                  <span>All Shipments Queue</span>
+                </NavLink>
+              )}
           </div>
         </div>
         <div className="usa-grid grid-wide">
@@ -265,6 +288,39 @@ class ShipmentInfo extends Component {
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
+              {generateGBLError && (
+                <p>
+                  <Alert type="warning" heading="An error occurred">
+                    {attachmentsErrorMessages[this.props.error.statusCode] ||
+                      'Something went wrong contacting the server.'}
+                  </Alert>
+                </p>
+              )}
+              {generateGBLSuccess && (
+                <p>
+                  <Alert type="success" heading="GBL has been created">
+                    <span className="usa-grid usa-alert-no-padding">
+                      <span className="usa-width-two-thirds">
+                        Click the button to view, print, or download the GBL.
+                      </span>
+                      <span className="usa-width-one-third">
+                        <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                          <button>View GBL</button>
+                        </Link>
+                      </span>
+                    </span>
+                  </Alert>
+                </p>
+              )}
+              {approved &&
+                pmSurveyComplete &&
+                !gblGenerated && (
+                  <div>
+                    <button onClick={this.generateGBL} disabled={generateGBLInProgress}>
+                      Generate the GBL
+                    </button>
+                  </div>
+                )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -312,29 +368,6 @@ class ShipmentInfo extends Component {
                   buttonTitle="Enter Delivery"
                 />
               )}
-              {this.props.generateGBLError && (
-                <Alert type="warning" heading="An error occurred">
-                  {attachmentsErrorMessages[this.props.error.statusCode] ||
-                    'Something went wrong contacting the server.'}
-                </Alert>
-              )}
-              {this.props.generateGBLSuccess && (
-                <Alert type="success" heading="GBL has been created">
-                  <span className="usa-grid usa-alert-no-padding">
-                    <span className="usa-width-one-half">Click the button to view, print, or download the GBL.</span>
-                    <span className="usa-width-one-half">
-                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
-                        <button>View GBL</button>
-                      </Link>
-                    </span>
-                  </span>
-                </Alert>
-              )}
-              <div>
-                <button onClick={this.generateGBL} disabled={this.props.generateGBLInProgress}>
-                  Generate Bill of Lading
-                </button>
-              </div>
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
                 <CustomerInfo />

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import { get, includes, isEmpty } from 'lodash';
+import { get, includes } from 'lodash';
 import moment from 'moment';
 
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
@@ -129,7 +129,7 @@ export const SubmittedPpmMoveSummary = props => {
                 </div>
               </div>
               <div className="usa-width-one-third">
-                <MoveDetails ppm={ppm} />
+                <PPMMoveDetails ppm={ppm} />
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
@@ -257,7 +257,7 @@ export const ApprovedMoveSummary = withContext(props => {
                 )}
               </div>
               <div className="usa-width-one-third">
-                <MoveDetails ppm={ppm} />
+                <PPMMoveDetails ppm={ppm} />
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
@@ -278,8 +278,8 @@ export const ApprovedMoveSummary = withContext(props => {
   );
 });
 
-const MoveDetails = props => {
-  const { ppm, hhg } = props;
+const PPMMoveDetails = props => {
+  const { ppm } = props;
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -288,18 +288,13 @@ const MoveDetails = props => {
     : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
 
-  return !isEmpty(ppm) ? (
+  return (
     <div className="titled_block">
       <div className="title">Details</div>
       <div>Weight (est.): {ppm.weight_estimate} lbs</div>
       <div>Incentive (est.): {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
-    </div>
-  ) : (
-    <div className="titled_block">
-      <div className="title">Details</div>
-      <div>Weight (est.): {hhg.weight_estimate} lbs</div>
     </div>
   );
 };
