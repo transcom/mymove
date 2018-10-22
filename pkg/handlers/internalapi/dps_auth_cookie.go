@@ -46,7 +46,7 @@ func (h DPSAuthCookieHandler) Handle(params dps_auth.SetDPSAuthCookieParams) mid
 	}
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	cookie, err := dpsauth.UserIDToCookie(session.UserID.String())
+	cookie, err := dpsauth.UserIDToCookie(session.ServiceMemberID.String())
 	if err != nil {
 		h.Logger().Error("Converting user ID to cookie value", zap.Error(err))
 		return dps_auth.NewSetDPSAuthCookieInternalServerError()
