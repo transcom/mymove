@@ -138,17 +138,21 @@ let DeliveryDateForm = props => {
 
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
+// Action Buttons Conditions
 const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
+const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_planned_pack_date;
 
 class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
 
     this.assignServiceMember = React.createRef();
+    this.enterPreMoveSurvey = React.createRef();
   }
   state = {
     redirectToHome: false,
     editOriginServiceAgent: false,
+    editPreMoveSurvey: false,
   };
 
   componentDidMount() {
@@ -185,6 +189,7 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
+  // Access Service Agent Panels
   setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
 
   scrollToOriginServiceAgentPanel = () => {
@@ -194,6 +199,18 @@ class ShipmentInfo extends Component {
   toggleEditOriginServiceAgent = () => {
     this.scrollToOriginServiceAgentPanel();
     this.setEditServiceAgent(true);
+  };
+
+  // Access Pre Move Survey Panels
+  setEditPreMoveSurvey = editPreMoveSurvey => this.setState({ editPreMoveSurvey });
+
+  scrollToPreMoveSurveyPanel = () => {
+    const domNode = ReactDOM.findDOMNode(this.enterPreMoveSurvey.current);
+    domNode.scrollIntoView();
+  };
+  toggleEditPreMoveSurvey = () => {
+    this.scrollToPreMoveSurveyPanel();
+    this.setEditPreMoveSurvey(true);
   };
 
   render() {
@@ -232,6 +249,7 @@ class ShipmentInfo extends Component {
     const gblGenerated =
       shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
+    const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -348,10 +366,18 @@ class ShipmentInfo extends Component {
                   Assign Service Agents
                 </button>
               )}
+              {canEnterPreMoveSurvey && (
+                <button className="usa-button-primary" onClick={this.toggleEditPreMoveSurvey}>
+                  Enter pre-move survey
+                </button>
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <PremoveSurvey
+                    ref={this.enterPreMoveSurvey}
+                    editPreMoveSurvey={this.state.editPreMoveSurvey}
+                    setEditPreMoveSurvey={this.setEditPreMoveSurvey}
                     title="Premove Survey"
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
