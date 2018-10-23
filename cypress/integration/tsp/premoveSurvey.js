@@ -8,7 +8,7 @@ describe('TSP User Completes Premove Survey', function() {
   it('tsp user enters premove survey', function() {
     tspUserEntersPremoveSurveyUnprompted();
   });
-  it('tsp user uses action button to enter premove surevey', function() {
+  it('tsp user uses action button to enter premove survey', function() {
     tspUserClicksEnterPreMoveSurvey();
     tspUserFillsInPreMoveSurvey();
     tspUserVerifiesPreMoveSurveyEntered();
