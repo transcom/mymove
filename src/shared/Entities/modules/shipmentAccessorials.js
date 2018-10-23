@@ -2,6 +2,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getPublicClient } from 'shared/Swagger/api';
 import { shipmentAccessorials } from '../schema';
 import { denormalize } from 'normalizr';
+import { orderBy } from 'lodash';
 
 export function createShipmentAccessorial(label, shipmentId, payload) {
   return swaggerRequest(getPublicClient, 'accessorials.createShipmentAccessorial', { shipmentId, payload }, { label });
@@ -38,7 +39,14 @@ export function getAllShipmentAccessorials(label, shipmentId) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentAccessorials', { shipmentId }, { label });
 }
 
-export const selectShipmentAccessorials = state => Object.values(state.entities.shipmentAccessorials);
+export function selectShipmentAccessorials(state) {
+  const sortedList = orderBy(
+    Object.values(state.entities.shipmentAccessorials),
+    ['status', 'approved_date', 'submitted_date'],
+    ['asc', 'desc', 'desc'],
+  );
+  return sortedList;
+}
 
 export const getShipmentAccessorialsLabel = 'ShipmentAccessorials.getAllShipmentAccessorials';
 export const createShipmentAccessorialLabel = 'ShipmentAccessorials.createShipmentAccessorial';

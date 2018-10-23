@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PreApprovalRequest from 'shared/PreApprovalRequest/PreApprovalRequest.jsx';
-import { orderBy } from 'lodash';
 
 import './PreApprovalRequest.css';
 
@@ -33,24 +32,22 @@ export class PreApprovalTable extends Component {
               <th>Status</th>
               <th>&nbsp;</th>
             </tr>
-            {orderBy(shipmentAccessorials, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']).map(
-              row => {
-                let requestIsActionable =
-                  isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
-                return (
-                  <PreApprovalRequest
-                    key={row.id}
-                    shipmentLineItem={row}
-                    onEdit={onEdit}
-                    onApproval={onApproval}
-                    onDelete={onDelete}
-                    isActive={this.isRequestActive(row.id)}
-                    isActionable={requestIsActionable}
-                    tariff400ngItems={this.props.tariff400ngItems}
-                  />
-                );
-              },
-            )}
+            {shipmentAccessorials.map(row => {
+              const requestIsActionable =
+                isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
+              return (
+                <PreApprovalRequest
+                  key={row.id}
+                  shipmentLineItem={row}
+                  onEdit={onEdit}
+                  onApproval={onApproval}
+                  onDelete={onDelete}
+                  isActive={this.isRequestActive(row.id)}
+                  isActionable={requestIsActionable}
+                  tariff400ngItems={this.props.tariff400ngItems}
+                />
+              );
+            })}
           </tbody>
         </table>
       </div>
