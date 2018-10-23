@@ -1234,7 +1234,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	 */
 	email = "hhg@assign.serviceagent"
 
-	offer21 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	offer22 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("8ff1c3ca-4c51-40ad-9926-8add5463eb25")),
 			LoginGovEmail: email,
@@ -1265,9 +1265,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 	})
 
-	hhg21 := offer21.Shipment
-	hhg21.Move.Submit()
-	models.SaveMoveDependencies(db, &hhg21.Move)
+	hhg22 := offer22.Shipment
+	hhg22.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg22.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
