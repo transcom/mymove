@@ -15,7 +15,7 @@ import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 // TODO: Refactor when we switch to using a wizard
-// Editable panel specific to Assign Servivce Agents. Due to not using a wizard to assign the service agents this
+// Editable panel specific to Assign Service Agents. Due to not using a wizard to assign the service agents this
 // panel has highly specific behavior (opening the edit view via clicking on Assign Service Agents button)
 export class ServiceAgentEditablePanel extends Component {
   handleEditClick = e => {

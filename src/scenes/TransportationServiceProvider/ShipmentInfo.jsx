@@ -363,7 +363,7 @@ class ShipmentInfo extends Component {
                 )}
               {canAssignServiceAgents && (
                 <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
-                  Assign Service Agents
+                  Assign servicing agents
                 </button>
               )}
               {canEnterPreMoveSurvey && (
