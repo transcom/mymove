@@ -2,6 +2,20 @@
 -- This will be run on development environments. It should mirror what you
 -- intend to apply on production, but do not include any sensitive data.
 
+-- Update the Truss TSP contact info
+
+UPDATE transportation_service_providers
+SET
+    name = 'Truss Transit Services',
+    supplier_id = 'TRS1337',
+    poc_general_name = 'Curt Trussel',
+    poc_general_email = 'test@example.com',
+    poc_general_phone = '(555) 123-4567',
+    poc_claims_name = 'Party Parrot',
+    poc_claims_email = 'test@example.com',
+    poc_claims_phone = '(555) 321-4321'
+WHERE standard_carrier_alpha_code = 'TRS1';
+
 -- Enroll TSPs in the HHG program and add data
 -- "supplier_id" fields do not match production fields
 
