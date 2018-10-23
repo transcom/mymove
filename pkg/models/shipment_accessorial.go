@@ -98,5 +98,6 @@ func (s *ShipmentAccessorial) Approve() error {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 	s.Status = ShipmentAccessorialStatusAPPROVED
+	s.ApprovedDate = time.Now()
 	return nil
 }
