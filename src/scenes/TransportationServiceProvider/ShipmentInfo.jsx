@@ -373,11 +373,6 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
-  //add gbl doc if generated and doesn't exist currently
-  if (get(state, 'tsp.gblDoc') && !get(state, 'entities.moveDocuments[' + state.tsp.gblDoc.id + ']')) {
-    state.entities.moveDocuments[state.tsp.gblDoc.id] = state.tsp.gblDoc;
-    state.entities.uploads[state.tsp.gblDoc.document.uploads[0].id] = state.tsp.gblDoc.document.uploads[0];
-  }
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
