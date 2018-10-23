@@ -55,14 +55,20 @@ func main() {
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
 	client := http.Client{Transport: transport}
+
+	rbs := iws.RealTimeBrokerService{
+		Client:  client,
+		Host:    *host,
+		CustNum: *custNum,
+	}
 	var retcode int
 
 	if *edipi != 0 {
-		retcode = edi(client, *host, *custNum, *edipi)
+		retcode = edi(rbs, *edipi)
 	} else if *ssn != "" {
-		retcode = pids(client, *host, *custNum, *ssn, *lastName, *firstName)
+		retcode = pids(rbs, *ssn, *lastName, *firstName)
 	} else if *workEmail != "" {
-		retcode = wkEma(client, *host, *custNum, *workEmail)
+		retcode = wkEma(rbs, *workEmail)
 	} else {
 		flag.Usage()
 		retcode = -1
@@ -71,9 +77,9 @@ func main() {
 	os.Exit(retcode)
 }
 
-func edi(client http.Client, host string, custNum string, edipi uint64) int {
-	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: edi\nEDIPI: %d\n", host, custNum, edipi)
-	person, personnel, err := iws.GetPersonUsingEDIPI(client, host, custNum, edipi)
+func edi(rbs iws.RealTimeBrokerService, edipi uint64) int {
+	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: edi\nEDIPI: %d\n", rbs.Host, rbs.CustNum, edipi)
+	person, personnel, err := rbs.GetPersonUsingEDIPI(edipi)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -89,15 +95,15 @@ func edi(client http.Client, host string, custNum string, edipi uint64) int {
 	return 0
 }
 
-func pids(client http.Client, host string, custNum string, ssn string, lastName string, firstName string) int {
-	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: pids-P\nSSN: %s\nLast Name: %s\nFirst Name: %s\n", host, custNum, ssn, lastName, firstName)
+func pids(rbs iws.RealTimeBrokerService, ssn string, lastName string, firstName string) int {
+	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: pids-P\nSSN: %s\nLast Name: %s\nFirst Name: %s\n", rbs.Host, rbs.CustNum, ssn, lastName, firstName)
 
 	params := iws.GetPersonUsingSSNParams{
 		Ssn:       ssn,
 		LastName:  lastName,
 		FirstName: firstName,
 	}
-	reason, edipi, person, personnel, err := iws.GetPersonUsingSSN(client, host, custNum, params)
+	reason, edipi, person, personnel, err := rbs.GetPersonUsingSSN(params)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -113,9 +119,9 @@ func pids(client http.Client, host string, custNum string, ssn string, lastName 
 	return 0
 }
 
-func wkEma(client http.Client, host string, custNum string, email string) int {
-	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: wkEma\nWork E-mail: %s\n", host, custNum, email)
-	edipi, person, personnel, err := iws.GetPersonUsingWorkEmail(client, host, custNum, email)
+func wkEma(rbs iws.RealTimeBrokerService, email string) int {
+	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: wkEma\nWork E-mail: %s\n", rbs.Host, rbs.CustNum, email)
+	edipi, person, personnel, err := rbs.GetPersonUsingWorkEmail(email)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
