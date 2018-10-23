@@ -55,11 +55,11 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	newShipment := internalmessages.Shipment{
 		PickupAddress:                addressPayload,
-		HasSecondaryPickupAddress:    true,
+		HasSecondaryPickupAddress:    handlers.FmtBool(true),
 		SecondaryPickupAddress:       addressPayload,
-		HasDeliveryAddress:           true,
+		HasDeliveryAddress:           handlers.FmtBool(true),
 		DeliveryAddress:              addressPayload,
-		HasPartialSitDeliveryAddress: true,
+		HasPartialSitDeliveryAddress: handlers.FmtBool(true),
 		PartialSitDeliveryAddress:    addressPayload,
 		WeightEstimate:               swag.Int64(4500),
 		ProgearWeightEstimate:        swag.Int64(325),
@@ -94,11 +94,11 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.EqualValues(3, *createShipmentPayload.EstimatedPackDays)
 	suite.EqualValues(12, *createShipmentPayload.EstimatedTransitDays)
 	suite.verifyAddressFields(addressPayload, createShipmentPayload.PickupAddress)
-	suite.Equal(true, createShipmentPayload.HasSecondaryPickupAddress)
+	suite.Equal(true, *createShipmentPayload.HasSecondaryPickupAddress)
 	suite.verifyAddressFields(addressPayload, createShipmentPayload.SecondaryPickupAddress)
-	suite.Equal(true, createShipmentPayload.HasDeliveryAddress)
+	suite.Equal(true, *createShipmentPayload.HasDeliveryAddress)
 	suite.verifyAddressFields(addressPayload, createShipmentPayload.DeliveryAddress)
-	suite.Equal(true, createShipmentPayload.HasPartialSitDeliveryAddress)
+	suite.Equal(true, *createShipmentPayload.HasPartialSitDeliveryAddress)
 	suite.verifyAddressFields(addressPayload, createShipmentPayload.PartialSitDeliveryAddress)
 	suite.Equal(swag.Int64(4500), createShipmentPayload.WeightEstimate)
 	suite.Equal(swag.Int64(325), createShipmentPayload.ProgearWeightEstimate)
@@ -154,11 +154,11 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Nil(unwrapped.Payload.ActualPickupDate)
 	suite.Nil(unwrapped.Payload.ActualDeliveryDate)
 	suite.Nil(unwrapped.Payload.PickupAddress)
-	suite.Equal(false, unwrapped.Payload.HasSecondaryPickupAddress)
+	suite.Equal(false, *unwrapped.Payload.HasSecondaryPickupAddress)
 	suite.Nil(unwrapped.Payload.SecondaryPickupAddress)
-	suite.Equal(false, unwrapped.Payload.HasDeliveryAddress)
+	suite.Equal(false, *unwrapped.Payload.HasDeliveryAddress)
 	suite.Nil(unwrapped.Payload.DeliveryAddress)
-	suite.Equal(false, unwrapped.Payload.HasPartialSitDeliveryAddress)
+	suite.Equal(false, *unwrapped.Payload.HasPartialSitDeliveryAddress)
 	suite.Nil(unwrapped.Payload.PartialSitDeliveryAddress)
 	suite.Nil(unwrapped.Payload.WeightEstimate)
 	suite.Nil(unwrapped.Payload.ProgearWeightEstimate)
@@ -207,8 +207,8 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	newAddress := otherFakeAddressPayload()
 
 	payload := internalmessages.Shipment{
-		HasSecondaryPickupAddress:   false,
-		HasDeliveryAddress:          true,
+		HasSecondaryPickupAddress:   handlers.FmtBool(false),
+		HasDeliveryAddress:          handlers.FmtBool(true),
 		DeliveryAddress:             newAddress,
 		SpouseProgearWeightEstimate: swag.Int64(100),
 	}
@@ -226,10 +226,10 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	okResponse := response.(*shipmentop.PatchShipmentOK)
 	patchShipmentPayload := okResponse.Payload
 
-	suite.Equal(patchShipmentPayload.HasDeliveryAddress, true, "HasDeliveryAddress should have been updated.")
+	suite.Equal(*patchShipmentPayload.HasDeliveryAddress, true, "HasDeliveryAddress should have been updated.")
 	suite.verifyAddressFields(newAddress, patchShipmentPayload.DeliveryAddress)
 
-	suite.Equal(patchShipmentPayload.HasSecondaryPickupAddress, false, "HasSecondaryPickupAddress should have been updated.")
+	suite.Equal(*patchShipmentPayload.HasSecondaryPickupAddress, false, "HasSecondaryPickupAddress should have been updated.")
 	suite.Nil(patchShipmentPayload.SecondaryPickupAddress, "SecondaryPickupAddress should have been updated to nil.")
 
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")

@@ -123,6 +123,21 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		requestedPickupDate = &date
 	}
 
+	hasSecondaryPickupAddress := false
+	if payload.HasSecondaryPickupAddress != nil {
+		hasSecondaryPickupAddress = *payload.HasSecondaryPickupAddress
+	}
+
+	hasDeliveryAddress := false
+	if payload.HasDeliveryAddress != nil {
+		hasDeliveryAddress = *payload.HasDeliveryAddress
+	}
+
+	hasPartialSitDeliveryAddress := false
+	if payload.HasPartialSitDeliveryAddress != nil {
+		hasPartialSitDeliveryAddress = *payload.HasPartialSitDeliveryAddress
+	}
+
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		ServiceMemberID:              session.ServiceMemberID,
@@ -134,11 +149,11 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(payload.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate),
 		PickupAddress:                pickupAddress,
-		HasSecondaryPickupAddress:    *payload.HasSecondaryPickupAddress,
+		HasSecondaryPickupAddress:    hasSecondaryPickupAddress,
 		SecondaryPickupAddress:       secondaryPickupAddress,
-		HasDeliveryAddress:           *payload.HasDeliveryAddress,
+		HasDeliveryAddress:           hasDeliveryAddress,
 		DeliveryAddress:              deliveryAddress,
-		HasPartialSITDeliveryAddress: *payload.HasPartialSitDeliveryAddress,
+		HasPartialSITDeliveryAddress: hasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
 		Market: &market,
 	}
