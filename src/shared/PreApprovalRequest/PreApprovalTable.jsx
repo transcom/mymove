@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import PreApprovalRequest from 'shared/PreApprovalRequest/PreApprovalRequest.jsx';
 
 import './PreApprovalRequest.css';
 
-export class PreApprovalTable extends Component {
+export class PreApprovalTable extends PureComponent {
   state = { actionRequestId: null };
   isRequestActive = id => {
     return isActive => {
