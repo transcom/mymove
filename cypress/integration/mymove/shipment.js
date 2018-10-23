@@ -130,13 +130,37 @@ describe('completing the hhg flow', function() {
     });
 
     // Progear Weights
+
+    // Check yes for radios
+    cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
+
     cy
       .get('input[name="progear_weight_estimate"]')
       .clear()
-      .type('250')
+      .type('2500');
+
+    cy.contains('Entitlement exceeded');
+
+    cy
+      .get('input[name="progear_weight_estimate"]')
+      .clear()
+      .type('250');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
+
+    cy
+      .get('input[name="spouse_progear_weight_estimate"]')
+      .clear()
+      .type('1580');
+
+    cy.contains('Entitlement exceeded');
+
+    cy
       .get('input[name="spouse_progear_weight_estimate"]')
       .clear()
       .type('158');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
 
     // Review page
     cy.nextPage();

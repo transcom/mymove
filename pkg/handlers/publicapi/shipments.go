@@ -45,8 +45,8 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		OriginalPackDate:     *handlers.FmtDatePtr(s.OriginalPackDate),
 
 		// calculated durations
-		EstimatedPackDays:    handlers.FmtInt64(*s.EstimatedPackDays),
-		EstimatedTransitDays: handlers.FmtInt64(*s.EstimatedTransitDays),
+		EstimatedPackDays:    s.EstimatedPackDays,
+		EstimatedTransitDays: s.EstimatedTransitDays,
 
 		// addresses
 		PickupAddress:                payloadForAddressModel(s.PickupAddress),
