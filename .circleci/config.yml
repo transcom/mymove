@@ -218,7 +218,8 @@ jobs:
           # itself starts making database connections.
           name: Install postgres client
           command: |
-            sudo apt-get -qq update
+            # HACK(dynamike) re-add call to apt-get update until the upstream repo is stable
+            #sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-9.6
       - run:
           name: Cypress deps
