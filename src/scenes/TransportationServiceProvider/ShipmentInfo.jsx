@@ -185,6 +185,11 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
+  handleOrigin = () => {
+    const newDocumentUrl = `/shipments/${this.props.match.params.shipmentId}/documents/new`;
+    window.open(newDocumentUrl, window);
+  };
+
   setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
 
   scrollToOriginServiceAgentPanel = () => {
@@ -204,6 +209,8 @@ class ShipmentInfo extends Component {
       generateGBLSuccess,
       generateGBLError,
       generateGBLInProgress,
+      showUploadOriginDocs,
+      gblGenerated,
       serviceAgents,
     } = this.props;
     const {
@@ -213,10 +220,10 @@ class ShipmentInfo extends Component {
       actual_pack_date,
       actual_pickup_date,
     } = shipment;
+    const showDocumentViewer = context.flags.documentViewer;
 
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
-    const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
     const accepted = shipment.status === 'ACCEPTED';
@@ -229,8 +236,6 @@ class ShipmentInfo extends Component {
         shipment.pm_survey_planned_delivery_date &&
         shipment.pm_survey_weight_estimate,
     );
-    const gblGenerated =
-      shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
 
     if (this.state.redirectToHome) {
@@ -318,6 +323,15 @@ class ShipmentInfo extends Component {
                   </Alert>
                 </p>
               )}
+              {showUploadOriginDocs && <button onClick={this.handleOrigin}>Upload Origin Docs</button>}
+              {inTransit && (
+                <FormButton
+                  FormComponent={DeliveryDateForm}
+                  schema={this.props.deliverSchema}
+                  onSubmit={this.deliverShipment}
+                  buttonTitle="Enter Delivery"
+                />
+              )}
               {generateGBLSuccess && (
                 <p>
                   <Alert type="success" heading="GBL has been created">
@@ -390,14 +404,6 @@ class ShipmentInfo extends Component {
                     buttonTitle="Enter Pickup"
                   />
                 )}
-              {inTransit && (
-                <FormButton
-                  FormComponent={DeliveryDateForm}
-                  schema={this.props.deliverSchema}
-                  onSubmit={this.deliverShipment}
-                  buttonTitle="Enter Delivery"
-                />
-              )}
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
                 <CustomerInfo />
@@ -436,11 +442,27 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
-
+  const { actual_pack_date, actual_pickup_date, gross_weight, tare_weight, net_weight, status } = shipment;
+  const hasWeights = gross_weight && tare_weight && net_weight;
+  const shipmentDocuments = selectShipmentDocuments(state, shipment.id);
+  const gblGenerated =
+    shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+  const hasNoOriginDocs = shipmentDocuments.every(
+    ({ move_document_type }) => move_document_type !== 'WEIGHT_TICKET' && move_document_type !== 'OTHER',
+  );
+  const showUploadOriginDocs = !!(
+    hasNoOriginDocs &&
+    hasWeights &&
+    actual_pack_date &&
+    actual_pickup_date &&
+    status === 'IN_TRANSIT'
+  );
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
-    shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    showUploadOriginDocs,
+    shipmentDocuments,
+    gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
