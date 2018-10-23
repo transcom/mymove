@@ -42,6 +42,12 @@ describe('TSP User enters and updates Service Agents', function() {
   it('tsp user accepts a shipment', function() {
     tspUserAcceptsShipment();
   });
+
+  it('tsp user assigns a service agent', function() {
+    tspUserAssignsServiceAgent();
+    tspUserInputsServiceAgent('Origin');
+    tspUserSavesServiceAgent('Origin');
+  });
 });
 
 function getFixture(role) {
@@ -251,4 +257,34 @@ function tspUserAcceptsShipment() {
     .contains('Accepted');
 
   cy.get('a').contains('All Shipments Queue');
+}
+
+function tspUserAssignsServiceAgent() {
+  cy.visit('/queues/all');
+
+  // Find shipment and open it
+  cy
+    .get('div')
+    .contains('ASSIGN')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  // Status should be Accepted
+  cy
+    .get('li')
+    .get('b')
+    .contains('Accepted');
+
+  cy
+    .get('button')
+    .contains('Assign Service Agents')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Assign Service Agents')
+    .click();
 }
