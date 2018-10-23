@@ -1,6 +1,8 @@
 package dpsapi
 
 import (
+	"strconv"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
@@ -10,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
 	"github.com/transcom/mymove/pkg/gen/dpsmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 )
@@ -36,7 +39,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 		return dps.NewGetUserInternalServerError()
 	}
 
-	payload, err := getPayload(h.DB(), smID)
+	payload, err := getPayload(h.DB(), smID, h.IWSRealTimeBrokerService())
 	if err != nil {
 		h.Logger().Error("Fetching user data from user ID", zap.Error(err))
 		return dps.NewGetUserInternalServerError()
@@ -45,7 +48,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	return dps.NewGetUserOK().WithPayload(payload)
 }
 
-func getPayload(db *pop.Connection, smID string) (*dpsmessages.AuthenticationUserPayload, error) {
+func getPayload(db *pop.Connection, smID string, rbs iws.RealTimeBrokerService) (*dpsmessages.AuthenticationUserPayload, error) {
 	id, err := uuid.FromString(smID)
 	if err != nil {
 		return nil, err
@@ -66,7 +69,7 @@ func getPayload(db *pop.Connection, smID string) (*dpsmessages.AuthenticationUse
 		affiliation = &dpsaffiliation
 	}
 
-	ssn, err := getSSNFromIWS(sm.Edipi)
+	ssn, err := getSSNFromIWS(sm.Edipi, rbs)
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting SSN from IWS using EDIPI")
 	}
@@ -89,12 +92,24 @@ func getPayload(db *pop.Connection, smID string) (*dpsmessages.AuthenticationUse
 	return &payload, nil
 }
 
-func getSSNFromIWS(edipi *string) (string, error) {
+func getSSNFromIWS(edipi *string, rbs iws.RealTimeBrokerService) (string, error) {
 	if edipi == nil {
 		return "", errors.New("Service member is missing EDIPI")
 	}
 
-	// TODO
+	edipiInt, err := strconv.ParseUint(*edipi, 10, 64)
+	if err != nil {
+		return "", errors.Wrap(err, "Converting EDIPI from string to int")
+	}
 
-	return "", nil
+	person, _, err := rbs.GetPersonUsingEDIPI(edipiInt)
+	if err != nil {
+		return "", errors.Wrap(err, "Using IWS")
+	}
+
+	if person.TypeCode != iws.PersonTypeCodeSSN {
+		return "", errors.New("Person from IWS does not have SSN TypeCode")
+	}
+
+	return person.ID, nil
 }

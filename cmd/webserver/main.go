@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -259,6 +260,9 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
+	rbs := createRealTimeBrokerService(*moveMilDODTLSCert, *moveMilDODTLSKey, logger)
+	handlerContext.SetIWSRealTimeBrokerService(rbs)
+
 	// Base routes
 	site := goji.NewMux()
 	// Add middleware: they are evaluated in the reverse order in which they
@@ -454,5 +458,39 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(mergedHTML))
+	}
+}
+
+func createRealTimeBrokerService(certString string, keyString string, logger *zap.Logger) iws.RealTimeBrokerService {
+	// Load client cert
+	cert, err := tls.X509KeyPair([]byte(certString), []byte(keyString))
+	if err != nil {
+		logger.Fatal("could not load cert", zap.Error(err))
+	}
+
+	/* TODO: add root CAs when James' PR is in
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(<root cas []byte>)
+	*/
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		//RootCAs:      caCertPool,
+	}
+	tlsConfig.BuildNameToCertificate()
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+
+	client := http.Client{Transport: transport}
+	host := os.Getenv("IWS_RBS_HOST")
+	custNum := os.Getenv("IWS_RBS_CUST_NUM")
+	if host == "" || custNum == "" {
+		logger.Fatal("IWS host or customer number is not set")
+	}
+
+	return iws.RealTimeBrokerService{
+		Client:  client,
+		Host:    host,
+		CustNum: custNum,
 	}
 }
