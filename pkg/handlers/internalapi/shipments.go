@@ -47,37 +47,50 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 	}
 
 	shipmentPayload := &internalmessages.Shipment{
-		ID:     strfmt.UUID(s.ID.String()),
-		MoveID: strfmt.UUID(s.MoveID.String()),
-		TrafficDistributionListID:           handlers.FmtUUIDPtr(s.TrafficDistributionListID),
-		ServiceMemberID:                     strfmt.UUID(s.ServiceMemberID.String()),
-		SourceGbloc:                         s.SourceGBLOC,
-		DestinationGbloc:                    s.DestinationGBLOC,
-		Market:                              s.Market,
-		CodeOfService:                       codeOfService,
-		Status:                              internalmessages.ShipmentStatus(s.Status),
-		BookDate:                            handlers.FmtDatePtr(s.BookDate),
-		RequestedPickupDate:                 handlers.FmtDatePtr(s.RequestedPickupDate),
-		OriginalDeliveryDate:                handlers.FmtDatePtr(s.OriginalDeliveryDate),
-		OriginalPackDate:                    handlers.FmtDatePtr(s.OriginalPackDate),
-		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
-		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
-		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
-		MoveDatesSummary:                    moveDatesSummary,
-		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
-		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
-		EstimatedPackDays:                   s.EstimatedPackDays,
-		EstimatedTransitDays:                s.EstimatedTransitDays,
-		PickupAddress:                       payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:           s.HasSecondaryPickupAddress,
-		SecondaryPickupAddress:              payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:                  s.HasDeliveryAddress,
-		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress:        s.HasPartialSITDeliveryAddress,
-		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:                      handlers.FmtPoundPtr(s.WeightEstimate),
-		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		ID:               strfmt.UUID(s.ID.String()),
+		Status:           internalmessages.ShipmentStatus(s.Status),
+		SourceGbloc:      s.SourceGBLOC,
+		DestinationGbloc: s.DestinationGBLOC,
+		Market:           s.Market,
+		CodeOfService:    codeOfService,
+		CreatedAt:        strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
+
+		// associations
+		TrafficDistributionListID: handlers.FmtUUIDPtr(s.TrafficDistributionListID),
+		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
+		MoveID:                    strfmt.UUID(s.MoveID.String()),
+		ServiceAgents:             serviceAgentPayloads,
+
+		// dates
+		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
+		ActualPackDate:       handlers.FmtDatePtr(s.ActualPackDate),
+		ActualDeliveryDate:   handlers.FmtDatePtr(s.ActualDeliveryDate),
+		BookDate:             handlers.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:  handlers.FmtDatePtr(s.RequestedPickupDate),
+		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
+		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
+		MoveDatesSummary:     moveDatesSummary,
+
+		// calculated durations
+		EstimatedPackDays:    s.EstimatedPackDays,
+		EstimatedTransitDays: s.EstimatedTransitDays,
+
+		// addresses
+		PickupAddress:                payloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    s.HasSecondaryPickupAddress,
+		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           s.HasDeliveryAddress,
+		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: s.HasPartialSITDeliveryAddress,
+		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
+
+		// weights
+		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+
+		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
@@ -87,7 +100,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
-		ServiceAgents:                       serviceAgentPayloads,
 	}
 	return shipmentPayload, err
 }
