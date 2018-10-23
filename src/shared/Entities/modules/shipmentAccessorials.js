@@ -2,7 +2,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getPublicClient } from 'shared/Swagger/api';
 import { shipmentAccessorials } from '../schema';
 import { denormalize } from 'normalizr';
-import { orderBy } from 'lodash';
+import { get, orderBy } from 'lodash';
 import { createSelector } from 'reselect';
 
 export function createShipmentAccessorial(label, shipmentId, payload) {
@@ -40,18 +40,9 @@ export function getAllShipmentAccessorials(label, shipmentId) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentAccessorials', { shipmentId }, { label });
 }
 
-export const selectShipmentAccessorials = createSelector(
-  [
-    state => {
-      const sortedList = orderBy(
-        Object.values(state.entities.shipmentAccessorials),
-        ['status', 'approved_date', 'submitted_date'],
-        ['asc', 'desc', 'desc'],
-      );
-      return sortedList;
-    },
-  ],
-  value => value,
+const selectShipmentAccessorials = state => get(state, 'entities.shipmentAccessorials', {});
+export const selectSortedShipmentAccessorials = createSelector([selectShipmentAccessorials], shipmentAccessorials =>
+  orderBy(Object.values(shipmentAccessorials), ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
 );
 
 export const getShipmentAccessorialsLabel = 'ShipmentAccessorials.getAllShipmentAccessorials';
