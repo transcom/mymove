@@ -77,7 +77,6 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 }
 
 func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
-	// TODO: handle errors
 	usCalendar := handlers.NewUSCalendar()
 	// pack days
 	if shipment.RequestedPickupDate == nil {

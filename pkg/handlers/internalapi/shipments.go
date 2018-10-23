@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
-func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
+func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
 	// TODO: closely match the database structure.
@@ -34,16 +34,16 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		serviceAgentPayloads = append(serviceAgentPayloads, payload)
 	}
 
-	summary, err := calculateMoveDatesFromShipment(&s)
-	if err != nil {
-		return &internalmessages.Shipment{}, err
-	}
+	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
+	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
+		summary, _ := calculateMoveDatesFromShipment(&s)
 
-	var moveDatesSummary = &internalmessages.ShipmentMoveDatesSummary{
-		Pack:     handlers.FmtDateSlice(summary.PackDays),
-		Pickup:   handlers.FmtDateSlice(summary.PickupDays),
-		Transit:  handlers.FmtDateSlice(summary.TransitDays),
-		Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
+		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
+			Pack:     handlers.FmtDateSlice(summary.PackDays),
+			Pickup:   handlers.FmtDateSlice(summary.PickupDays),
+			Transit:  handlers.FmtDateSlice(summary.TransitDays),
+			Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
+		}
 	}
 
 	shipmentPayload := &internalmessages.Shipment{
@@ -70,7 +70,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		RequestedPickupDate:  handlers.FmtDatePtr(s.RequestedPickupDate),
 		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
 		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
-		MoveDatesSummary:     moveDatesSummary,
+		MoveDatesSummary:     &moveDatesSummary,
 
 		// calculated durations
 		EstimatedPackDays:    s.EstimatedPackDays,
@@ -101,7 +101,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
 	}
-	return shipmentPayload, err
+	return shipmentPayload
 }
 
 // CreateShipmentHandler creates a Shipment
@@ -164,7 +164,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(newShipment)
+	shipmentPayload := payloadForShipmentModel(newShipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -296,7 +296,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(*shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -346,7 +346,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(*shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -382,7 +382,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(*shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -417,7 +417,7 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(*shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
