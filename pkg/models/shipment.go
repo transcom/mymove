@@ -115,9 +115,9 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
 		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
 		&OptionalInt64IsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
-		&OptionalPoundIsPositive{Field: s.WeightEstimate, Name: "weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
 	), nil
 }
 

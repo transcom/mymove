@@ -76,17 +76,17 @@ func (v *OptionalIntIsPositive) IsValid(errors *validate.Errors) {
 	}
 }
 
-// OptionalPoundIsPositive adds an error if the Field is less than or equal to zero
-type OptionalPoundIsPositive struct {
+// OptionalPoundIsNonNegative adds an error if the Field is less than zero
+type OptionalPoundIsNonNegative struct {
 	Name  string
 	Field *unit.Pound
 }
 
-// IsValid adds an error if the Field is less than or equal to zero
-func (v *OptionalPoundIsPositive) IsValid(errors *validate.Errors) {
+// IsValid adds an error if the Field is less than zero
+func (v *OptionalPoundIsNonNegative) IsValid(errors *validate.Errors) {
 	if v.Field != nil {
-		if *v.Field <= 0 {
-			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than or equal to zero.", *v.Field))
+		if *v.Field < 0 {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than zero.", *v.Field))
 		}
 	}
 }
