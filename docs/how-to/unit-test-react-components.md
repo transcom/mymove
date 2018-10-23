@@ -58,6 +58,33 @@ Alternatively, you can use `html()` to render a node to HTML and make assertions
 
 While providing a more realistic perspective on the application's behavior, using `mount` can be problematic. One cause of this is that certain components (such as `Link` from `react-router`) can't be rendered unless they appear beneath another component or provider. In such a case, you'll need to setup any providers or parent components and render the component under test inside them.
 
+For example, if a component needs to be rendered within a `Provider` that provides the `store` prop, you'll need to render it like so in a test:
+
+```javascript
+import React from 'react';
+import { Provider } from 'react-redux';
+import ReactDOM from 'react-dom';
+import configureStore from 'redux-mock-store';
+import { mount } from 'enzyme';
+
+describe('HomePage tests', () => {
+  const mockStore = configureStore();
+  let store;
+  describe('When the user has never logged in before', function() {
+    store = mockStore({});
+    const wrapper = mount(
+      <Provider store={store}>
+        <ComponentThatNeedsAccessToTheStore />
+      </Provider>,
+    );
+
+    // assertions go here
+  });
+});
+```
+
+Generally, however, it is recommended to use the container pattern to separate the data access and rendering concerns of a component and to focus unit tests on the inner component.
+
 ## Static Rendering
 
 Static rendering renders a React component to HTML and provides a [nice API](https://github.com/cheeriojs/cheerio/tree/aa90399c9c02f12432bfff97b8f1c7d8ece7c307#api) for traversing the resulting markup.
