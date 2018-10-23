@@ -203,6 +203,9 @@ class ShipmentInfo extends Component {
 
   render() {
     const {
+      awarded,
+      approved,
+      inTransit,
       context,
       shipment,
       shipmentDocuments,
@@ -224,10 +227,7 @@ class ShipmentInfo extends Component {
 
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
-    const awarded = shipment.status === 'AWARDED';
-    const approved = shipment.status === 'APPROVED';
-    const accepted = shipment.status === 'ACCEPTED';
-    const inTransit = shipment.status === 'IN_TRANSIT';
+
     const pmSurveyComplete = Boolean(
       shipment.pm_survey_conducted_date &&
         shipment.pm_survey_method &&
@@ -443,6 +443,9 @@ class ShipmentInfo extends Component {
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
   const { actual_pack_date, actual_pickup_date, gross_weight, tare_weight, net_weight, status } = shipment;
+  const awarded = status === 'AWARDED';
+  const approved = status === 'APPROVED';
+  const inTransit = status === 'IN_TRANSIT';
   const hasWeights = gross_weight && tare_weight && net_weight;
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id);
   const gblGenerated =
@@ -450,14 +453,13 @@ const mapStateToProps = state => {
   const hasNoOriginDocs = shipmentDocuments.every(
     ({ move_document_type }) => move_document_type !== 'WEIGHT_TICKET' && move_document_type !== 'OTHER',
   );
-  const showUploadOriginDocs = !!(
-    hasNoOriginDocs &&
-    hasWeights &&
-    actual_pack_date &&
-    actual_pickup_date &&
-    status === 'IN_TRANSIT'
+  const showUploadOriginDocs = Boolean(
+    hasNoOriginDocs && hasWeights && actual_pack_date && actual_pickup_date && inTransit,
   );
   return {
+    awarded,
+    approved,
+    inTransit,
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
     showUploadOriginDocs,
