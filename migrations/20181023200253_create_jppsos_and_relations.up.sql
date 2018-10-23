@@ -1,12 +1,4 @@
 
--- NAVSUP FLC Puget Sound Whidbey
-update transportation_offices
- set gbloc='JENQ' where id = '2726d99c-eeaa-4c54-b24f-692ba0a78e2b';
-
-update transportation_offices
- set shipping_office_id= '2726d99c-eeaa-4c54-b24f-692ba0a78e2b' where gbloc='JENQ' and id <> '2726d99c-eeaa-4c54-b24f-692ba0a78e2b';
-
-
 --AGFM
 insert into addresses
     (id, street_address_1, city, state, postal_code, created_at, updated_at)
