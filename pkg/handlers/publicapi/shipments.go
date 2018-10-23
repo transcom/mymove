@@ -50,11 +50,11 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 
 		// addresses
 		PickupAddress:                payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:    handlers.FmtBool(s.HasSecondaryPickupAddress),
+		HasSecondaryPickupAddress:    s.HasSecondaryPickupAddress,
 		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:           handlers.FmtBool(s.HasDeliveryAddress),
+		HasDeliveryAddress:           s.HasDeliveryAddress,
 		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress: *handlers.FmtBool(s.HasPartialSITDeliveryAddress),
+		HasPartialSitDeliveryAddress: s.HasPartialSITDeliveryAddress,
 		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
 
 		// weights
@@ -447,9 +447,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 			updateAddressWithPayload(shipment.PickupAddress, payload.PickupAddress)
 		}
 	}
-	if *payload.HasSecondaryPickupAddress == false {
+	if payload.HasSecondaryPickupAddress == false {
 		shipment.SecondaryPickupAddress = nil
-	} else if *payload.HasSecondaryPickupAddress == true {
+	} else if payload.HasSecondaryPickupAddress == true {
 		if payload.SecondaryPickupAddress != nil {
 			if shipment.SecondaryPickupAddress == nil {
 				shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
@@ -458,10 +458,10 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 			}
 		}
 	}
-	shipment.HasSecondaryPickupAddress = *payload.HasSecondaryPickupAddress
-	if *payload.HasDeliveryAddress == false {
+	shipment.HasSecondaryPickupAddress = payload.HasSecondaryPickupAddress
+	if payload.HasDeliveryAddress == false {
 		shipment.DeliveryAddress = nil
-	} else if *payload.HasDeliveryAddress == true {
+	} else if payload.HasDeliveryAddress == true {
 		if payload.DeliveryAddress != nil {
 			if shipment.DeliveryAddress == nil {
 				shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
@@ -470,7 +470,7 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 			}
 		}
 	}
-	shipment.HasDeliveryAddress = *payload.HasDeliveryAddress
+	shipment.HasDeliveryAddress = payload.HasDeliveryAddress
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment

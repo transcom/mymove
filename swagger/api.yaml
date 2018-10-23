@@ -933,6 +933,7 @@ definitions:
       has_secondary_pickup_address:
         type: boolean
         default: false
+        x-nullable: false
         title: 'Do you have household goods at any other pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
@@ -940,12 +941,16 @@ definitions:
       has_delivery_address:
         type: boolean
         default: false
+        x-nullable: false
         title: 'Do you know the delivery address at destination yet?'
       delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_partial_sit_delivery_address:
         type: boolean
+        default: false
+        x-nullable: false
+        title: 'Will some of your items be stored in transit?'
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true

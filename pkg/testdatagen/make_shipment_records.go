@@ -115,7 +115,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		PmSurveyProgearWeightEstimate:       nil,
 		PmSurveySpouseProgearWeightEstimate: nil,
 		PmSurveyNotes:                       nil,
-		PmSurveyMethod:                      nil,
+		PmSurveyMethod:                      "",
 	}
 
 	if hasDeliveryAddress {
