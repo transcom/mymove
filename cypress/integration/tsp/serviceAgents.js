@@ -273,7 +273,7 @@ function tspUserClicksAssignServiceAgent(locator) {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Status should be Accepted or Approved for "Assign Service Agents" button to exist
+  // Status should be Accepted or Approved for "Assign servicing agents" button to exist
   cy
     .get('li')
     .get('b')
@@ -281,15 +281,15 @@ function tspUserClicksAssignServiceAgent(locator) {
 
   cy
     .get('button')
-    .contains('Assign Service Agents')
+    .contains('Assign servicing agents')
     .should('be.enabled');
 
   cy
     .get('button')
-    .contains('Assign Service Agents')
+    .contains('Assign servicing agents')
     .click();
 }
 
 function tspUserVerifiesServiceAgentAssigned() {
-  cy.get('button').should('not.contain', 'Assign Service Agents');
+  cy.get('button').should('not.contain', 'Assign servicing agents');
 }
