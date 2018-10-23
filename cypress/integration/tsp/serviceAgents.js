@@ -44,9 +44,10 @@ describe('TSP User enters and updates Service Agents', function() {
   });
 
   it('tsp user assigns a service agent', function() {
-    tspUserAssignsServiceAgent();
+    tspUserClicksAssignServiceAgent('ASSIGN');
     tspUserInputsServiceAgent('Origin');
     tspUserSavesServiceAgent('Origin');
+    tspUserVerifiesServiceAgentAssigned();
   });
 });
 
@@ -259,20 +260,20 @@ function tspUserAcceptsShipment() {
   cy.get('a').contains('All Shipments Queue');
 }
 
-function tspUserAssignsServiceAgent() {
+function tspUserClicksAssignServiceAgent(locator) {
   cy.visit('/queues/all');
 
   // Find shipment and open it
   cy
     .get('div')
-    .contains('ASSIGN')
+    .contains(locator)
     .dblclick();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Status should be Accepted
+  // Status should be Accepted or Approved for "Assign Service Agents" button to exist
   cy
     .get('li')
     .get('b')
@@ -287,4 +288,8 @@ function tspUserAssignsServiceAgent() {
     .get('button')
     .contains('Assign Service Agents')
     .click();
+}
+
+function tspUserVerifiesServiceAgentAssigned() {
+  cy.get('button').should('not.contain', 'Assign Service Agents');
 }
