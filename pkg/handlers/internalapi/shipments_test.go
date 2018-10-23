@@ -153,6 +153,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Nil(unwrapped.Payload.ActualPackDate)
 	suite.Nil(unwrapped.Payload.ActualPickupDate)
 	suite.Nil(unwrapped.Payload.ActualDeliveryDate)
+	suite.Equal(internalmessages.ShipmentMoveDatesSummary{}, *unwrapped.Payload.MoveDatesSummary)
 	suite.Nil(unwrapped.Payload.PickupAddress)
 	suite.Equal(false, unwrapped.Payload.HasSecondaryPickupAddress)
 	suite.Nil(unwrapped.Payload.SecondaryPickupAddress)
