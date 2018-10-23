@@ -268,12 +268,6 @@ definitions:
         type: string
         title: Approved Date
         format: date-time
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
     required:
       - accessorial_id
       - quantity_1
