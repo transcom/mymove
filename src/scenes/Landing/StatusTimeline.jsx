@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { get } from 'lodash';
 
-import { getMoveDatesSummary, selectMoveDatesSummary } from 'shared/Entities/modules/moves';
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
