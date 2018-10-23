@@ -104,7 +104,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		SpouseProgearWeightEstimate: poundPointer(312),
 		NetWeight:                   nil,
 		GrossWeight:                 nil,
-		TarWeight:                   nil,
+		TareWeight:                  nil,
 
 		// pre-move survey
 		PmSurveyConductedDate:               nil,
