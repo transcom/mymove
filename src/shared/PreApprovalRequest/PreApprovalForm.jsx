@@ -9,7 +9,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './PreApprovalRequest.css';
 
-const getOptionValue = option => (option ? option.id : '');
+const getOptionValue = option => (option ? option.id : null);
 const getOptionLabel = option => (option ? option.code + ' ' + option.item : '');
 const stringify = option => option.label;
 const filterOption = createFilter({ ignoreCase: true, stringify });
@@ -37,12 +37,13 @@ export class Tariff400ngItemSearch extends Component {
           options={this.props.tariff400ngItems}
           getOptionLabel={getOptionLabel}
           getOptionValue={getOptionValue}
+          value={this.props.input.value || null}
           onChange={this.localOnChange}
           placeholder="Select an item..."
           className="tariff400-select"
           classNamePrefix="tariff400"
           filterOption={filterOption}
-          defaultValue={this.props.meta.initial}
+          defaultValue={this.props.meta.initial || null}
         />
       </Fragment>
     );
