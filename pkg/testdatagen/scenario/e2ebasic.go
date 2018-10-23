@@ -1228,8 +1228,56 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg20 := offer20.Shipment
 	hhg20.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg20.Move)
+  
+	/* Service member with a doc for testing on TSP side
+	 */
+	email = "doc.owner@tsp.org"
 
-	/*
+	offer21 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("99bdaeed-a8a8-492e-9e28-7d0da6b1c907")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("61473913-36b8-425d-b46a-cee488a4ae71"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("2232332334"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("60098ff1-8dc9-4318-a2e8-47bc8aac11a4"),
+			Locator:          "GOTDOC",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("7ad595da-9b34-4914-aeaa-9a540d13872f"),
+			Status:             models.ShipmentStatusAPPROVED,
+			ActualDeliveryDate: nil,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+		Document: models.Document{
+			ID:              uuid.FromStringOrNil("06886210-b151-4b15-951a-783d3d58f042"),
+			ServiceMemberID: uuid.FromStringOrNil("61473913-36b8-425d-b46a-cee488a4ae71"),
+		},
+		MoveDocument: models.MoveDocument{
+			ID:               uuid.FromStringOrNil("b660080d-0158-4214-99ca-216f82b26b3c"),
+			DocumentID:       uuid.FromStringOrNil("06886210-b151-4b15-951a-783d3d58f042"),
+			MoveDocumentType: "WEIGHT_TICKET",
+			Status:           "OK",
+			MoveID:           uuid.FromStringOrNil("60098ff1-8dc9-4318-a2e8-47bc8aac11a4"),
+			Title:            "document_title",
+		},
+	})
+
+	hhg21 := offer21.Shipment
+	hhg21.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg21.Move)
+  
+  /*
 	 * Service member with accepted move but needs to be assigned a service agent
 	 */
 	email = "hhg@assign.serviceagent"
@@ -1253,12 +1301,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("d40edb7e-24c9-4a21-8e4b-2e473471263e"),
-			SourceRateArea:    "US62",
+      SourceRateArea:    "US62",
 			DestinationRegion: "11",
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusACCEPTED,
+      	Status: models.ShipmentStatusACCEPTED,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,

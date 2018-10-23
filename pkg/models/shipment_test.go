@@ -28,9 +28,9 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		"status":                         []string{"status can not be blank."},
 		"estimated_pack_days":            []string{"-2 is less than or equal to zero."},
 		"estimated_transit_days":         []string{"0 is less than or equal to zero."},
-		"weight_estimate":                []string{"-3 is less than or equal to zero."},
-		"progear_weight_estimate":        []string{"-12 is less than or equal to zero."},
-		"spouse_progear_weight_estimate": []string{"-9 is less than or equal to zero."},
+		"weight_estimate":                []string{"-3 is less than zero."},
+		"progear_weight_estimate":        []string{"-12 is less than zero."},
+		"spouse_progear_weight_estimate": []string{"-9 is less than zero."},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)

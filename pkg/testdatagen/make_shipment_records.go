@@ -58,37 +58,64 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	}
 
 	shipment := models.Shipment{
-		TrafficDistributionListID:    uuidPointer(tdl.ID),
-		TrafficDistributionList:      tdl,
-		ServiceMemberID:              serviceMember.ID,
-		ServiceMember:                serviceMember,
-		OriginalPackDate:             timePointer(PerformancePeriodStart),
-		RequestedPickupDate:          timePointer(PerformancePeriodStart),
-		OriginalDeliveryDate:         timePointer(PerformancePeriodStart),
-		ActualPackDate:               nil,
-		ActualPickupDate:             nil,
-		ActualDeliveryDate:           nil,
-		SourceGBLOC:                  sourceGBLOC,
-		DestinationGBLOC:             destinationGBLOC,
-		Market:                       &DefaultMarket,
-		BookDate:                     timePointer(DateInsidePerformancePeriod),
-		MoveID:                       move.ID,
-		Move:                         move,
-		Status:                       status,
-		EstimatedPackDays:            models.Int64Pointer(2),
-		EstimatedTransitDays:         models.Int64Pointer(3),
+		Status:           status,
+		SourceGBLOC:      sourceGBLOC,
+		DestinationGBLOC: destinationGBLOC,
+		GBLNumber:        nil,
+		Market:           &DefaultMarket,
+
+		// associations
+		TrafficDistributionListID: uuidPointer(tdl.ID),
+		TrafficDistributionList:   tdl,
+		ServiceMemberID:           serviceMember.ID,
+		ServiceMember:             serviceMember,
+		MoveID:                    move.ID,
+		Move:                      move,
+
+		// dates
+		ActualPickupDate:     nil,
+		ActualPackDate:       nil,
+		ActualDeliveryDate:   nil,
+		BookDate:             timePointer(DateInsidePerformancePeriod),
+		RequestedPickupDate:  timePointer(PerformancePeriodStart),
+		OriginalDeliveryDate: timePointer(PerformancePeriodStart),
+		OriginalPackDate:     timePointer(PerformancePeriodStart),
+
+		// calculated durations
+		EstimatedPackDays:    models.Int64Pointer(2),
+		EstimatedTransitDays: models.Int64Pointer(3),
+
+		// addresses
 		PickupAddressID:              &pickupAddress.ID,
 		PickupAddress:                pickupAddress,
 		HasSecondaryPickupAddress:    false,
 		SecondaryPickupAddressID:     nil,
 		SecondaryPickupAddress:       nil,
 		HasDeliveryAddress:           hasDeliveryAddress,
+		DeliveryAddressID:            nil,
+		DeliveryAddress:              nil,
 		HasPartialSITDeliveryAddress: false,
 		PartialSITDeliveryAddressID:  nil,
 		PartialSITDeliveryAddress:    nil,
-		WeightEstimate:               poundPointer(2000),
-		ProgearWeightEstimate:        poundPointer(225),
-		SpouseProgearWeightEstimate:  poundPointer(312),
+
+		// weights
+		WeightEstimate:              poundPointer(2000),
+		ProgearWeightEstimate:       poundPointer(225),
+		SpouseProgearWeightEstimate: poundPointer(312),
+		NetWeight:                   nil,
+		GrossWeight:                 nil,
+		TareWeight:                  nil,
+
+		// pre-move survey
+		PmSurveyConductedDate:               nil,
+		PmSurveyPlannedPackDate:             nil,
+		PmSurveyPlannedPickupDate:           nil,
+		PmSurveyPlannedDeliveryDate:         nil,
+		PmSurveyWeightEstimate:              nil,
+		PmSurveyProgearWeightEstimate:       nil,
+		PmSurveySpouseProgearWeightEstimate: nil,
+		PmSurveyNotes:                       nil,
+		PmSurveyMethod:                      "",
 	}
 
 	if hasDeliveryAddress {
@@ -123,7 +150,7 @@ func MakeShipmentData(db *pop.Connection) {
 	}
 
 	// Add three shipment table records using UUIDs from TDLs
-	oneWeek, _ := time.ParseDuration("7d")
+	oneWeek := time.Hour * 168
 	now := time.Now()
 	nowPlusOne := now.Add(oneWeek)
 	nowPlusTwo := now.Add(oneWeek * 2)
