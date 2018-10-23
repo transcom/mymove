@@ -2,8 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -12,11 +10,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
 )
 
 func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
