@@ -155,6 +155,7 @@ const initialState = {
   generateGBLSuccess: false,
   generateGBLError: null,
   generateGBLInProgress: false,
+  gblDoc: null,
   gblDocUrl: null,
 };
 
@@ -406,10 +407,12 @@ export function tspReducer(state = initialState, action) {
       });
     case GENERATE_GBL.success:
       const gblDocumentUrl = '/shipments/' + action.payload.shipment_id + '/documents/' + action.payload.id;
+
       return Object.assign({}, state, {
         generateGBLSuccess: true,
         generateGBLError: false,
         generateGBLInProgress: false,
+        gblDoc: action.payload,
         gblDocUrl: gblDocumentUrl,
       });
     case GENERATE_GBL.failure:
