@@ -196,8 +196,15 @@ class ShipmentInfo extends Component {
     this.setEditServiceAgent(true);
   };
 
+  handleDestination = () => {
+    window.open(`/shipments/${this.props.match.params.shipmentId}/documents/new`);
+  };
+
   render() {
     const {
+      awarded,
+      approved,
+      inTransit,
       context,
       shipment,
       shipmentDocuments,
@@ -205,6 +212,7 @@ class ShipmentInfo extends Component {
       generateGBLError,
       generateGBLInProgress,
       serviceAgents,
+      showUploadDestinationDocs,
     } = this.props;
     const {
       service_member: serviceMember = {},
@@ -217,10 +225,6 @@ class ShipmentInfo extends Component {
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
-    const awarded = shipment.status === 'AWARDED';
-    const approved = shipment.status === 'APPROVED';
-    const accepted = shipment.status === 'ACCEPTED';
-    const inTransit = shipment.status === 'IN_TRANSIT';
     const pmSurveyComplete = Boolean(
       shipment.pm_survey_conducted_date &&
         shipment.pm_survey_method &&
@@ -334,6 +338,7 @@ class ShipmentInfo extends Component {
                   </Alert>
                 </p>
               )}
+              {showUploadDestinationDocs && <button onClick={this.handleDestination}>Upload Destination Docs</button>}
               {approved &&
                 pmSurveyComplete &&
                 !gblGenerated && (
@@ -436,11 +441,23 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
+  const { actual_delivery_date, shipment_id } = shipment;
+  const awarded = shipment.status === 'AWARDED';
+  const approved = shipment.status === 'APPROVED';
+  const inTransit = shipment.status === 'IN_TRANSIT';
+  const delivered = shipment.status === 'DELIVERED';
+  const showUploadDestinationDocs = Boolean(delivered && actual_delivery_date);
 
   return {
+    awarded,
+    approved,
+    inTransit,
+    delivered,
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
+    newDocumentUrl: `/shipments/${shipment_id}/documents/new`,
     shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    showUploadDestinationDocs,
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),

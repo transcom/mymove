@@ -9,6 +9,7 @@ describe('TSP User Ships a Shipment', function() {
     tspUserPacksShipment();
     tspUserPicksUpShipment();
     tspUserDeliversShipment();
+    tspUserUploadsDestinationDocs();
   });
 });
 
@@ -95,6 +96,7 @@ function tspUserPacksShipment() {
   // Appears in dates panel
   cy.get('div.actual_pack_date').contains('10');
 }
+
 function tspUserPicksUpShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -234,4 +236,19 @@ function tspUserDeliversShipment() {
 
   // New status
   cy.get('li').contains('Delivered');
+}
+
+function tspUserUploadsDestinationDocs() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  // Verify the Upload Destination Docs is visible
+  cy.get('button').contains('Upload Destination Docs').click();
+
+  // Check to see if it opens a window
+  cy
+    .window()
+    .its('open')
+    .should('be.called');
 }

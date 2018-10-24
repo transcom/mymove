@@ -25,6 +25,7 @@ const transportShipmentType = 'TRANSPORT_SHIPMENT';
 const packShipmentType = 'PACK_SHIPMENT';
 const deliverShipmentType = 'DELIVER_SHIPMENT';
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
+const uploadDestiationDocumentsType = 'UPLOAD_DESTINATION_DOCUMENTS';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
@@ -42,6 +43,7 @@ const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipme
 const PACK_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(packShipmentType);
 const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
 const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
+const UPLOAD_DESTINATION_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(uploadDestiationDocumentsType);
 
 const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
 
@@ -138,6 +140,7 @@ const initialState = {
   shipmentIsDelivering: false,
   shipmentHasDeliverError: null,
   shipmentHasDeliverSuccess: false,
+  shipmentDestinationDocsLoading: false,
   serviceAgentsAreLoading: false,
   serviceAgentsHasLoadSucces: false,
   serviceAgentsHasLoadError: null,
@@ -313,6 +316,11 @@ export function tspReducer(state = initialState, action) {
         loadShipmentDocumentsSuccess: false,
         loadingShipmentDocumentsError: true,
         error: action.error.message,
+      });
+    // LOAD DESTINATION DOCUMENTS
+    case UPLOAD_DESTINATION_DOCUMENTS.start:
+      return Object.assign({}, state, {
+        shipmentDestinationDocsLoading: true,
       });
 
     // SERVICE AGENTS
