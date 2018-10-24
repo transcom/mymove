@@ -5,9 +5,24 @@ import (
 )
 
 func CreateTestTsp(suite *ModelSuite) TransportationServiceProvider {
+	name := "Truss Transit Services"
+	pocGeneralName := "Joey Joe-Joe Schabadoo"
+	pocGeneralEmail := "joey@example.com"
+	pocGeneralPhone := "(555) 867-5309"
+	pocClaimsName := "Claimy Claimer"
+	pocClaimsEmail := "claims@example.com"
+	pocClaimsPhone := "(555) 123-4567"
+
 	tsp := TransportationServiceProvider{
 		StandardCarrierAlphaCode: "TRSS",
 		Enrolled:                 true,
+		Name:                     &name,
+		PocGeneralName:           &pocGeneralName,
+		PocGeneralEmail:          &pocGeneralEmail,
+		PocGeneralPhone:          &pocGeneralPhone,
+		PocClaimsName:            &pocClaimsName,
+		PocClaimsEmail:           &pocClaimsEmail,
+		PocClaimsPhone:           &pocClaimsPhone,
 	}
 	suite.mustSave(&tsp)
 	return tsp
