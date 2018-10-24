@@ -444,6 +444,7 @@ const mapStateToProps = state => {
   const { actual_delivery_date, shipment_id } = shipment;
   const awarded = shipment.status === 'AWARDED';
   const approved = shipment.status === 'APPROVED';
+  const accepted = shipment.status === 'ACCEPTED';
   const inTransit = shipment.status === 'IN_TRANSIT';
   const delivered = shipment.status === 'DELIVERED';
   const showUploadDestinationDocs = Boolean(delivered && actual_delivery_date);
@@ -451,6 +452,7 @@ const mapStateToProps = state => {
   return {
     awarded,
     approved,
+    accepted,
     inTransit,
     delivered,
     swaggerError: state.swaggerPublic.hasErrored,
