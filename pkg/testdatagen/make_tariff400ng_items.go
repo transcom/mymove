@@ -5,7 +5,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeTariff400ngItem creates a single accessorial record
+// MakeTariff400ngItem creates a single tariff400ngItem record
 func MakeTariff400ngItem(db *pop.Connection, assertions Assertions) models.Tariff400ngItem {
 	item := models.Tariff400ngItem{
 		Code:                "105B",
