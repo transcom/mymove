@@ -10,7 +10,77 @@ describe('TSP User Ships a Shipment', function() {
     tspUserPicksUpShipment();
     tspUserDeliversShipment();
   });
+
+  it('tsp user enters a delivery date', function() {
+    tspUserVisitsAnInTransitShipment('ENTDEL');
+    tspUserVerifiesShipmentStatus('In_transit');
+    tspUserCancelsEnteringADeliveryDate();
+    tspUserEntersADeliveryDate();
+    tspUserVerifiesShipmentStatus('Delivered');
+  });
 });
+
+function tspUserVerifiesShipmentStatus(status) {
+  cy.get('li').contains(`Status: ${status}`);
+}
+
+function tspUserCancelsEnteringADeliveryDate() {
+  cy
+    .get('button')
+    .contains('Enter Delivery')
+    .should('exist');
+
+  cy
+    .get('button')
+    .contains('Enter Delivery')
+    .click();
+
+  cy
+    .get('input[name="actual_delivery_date"]')
+    .type('10/24/2018')
+    .blur();
+
+  cy
+    .get('a')
+    .contains('Cancel')
+    .click();
+
+  cy.get('input[name="actual_delivery_date"]').should('not.exist');
+}
+
+function tspUserEntersADeliveryDate() {
+  cy
+    .get('button')
+    .contains('Enter Delivery')
+    .click();
+
+  cy.get('input[name="actual_delivery_date"]').should('be.empty');
+
+  cy
+    .get('input[name="actual_delivery_date"]')
+    .type('10/24/2018')
+    .blur();
+
+  cy
+    .get('button')
+    .contains('Done')
+    .click();
+
+  cy.get('button').should('not.contain', 'Enter Delivery');
+}
+
+function tspUserVisitsAnInTransitShipment(locator) {
+  cy.visit('/queues/in_transit');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+  });
+
+  cy
+    .get('div')
+    .contains(locator)
+    .dblclick();
+}
 
 function tspUserPacksShipment() {
   // Open approved shipments queue
@@ -83,7 +153,7 @@ function tspUserPacksShipment() {
     .click();
 
   cy
-    .get('div.DayPicker-Month')
+    .get('div.DayPicker-Day')
     .contains('10')
     .click();
 
@@ -198,7 +268,7 @@ function tspUserDeliversShipment() {
 
   // Cancel
   cy
-    .get('button')
+    .get('a')
     .contains('Cancel')
     .click();
 
