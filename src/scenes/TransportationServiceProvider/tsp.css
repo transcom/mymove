@@ -184,3 +184,7 @@
   justify-content: space-between;
   align-items: baseline;
 }
+
+.infoPanel-wizard .infoPanel-wizard-help {
+  margin-bottom: 0px;
+}
