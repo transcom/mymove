@@ -21,7 +21,7 @@ describe('TSP User Ships a Shipment', function() {
 });
 
 function tspUserVerifiesShipmentStatus(status) {
-  cy.get('li').contains(`Status: ${status}`);
+  cy.get('.move-info-header-meta > li').contains(`Status: ${status}`);
 }
 
 function tspUserCancelsEnteringADeliveryDate() {

@@ -54,8 +54,6 @@ function tspUserClicksEnterPreMoveSurvey() {
     .get('b')
     .contains('Approved');
 
-  cy.wait(5000);
-
   cy
     .get('button')
     .contains('Enter pre-move survey')

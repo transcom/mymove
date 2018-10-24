@@ -8,6 +8,8 @@ import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
@@ -226,6 +228,7 @@ class ShipmentInfo extends Component {
       generateGBLError,
       generateGBLInProgress,
       serviceAgents,
+      loadTspDependenciesHasSuccess,
     } = this.props;
     const {
       service_member: serviceMember = {},
@@ -257,6 +260,10 @@ class ShipmentInfo extends Component {
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
+    }
+
+    if (!loadTspDependenciesHasSuccess) {
+      return <LoadingPlaceholder />;
     }
 
     return (
@@ -366,16 +373,17 @@ class ShipmentInfo extends Component {
                     </button>
                   </div>
                 )}
-              {canAssignServiceAgents && (
-                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
-                  Assign servicing agents
-                </button>
-              )}
               {canEnterPreMoveSurvey && (
                 <button className="usa-button-primary" onClick={this.toggleEditPreMoveSurvey}>
                   Enter pre-move survey
                 </button>
               )}
+              {canAssignServiceAgents && (
+                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
+                  Assign servicing agents
+                </button>
+              )}
+
               {inTransit && (
                 <FormButton
                   FormComponent={DeliveryDateForm}
