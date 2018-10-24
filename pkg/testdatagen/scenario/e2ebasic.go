@@ -1228,7 +1228,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg20 := offer20.Shipment
 	hhg20.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg20.Move)
-  
+
 	/* Service member with a doc for testing on TSP side
 	 */
 	email = "doc.owner@tsp.org"
@@ -1252,6 +1252,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("7ad595da-9b34-4914-aeaa-9a540d13872f"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
 			Status:             models.ShipmentStatusAPPROVED,
 			ActualDeliveryDate: nil,
 		},
@@ -1276,8 +1281,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg21 := offer21.Shipment
 	hhg21.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg21.Move)
-  
-  /*
+
+	/*
 	 * Service member with accepted move but needs to be assigned a service agent
 	 */
 	email = "hhg@assign.serviceagent"
@@ -1301,12 +1306,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("d40edb7e-24c9-4a21-8e4b-2e473471263e"),
-      SourceRateArea:    "US62",
+			SourceRateArea:    "US62",
 			DestinationRegion: "11",
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-      	Status: models.ShipmentStatusACCEPTED,
+			Status: models.ShipmentStatusACCEPTED,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
