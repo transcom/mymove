@@ -144,12 +144,8 @@ const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent =
 const { arrayOf, bool, func, shape, string } = PropTypes;
 
 class ShipmentInfo extends Component {
-  constructor(props) {
-    super(props);
-
-    this.assignServiceMember = React.createRef();
-  }
   static propTypes = {
+    accepted: bool.isRequired,
     acceptShipment: func.isRequired,
     approved: bool.isRequired,
     awarded: bool.isRequired,
@@ -173,6 +169,12 @@ class ShipmentInfo extends Component {
     ).isRequired,
     showUploadOriginDocs: bool.isRequired,
   };
+
+  constructor(props) {
+    super(props);
+
+    this.assignServiceMember = React.createRef();
+  }
 
   state = {
     redirectToHome: false,
@@ -231,6 +233,7 @@ class ShipmentInfo extends Component {
 
   render() {
     const {
+      accepted,
       awarded,
       approved,
       inTransit,
@@ -481,6 +484,7 @@ const mapStateToProps = state => {
     net_weight,
     status,
   } = shipment;
+  const accepted = status === 'ACCEPTED';
   const awarded = status === 'AWARDED';
   const approved = status === 'APPROVED';
   const inTransit = status === 'IN_TRANSIT';
@@ -498,6 +502,7 @@ const mapStateToProps = state => {
   );
 
   return {
+    accepted,
     awarded,
     approved,
     inTransit,
