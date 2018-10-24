@@ -4,7 +4,7 @@ import { shallow } from 'enzyme';
 import { Creator } from './Creator';
 import { no_op } from 'shared/utils';
 
-const accessorials = [
+const tariff400ng_items = [
   {
     id: 'sdlfkj',
     code: 'F9D',
@@ -25,7 +25,7 @@ describe('given a Creator', () => {
     beforeEach(() => {
       wrapper = shallow(
         <Creator
-          tariff400ngItems={accessorials}
+          tariff400ngItems={tariff400ng_items}
           submitForm={submit}
           formEnabled={false}
           hasSubmitSucceeded={false}
@@ -42,13 +42,13 @@ describe('given a Creator', () => {
     });
     it('can toggle to show the form', () => {
       wrapper.find('a').simulate('click');
-      expect(wrapper.exists('div.accessorial-panel-modal')).toBe(true);
+      expect(wrapper.exists('div.pre-approval-panel-modal')).toBe(true);
     });
     it('cancel closes the form', () => {
       wrapper.find('a').simulate('click');
-      expect(wrapper.exists('div.accessorial-panel-modal')).toBe(true);
+      expect(wrapper.exists('div.pre-approval-panel-modal')).toBe(true);
       wrapper.find('a').simulate('click');
-      expect(wrapper.exists('div.accessorial-panel-modal')).toBe(false);
+      expect(wrapper.exists('div.pre-approval-panel-modal')).toBe(false);
     });
     it('buttons are disabled', () => {
       wrapper.find('a').simulate('click');
@@ -60,7 +60,7 @@ describe('given a Creator', () => {
     beforeEach(() => {
       wrapper = shallow(
         <Creator
-          tariff400ngItems={accessorials}
+          tariff400ngItems={tariff400ng_items}
           submitForm={submit}
           formEnabled={true}
           hasSubmitSucceeded={false}
@@ -77,7 +77,7 @@ describe('given a Creator', () => {
     });
     it('can toggle to show the form', () => {
       wrapper.find('a').simulate('click');
-      expect(wrapper.exists('div.accessorial-panel-modal')).toBe(true);
+      expect(wrapper.exists('div.pre-approval-panel-modal')).toBe(true);
       expect(wrapper.state().showForm).toBe(true);
     });
 
@@ -88,7 +88,7 @@ describe('given a Creator', () => {
       });
       it('cancel closes the form', () => {
         wrapper.find('a').simulate('click');
-        expect(wrapper.exists('div.accessorial-panel-modal')).toBe(false);
+        expect(wrapper.exists('div.pre-approval-panel-modal')).toBe(false);
       });
       it('buttons are enabled', () => {
         expect(wrapper.find('button.button-secondary').prop('disabled')).toBe(false);

@@ -83,7 +83,7 @@ function tspUserDeletesPreApprovalRequest() {
 
   deletePreApprovalRequest();
   cy
-    .get('.accessorial-panel td')
+    .get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
 }
