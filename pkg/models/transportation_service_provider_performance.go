@@ -287,7 +287,7 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 }
 
 // FetchDiscountRates returns the discount linehaul and SIT rates for the TSP with the highest
-// BVS during the specified data, limited to those TSPs in the channel defined by the
+// BVS during the specified date, limited to those TSPs in the channel defined by the
 // originZip and destinationZip.
 func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (linehaulDiscount unit.DiscountRate, sitDiscount unit.DiscountRate, err error) {
 	rateArea, err := FetchRateAreaForZip5(db, originZip)
@@ -305,7 +305,7 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 		Where("tdl.source_rate_area = ?", rateArea).
 		Where("tdl.destination_region = ?", region).
 		Where("tdl.code_of_service = ?", cos).
-		Where("? BETWEEN transportation_service_provider_performances.rate_cycle_start AND transportation_service_provider_performances.rate_cycle_end", date).
+		Where("? BETWEEN transportation_service_provider_performances.performance_period_start AND transportation_service_provider_performances.performance_period_end", date).
 		Order("transportation_service_provider_performances.best_value_score DESC").
 		First(&tspPerformance)
 
