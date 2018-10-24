@@ -233,7 +233,6 @@ class ShipmentInfo extends Component {
       gbl_number: gbl,
       actual_pack_date,
       actual_pickup_date,
-      actual_delivery_date,
     } = shipment;
 
     const shipmentId = this.props.match.params.shipmentId;
@@ -377,15 +376,14 @@ class ShipmentInfo extends Component {
                   Enter pre-move survey
                 </button>
               )}
-              {inTransit &&
-                !actual_delivery_date && (
-                  <FormButton
-                    FormComponent={DeliveryDateForm}
-                    schema={this.props.deliverSchema}
-                    onSubmit={this.deliverShipment}
-                    buttonTitle="Enter Delivery"
-                  />
-                )}
+              {inTransit && (
+                <FormButton
+                  FormComponent={DeliveryDateForm}
+                  schema={this.props.deliverSchema}
+                  onSubmit={this.deliverShipment}
+                  buttonTitle="Enter Delivery"
+                />
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
