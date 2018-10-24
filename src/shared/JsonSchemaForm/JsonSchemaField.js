@@ -108,7 +108,6 @@ const configureZipField = (swaggerField, props, zipPattern) => {
     props.validate.push(validator.patternMatches(swaggerField.pattern, 'Zip code must have 5 or 9 digits.'));
   } else if (zipPattern) {
     if (zipPattern === 'USA') {
-      /*eslint no-useless-escape: 0*/
       const zipRegex = '^[0-9]{5}(?:-[0-9]{4})?$';
       props.validate.push(validator.patternMatches(zipRegex, 'Zip code must have 5 or 9 digits.'));
     }
