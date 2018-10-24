@@ -44,66 +44,39 @@ commands:
       - announce_failure
   deploy_app_steps:
     parameters:
-      health_check_url:
+      health_check_hosts:
         type: string
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - setup_remote_docker
       - deploy:
           name: Deploy app service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
-      - health_check:
-          url: << parameters.health_check_url >>
+      - run:
+          name: Health Check
+          command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info
       - announce_failure
   deploy_app_client_tls_steps:
     parameters:
-      health_check_url:
+      health_check_hosts:
         type: string
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - setup_remote_docker
       - deploy:
           name: Deploy app-client-tls service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
-      - health_check_tls:
-          url: << parameters.health_check_url >>
+      - run:
+          name: Health Check
+          command: |
+            go run cmd/health_checker/main.go --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info
       - announce_failure
-  health_check:
-    parameters:
-      url:
-        type: string
-    steps:
-      - run:
-          name: Health check app site
-          command: |
-            for retry in `seq 1 10`; do
-              if curl -f -sS -o /dev/null << parameters.url >>; then
-                echo Passed.;
-                exit 0;
-              else
-                sleep $(($retry*3));
-              fi;
-            done;
-            exit 1
-  health_check_tls:
-    parameters:
-      url:
-        type: string
-    steps:
-      - run:
-          name: Health check app site
-          command: |
-            for retry in `seq 1 10`; do
-              httpResponse=$(curl << parameters.url >> --key <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY" | base64 --decode) --cert <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT" | base64 --decode) --cacert <(echo "$EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA" | base64 --decode) -I)
-              statusCode=$(echo "$httpResponse" | grep HTTP/2 | awk {'print $2'})
-              if [[ "$statusCode" == "200" ]]; then
-                echo Passed.;
-                exit 0;
-              else
-                sleep $(($retry*3));
-              fi;
-            done;
-            exit 1
   build_tag_push:
     parameters:
       dockerfile:
@@ -430,7 +403,7 @@ jobs:
       - APP_ENVIRONMENT: "experimental"
     steps:
       - deploy_app_steps:
-          health_check_url: "https://my.experimental.move.mil/health"
+          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
@@ -439,7 +412,7 @@ jobs:
       - APP_ENVIRONMENT: "experimental"
     steps:
       - deploy_app_client_tls_steps:
-          health_check_url: "https://office.experimental.move.mil/health"
+          health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
@@ -456,7 +429,7 @@ jobs:
       - APP_ENVIRONMENT: "staging"
     steps:
       - deploy_app_steps:
-          health_check_url: "https://my.staging.move.mil/health"
+          health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
@@ -465,7 +438,7 @@ jobs:
       - APP_ENVIRONMENT: "staging"
     steps:
       - deploy_app_client_tls_steps:
-          health_check_url: "https://office.staging.move.mil/health"
+          health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
@@ -482,7 +455,7 @@ jobs:
       - APP_ENVIRONMENT: "prod"
     steps:
       - deploy_app_steps:
-          health_check_url: "https://my.move.mil/health"
+          health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
@@ -491,7 +464,7 @@ jobs:
       - APP_ENVIRONMENT: "prod"
     steps:
       - deploy_app_client_tls_steps:
-          health_check_url: "https://office.move.mil/health"
+          health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
 
   # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.
   # The changes are submitted as a pull request for review.
@@ -570,21 +543,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-serial-deploys
+              only: healthchecker
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-serial-deploys
+              only: healthchecker
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-serial-deploys
+              only: healthchecker
 
       - deploy_staging_migrations:
           requires:

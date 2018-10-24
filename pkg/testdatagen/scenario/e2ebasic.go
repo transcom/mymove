@@ -1228,6 +1228,99 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader) {
 	hhg20 := offer20.Shipment
 	hhg20.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg20.Move)
+
+	/* Service member with a doc for testing on TSP side
+	 */
+	email = "doc.owner@tsp.org"
+
+	offer21 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("99bdaeed-a8a8-492e-9e28-7d0da6b1c907")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("61473913-36b8-425d-b46a-cee488a4ae71"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("2232332334"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("60098ff1-8dc9-4318-a2e8-47bc8aac11a4"),
+			Locator:          "GOTDOC",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("7ad595da-9b34-4914-aeaa-9a540d13872f"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAPPROVED,
+			ActualDeliveryDate: nil,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+		Document: models.Document{
+			ID:              uuid.FromStringOrNil("06886210-b151-4b15-951a-783d3d58f042"),
+			ServiceMemberID: uuid.FromStringOrNil("61473913-36b8-425d-b46a-cee488a4ae71"),
+		},
+		MoveDocument: models.MoveDocument{
+			ID:               uuid.FromStringOrNil("b660080d-0158-4214-99ca-216f82b26b3c"),
+			DocumentID:       uuid.FromStringOrNil("06886210-b151-4b15-951a-783d3d58f042"),
+			MoveDocumentType: "WEIGHT_TICKET",
+			Status:           "OK",
+			MoveID:           uuid.FromStringOrNil("60098ff1-8dc9-4318-a2e8-47bc8aac11a4"),
+			Title:            "document_title",
+		},
+	})
+
+	hhg21 := offer21.Shipment
+	hhg21.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg21.Move)
+
+	/*
+	 * Service member with accepted move but needs to be assigned a service agent
+	 */
+	email = "hhg@assign.serviceagent"
+
+	offer22 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("8ff1c3ca-4c51-40ad-9926-8add5463eb25")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("e52c90df-502f-4fa2-8838-ee0894725b4d"),
+			FirstName:     models.StringPointer("Assign"),
+			LastName:      models.StringPointer("ServiceAgent"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("33686dbe-cd64-4786-8aaa-a93dda278683"),
+			Locator:          "ASSIGN",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("d40edb7e-24c9-4a21-8e4b-2e473471263e"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg22 := offer22.Shipment
+	hhg22.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg22.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
@@ -1240,6 +1333,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	packDate := time.Now().AddDate(0, 0, 1)
 	pickupDate := time.Now().AddDate(0, 0, 5)
 	deliveryDate := time.Now().AddDate(0, 0, 10)
+	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "ABCD",
@@ -1280,17 +1374,20 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		},
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
-			Status:                      models.ShipmentStatusAWARDED,
-			PmSurveyPlannedPackDate:     &packDate,
+			Status:                      models.ShipmentStatusAPPROVED,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
 			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+			Accepted:                        models.BoolPointer(true),
 		},
 	})
 
