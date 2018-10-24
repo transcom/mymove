@@ -165,9 +165,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	}
 
 	shipmentPayload := payloadForShipmentModel(newShipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
+
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
 
@@ -297,9 +295,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
+
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
@@ -347,9 +343,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
+
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
 
@@ -383,9 +377,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
+
 	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
 }
 
@@ -418,9 +410,7 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
+
 	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
 }
 
