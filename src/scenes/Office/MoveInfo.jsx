@@ -36,7 +36,7 @@ import {
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
   getAllShipmentAccessorials,
-  selectShipmentAccessorials,
+  selectSortedShipmentAccessorials,
   getShipmentAccessorialsLabel,
 } from 'shared/Entities/modules/shipmentAccessorials';
 
@@ -460,7 +460,7 @@ const mapStateToProps = state => ({
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
   tariff400ngItems: selectTariff400ngItems(state),
-  shipmentAccessorials: selectShipmentAccessorials(state),
+  shipmentAccessorials: selectSortedShipmentAccessorials(state),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),

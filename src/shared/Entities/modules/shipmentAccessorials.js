@@ -41,7 +41,7 @@ export function getAllShipmentAccessorials(label, shipmentId) {
 }
 
 const selectShipmentAccessorials = state => get(state, 'entities.shipmentAccessorials', {});
-export const selectSortedShipmentAccessorials = createSelector([selectShipmentAccessorials], shipmentAccessorials =>
+export const selectSortedShipmentAccessorials = createSelector(selectShipmentAccessorials, shipmentAccessorials =>
   orderBy(Object.values(shipmentAccessorials), ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
 );
 
