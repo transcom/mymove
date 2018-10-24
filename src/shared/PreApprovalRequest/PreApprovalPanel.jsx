@@ -19,7 +19,7 @@ import {
   updateShipmentAccessorial,
   updateShipmentAccessorialLabel,
 } from 'shared/Entities/modules/shipmentAccessorials';
-import { selectShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
+import { selectSortedShipmentAccessorials } from 'shared/Entities/modules/shipmentAccessorials';
 import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 
 export class PreApprovalPanel extends Component {
@@ -82,7 +82,7 @@ PreApprovalPanel.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    shipmentAccessorials: selectShipmentAccessorials(state),
+    shipmentAccessorials: selectSortedShipmentAccessorials(state),
     tariff400ngItems: selectTariff400ngItems(state),
   };
 }
