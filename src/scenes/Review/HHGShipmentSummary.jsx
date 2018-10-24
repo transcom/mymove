@@ -25,7 +25,7 @@ export default function HHGShipmentSummary(props) {
       <div className="usa-width-one-half review-section ppm-review-section">
         <p className="heading">
           Move Dates
-          <span className="edit-section-link">
+          <span className="not-implemented edit-section-link">
             {' '}
             <Link to={editDatePath}>Edit</Link>
           </span>
@@ -58,7 +58,7 @@ export default function HHGShipmentSummary(props) {
 
         <p className="heading">
           Your Stuff
-          <span className="edit-section-link">
+          <span className="not-implemented edit-section-link">
             {' '}
             <Link to={editWeightsPath}>Edit</Link>
           </span>
@@ -84,7 +84,7 @@ export default function HHGShipmentSummary(props) {
       <div className="usa-width-one-half review-section ppm-review-section">
         <p className="heading">
           Pickup &amp; Delivery Locations
-          <span className="edit-section-link">
+          <span className="not-implemented edit-section-link">
             {' '}
             <Link to={editLocationsPath}>Edit</Link>
           </span>
