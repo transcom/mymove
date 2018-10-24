@@ -252,12 +252,30 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 		return shipmentop.NewTransportShipmentBadRequest()
 	}
 
+	actualPackDate := (time.Time)(*params.Payload.ActualPackDate)
+
+	err = shipment.Pack(actualPackDate)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	actualPickupDate := (time.Time)(*params.Payload.ActualPickupDate)
 
 	err = shipment.Transport(actualPickupDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+
+	shipment.NetWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.NetWeight)
+
+	if params.Payload.GrossWeight != nil {
+		shipment.GrossWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.GrossWeight)
+	}
+
+	if params.Payload.TareWeight != nil {
+		shipment.TareWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.TareWeight)
+	}
+
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

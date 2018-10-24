@@ -1277,7 +1277,7 @@ definitions:
         x-nullable: true
     required:
       - actual_pack_date
-  ActualPickupDate:
+  TransportPayload:
     type: object
     properties:
       actual_pickup_date:
@@ -1286,8 +1286,40 @@ definitions:
         example: '2018-04-02'
         title: Actual Pickup Date
         x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: '2018-04-02'
+        title: Actual Pack Date
+        x-nullable: true
+      net_weight:
+        type: integer
+        description: Actual net weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Net
+      gross_weight:
+        type: integer
+        description: Gross weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Gross
+      tare_weight:
+        type: integer
+        description: Tare weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Tare
     required:
       - actual_pickup_date
+      - actual_pack_date
+      - net_weight
   ActualDeliveryDate:
     type: object
     properties:
@@ -2026,7 +2058,7 @@ paths:
           name: payload
           required: true
           schema:
-            $ref: '#/definitions/ActualPickupDate'
+            $ref: '#/definitions/TransportPayload'
       responses:
         200:
           description: returns updated (in_transit) shipment object
