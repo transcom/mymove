@@ -34,7 +34,7 @@ const initialState = {
   moveDocuments: {},
   shipments: {},
   tariff400ngItems: {},
-  shipmentAccessorials: {},
+  shipmentLineItems: {},
 };
 
 // Actions of either of these types will be merged into the store:

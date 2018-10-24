@@ -27,10 +27,10 @@ import {
   getTariff400ngItemsLabel,
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
-  getAllShipmentAccessorials,
-  selectShipmentAccessorials,
-  getShipmentAccessorialsLabel,
-} from 'shared/Entities/modules/shipmentAccessorials';
+  getAllShipmentLineItems,
+  selectShipmentLineItems,
+  getShipmentLineItemsLabel,
+} from 'shared/Entities/modules/shipmentLineItems';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -171,7 +171,7 @@ class ShipmentInfo extends Component {
     if ((!prevProps.shipment.id && this.props.shipment.id) || prevProps.shipment.id !== this.props.shipment.id) {
       this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
       this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-      this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
+      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
     }
   }
 
@@ -482,7 +482,7 @@ const mapStateToProps = state => {
     shipment,
     shipmentDocuments: selectShipmentDocuments(state, shipment.id),
     tariff400ngItems: selectTariff400ngItems(state),
-    shipmentAccessorials: selectShipmentAccessorials(state),
+    shipmentLineItems: selectShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
@@ -511,7 +511,7 @@ const mapDispatchToProps = dispatch =>
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
-      getAllShipmentAccessorials,
+      getAllShipmentLineItems,
     },
     dispatch,
   );
