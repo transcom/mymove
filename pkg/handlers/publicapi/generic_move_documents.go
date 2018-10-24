@@ -3,9 +3,9 @@ package publicapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 
 	"github.com/go-openapi/swag"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -67,7 +67,7 @@ type CreateGenericMoveDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -101,7 +101,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.DB(), session, converted)
+		upload, err := h.FetchUpload().Execute(session, converted)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}

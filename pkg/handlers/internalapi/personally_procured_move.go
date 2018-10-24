@@ -2,13 +2,13 @@ package internalapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -71,7 +71,7 @@ type CreatePersonallyProcuredMoveHandler struct {
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -122,7 +122,7 @@ type IndexPersonallyProcuredMovesHandler struct {
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
 	// #nosec User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -214,7 +214,7 @@ type PatchPersonallyProcuredMoveHandler struct {
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -382,7 +382,7 @@ type RequestPPMPaymentHandler struct {
 
 // Handle is the handler
 func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
@@ -481,7 +481,7 @@ type RequestPPMExpenseSummaryHandler struct {
 
 // Handle is the handler
 func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSummaryParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 

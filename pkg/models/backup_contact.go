@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -8,8 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-
-	"github.com/transcom/mymove/pkg/auth"
 )
 
 // BackupContactPermission represents the permissions granted to a backup contact
@@ -63,7 +62,7 @@ func (b *BackupContact) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchBackupContact returns a specific backup contact model
-func FetchBackupContact(db *pop.Connection, session *auth.Session, id uuid.UUID) (BackupContact, error) {
+func FetchBackupContact(db *pop.Connection, session *server.Session, id uuid.UUID) (BackupContact, error) {
 	var contact BackupContact
 	err := db.Q().Eager().Find(&contact, id)
 	if err != nil {

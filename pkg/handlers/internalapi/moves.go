@@ -6,11 +6,11 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/rickar/cal"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
 	"time"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/awardqueue"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -63,7 +63,7 @@ type CreateMoveHandler struct {
 
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	ordersID, _ := uuid.FromString(params.OrdersID.String())
 
@@ -93,7 +93,7 @@ type ShowMoveHandler struct {
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -123,7 +123,7 @@ type PatchMoveHandler struct {
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -166,7 +166,7 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -189,7 +189,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveSubmitted(h.DB(), h.Logger(), session, moveID),
+		notifications.NewMoveSubmitted(h.DB(), h.Logger(), session, h.FetchServiceMember(), moveID),
 	)
 	if err != nil {
 		h.Logger().Error("problem sending email to user", zap.Error(err))

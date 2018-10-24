@@ -6,11 +6,11 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -21,7 +21,7 @@ type ShowPPMIncentiveHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()

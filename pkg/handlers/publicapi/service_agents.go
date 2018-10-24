@@ -4,9 +4,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	serviceagentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/service_agents"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -38,7 +38,7 @@ type IndexServiceAgentsHandler struct {
 
 // Handle returns a list of service agents - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgentsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -74,7 +74,7 @@ type CreateServiceAgentHandler struct {
 
 // Handle creates a new ServiceAgent from a request payload - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAgentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -120,7 +120,7 @@ type PatchServiceAgentHandler struct {
 // Handle updates the service agent - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgentParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	serviceAgentID, _ := uuid.FromString(params.ServiceAgentID.String())

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,7 +10,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -154,7 +154,7 @@ func (o *Order) touchAllShipments(db *pop.Connection) error {
 }
 
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
-func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
+func FetchOrderForUser(db *pop.Connection, session *server.Session, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Eager("ServiceMember.User",
 		"NewDutyStation.Address",

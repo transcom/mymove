@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -11,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/go-openapi/swag"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -452,7 +452,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 }
 
 // FetchShipment Fetches and Validates a Shipment model
-func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
+func FetchShipment(db *pop.Connection, session *server.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
 	err := db.Eager().Find(&shipment, id)
 	if err != nil {

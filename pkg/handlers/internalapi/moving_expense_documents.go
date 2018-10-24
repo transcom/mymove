@@ -3,8 +3,8 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 
-	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -43,7 +43,7 @@ type CreateMovingExpenseDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -64,7 +64,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.DB(), session, converted)
+		upload, err := h.FetchUpload().Execute(session, converted)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}

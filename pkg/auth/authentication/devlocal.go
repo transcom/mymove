@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/server"
 	"html/template"
 	"net/http"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -21,17 +21,16 @@ type UserListHandler struct {
 }
 
 // NewUserListHandler returns a new UserListHandler
-func NewUserListHandler(ac Context, db *pop.Connection) UserListHandler {
-	handler := UserListHandler{
-		Context: ac,
+func NewUserListHandler(ac *Context, db *pop.Connection) *UserListHandler {
+	return &UserListHandler{
+		Context: *ac,
 		db:      db,
 	}
-	return handler
 }
 
 // UserListHandler lists users in the local database for local login
 func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	session := auth.SessionFromRequestContext(r)
+	session := server.SessionFromRequestContext(r)
 	if session != nil && session.UserID != uuid.Nil {
 		// User is already authenticated, redirect to landing page
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
@@ -102,18 +101,17 @@ type AssignUserHandler devlocalAuthHandler
 type CreateUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) AssignUserHandler {
-	handler := AssignUserHandler{
-		Context:             ac,
+func NewAssignUserHandler(ac *Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) *AssignUserHandler {
+	return &AssignUserHandler{
+		Context:             *ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 	}
-	return handler
 }
 
 // AssignUserHandler logs in a user locally
-func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID := r.PostFormValue("id")
 	if userID == "" {
 		h.logger.Error("No user id specified")
@@ -130,22 +128,21 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	loginUser(devlocalAuthHandler(h), user, w, r)
+	loginUser((*devlocalAuthHandler)(h), user, w, r)
 }
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateUserHandler {
-	handler := CreateUserHandler{
-		Context:             ac,
+func NewCreateUserHandler(ac *Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) *CreateUserHandler {
+	return &CreateUserHandler{
+		Context:             *ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 	}
-	return handler
 }
 
 // CreateUserHandler creates a user and logs them in
-func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id := uuid.Must(uuid.NewV4())
 
 	now := time.Now()
@@ -166,11 +163,11 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	loginUser(devlocalAuthHandler(h), &user, w, r)
+	loginUser((*devlocalAuthHandler)(h), &user, w, r)
 }
 
-func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) {
-	session := auth.SessionFromRequestContext(r)
+func loginUser(handler *devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) {
+	session := server.SessionFromRequestContext(r)
 	if session == nil {
 		handler.logger.Error("Session missing")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -212,7 +209,7 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 	}
 
 	handler.logger.Info("logged in", zap.Any("session", session))
-	auth.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger)
+	server.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger)
 
 	lURL := handler.landingURL(session)
 	http.Redirect(w, r, lURL, http.StatusSeeOther)

@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
@@ -106,7 +107,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 	suite.mustSave(&sm)
 
 	// User is authorized to fetch service member
-	session := &auth.Session{
+	session := &server.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          user1.ID,
 		ServiceMemberID: sm.ID,

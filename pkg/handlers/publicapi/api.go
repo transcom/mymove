@@ -11,8 +11,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
+// Handler is a DI marker for the public API http.Handler
+type Handler http.Handler
+
 // NewPublicAPIHandler returns a handler for the public API
-func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewPublicAPIHandler(context handlers.HandlerContext) Handler {
 
 	// Wire up the handlers to the publicAPIMux
 	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")

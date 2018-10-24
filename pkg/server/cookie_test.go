@@ -1,4 +1,4 @@
-package auth
+package server
 
 import (
 	"crypto/rand"
@@ -44,19 +44,23 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 	return rr, req
 }
 
-func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
+func (suite *serverSuite) TestSessionCookieMiddlewareWithBadToken() {
 	t := suite.T()
 	fakeToken := "some_token"
-	pem, err := createRandomRSAPEM()
+	secret, err := createRandomRSAPEM()
 	if err != nil {
 		t.Error("error creating RSA key", err)
 	}
 
+	cfg := &SessionCookieConfig{
+		secret,
+		false,
+	}
 	var resultingSession *Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+	middleware := NewSessionCookieMiddleware(cfg, suite.logger)(handler)
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
@@ -71,13 +75,13 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
 	suite.Equal("", resultingSession.IDToken, "Expected empty IDToken from bad cookie")
 }
 
-func (suite *authSuite) TestSessionCookieMiddlewareWithValidToken() {
+func (suite *serverSuite) TestSessionCookieMiddlewareWithValidToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 
-	pem, err := createRandomRSAPEM()
+	secret, err := createRandomRSAPEM()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +92,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithValidToken() {
 		Email:   email,
 		IDToken: idToken,
 	}
-	ss, err := signTokenStringWithUserInfo(expiry, &incomingSession, pem)
+	ss, err := signTokenStringWithUserInfo(expiry, &incomingSession, secret)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +102,12 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithValidToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+
+	cfg := &SessionCookieConfig{
+		Secret:    secret,
+		NoTimeout: false,
+	}
+	middleware := NewSessionCookieMiddleware(cfg, suite.logger)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -114,24 +123,27 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithValidToken() {
 	suite.Equal(1, len(setCookies), "expected cookie to be set")
 }
 
-func (suite *authSuite) TestSessionCookieMiddlewareWithExpiredToken() {
+func (suite *serverSuite) TestSessionCookieMiddlewareWithExpiredToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 
-	pem, err := createRandomRSAPEM()
+	session, err := createRandomRSAPEM()
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	cfg := &SessionCookieConfig{
+		Secret:    session,
+		NoTimeout: false,
+	}
 	expiry := GetExpiryTimeFromMinutes(-1)
 	incomingSession := Session{
 		UserID:  fakeUUID,
 		Email:   email,
 		IDToken: idToken,
 	}
-	ss, err := signTokenStringWithUserInfo(expiry, &incomingSession, pem)
+	ss, err := signTokenStringWithUserInfo(expiry, &incomingSession, session)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,7 +152,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithExpiredToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+	middleware := NewSessionCookieMiddleware(cfg, suite.logger)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 

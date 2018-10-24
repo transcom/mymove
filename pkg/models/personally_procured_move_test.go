@@ -30,7 +30,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 
 	advance.Request()
 	SavePersonallyProcuredMove(suite.db, ppm)
-	session := auth.Session{
+	session := server.Session{
 		UserID:          serviceMember.User.ID,
 		ApplicationName: auth.MyApp,
 		ServiceMemberID: serviceMember.ID,

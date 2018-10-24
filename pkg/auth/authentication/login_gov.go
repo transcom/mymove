@@ -13,7 +13,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
-	"github.com/transcom/mymove/pkg/auth"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +21,7 @@ const officeProviderName = "officeProvider"
 const tspProviderName = "tspProvider"
 
 func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, error) {
-	session := auth.SessionFromRequestContext(r)
+	session := server.SessionFromRequestContext(r)
 	providerName := myProviderName
 	if session.IsOfficeApp() {
 		providerName = officeProviderName
@@ -76,17 +75,6 @@ func (p *LoginGovProvider) RegisterProvider(cfg *LoginGovConfig, hosts *server.H
 	tspProvider.SetName(tspProviderName)
 	goth.UseProviders(myProvider, officeProvider, tspProvider)
 	return nil
-}
-
-// LoginGovConfig contains values needed to register login.gov callbacks for the sites
-type LoginGovConfig struct {
-	Host             string
-	Secret           string
-	MyClientID       string
-	OfficeClientID   string
-	TspClientID      string
-	CallbackProtocol string
-	CallbackPort     string
 }
 
 // NewLoginGovProvider returns a new LoginGovProvider constructed and registered with goth
@@ -159,14 +147,14 @@ func (p *LoginGovProvider) LogoutURL(redirectURL string, idToken string) string 
 }
 
 // TokenURL returns a full URL to retrieve a user token from login.gov
-func (p *LoginGovProvider) TokenURL() string {
+func (p *LoginGovProvider) tokenURL() string {
 	// TODO: Get the token endpoint URL from Goth instead when
 	// https://github.com/markbates/goth/pull/207 is resolved
 	return fmt.Sprintf("https://%s/api/openid_connect/token", p.hostname)
 }
 
 // TokenParams creates query params for use in the token endpoint
-func (p *LoginGovProvider) TokenParams(code string, clientID string, expiry time.Time) (url.Values, error) {
+func (p *LoginGovProvider) tokenParams(code string, clientID string, expiry time.Time) (url.Values, error) {
 	clientAssertion, err := p.createClientAssertionJWT(clientID, expiry)
 	params := url.Values{
 		"client_assertion":      {clientAssertion},
@@ -182,7 +170,7 @@ func (p *LoginGovProvider) createClientAssertionJWT(clientID string, expiry time
 	claims := &jwt.StandardClaims{
 		Issuer:    clientID,
 		Subject:   clientID,
-		Audience:  p.TokenURL(),
+		Audience:  p.tokenURL(),
 		Id:        generateNonce(),
 		ExpiresAt: expiry.Unix(),
 	}

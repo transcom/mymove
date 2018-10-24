@@ -59,7 +59,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 	testdatagen.MakeMoveDocument(suite.db, assertions)
 	testdatagen.MakeShipmentOffer(suite.db, assertions)
 	// When: the logged in user is a TSP user
-	session := &auth.Session{
+	session := &server.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          *tspUser.UserID,
 		TspUserID:       tspUser.ID,
@@ -84,7 +84,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 		suite.Equal(0, len(nonExistantDocs))
 	}
 	// When: a user without authority is logged in
-	session = &auth.Session{
+	session = &server.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          sm.UserID,
 		TspUserID:       sm.ID,
@@ -117,7 +117,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
 
 	// User is authorized to fetch move doc
-	session := &auth.Session{
+	session := &server.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,
@@ -175,7 +175,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 		},
 	})
 	// User is authorized to fetch move doc
-	session := &auth.Session{
+	session := &server.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,

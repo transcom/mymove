@@ -1,30 +1,12 @@
 package models
 
 import (
-	"time"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/auth"
 )
-
-// A Document represents a physical artifact such as a multipage form that was
-// filled out by hand. A Document can have many associated Uploads, which allows
-// for handling multiple files that belong to the same document.
-type Document struct {
-	ID              uuid.UUID     `db:"id"`
-	ServiceMemberID uuid.UUID     `db:"service_member_id"`
-	ServiceMember   ServiceMember `belongs_to:"service_members"`
-	CreatedAt       time.Time     `db:"created_at"`
-	UpdatedAt       time.Time     `db:"updated_at"`
-	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
-}
-
-// Documents is not required by pop and may be deleted
-type Documents []Document
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
@@ -33,21 +15,27 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// FetchDocument returns a document if the user has access to that document
-func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
+type popDocumentDB struct {
+	db *pop.Connection
+}
+
+// NewDocumentDB is the DI provider to create a pop based ServiceMemberDB
+func NewDocumentDB(db *pop.Connection) DocumentDB {
+	return &popDocumentDB{db}
+}
+
+// Fetch does a simple eager load of a Document using POP
+func (pdb *popDocumentDB) Fetch(id uuid.UUID) (*Document, error) {
 	var document Document
-	err := db.Q().Eager().Find(&document, id)
+	err := pdb.db.Q().Eager().Find(&document, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return Document{}, ErrFetchNotFound
+			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
-		return Document{}, err
+		return nil, err
 	}
-
-	_, smErr := FetchServiceMemberForUser(db, session, document.ServiceMemberID)
-	if smErr != nil {
-		return Document{}, smErr
-	}
-	return document, nil
+	return &document, nil
 }
+
+// FetchUpload does a simple

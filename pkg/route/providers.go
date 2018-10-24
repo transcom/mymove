@@ -1,8 +1,8 @@
 package route
 
-import "github.com/transcom/mymove/pkg/dependencies"
+import "github.com/transcom/mymove/pkg/di"
 
 // AddProviders registers all the dependency providers for the route package
-func AddProviders(c *dependencies.Container) {
+func AddProviders(c *di.Container) {
 	c.MustProvide(NewHEREPlanner)
 }

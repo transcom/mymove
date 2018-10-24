@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	dep "github.com/transcom/mymove/pkg/dependencies"
-	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"github.com/transcom/mymove/pkg/di"
 )
 
 // AddProviders adds all the DI providers from the handlers package
-func AddProviders(c *dep.Container) {
+func AddProviders(c *di.Container) {
 	c.MustProvide(NewHandlerContext)
-	c.Provide(internalapi.NewInternalAPIHandler)
 }

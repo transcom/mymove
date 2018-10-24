@@ -48,7 +48,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
 
-	session := &auth.Session{
+	session := &server.Session{
 		UserID:          order1.ServiceMember.UserID,
 		ServiceMemberID: order1.ServiceMemberID,
 		ApplicationName: auth.MyApp,

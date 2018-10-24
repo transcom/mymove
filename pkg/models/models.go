@@ -1,8 +1,8 @@
 package models
 
 import (
-	"go.uber.org/dig"
-	"go.uber.org/zap"
+	"github.com/gobuffalo/validate"
+	"github.com/transcom/mymove/pkg/di"
 	"time"
 )
 
@@ -43,11 +43,10 @@ func BoolPointer(b bool) *bool {
 }
 
 // AddProviders adds all the DI providers from the models package
-func AddProviders(c *dig.Container) {
-	err := c.Provide(NewServiceMemberDB)
-	if err != nil {
-		c.Invoke(func(l *zap.Logger) {
-			l.Fatal("pkg.models.AddProviders(NewServiceMemberDB", zap.Error(err))
-		})
-	}
+func AddProviders(c *di.Container) {
+	c.MustProvide(NewServiceMemberDB)
+	c.MustProvide(NewDocumentDB)
 }
+
+// ValidationErrors is a type alias to limit the leakage of POP types from the DB layer
+type ValidationErrors *validate.Errors

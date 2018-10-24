@@ -1,7 +1,6 @@
-package auth
+package server
 
 import (
-	"github.com/transcom/mymove/pkg/server"
 	"net/http"
 	"strings"
 
@@ -39,8 +38,8 @@ func (s *Session) IsMyApp() bool {
 type AppDetectorMiddleware func(next http.Handler) http.Handler
 
 // NewAppDetectorMiddleware detects which application we are serving based on the hostname
-func NewAppDetectorMiddleware(cfg *server.HostsConfig, l *zap.Logger) AppDetectorMiddleware {
-	l.Info("Creating host detector", zap.String("myHost", myHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
+func NewAppDetectorMiddleware(cfg *HostsConfig, l *zap.Logger) AppDetectorMiddleware {
+	l.Info("Creating host detector", zap.String("myHost", cfg.MyName), zap.String("officeHost", cfg.OfficeName), zap.String("tspHost", cfg.TspName))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := SessionFromRequestContext(r)
@@ -53,7 +52,7 @@ func NewAppDetectorMiddleware(cfg *server.HostsConfig, l *zap.Logger) AppDetecto
 			} else if strings.EqualFold(parts[0], cfg.TspName) {
 				appName = TspApp
 			} else {
-				logger.Error("Bad hostname", zap.String("hostname", r.Host))
+				l.Error("Bad hostname", zap.String("hostname", r.Host))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)
 				return
 			}

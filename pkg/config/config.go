@@ -1,11 +1,10 @@
-package main
+package config
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/apimessages"
-	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/di"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
@@ -16,42 +15,65 @@ import (
 
 // HoneycombConfig contains is configuration for connecting to Honeycomb service
 type HoneycombConfig struct {
-	debug        *bool
-	enabled      *bool
-	apiKey       *string
-	dataSet      *string
-	useHoneycomb bool
+	Debug        *bool
+	Enabled      *bool
+	APIKey       *string
+	DataSet      *string
+	UseHoneycomb bool
 }
 
 // DatabaseConfig contains where to find per environment configs and the environment name
 type DatabaseConfig struct {
-	configDir   string
-	environment string
+	ConfigDir   string
+	Environment string
 }
 
 // SwaggerConfig contains names of the various swagger yaml files
 type SwaggerConfig struct {
-	internal string
-	api      string
-	orders   string
+	Internal string
+	API      string
+	Orders   string
+}
+
+// NewRelicConfig contains the App ID and Key for New Relic
+type NewRelicConfig struct {
+	AppID string
+	Key   string
+}
+
+// ListenerConfig contains configuration for the various HTTP(S) listeners
+type ListenerConfig struct {
+	NoTLSPort     string // Port with no TLS
+	TLSPort       string // Port for regular TLS access
+	MutualTLSPort string // Port for TLS with client certs
+	DoDCACert     string // The DoD CA certificate used to sign the move.mil TLS certificates
+	DoDTLSCert    string // The DoD signed tls certificate for various move.mil services
+	DoDTLSKey     string // The DoD signed tls key for various move.mil services
 }
 
 // WebServerConfig rolls up the various bits of config, so parseConfig provider has a sensible return value
 type WebServerConfig struct {
 	dig.Out
-	logger    *logging.Config
-	honeycomb *HoneycombConfig
-	db        *DatabaseConfig
-	host      *server.HostsConfig
-	cookie    *auth.SessionCookieConfig
-	swagger   *SwaggerConfig
-	here      *route.HEREConfig
-	sesSender *notifications.SESNotificationConfig
-	s3Config  *storage.S3StorerConfig
-	envConfig *server.LocalEnvConfig
+	Logger         *di.Config
+	Honeycomb      *HoneycombConfig
+	DB             *DatabaseConfig
+	Hosts          *server.HostsConfig
+	Cookie         *server.SessionCookieConfig
+	Swagger        *SwaggerConfig
+	Here           *route.HEREConfig
+	SesSender      *notifications.SESNotificationConfig
+	S3Config       *storage.S3StorerConfig
+	EnvConfig      *server.LocalEnvConfig
+	NewRelicConfig *NewRelicConfig
+	LoginGovConfig *authentication.LoginGovConfig
+	TLSConfig      *ListenerConfig
 }
 
-func parseConfig() WebServerConfig {
+/*
+ParseConfig parses the config for the MyMoveMil web server.
+TODO. This code should really live with the main webserver in /cmd/webserver but I couldn't work out how to get packages to work there
+*/
+func ParseConfig() WebServerConfig {
 
 	// FOR NOW. PatrickD's viper proposal should hopefully simplify this
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
@@ -111,7 +133,7 @@ func parseConfig() WebServerConfig {
 	newRelicLicenseKey := flag.String("new_relic_license_key", "", "License key for New Relic Browser")
 
 	honeyConfig := HoneycombConfig{
-		flag.Bool("honeycomb_debug", false, "Debug honeycomb using stdout."),
+		flag.Bool("honeycomb_debug", false, "Debug Honeycomb using stdout."),
 		flag.Bool("honeycomb_enabled", false, "Honeycomb enabled"),
 		flag.String("honeycomb_api_key", "", "API Key for Honeycomb"),
 		flag.String("honeycomb_dataset", "", "Dataset for Honeycomb"),
@@ -135,39 +157,60 @@ func parseConfig() WebServerConfig {
 	}
 	return WebServerConfig{
 		Out: dig.Out{},
-		logger: &logging.Config{
+		Logger: &di.Config{
 			DebugLogging: *debugLogging},
-		honeycomb: &honeyConfig,
-		db: &DatabaseConfig{
+		Honeycomb: &honeyConfig,
+		DB: &DatabaseConfig{
 			*config,
 			*env},
-		host: &server.HostsConfig{
+		Hosts: &server.HostsConfig{
 			ListenInterface: *listenInterface,
 			MyName:          *myHostname,
 			OfficeName:      *officeHostname,
 			TspName:         *tspHostname,
 			OrdersName:      *ordersHostname},
-		cookie: &auth.SessionCookieConfig{
+		Cookie: &server.SessionCookieConfig{
 			Secret:    *clientAuthSecretKey,
 			NoTimeout: *noSessionTimeout,
 		},
-		swagger: &SwaggerConfig{
+		Swagger: &SwaggerConfig{
 			*internalSwagger,
 			*apiSwagger,
 			*ordersSwagger,
 		},
-		here: &route.HEREConfig{
+		Here: &route.HEREConfig{
 			RouteEndpoint:   *hereRouteEndpoint,
 			GeocodeEndpoint: *hereGeoEndpoint,
 			AppCode:         *hereAppCode,
 			AppID:           *hereAppID,
 		},
-		sesSender: sesConfig,
-		s3Config:  s3Config,
-		envConfig: &server.LocalEnvConfig{
+		SesSender: sesConfig,
+		S3Config:  s3Config,
+		EnvConfig: &server.LocalEnvConfig{
 			Environment: *env,
 			SiteDir:     *build,
 			ConfigDir:   *config,
+		},
+		NewRelicConfig: &NewRelicConfig{
+			AppID: *newRelicApplicationID,
+			Key:   *newRelicLicenseKey,
+		},
+		LoginGovConfig: &authentication.LoginGovConfig{
+			Host:             *loginGovHostname,
+			CallbackProtocol: *loginGovCallbackProtocol,
+			CallbackPort:     *loginGovCallbackPort,
+			MyClientID:       *loginGovMyClientID,
+			OfficeClientID:   *loginGovOfficeClientID,
+			TspClientID:      *loginGovTSPClientID,
+			Secret:           *loginGovSecretKey,
+		},
+		TLSConfig: &ListenerConfig{
+			NoTLSPort:     *noTLSPort,
+			TLSPort:       *tlsPort,
+			MutualTLSPort: *mutualTLSPort,
+			DoDCACert:     *moveMilDODCACert,
+			DoDTLSCert:    *moveMilDODTLSCert,
+			DoDTLSKey:     *moveMilDODTLSKey,
 		},
 	}
 }

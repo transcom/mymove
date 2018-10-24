@@ -13,56 +13,9 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// ServiceMemberAffiliation represents a service member's branch
-type ServiceMemberAffiliation string
-
-const (
-	// AffiliationARMY captures enum value "ARMY"
-	AffiliationARMY ServiceMemberAffiliation = "ARMY"
-	// AffiliationNAVY captures enum value "NAVY"
-	AffiliationNAVY ServiceMemberAffiliation = "NAVY"
-	// AffiliationMARINES captures enum value "MARINES"
-	AffiliationMARINES ServiceMemberAffiliation = "MARINES"
-	// AffiliationAIRFORCE captures enum value "AIR_FORCE"
-	AffiliationAIRFORCE ServiceMemberAffiliation = "AIR_FORCE"
-	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
-	AffiliationCOASTGUARD ServiceMemberAffiliation = "COAST_GUARD"
-)
-
-// ServiceMember is a user of type service member
-type ServiceMember struct {
-	ID                     uuid.UUID                 `json:"id" db:"id"`
-	CreatedAt              time.Time                 `json:"created_at" db:"created_at"`
-	UpdatedAt              time.Time                 `json:"updated_at" db:"updated_at"`
-	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
-	User                   User                      `belongs_to:"user"`
-	Edipi                  *string                   `json:"edipi" db:"edipi"`
-	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
-	Rank                   *ServiceMemberRank        `json:"rank" db:"rank"`
-	FirstName              *string                   `json:"first_name" db:"first_name"`
-	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
-	LastName               *string                   `json:"last_name" db:"last_name"`
-	Suffix                 *string                   `json:"suffix" db:"suffix"`
-	Telephone              *string                   `json:"telephone" db:"telephone"`
-	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
-	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
-	PhoneIsPreferred       *bool                     `json:"phone_is_preferred" db:"phone_is_preferred"`
-	TextMessageIsPreferred *bool                     `json:"text_message_is_preferred" db:"text_message_is_preferred"`
-	EmailIsPreferred       *bool                     `json:"email_is_preferred" db:"email_is_preferred"`
-	ResidentialAddressID   *uuid.UUID                `json:"residential_address_id" db:"residential_address_id"`
-	ResidentialAddress     *Address                  `belongs_to:"address"`
-	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
-	BackupMailingAddress   *Address                  `belongs_to:"address"`
-	SocialSecurityNumberID *uuid.UUID                `json:"social_security_number_id" db:"social_security_number_id"`
-	SocialSecurityNumber   *SocialSecurityNumber     `belongs_to:"address"`
-	Orders                 Orders                    `has_many:"orders" order_by:"created_at desc"`
-	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
-	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            DutyStation               `belongs_to:"duty_stations"`
-}
-
-// ServiceMembers is not required by pop and may be deleted
-type ServiceMembers []ServiceMember
+/*
+   This file contains the implementaion details of the ServiceMember model. It should be pushed down into the users_impl package
+*/
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -297,13 +250,6 @@ func (s *ServiceMember) ReverseNameLineFormat() string {
 	return strings.Join(names, ", ")
 }
 
-// ServiceMemberDB defines the functions needed from the DB to access models.ServiceMembers
-type ServiceMemberDB interface {
-	Save(serviceMember *ServiceMember) (*validate.Errors, error)
-	Fetch(id uuid.UUID, loadAssociations bool) (*ServiceMember, error)
-	IsTspManagingShipment(tspUserID uuid.UUID, serviceMemberID uuid.UUID) (bool, error)
-}
-
 type popServiceMemberDB struct {
 	db *pop.Connection
 }
@@ -313,7 +259,7 @@ func NewServiceMemberDB(db *pop.Connection) ServiceMemberDB {
 	return &popServiceMemberDB{db}
 }
 
-func (pdb *popServiceMemberDB) Save(serviceMember *ServiceMember) (*validate.Errors, error) {
+func (pdb *popServiceMemberDB) Save(serviceMember *ServiceMember) (ValidationErrors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 

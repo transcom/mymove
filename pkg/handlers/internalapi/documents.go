@@ -3,9 +3,9 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
 
-	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -40,7 +40,7 @@ type CreateDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
@@ -48,7 +48,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -81,14 +81,14 @@ type ShowDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	document, err := models.FetchDocument(h.DB(), session, documentID)
+	document, err := h.FetchDocument().Execute(session, documentID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

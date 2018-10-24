@@ -4,8 +4,8 @@ import (
 	// "fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -20,7 +20,7 @@ type IndexMoveDocumentsHandler struct {
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -80,7 +80,7 @@ type UpdateMoveDocumentHandler struct {
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())

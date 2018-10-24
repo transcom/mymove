@@ -4,8 +4,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/transcom/mymove/pkg/server"
 
-	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -95,7 +95,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	}
 
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
@@ -148,15 +148,15 @@ type ShowServiceMemberHandler struct {
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), *serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -167,23 +167,23 @@ type PatchServiceMemberHandler struct {
 
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
+	if verrs, err := h.patchServiceMemberWithPayload(serviceMember, payload); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+	if verrs, err := models.SaveServiceMember(h.DB(), serviceMember); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), *serviceMember)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -275,10 +275,10 @@ type ShowServiceMemberOrdersHandler struct {
 
 // Handle retrieves orders for a service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

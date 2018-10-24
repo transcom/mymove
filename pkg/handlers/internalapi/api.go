@@ -1,8 +1,8 @@
 package internalapi
 
 import (
+	"github.com/pkg/errors"
 	"go.uber.org/dig"
-	"log"
 	"net/http"
 
 	"github.com/go-openapi/loads"
@@ -18,91 +18,92 @@ type Handler http.Handler
 // HandlerParams bundles up the dependencies of NewInternalApiHandler
 type HandlerParams struct {
 	dig.In
-	sliuHandler userops.ShowLoggedInUserHandler
+	handlers.HandlerContext
+	SliuHandler userops.ShowLoggedInUserHandler
 }
 
 // NewInternalAPIHandler returns a handler for the internal API
-func NewInternalAPIHandler(params HandlerParams, context handlers.HandlerContext) Handler {
+func NewInternalAPIHandler(p HandlerParams) (Handler, error) {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
-		log.Fatalln(err)
+		return nil, errors.Wrap(err, "Failed parsing internal Swagger")
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
-	internalAPI.UsersShowLoggedInUserHandler = params.sliuHandler
+	internalAPI.UsersShowLoggedInUserHandler = p.SliuHandler
 
-	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler{context}
-	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{context}
+	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler{p.HandlerContext}
+	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{p.HandlerContext}
 
-	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
-	internalAPI.CertificationIndexSignedCertificationsHandler = IndexSignedCertificationsHandler{context}
+	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{p.HandlerContext}
+	internalAPI.CertificationIndexSignedCertificationsHandler = IndexSignedCertificationsHandler{p.HandlerContext}
 
-	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
-	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
-	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{context}
-	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{context}
-	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context}
-	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{context}
-	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{context}
-	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{context}
-	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler{context}
+	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{p.HandlerContext}
+	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{p.HandlerContext}
+	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{p.HandlerContext}
+	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{p.HandlerContext}
+	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{p.HandlerContext}
+	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{p.HandlerContext}
+	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{p.HandlerContext}
+	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{p.HandlerContext}
+	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler{p.HandlerContext}
 
-	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler{context}
+	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler{p.HandlerContext}
 
-	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler{context}
+	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler{p.HandlerContext}
 
-	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{context}
-	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{context}
-	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{context}
+	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{p.HandlerContext}
+	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{p.HandlerContext}
+	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{p.HandlerContext}
 
-	internalAPI.MovesCreateMoveHandler = CreateMoveHandler{context}
-	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{context}
-	internalAPI.MovesShowMoveHandler = ShowMoveHandler{context}
-	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{context}
-	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
+	internalAPI.MovesCreateMoveHandler = CreateMoveHandler{p.HandlerContext}
+	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{p.HandlerContext}
+	internalAPI.MovesShowMoveHandler = ShowMoveHandler{p.HandlerContext}
+	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{p.HandlerContext}
+	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{p.HandlerContext}
 
-	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
-	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
-	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
+	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{p.HandlerContext}
+	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{p.HandlerContext}
+	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{p.HandlerContext}
 
-	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
+	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{p.HandlerContext}
 
-	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{context}
-	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{context}
-	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{context}
-	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler{context}
+	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{p.HandlerContext}
+	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{p.HandlerContext}
+	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{p.HandlerContext}
+	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler{p.HandlerContext}
 
-	internalAPI.BackupContactsIndexServiceMemberBackupContactsHandler = IndexBackupContactsHandler{context}
-	internalAPI.BackupContactsCreateServiceMemberBackupContactHandler = CreateBackupContactHandler{context}
-	internalAPI.BackupContactsUpdateServiceMemberBackupContactHandler = UpdateBackupContactHandler{context}
-	internalAPI.BackupContactsShowServiceMemberBackupContactHandler = ShowBackupContactHandler{context}
+	internalAPI.BackupContactsIndexServiceMemberBackupContactsHandler = IndexBackupContactsHandler{p.HandlerContext}
+	internalAPI.BackupContactsCreateServiceMemberBackupContactHandler = CreateBackupContactHandler{p.HandlerContext}
+	internalAPI.BackupContactsUpdateServiceMemberBackupContactHandler = UpdateBackupContactHandler{p.HandlerContext}
+	internalAPI.BackupContactsShowServiceMemberBackupContactHandler = ShowBackupContactHandler{p.HandlerContext}
 
-	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler{context}
-	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler{context}
-	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler{context}
-	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{context}
-	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{context}
+	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler{p.HandlerContext}
+	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler{p.HandlerContext}
+	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler{p.HandlerContext}
+	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{p.HandlerContext}
+	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{p.HandlerContext}
 
-	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
+	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{p.HandlerContext}
 
-	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{context}
-	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
-	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
-	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
-	internalAPI.ShipmentsCompleteHHGHandler = CompleteHHGHandler{context}
-	internalAPI.ShipmentsSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
+	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{p.HandlerContext}
+	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{p.HandlerContext}
+	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{p.HandlerContext}
+	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{p.HandlerContext}
+	internalAPI.ShipmentsCompleteHHGHandler = CompleteHHGHandler{p.HandlerContext}
+	internalAPI.ShipmentsSendHHGInvoiceHandler = ShipmentInvoiceHandler{p.HandlerContext}
 
-	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
-	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
-	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{context}
-	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context}
+	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{p.HandlerContext}
+	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{p.HandlerContext}
+	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{p.HandlerContext}
+	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{p.HandlerContext}
 
-	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
+	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{p.HandlerContext}
 
-	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
+	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{p.HandlerContext}
 
-	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{context}
+	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{p.HandlerContext}
 
-	return internalAPI.Serve(nil)
+	return internalAPI.Serve(nil), nil
 }

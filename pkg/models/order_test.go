@@ -73,7 +73,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	suite.mustSave(&order)
 
 	// User is authorized to fetch order
-	session := &auth.Session{
+	session := &server.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,7 +10,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/auth"
 )
 
 // MoveDocumentStatus represents the status of a move document record's lifecycle
@@ -140,7 +140,7 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 }
 
 // FetchMoveDocument fetches a MoveDocument model
-func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
+func FetchMoveDocument(db *pop.Connection, session *server.Session, id uuid.UUID) (*MoveDocument, error) {
 	// Allow all office users to fetch move doc
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return &MoveDocument{}, ErrFetchForbidden
@@ -176,7 +176,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 }
 
 // FetchApprovedMovingExpenseDocuments fetches all approved move expense document for a ppm
-func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (MoveDocuments, error) {
+func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *server.Session, ppmID uuid.UUID) (MoveDocuments, error) {
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
@@ -212,7 +212,7 @@ func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Sessi
 }
 
 // FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
-func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID) (MoveDocuments, error) {
+func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *server.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID) (MoveDocuments, error) {
 
 	// Verify that the logged-in TSP user is authorized to generate GBL
 	// Does this need to be checked here if already checked in create gbl handler?

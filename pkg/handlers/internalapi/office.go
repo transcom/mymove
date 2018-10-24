@@ -3,9 +3,9 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +19,7 @@ type ApproveMoveHandler struct {
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
@@ -66,7 +66,7 @@ type CancelMoveHandler struct {
 
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewCancelMoveForbidden()
 	}
@@ -93,7 +93,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveCanceled(h.DB(), h.Logger(), session, moveID),
+		notifications.NewMoveCanceled(h.DB(), h.Logger(), session, h.FetchServiceMember(), moveID),
 	)
 
 	if err != nil {
@@ -115,7 +115,7 @@ type ApprovePPMHandler struct {
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewApprovePPMForbidden()
 	}
@@ -140,7 +140,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	}
 
 	err = h.NotificationSender().SendNotification(
-		notifications.NewMoveApproved(h.DB(), h.Logger(), session, moveID),
+		notifications.NewMoveApproved(h.DB(), h.Logger(), session, h.FetchServiceMember(), moveID),
 	)
 	if err != nil {
 		h.Logger().Error("problem sending email to user", zap.Error(err))
@@ -161,7 +161,7 @@ type ApproveReimbursementHandler struct {
 
 // Handle ... approves a Reimbursement from a request payload
 func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveReimbursementForbidden()

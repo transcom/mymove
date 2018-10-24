@@ -3,11 +3,11 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
-	"github.com/transcom/mymove/pkg/auth"
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/server"
 )
 
 func payloadForBackupContactModel(contact models.BackupContact) internalmessages.ServiceMemberBackupContactPayload {
@@ -31,10 +31,10 @@ type CreateBackupContactHandler struct {
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -59,11 +59,11 @@ type IndexBackupContactsHandler struct {
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -87,7 +87,7 @@ type ShowBackupContactHandler struct {
 // Handle retrieves a backup contact in the system belonging to the logged in user given backup contact ID
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
@@ -107,7 +107,7 @@ type UpdateBackupContactHandler struct {
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)

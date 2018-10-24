@@ -1,12 +1,12 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -31,7 +31,7 @@ type CreateSignedCertificationHandler struct {
 
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	// User should always be populated by middleware
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -56,7 +56,7 @@ type IndexSignedCertificationsHandler struct {
 
 // Handle returns a SignedCertification for a given moveID
 func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec Format of UUID is checked by swagger
 	moveID, _ := uuid.FromString(params.MoveID.String())
 

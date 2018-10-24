@@ -42,12 +42,12 @@ type SESNotificationSender struct {
 }
 
 // NewSESNotificationSender returns a new SESNotificationSender
-func NewSESNotificationSender(aws *aws.Config, l *zap.Logger) (*SESNotificationSender, error) {
-	sesSession, err := awssession.NewSession(aws)
+func NewSESNotificationSender(cfg *SESNotificationConfig, l *zap.Logger) (*SESNotificationSender, error) {
+	sesSession, err := awssession.NewSession(&cfg.Config)
 	if err != nil {
 		return nil, err
 	}
-	return &SESNotificationSender{svc: ses.New(sesSession), l: logger}, nil
+	return &SESNotificationSender{svc: ses.New(sesSession), logger: l}, nil
 }
 
 // SendNotification sends a one or more notifications for all supported mediums

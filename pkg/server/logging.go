@@ -1,41 +1,11 @@
-package logging
+package server
 
 import (
-	"net/http"
-
 	"github.com/felixge/httpsnoop"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/server"
+	"net/http"
 )
-
-// Config contains the environment name and debug logging flag for configuring zap.Logging
-type Config struct {
-	DebugLogging bool
-}
-
-// NewLogger is the DI provider for constructing a new zap.Logger
-func NewLogger(config *Config, env *server.LocalEnvConfig) (*zap.Logger, error) {
-	var loggerConfig zap.Config
-
-	if env.Environment != "development" {
-		loggerConfig = zap.NewProductionConfig()
-	} else {
-		loggerConfig = zap.NewDevelopmentConfig()
-	}
-
-	loggerConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-
-	if config.DebugLogging {
-		debug := zap.NewAtomicLevel()
-		debug.SetLevel(zap.DebugLevel)
-		loggerConfig.Level = debug
-	}
-	return loggerConfig.Build()
-}
 
 // LogRequestMiddleware is a type marker for DI
 type LogRequestMiddleware func(http.Handler) http.Handler
@@ -52,7 +22,7 @@ func NewLogRequestMiddleware(l *zap.Logger) LogRequestMiddleware {
 				protocol = "https"
 			}
 
-			session := auth.SessionFromRequestContext(r)
+			session := SessionFromRequestContext(r)
 			if session.UserID != uuid.Nil {
 				userID = session.UserID.String()
 			}

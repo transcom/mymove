@@ -2,6 +2,7 @@ package models
 
 import (
 	"crypto/sha256"
+	"github.com/transcom/mymove/pkg/server"
 	"strings"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -170,7 +170,7 @@ func (m *Move) Cancel(reason string) error {
 }
 
 // FetchMove fetches and validates a Move for this User
-func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
+func FetchMove(db *pop.Connection, session *server.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
 		"SignedCertifications",
@@ -553,7 +553,8 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 			}
 
 			for _, shipment := range move.Shipments {
-				serviceMember, err := FetchServiceMember(db, shipment.ServiceMemberID)
+				// For now, this should get passed a reference to the NewServiceMemberDB
+				serviceMember, err := NewServiceMemberDB(db).Fetch(shipment.ServiceMemberID, false)
 				if err != nil {
 					responseError = errors.Wrap(err, "Error fetching service member")
 					return transactionError

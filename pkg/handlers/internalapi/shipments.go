@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -11,7 +12,6 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -84,7 +84,7 @@ type CreateShipmentHandler struct {
 
 // Handle is the handler
 func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -237,7 +237,7 @@ type PatchShipmentHandler struct {
 
 // Handle is the handler
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -271,7 +271,7 @@ type GetShipmentHandler struct {
 
 // Handle is the handler
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -292,7 +292,7 @@ type ApproveHHGHandler struct {
 
 // Handle is the handler
 func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewApproveHHGForbidden()
 	}
@@ -325,7 +325,7 @@ type CompleteHHGHandler struct {
 
 // Handle is the handler
 func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewCompleteHHGForbidden()
 	}
@@ -357,7 +357,7 @@ type ShipmentInvoiceHandler struct {
 
 // Handle is the handler
 func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewSendHHGInvoiceForbidden()
 	}

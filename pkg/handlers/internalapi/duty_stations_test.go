@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
 
 	// Make sure the context contains the auth values
-	session := &auth.Session{
+	session := &server.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          user.ID,
 		IDToken:         "fake token",

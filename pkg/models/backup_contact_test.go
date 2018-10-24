@@ -61,7 +61,7 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 	}
 	suite.mustSave(&backupContact)
 
-	session := &auth.Session{
+	session := &server.Session{
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
 		ApplicationName: auth.MyApp,

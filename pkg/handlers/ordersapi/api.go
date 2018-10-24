@@ -11,8 +11,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
+// Handler is a DI marker for the Orders http.Handler
+type Handler http.Handler
+
 // NewOrdersAPIHandler returns a handler for the Orders API
-func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewOrdersAPIHandler(context handlers.HandlerContext) Handler {
 
 	// Wire up the handlers to the ordersAPIMux
 	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")

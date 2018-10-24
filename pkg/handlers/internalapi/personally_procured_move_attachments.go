@@ -3,9 +3,9 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,7 +20,7 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())

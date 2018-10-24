@@ -2,13 +2,13 @@ package publicapi
 
 import (
 	"database/sql"
+	"github.com/transcom/mymove/pkg/server"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -53,7 +53,7 @@ type GetShipmentAccessorialsHandler struct {
 // Handle returns a specified shipment
 func (h GetShipmentAccessorialsHandler) Handle(params accessorialop.GetShipmentAccessorialsParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
 
@@ -84,7 +84,7 @@ type CreateShipmentAccessorialHandler struct {
 
 // Handle handles the request
 func (h CreateShipmentAccessorialHandler) Handle(params accessorialop.CreateShipmentAccessorialParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
 
@@ -133,7 +133,7 @@ type UpdateShipmentAccessorialHandler struct {
 
 // Handle updates a specified shipment accessorial
 func (h UpdateShipmentAccessorialHandler) Handle(params accessorialop.UpdateShipmentAccessorialParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	shipmentID := uuid.Must(uuid.FromString(params.UpdateShipmentAccessorial.ShipmentID.String()))
 	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
 
@@ -208,7 +208,7 @@ func (h DeleteShipmentAccessorialHandler) Handle(params accessorialop.DeleteShip
 	}
 
 	// authorization
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	shipmentID := uuid.Must(uuid.FromString(shipmentAccessorial.ShipmentID.String()))
 	if session.IsTspUser() {
 		// Check that the TSP user can access the shipment
@@ -245,7 +245,7 @@ type ApproveShipmentAccessorialHandler struct {
 // Handle returns a specified shipment
 func (h ApproveShipmentAccessorialHandler) Handle(params accessorialop.ApproveShipmentAccessorialParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentAccessorialID := uuid.Must(uuid.FromString(params.ShipmentAccessorialID.String()))
 

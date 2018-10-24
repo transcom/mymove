@@ -1,7 +1,7 @@
 package notifications
 
 import (
-	"github.com/transcom/mymove/pkg/dependencies"
+	"github.com/transcom/mymove/pkg/di"
 	"go.uber.org/zap"
 )
 
@@ -15,6 +15,6 @@ func NewNotificationSender(cfg *SESNotificationConfig, l *zap.Logger) (Notificat
 }
 
 // AddProviders adds the dependency providers supplied by the notifications module
-func AddProviders(c *dependencies.Container) {
+func AddProviders(c *di.Container) {
 	c.MustProvide(NewNotificationSender)
 }

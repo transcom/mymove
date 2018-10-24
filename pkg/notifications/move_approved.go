@@ -2,35 +2,39 @@ package notifications
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/server"
+	"github.com/transcom/mymove/pkg/services"
 	"net/url"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MoveApproved has notification content for approved moves
 type MoveApproved struct {
-	db      *pop.Connection
-	logger  *zap.Logger
-	moveID  uuid.UUID
-	session *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
+	db        *pop.Connection
+	logger    *zap.Logger
+	moveID    uuid.UUID
+	smService services.FetchServiceMember
+	session   *server.Session // TODO - remove this when we move permissions up to handlers and out of models
 }
 
 // NewMoveApproved returns a new move approval notification
 func NewMoveApproved(db *pop.Connection,
 	logger *zap.Logger,
-	session *auth.Session,
+	session *server.Session,
+	smService services.FetchServiceMember,
 	moveID uuid.UUID) *MoveApproved {
 
 	return &MoveApproved{
-		db:      db,
-		logger:  logger,
-		moveID:  moveID,
-		session: session,
+		db:        db,
+		logger:    logger,
+		moveID:    moveID,
+		smService: smService,
+		session:   session,
 	}
 }
 
@@ -47,7 +51,7 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := m.smService.Execute(m.session, orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}

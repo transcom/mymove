@@ -2,12 +2,12 @@ package internalapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/server"
 
 	"github.com/dustin/go-humanize"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +21,7 @@ type ValidateEntitlementHandler struct {
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Fetch move, orders, serviceMember and PPM
@@ -33,7 +33,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, orders.ServiceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, orders.ServiceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

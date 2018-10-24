@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -13,7 +14,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 )
@@ -137,48 +137,48 @@ func (suite *BaseTestSuite) CheckResponseTeapot(resp middleware.Responder) {
 
 // AuthenticateRequest Request authenticated with a service member
 func (suite *BaseTestSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
-	session := auth.Session{
-		ApplicationName: auth.MyApp,
+	session := server.Session{
+		ApplicationName: server.MyApp,
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
 	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
+	ctx := server.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
 
 // AuthenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
 func (suite *BaseTestSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
-	session := auth.Session{
-		ApplicationName: auth.MyApp,
+	session := server.Session{
+		ApplicationName: server.MyApp,
 		UserID:          user.ID,
 		IDToken:         "fake token",
 	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
+	ctx := server.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
 
 // AuthenticateOfficeRequest authenticates Office users
 func (suite *BaseTestSuite) AuthenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
-	session := auth.Session{
-		ApplicationName: auth.OfficeApp,
+	session := server.Session{
+		ApplicationName: server.OfficeApp,
 		UserID:          *user.UserID,
 		IDToken:         "fake token",
 		OfficeUserID:    user.ID,
 	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
+	ctx := server.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
 
 // AuthenticateTspRequest authenticates TSP users
 func (suite *BaseTestSuite) AuthenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
-	session := auth.Session{
-		ApplicationName: auth.TspApp,
+	session := server.Session{
+		ApplicationName: server.TspApp,
 		UserID:          *user.UserID,
 		IDToken:         "fake token",
 		TspUserID:       user.ID,
 	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
+	ctx := server.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
 

@@ -2,9 +2,9 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -47,7 +47,7 @@ type GetTariff400ngItemsHandler struct {
 
 // Handle returns a list of 400ng items
 func (h GetTariff400ngItemsHandler) Handle(params accessorialop.GetTariff400ngItemsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	if session == nil {
 		return accessorialop.NewGetTariff400ngItemsUnauthorized()

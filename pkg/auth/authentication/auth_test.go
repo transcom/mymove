@@ -84,7 +84,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 		t.Fatal(err)
 	}
 	req.Host = officeMoveMil
-	session := auth.Session{UserID: fakeUUID, IDToken: fakeToken}
+	session := server.Session{UserID: fakeUUID, IDToken: fakeToken}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
@@ -127,13 +127,13 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	// And: the context contains the auth values
-	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	session := server.Session{UserID: user.ID, IDToken: "fake Token"}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
-	var handlerSession *auth.Session
+	var handlerSession *server.Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handlerSession = auth.SessionFromRequestContext(r)
+		handlerSession = server.SessionFromRequestContext(r)
 	})
 	middleware := UserAuthMiddleware(suite.logger)(handler)
 

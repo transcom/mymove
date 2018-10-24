@@ -4,6 +4,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"go.uber.org/zap"
 )
@@ -22,6 +23,12 @@ type HandlerContext interface {
 	SetCookieSecret(secret string)
 	NoSessionTimeout() bool
 	SetNoSessionTimeout()
+	FetchServiceMember() services.FetchServiceMember
+	SetFetchServiceMember(services.FetchServiceMember)
+	FetchDocument() services.FetchDocument
+	SetFetchDocument(services.FetchDocument)
+	FetchUpload() services.FetchUpload
+	SetFetchUpload(services.FetchUpload)
 }
 
 // A single handlerContext is passed to each handler
@@ -33,6 +40,9 @@ type handlerContext struct {
 	planner            route.Planner
 	storage            storage.FileStorer
 	notificationSender notifications.NotificationSender
+	fetchServiceMember services.FetchServiceMember
+	fetchDocument      services.FetchDocument
+	fetchUpload        services.FetchUpload
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -71,6 +81,36 @@ func (context *handlerContext) NotificationSender() notifications.NotificationSe
 // SetNotificationSender is a simple setter for AWS SES private field
 func (context *handlerContext) SetNotificationSender(sender notifications.NotificationSender) {
 	context.notificationSender = sender
+}
+
+// FetchServiceMember is a simple setter for FetchServiceMember service private field
+func (context *handlerContext) FetchServiceMember() services.FetchServiceMember {
+	return context.fetchServiceMember
+}
+
+// SetFetchServiceMember is a simple setter for FetchServiceMember service private field
+func (context *handlerContext) SetFetchServiceMember(fetcher services.FetchServiceMember) {
+	context.fetchServiceMember = fetcher
+}
+
+// FetchDocument is a simple setter for FetchDocument service private field
+func (context *handlerContext) FetchDocument() services.FetchDocument {
+	return context.fetchDocument
+}
+
+// SetFetchDocument is a simple setter for FetchDocument service private field
+func (context *handlerContext) SetFetchDocument(fetcher services.FetchDocument) {
+	context.fetchDocument = fetcher
+}
+
+// FetchUpload is a simple setter for FetchUpload service private field
+func (context *handlerContext) FetchUpload() services.FetchUpload {
+	return context.fetchUpload
+}
+
+// SetFetchUpload is a simple setter for FetchUpload service private field
+func (context *handlerContext) SetFetchUpload(fetcher services.FetchUpload) {
+	context.fetchUpload = fetcher
 }
 
 // Planner is a simple setter for the route.Planner private field

@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -8,7 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/transcom/mymove/pkg/awardqueue"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -73,7 +74,7 @@ type IndexShipmentsHandler struct {
 // Handle retrieves a list of all shipments
 func (h IndexShipmentsHandler) Handle(params shipmentop.IndexShipmentsParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
 	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
@@ -106,7 +107,7 @@ type GetShipmentHandler struct {
 // Handle returns a specified shipment
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -136,7 +137,7 @@ type AcceptShipmentHandler struct {
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -177,7 +178,7 @@ type RejectShipmentHandler struct {
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) middleware.Responder {
 	// set reason, set thing
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -219,7 +220,7 @@ type TransportShipmentHandler struct {
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -259,7 +260,7 @@ type DeliverShipmentHandler struct {
 
 // Handle delivers the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -387,7 +388,7 @@ type PatchShipmentHandler struct {
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -421,7 +422,7 @@ type CreateGovBillOfLadingHandler struct {
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
 func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLadingParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())

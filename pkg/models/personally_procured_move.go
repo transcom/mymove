@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,7 +10,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -166,7 +166,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 }
 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
-func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
+func FetchPersonallyProcuredMove(db *pop.Connection, session *server.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
 	err := db.Q().Eager("Move.Orders.ServiceMember", "Advance").Find(&ppm, id)
 	if err != nil {

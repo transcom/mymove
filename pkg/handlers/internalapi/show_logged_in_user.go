@@ -4,17 +4,17 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/server"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/user"
 )
 
 // ShowLoggedInUserHandler returns the logged in user
@@ -22,7 +22,7 @@ type showLoggedInUserHandler struct {
 	db                 *pop.Connection
 	logger             *zap.Logger
 	storer             storage.FileStorer
-	fetchServiceMember user.FetchServiceMember
+	fetchServiceMember services.FetchServiceMember
 }
 
 // ShowLoggedInUserHandlerParams contains dependencies for NewShowLoggerInUserProvider
@@ -31,7 +31,7 @@ type ShowLoggedInUserHandlerParams struct {
 	Db                 *pop.Connection
 	Logger             *zap.Logger
 	Storer             storage.FileStorer
-	FetchServiceMember user.FetchServiceMember
+	FetchServiceMember services.FetchServiceMember
 }
 
 // NewShowLoggedInUserHandler is a DI provider to generate the new Handler
@@ -44,7 +44,7 @@ func NewShowLoggedInUserHandler(params ShowLoggedInUserHandlerParams) userop.Sho
 
 // Handle returns the logged in user
 func (h *showLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsServiceMember() {
 		userPayload := internalmessages.LoggedInUserPayload{
 			ID: handlers.FmtUUID(session.UserID),
@@ -119,7 +119,7 @@ func (h *showLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) m
 
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.storer, serviceMember),
+		ServiceMember: payloadForServiceMemberModel(h.storer, *serviceMember),
 	}
 	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 }

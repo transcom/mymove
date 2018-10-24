@@ -35,7 +35,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 		db:     suite.db,
 		logger: suite.logger,
 		moveID: move.ID,
-		session: &auth.Session{
+		session: &server.Session{
 			UserID:          approver.ID,
 			ApplicationName: auth.OfficeApp,
 		},
@@ -64,7 +64,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 		db:     suite.db,
 		logger: suite.logger,
 		moveID: move.ID,
-		session: &auth.Session{
+		session: &server.Session{
 			ServiceMemberID: move.Orders.ServiceMember.ID,
 			ApplicationName: auth.MyApp,
 		},

@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/transcom/mymove/pkg/dependencies"
+	"github.com/transcom/mymove/pkg/di"
 	"go.uber.org/zap"
 )
 
@@ -17,6 +17,6 @@ func NewStorageProvider(cfg *S3StorerConfig, l *zap.Logger) (FileStorer, error) 
 }
 
 // AddProviders adds the DI providers to generate storage objectss
-func AddProviders(c *dependencies.Container) {
+func AddProviders(c *di.Container) {
 	c.MustProvide(NewStorageProvider)
 }

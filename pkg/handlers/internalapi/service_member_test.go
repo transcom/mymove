@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	// Given: A logged-in user
 	user := testdatagen.MakeDefaultUser(suite.TestDB())
-	session := &auth.Session{
+	session := &server.Session{
 		UserID:          user.ID,
 		ApplicationName: auth.MyApp,
 	}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,7 +10,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -164,7 +164,7 @@ func (r *Reimbursement) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchReimbursement Fetches and Validates a Reimbursement model
-func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Reimbursement, error) {
+func FetchReimbursement(db *pop.Connection, session *server.Session, id uuid.UUID) (*Reimbursement, error) {
 	var reimbursement Reimbursement
 	err := db.Q().Find(&reimbursement, id)
 	if err != nil {

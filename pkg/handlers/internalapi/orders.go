@@ -1,11 +1,11 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
-	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -61,7 +61,7 @@ type CreateOrdersHandler struct {
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	payload := params.CreateOrders
 
@@ -69,7 +69,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -127,7 +127,7 @@ type ShowOrdersHandler struct {
 
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec swagger verifies uuid format
 	orderID, _ := uuid.FromString(params.OrdersID.String())
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
@@ -149,7 +149,7 @@ type UpdateOrdersHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
