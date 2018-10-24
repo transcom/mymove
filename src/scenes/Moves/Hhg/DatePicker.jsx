@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { DayPicker } from 'react-day-picker';
 import { withRouter } from 'react-router-dom';
@@ -15,8 +15,10 @@ import DatesSummary from 'scenes/Moves/Hhg/DatesSummary.jsx';
 import './DatePicker.css';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { getAvailableMoveDates, selectAvailableMoveDates } from 'shared/Entities/modules/calendar';
 
-const getRequestLabel = 'DatePicker.getMoveDatesSummary';
+const getMoveDatesSummaryLabel = 'DatePicker.getMoveDatesSummary';
+const getAvailableMoveDatesLabel = 'MoveDate.getAvailableMoveDates';
 
 function createModifiers(moveDates) {
   if (!moveDates) {
@@ -50,7 +52,7 @@ export class HHGDatePicker extends Component {
     }
     const moveDate = day.toISOString().split('T')[0];
     this.props.input.onChange(formatSwaggerDate(day));
-    this.props.getMoveDatesSummary(getRequestLabel, this.props.match.params.moveId, moveDate);
+    this.props.getMoveDatesSummary(getMoveDatesSummaryLabel, this.props.moveID, moveDate);
     this.setState({
       selectedDay: moveDate,
     });
@@ -73,8 +75,8 @@ export class HHGDatePicker extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.currentShipment !== prevProps.currentShipment && this.props.currentShipment.requested_pickup_date) {
       this.props.getMoveDatesSummary(
-        getRequestLabel,
-        this.props.match.params.moveId,
+        getMoveDatesSummaryLabel,
+        this.props.moveID,
         this.props.currentShipment.requested_pickup_date,
       );
       this.setState({
@@ -84,6 +86,7 @@ export class HHGDatePicker extends Component {
   }
 
   componentDidMount() {
+    this.props.getAvailableMoveDates(getAvailableMoveDatesLabel, this.props.today);
     this.setState({
       selectedDay: this.props.input.value || get(this.props, 'currentShipment.requested_pickup_date'),
     });
@@ -94,29 +97,35 @@ export class HHGDatePicker extends Component {
     const parsedSelectedDay = parseSwaggerDate(this.state.selectedDay);
     const entitlementSum = get(this.props, 'entitlement.sum');
     return (
-      <div className="form-section">
+      <div className="form-section hhg-date-picker">
         {availableMoveDates ? (
-          <div className="usa-grid">
-            <h3 className="instruction-heading">Pick a moving date.</h3>
-            <div className="usa-width-one-third">
-              <DayPicker
-                onDayClick={this.handleDayClick}
-                month={parsedSelectedDay || (availableMoveDates && availableMoveDates.minDate)}
-                selectedDays={parsedSelectedDay}
-                disabledDays={this.isDayDisabled}
-                modifiers={this.props.modifiers}
-                showOutsideDays
-              />
+          <Fragment>
+            <div class="usa-grid">
+              <div className="usa-width-one-whole">
+                <h3 className="instruction-heading">Pick a moving date.</h3>
+              </div>
             </div>
-            <div className="usa-width-two-thirds">
-              {this.state.selectedDay && <DatesSummary moveDates={this.props.moveDates} />}
+            <div class="usa-grid">
+              <div className="usa-width-one-third">
+                <DayPicker
+                  onDayClick={this.handleDayClick}
+                  month={parsedSelectedDay || (availableMoveDates && availableMoveDates.minDate)}
+                  selectedDays={parsedSelectedDay}
+                  disabledDays={this.isDayDisabled}
+                  modifiers={this.props.modifiers}
+                  showOutsideDays
+                />
+              </div>
+              <div className="usa-width-two-thirds">
+                {this.state.selectedDay && <DatesSummary moveDates={this.props.moveDates} />}
+              </div>
             </div>
-          </div>
+          </Fragment>
         ) : (
           <LoadingPlaceholder />
         )}
-        <div className="usa-grid pack-days-notice">
-          <div className="usa-width-one-whole">
+        <div class="usa-grid">
+          <div className="usa-width-one-whole pack-days-notice">
             <p>Can't find a date that works? Talk with a move counselor in your local Transportation office (PPPO).</p>
             {entitlementSum ? (
               <div className="weight-info-box">
@@ -136,22 +145,28 @@ export class HHGDatePicker extends Component {
 
 HHGDatePicker.propTypes = {
   input: PropTypes.object.isRequired,
+  moveID: PropTypes.string.isRequired,
   currentShipment: PropTypes.object,
+  moveDates: PropTypes.object,
   availableMoveDates: PropTypes.object,
+  today: PropTypes.string,
 };
 
 function mapStateToProps(state, ownProps) {
   const moveDate = ownProps.input.value || get(ownProps, 'currentShipment.requested_pickup_date');
-  const moveDates = selectMoveDatesSummary(state, ownProps.match.params.moveId, moveDate);
+  const moveDates = selectMoveDatesSummary(state, ownProps.moveID, moveDate);
+  const today = new Date().toISOString().split('T')[0];
   return {
     moveDates: moveDates,
     modifiers: createModifiers(moveDates),
     entitlement: loadEntitlementsFromState(state),
+    availableMoveDates: selectAvailableMoveDates(state, today),
+    today: today,
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ getMoveDatesSummary }, dispatch);
+  return bindActionCreators({ getMoveDatesSummary, getAvailableMoveDates }, dispatch);
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker));

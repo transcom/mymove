@@ -11,11 +11,12 @@ import HHGWeightWarning from './HHGWeightWarning';
 import './Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { movePath, shipment, entitlements } = props;
+  const { shipment, entitlements } = props;
 
-  const editDatePath = movePath + '/edit-hhg-date';
-  const editWeightsPath = movePath + '/edit-hhg-weights';
-  const editLocationsPath = movePath + '/edit-hhg-locations';
+  const shipmentPath = `/shipments/${shipment.id}/review`;
+  const editDatePath = shipmentPath + '/edit-hhg-dates';
+  const editWeightsPath = shipmentPath + '/edit-hhg-weights';
+  const editLocationsPath = shipmentPath + '/edit-hhg-locations';
 
   return (
     <div className="usa-grid-full ppm-container">
@@ -124,6 +125,5 @@ export default function HHGShipmentSummary(props) {
 
 HHGShipmentSummary.propTypes = {
   shipment: PropTypes.object.isRequired,
-  movePath: PropTypes.string.isRequired,
   entitlements: PropTypes.object.isRequired,
 };

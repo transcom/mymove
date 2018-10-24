@@ -15,7 +15,6 @@ import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import { ordersReducer } from 'scenes/Orders/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
-import { shipmentsReducer } from 'scenes/Shipments/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
@@ -43,7 +42,6 @@ export const appReducer = combineReducers({
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
   orders: ordersReducer,
-  shipments: shipmentsReducer,
   feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
   upload: documentReducer,
