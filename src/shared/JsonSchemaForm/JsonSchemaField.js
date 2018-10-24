@@ -102,9 +102,18 @@ const configureTelephoneField = (swaggerField, props) => {
   return props;
 };
 
-const configureZipField = (swaggerField, props) => {
+const configureZipField = (swaggerField, props, zipPattern) => {
   props.normalize = validator.normalizeZip;
-  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Zip code must have 5 or 9 digits.'));
+  if (swaggerField.pattern) {
+    console.log(swaggerField.pattern);
+    props.validate.push(validator.patternMatches(swaggerField.pattern, 'Zip code must have 5 or 9 digits.'));
+  } else if (zipPattern) {
+    if (zipPattern === 'USA') {
+      /*eslint no-useless-escape: 0*/
+      const zipRegex = '^(d{5}([-]d{4})?)$';
+      props.validate.push(validator.patternMatches(zipRegex, 'Zip code must have 5 or 9 digits.'));
+    }
+  }
   props.type = 'text';
 
   return props;
@@ -204,7 +213,7 @@ const renderInputField = ({
 };
 
 export const SwaggerField = props => {
-  const { fieldName, swagger, required, className, disabled, component, title, onChange, validate } = props;
+  const { fieldName, swagger, required, className, disabled, component, title, onChange, validate, zipPattern } = props;
   let swaggerField;
   if (swagger.properties) {
     // eslint-disable-next-line security/detect-object-injection
@@ -230,6 +239,7 @@ export const SwaggerField = props => {
     title,
     onChange,
     validate,
+    zipPattern,
   );
 };
 
@@ -245,6 +255,7 @@ const createSchemaField = (
   title,
   onChange,
   validate,
+  zipPattern,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -303,7 +314,7 @@ const createSchemaField = (
     } else if (fieldFormat === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
     } else if (fieldFormat === 'zip') {
-      fieldProps = configureZipField(swaggerField, fieldProps);
+      fieldProps = configureZipField(swaggerField, fieldProps, zipPattern);
     } else if (fieldFormat === 'edipi') {
       fieldProps = configureEdipiField(swaggerField, fieldProps);
     } else if (fieldFormat === 'x-email') {
