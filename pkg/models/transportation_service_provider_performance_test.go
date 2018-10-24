@@ -638,7 +638,7 @@ func date(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
-func (suite *ModelSuite) Test_FetchDiscountRatesDateBoundaries() {
+func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {
 	t := suite.T()
 
 	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
@@ -653,11 +653,17 @@ func (suite *ModelSuite) Test_FetchDiscountRatesDateBoundaries() {
 	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
 	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
+	pp1Start := date(2018, time.May, 15)
+	pp1End := date(2018, time.July, 31)
+
+	rc1Start := date(2018, time.May, 15)
+	rc1End := date(2018, time.September, 30)
+
 	tspPerformance := TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
-		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
-		RateCycleStart:                  testdatagen.PeakRateCycleStart,
-		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		PerformancePeriodStart:          pp1Start,
+		PerformancePeriodEnd:            pp1End,
+		RateCycleStart:                  rc1Start,
+		RateCycleEnd:                    rc1End,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     swag.Int(1),
@@ -667,20 +673,20 @@ func (suite *ModelSuite) Test_FetchDiscountRatesDateBoundaries() {
 	}
 	suite.mustSave(&tspPerformance)
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleEnd); err != nil {
-		t.Fatalf("Failed to find tsp performance for last day in rate cycle: %s", err)
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", pp1End); err != nil {
+		t.Fatalf("Failed to find tsp performance for last day in performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleStart); err != nil {
-		t.Fatalf("Failed to find tsp performance for first day in rate cycle: %s", err)
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", pp1Start); err != nil {
+		t.Fatalf("Failed to find tsp performance for first day in performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleStart.Add(time.Hour*-24)); err == nil {
-		t.Fatalf("Should not have found a TSPP for the last day before the start of a rate cycle: %s", err)
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", pp1Start.Add(time.Hour*-24)); err == nil {
+		t.Fatalf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.PeakRateCycleEnd.Add(time.Hour*24)); err == nil {
-		t.Fatalf("Should not have found a TSPP for the first day following a rate cycle: %s", err)
+	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", pp1End.Add(time.Hour*24)); err == nil {
+		t.Fatalf("Should not have found a TSPP for the first day following a performance period: %s", err)
 	}
 }
 
