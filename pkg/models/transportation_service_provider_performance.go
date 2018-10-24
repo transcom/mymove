@@ -200,12 +200,15 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 func FetchTSPPerformancesForQualityBandAssignment(tx *pop.Connection, perfGroup TSPPerformanceGroup, mps float64) (TransportationServiceProviderPerformances, error) {
 	var perfs TransportationServiceProviderPerformances
 	err := tx.
+		Select("transportation_service_provider_performances.*").
+		Join("transportation_service_providers AS tsp", "tsp.id = transportation_service_provider_performances.transportation_service_provider_id").
 		Where("traffic_distribution_list_id = ?", perfGroup.TrafficDistributionListID).
 		Where("performance_period_start = ?", perfGroup.PerformancePeriodStart).
 		Where("performance_period_end = ?", perfGroup.PerformancePeriodEnd).
 		Where("rate_cycle_start = ?", perfGroup.RateCycleStart).
 		Where("rate_cycle_end = ?", perfGroup.RateCycleEnd).
 		Where("best_value_score > ?", mps).
+		Where("enrolled = true").
 		Order("best_value_score DESC").
 		All(&perfs)
 
