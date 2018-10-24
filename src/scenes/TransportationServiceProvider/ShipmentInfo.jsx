@@ -125,13 +125,17 @@ let DeliveryDateForm = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="infoPanel-wizard" onSubmit={handleSubmit}>
+      <div className="infoPanel-wizard-header">Enter Delivery</div>
       <SwaggerField fieldName="actual_delivery_date" swagger={schema} required />
-
-      <button onClick={onCancel}>Cancel</button>
-      <button type="submit" disabled={submitting || !valid}>
-        Done
-      </button>
+      <div className="infoPanel-wizard-actions-container">
+        <a className="infoPanel-wizard-cancel" onClick={onCancel}>
+          Cancel
+        </a>
+        <button className="usa-button-primary" type="submit" disabled={submitting || !valid}>
+          Done
+        </button>
+      </div>
     </form>
   );
 };
@@ -229,6 +233,7 @@ class ShipmentInfo extends Component {
       gbl_number: gbl,
       actual_pack_date,
       actual_pickup_date,
+      actual_delivery_date,
     } = shipment;
 
     const shipmentId = this.props.match.params.shipmentId;
@@ -328,6 +333,7 @@ class ShipmentInfo extends Component {
                   shipmentStatus={this.props.shipment.status}
                 />
               )}
+
               {generateGBLError && (
                 <p>
                   <Alert type="warning" heading="An error occurred">
@@ -371,6 +377,15 @@ class ShipmentInfo extends Component {
                   Enter pre-move survey
                 </button>
               )}
+              {inTransit &&
+                !actual_delivery_date && (
+                  <FormButton
+                    FormComponent={DeliveryDateForm}
+                    schema={this.props.deliverSchema}
+                    onSubmit={this.deliverShipment}
+                    buttonTitle="Enter Delivery"
+                  />
+                )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -416,14 +431,7 @@ class ShipmentInfo extends Component {
                     buttonTitle="Enter Pickup"
                   />
                 )}
-              {inTransit && (
-                <FormButton
-                  FormComponent={DeliveryDateForm}
-                  schema={this.props.deliverSchema}
-                  onSubmit={this.deliverShipment}
-                  buttonTitle="Enter Delivery"
-                />
-              )}
+
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
                 <CustomerInfo />
