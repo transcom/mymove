@@ -162,3 +162,25 @@
   font-size: '2rem';
   font-family: 'sans-serif';
 }
+
+.infoPanel-wizard {
+  border: 2px solid #205493;
+  padding: 1.5rem 1.7rem;
+  margin-bottom: 18px;
+}
+
+.infoPanel-wizard .infoPanel-wizard-header {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.infoPanel-wizard .infoPanel-wizard-cancel {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.infoPanel-wizard .infoPanel-wizard-actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}

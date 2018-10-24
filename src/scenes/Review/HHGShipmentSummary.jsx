@@ -18,14 +18,14 @@ export default function HHGShipmentSummary(props) {
   const editLocationsPath = movePath + '/edit-hhg-locations';
 
   return (
-    <div className="usa-grid-full ppm-container">
+    <div className="usa-grid-full ppm-container hhg-shipment-summary">
       <h3>
-        <img src={truckIcon} alt="PPM shipment" /> Shipment - Government moves all of your stuff (HHG)
+        <img src={truckIcon} alt="HHG shipment" /> Shipment - Government moves all of your stuff (HHG)
       </h3>
       <div className="usa-width-one-half review-section ppm-review-section">
         <p className="heading">
           Move Dates
-          <span className="edit-section-link">
+          <span className="not-implemented edit-section-link">
             {' '}
             <Link to={editDatePath}>Edit</Link>
           </span>
@@ -58,7 +58,7 @@ export default function HHGShipmentSummary(props) {
 
         <p className="heading">
           Your Stuff
-          <span className="edit-section-link">
+          <span className="not-implemented edit-section-link">
             {' '}
             <Link to={editWeightsPath}>Edit</Link>
           </span>
@@ -84,7 +84,7 @@ export default function HHGShipmentSummary(props) {
       <div className="usa-width-one-half review-section ppm-review-section">
         <p className="heading">
           Pickup &amp; Delivery Locations
-          <span className="edit-section-link">
+          <span className="not-implemented edit-section-link">
             {' '}
             <Link to={editLocationsPath}>Edit</Link>
           </span>
