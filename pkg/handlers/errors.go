@@ -82,20 +82,22 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 
 // ResponseForVErrors checks for validation errors
 func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	if verrs.HasAny() {
-		logger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
+		skipLogger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
 		errors := make(map[string]string)
 		for _, key := range verrs.Keys() {
 			errors[key] = strings.Join(verrs.Get(key), " ")
 		}
 		return newValidationErrorsResponse(errors)
 	}
-	return ResponseForError(logger, err)
+	return ResponseForError(skipLogger, err)
 }
 
 // ResponseForConflictErrors checks for conflict errors
 func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
-	logger.Error("Encountered conflict error", zap.Error(err))
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
+	skipLogger.WithOptions(zap.AddCallerSkip(1)).Error("Encountered conflict error", zap.Error(err))
 
 	return newErrResponse(http.StatusConflict, err)
 }
