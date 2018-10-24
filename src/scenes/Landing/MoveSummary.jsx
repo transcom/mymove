@@ -347,11 +347,13 @@ const ppmSummaryStatusComponents = {
 const hhgSummaryStatusComponents = {
   DRAFT: DraftMoveSummary,
   SUBMITTED: SubmittedHhgMoveSummary,
-  APPROVED: ApprovedMoveSummary,
-  CANCELED: CanceledMoveSummary,
   AWARDED: SubmittedHhgMoveSummary,
   ACCEPTED: SubmittedHhgMoveSummary,
+  APPROVED: SubmittedHhgMoveSummary,
+  IN_TRANSIT: SubmittedHhgMoveSummary,
+  DELIVERED: SubmittedHhgMoveSummary,
   COMPLETED: SubmittedHhgMoveSummary,
+  CANCELED: CanceledMoveSummary,
 };
 
 const getStatus = (moveStatus, moveType, ppm, shipment) => {
@@ -364,7 +366,11 @@ const getStatus = (moveStatus, moveType, ppm, shipment) => {
   } else if (moveType === 'HHG') {
     // assign the status
     const shipmentStatus = get(shipment, 'status', 'DRAFT');
-    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED'].includes(shipmentStatus) ? shipmentStatus : 'DRAFT';
+    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
+      shipmentStatus,
+    )
+      ? shipmentStatus
+      : 'DRAFT';
   }
   return status;
 };
