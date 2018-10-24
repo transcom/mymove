@@ -44,7 +44,6 @@ import {
   generateGBL,
   rejectShipment,
   transportShipment,
-  packShipment,
   deliverShipment,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
@@ -54,6 +53,7 @@ import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import PickupForm from './PickupForm';
 
 import './tsp.css';
 
@@ -88,40 +88,6 @@ class AcceptShipmentPanel extends Component {
     );
   }
 }
-
-let PickupDateForm = props => {
-  const { schema, onCancel, handleSubmit, submitting, valid } = props;
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <SwaggerField fieldName="actual_pickup_date" swagger={schema} required />
-
-      <button onClick={onCancel}>Cancel</button>
-      <button type="submit" disabled={submitting || !valid}>
-        Done
-      </button>
-    </form>
-  );
-};
-
-PickupDateForm = reduxForm({ form: 'pickup_shipment' })(PickupDateForm);
-
-let PackDateForm = props => {
-  const { schema, onCancel, handleSubmit, submitting, valid } = props;
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <SwaggerField fieldName="actual_pack_date" swagger={schema} required />
-
-      <button onClick={onCancel}>Cancel</button>
-      <button type="submit" disabled={submitting || !valid}>
-        Done
-      </button>
-    </form>
-  );
-};
-
-PackDateForm = reduxForm({ form: 'pack_date_shipment' })(PackDateForm);
 
 const DeliveryDateFormView = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
@@ -194,7 +160,7 @@ class ShipmentInfo extends Component {
     });
   };
 
-  pickupShipment = values => this.props.transportShipment(this.props.shipment.id, values);
+  transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
   packShipment = values => this.props.packShipment(this.props.shipment.id, values);
 
@@ -235,13 +201,7 @@ class ShipmentInfo extends Component {
       serviceAgents,
       loadTspDependenciesHasSuccess,
     } = this.props;
-    const {
-      service_member: serviceMember = {},
-      move = {},
-      gbl_number: gbl,
-      actual_pack_date,
-      actual_pickup_date,
-    } = shipment;
+    const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
 
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
@@ -262,6 +222,7 @@ class ShipmentInfo extends Component {
       shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
     const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
+    const canEnterPackAndPickup = approved && gblGenerated;
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -397,6 +358,14 @@ class ShipmentInfo extends Component {
                   buttonTitle="Enter Delivery"
                 />
               )}
+              {canEnterPackAndPickup && (
+                <FormButton
+                  FormComponent={PickupForm}
+                  schema={this.props.transportSchema}
+                  onSubmit={this.transportShipment}
+                  buttonTitle="Enter Pickup"
+                />
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -423,26 +392,6 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {approved &&
-                !actual_pack_date && (
-                  <FormButton
-                    FormComponent={PackDateForm}
-                    schema={this.props.packSchema}
-                    onSubmit={this.packShipment}
-                    buttonTitle="Enter Packing"
-                  />
-                )}
-              {approved &&
-                actual_pack_date &&
-                !actual_pickup_date && (
-                  <FormButton
-                    FormComponent={PickupDateForm}
-                    schema={this.props.pickupSchema}
-                    onSubmit={this.pickupShipment}
-                    buttonTitle="Enter Pickup"
-                  />
-                )}
-
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
                 <CustomerInfo />
@@ -497,8 +446,7 @@ const mapStateToProps = state => {
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
     gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
-    pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
-    packSchema: get(state, 'swaggerPublic.spec.definitions.ActualPackDate', {}),
+    transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
 };
@@ -512,7 +460,6 @@ const mapDispatchToProps = dispatch =>
       generateGBL,
       rejectShipment,
       transportShipment,
-      packShipment,
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
