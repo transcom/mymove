@@ -105,12 +105,11 @@ const configureTelephoneField = (swaggerField, props) => {
 const configureZipField = (swaggerField, props, zipPattern) => {
   props.normalize = validator.normalizeZip;
   if (swaggerField.pattern) {
-    console.log(swaggerField.pattern);
     props.validate.push(validator.patternMatches(swaggerField.pattern, 'Zip code must have 5 or 9 digits.'));
   } else if (zipPattern) {
     if (zipPattern === 'USA') {
       /*eslint no-useless-escape: 0*/
-      const zipRegex = '^(d{5}([-]d{4})?)$';
+      const zipRegex = '^[0-9]{5}(?:-[0-9]{4})?$';
       props.validate.push(validator.patternMatches(zipRegex, 'Zip code must have 5 or 9 digits.'));
     }
   }
