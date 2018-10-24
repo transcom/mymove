@@ -392,6 +392,9 @@ export const MoveSummary = props => {
   const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
   const StatusComponent =
     move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
+  const showTsp =
+    move.selected_move_type !== 'PPM' &&
+    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(status);
   return (
     <Fragment>
       {status === 'CANCELED' && (
@@ -428,7 +431,7 @@ export const MoveSummary = props => {
             <div className="title">Contacts</div>
             <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
             {status !== 'CANCELED' && <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />}
-            {['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'COMPLETED'].includes(status) && (
+            {showTsp && (
               <div className="titled_block">
                 <strong>TSP name</strong>
                 <div>phone #</div>
