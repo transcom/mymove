@@ -2,7 +2,9 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, indexOf } from 'lodash';
+import moment from 'moment';
+
 import { bindActionCreators } from 'redux';
 
 import { getMoveDatesSummary, selectMoveDatesSummary } from 'shared/Entities/modules/moves';
@@ -16,6 +18,12 @@ export class StatusTimelineContainer extends PureComponent {
     this.props.getMoveDatesSummary(getRequestLabel, this.props.moveId, this.props.moveDate);
   }
 
+  checkIfCompleted(statuses, statusToCheck) {
+    return indexOf(statuses, statusToCheck) < statuses.length;
+  }
+  checkIfCurrent(statuses, statusToCheck) {
+    return indexOf(statuses, statusToCheck) === statuses.length - 1;
+  }
   render() {
     const moveDates = this.props.moveDatesSummary;
     const pickupDates = get(moveDates, 'pickup', []);
@@ -24,13 +32,73 @@ export class StatusTimelineContainer extends PureComponent {
     const transitDates = get(moveDates, 'transit', []);
     const formatType = 'condensed';
 
+    const shipment = this.props.shipment;
+    // pack dates
+    const actualPackDate = get(shipment, 'actual_pack_date');
+    const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date');
+    // pickup dates
+    const actualPickupDate = get(shipment, 'actual_pickup_date');
+    const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date');
+
+    const actualDeliveryDate = get(shipment, 'actual_delivery_date');
+    // const pmSurveyDeliveryDate = get(shipment, 'pm_survey_planned_delivery_date');
+
+    // Create an array to push in completed UI statuses (current at -1 index)
+    let markedStatuses = ['scheduled'];
+    // define each UI status and date range if needed
+    if (actualPackDate || moment().isSameOrAfter(pmSurveyPlannedPackDate)) {
+      markedStatuses.push('packed');
+    }
+    if (actualPickupDate || moment().isSameOrAfter(pmSurveyPlannedPickupDate, 'day')) {
+      markedStatuses.push('loaded');
+    }
+    if (
+      (actualPickupDate && moment().isAfter(actualPickupDate, 'day')) ||
+      moment().isAfter(pmSurveyPlannedPickupDate, 'day')
+    ) {
+      markedStatuses.push('in_transit');
+    }
+    if (actualDeliveryDate) {
+      markedStatuses.push('delivered');
+    }
+
     return (
       <div className="status_timeline">
-        <StatusBlock name="Scheduled" dates={[this.props.bookDate]} formatType={formatType} completed={true} />
-        <StatusBlock name="Packed" dates={packDates} formatType="condensed" current={true} />
-        <StatusBlock name="Loaded" dates={pickupDates} formatType="condensed" />
-        <StatusBlock name="In transit" dates={transitDates} formatType="condensed" />
-        <StatusBlock name="Delivered" dates={deliveryDates} formatType="condensed" />
+        <StatusBlock
+          name="Scheduled"
+          dates={[this.props.bookDate]}
+          formatType={formatType}
+          completed={true}
+          current={this.checkIfCurrent(markedStatuses, 'scheduled')}
+        />
+        <StatusBlock
+          name="Packed"
+          dates={packDates}
+          formatType={formatType}
+          completed={this.checkIfCompleted(markedStatuses, 'packed')}
+          current={this.checkIfCurrent(markedStatuses, 'packed')}
+        />
+        <StatusBlock
+          name="Loaded"
+          dates={pickupDates}
+          formatType={formatType}
+          completed={this.checkIfCompleted(markedStatuses, 'loaded')}
+          current={this.checkIfCurrent(markedStatuses, 'loaded')}
+        />
+        <StatusBlock
+          name="In transit"
+          dates={transitDates}
+          formatType={formatType}
+          completed={this.checkIfCompleted(markedStatuses, 'in_transit')}
+          current={this.checkIfCurrent(markedStatuses, 'in_transit')}
+        />
+        <StatusBlock
+          name="Delivered"
+          dates={deliveryDates}
+          formatType={formatType}
+          completed={this.checkIfCompleted(markedStatuses, 'delivered')}
+          current={this.checkIfCurrent(markedStatuses, 'delivered')}
+        />
         <div className="legend">* Estimated</div>
       </div>
     );
@@ -42,6 +110,7 @@ StatusTimelineContainer.propTypes = {
   moveId: PropTypes.string,
   bookDate: PropTypes.string,
   moveDatesSummary: PropTypes.object,
+  shipment: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
