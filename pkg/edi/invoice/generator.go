@@ -173,7 +173,7 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			ShipmentMethodOfPayment:      "PP", // Prepaid by seller
 			ShipmentIdentificationNumber: *GBL,
 			StandardCarrierAlphaCode:     "MCCG", // TODO: real SCAC
-			ShipmentQualifier:            "4",    // HHG Bill of Lading
+			ShipmentQualifier:            "4",    // HHG Government Bill of Lading
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "DY", // DoD transportation service code #

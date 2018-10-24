@@ -38,11 +38,44 @@ describe('The document viewer', function() {
       .and('match', /^\/shipments\/[^/]+\/documents\/new/);
   });
 
+  it('shows current shipment docs after viewing a shipment with no docs', () => {
+    // Find a shipment with no docs
+    cy.visit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870', {
+      log: true,
+    });
+
+    cy
+      .get('.documents > .status')
+      .contains('Upload new document')
+      .should('have.attr', 'href')
+      .and('match', /^\/shipments\/[^/]+\/documents\/new/);
+
+    cy.visit('/queues/approved/'),
+      {
+        log: true,
+      };
+
+    // Find a shipment with a doc
+    cy
+      .get('div')
+      .contains('GOTDOC')
+      .dblclick();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+    });
+
+    cy
+      .get('.documents > .status')
+      .should('have.attr', 'href')
+      .and('match', /^\/shipments\/[^/]+\/documents\/[^/]+/);
+  });
+
   it('can upload a new document', () => {
     cy.visit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new', {
       log: true,
     });
-    cy.contains('Upload a new document');
+
     cy.get('button.submit').should('be.disabled');
     cy.get('input[name="title"]').type('super secret info document');
     cy.get('select[name="move_document_type"]').select('Other document type');

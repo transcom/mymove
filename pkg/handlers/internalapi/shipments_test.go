@@ -148,6 +148,11 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(swag.String("dHHG"), unwrapped.Payload.Market)
 	suite.Nil(unwrapped.Payload.CodeOfService) // Won't be able to assign a TDL since we do not have a pickup address.
+	suite.Nil(unwrapped.Payload.EstimatedPackDays)
+	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
+	suite.Nil(unwrapped.Payload.ActualPackDate)
+	suite.Nil(unwrapped.Payload.ActualPickupDate)
+	suite.Nil(unwrapped.Payload.ActualDeliveryDate)
 	suite.Nil(unwrapped.Payload.PickupAddress)
 	suite.Equal(false, unwrapped.Payload.HasSecondaryPickupAddress)
 	suite.Nil(unwrapped.Payload.SecondaryPickupAddress)

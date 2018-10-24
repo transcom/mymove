@@ -845,33 +845,9 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      traffic_distribution_list:
-        $ref: '#/definitions/TrafficDistributionList'
+      status:
+        $ref: '#/definitions/ShipmentStatus'
         readOnly: true
-      service_member:
-        $ref: '#/definitions/ServiceMember'
-        readOnly: true
-      actual_pickup_date:
-        type: string
-        format: date
-        example: '2018-04-21'
-        x-nullable: true
-      actual_pack_date:
-        type: string
-        format: date
-        example: '2018-04-21'
-        x-nullable: true
-      actual_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-27'
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
       source_gbloc:
         $ref: '#/definitions/GBLOC'
         readOnly: true
@@ -887,14 +863,40 @@ definitions:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true
         x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      traffic_distribution_list:
+        $ref: '#/definitions/TrafficDistributionList'
+        readOnly: true
+      service_member:
+        $ref: '#/definitions/ServiceMember'
+        readOnly: true
+      move:
+        $ref: '#/definitions/Move'
+        x-nullable: true
+      actual_pickup_date:
+        type: string
+        format: date
+        example: '2018-04-21'
+        x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: '2018-04-21'
+        x-nullable: true
+      actual_delivery_date:
+        type: string
+        format: date
+        example: '2018-04-27'
+        x-nullable: true
       book_date:
         type: string
         format: date
         example: '2018-03-15'
-      original_pack_date:
-        type: string
-        format: date
-        example: '2018-04-19'
       requested_pickup_date:
         type: string
         format: date
@@ -903,12 +905,10 @@ definitions:
         type: string
         format: date
         example: '2018-04-19'
-      move:
-        $ref: '#/definitions/Move'
-        x-nullable: true
-      status:
-        $ref: '#/definitions/ShipmentStatus'
-        readOnly: true
+      original_pack_date:
+        type: string
+        format: date
+        example: '2018-04-19'
       estimated_pack_days:
         type: integer
         description: Estimated days packing
@@ -926,18 +926,25 @@ definitions:
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
+        default: false
+        x-nullable: false
         title: 'Do you have household goods at any other pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_delivery_address:
         type: boolean
+        default: false
+        x-nullable: false
         title: 'Do you know the delivery address at destination yet?'
       delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_partial_sit_delivery_address:
         type: boolean
+        default: false
+        x-nullable: false
+        title: 'Will some of your items be stored in transit?'
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
