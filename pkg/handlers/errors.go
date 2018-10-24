@@ -97,7 +97,7 @@ func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 // ResponseForConflictErrors checks for conflict errors
 func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
-	skipLogger.WithOptions(zap.AddCallerSkip(1)).Error("Encountered conflict error", zap.Error(err))
+	skipLogger.Error("Encountered conflict error", zap.Error(err))
 
 	return newErrResponse(http.StatusConflict, err)
 }
