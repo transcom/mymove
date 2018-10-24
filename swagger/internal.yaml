@@ -1551,17 +1551,14 @@ definitions:
       has_secondary_pickup_address:
         type: boolean
         default: false
-        x-nullable: false
         title: 'Do you have household goods at any other pickup location?'
       has_delivery_address:
         type: boolean
         default: false
-        x-nullable: false
         title: 'Do you know your home address at your destination yet?'
       has_partial_sit_delivery_address:
         type: boolean
         default: false
-        x-nullable: false
         title: 'Do you know the delivery address at destination yet?'
       weight_estimate:
         type: integer
