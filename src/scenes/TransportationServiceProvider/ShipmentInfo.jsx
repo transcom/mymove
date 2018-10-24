@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -34,7 +35,6 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-
 import {
   loadShipmentDependencies,
   patchShipment,
@@ -138,9 +138,17 @@ let DeliveryDateForm = props => {
 
 DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
+const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
+
 class ShipmentInfo extends Component {
+  constructor(props) {
+    super(props);
+
+    this.assignServiceMember = React.createRef();
+  }
   state = {
     redirectToHome: false,
+    editOriginServiceAgent: false,
   };
 
   componentDidMount() {
@@ -150,7 +158,7 @@ class ShipmentInfo extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!prevProps.shipment.id && this.props.shipment.id) {
+    if ((!prevProps.shipment.id && this.props.shipment.id) || prevProps.shipment.id !== this.props.shipment.id) {
       this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
       this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
       this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.shipment.id);
@@ -177,6 +185,17 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
+  setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
+
+  scrollToOriginServiceAgentPanel = () => {
+    const domNode = ReactDOM.findDOMNode(this.assignServiceMember.current);
+    domNode.scrollIntoView();
+  };
+  toggleEditOriginServiceAgent = () => {
+    this.scrollToOriginServiceAgentPanel();
+    this.setEditServiceAgent(true);
+  };
+
   render() {
     const {
       context,
@@ -185,6 +204,7 @@ class ShipmentInfo extends Component {
       generateGBLSuccess,
       generateGBLError,
       generateGBLInProgress,
+      serviceAgents,
     } = this.props;
     const {
       service_member: serviceMember = {},
@@ -199,6 +219,7 @@ class ShipmentInfo extends Component {
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
+    const accepted = shipment.status === 'ACCEPTED';
     const inTransit = shipment.status === 'IN_TRANSIT';
     const pmSurveyComplete = Boolean(
       shipment.pm_survey_conducted_date &&
@@ -210,6 +231,7 @@ class ShipmentInfo extends Component {
     );
     const gblGenerated =
       shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+    const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -321,6 +343,11 @@ class ShipmentInfo extends Component {
                     </button>
                   </div>
                 )}
+              {canAssignServiceAgents && (
+                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
+                  Assign Service Agents
+                </button>
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
@@ -331,6 +358,9 @@ class ShipmentInfo extends Component {
                   />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <ServiceAgents
+                    ref={this.assignServiceMember}
+                    editOriginServiceAgent={this.state.editOriginServiceAgent}
+                    setEditServiceAgent={this.setEditServiceAgent}
                     title="ServiceAgents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}

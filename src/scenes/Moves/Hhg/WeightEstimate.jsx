@@ -83,7 +83,15 @@ export class WeightEstimate extends Component {
 
   render() {
     const { pages, pageKey, error, initialValues, entitlement } = this.props;
-    const weight_estimate = get(this.props, 'formValues.weight_estimate');
+    const { showInfo } = this.state;
+
+    let weightExceeded = false;
+    if (entitlement) {
+      const weightEstimate = get(this.props, 'formValues.weight_estimate');
+      if (weightEstimate && weightEstimate > entitlement.weight) {
+        weightExceeded = true;
+      }
+    }
 
     // Shipment Wizard
     return (
@@ -127,7 +135,7 @@ export class WeightEstimate extends Component {
                 ) : (
                   <LoadingPlaceholder />
                 )}
-                {this.state.showInfo && (
+                {showInfo && (
                   <Alert type="info" heading="">
                     Your entitlement represents the weight the military is willing to move for you. If you exceed this
                     weight, you'll have to pay for the excess out of pocket. Pro-gear is any gear you need to perform
@@ -151,12 +159,11 @@ export class WeightEstimate extends Component {
                   <div className="weight-estimate-help">
                     If you already know the weight of your stuff, type it in the box.
                   </div>
-                  {entitlement &&
-                    (weight_estimate && weight_estimate > entitlement.weight) && (
-                      <Alert type="warning" heading="Entitlement exceeded">
-                        You have exceeded your entitlement weight of {entitlement.weight.toLocaleString()} lbs.
-                      </Alert>
-                    )}
+                  {weightExceeded && (
+                    <Alert type="warning" heading="Entitlement exceeded">
+                      You have exceeded your entitlement weight of {entitlement.weight.toLocaleString()} lbs.
+                    </Alert>
+                  )}
                 </div>
               </div>
             </div>
