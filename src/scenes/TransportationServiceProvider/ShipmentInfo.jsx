@@ -1,5 +1,6 @@
 import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -140,12 +141,39 @@ DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
 
 const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
 
+const { arrayOf, bool, func, shape, string } = PropTypes;
+
 class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
 
     this.assignServiceMember = React.createRef();
   }
+  static propTypes = {
+    acceptShipment: func.isRequired,
+    approved: bool.isRequired,
+    awarded: bool.isRequired,
+    gblGenerated: bool.isRequired,
+    generateGBL: func.isRequired,
+    getAllShipmentAccessorials: func.isRequired,
+    getAllShipmentDocuments: func.isRequired,
+    getAllTariff400ngItems: func.isRequired,
+    inTransit: bool.isRequired,
+    loadShipmentDependencies: func.isRequired,
+    rejectShipment: func.isRequired,
+    shipmentDocuments: arrayOf(
+      shape({
+        document: string.isRequired,
+        id: string.isRequired,
+        move_document_type: string.isRequired,
+        shipment_id: string.isRequired,
+        status: string.isRequired,
+        title: string.isRequired,
+      }),
+    ).isRequired,
+    showUploadOriginDocs: bool.isRequired,
+  };
+
   state = {
     redirectToHome: false,
     editOriginServiceAgent: false,
@@ -185,9 +213,9 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
-  handleOrigin = () => {
-    const newDocumentUrl = `/shipments/${this.props.match.params.shipmentId}/documents/new`;
-    window.open(newDocumentUrl, window);
+  handleUploadOriginClick = () => {
+    // eslint-disable-next-line
+    window.open(`/shipments/${this.props.match.params.shipmentId}/documents/new`);
   };
 
   setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
@@ -222,6 +250,7 @@ class ShipmentInfo extends Component {
       gbl_number: gbl,
       actual_pack_date,
       actual_pickup_date,
+      actual_delivery_date,
     } = shipment;
     const showDocumentViewer = context.flags.documentViewer;
 
@@ -323,15 +352,16 @@ class ShipmentInfo extends Component {
                   </Alert>
                 </p>
               )}
-              {showUploadOriginDocs && <button onClick={this.handleOrigin}>Upload Origin Docs</button>}
-              {inTransit && (
-                <FormButton
-                  FormComponent={DeliveryDateForm}
-                  schema={this.props.deliverSchema}
-                  onSubmit={this.deliverShipment}
-                  buttonTitle="Enter Delivery"
-                />
-              )}
+              {showUploadOriginDocs && <button onClick={this.handleUploadOriginClick}>Upload Origin Docs</button>}
+              {inTransit &&
+                !actual_delivery_date && (
+                  <FormButton
+                    FormComponent={DeliveryDateForm}
+                    schema={this.props.deliverSchema}
+                    onSubmit={this.deliverShipment}
+                    buttonTitle="Enter Delivery"
+                  />
+                )}
               {generateGBLSuccess && (
                 <p>
                   <Alert type="success" heading="GBL has been created">
@@ -442,29 +472,40 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
-  const { actual_pack_date, actual_pickup_date, gross_weight, tare_weight, net_weight, status } = shipment;
+  const {
+    actual_delivery_date,
+    actual_pack_date,
+    actual_pickup_date,
+    gross_weight,
+    tare_weight,
+    net_weight,
+    status,
+  } = shipment;
   const awarded = status === 'AWARDED';
   const approved = status === 'APPROVED';
   const inTransit = status === 'IN_TRANSIT';
   const hasWeights = gross_weight && tare_weight && net_weight;
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id);
   const gblGenerated =
-    shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+    shipmentDocuments && shipmentDocuments.some(doc => doc.move_document_type === 'GOV_BILL_OF_LADING');
+
   const hasNoOriginDocs = shipmentDocuments.every(
     ({ move_document_type }) => move_document_type !== 'WEIGHT_TICKET' && move_document_type !== 'OTHER',
   );
+
   const showUploadOriginDocs = Boolean(
-    hasNoOriginDocs && hasWeights && actual_pack_date && actual_pickup_date && inTransit,
+    hasNoOriginDocs && hasWeights && actual_pack_date && actual_pickup_date && inTransit && !actual_delivery_date,
   );
+
   return {
     awarded,
     approved,
     inTransit,
-    swaggerError: state.swaggerPublic.hasErrored,
-    shipment,
     showUploadOriginDocs,
+    shipment,
     shipmentDocuments,
     gblGenerated,
+    swaggerError: state.swaggerPublic.hasErrored,
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentAccessorials: selectShipmentAccessorials(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
