@@ -179,19 +179,17 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
       if (isValid) {
         let args = this.props.getUpdateArgs();
         this.props.update(...args);
-        this.toggleEditable();
+        this.toggleEdit();
       }
+    };
+
+    toggleEdit = () => {
+      this.setState({ isEditable: !this.state.isEditable });
     };
 
     cancel = () => {
       this.props.reset();
-      this.toggleEditable();
-    };
-
-    toggleEditable = () => {
-      this.setState({
-        isEditable: !this.state.isEditable,
-      });
+      this.toggleEdit();
     };
 
     render() {
@@ -209,7 +207,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
             title={this.props.title}
             className={this.props.className}
             onSave={this.save}
-            onEdit={this.toggleEditable}
+            onEdit={this.toggleEdit}
             onCancel={this.cancel}
             isEditable={isEditable}
             editEnabled={editEnabled}
