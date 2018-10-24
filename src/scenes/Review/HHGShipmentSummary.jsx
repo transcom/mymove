@@ -18,9 +18,9 @@ export default function HHGShipmentSummary(props) {
   const editLocationsPath = movePath + '/edit-hhg-locations';
 
   return (
-    <div className="usa-grid-full ppm-container">
+    <div className="usa-grid-full ppm-container hhg-shipment-summary">
       <h3>
-        <img src={truckIcon} alt="PPM shipment" /> Shipment - Government moves all of your stuff (HHG)
+        <img src={truckIcon} alt="HHG shipment" /> Shipment - Government moves all of your stuff (HHG)
       </h3>
       <div className="usa-width-one-half review-section ppm-review-section">
         <p className="heading">
