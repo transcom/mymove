@@ -8,43 +8,46 @@ import './StatusTimeline.css';
 
 export class StatusTimelineContainer extends PureComponent {
   checkIfCompleted(statuses, statusToCheck) {
+    if (!statuses.includes(statusToCheck)) {
+      return false;
+    }
     return indexOf(statuses, statusToCheck) < statuses.length;
   }
   checkIfCurrent(statuses, statusToCheck) {
+    if (!statuses.includes(statusToCheck)) {
+      return false;
+    }
     return indexOf(statuses, statusToCheck) === statuses.length - 1;
   }
 
   render() {
-    const moveDates = this.props.moveDates;
+    const today = moment();
+    const bookDate = get(this.props.shipment, 'book_date');
+    const moveDates = this.props.shipment.move_dates_summary;
     const pickupDates = get(moveDates, 'pickup', []);
     const packDates = get(moveDates, 'pack', []);
     const deliveryDates = get(moveDates, 'delivery', []);
     const transitDates = get(moveDates, 'transit', []);
+
     const formatType = 'condensed';
 
     const shipment = this.props.shipment;
-    // pack dates
     const actualPackDate = get(shipment, 'actual_pack_date');
     const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date');
-    // pickup dates
     const actualPickupDate = get(shipment, 'actual_pickup_date');
     const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date');
-
     const actualDeliveryDate = get(shipment, 'actual_delivery_date');
-    // const pmSurveyDeliveryDate = get(shipment, 'pm_survey_planned_delivery_date');
 
-    // Create an array to push in completed UI statuses (current at -1 index)
     let markedStatuses = ['scheduled'];
-    // define each UI status and date range if needed
-    if (actualPackDate || moment().isSameOrAfter(pmSurveyPlannedPackDate)) {
+    if (actualPackDate || today.isSameOrAfter(pmSurveyPlannedPackDate)) {
       markedStatuses.push('packed');
     }
-    if (actualPickupDate || moment().isSameOrAfter(pmSurveyPlannedPickupDate, 'day')) {
+    if (actualPickupDate || today.isSameOrAfter(pmSurveyPlannedPickupDate, 'day')) {
       markedStatuses.push('loaded');
     }
     if (
-      (actualPickupDate && moment().isAfter(actualPickupDate, 'day')) ||
-      moment().isAfter(pmSurveyPlannedPickupDate, 'day')
+      (actualPickupDate && today.isAfter(actualPickupDate, 'day')) ||
+      today.isAfter(pmSurveyPlannedPickupDate, 'day')
     ) {
       markedStatuses.push('in_transit');
     }
@@ -56,7 +59,7 @@ export class StatusTimelineContainer extends PureComponent {
       <div className="status_timeline">
         <StatusBlock
           name="Scheduled"
-          dates={[this.props.bookDate]}
+          dates={[bookDate]}
           formatType={formatType}
           completed={true}
           current={this.checkIfCurrent(markedStatuses, 'scheduled')}
@@ -96,8 +99,6 @@ export class StatusTimelineContainer extends PureComponent {
 }
 
 StatusTimelineContainer.propTypes = {
-  bookDate: PropTypes.string,
-  moveDatesSummary: PropTypes.object,
   shipment: PropTypes.object,
   moveDates: PropTypes.object,
 };
