@@ -29,17 +29,17 @@ def adr_number(path):
 
 def adr_title(path, text):
     number = adr_number(path)
-    return "- {} [{}]({}#{})".format(number, text, path, anchorize(text))
+    return "* {} [{}]({}#{})".format(number, text, path, anchorize(text))
 
 def howto_title(path, text):
     without_prefix = re.sub("how to\s", "", text, flags=re.IGNORECASE)
-    return "- [{}]({}#{})".format(without_prefix, path, anchorize(text))
+    return "* [{}]({}#{})".format(without_prefix, path, anchorize(text))
 
 new_line = "\n"
 os.chdir("docs")
 output = "<!--index-->\n"
 
-output += "## HOWTOs\n\n"
+output += "\n## HOWTOs\n\n"
 
 for file in index("how-to/*.md", howto_title):
     output += file
@@ -51,7 +51,7 @@ for file in index("adr/0*.md", adr_title):
     output += file
     output += new_line
 
-output += "<!--endindex-->"
+output += "\n<!--endindex-->"
 
 with open("README.md", "r") as file:
     contents = file.read()
