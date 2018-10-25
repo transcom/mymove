@@ -37,11 +37,15 @@ export const upsert = (arr, newValue) => {
 };
 
 export function fetchActive(foos) {
+  return find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
+}
+
+export function fetchActiveShipment(shipments) {
   return (
-    // includes PPM and HHG states
-    find(foos, i =>
+    find(shipments, i =>
       includes(
-        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_TRANSIT', 'PAYMENT_REQUESTED', 'ACCEPTED', 'AWARDED'],
+        // For now, this include all statuses, but this may be re-evaluated in the future.
+        ['DRAFT', 'SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
         get(i, 'status'),
       ),
     ) || null
