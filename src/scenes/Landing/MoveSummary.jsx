@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 
 import { get, includes } from 'lodash';
 import moment from 'moment';
+import fedHolidays from '@18f/us-federal-holidays';
 
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import './MoveSummary.css';
@@ -157,15 +158,15 @@ const getTenDaysBookedDate = bookDate => {
   while (businessDays < 10) {
     newDate = bookDateMoment.add(1, 'day');
     // Saturday => 6, Sunday => 7
-    if (newDate.isoWeek() !== 6 && newDate.isoWeek() !== 7) {
+    if (newDate.isoWeekday() !== 6 && newDate.isoWeekday() !== 7 && !fedHolidays.isAHoliday(newDate.toDate())) {
       businessDays += 1;
     }
-    console.log('new Date', businessDays, newDate.toString());
   }
+
   return newDate;
 };
 
-const showLandingPageText = shipment => {
+const showHhgLandingPageText = shipment => {
   const today = moment();
   if (shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') {
     return (
@@ -225,7 +226,7 @@ export const SubmittedHhgMoveSummary = props => {
             />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
-                {showLandingPageText(shipment)}
+                {showHhgLandingPageText(shipment)}
                 {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
                   <div className="step">
                     <div className="title">File a Claim</div>
