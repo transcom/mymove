@@ -120,7 +120,7 @@ function tspUserEntersLocations() {
     street_1: '666 Diagon Alley',
     city: 'London',
     state: 'NJ',
-    postal_code: '66666',
+    postal_code: '66666-6666',
   };
   const newDutyStation = {
     city: 'Beverly Hills',
@@ -172,8 +172,23 @@ function tspUserEntersLocations() {
     .get('input[name="pickup_address.postal_code"]')
     .first()
     .clear()
+    .type('1002')
+    .blur();
+  // Shouldn't be able to save without 5 digit zip
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.disabled');
+  cy
+    .get('input[name="pickup_address.postal_code"]')
+    .first()
+    .clear()
     .type(pickupAddress.postal_code)
     .blur();
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
 
   // Set Secondary Pickup Address to required.
   cy
@@ -208,8 +223,23 @@ function tspUserEntersLocations() {
     .get('input[name="secondary_pickup_address.postal_code"]')
     .first()
     .clear()
+    .type('1002')
+    .blur();
+  // Shouldn't be able to save without 5 digit zip
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.disabled');
+  cy
+    .get('input[name="secondary_pickup_address.postal_code"]')
+    .first()
+    .clear()
     .type(secondaryPickupAddress.postal_code)
     .blur();
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
 
   cy
     .get('input[name="delivery_address.street_address_1"]')
@@ -233,9 +263,23 @@ function tspUserEntersLocations() {
     .get('input[name="delivery_address.postal_code"]')
     .first()
     .clear()
+    .type('1002')
+    .blur();
+  // Shouldn't be able to save without 5 digit zip
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.disabled');
+  cy
+    .get('input[name="delivery_address.postal_code"]')
+    .first()
+    .clear()
     .type(deliveryAddress.postal_code)
     .blur();
-
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
   cy
     .get('button')
     .contains('Save')
