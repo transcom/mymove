@@ -231,7 +231,7 @@ type TransportShipmentHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+// Handle updates the shipment with pack and pickup dates and weights and puts it in-transit - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
