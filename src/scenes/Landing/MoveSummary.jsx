@@ -12,7 +12,7 @@ import ppmDraft from './images/ppm-draft.png';
 import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
-import { ppmInfoPacket } from 'shared/constants';
+import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import { Link } from 'react-router-dom';
@@ -173,8 +173,10 @@ const showHhgLandingPageText = shipment => {
       <div className="step">
         <div className="title">Next Step: Complete your customer satisfaction survey</div>
         <div>
-          Tell us about your move experience. You have up to one year to complete your satisfaction survey. We use this
-          information to decide which movers we allow to work with you.
+          Tell us about your move experience. You have up to one year to complete your{' '}
+          <a href="placeholder" target="_blank" rel="noopener noreferrer" className="Todo-phase2">
+            satisfaction survey
+          </a>. We use this information to decide which movers we allow to work with you.
         </div>
       </div>
     );
@@ -194,7 +196,7 @@ const showHhgLandingPageText = shipment => {
         <div className="title">Next step: Read pre-move tips</div>
         <div>
           Read the{' '}
-          <a href="hhg-premove-tips" target="_blank">
+          <a href={hhgInfoPacket} target="_blank" rel="noopener noreferrer">
             pre-move tips
           </a>{' '}
           documents, so you know what to expect and are prepared for your move.
@@ -231,9 +233,11 @@ export const SubmittedHhgMoveSummary = props => {
                   <div className="step">
                     <div className="title">File a Claim</div>
                     <div>
-                      If you have household goods damaged or lost during the move, contact Able Movers Claims to file a
-                      claim: (567) 980-4321. If, after attempting to work with them, you do not feel that you are
-                      receiving adequate compensation, contact the Military Claims Office for help.
+                      If you have household goods damaged or lost during the move, contact{' '}
+                      <span className="Todo-phase2">Able Movers Claims</span> to file a claim:{' '}
+                      <span className="Todo-phase2">(567) 980-4321.</span> If, after attempting to work with them, you
+                      do not feel that you are receiving adequate compensation, contact the Military Claims Office for
+                      help.
                     </div>
                   </div>
                 )}
@@ -243,7 +247,7 @@ export const SubmittedHhgMoveSummary = props => {
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
-                    <a href="placeholder" target="_blank" rel="noopener noreferrer">
+                    <a href={hhgInfoPacket} target="_blank" rel="noopener noreferrer">
                       Pre-move tips
                     </a>
                   </div>
