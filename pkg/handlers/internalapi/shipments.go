@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/rateengine"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
 )
 
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
@@ -33,6 +32,18 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	for _, serviceAgent := range s.ServiceAgents {
 		payload := payloadForServiceAgentModel(serviceAgent)
 		serviceAgentPayloads = append(serviceAgentPayloads, payload)
+	}
+
+	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
+	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
+		summary, _ := calculateMoveDatesFromShipment(&s)
+
+		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
+			Pack:     handlers.FmtDateSlice(summary.PackDays),
+			Pickup:   handlers.FmtDateSlice(summary.PickupDays),
+			Transit:  handlers.FmtDateSlice(summary.TransitDays),
+			Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
+		}
 	}
 
 	shipmentPayload := &internalmessages.Shipment{
@@ -59,6 +70,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		RequestedPickupDate:  handlers.FmtDatePtr(s.RequestedPickupDate),
 		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
 		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
+		MoveDatesSummary:     &moveDatesSummary,
 
 		// calculated durations
 		EstimatedPackDays:    s.EstimatedPackDays,
@@ -168,6 +180,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	}
 
 	shipmentPayload := payloadForShipmentModel(newShipment)
+
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
 
@@ -305,6 +318,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
@@ -352,6 +366,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
 
@@ -385,6 +400,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
 }
 
@@ -417,6 +433,7 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
 }
 

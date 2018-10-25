@@ -71,12 +71,17 @@ export class HHGDatePicker extends Component {
   };
 
   componentDidUpdate(prevProps) {
+    const moveDateIsSavedDate =
+      get(this.props, 'currentShipment.requested_pickup_date') &&
+      this.props.currentShipment.requested_pickup_date === this.props.input.value;
     if (this.props.currentShipment !== prevProps.currentShipment && this.props.currentShipment.requested_pickup_date) {
-      this.props.getMoveDatesSummary(
-        getRequestLabel,
-        this.props.match.params.moveId,
-        this.props.currentShipment.requested_pickup_date,
-      );
+      if (!moveDateIsSavedDate) {
+        this.props.getMoveDatesSummary(
+          getRequestLabel,
+          this.props.match.params.moveId,
+          this.props.currentShipment.requested_pickup_date,
+        );
+      }
       this.setState({
         selectedDay: this.props.input.value || this.props.currentShipment.requested_pickup_date,
       });
@@ -142,7 +147,12 @@ HHGDatePicker.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveDate = ownProps.input.value || get(ownProps, 'currentShipment.requested_pickup_date');
-  const moveDates = selectMoveDatesSummary(state, ownProps.match.params.moveId, moveDate);
+  const moveDateIsSavedDate =
+    get(ownProps, 'currentShipment.requested_pickup_date') &&
+    ownProps.currentShipment.requested_pickup_date === ownProps.input.value;
+  const moveDates = moveDateIsSavedDate
+    ? ownProps.currentShipment.move_dates_summary
+    : selectMoveDatesSummary(state, ownProps.match.params.moveId, moveDate);
   return {
     moveDates: moveDates,
     modifiers: createModifiers(moveDates),

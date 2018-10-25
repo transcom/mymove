@@ -2,10 +2,10 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import PreApprovalRequest from './PreApprovalRequest';
 
-function shipmentAccessorial(status) {
+function shipmentLineItem(status) {
   return {
     id: 'sldkjf',
-    accessorial: { code: '105D', item: 'Reg Shipping' },
+    tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
     location: 'D',
     quantity_1: 167000,
     notes: '',
@@ -24,7 +24,7 @@ describe('PreApprovalRequest tests', () => {
       onApproval.mockClear();
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial()}
+          shipmentLineItem={shipmentLineItem()}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
@@ -40,14 +40,14 @@ describe('PreApprovalRequest tests', () => {
     it('it calls onApproval with the correct ID.', () => {
       wrapper.find('[data-test="approve-request"]').simulate('click');
       expect(onApproval.mock.calls.length).toBe(1);
-      expect(onApproval.mock.calls[0][0]).toBe(shipmentAccessorial().id);
+      expect(onApproval.mock.calls[0][0]).toBe(shipmentLineItem().id);
     });
   });
   describe('When on approval is NOT passed in and status is SUBMITTED', () => {
     beforeEach(() => {
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial()}
+          shipmentLineItem={shipmentLineItem()}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
@@ -63,7 +63,7 @@ describe('PreApprovalRequest tests', () => {
     beforeEach(() => {
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial('APPROVED')}
+          shipmentLineItem={shipmentLineItem('APPROVED')}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
@@ -80,7 +80,7 @@ describe('PreApprovalRequest tests', () => {
     beforeEach(() => {
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial('APPROVED')}
+          shipmentLineItem={shipmentLineItem('APPROVED')}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
@@ -97,7 +97,7 @@ describe('PreApprovalRequest tests', () => {
       onDelete.mockClear();
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial('APPROVED')}
+          shipmentLineItem={shipmentLineItem('APPROVED')}
           isActionable={true}
           isActive={dummyFn}
           onDelete={onDelete}

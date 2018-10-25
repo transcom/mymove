@@ -10,10 +10,10 @@ import { PreApprovalPanel } from './PreApprovalPanel';
 describe('PreApprovalPanel tests', () => {
   let wrapper, icons;
   const onEdit = jest.fn();
-  const shipmentAccessorials = [
+  const shipmentLineItems = [
     {
       id: 'sldkjf',
-      accessorial: { code: '105D', item: 'Reg Shipping' },
+      tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: ' 16.7',
       notes: '',
@@ -22,7 +22,7 @@ describe('PreApprovalPanel tests', () => {
     },
     {
       id: 'sldsdff',
-      accessorial: { code: '105D', item: 'Reg Shipping' },
+      tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: ' 16.7',
       notes: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
@@ -30,7 +30,7 @@ describe('PreApprovalPanel tests', () => {
       status: 'APPROVED',
     },
   ];
-  const accessorials = [
+  const tariff400ng_items = [
     {
       id: 'sdlfkj',
       code: 'F9D',
@@ -49,7 +49,7 @@ describe('PreApprovalPanel tests', () => {
     //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
     wrapper = mount(
       <Provider store={store}>
-        <PreApprovalPanel shipmentAccessorials={shipmentAccessorials} accessorials={accessorials} />
+        <PreApprovalPanel shipmentLineItems={shipmentLineItems} tariff400ng_items={tariff400ng_items} />
       </Provider>,
     );
   });
@@ -57,7 +57,7 @@ describe('PreApprovalPanel tests', () => {
   describe('When on approval is passed in and status is submitted', () => {
     it('renders without crashing', () => {
       const icons = wrapper.find('.icon');
-      expect(wrapper.find('.accessorial-panel').length).toEqual(1);
+      expect(wrapper.find('.pre-approval-panel').length).toEqual(1);
       expect(icons.length).toBe(8);
     });
   });

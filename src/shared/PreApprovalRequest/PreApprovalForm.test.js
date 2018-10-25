@@ -18,7 +18,7 @@ const simpleSchema = {
       format: 'uuid',
       example: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
     },
-    accessorial_id: {
+    tariff400ng_item_id: {
       type: 'string',
       format: 'uuid',
       example: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
@@ -27,7 +27,7 @@ const simpleSchema = {
       type: 'integer',
       format: 'basequantity',
       title: 'Base Quantity',
-      description: 'Accessorial base quantity',
+      description: 'Line Item base quantity',
       minimum: 0,
       example: 167000,
     },
@@ -35,7 +35,7 @@ const simpleSchema = {
       type: 'integer',
       format: 'basequantity',
       title: '2nd Quantity',
-      description: 'Accessorial base quantity',
+      description: 'Line Item base quantity',
       minimum: 0,
       example: 10000,
     },
@@ -49,7 +49,7 @@ const simpleSchema = {
       example: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
     },
     status: {
-      $ref: '#/definitions/AccessorialStatus',
+      $ref: '#/definitions/ShipmentLineItemStatus',
     },
     submitted_date: {
       type: 'string',
@@ -73,7 +73,7 @@ const simpleSchema = {
     },
   },
 };
-const accessorials = [
+const tariff400ng_items = [
   {
     id: 'sdlfkj',
     code: 'F9D',
@@ -89,7 +89,7 @@ beforeEach(() => {
   //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
   wrapper = mount(
     <Provider store={store}>
-      <PreApprovalForm ship_accessorial_schema={simpleSchema} tariff400ngItems={accessorials} onSubmit={submit} />
+      <PreApprovalForm ship_line_item_schema={simpleSchema} tariff400ngItems={tariff400ng_items} onSubmit={submit} />
     </Provider>,
   );
 });
