@@ -359,12 +359,16 @@ const hhgSummaryStatusComponents = {
 const getStatus = (moveStatus, moveType, ppm, shipment) => {
   let status = 'DRAFT';
   if (moveType === 'PPM') {
-    // assign the status
+    // PPM status determination
     const ppmStatus = get(ppm, 'status', 'DRAFT');
     status =
       moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
   } else if (moveType === 'HHG') {
-    // assign the status
+    // HHG status determination
+    if (moveStatus === 'CANCELED') {
+      // Shipment does not have a canceled status, but move does.
+      return moveStatus;
+    }
     const shipmentStatus = get(shipment, 'status', 'DRAFT');
     status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
       shipmentStatus,
