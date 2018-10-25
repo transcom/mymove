@@ -186,7 +186,10 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		moveStatus := models.MoveStatusSUBMITTED
 		orderStatus := models.OrderStatusSUBMITTED
 		ordTypeDetHHGPermit := internalmessages.OrdersTypeDetailHHGPERMITTED
-		if shipmentStatus == models.ShipmentStatusAPPROVED {
+		if shipmentStatus == models.ShipmentStatusAPPROVED ||
+			shipmentStatus == models.ShipmentStatusINTRANSIT ||
+			shipmentStatus == models.ShipmentStatusDELIVERED ||
+			shipmentStatus == models.ShipmentStatusCOMPLETED {
 			moveStatus = models.MoveStatusAPPROVED
 			orderStatus = models.OrderStatusAPPROVED
 		}
