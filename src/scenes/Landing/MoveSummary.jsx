@@ -150,8 +150,62 @@ export const SubmittedPpmMoveSummary = props => {
   );
 };
 
+const getTenDaysBookedDate = bookDate => {
+  let businessDays = 0;
+  let newDate;
+  const bookDateMoment = moment(bookDate);
+  while (businessDays < 10) {
+    newDate = bookDateMoment.add(1, 'day');
+    // Saturday => 6, Sunday => 7
+    if (newDate.isoWeek() !== 6 && newDate.isoWeek() !== 7) {
+      businessDays += 1;
+    }
+    console.log('new Date', businessDays, newDate.toString());
+  }
+  return newDate;
+};
+
+const showLandingPageText = shipment => {
+  const today = moment();
+  if (shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') {
+    return (
+      <div className="step">
+        <div className="title">Next Step: Complete your customer satisfaction survey</div>
+        <div>
+          Tell us about your move experience. You have up to one year to complete your satisfaction survey. We use this
+          information to decide which movers we allow to work with you.
+        </div>
+      </div>
+    );
+  } else if (today.isBefore(getTenDaysBookedDate(shipment.book_date), 'day')) {
+    return (
+      <div className="step">
+        <div className="title">Next Step: Prepare for move</div>
+        <div>
+          Your mover will contact you within ten days to schedule a pre-move survey, where they will provide you with a
+          detailed weight estimate and more accurate packing and delivery dates.
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="step">
+        <div className="title">Next step: Read pre-move tips</div>
+        <div>
+          Read the{' '}
+          <a href="hhg-premove-tips" target="_blank">
+            pre-move tips
+          </a>{' '}
+          documents, so you know what to expect and are prepared for your move.
+        </div>
+      </div>
+    );
+  }
+};
+
 export const SubmittedHhgMoveSummary = props => {
   const { shipment, orders, profile, move, entitlement } = props;
+  let today = moment();
   return (
     <Fragment>
       <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
@@ -171,13 +225,17 @@ export const SubmittedHhgMoveSummary = props => {
             />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
-                <div className="step">
-                  <div className="title">Next Step: Prepare for move</div>
-                  <div>
-                    Your mover will contact you within ten days to schedule a pre-move survey, where they will provide
-                    you with a detailed weight estimate and more accurate packing and delivery dates.
+                {showLandingPageText(shipment)}
+                {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
+                  <div className="step">
+                    <div className="title">File a Claim</div>
+                    <div>
+                      If you have household goods damaged or lost during the move, contact Able Movers Claims to file a
+                      claim: (567) 980-4321. If, after attempting to work with them, you do not feel that you are
+                      receiving adequate compensation, contact the Military Claims Office for help.
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <div className="usa-width-one-third">
                 <HhgMoveDetails hhg={shipment} />
