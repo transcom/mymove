@@ -120,7 +120,7 @@ function tspUserEntersLocations() {
     street_1: '666 Diagon Alley',
     city: 'London',
     state: 'NJ',
-    postal_code: '66666',
+    postal_code: '66666-6666',
   };
   const newDutyStation = {
     city: 'Beverly Hills',
