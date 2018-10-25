@@ -123,13 +123,18 @@ let PackDateForm = props => {
 
 PackDateForm = reduxForm({ form: 'pack_date_shipment' })(PackDateForm);
 
-let DeliveryDateForm = props => {
+const DeliveryDateFormView = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
   return (
     <form className="infoPanel-wizard" onSubmit={handleSubmit}>
       <div className="infoPanel-wizard-header">Enter Delivery</div>
       <SwaggerField fieldName="actual_delivery_date" swagger={schema} required />
+      <p className="infoPanel-wizard-help">
+        After clicking "Done", please upload the <strong>destination docs</strong>. Use the "Upload new document" link
+        in the Documents panel at right.
+      </p>
+
       <div className="infoPanel-wizard-actions-container">
         <a className="infoPanel-wizard-cancel" onClick={onCancel}>
           Cancel
@@ -142,7 +147,7 @@ let DeliveryDateForm = props => {
   );
 };
 
-DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
+const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFormView);
 
 // Action Buttons Conditions
 const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
@@ -516,4 +521,6 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
+const connectedShipmentInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
+
+export { DeliveryDateFormView, connectedShipmentInfo as default };
