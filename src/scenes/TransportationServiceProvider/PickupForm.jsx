@@ -8,10 +8,8 @@ let PickupForm = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="usa-width-one-whole">
-        <h2 className="extras usa-heading">Enter Pack & Pickup</h2>
-      </div>
+    <form className="infoPanel-wizard" onSubmit={handleSubmit}>
+      <div className="infoPanel-wizard-header">Enter Pack & Pickup</div>
       <div className="editable-panel-column">
         <div className="column-subhead">Dates</div>
         <SwaggerField fieldName="actual_pack_date" swagger={schema} title="Actual packing (first day)" required />
@@ -25,10 +23,19 @@ let PickupForm = props => {
         <SwaggerField title="Net" className="short-field" fieldName="net_weight" swagger={schema} required /> lbs
       </div>
 
-      <button onClick={onCancel}>Cancel</button>
-      <button type="submit" disabled={submitting || !valid}>
-        Done
-      </button>
+      <p>
+        After clicking "Done", please upload the origin docs. Use the "Upload new document" link in the Documents panel
+        at right.
+      </p>
+
+      <div className="infoPanel-wizard-actions-container">
+        <a className="infoPanel-wizard-cancel" onClick={onCancel}>
+          Cancel
+        </a>
+        <button type="submit" disabled={submitting || !valid}>
+          Done
+        </button>
+      </div>
     </form>
   );
 };
