@@ -246,7 +246,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneAssigned() {
 
 	chosen := SelectNextTSPPerformance(choices)
 
-	if chosen != tspp1 {
+	if chosen != tspp2 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
@@ -266,7 +266,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneFullRound() {
 
 	chosen := SelectNextTSPPerformance(choices)
 
-	if chosen != tspp1 {
+	if chosen != tspp2 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
@@ -286,7 +286,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceTwoFullRounds() {
 
 	chosen := SelectNextTSPPerformance(choices)
 
-	if chosen != tspp1 {
+	if chosen != tspp2 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
@@ -344,7 +344,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfOffered() {
 
 	chosen := SelectNextTSPPerformance(choices)
 
-	if chosen != tspp3 {
+	if chosen != tspp2 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp3.QualityBand, *chosen.QualityBand)
 	}
 }
@@ -364,7 +364,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 
 	chosen := SelectNextTSPPerformance(choices)
 
-	if chosen != tspp3 {
+	if chosen != tspp2 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp3.QualityBand, *chosen.QualityBand)
 	}
 }
