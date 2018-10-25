@@ -2,20 +2,21 @@ package main
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/server"
 )
 
 func main() {
 	host := flag.String("iws_rbs_host", "", "hostname of the IWS RBS environment")
 	custNum := flag.String("iws_rbs_cust_num", "", "customer number to present when connecting to IWS RBS")
-	moveMilDODCACert := flag.String("move_mil_dod_ca_cert", "", "The DoD CA certificate used to sign the move.mil TLS certificates.")
+	dodCaCertPackage := flag.String("dod_ca_package", "", "Path to PKCS7 package containing all DoD Certificate Authority certificates.")
 	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "The DoD-signed TLS certificate for various move.mil services.")
 	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
 	edipi := flag.Uint64("edipi", 0, "10-digit EDIPI to look up (op=edi)")
@@ -30,11 +31,20 @@ func main() {
 	cert, err := tls.X509KeyPair([]byte(*moveMilDODTLSCert), []byte(*moveMilDODTLSKey))
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	// Load CA certs
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM([]byte(*moveMilDODCACert))
+	pkcs7Package, err := ioutil.ReadFile(*dodCaCertPackage)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	caCertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 
 	// Setup HTTPS client
 	tlsConfig := &tls.Config{

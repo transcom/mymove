@@ -38,7 +38,7 @@ type TLSCert struct {
 // Server represents an http or https listening server. HTTPS listeners support
 // requiring client authentication with a provided CA.
 type Server struct {
-	CACertPEMBlock []byte
+	CaCertPool     *x509.CertPool
 	ClientAuthType tls.ClientAuthType
 	HTTPHandler    http.Handler
 	ListenAddress  string
@@ -87,7 +87,6 @@ func (s Server) serverConfig(tlsConfig *tls.Config) (*http.Server, error) {
 
 // tlsConfig generates a new *tls.Config. It will
 func (s Server) tlsConfig() (*tls.Config, error) {
-	var caCerts *x509.CertPool
 	var tlsCerts []tls.Certificate
 	var err error
 
@@ -95,14 +94,8 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 	// cert authentication.
 	if s.ClientAuthType == tls.VerifyClientCertIfGiven ||
 		s.ClientAuthType == tls.RequireAndVerifyClientCert {
-		if s.CACertPEMBlock == nil {
+		if s.CaCertPool == nil {
 			return nil, ErrMissingCACert
-
-		}
-		caCerts = x509.NewCertPool()
-		ok := caCerts.AppendCertsFromPEM(s.CACertPEMBlock)
-		if !ok {
-			return nil, ErrUnparseableCACert
 		}
 	}
 
@@ -132,7 +125,7 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 		},
 		Certificates: tlsCerts,
 		ClientAuth:   s.ClientAuthType,
-		ClientCAs:    caCerts,
+		ClientCAs:    s.CaCertPool,
 		CurvePreferences: []tls.CurveID{
 			tls.CurveP256,
 			tls.X25519,
