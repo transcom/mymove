@@ -6,9 +6,28 @@ import { selectShipment } from 'shared/Entities/modules/shipments';
 
 const initialState = {
   currentShipmentID: null,
+  notifications: [],
 };
 
 const SET_CURRENT_SHIPMENT_ID = 'SET_CURRENT_SHIPMENT_ID';
+const ADD_NOTIFICATION = 'ADD_NOTIFICATION';
+
+// Levels from USDS Web Design System
+export const NOTIFICATION_SEVERITY = {
+  success: 'success',
+  warning: 'warning',
+  error: 'error',
+  info: 'info',
+};
+
+function createNotification(action) {
+  return {
+    title: action.title || 'Attention',
+    message: action.message || '',
+    severity: action.severity || 'info',
+    createdAt: new Date(),
+  };
+}
 
 export default function uiReducer(state = initialState, action) {
   switch (action.type) {
@@ -31,9 +50,20 @@ export default function uiReducer(state = initialState, action) {
         ...state,
         currentShipmentID: action.shipmentID,
       };
+    case ADD_NOTIFICATION:
+      return {
+        ...state,
+        notifications: [...state.notifications, createNotification(action)],
+      };
     default:
       return state;
   }
+}
+
+export function addNotification({ title, message, severity }) {
+  return function(dispatch) {
+    return dispatch({ type: ADD_NOTIFICATION, title, message, severity });
+  };
 }
 
 export function setCurrentShipmentID(shipmentID) {
@@ -43,6 +73,11 @@ export function setCurrentShipmentID(shipmentID) {
 }
 
 // Selectors
+
+export function getNotifications(state) {
+  return get(state, 'ui.notifications');
+}
+
 export function getCurrentShipmentID(state) {
   return get(state, 'ui.currentShipmentID');
 }

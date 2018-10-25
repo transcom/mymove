@@ -1,4 +1,6 @@
 import Swagger from 'swagger-client';
+import store from 'shared/store';
+import { addNotification, NOTIFICATION_SEVERITY } from 'shared/UI/ducks';
 
 let client = null;
 let publicClient = null;
@@ -6,6 +8,16 @@ let publicClient = null;
 export async function getClient() {
   if (!client) {
     client = await Swagger({ url: '/internal/swagger.yaml' });
+    client.responseInterceptor = response => {
+      if (response.status >= 400 && response.status < 500) {
+        console.warn('Auth error', response);
+        addNotification({
+          title: 'Authentication error',
+          message: 'Please log in again',
+          severity: NOTIFICATION_SEVERITY.error,
+        })(store.dispatch);
+      }
+    };
   }
   return client;
 }

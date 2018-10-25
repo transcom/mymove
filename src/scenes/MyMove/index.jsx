@@ -25,6 +25,7 @@ import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
+import Notifications from 'shared/UI/notifications';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -61,6 +62,7 @@ export class AppWrapper extends Component {
           <div className="my-move site">
             <Header />
             <main className="site__content">
+              <Notifications />
               <div className="usa-grid">
                 <LogoutOnInactivity />
                 {props.swaggerError && (
