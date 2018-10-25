@@ -94,8 +94,13 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 					if isAdministrativeShipment == true {
 						aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 					} else {
+						qb := -1
+						if tspPerformance.QualityBand != nil {
+							qb = *tspPerformance.QualityBand
+						}
+
 						aq.logger.Info("Shipment offered to TSP!",
-							zap.Int("quality_band", tspPerformance.QualityBand),
+							zap.Int("quality_band", qb),
 							zap.Int("offer_count", tspPerformance.OfferCount))
 						foundAvailableTSP = true
 
