@@ -125,7 +125,7 @@ class MoveInfo extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
+    if (this.props.officeShipment && get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
     }
   }
