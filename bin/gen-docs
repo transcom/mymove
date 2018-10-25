@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+import glob
+import os
+import re
+
+def anchorize(text):
+    return re.sub("[^a-z0-9]+", "-", text.lower()).strip("-")
+
+def strip_markdown(text):
+    without_headers = text.strip("# ")
+    return re.sub("\[(.*?)\]\(.*?\)", "\\1", without_headers)
+
+def link(path, title_callback):
+    file = open(path)
+    title = file.readline().strip()
+    file.close()
+
+    just_text = strip_markdown(title)
+    return title_callback(path, just_text)
+
+def index(path_glob, title_callback):
+    files = glob.glob(path_glob)
+    files.sort()
+    return [link(path, title_callback) for path in files]
+
+def adr_number(path):
+    return re.search("(\\d{4})", path).group(1)
+
+def adr_title(path, text):
+    number = adr_number(path)
+    return "- {} [{}]({}#{})".format(number, text, path, anchorize(text))
+
+def howto_title(path, text):
+    without_prefix = re.sub("how to\s", "", text, flags=re.IGNORECASE)
+    return "- [{}]({}#{})".format(without_prefix, path, anchorize(text))
+
+new_line = "\n"
+os.chdir("docs")
+output = "<!--index-->\n"
+
+output += "## HOWTOs\n\n"
+
+for file in index("how-to/*.md", howto_title):
+    output += file
+    output += new_line
+
+output += "\n## ADRs\n\n"
+
+for file in index("adr/0*.md", adr_title):
+    output += file
+    output += new_line
+
+output += "<!--endindex-->"
+
+with open("README.md", "r") as file:
+    contents = file.read()
+
+updated = re.sub("<!--index-->.*<!--endindex-->", output, contents, flags=re.DOTALL)
+
+with open("README.md", "w") as file:
+    file.write(updated)
