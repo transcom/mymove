@@ -83,7 +83,7 @@ func main() {
 		testdatagen.MakeDefaultOfficeUser(db)
 		log.Print("Success! Created TSP test data.")
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
-		tdgs.E2eBasicScenario.Run(db, loader)
+		tdgs.E2eBasicScenario.Run(db, loader, logger, storer)
 		log.Print("Success! Created e2e test data.")
 	} else {
 		// Can this be less repetitive without being overly clever?
