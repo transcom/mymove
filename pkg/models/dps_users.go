@@ -52,3 +52,12 @@ func (d *DpsUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 func (d *DpsUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// IsDPSUser checks if a user is a DPS user given email
+func IsDPSUser(db *pop.Connection, email string) (bool, error) {
+	count, err := db.Q().Where("login_gov_email = ?", email).Count(DpsUser{})
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

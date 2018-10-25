@@ -80,14 +80,8 @@ function getUserInfo() {
     userId: UserID,
     firstName: FirstName,
     isLoggedIn: true,
-    role: getUserRole(jwt),
+    features: jwt.SessionValue.Features,
   };
-}
-
-// TODO: properly represent roles and store these on the server
-function getUserRole(jwt) {
-  var dpsAuthUsers = ['aileen@dds.mil'];
-  return dpsAuthUsers.includes(jwt.SessionValue.Email) ? 'dps' : null;
 }
 
 const userReducer = (state = getUserInfo(), action) => {

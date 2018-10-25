@@ -15,10 +15,10 @@ describe('Authorization tests', () => {
     let mockStore = configureStore();
     let initialState = {
       user: {
-        role: 'fakeRole',
+        features: ['fakeFeature'],
       },
     };
-    const RouteWithAuthorization = Authorization(Groot, ['fakeRole']);
+    const RouteWithAuthorization = Authorization(Groot, 'fakeFeature');
     it('the component is rendered', () => {
       let store = mockStore(initialState);
       let wrap = mount(<RouteWithAuthorization store={store} />);
@@ -29,10 +29,10 @@ describe('Authorization tests', () => {
     let mockStore = configureStore();
     let initialState = {
       user: {
-        role: 'somethingElse',
+        features: ['somethingElse'],
       },
     };
-    const RouteWithAuthorization = Authorization(Groot, ['fakeRole']);
+    const RouteWithAuthorization = Authorization(Groot, 'fakeFeature');
     it('an auth message is rendered', () => {
       let store = mockStore(initialState);
       let wrap = mount(<RouteWithAuthorization store={store} />);
