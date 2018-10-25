@@ -165,9 +165,9 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 			INNER JOIN service_agents sa
 			ON s.id = sa.shipment_id
 			INNER JOIN transportation_offices source_to
-				ON s.source_gbloc = source_to.gbloc
+				ON s.source_gbloc = source_to.gbloc and source_to.shipping_office_id is NULL
 			INNER JOIN transportation_offices dest_to
-				ON s.destination_gbloc = dest_to.gbloc
+				ON s.destination_gbloc = dest_to.gbloc and dest_to.shipping_office_id is NULL
 			LEFT JOIN shipment_offers so
 				ON s.id = so.shipment_id
 			LEFT JOIN transportation_service_providers tsp

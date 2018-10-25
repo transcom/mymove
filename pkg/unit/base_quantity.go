@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// BaseQuantity represents a value in the 10,000ths of a unit measurement for accessorial items.
+// BaseQuantity represents a value in the 10,000ths of a unit measurement for shipment line items.
 // Eg. 10000 BQ = 1.0000 unit or 1 BQ = .0001
 // A unit of measurement can be below or more:
 // BW = Net Billing Weight

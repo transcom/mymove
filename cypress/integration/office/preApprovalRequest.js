@@ -121,7 +121,7 @@ function officeUserApprovesPreApprovalRequest() {
   cy.get('span').contains('2,000');
 
   approvePreApprovalRequest();
-  cy.get('.accessorial-panel td').contains('Approved');
+  cy.get('.pre-approval-panel td').contains('Approved');
 }
 
 function officeUserDeletesPreApprovalRequest() {
@@ -155,7 +155,7 @@ function officeUserDeletesPreApprovalRequest() {
 
   deletePreApprovalRequest();
   cy
-    .get('.accessorial-panel td')
+    .get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
 }
