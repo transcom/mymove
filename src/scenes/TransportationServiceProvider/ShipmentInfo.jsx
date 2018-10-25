@@ -317,20 +317,16 @@ class ShipmentInfo extends Component {
               )}
 
               {generateGBLSuccess && (
-                <p>
-                  <Alert type="success" heading="GBL has been created">
-                    <span className="usa-grid usa-alert-no-padding">
-                      <span className="usa-width-two-thirds">
-                        Click the button to view, print, or download the GBL.
-                      </span>
-                      <span className="usa-width-one-third">
-                        <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
-                          <button>View GBL</button>
-                        </Link>
-                      </span>
+                <Alert type="success" heading="GBL has been created">
+                  <span className="usa-grid usa-alert-no-padding">
+                    <span className="usa-width-two-thirds">Click the button to view, print, or download the GBL.</span>
+                    <span className="usa-width-one-third">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                        <button>View GBL</button>
+                      </Link>
                     </span>
-                  </Alert>
-                </p>
+                  </span>
+                </Alert>
               )}
               {approved &&
                 pmSurveyComplete &&
