@@ -165,9 +165,8 @@ export const SubmittedHhgMoveSummary = props => {
 
           <div className="shipment_box_contents">
             <StatusTimelineContainer
-              moveDate={shipment.requested_pickup_date}
-              moveId={shipment.move_id}
               bookDate={shipment.book_date}
+              moveDates={shipment.move_dates_summary}
               shipment={shipment}
             />
             <div className="step-contents">
