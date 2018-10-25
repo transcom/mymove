@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -181,10 +182,13 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		}
 		newDutyStation := MakeDutyStation(db, newDutyStationAssertions)
 
-		// Move Details
+		// Move and Order Details
 		moveStatus := models.MoveStatusSUBMITTED
+		orderStatus := models.OrderStatusSUBMITTED
+		ordTypeDetHHGPermit := internalmessages.OrdersTypeDetailHHGPERMITTED
 		if shipmentStatus == models.ShipmentStatusAPPROVED {
 			moveStatus = models.MoveStatusAPPROVED
+			orderStatus = models.OrderStatusAPPROVED
 		}
 
 		shipmentAssertions := Assertions{
@@ -194,6 +198,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			Order: models.Order{
 				NewDutyStationID: newDutyStation.ID,
 				NewDutyStation:   newDutyStation,
+				Status:           orderStatus,
+				OrdersTypeDetail: &ordTypeDetHHGPermit,
 			},
 			Move: models.Move{
 				SelectedMoveType: &selectedMoveType,
