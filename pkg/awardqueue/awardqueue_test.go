@@ -1,6 +1,7 @@
 package awardqueue
 
 import (
+	"context"
 	"log"
 	"strings"
 	"testing"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
+	//"github.com/honeycombio/libhoney-go"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -18,7 +20,7 @@ import (
 
 func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
@@ -168,7 +170,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 	// Creates a TSP with a blackout date connected to both.
 	testTSP1 := testdatagen.MakeDefaultTSP(suite.db)
 
@@ -252,7 +254,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 
 func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 	_, err := queue.findAllUnassignedShipments()
 
 	if err != nil {
@@ -264,7 +266,7 @@ func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
 // it actually gets offered.
 func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 
 	// Make a shipment
 	market := testdatagen.DefaultMarket
@@ -316,7 +318,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 // any enabled TSPs.
 func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
 	market := "dHHG"
@@ -363,7 +365,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 
 func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 
 	const shipmentsToMake = 10
 
@@ -427,7 +429,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 
 	suite.db.TruncateAll()
 
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 
 	const shipmentsToMake = 17
 
@@ -512,7 +514,7 @@ func (suite *AwardQueueSuite) Test_GetTSPsPerBandNoRemainder() {
 
 func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 	tspsToMake := 5
 
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
@@ -565,7 +567,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 // rate cycles get awarded shipments appropriately
 func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 	sm := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	twoMonths, _ := time.ParseDuration("2 months")
@@ -739,6 +741,7 @@ func equalSlice(a []int, b []int) bool {
 
 type AwardQueueSuite struct {
 	suite.Suite
+	ctx    context.Context
 	db     *pop.Connection
 	logger *zap.Logger
 }

@@ -195,7 +195,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	if len(move.Shipments) > 0 {
-		go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run()
+		go awardqueue.NewAwardQueue(params.HTTPRequest.Context(), h.DB(), h.Logger()).Run()
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

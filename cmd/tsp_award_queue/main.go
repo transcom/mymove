@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
-
+	"context"
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
 	"go.uber.org/zap"
+	"log"
 
 	"github.com/transcom/mymove/pkg/awardqueue"
 )
@@ -41,7 +41,8 @@ func main() {
 		log.Panic(err)
 	}
 
-	awardQueue := awardqueue.NewAwardQueue(dbConnection, logger)
+	var ctx context.Context
+	awardQueue := awardqueue.NewAwardQueue(ctx, dbConnection, logger)
 	err = awardQueue.Run()
 	if err != nil {
 		log.Panic(err)

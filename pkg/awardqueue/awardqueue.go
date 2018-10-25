@@ -8,11 +8,13 @@
 package awardqueue
 
 import (
+	"context"
 	"fmt"
 	"math"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -29,6 +31,7 @@ const mps = 0
 
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
+	ctx    context.Context
 	db     *pop.Connection
 	logger *zap.Logger
 }
@@ -41,10 +44,15 @@ func (aq *AwardQueue) findAllUnassignedShipments() (models.Shipments, error) {
 // attemptShipmentOffer will attempt to take the given Shipment and award it to
 // a TSP.
 // TODO: refactor this method to ensure the transaction is wrapping what it needs to
-func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.ShipmentOffer, error) {
+func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.Shipment) (*models.ShipmentOffer, error) {
 	aq.logger.Info("Attempting to offer shipment",
 		zap.Any("shipment_id", shipment.ID),
 		zap.Any("traffic_distribution_list_id", shipment.TrafficDistributionListID))
+
+	ctx, span := beeline.StartSpan(ctx, "attempt_shipment_offer")
+	defer span.Send()
+	span.AddField("awardqueue.shipment_id", shipment.ID)
+	span.AddField("awardqueue.traffic_distribution_list_id", shipment.TrafficDistributionListID)
 
 	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
@@ -74,7 +82,9 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 	for !foundAvailableTSP {
 
 		if loopCount != 0 && tspPerformance.ID == firstTSPid {
-			return nil, fmt.Errorf("could not find a TSP without blackout dates in %d tries", loopCount)
+			noTSPError := fmt.Errorf("could not find a TSP without blackout dates in %d tries", loopCount)
+			span.AddField("awardqueue.error", noTSPError)
+			return nil, noTSPError
 		}
 		loopCount++
 
@@ -139,23 +149,30 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 
 // assignShipments searches for all shipments that haven't been offered
 // yet to a TSP, and attempts to generate offers for each of them.
-func (aq *AwardQueue) assignShipments() {
+func (aq *AwardQueue) assignShipments(ctx context.Context) {
 	aq.logger.Info("TSP Award Queue running.")
+	ctx, span := beeline.StartSpan(ctx, "assign_shipments")
+	defer span.Send()
 
 	shipments, err := aq.findAllUnassignedShipments()
 	if err == nil {
-		count := 0
+		awardedCount := 0
+		unawardedCount := 0
 		for _, shipment := range shipments {
-			_, err = aq.attemptShipmentOffer(shipment)
+			_, err = aq.attemptShipmentOffer(ctx, shipment)
 			if err != nil {
 				aq.logger.Error("Failed to offer shipment", zap.Error(err))
+				unawardedCount++
 			} else {
-				count++
+				awardedCount++
 			}
 		}
-		aq.logger.Info("Awarded some shipments.", zap.Int("total_count", count))
+		aq.logger.Info("Awarded some shipments.", zap.Int("total_count", awardedCount))
+		span.AddField("awardqueue.shipments_awarded", awardedCount)
+		span.AddField("awardqueue.shipments_unawarded", unawardedCount)
 	} else {
 		aq.logger.Error("Failed to query for shipments", zap.Error(err))
+		span.AddField("awardqueue.error", err)
 	}
 }
 
@@ -179,15 +196,16 @@ func getTSPsPerBand(count int) []int {
 
 // assignPerformanceBands loops through each unique TransportationServiceProviderPerformances group
 // and assigns any unbanded TransportationServiceProviderPerformances to a band.
-func (aq *AwardQueue) assignPerformanceBands() error {
-
+func (aq *AwardQueue) assignPerformanceBands(ctx context.Context) error {
+	ctx, span := beeline.StartSpan(ctx, "assign_performance_bands")
+	defer span.Send()
 	perfGroups, err := models.FetchUnbandedTSPPerformanceGroups(aq.db)
 	if err != nil {
 		return err
 	}
 
 	for _, perfGroup := range perfGroups {
-		if err := aq.assignPerformanceBandsForTSPPerformanceGroup(perfGroup); err != nil {
+		if err := aq.assignPerformanceBandsForTSPPerformanceGroup(ctx, perfGroup); err != nil {
 			return err
 		}
 	}
@@ -200,7 +218,9 @@ func (aq *AwardQueue) assignPerformanceBands() error {
 //
 // This assumes that all TransportationServiceProviderPerformances have been properly created and
 // have a valid BestValueScore.
-func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup models.TSPPerformanceGroup) error {
+func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(ctx context.Context, perfGroup models.TSPPerformanceGroup) error {
+	ctx, span := beeline.StartSpan(ctx, "assign_performance_bands_for_tsp_performance_group")
+	defer span.Send()
 	aq.logger.Info("Assigning performance bands",
 		zap.Any("traffic_distribution_list_id", perfGroup.TrafficDistributionListID),
 		zap.Any("performance_period_start", perfGroup.PerformancePeriodStart),
@@ -208,6 +228,11 @@ func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup mod
 		zap.Any("rate_cycle_start", perfGroup.RateCycleStart),
 		zap.Any("rate_cycle_end", perfGroup.RateCycleEnd),
 	)
+	span.AddField("awardqueue.traffic_distribution_list_id", perfGroup.TrafficDistributionListID)
+	span.AddField("awardqueue.performance_period_start", perfGroup.PerformancePeriodStart)
+	span.AddField("awardqueue.performance_period_end", perfGroup.PerformancePeriodEnd)
+	span.AddField("awardqueue.rate_cycle_start", perfGroup.RateCycleStart)
+	span.AddField("awardqueue.rate_cycle_end", perfGroup.RateCycleEnd)
 
 	perfs, err := models.FetchTSPPerformancesForQualityBandAssignment(aq.db, perfGroup, mps)
 	if err != nil {
@@ -217,10 +242,14 @@ func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup mod
 	perfsIndex := 0
 	bands := getTSPsPerBand(len(perfs))
 
+	_, assignSpan := beeline.StartSpan(ctx, "assign_quality_band_to_tsp_performance")
 	for band, count := range bands {
 		for i := 0; i < count; i++ {
 			performance := perfs[perfsIndex]
 			aq.logger.Info("Assigning tspPerformance to band", zap.Any("tsp_performance_id", performance.ID), zap.Int("band", band+1))
+			assignSpan.AddField("awardqueue.tsp_performance_id", performance.ID)
+			assignSpan.AddField("awardqueue.band", band+1)
+
 			err := models.AssignQualityBandToTSPPerformance(aq.db, band+1, performance.ID)
 			if err != nil {
 				return err
@@ -228,6 +257,7 @@ func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup mod
 			perfsIndex++
 		}
 	}
+	assignSpan.Send()
 	return nil
 }
 
@@ -248,12 +278,17 @@ func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment mode
 func (aq *AwardQueue) Run() error {
 	originalDB := aq.db
 	defer func() { aq.db = originalDB }()
+
+	ctx, span := beeline.StartSpan(aq.ctx, "awardqueue")
+	defer span.Send()
+
 	return aq.db.Transaction(func(tx *pop.Connection) error {
 		// ensure that all parts of the AQ run inside the transaction
 		aq.db = tx
 
 		aq.logger.Info("Waiting to acquire advisory lock...")
-		if err := waitForLock(tx, awardQueueLockID); err != nil {
+		err := waitForLock(ctx, tx, awardQueueLockID)
+		if err != nil {
 			return err
 		}
 		aq.logger.Info("Acquired pg_advisory_xact_lock")
@@ -261,24 +296,36 @@ func (aq *AwardQueue) Run() error {
 		// TODO: for testing purposes, will be removed shortly
 		// time.Sleep(time.Second * 10)
 
-		if err := aq.assignPerformanceBands(); err != nil {
+		if err := aq.assignPerformanceBands(ctx); err != nil {
 			return err
 		}
 
 		// This method should also return an error
-		aq.assignShipments()
-
+		aq.assignShipments(ctx)
 		return nil
 	})
+
 }
 
 // waitForLock MUST be called within a transaction!
-func waitForLock(db *pop.Connection, id int) error {
+func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
+	ctx, span := beeline.StartSpan(ctx, "wait_for_lock")
+	span.AddField("awardqueue.wait_lock_id", awardQueueLockID)
+	defer span.Send()
+
 	// obtain transaction-level advisory-lock
-	return db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()
+	err := db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()
+	if err != nil {
+		span.AddField("awardqueue.error", err)
+	}
+	return err
 }
 
 // NewAwardQueue creates a new AwardQueue
-func NewAwardQueue(db *pop.Connection, logger *zap.Logger) *AwardQueue {
-	return &AwardQueue{db: db, logger: logger}
+func NewAwardQueue(ctx context.Context, db *pop.Connection, logger *zap.Logger) *AwardQueue {
+	return &AwardQueue{
+		ctx:    ctx,
+		db:     db,
+		logger: logger,
+	}
 }

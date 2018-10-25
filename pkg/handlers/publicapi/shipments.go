@@ -222,7 +222,7 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 		}
 	}
 
-	go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run()
+	go awardqueue.NewAwardQueue(params.HTTPRequest.Context(), h.DB(), h.Logger()).Run()
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
