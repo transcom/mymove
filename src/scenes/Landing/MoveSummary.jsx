@@ -164,11 +164,7 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer
-              moveDate={shipment.requested_pickup_date}
-              moveId={shipment.move_id}
-              bookDate={shipment.book_date}
-            />
+            <StatusTimelineContainer bookDate={shipment.book_date} moveDates={shipment.move_dates_summary} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
