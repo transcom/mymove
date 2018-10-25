@@ -200,7 +200,6 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
     const currentTab = pathnames[pathnames.length - 1];
-
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
@@ -213,6 +212,8 @@ class MoveInfo extends Component {
     const hhgDelivered = hhg.status === 'DELIVERED';
     const hhgCompleted = hhg.status === 'COMPLETED';
     const moveApproved = move.status === 'APPROVED';
+
+    const moveDate = isPPM ? ppm.planned_move_date : hhg.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -257,7 +258,7 @@ class MoveInfo extends Component {
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
-              <li>Move date {formatDate(ppm.planned_move_date)}&nbsp;</li>
+              <li>Move date {formatDate(moveDate)}&nbsp;</li>
             </ul>
           </div>
         </div>
