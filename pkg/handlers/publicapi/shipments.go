@@ -231,7 +231,7 @@ type TransportShipmentHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+// Handle updates the shipment with pack and pickup dates and weights and puts it in-transit - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -252,12 +252,30 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 		return shipmentop.NewTransportShipmentBadRequest()
 	}
 
+	actualPackDate := (time.Time)(*params.Payload.ActualPackDate)
+
+	err = shipment.Pack(actualPackDate)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	actualPickupDate := (time.Time)(*params.Payload.ActualPickupDate)
 
 	err = shipment.Transport(actualPickupDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+
+	shipment.NetWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.NetWeight)
+
+	if params.Payload.GrossWeight != nil {
+		shipment.GrossWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.GrossWeight)
+	}
+
+	if params.Payload.TareWeight != nil {
+		shipment.TareWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.TareWeight)
+	}
+
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

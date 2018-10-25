@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 
-import { fetchActive } from 'shared/utils';
+import { fetchActive, fetchActiveShipment } from 'shared/utils';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
@@ -35,7 +35,7 @@ export default function uiReducer(state = initialState, action) {
       try {
         const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
         const activeMove = fetchActive(get(activeOrders, 'moves'));
-        const activeShipment = fetchActive(get(activeMove, 'shipments'));
+        const activeShipment = fetchActiveShipment(get(activeMove, 'shipments'));
 
         return {
           ...state,
