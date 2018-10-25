@@ -5,8 +5,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestFetchAccessorials() {
-	accessorial := testdatagen.MakeDefaultTariff400ngItem(suite.db)
+func (suite *ModelSuite) TestFetchTariff400ngItems() {
+	tariff400ngItem := testdatagen.MakeDefaultTariff400ngItem(suite.db)
 
 	//Do
 	accs, err := models.FetchTariff400ngItems(suite.db, false)
@@ -14,5 +14,5 @@ func (suite *ModelSuite) TestFetchAccessorials() {
 	//Test
 	suite.NoError(err)
 	suite.Equal(1, len(accs))
-	suite.Equal(accessorial.ID, accs[0].ID)
+	suite.Equal(tariff400ngItem.ID, accs[0].ID)
 }

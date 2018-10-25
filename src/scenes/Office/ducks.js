@@ -43,6 +43,7 @@ const completeHHGType = 'COMPLETE_HHG';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
+const RESET_MOVE = 'RESET_MOVE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -50,6 +51,10 @@ const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
+
+export const resetMove = () => ({
+  type: RESET_MOVE,
+});
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
@@ -248,6 +253,7 @@ const initialState = {
   moveIsCanceling: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
+  officeMove: {},
   ordersHaveLoadError: null,
   ordersHaveLoadSuccess: false,
   ordersHaveUploadError: null,
@@ -676,6 +682,10 @@ export function officeReducer(state = initialState, action) {
     case DOWNLOAD_ATTACHMENTS.failure:
       return Object.assign({}, state, {
         downloadAttachmentsHasError: action.error,
+      });
+    case RESET_MOVE:
+      return Object.assign({}, state, {
+        officeShipment: {},
       });
     default:
       return state;

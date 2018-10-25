@@ -53,47 +53,51 @@ func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 
 // ResponseForError logs an error and returns the expected error type
 func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
+	// AddCallerSkip(1) prevents log statements from listing this file and func as the caller
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
-		logger.Debug("not found", zap.Error(err))
+		skipLogger.Debug("not found", zap.Error(err))
 		return newErrResponse(http.StatusNotFound, err)
 	case models.ErrFetchForbidden:
-		logger.Debug("forbidden", zap.Error(err))
+		skipLogger.Debug("forbidden", zap.Error(err))
 		return newErrResponse(http.StatusForbidden, err)
 	case models.ErrUserUnauthorized:
-		logger.Debug("unauthorized", zap.Error(err))
+		skipLogger.Debug("unauthorized", zap.Error(err))
 		return newErrResponse(http.StatusUnauthorized, err)
 	case uploaderpkg.ErrZeroLengthFile:
-		logger.Debug("uploaded zero length file", zap.Error(err))
+		skipLogger.Debug("uploaded zero length file", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidPatchGate:
-		logger.Debug("invalid patch gate", zap.Error(err))
+		skipLogger.Debug("invalid patch gate", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidTransition:
-		logger.Debug("invalid transition", zap.Error(err))
+		skipLogger.Debug("invalid transition", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
-		logger.Error("Unexpected error", zap.Error(err))
+		skipLogger.Error("Unexpected error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError, err)
 	}
 }
 
 // ResponseForVErrors checks for validation errors
 func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	if verrs.HasAny() {
-		logger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
+		skipLogger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
 		errors := make(map[string]string)
 		for _, key := range verrs.Keys() {
 			errors[key] = strings.Join(verrs.Get(key), " ")
 		}
 		return newValidationErrorsResponse(errors)
 	}
-	return ResponseForError(logger, err)
+	return ResponseForError(skipLogger, err)
 }
 
 // ResponseForConflictErrors checks for conflict errors
 func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
-	logger.Error("Encountered conflict error", zap.Error(err))
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
+	skipLogger.Error("Encountered conflict error", zap.Error(err))
 
 	return newErrResponse(http.StatusConflict, err)
 }
