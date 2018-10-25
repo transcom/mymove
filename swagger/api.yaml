@@ -926,12 +926,14 @@ definitions:
         readOnly: true
         x-nullable: true
       estimated_pack_days:
+        description: Estimated days packing
         type: integer
         minimum: 0
         example: 3
         readOnly: true
         x-nullable: true
       estimated_transit_days:
+        description: Estimated days in transit
         type: integer
         minimum: 0
         example: 30
