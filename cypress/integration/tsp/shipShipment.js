@@ -197,7 +197,7 @@ function tspUserEntersPackAndPickUpInfo() {
 
   // Cancel
   cy
-    .get('button')
+    .get('a')
     .contains('Cancel')
     .click();
 
