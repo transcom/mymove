@@ -224,6 +224,21 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 		s.TrafficDistributionList = trafficDistributionList
 	}
 
+	if s.RequestedPickupDate && (s.OriginalPackDate == nil || s.OriginalDeliveryDate == nil) {
+		summary, _ := CalculateMoveDatesFromShipment(s)
+
+		packDays := int64(len(summary.PackDays))
+		shipment.EstimatedPackDays = &packDays
+
+		transitDays := int64(len(summary.TransitDays))
+		shipment.EstimatedTransitDays = &transitDays
+
+		deliveryDate := summary.DeliveryDays[0]
+		shipment.OriginalDeliveryDate = &deliveryDate
+		packDate := summary.PackDays[0]
+		shipment.OriginalPackDate = &packDate
+	}
+
 	return nil
 }
 
