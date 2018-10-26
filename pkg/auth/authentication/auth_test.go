@@ -4,6 +4,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -12,7 +13,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -55,8 +55,9 @@ func TestAuthSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
-	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
+func fakeLoginGovProvider(logger *zap.Logger) *LoginGovProvider {
+	provider, _ := NewLoginGovProvider(&LoginGovConfig{Host: "fakeHostname", Secret: "secret_key"}, &server.HostsConfig{}, logger)
+	return provider
 }
 
 func (suite *AuthSuite) TestGenerateNonce() {
@@ -73,25 +74,30 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	myMoveMil := "my.move.host"
-	officeMoveMil := "office.move.host"
-	tspMoveMil := "tsp.move.host"
+	hostsConfig := server.HostsConfig{
+		MyName:     "my.move.host",
+		OfficeName: "office.move.host",
+		TspName:    "tsp.move.host",
+	}
+	loginGovConfig := LoginGovConfig{
+		Host: "login.gov",
+	}
 	callbackPort := "1234"
+
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
 	req, err := http.NewRequest("GET", "/auth/logout", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.Host = officeMoveMil
+	req.Host = hostsConfig.MyName
 	session := server.Session{UserID: fakeUUID, IDToken: fakeToken}
-	ctx := auth.SetSessionInRequestContext(req, &session)
+	ctx := server.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http://", callbackPort)
-	handler := LogoutHandler{authContext, "fake key", false}
-	wrappedHandler := auth.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, tspMoveMil)(handler)
-
+	authContext := NewAuthContext(&loginGovConfig, fakeLoginGovProvider(suite.logger), suite.logger)
+	handler := NewLogoutHandler(authContext, "fake key", false)
+	wrappedHandler := server.NewAppDetectorMiddleware(&hostsConfig, suite.logger)(handler)
 	rr := httptest.NewRecorder()
 	wrappedHandler.ServeHTTP(rr, req.WithContext(ctx))
 
@@ -108,7 +114,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
 
 	suite.Nil(err)
-	suite.Equal(officeMoveMil, postRedirectURI.Hostname())
+	suite.Equal(hostsConfig.OfficeName, postRedirectURI.Hostname())
 	suite.Equal(callbackPort, postRedirectURI.Port())
 	token := params["id_token_hint"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
@@ -128,14 +134,14 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 
 	// And: the context contains the auth values
 	session := server.Session{UserID: user.ID, IDToken: "fake Token"}
-	ctx := auth.SetSessionInRequestContext(req, &session)
+	ctx := server.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
 	var handlerSession *server.Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handlerSession = server.SessionFromRequestContext(r)
 	})
-	middleware := UserAuthMiddleware(suite.logger)(handler)
+	middleware := NewUserAuthMiddleware(suite.logger)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -152,7 +158,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(suite.logger)(handler)
+	middleware := NewUserAuthMiddleware(suite.logger)(handler)
 
 	middleware.ServeHTTP(rr, req)
 

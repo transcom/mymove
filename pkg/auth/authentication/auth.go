@@ -66,12 +66,12 @@ func (context Context) landingURL(session *server.Session) string {
 // Context is the common handler type for auth handlers
 type Context struct {
 	logger           *zap.Logger
-	loginGovProvider LoginGovProvider
+	loginGovProvider *LoginGovProvider
 	callbackTemplate string
 }
 
 // NewAuthContext creates a Context
-func NewAuthContext(cfg *LoginGovConfig, provider LoginGovProvider, l *zap.Logger) *Context {
+func NewAuthContext(cfg *LoginGovConfig, provider *LoginGovProvider, l *zap.Logger) *Context {
 	return &Context{
 		logger:           l,
 		loginGovProvider: provider,
@@ -342,7 +342,7 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider *LoginGovProvider) (*openidConnect.Session, error) {
 	tokenURL := loginGovProvider.tokenURL()
 	expiry := server.GetExpiryTimeFromMinutes(server.SessionExpiryInMinutes)
 	params, err := loginGovProvider.tokenParams(code, clientID, expiry)
