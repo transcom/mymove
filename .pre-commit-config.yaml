@@ -107,7 +107,7 @@ repos:
     hooks:
       - id: gen-docs
         name: regenerate docs index
-        entry: bin/gen-docs
+        entry: bin/gen-docs-index
         language: script
 
   - repo: local
