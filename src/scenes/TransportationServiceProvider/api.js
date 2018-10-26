@@ -55,7 +55,7 @@ export async function RejectShipment(shipmentId, reason) {
 
 export async function TransportShipment(shipmentId, payload) {
   const client = await getPublicClient();
-  const payloadDef = client.spec.definitions.ActualPickupDate;
+  const payloadDef = client.spec.definitions.TransportPayload;
   const response = await client.apis.shipments.transportShipment({
     shipmentId,
     payload: formatPayload(payload, payloadDef),

@@ -60,6 +60,7 @@ const LocationsEdit = props => {
               values: pickupAddress,
             }}
             title="Primary address"
+            zipPattern="USA"
             required
           />
         </FormSection>
@@ -78,6 +79,7 @@ const LocationsEdit = props => {
                 values: secondaryPickupAddress,
               }}
               title="Additional address"
+              zipPattern="USA"
             />
           )}
         </FormSection>
@@ -99,6 +101,7 @@ const LocationsEdit = props => {
                 values: deliveryAddress,
               }}
               title="Primary address"
+              zipPattern="USA"
             />
           ) : (
             <AddressElementDisplay address={newDutyStation} title="Delivery Primary (Duty Station)" />
