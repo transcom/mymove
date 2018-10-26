@@ -94,7 +94,7 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 	// cert authentication.
 	if s.ClientAuthType == tls.VerifyClientCertIfGiven ||
 		s.ClientAuthType == tls.RequireAndVerifyClientCert {
-		if s.CaCertPool == nil {
+		if s.CaCertPool == nil || len(s.CaCertPool.Subjects()) == 0 {
 			return nil, ErrMissingCACert
 		}
 	}
