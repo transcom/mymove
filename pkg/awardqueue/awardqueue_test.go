@@ -471,11 +471,12 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	// Run the Award Queue
 	queue.assignShipments()
 
-	suite.verifyOfferCount(tsp1, 6)
-	suite.verifyOfferCount(tsp2, 5)
+	// TODO: revert to [6, 5, 3, 2, 1] after the B&M pilot
+	suite.verifyOfferCount(tsp1, 4)
+	suite.verifyOfferCount(tsp2, 4)
 	suite.verifyOfferCount(tsp3, 3)
-	suite.verifyOfferCount(tsp4, 2)
-	suite.verifyOfferCount(tsp5, 1)
+	suite.verifyOfferCount(tsp4, 3)
+	suite.verifyOfferCount(tsp5, 3)
 
 	for _, shipment := range shipments {
 		if err := suite.db.Find(&shipment, shipment.ID); err != nil {

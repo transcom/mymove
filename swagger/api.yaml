@@ -884,48 +884,60 @@ definitions:
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
+      book_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      requested_pickup_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        x-nullable: true
+      original_delivery_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      original_pack_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
       actual_pickup_date:
         type: string
         format: date
-        example: '2018-04-21'
+        example: '2018-04-26'
+        readOnly: true
         x-nullable: true
       actual_pack_date:
         type: string
         format: date
-        example: '2018-04-21'
+        example: '2018-04-26'
+        readOnly: true
         x-nullable: true
       actual_delivery_date:
         type: string
         format: date
-        example: '2018-04-27'
+        example: '2018-04-26'
+        readOnly: true
         x-nullable: true
-      book_date:
-        type: string
-        format: date
-        example: '2018-03-15'
-      requested_pickup_date:
-        type: string
-        format: date
-        example: '2018-04-19'
-      original_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-19'
-      original_pack_date:
-        type: string
-        format: date
-        example: '2018-04-19'
       estimated_pack_days:
-        type: integer
         description: Estimated days packing
+        type: integer
         minimum: 0
-        example: 2
+        example: 3
+        readOnly: true
         x-nullable: true
       estimated_transit_days:
-        type: integer
         description: Estimated days in transit
+        type: integer
         minimum: 0
         example: 30
+        readOnly: true
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'

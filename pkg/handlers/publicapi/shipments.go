@@ -39,10 +39,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
 		ActualPackDate:       handlers.FmtDatePtr(s.ActualPackDate),
 		ActualDeliveryDate:   handlers.FmtDatePtr(s.ActualDeliveryDate),
-		BookDate:             *handlers.FmtDatePtr(s.BookDate),
-		RequestedPickupDate:  *handlers.FmtDatePtr(s.RequestedPickupDate),
-		OriginalDeliveryDate: *handlers.FmtDatePtr(s.OriginalDeliveryDate),
-		OriginalPackDate:     *handlers.FmtDatePtr(s.OriginalPackDate),
+		BookDate:             handlers.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:  handlers.FmtDatePtr(s.RequestedPickupDate),
+		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
+		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
 
 		// calculated durations
 		EstimatedPackDays:    s.EstimatedPackDays,

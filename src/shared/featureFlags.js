@@ -23,9 +23,7 @@ const environmentFlags = {
 
   staging: Object.assign({}, defaultFlags),
 
-  production: Object.assign({}, defaultFlags, {
-    hhg: false,
-  }),
+  production: Object.assign({}, defaultFlags),
 };
 
 export function flagsFromURL(search) {
