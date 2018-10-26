@@ -1,9 +1,8 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/models"
 	"time"
-
-	. "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestCalculateMoveDatesFromShipment() {
@@ -11,13 +10,13 @@ func (suite *ModelSuite) TestCalculateMoveDatesFromShipment() {
 	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	transitDays := int64(5)
 	packDays := int64(3)
-	var shipment = Shipment{
+	var shipment = models.Shipment{
 		RequestedPickupDate:  &pickupDate,
 		EstimatedTransitDays: &transitDays,
 		EstimatedPackDays:    &packDays,
 	}
 
-	summary, err := CalculateMoveDatesFromShipment(&shipment)
+	summary, err := models.CalculateMoveDatesFromShipment(&shipment)
 
 	// check that there is no error
 	suite.Nil(err)
@@ -51,12 +50,12 @@ func (suite *ModelSuite) TestCalculateMoveDatesFromShipmentMissingPickupDate() {
 	// create a shipment
 	transitDays := int64(5)
 	packDays := int64(3)
-	var shipment = Shipment{
+	var shipment = models.Shipment{
 		EstimatedTransitDays: &transitDays,
 		EstimatedPackDays:    &packDays,
 	}
 
-	_, err := CalculateMoveDatesFromShipment(&shipment)
+	_, err := models.CalculateMoveDatesFromShipment(&shipment)
 
 	suite.Error(err)
 }
@@ -65,11 +64,11 @@ func (suite *ModelSuite) TestCalculateMoveDatesFromShipmentMissingTransitDays() 
 	// create a shipment
 	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	packDays := int64(3)
-	var shipment = Shipment{
+	var shipment = models.Shipment{
 		RequestedPickupDate: &pickupDate,
 		EstimatedPackDays:   &packDays,
 	}
-	_, err := CalculateMoveDatesFromShipment(&shipment)
+	_, err := models.CalculateMoveDatesFromShipment(&shipment)
 
 	suite.Error(err)
 }
@@ -78,12 +77,12 @@ func (suite *ModelSuite) TestCalculateMoveDatesFromShipmentMissingPackDays() {
 	// create a shipment
 	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	transitDays := int64(5)
-	var shipment = Shipment{
+	var shipment = models.Shipment{
 		RequestedPickupDate:  &pickupDate,
 		EstimatedTransitDays: &transitDays,
 	}
 
-	_, err := CalculateMoveDatesFromShipment(&shipment)
+	_, err := models.CalculateMoveDatesFromShipment(&shipment)
 
 	suite.Error(err)
 }
