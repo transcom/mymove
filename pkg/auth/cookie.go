@@ -111,7 +111,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 			cookie.MaxAge = maxAge
 		}
 	}
-	// http.Cookie does this but Header().Add()
+	// http.SetCookie calls Header().Add() instead of .Set(), which can result in duplicate cookies
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
