@@ -43,11 +43,11 @@ func (t *Tariff400ngZip3) Validate(tx *pop.Connection) (*validate.Errors, error)
 }
 
 // FetchRateAreaForZip5 returns the rate area for a specified zip5.
-func FetchRateAreaForZip5(db *pop.Connection, zip5 string) (string, error) {
-	if len(zip5) != 5 {
-		return "", errors.Errorf("zip5 must have a length of 5, got '%s'", zip5)
+func FetchRateAreaForZip5(db *pop.Connection, zip string) (string, error) {
+	if len(zip) < 5 {
+		return "", errors.Errorf("zip must have a length of at least 5, got '%s'", zip)
 	}
-	zip3 := zip5[0:3]
+	zip3 := zip[0:3]
 
 	tariffZip3 := Tariff400ngZip3{}
 	if err := db.Where("zip3 = $1", zip3).First(&tariffZip3); err != nil {
@@ -55,6 +55,7 @@ func FetchRateAreaForZip5(db *pop.Connection, zip5 string) (string, error) {
 	}
 
 	if tariffZip3.RateArea == "ZIP" {
+		zip5 := zip[0:5]
 		zip5RateArea := Tariff400ngZip5RateArea{}
 		if err := db.Where("zip5 = $1", zip5).First(&zip5RateArea); err != nil {
 			return "", errors.Wrapf(err, "could not find zip5_rate_area for %s", zip5)
@@ -66,11 +67,11 @@ func FetchRateAreaForZip5(db *pop.Connection, zip5 string) (string, error) {
 }
 
 // FetchRegionForZip5 returns the region for a specified zip5.
-func FetchRegionForZip5(db *pop.Connection, zip5 string) (string, error) {
-	if len(zip5) != 5 {
-		return "", errors.Errorf("zip5 must have a length of 5, got '%s'", zip5)
+func FetchRegionForZip5(db *pop.Connection, zip string) (string, error) {
+	if len(zip) < 5 {
+		return "", errors.Errorf("zip must have a length of at least 5, got '%s'", zip)
 	}
-	zip3 := zip5[0:3]
+	zip3 := zip[0:3]
 
 	tariffZip3 := Tariff400ngZip3{}
 	if err := db.Where("zip3 = $1", zip3).First(&tariffZip3); err != nil {
