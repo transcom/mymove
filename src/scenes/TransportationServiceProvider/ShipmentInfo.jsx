@@ -406,19 +406,16 @@ class ShipmentInfo extends Component {
                     </Link>
                   )}
                 </h2>
-                {showDocumentViewer && shipmentDocuments.length ? (
-                  <DocumentList
-                    detailUrlPrefix={`/shipments/${shipmentId}/documents`}
-                    moveDocuments={shipmentDocuments}
-                  />
-                ) : (
-                  <Link className="status" to={newDocumentUrl} target="_blank">
-                    <span>
-                      <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                    </span>
-                    Upload new document
-                  </Link>
-                )}
+                <DocumentList
+                  detailUrlPrefix={`/shipments/${shipmentId}/documents`}
+                  moveDocuments={shipmentDocuments}
+                />
+                <Link className="status upload-documents-link" to={newDocumentUrl} target="_blank">
+                  <span>
+                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
+                  </span>
+                  Upload new document
+                </Link>
               </div>
             </div>
           </div>
