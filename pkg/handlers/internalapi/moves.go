@@ -215,7 +215,12 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	summary, err := calculateMoveDates(h.DB(), h.Planner(), moveID, moveDate)
+	move, transitDistance, err := TransitDistance(h.DB(), moveID, h.Planner())
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	summary, err := models.CalculateMoveDates(h.DB(), *transitDistance, move, moveDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

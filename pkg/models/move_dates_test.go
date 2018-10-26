@@ -1,22 +1,23 @@
-package internalapi
+package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/models"
 	"time"
+
+	. "github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
+func (suite *ModelSuite) TestCalculateMoveDatesFromShipment() {
 	// create a shipment
 	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	transitDays := int64(5)
 	packDays := int64(3)
-	var shipment = models.Shipment{
+	var shipment = Shipment{
 		RequestedPickupDate:  &pickupDate,
 		EstimatedTransitDays: &transitDays,
 		EstimatedPackDays:    &packDays,
 	}
 
-	summary, err := calculateMoveDatesFromShipment(&shipment)
+	summary, err := CalculateMoveDatesFromShipment(&shipment)
 
 	// check that there is no error
 	suite.Nil(err)
@@ -46,43 +47,43 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 
 }
 
-func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingPickupDate() {
+func (suite *ModelSuite) TestCalculateMoveDatesFromShipmentMissingPickupDate() {
 	// create a shipment
 	transitDays := int64(5)
 	packDays := int64(3)
-	var shipment = models.Shipment{
+	var shipment = Shipment{
 		EstimatedTransitDays: &transitDays,
 		EstimatedPackDays:    &packDays,
 	}
 
-	_, err := calculateMoveDatesFromShipment(&shipment)
+	_, err := CalculateMoveDatesFromShipment(&shipment)
 
 	suite.Error(err)
 }
 
-func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingTransitDays() {
+func (suite *ModelSuite) TestCalculateMoveDatesFromShipmentMissingTransitDays() {
 	// create a shipment
 	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	packDays := int64(3)
-	var shipment = models.Shipment{
+	var shipment = Shipment{
 		RequestedPickupDate: &pickupDate,
 		EstimatedPackDays:   &packDays,
 	}
-	_, err := calculateMoveDatesFromShipment(&shipment)
+	_, err := CalculateMoveDatesFromShipment(&shipment)
 
 	suite.Error(err)
 }
 
-func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingPackDays() {
+func (suite *ModelSuite) TestCalculateMoveDatesFromShipmentMissingPackDays() {
 	// create a shipment
 	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	transitDays := int64(5)
-	var shipment = models.Shipment{
+	var shipment = Shipment{
 		RequestedPickupDate:  &pickupDate,
 		EstimatedTransitDays: &transitDays,
 	}
 
-	_, err := calculateMoveDatesFromShipment(&shipment)
+	_, err := CalculateMoveDatesFromShipment(&shipment)
 
 	suite.Error(err)
 }

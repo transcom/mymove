@@ -36,7 +36,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
-		summary, _ := calculateMoveDatesFromShipment(&s)
+		summary, _ := models.CalculateMoveDatesFromShipment(&s)
 
 		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
 			Pack:     handlers.FmtDateSlice(summary.PackDays),
@@ -329,7 +329,12 @@ func updateShipmentDatesWithPayload(h handlers.HandlerContext, shipment *models.
 
 	moveDate := time.Time(*payload.RequestedPickupDate)
 
-	summary, err := calculateMoveDates(h.DB(), h.Planner(), shipment.MoveID, moveDate)
+	move, transitDistance, err := TransitDistance(h.DB(), shipment.MoveID, h.Planner())
+	if err != nil {
+		return err
+	}
+
+	summary, err := models.CalculateMoveDates(h.DB(), *transitDistance, move, moveDate)
 	if err != nil {
 		return nil
 	}

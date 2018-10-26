@@ -1,15 +1,11 @@
-package internalapi
+package models
 
 import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"github.com/rickar/cal"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -22,40 +18,20 @@ type MoveDatesSummary struct {
 	ReportDays   []time.Time
 }
 
-func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDatesSummary, error) {
+// CalculateMoveDates will calculate the MoveDatesSummary given a Move object
+func CalculateMoveDates(db *pop.Connection, transitDistance int, move *Move, moveDate time.Time) (MoveDatesSummary, error) {
 	var summary MoveDatesSummary
 
-	// FetchMoveForMoveDates will get all the required associations used below.
-	move, err := models.FetchMoveForMoveDates(db, moveID)
-	if err != nil {
-		return summary, err
-	}
-
-	if move.Orders.ServiceMember.DutyStation.Address == (models.Address{}) {
-		return summary, errors.New("DutyStation must have an address")
-	}
-	if move.Orders.NewDutyStation.Address == (models.Address{}) {
-		return summary, errors.New("NewDutyStation must have an address")
-	}
-
-	var source = move.Orders.ServiceMember.DutyStation.Address
-	var destination = move.Orders.NewDutyStation.Address
-
-	transitDistance, err := planner.TransitDistance(&source, &destination)
-	if err != nil {
-		return summary, err
-	}
-
-	entitlementWeight := unit.Pound(models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
+	entitlementWeight := unit.Pound(GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
 		move.Orders.SpouseHasProGear))
 
-	numTransitDays, err := models.TransitDays(entitlementWeight, transitDistance)
+	numTransitDays, err := TransitDays(entitlementWeight, transitDistance)
 	if err != nil {
 		return summary, err
 	}
 
-	numPackDays := models.PackDays(entitlementWeight)
-	usCalendar := handlers.NewUSCalendar()
+	numPackDays := PackDays(entitlementWeight)
+	usCalendar := NewUSCalendar()
 
 	lastPossiblePackDay := moveDate.AddDate(0, 0, -1)
 	summary.PackDays = createPastMoveDates(lastPossiblePackDay, numPackDays, false, usCalendar)
@@ -76,8 +52,9 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 	return summary, nil
 }
 
-func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
-	usCalendar := handlers.NewUSCalendar()
+// CalculateMoveDatesFromShipment will calculate the MoveDatesSummary given a Shipment object
+func CalculateMoveDatesFromShipment(shipment *Shipment) (MoveDatesSummary, error) {
+	usCalendar := NewUSCalendar()
 
 	if shipment.RequestedPickupDate == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
