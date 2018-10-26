@@ -415,9 +415,8 @@ export function tspReducer(state = initialState, action) {
     case GENERATE_GBL.failure:
       return Object.assign({}, state, {
         generateGBLSuccess: false,
-        generateGBLError: true,
+        generateGBLError: action.error,
         generateGBLInProgress: false,
-        error: action.error,
         gblDocUrl: null,
       });
 

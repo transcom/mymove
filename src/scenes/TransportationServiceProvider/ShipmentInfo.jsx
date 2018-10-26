@@ -7,6 +7,7 @@ import { get, capitalize } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -58,8 +59,8 @@ import PickupForm from './PickupForm';
 import './tsp.css';
 
 const attachmentsErrorMessages = {
-  400: 'There is already a GBL for this shipment. ',
-  417: 'Missing data required to generate a GBL.',
+  400: 'An error occured',
+  417: 'Missing data required to generate a Bill of Lading.',
 };
 
 class AcceptShipmentPanel extends Component {
@@ -308,12 +309,16 @@ class ShipmentInfo extends Component {
 
               {generateGBLError && (
                 <p>
-                  <Alert type="warning" heading="An error occurred">
-                    {attachmentsErrorMessages[this.props.error.statusCode] ||
+                  <Alert
+                    type="warning"
+                    heading={attachmentsErrorMessages[this.props.generateGBLError.status] || 'An error occurred'}
+                  >
+                    {titleCase(get(generateGBLError.response, 'body.message', '')) ||
                       'Something went wrong contacting the server.'}
                   </Alert>
                 </p>
               )}
+
               {generateGBLSuccess && (
                 <p>
                   <Alert type="success" heading="GBL has been created">
