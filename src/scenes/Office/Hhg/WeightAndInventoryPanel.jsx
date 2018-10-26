@@ -22,12 +22,13 @@ const WeightAndInventoryDisplay = props => {
           {formatNumber(get(fieldProps, 'values.weight_estimate', ''))} lbs
         </PanelField>
       </div>
-      <div className="editable-panel-column">
+      {/* Add this section back in once we have content for it
+        <div className="editable-panel-column">
         <span className="column-subhead">Special Items</span>
         <PanelField title="Customer Entered" className="Todo-phase2">
           None
         </PanelField>
-      </div>
+      </div>*/}
     </React.Fragment>
   );
 };
