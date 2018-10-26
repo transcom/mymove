@@ -105,12 +105,14 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		if err != nil {
 			logger.Error("Generating signed token string", zap.Error(err))
 		} else {
+			logger.Info("Cookie", zap.Int("Size", len(ss)))
 			cookie.Value = ss
 			cookie.Expires = expiry
 			cookie.MaxAge = maxAge
 		}
 	}
-	http.SetCookie(w, &cookie)
+	// http.Cookie does this but Header().Add()
+	w.Header().Set("Set-Cookie", cookie.String())
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session betweem the user_session cookie and the request context
