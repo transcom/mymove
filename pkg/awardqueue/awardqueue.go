@@ -112,8 +112,7 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 							zap.Int("quality_band", qb),
 							zap.Int("offer_count", tspPerformance.OfferCount))
 						foundAvailableTSP = true
-						// test Error
-						aq.logErrorAndTrace("Failed to offer to TSP", fmt.Errorf("it's all broken"), span)
+
 						// Award the shipment
 						if err := models.AwardShipment(aq.db, shipment.ID); err != nil {
 							aq.logErrorAndTrace("Failed to set shipment as awarded", err, span)
@@ -317,7 +316,7 @@ func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
 
 // logErrorAndTrace logs and error message with zap and submits the error to a Honeycomb trace
 func (aq *AwardQueue) logErrorAndTrace(errorMessage string, err error, span *trace.Span) {
-	span.AddField("awardqueue.error", err)
+	span.AddField("awardqueue.error", err.Error())
 	span.AddField("awardqueue.error_message", errorMessage)
 	aq.logger.Error(errorMessage, zap.Error(err))
 }
