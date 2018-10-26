@@ -226,6 +226,26 @@ func (o *Order) IsComplete() bool {
 	if o.TAC == nil {
 		return false
 	}
+	return true
+}
 
+// IsCompleteForGBL checks if orders have all fields necessary to approve a move
+func (o *Order) IsCompleteForGBL() bool {
+
+	if o.OrdersNumber == nil {
+		return false
+	}
+	if o.OrdersTypeDetail == nil {
+		return false
+	}
+	if o.DepartmentIndicator == nil {
+		return false
+	}
+	if o.TAC == nil {
+		return false
+	}
+	if o.SAC == nil {
+		return false
+	}
 	return true
 }

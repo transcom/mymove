@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -575,7 +576,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if len(extantGBLS) > 0 {
 		// h.Logger().Error("There are already GBLs for this shipment.")
 		// return shipmentop.NewCreateGovBillOfLadingBadRequest()
-		return handlers.ResponseForBadRequestErrors(h.Logger(), fmt.Errorf("there is already a Bill of Lading for this shipment"))
+		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("there is already a Bill of Lading for this shipment"), http.StatusBadRequest)
 	}
 
 	// Don't allow GBL generation for incomplete orders
@@ -583,8 +584,8 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if ordersErr != nil {
 		return handlers.ResponseForError(h.Logger(), ordersErr)
 	}
-	if orders.IsComplete() != true {
-		return handlers.ResponseForFailedExpectationErrors(h.Logger(), fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"))
+	if orders.IsCompleteForGBL() != true {
+		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"), http.StatusExpectationFailed)
 	}
 
 	// Create PDF for GBL
