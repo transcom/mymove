@@ -76,29 +76,58 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 	return summary, nil
 }
 
+// calculateMoveDatesFromShipment takes stored values on the shipment to calculate the most up-to-date move date ranges
 func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
 	usCalendar := handlers.NewUSCalendar()
 
 	if shipment.RequestedPickupDate == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
 	}
-	lastPossiblePackDay := time.Time(*shipment.RequestedPickupDate).AddDate(0, 0, -1)
 
-	if shipment.EstimatedPackDays == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a EstimatedPackDays")
+	var mostCurrentPackDate time.Time
+	if shipment.ActualPickupDate != nil {
+		mostCurrentPackDate = *shipment.ActualPackDate
+	} else if shipment.PmSurveyPlannedPackDate != nil {
+		mostCurrentPackDate = *shipment.PmSurveyPlannedPackDate
+	} else {
+		mostCurrentPackDate = *shipment.OriginalPackDate
 	}
-	packDates := createPastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)
 
-	pickupDates := createFutureMoveDates(*shipment.RequestedPickupDate, 1, false, usCalendar)
+	var mostCurrentPickupDate time.Time
+	if shipment.ActualPickupDate != nil {
+		mostCurrentPickupDate = *shipment.ActualPickupDate
+	} else if shipment.PmSurveyPlannedPickupDate != nil {
+		mostCurrentPickupDate = *shipment.PmSurveyPlannedPickupDate
+	} else {
+		mostCurrentPickupDate = *shipment.RequestedPickupDate
+	}
+
+	var mostCurrentDeliveryDate time.Time
+	if shipment.ActualDeliveryDate != nil {
+		mostCurrentDeliveryDate = *shipment.ActualDeliveryDate
+	} else if shipment.PmSurveyPlannedPickupDate != nil {
+		mostCurrentDeliveryDate = *shipment.PmSurveyPlannedDeliveryDate
+	} else {
+		mostCurrentDeliveryDate = *shipment.OriginalDeliveryDate
+	}
+	// assigns the pack dates
+	packDates, err := createValidDatesBetweenTwoDates(mostCurrentPackDate, mostCurrentPickupDate, false, usCalendar)
+	if err != nil {
+		return MoveDatesSummary{}, err
+	}
+
+	pickupDates := createFutureMoveDates(mostCurrentPickupDate, 1, false, usCalendar)
 
 	firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
 	if shipment.EstimatedTransitDays == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
 	}
-	transitDates := createFutureMoveDates(firstPossibleTransitDay, int(*shipment.EstimatedTransitDays), true, usCalendar)
 
-	firstPossibleDeliveryDay := time.Time(transitDates[int(*shipment.EstimatedTransitDays)-1].AddDate(0, 0, 1))
-	deliveryDates := createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
+	transitDates, err := createValidDatesBetweenTwoDates(firstPossibleTransitDay, mostCurrentDeliveryDate, true, usCalendar)
+	if err != nil {
+		return MoveDatesSummary{}, err
+	}
+	deliveryDates := createFutureMoveDates(mostCurrentDeliveryDate, 1, false, usCalendar)
 
 	summary := MoveDatesSummary{
 		PackDays:     packDates,
@@ -136,4 +165,20 @@ func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHol
 	}
 
 	return dates
+}
+
+func createValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, calendar *cal.Calendar) ([]time.Time, error) {
+	var dates []time.Time
+	dateToAdd := startDate
+	if !calendar.IsWorkday(endDate) && !includeWeekendsAndHolidays {
+		return dates, errors.New("End date cannot be a weekend or holiday")
+	}
+
+	for dateToAdd != endDate {
+		if includeWeekendsAndHolidays || calendar.IsWorkday(dateToAdd) {
+			dates = append(dates, dateToAdd)
+		}
+		dateToAdd = dateToAdd.AddDate(0, 0, 1)
+	}
+	return dates, nil
 }
