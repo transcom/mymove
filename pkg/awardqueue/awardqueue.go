@@ -15,6 +15,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go/trace"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -82,9 +83,7 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 	for !foundAvailableTSP {
 
 		if loopCount != 0 && tspPerformance.ID == firstTSPid {
-			noTSPError := fmt.Errorf("could not find a TSP without blackout dates in %d tries", loopCount)
-			span.AddField("awardqueue.error", noTSPError)
-			return nil, noTSPError
+			return nil, fmt.Errorf("could not find a TSP without blackout dates in %d tries", loopCount)
 		}
 		loopCount++
 
@@ -94,7 +93,7 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 
 			isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
 			if err != nil {
-				aq.logger.Error("Failed to determine if shipment is within TSP blackout dates", zap.Error(err))
+				aq.logErrorAndTrace("Failed to determine if shipment is within TSP blackout dates", err, span)
 				return nil, err
 			}
 
@@ -113,19 +112,19 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 							zap.Int("quality_band", qb),
 							zap.Int("offer_count", tspPerformance.OfferCount))
 						foundAvailableTSP = true
-
+						// test Error
+						aq.logErrorAndTrace("Failed to offer to TSP", fmt.Errorf("it's all broken"), span)
 						// Award the shipment
 						if err := models.AwardShipment(aq.db, shipment.ID); err != nil {
-							aq.logger.Error("Failed to set shipment as awarded",
-								zap.Stringer("shipment ID", shipment.ID), zap.Error(err))
+							aq.logErrorAndTrace("Failed to set shipment as awarded", err, span)
 							return nil, err
 						}
 					}
 				} else {
-					aq.logger.Error("Failed to increment offer count", zap.Error(err))
+					aq.logErrorAndTrace("Failed to increment offer count", err, span)
 				}
 			} else {
-				aq.logger.Error("Failed to offer to TSP", zap.Error(err))
+				aq.logErrorAndTrace("Failed to offer to TSP", err, span)
 			}
 		}
 
@@ -161,7 +160,7 @@ func (aq *AwardQueue) assignShipments(ctx context.Context) {
 		for _, shipment := range shipments {
 			_, err = aq.attemptShipmentOffer(ctx, shipment)
 			if err != nil {
-				aq.logger.Error("Failed to offer shipment", zap.Error(err))
+				aq.logErrorAndTrace("Failed to offer shipment", err, span)
 				unawardedCount++
 			} else {
 				awardedCount++
@@ -171,8 +170,7 @@ func (aq *AwardQueue) assignShipments(ctx context.Context) {
 		span.AddField("awardqueue.shipments_awarded", awardedCount)
 		span.AddField("awardqueue.shipments_unawarded", unawardedCount)
 	} else {
-		aq.logger.Error("Failed to query for shipments", zap.Error(err))
-		span.AddField("awardqueue.error", err)
+		aq.logErrorAndTrace("Failed to query for shipments", err, span)
 	}
 }
 
@@ -314,11 +312,14 @@ func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
 	defer span.Send()
 
 	// obtain transaction-level advisory-lock
-	err := db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()
-	if err != nil {
-		span.AddField("awardqueue.error", err)
-	}
-	return err
+	return db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()
+}
+
+// logErrorAndTrace logs and error message with zap and submits the error to a Honeycomb trace
+func (aq *AwardQueue) logErrorAndTrace(errorMessage string, err error, span *trace.Span) {
+	span.AddField("awardqueue.error", err)
+	span.AddField("awardqueue.error_message", errorMessage)
+	aq.logger.Error(errorMessage, zap.Error(err))
 }
 
 // NewAwardQueue creates a new AwardQueue

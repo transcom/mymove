@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
-	//"github.com/honeycombio/libhoney-go"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -60,7 +59,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	})
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipment)
+	offer, err := queue.attemptShipmentOffer(suite.ctx, shipment)
 
 	expectedError := "could not find a TSP without blackout dates"
 	// See if shipment was offered
@@ -73,7 +72,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db, suite.logger)
+	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
 
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
@@ -127,7 +126,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	})
 
 	// Run the Award Queue
-	queue.assignShipments()
+	queue.assignShipments(suite.ctx)
 
 	shipmentOffer := models.ShipmentOffer{}
 	query := suite.db.Where("shipment_id = $1", shipment.ID)
@@ -293,7 +292,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	suite.Nil(err)
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipment)
+	offer, err := queue.attemptShipmentOffer(suite.ctx, shipment)
 
 	// See if shipment was offered
 	if err != nil {
@@ -352,7 +351,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	suite.Nil(err)
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipment)
+	offer, err := queue.attemptShipmentOffer(suite.ctx, shipment)
 
 	// See if shipment was offered
 	if err == nil {
@@ -399,7 +398,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
-	queue.assignShipments()
+	queue.assignShipments(suite.ctx)
 
 	// Count the number of shipments offered to our TSP
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
@@ -471,7 +470,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
-	queue.assignShipments()
+	queue.assignShipments(suite.ctx)
 
 	// TODO: revert to [6, 5, 3, 2, 1] after the B&M pilot
 	suite.verifyOfferCount(tsp1, 4)
@@ -532,7 +531,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		}
 	}
 
-	err := queue.assignPerformanceBands()
+	err := queue.assignPerformanceBands(suite.ctx)
 
 	if err != nil {
 		t.Errorf("Failed to assign to performance bands: %v", err)
@@ -651,7 +650,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		t.Error(err)
 	}
 
-	queue.assignShipments()
+	queue.assignShipments(suite.ctx)
 
 	suite.verifyOfferCount(tspPeak, 1)
 	suite.verifyOfferCount(tspNonPeak, 1)
@@ -704,7 +703,7 @@ func (suite *AwardQueueSuite) Test_waitForLock() {
 
 	go func() {
 		suite.db.Transaction(func(tx *pop.Connection) error {
-			suite.Nil(waitForLock(tx, lockID))
+			suite.Nil(waitForLock(suite.ctx, tx, lockID))
 			time.Sleep(time.Second)
 			ret <- 1
 			return nil
@@ -714,7 +713,7 @@ func (suite *AwardQueueSuite) Test_waitForLock() {
 	go func() {
 		suite.db.Transaction(func(tx *pop.Connection) error {
 			time.Sleep(time.Millisecond * 500)
-			suite.Nil(waitForLock(tx, lockID))
+			suite.Nil(waitForLock(suite.ctx, tx, lockID))
 			ret <- 2
 			return nil
 		})

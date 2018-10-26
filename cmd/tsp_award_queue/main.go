@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"log"
+
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
 	"go.uber.org/zap"
-	"log"
 
 	"github.com/transcom/mymove/pkg/awardqueue"
 )
