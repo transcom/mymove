@@ -20,8 +20,52 @@ export class StatusTimelineContainer extends PureComponent {
     return indexOf(statuses, statusToCheck) === statuses.length - 1;
   }
 
-  render() {
+  determineCompletedAndCurrentStatuses(shipment) {
     const today = moment();
+    const actualPackDate = get(shipment, 'actual_pack_date', null);
+    const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date', null);
+    const originalPackDate = get(shipment, 'original_pack_date', null);
+    const actualPickupDate = get(shipment, 'actual_pickup_date', null);
+    const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date', null);
+    const requestedPickupDate = get(shipment, 'requested_pickup_date', null);
+    const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
+    let markedStatuses = ['scheduled'];
+
+    if (actualPackDate || today.isSameOrAfter(pmSurveyPlannedPackDate) || today.isSameOrAfter(originalPackDate)) {
+      markedStatuses.push('packed');
+    } else {
+      return markedStatuses;
+    }
+
+    if (
+      actualPickupDate ||
+      today.isSameOrAfter(pmSurveyPlannedPickupDate, 'day') ||
+      today.isSameOrAfter(requestedPickupDate, 'day')
+    ) {
+      markedStatuses.push('loaded');
+    } else {
+      return markedStatuses;
+    }
+
+    if (
+      (actualPickupDate && today.isAfter(actualPickupDate, 'day')) ||
+      today.isAfter(pmSurveyPlannedPickupDate, 'day') ||
+      today.isAfter(requestedPickupDate, 'day')
+    ) {
+      markedStatuses.push('in_transit');
+    } else {
+      return markedStatuses;
+    }
+
+    if (actualDeliveryDate) {
+      markedStatuses.push('delivered');
+    } else {
+      return markedStatuses;
+    }
+    return markedStatuses;
+  }
+
+  render() {
     const bookDate = get(this.props.shipment, 'book_date');
     const moveDates = this.props.shipment.move_dates_summary;
     const pickupDates = get(moveDates, 'pickup', []);
@@ -31,29 +75,7 @@ export class StatusTimelineContainer extends PureComponent {
 
     const formatType = 'condensed';
 
-    const shipment = this.props.shipment;
-    const actualPackDate = get(shipment, 'actual_pack_date');
-    const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date');
-    const actualPickupDate = get(shipment, 'actual_pickup_date');
-    const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date');
-    const actualDeliveryDate = get(shipment, 'actual_delivery_date');
-
-    let markedStatuses = ['scheduled'];
-    if (actualPackDate || today.isSameOrAfter(pmSurveyPlannedPackDate)) {
-      markedStatuses.push('packed');
-    }
-    if (actualPickupDate || today.isSameOrAfter(pmSurveyPlannedPickupDate, 'day')) {
-      markedStatuses.push('loaded');
-    }
-    if (
-      (actualPickupDate && today.isAfter(actualPickupDate, 'day')) ||
-      today.isAfter(pmSurveyPlannedPickupDate, 'day')
-    ) {
-      markedStatuses.push('in_transit');
-    }
-    if (actualDeliveryDate) {
-      markedStatuses.push('delivered');
-    }
+    const markedStatuses = this.determineCompletedAndCurrentStatuses(this.props.shipment);
 
     return (
       <div className="status_timeline">
