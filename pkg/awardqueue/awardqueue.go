@@ -111,6 +111,8 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 						aq.logger.Info("Shipment offered to TSP!",
 							zap.Int("quality_band", qb),
 							zap.Int("offer_count", tspPerformance.OfferCount))
+						span.AddField("quality_band", qb)
+						span.AddField("offer_count", tspPerformance.OfferCount)
 						foundAvailableTSP = true
 
 						// Award the shipment
