@@ -18,11 +18,10 @@ import (
 var qualityBands = []int{1, 2, 3, 4}
 
 // OffersPerQualityBand is a map of the number of shipments to be offered per round to each quality band
-// TODO: change these back to [5, 3, 2, 1] after the B&M pilot
 var OffersPerQualityBand = map[int]int{
-	1: 1,
-	2: 1,
-	3: 1,
+	1: 5,
+	2: 3,
+	3: 2,
 	4: 1,
 }
 
