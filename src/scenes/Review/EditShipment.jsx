@@ -1,26 +1,24 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import { get } from 'lodash';
 
-import { Field, reduxForm } from 'redux-form';
+import { Field, reduxForm, getFormValues } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
 import SaveCancelButtons from './SaveCancelButtons';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
 import { moveIsApproved } from 'scenes/Moves/ducks';
-import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
+import { updateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
 import './Review.css';
-import profileImage from './images/profile.png';
 import { selectShipment } from '../../shared/Entities/modules/shipments';
 
-const editShipmentFormName = 'edit_shipment';
-
 let EditShipmentForm = props => {
-  const { handleSubmit, submitting, valid, shipment } = props;
+  const { onSubmit, submitting, valid, shipment } = props;
   const moveID = get(shipment, 'move_id');
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={onSubmit}>
       {moveID && (
         <Fragment>
           <Field
@@ -30,8 +28,8 @@ let EditShipmentForm = props => {
             currentShipment={shipment}
             moveID={moveID}
           />
-          <div class="usa-grid">
-            <div class="usa-width-one-whole">
+          <div className="usa-grid">
+            <div className="usa-width-one-whole">
               <SaveCancelButtons valid={valid} submitting={submitting} />
             </div>
           </div>
@@ -40,6 +38,8 @@ let EditShipmentForm = props => {
     </form>
   );
 };
+
+const editShipmentFormName = 'edit_shipment';
 EditShipmentForm = reduxForm({ form: editShipmentFormName })(EditShipmentForm);
 
 class EditShipment extends Component {
@@ -50,7 +50,7 @@ class EditShipment extends Component {
   }
 
   render() {
-    const { error, schema, shipment, schemaAffiliation, schemaRank } = this.props;
+    const { error, shipment, schemaAffiliation, schemaRank, updateShipment, returnToReview } = this.props;
 
     return (
       <Fragment>
@@ -66,9 +66,8 @@ class EditShipment extends Component {
         <EditShipmentForm
           initialValues={shipment}
           shipment={shipment}
-          onSubmit={this.updateShipment}
-          onCancel={this.returnToReview}
-          schema={schema}
+          onSubmit={updateShipment}
+          onCancel={returnToReview}
           schemaRank={schemaRank}
           schemaAffiliation={schemaAffiliation}
         />
@@ -84,21 +83,47 @@ function mapStateToProps(state, ownProps) {
     move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
-    schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     moveIsApproved: moveIsApproved(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
+    formValues: getFormValues(editShipmentFormName)(state),
   };
 }
 
 const getShipmentLabel = 'EditShipment.getShipment';
+const updateShipmentLabel = 'EditShipment.updateShipment';
 function mapDispatchToProps(dispatch, ownProps) {
   const shipmentID = ownProps.match.params.shipmentId;
   return {
     onDidMount: function() {
       dispatch(getShipment(getShipmentLabel, shipmentID));
     },
+    updateShipment: function(values) {
+      dispatch(updateShipment(updateShipmentLabel, shipmentID, values)).then(function(action) {
+        if (!action.error) {
+          const moveID = Object.values(action.entities.shipments)[0].move_id;
+          dispatch(push(`/moves/${moveID}/review`));
+        }
+      });
+    },
+    returnToReview: function(moveID) {
+      dispatch(push(`/moves/${moveID}/review`));
+    },
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditShipment);
+function mergeProps(stateProps, dispatchProps, ownProps) {
+  return Object.assign({}, stateProps, dispatchProps, ownProps, {
+    updateShipment: function(event) {
+      event.preventDefault();
+      dispatchProps.updateShipment(stateProps.formValues);
+    },
+    returnToReview: function(event) {
+      event.preventDefault();
+      const moveID = stateProps.shipment.move_id;
+      dispatchProps.returnToReview(moveID);
+    },
+  });
+}
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(EditShipment);
