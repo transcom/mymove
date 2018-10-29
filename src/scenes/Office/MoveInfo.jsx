@@ -47,10 +47,10 @@ import {
   approveHHG,
   completeHHG,
   cancelMove,
-  patchShipment,
   sendHHGInvoice,
   resetMove,
 } from './ducks';
+import { patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
