@@ -106,6 +106,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
 	flag.String("http-dps-server-name", "dpslocal", "Hostname according to environment.")
+	flag.String("http-sddc-server-name", "localhost", "Hostname according to envrionment.")
 
 	// Initialize Swagger
 	flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")

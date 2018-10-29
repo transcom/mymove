@@ -60,5 +60,6 @@ func (h DPSAuthCookieHandler) Handle(params dps_auth.SetDPSAuthCookieParams) mid
 
 	cookie.Name = cookieName
 	cookie.Domain = ".sddc.army.mil"
+	cookie.Path = "/"
 	return NewSetDPSAuthCookieOKResponder(*cookie)
 }
