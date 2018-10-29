@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -253,9 +254,26 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 
+	// And: the Orders are missing required data
+	shipment.Move.Orders.TAC = nil
+	suite.MustSave(&shipment.Move.Orders)
+
 	// And: the create gbl handler is called
 	handler := CreateGovBillOfLadingHandler{context}
 	response := handler.Handle(params)
+
+	// Then: expect a 417 status code
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
+	suite.Assertions.Equal(http.StatusExpectationFailed, errResponse.Code)
+
+	// When: the Orders have all required data
+	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
+	suite.MustSave(&shipment.Move.Orders)
+
+	// And: the create gbl handler is called
+	handler = CreateGovBillOfLadingHandler{context}
+	response = handler.Handle(params)
 
 	// Then: expect a 200 status code
 	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingCreated{}, response)
@@ -265,7 +283,9 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code
-	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingBadRequest{}, response)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse = response.(*handlers.ErrResponse)
+	suite.Assertions.Equal(http.StatusBadRequest, errResponse.Code)
 
 	// When: an unauthed TSP user hits the handler
 	req = suite.AuthenticateTspRequest(req, unauthedTSPUser)
