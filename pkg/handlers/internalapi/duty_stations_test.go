@@ -1,11 +1,11 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"net/http/httptest"
 
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -48,11 +48,11 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 
 	// Make sure the context contains the auth values
 	session := &server.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: server.MyApp,
 		UserID:          user.ID,
 		IDToken:         "fake token",
 	}
-	ctx := auth.SetSessionInRequestContext(req, session)
+	ctx := server.SetSessionInRequestContext(req, session)
 
 	newSearchParams := stationop.SearchDutyStationsParams{
 		HTTPRequest: req.WithContext(ctx),

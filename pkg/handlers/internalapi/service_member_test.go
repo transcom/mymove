@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/server"
 	"net/http"
 	"net/http/httptest"
 
@@ -9,11 +10,11 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	userServices "github.com/transcom/mymove/pkg/services/user"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -121,7 +122,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	user := testdatagen.MakeDefaultUser(suite.TestDB())
 	session := &server.Session{
 		UserID:          user.ID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: server.MyApp,
 	}
 
 	// When: a new ServiceMember is posted
@@ -158,7 +159,9 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
 
 	session.ServiceMemberID = serviceMemberID
-	serviceMember, err := models.FetchServiceMemberForUser(suite.TestDB(), session, serviceMemberID)
+	// For Now - this should all use stubbed out services
+	serviceMemberDB := models.NewServiceMemberDB(suite.TestDB())
+	serviceMember, err := userServices.NewFetchServiceMemberService(serviceMemberDB).Execute(session, serviceMemberID)
 	suite.Assertions.NoError(err)
 
 	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))

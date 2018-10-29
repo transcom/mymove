@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	req = suite.AuthenticateRequest(req, serviceMember)
 	params.HTTPRequest = req
 
-	handler := CreateDocumentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateDocumentHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	req = suite.AuthenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := ShowDocumentHandler{context}

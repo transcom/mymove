@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
-	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveMoveHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -74,7 +74,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: move handler is hit
-	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveMoveHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	// Then: expect a 400 status code
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is approved
-	handler := ApproveMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveMoveHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	// Then: response is Forbidden
@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	}
 
 	// And: a move is canceled
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := CancelMoveHandler{context}
 	response := handler.Handle(params)
@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 		CancelMove:  reasonPayload,
 	}
 	// And: a move is canceled
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := CancelMoveHandler{context}
 	response := handler.Handle(params)
@@ -204,7 +204,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	}
 
 	// And: a ppm is approved
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := ApprovePPMHandler{context}
 	response := handler.Handle(params)
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	}
 
 	// And: a ppm is approved
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	context.SetNotificationSender(suite.TestNotificationSender())
 	handler := ApprovePPMHandler{context}
 	response := handler.Handle(params)
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	}
 
 	// And: a reimbursement is approved
-	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveReimbursementHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -280,7 +280,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	}
 
 	// And: a reimbursement is approved
-	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveReimbursementHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	// Then: expect Forbidden response

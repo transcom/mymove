@@ -56,8 +56,11 @@ func TestAuthSuite(t *testing.T) {
 }
 
 func fakeLoginGovProvider(logger *zap.Logger) *LoginGovProvider {
-	provider, _ := NewLoginGovProvider(&LoginGovConfig{Host: "fakeHostname", Secret: "secret_key"}, &server.HostsConfig{}, logger)
-	return provider
+	return &LoginGovProvider{
+		"fakeHostname",
+		"secret_key",
+		logger,
+	}
 }
 
 func (suite *AuthSuite) TestGenerateNonce() {
@@ -80,17 +83,17 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 		TspName:    "tsp.move.host",
 	}
 	loginGovConfig := LoginGovConfig{
-		Host: "login.gov",
+		Host:             "login.gov",
+		CallbackProtocol: "https://",
+		CallbackPort:     "1234",
 	}
-	callbackPort := "1234"
-
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
 	req, err := http.NewRequest("GET", "/auth/logout", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.Host = hostsConfig.MyName
+	req.Host = hostsConfig.OfficeName
 	session := server.Session{UserID: fakeUUID, IDToken: fakeToken}
 	ctx := server.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
@@ -114,8 +117,9 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
 
 	suite.Nil(err)
+	suite.logger.Info(postRedirectURI.String())
 	suite.Equal(hostsConfig.OfficeName, postRedirectURI.Hostname())
-	suite.Equal(callbackPort, postRedirectURI.Port())
+	suite.Equal(loginGovConfig.CallbackPort, postRedirectURI.Port())
 	token := params["id_token_hint"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
 }

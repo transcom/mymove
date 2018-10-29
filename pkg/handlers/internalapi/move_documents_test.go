@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler{context}
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateMoveDocumentHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
@@ -218,7 +218,7 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateMoveDocumentHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response

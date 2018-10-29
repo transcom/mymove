@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateMovingExpenseDocumentHandler{context}

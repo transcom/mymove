@@ -4,10 +4,22 @@ import (
 	"net/http/httptest"
 
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	userServices "github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+func (suite *HandlerSuite) getLoggedInUserHandler() userop.ShowLoggedInUserHandler {
+	serviceMemberDB := models.NewServiceMemberDB(suite.TestDB())
+	smFetcher := userServices.NewFetchServiceMemberService(serviceMemberDB)
+	params := ShowLoggedInUserHandlerParams{
+		Db:                 suite.TestDB(),
+		Logger:             suite.TestLogger(),
+		FetchServiceMember: smFetcher,
+	}
+	return NewShowLoggedInUserHandler(params)
+
+}
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	unknownUser := testdatagen.MakeDefaultUser(suite.TestDB())
@@ -15,11 +27,11 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateUserRequest(req, unknownUser)
 
+	handler := suite.getLoggedInUserHandler()
+
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 
@@ -39,11 +51,10 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
+	handler := suite.getLoggedInUserHandler()
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 
@@ -69,11 +80,10 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
+	handler := suite.getLoggedInUserHandler()
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 

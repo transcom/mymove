@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 
 	params.HTTPRequest = suite.AuthenticateRequest(req, serviceMember)
 
-	handler := CreateBackupContactHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateBackupContactHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	_, ok := response.(*contactop.CreateServiceMemberBackupContactCreated)
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := IndexBackupContactsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := IndexBackupContactsHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.IndexServiceMemberBackupContactsOK)
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := IndexBackupContactsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := IndexBackupContactsHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	errResponse := response.(*handlers.ErrResponse)
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := ShowBackupContactHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ShowBackupContactHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.ShowServiceMemberBackupContactOK)
@@ -149,7 +149,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := ShowBackupContactHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ShowBackupContactHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	errResponse := response.(*handlers.ErrResponse)
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := UpdateBackupContactHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateBackupContactHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.UpdateServiceMemberBackupContactCreated)
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := UpdateBackupContactHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateBackupContactHandler{suite.HandlerContextWithServices()}
 	response := handler.Handle(params)
 
 	errResponse := response.(*handlers.ErrResponse)
