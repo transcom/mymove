@@ -19,7 +19,7 @@ import (
 
 func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
@@ -59,7 +59,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	})
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(suite.ctx, shipment)
+	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
 
 	expectedError := "could not find a TSP without blackout dates"
 	// See if shipment was offered
@@ -72,7 +72,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	tsp := testdatagen.MakeDefaultTSP(suite.db)
 
@@ -126,7 +126,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	})
 
 	// Run the Award Queue
-	queue.assignShipments(suite.ctx)
+	queue.assignShipments(context.Background())
 
 	shipmentOffer := models.ShipmentOffer{}
 	query := suite.db.Where("shipment_id = $1", shipment.ID)
@@ -169,7 +169,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 	// Creates a TSP with a blackout date connected to both.
 	testTSP1 := testdatagen.MakeDefaultTSP(suite.db)
 
@@ -253,7 +253,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 
 func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 	_, err := queue.findAllUnassignedShipments()
 
 	if err != nil {
@@ -265,7 +265,7 @@ func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
 // it actually gets offered.
 func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment
 	market := testdatagen.DefaultMarket
@@ -292,7 +292,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	suite.Nil(err)
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(suite.ctx, shipment)
+	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
 
 	// See if shipment was offered
 	if err != nil {
@@ -317,7 +317,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 // any enabled TSPs.
 func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
 	market := "dHHG"
@@ -351,7 +351,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	suite.Nil(err)
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(suite.ctx, shipment)
+	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
 
 	// See if shipment was offered
 	if err == nil {
@@ -364,7 +364,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 
 func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	const shipmentsToMake = 10
 
@@ -398,7 +398,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
-	queue.assignShipments(suite.ctx)
+	queue.assignShipments(context.Background())
 
 	// Count the number of shipments offered to our TSP
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
@@ -428,7 +428,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 
 	suite.db.TruncateAll()
 
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	const shipmentsToMake = 17
 
@@ -470,7 +470,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
-	queue.assignShipments(suite.ctx)
+	queue.assignShipments(context.Background())
 
 	// TODO: revert to [6, 5, 3, 2, 1] after the B&M pilot
 	suite.verifyOfferCount(tsp1, 4)
@@ -513,7 +513,7 @@ func (suite *AwardQueueSuite) Test_GetTSPsPerBandNoRemainder() {
 
 func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 	tspsToMake := 5
 
 	tdl := testdatagen.MakeDefaultTDL(suite.db)
@@ -531,7 +531,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		}
 	}
 
-	err := queue.assignPerformanceBands(suite.ctx)
+	err := queue.assignPerformanceBands(context.Background())
 
 	if err != nil {
 		t.Errorf("Failed to assign to performance bands: %v", err)
@@ -566,7 +566,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 // rate cycles get awarded shipments appropriately
 func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.ctx, suite.db, suite.logger)
+	queue := NewAwardQueue(suite.db, suite.logger)
 	sm := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	twoMonths, _ := time.ParseDuration("2 months")
@@ -650,7 +650,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		t.Error(err)
 	}
 
-	queue.assignShipments(suite.ctx)
+	queue.assignShipments(context.Background())
 
 	suite.verifyOfferCount(tspPeak, 1)
 	suite.verifyOfferCount(tspNonPeak, 1)
@@ -698,12 +698,13 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 }
 
 func (suite *AwardQueueSuite) Test_waitForLock() {
+	ctx := context.Background()
 	ret := make(chan int)
 	lockID := 1
 
 	go func() {
 		suite.db.Transaction(func(tx *pop.Connection) error {
-			suite.Nil(waitForLock(suite.ctx, tx, lockID))
+			suite.Nil(waitForLock(ctx, tx, lockID))
 			time.Sleep(time.Second)
 			ret <- 1
 			return nil
@@ -713,7 +714,7 @@ func (suite *AwardQueueSuite) Test_waitForLock() {
 	go func() {
 		suite.db.Transaction(func(tx *pop.Connection) error {
 			time.Sleep(time.Millisecond * 500)
-			suite.Nil(waitForLock(suite.ctx, tx, lockID))
+			suite.Nil(waitForLock(ctx, tx, lockID))
 			ret <- 2
 			return nil
 		})
@@ -740,7 +741,6 @@ func equalSlice(a []int, b []int) bool {
 
 type AwardQueueSuite struct {
 	suite.Suite
-	ctx    context.Context
 	db     *pop.Connection
 	logger *zap.Logger
 }

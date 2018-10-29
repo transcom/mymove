@@ -42,9 +42,8 @@ func main() {
 		log.Panic(err)
 	}
 
-	var ctx context.Context
-	awardQueue := awardqueue.NewAwardQueue(ctx, dbConnection, logger)
-	err = awardQueue.Run()
+	awardQueue := awardqueue.NewAwardQueue(dbConnection, logger)
+	err = awardQueue.Run(context.Background())
 	if err != nil {
 		log.Panic(err)
 	}

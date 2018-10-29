@@ -23,6 +23,10 @@
   ],
   "environment": [
     {
+      "name": "SERVICE_NAME",
+      "value": "app"
+    },
+    {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
     },
