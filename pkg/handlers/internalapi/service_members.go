@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 
@@ -13,12 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(db *pop.Connection, storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 	var dutyStationPayload *internalmessages.DutyStationPayload
 	dutyStationPayload = payloadForDutyStationModel(serviceMember.DutyStation)
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
-		orderPayload, _ := payloadForOrdersModel(storer, order)
+		orderPayload, _ := payloadForOrdersModel(db, storer, order)
 		orders[i] = orderPayload
 	}
 
@@ -136,7 +137,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.DB(), h.FileStorer(), newServiceMember)
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), h.Logger(), responder)
 }
@@ -156,7 +157,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.DB(), h.FileStorer(), serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -183,7 +184,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.DB(), h.FileStorer(), serviceMember)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -288,7 +289,7 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	orderPayload, err := payloadForOrdersModel(h.DB(), h.FileStorer(), order)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

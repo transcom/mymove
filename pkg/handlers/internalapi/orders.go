@@ -4,7 +4,9 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
+
 	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -13,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
+func payloadForOrdersModel(db *pop.Connection, storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
 	documentPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
 		return nil, err
@@ -21,7 +23,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 
 	var moves internalmessages.IndexMovesPayload
 	for _, move := range order.Moves {
-		payload, err := payloadForMoveModel(storer, order, move)
+		payload, err := payloadForMoveModel(db, storer, order, move)
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +115,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
+	orderPayload, err := payloadForOrdersModel(h.DB(), h.FileStorer(), newOrder)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -135,7 +137,7 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	orderPayload, err := payloadForOrdersModel(h.DB(), h.FileStorer(), order)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -193,7 +195,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	orderPayload, err := payloadForOrdersModel(h.DB(), h.FileStorer(), order)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

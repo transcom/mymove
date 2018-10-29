@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
@@ -18,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
+func payloadForMoveModel(db *pop.Connection, storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
 	var ppmPayloads internalmessages.IndexPersonallyProcuredMovePayload
 	for _, ppm := range move.PersonallyProcuredMoves {
@@ -36,7 +37,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 	var shipmentPayloads []*internalmessages.Shipment
 	for _, shipment := range move.Shipments {
-		payload := payloadForShipmentModel(shipment)
+		payload := payloadForShipmentModel(db, shipment)
 		shipmentPayloads = append(shipmentPayloads, payload)
 	}
 
@@ -77,7 +78,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		}
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
+	movePayload, err := payloadForMoveModel(h.DB(), h.FileStorer(), orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -107,7 +108,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
+	movePayload, err := payloadForMoveModel(h.DB(), h.FileStorer(), orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -150,7 +151,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
+	movePayload, err := payloadForMoveModel(h.DB(), h.FileStorer(), orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -198,7 +199,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run()
 	}
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+	movePayload, err := payloadForMoveModel(h.DB(), h.FileStorer(), move.Orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -220,7 +221,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	summary, err := models.CalculateMoveDates(h.DB(), *transitDistance, move, moveDate)
+	summary, err := models.CalculateMoveDates(h.DB(), transitDistance, move, moveDate, nil, nil)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

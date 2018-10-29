@@ -94,7 +94,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember),
+		ServiceMember: payloadForServiceMemberModel(h.DB(), h.FileStorer(), serviceMember),
 	}
 	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 }

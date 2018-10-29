@@ -52,7 +52,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 
 	// TODO: Save and/or update the move association status' (PPM, Reimbursement, Orders) a la Cancel handler
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+	movePayload, err := payloadForMoveModel(h.DB(), h.FileStorer(), move.Orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -101,7 +101,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+	movePayload, err := payloadForMoveModel(h.DB(), h.FileStorer(), move.Orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

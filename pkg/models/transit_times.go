@@ -162,17 +162,17 @@ var domesticTransitTimes = []domesticTransitTime{
 }
 
 // TransitDays returns the number of days it will take to move the specified weight of goods the specified distance.
-func TransitDays(weight unit.Pound, miles int) (int, error) {
+func TransitDays(weight unit.Pound, miles int) (int64, error) {
 	pounds := weight.Int()
 	for _, tt := range domesticTransitTimes {
 		if tt.LowWeight <= pounds && tt.HighWeight >= pounds && tt.LowMiles <= miles && tt.HighMiles >= miles {
-			return tt.TransitTime, nil
+			return int64(tt.TransitTime), nil
 		}
 	}
-	return 0, errors.Errorf("Could not find transit time for %d lbs and %d miles", pounds, miles)
+	return int64(0), errors.Errorf("Could not find transit time for %d lbs and %d miles", pounds, miles)
 }
 
 // PackDays returns the number of days it will take to pack the given weight.
-func PackDays(weight unit.Pound) int {
-	return int(math.Ceil(float64(weight) / float64(PoundsPackedPerDay)))
+func PackDays(weight unit.Pound) int64 {
+	return int64(math.Ceil(float64(weight) / float64(PoundsPackedPerDay)))
 }

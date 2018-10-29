@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
@@ -19,7 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
-func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
+func payloadForShipmentModel(db *pop.Connection, s models.Shipment) *internalmessages.Shipment {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
 	// TODO: closely match the database structure.
@@ -36,7 +37,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
-		summary, _ := models.CalculateMoveDatesFromShipment(&s)
+		summary, _ := models.CalculateMoveDatesFromShipment(db, &s)
 
 		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
 			Pack:     handlers.FmtDateSlice(summary.PackDays),
@@ -179,7 +180,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(newShipment)
+	shipmentPayload := payloadForShipmentModel(h.DB(), newShipment)
 
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
@@ -214,12 +215,15 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 	if payload.RequestedPickupDate != nil {
 		shipment.RequestedPickupDate = (*time.Time)(payload.RequestedPickupDate)
 	}
-	if payload.EstimatedPackDays != nil {
-		shipment.EstimatedPackDays = payload.EstimatedPackDays
-	}
-	if payload.EstimatedTransitDays != nil {
-		shipment.EstimatedTransitDays = payload.EstimatedTransitDays
-	}
+	/*
+		// Very likely these are never going to be set by the client and so should not be allowed in a patch request
+		if payload.EstimatedPackDays != nil {
+			shipment.EstimatedPackDays = payload.EstimatedPackDays
+		}
+		if payload.EstimatedTransitDays != nil {
+			shipment.EstimatedTransitDays = payload.EstimatedTransitDays
+		}
+	*/
 	if payload.PickupAddress != nil {
 		if shipment.PickupAddress == nil {
 			shipment.PickupAddress = addressModelFromPayload(payload.PickupAddress)
@@ -317,7 +321,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(h.DB(), *shipment)
 
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
@@ -334,16 +338,14 @@ func updateShipmentDatesWithPayload(h handlers.HandlerContext, shipment *models.
 		return err
 	}
 
-	summary, err := models.CalculateMoveDates(h.DB(), *transitDistance, move, moveDate)
+	summary, err := models.CalculateMoveDates(h.DB(), transitDistance, move, moveDate, nil, nil)
 	if err != nil {
 		return nil
 	}
 
-	packDays := int64(len(summary.PackDays))
-	shipment.EstimatedPackDays = &packDays
-
-	transitDays := int64(len(summary.TransitDays))
-	shipment.EstimatedTransitDays = &transitDays
+	// Set the EstimatedPackDays and EstimatedTransitDays
+	shipment.EstimatedPackDays = &summary.EstimatedPackDays
+	shipment.EstimatedTransitDays = &summary.EstimatedTransitDays
 
 	deliveryDate := summary.DeliveryDays[0]
 	shipment.OriginalDeliveryDate = &deliveryDate
@@ -370,7 +372,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(h.DB(), *shipment)
 
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
@@ -404,7 +406,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(h.DB(), *shipment)
 
 	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
 }
@@ -437,7 +439,7 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload := payloadForShipmentModel(h.DB(), *shipment)
 
 	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
 }
