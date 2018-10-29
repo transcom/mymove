@@ -1384,7 +1384,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	/*
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
-	email := "hhg@gov_bill_of_lading.ready"
+	email := "hhg@govbilloflading.ready"
 
 	packDate := time.Now().AddDate(0, 0, 1)
 	pickupDate := time.Now().AddDate(0, 0, 5)
