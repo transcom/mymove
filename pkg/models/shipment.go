@@ -229,7 +229,7 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	if s.RequestedPickupDate != nil &&
 		(s.OriginalPackDate == nil || s.OriginalDeliveryDate == nil) {
 
-		summary, _ := CalculateMoveDatesFromShipment(tx, s)
+		summary, _ := CalculateMoveDatesFromShipment(tx, s, nil)
 
 		s.EstimatedPackDays = &summary.EstimatedPackDays
 		s.EstimatedTransitDays = &summary.EstimatedTransitDays

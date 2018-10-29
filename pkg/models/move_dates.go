@@ -75,14 +75,14 @@ func CalculateMoveDates(db *pop.Connection, transitDistance *int, move *Move, mo
 }
 
 // CalculateMoveDatesFromShipment will calculate the MoveDatesSummary given a Shipment object
-func CalculateMoveDatesFromShipment(db *pop.Connection, shipment *Shipment) (MoveDatesSummary, error) {
+func CalculateMoveDatesFromShipment(db *pop.Connection, shipment *Shipment, transitDistance *int) (MoveDatesSummary, error) {
 	// Error checking
 	if shipment.RequestedPickupDate == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
 	}
 
 	moveDate := time.Time(*shipment.RequestedPickupDate)
-	return CalculateMoveDates(db, nil, &shipment.Move, moveDate, shipment.EstimatedPackDays, shipment.EstimatedTransitDays)
+	return CalculateMoveDates(db, transitDistance, &shipment.Move, moveDate, shipment.EstimatedPackDays, shipment.EstimatedTransitDays)
 }
 
 func createFutureMoveDates(startDate time.Time, numDays int64, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {

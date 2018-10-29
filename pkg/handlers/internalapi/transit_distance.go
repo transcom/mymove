@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,19 +8,14 @@ import (
 )
 
 // TransitDistance gets the transit distance from a move ID and planner
-func TransitDistance(db *pop.Connection, moveID uuid.UUID, planner route.Planner) (*models.Move, *int, error) {
-	// FetchMoveForMoveDates will get all the required associations used below.
-	move, err := models.FetchMoveForMoveDates(db, moveID)
-	if err != nil {
-		return nil, nil, err
-	}
+func TransitDistance(move *models.Move, planner route.Planner) (*int, error) {
 
 	// Error if addresses are missing
 	if move.Orders.ServiceMember.DutyStation.Address == (models.Address{}) {
-		return nil, nil, errors.New("DutyStation must have an address")
+		return nil, errors.New("DutyStation must have an address")
 	}
 	if move.Orders.NewDutyStation.Address == (models.Address{}) {
-		return nil, nil, errors.New("NewDutyStation must have an address")
+		return nil, errors.New("NewDutyStation must have an address")
 	}
 
 	var source = move.Orders.ServiceMember.DutyStation.Address
@@ -31,7 +24,7 @@ func TransitDistance(db *pop.Connection, moveID uuid.UUID, planner route.Planner
 	// Get the transit distance
 	transitDistance, err := planner.TransitDistance(&source, &destination)
 	if err != nil {
-		return &move, nil, err
+		return nil, err
 	}
-	return &move, &transitDistance, nil
+	return &transitDistance, nil
 }
