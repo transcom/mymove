@@ -652,42 +652,6 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 }
 
-// TestPackShipmentHandler tests the api endpoint that transports a shipment
-func (suite *HandlerSuite) TestPackShipmentHandler() {
-	numTspUsers := 1
-	numShipments := 1
-	numShipmentOfferSplit := []int{1}
-	status := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
-	suite.NoError(err)
-
-	tspUser := tspUsers[0]
-	shipment := shipments[0]
-
-	// Handler to Test
-	handler := PackShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-
-	// Test query with first user
-	path := fmt.Sprintf("/shipments/%s/transport", shipment.ID.String())
-	req := httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	actualPackDate := time.Now()
-	body := apimessages.ActualPackDate{
-		ActualPackDate: handlers.FmtDatePtr(&actualPackDate),
-	}
-	params := shipmentop.PackShipmentParams{
-		HTTPRequest: req,
-		ShipmentID:  *handlers.FmtUUID(shipment.ID),
-		Payload:     &body,
-	}
-
-	response := handler.Handle(params)
-	suite.Assertions.IsType(&shipmentop.PackShipmentOK{}, response)
-	okResponse := response.(*shipmentop.PackShipmentOK)
-	suite.Equal("APPROVED", string(okResponse.Payload.Status))
-	suite.Equal(actualPackDate, time.Time(*okResponse.Payload.ActualPackDate))
-}
-
 // TestTransportShipmentHandler tests the api endpoint that transports a shipment
 func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	numTspUsers := 1
