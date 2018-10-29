@@ -23,7 +23,7 @@ import ExpensesPanel from './Ppm/ExpensesPanel';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
-import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
+import Weights from 'shared/ShipmentWeights';
 import ServiceAgents from './ServiceAgents';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
@@ -93,7 +93,7 @@ const HHGTabContent = props => {
       <RoutingPanel title="Routing" moveId={props.moveId} />
       <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
       <LocationsPanel title="Locations" moveId={props.moveId} />
-      <WeightAndInventoryPanel title="Weight & Inventory" moveId={props.moveId} />
+      <Weights title="Weights & Items" shipment={props.officeShipment} update={props.patchShipment} />
       {props.officeShipment && (
         <PremoveSurvey
           title="Premove Survey"
