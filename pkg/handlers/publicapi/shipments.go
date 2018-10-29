@@ -574,8 +574,6 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	// Don't allow GBL generation for shipments that already have a GBL move document
 	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
 	if len(extantGBLS) > 0 {
-		// h.Logger().Error("There are already GBLs for this shipment.")
-		// return shipmentop.NewCreateGovBillOfLadingBadRequest()
 		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("there is already a Bill of Lading for this shipment"), http.StatusBadRequest)
 	}
 

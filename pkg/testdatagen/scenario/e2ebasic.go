@@ -1413,7 +1413,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			PersonalEmail: models.StringPointer(email),
 		},
 		Order: models.Order{
-			DepartmentIndicator: models.StringPointer("17"),
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("NTA4"),
 			SAC:                 models.StringPointer("1234567890 9876543210"),
 		},

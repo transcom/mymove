@@ -229,15 +229,9 @@ func (o *Order) IsComplete() bool {
 	return true
 }
 
-// IsCompleteForGBL checks if orders have all fields necessary to approve a move
+// IsCompleteForGBL checks if orders have all fields necessary to generate a GBL
 func (o *Order) IsCompleteForGBL() bool {
 
-	if o.OrdersNumber == nil {
-		return false
-	}
-	if o.OrdersTypeDetail == nil {
-		return false
-	}
 	if o.DepartmentIndicator == nil {
 		return false
 	}
