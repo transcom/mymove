@@ -129,6 +129,10 @@
     {
       "name": "NEW_RELIC_LICENSE_KEY",
       "value": "{{ .NEW_RELIC_LICENSE_KEY }}"
+    },
+    {
+      "name": "DOD_CA_PACKAGE",
+      "value": "/config/Certificates_PKCS7_v5.4_DoD.der.p7b"
     }
   ],
   "logConfiguration": {
