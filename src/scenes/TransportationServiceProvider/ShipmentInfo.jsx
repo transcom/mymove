@@ -59,7 +59,7 @@ import PickupForm from './PickupForm';
 import './tsp.css';
 
 const attachmentsErrorMessages = {
-  400: 'An error occured',
+  400: 'An error occurred',
   417: 'Missing data required to generate a Bill of Lading.',
 };
 
