@@ -19,10 +19,23 @@ describe('completing the hhg flow', function() {
     cy.get('button.next').should('be.disabled');
 
     // Calendar move date
+
+    // Try to get today, which should be disabled even after clicked.  We may have to go back a month
+    // to find today since the calendar scrolls to the month with the first available move date.
     cy
-      .get('.DayPicker-Day--today') // gets today, which should be disabled even after clicked
-      .click()
-      .should('have.class', 'DayPicker-Day--disabled');
+      .get('body')
+      .then($body => {
+        if ($body.find('.DayPicker-Day--today').length === 0) {
+          cy.get('.DayPicker-NavButton--prev').click();
+        }
+      })
+      .then(() => {
+        cy
+          .get('.DayPicker-Day--today')
+          .first()
+          .click()
+          .should('have.class', 'DayPicker-Day--disabled');
+      });
 
     // We may or may not have an available date in the current month.  If not, then
     // we skip to the next month which should (at least at this point) have an available

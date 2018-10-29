@@ -11,6 +11,14 @@ import (
 
 const alphanumericBytes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
+const defaultTspName = "Truss Transport LLC"
+const defaultPocGeneralName = "Joey Joe-Joe Schabadoo"
+const defaultPocGeneralEmail = "joey.j@example.com"
+const defaultPocGeneralPhone = "(555) 101-0101"
+const defaultPocClaimsName = "Art Vandelay"
+const defaultPocClaimsEmail = "vandelay.ind@example.com"
+const defaultPocClaimsPhone = "(555) 321-4321"
+
 // RandomSCAC generates a random 4 figure string from allowed alphanumeric bytes to represent the SCAC.
 func RandomSCAC() string {
 	b := make([]byte, 4)
@@ -28,9 +36,51 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 		scac = RandomSCAC()
 	}
 
+	name := assertions.TransportationServiceProvider.Name
+	if name == nil {
+		name = stringPointer(defaultTspName)
+	}
+
+	pocGeneralName := assertions.TransportationServiceProvider.PocGeneralName
+	if pocGeneralName == nil {
+		pocGeneralName = stringPointer(defaultPocGeneralName)
+	}
+
+	pocGeneralEmail := assertions.TransportationServiceProvider.PocGeneralEmail
+	if pocGeneralEmail == nil {
+		pocGeneralEmail = stringPointer(defaultPocGeneralEmail)
+	}
+
+	pocGeneralPhone := assertions.TransportationServiceProvider.PocGeneralPhone
+	if pocGeneralPhone == nil {
+		pocGeneralPhone = stringPointer(defaultPocGeneralPhone)
+	}
+
+	pocClaimsName := assertions.TransportationServiceProvider.PocClaimsName
+	if pocClaimsName == nil {
+		pocClaimsName = stringPointer(defaultPocClaimsName)
+	}
+
+	pocClaimsEmail := assertions.TransportationServiceProvider.PocClaimsEmail
+	if pocClaimsEmail == nil {
+		pocClaimsEmail = stringPointer(defaultPocClaimsEmail)
+	}
+
+	pocClaimsPhone := assertions.TransportationServiceProvider.PocClaimsPhone
+	if pocClaimsPhone == nil {
+		pocClaimsPhone = stringPointer(defaultPocClaimsPhone)
+	}
+
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: scac,
 		Enrolled:                 assertions.TransportationServiceProvider.Enrolled,
+		Name:                     name,
+		PocGeneralName:           pocGeneralName,
+		PocGeneralEmail:          pocGeneralEmail,
+		PocGeneralPhone:          pocGeneralPhone,
+		PocClaimsName:            pocGeneralName,
+		PocClaimsEmail:           pocGeneralEmail,
+		PocClaimsPhone:           pocGeneralPhone,
 	}
 
 	verrs, err := db.ValidateAndCreate(&tsp)
@@ -56,6 +106,7 @@ func MakeDefaultTSP(db *pop.Connection) models.TransportationServiceProvider {
 // MakeTSPs creates numTSP number of TSP records
 // numTSP specifies how many TSPs to create
 func MakeTSPs(db *pop.Connection, numTSP int) {
+
 	for i := 0; i < numTSP; i++ {
 		MakeTSP(db, Assertions{
 			TransportationServiceProvider: models.TransportationServiceProvider{

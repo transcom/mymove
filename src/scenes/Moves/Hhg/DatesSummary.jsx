@@ -1,41 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import moment from 'moment';
 import { get, isNil } from 'lodash';
 
+import { displayDateRange } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-
-import './DatesSummary.css';
-
-// TODO: move these shared functions when known where they should go
-const formatDate = (date, formatType) => {
-  let format = '';
-  switch (formatType) {
-    case 'long':
-      format = 'ddd, MMM DD';
-      break;
-    case 'condensed':
-      format = 'MMM DD';
-      break;
-    default:
-      format = 'ddd, MMM DD';
-  }
-  if (date) {
-    return moment(date).format(format);
-  }
-};
-
-export const displayDateRange = (dates, formatType) => {
-  let span = '';
-  let firstDate = '';
-  if (dates.length > 1) {
-    span = ` - ${formatDate(dates[dates.length - 1], formatType)}`;
-  }
-  if (dates.length >= 1) {
-    firstDate = formatDate(dates[0], formatType);
-  }
-  return firstDate + span;
-};
 
 export class DatesSummary extends Component {
   render() {

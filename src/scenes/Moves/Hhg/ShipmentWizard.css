@@ -63,3 +63,7 @@
   padding-top: 0.5rem;
   color: gray;
 }
+
+.shipment-wizard .DayPicker-wrapper {
+  font-size: 1.3rem;
+}

@@ -6,11 +6,18 @@ export function fillAndSavePreApprovalRequest() {
     .contains('Add a request')
     .click();
 
+  // Verify tariff items that don't require approval are not loaded into drop down
+  cy
+    .get('.tariff400-select #react-select-2-input')
+    .first()
+    .type('Linehaul Transportation{downarrow}{enter}', { force: true, delay: 150 });
+  cy.get('.tariff400__single-value').should('not.exist');
+
   //  Enter details in form and create pre approval request
   cy
     .get('.tariff400-select #react-select-2-input')
     .first()
-    .type('Article{downarrow}{enter}', { force: true, delay: 150 });
+    .type('{selectall}{backspace}Article{downarrow}{enter}', { force: true, delay: 150 });
 
   cy.get('select[name="location"]').select('ORIGIN');
 

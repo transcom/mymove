@@ -5,10 +5,10 @@ import PreApprovalTable from './PreApprovalTable';
 describe('PreApprovalTable tests', () => {
   let wrapper;
   const onEdit = jest.fn();
-  const shipmentAccessorials = [
+  const shipmentLineItems = [
     {
       id: 'sldkjf',
-      accessorial: { code: '105D', item: 'Reg Shipping' },
+      tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 167000,
       notes: '',
@@ -17,7 +17,7 @@ describe('PreApprovalTable tests', () => {
     },
     {
       id: 'sldsdff',
-      accessorial: { code: '105D', item: 'Reg Shipping' },
+      tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 788300,
       notes: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
@@ -25,11 +25,11 @@ describe('PreApprovalTable tests', () => {
       status: 'SUBMITTED',
     },
   ];
-  describe('When shipmentAccessorials exist', () => {
+  describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalTable
-          shipmentAccessorials={shipmentAccessorials}
+          shipmentLineItems={shipmentLineItems}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
@@ -44,7 +44,7 @@ describe('PreApprovalTable tests', () => {
       const onActivation = jest.fn();
       wrapper = shallow(
         <PreApprovalTable
-          shipmentAccessorials={shipmentAccessorials}
+          shipmentLineItems={shipmentLineItems}
           onRequestActivation={onActivation}
           isActionable={true}
           onEdit={onEdit}
@@ -52,11 +52,11 @@ describe('PreApprovalTable tests', () => {
           onApproval={onEdit}
         />,
       );
-      wrapper.setState({ actionRequestId: shipmentAccessorials[0].id });
+      wrapper.setState({ actionRequestId: shipmentLineItems[0].id });
       const requests = wrapper.find('PreApprovalRequest');
       expect(requests.length).toEqual(2);
       requests.forEach(req => {
-        if (req.prop('shipmentLineItem').id === shipmentAccessorials[0].id) {
+        if (req.prop('shipmentLineItem').id === shipmentLineItems[0].id) {
           expect(req.prop('isActionable')).toBe(true);
         } else {
           expect(req.prop('isActionable')).toBe(false);

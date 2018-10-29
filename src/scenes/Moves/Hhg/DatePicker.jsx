@@ -73,12 +73,17 @@ export class HHGDatePicker extends Component {
   };
 
   componentDidUpdate(prevProps) {
+    const moveDateIsSavedDate =
+      get(this.props, 'currentShipment.requested_pickup_date') &&
+      this.props.currentShipment.requested_pickup_date === this.props.input.value;
     if (this.props.currentShipment !== prevProps.currentShipment && this.props.currentShipment.requested_pickup_date) {
-      this.props.getMoveDatesSummary(
-        getMoveDatesSummaryLabel,
-        this.props.moveID,
-        this.props.currentShipment.requested_pickup_date,
-      );
+      if (!moveDateIsSavedDate) {
+        this.props.getMoveDatesSummary(
+          getMoveDatesSummaryLabel,
+          this.props.moveID,
+          this.props.currentShipment.requested_pickup_date,
+        );
+      }
       this.setState({
         selectedDay: this.props.input.value || this.props.currentShipment.requested_pickup_date,
       });
@@ -100,12 +105,12 @@ export class HHGDatePicker extends Component {
       <div className="form-section hhg-date-picker">
         {availableMoveDates ? (
           <Fragment>
-            <div class="usa-grid">
+            <div className="usa-grid">
               <div className="usa-width-one-whole">
                 <h3 className="instruction-heading">Pick a moving date.</h3>
               </div>
             </div>
-            <div class="usa-grid">
+            <div className="usa-grid">
               <div className="usa-width-one-third">
                 <DayPicker
                   onDayClick={this.handleDayClick}
@@ -124,7 +129,7 @@ export class HHGDatePicker extends Component {
         ) : (
           <LoadingPlaceholder />
         )}
-        <div class="usa-grid">
+        <div className="usa-grid">
           <div className="usa-width-one-whole pack-days-notice">
             <p>Can't find a date that works? Talk with a move counselor in your local Transportation office (PPPO).</p>
             {entitlementSum ? (
@@ -154,8 +159,13 @@ HHGDatePicker.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveDate = ownProps.input.value || get(ownProps, 'currentShipment.requested_pickup_date');
-  const moveDates = selectMoveDatesSummary(state, ownProps.moveID, moveDate);
   const today = new Date().toISOString().split('T')[0];
+  const moveDateIsSavedDate =
+    get(ownProps, 'currentShipment.requested_pickup_date') &&
+    ownProps.currentShipment.requested_pickup_date === ownProps.input.value;
+  const moveDates = moveDateIsSavedDate
+    ? ownProps.currentShipment.move_dates_summary
+    : selectMoveDatesSummary(state, ownProps.moveID, moveDate);
   return {
     moveDates: moveDates,
     modifiers: createModifiers(moveDates),

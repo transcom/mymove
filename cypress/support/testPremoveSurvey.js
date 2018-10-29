@@ -1,12 +1,15 @@
 /* global cy, Cypress*/
-export function fillAndSavePremoveSurvey() {
+
+export function selectPreMoveSurveyPanel() {
   // Click on edit Premove Survey
   cy
     .get('.editable-panel-header')
     .contains('Premove')
     .siblings()
     .click();
+}
 
+export function fillAndSavePremoveSurvey() {
   // Enter details in form and save orders
   cy
     .get('input[name="survey.pm_survey_planned_pack_date"]')
@@ -66,6 +69,7 @@ export function fillAndSavePremoveSurvey() {
 }
 
 export function testPremoveSurvey() {
+  selectPreMoveSurveyPanel();
   fillAndSavePremoveSurvey();
 
   // Verify data has been saved in the UI
