@@ -225,6 +225,9 @@ export const SwaggerField = props => {
   if (required) {
     // eslint-disable-next-line security/detect-object-injection
     swaggerField[ALWAYS_REQUIRED_KEY] = true;
+  } else {
+    // eslint-disable-next-line security/detect-object-injection
+    swaggerField[ALWAYS_REQUIRED_KEY] = false;
   }
 
   return createSchemaField(
