@@ -300,9 +300,9 @@ func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
 }
 
 // NewAwardQueue creates a new AwardQueue
-func NewAwardQueue(db *pop.Connection, logger *zap.Logger) *AwardQueue {
+func NewAwardQueue(db *pop.Connection, logger *hnyzap.Logger) *AwardQueue {
 	return &AwardQueue{
 		db:     db,
-		logger: &hnyzap.Logger{Logger: logger},
+		logger: logger,
 	}
 }

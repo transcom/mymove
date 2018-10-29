@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -742,7 +743,7 @@ func equalSlice(a []int, b []int) bool {
 type AwardQueueSuite struct {
 	suite.Suite
 	db     *pop.Connection
-	logger *zap.Logger
+	logger *hnyzap.Logger
 }
 
 func (suite *AwardQueueSuite) SetupTest() {
@@ -762,6 +763,9 @@ func TestAwardQueueSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	hs := &AwardQueueSuite{db: db, logger: logger}
+	hs := &AwardQueueSuite{
+		db:     db,
+		logger: &hnyzap.Logger{Logger: logger},
+	}
 	suite.Run(t, hs)
 }

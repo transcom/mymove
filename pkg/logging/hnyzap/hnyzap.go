@@ -13,9 +13,41 @@ import (
 
 const fieldPrefix string = "logging"
 
-// Logger is a wrapped zap.Logger to extend zap logs into Honeycomb.
+// Logger is an embedded zap.Logger to extend zap logs into Honeycomb.
 type Logger struct {
 	*zap.Logger
+}
+
+// ZapFieldToHoneycombField converts a zap.Field in to a type supported by
+// Honeycomb (bool, number, string). Unsupported types will have a string value
+// of "unsupported field type"
+func ZapFieldToHoneycombField(zapField zap.Field) interface{} {
+	switch zapField.Type {
+	case zapcore.BoolType:
+		val := false
+		if zapField.Integer >= 1 {
+			val = true
+		}
+		return val
+	case zapcore.Float32Type:
+		return math.Float32frombits(uint32(zapField.Integer))
+	case zapcore.Float64Type:
+		return math.Float64frombits(uint64(zapField.Integer))
+	case zapcore.Int32Type:
+		return int32(zapField.Integer)
+	case zapcore.Int64Type:
+		return zapField.Integer
+	case zapcore.StringType:
+		return zapField.String
+	case zapcore.Uint32Type:
+		return uint32(zapField.Integer)
+	case zapcore.Uint64Type:
+		return uint64(zapField.Integer)
+	case zapcore.ErrorType:
+		return zapField.Interface.(error).Error()
+	default:
+		return "unsupported field type"
+	}
 }
 
 // LogToHoneycombSpan translates zap.Fields into fields supported by Honeycomb's
@@ -30,32 +62,8 @@ func LogToHoneycombSpan(ctx context.Context, level string, msg string, fields ..
 	span.AddField(fmt.Sprintf("%s.msg", fieldPrefix), msg)
 	for _, zapField := range fields {
 		fieldKey := fmt.Sprintf("%s.%s", fieldPrefix, zapField.Key)
-		switch zapField.Type {
-		case zapcore.BoolType:
-			val := false
-			if zapField.Integer >= 1 {
-				val = true
-			}
-			span.AddField(fieldKey, val)
-		case zapcore.Float32Type:
-			span.AddField(fieldKey, math.Float32frombits(uint32(zapField.Integer)))
-		case zapcore.Float64Type:
-			span.AddField(fieldKey, math.Float64frombits(uint64(zapField.Integer)))
-		case zapcore.Int64Type:
-			span.AddField(fieldKey, zapField.Integer)
-		case zapcore.Int32Type:
-			span.AddField(fieldKey, int32(zapField.Integer))
-		case zapcore.StringType:
-			span.AddField(fieldKey, zapField.String)
-		case zapcore.Uint64Type:
-			span.AddField(fieldKey, uint64(zapField.Integer))
-		case zapcore.Uint32Type:
-			span.AddField(fieldKey, uint32(zapField.Integer))
-		case zapcore.ErrorType:
-			span.AddField(fieldKey, zapField.Interface.(error).Error())
-		default:
-			span.AddField(fieldKey, "unsupported field type")
-		}
+		fieldValue := ZapFieldToHoneycombField(zapField)
+		span.AddField(fieldKey, fieldValue)
 	}
 }
 

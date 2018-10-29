@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/awardqueue"
+	"github.com/transcom/mymove/pkg/logging/hnyzap"
 )
 
 var logger *zap.Logger
@@ -31,6 +32,7 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
+	honeyZapLogger := hnyzap.Logger{Logger: logger}
 
 	// DB connection
 	err = pop.AddLookupPaths(*config)
@@ -42,7 +44,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	awardQueue := awardqueue.NewAwardQueue(dbConnection, logger)
+	awardQueue := awardqueue.NewAwardQueue(dbConnection, &honeyZapLogger)
 	err = awardQueue.Run(context.Background())
 	if err != nil {
 		log.Panic(err)

@@ -182,7 +182,9 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	err = move.Submit()
 	span.AddField("move-status", string(move.Status))
 	if err != nil {
-		h.Logger().Error("Failed to change move status to submit", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status)))
+		h.HoneyZapLogger().TraceError(ctx, "Failed to change move status to submit",
+			zap.String("move_id", moveID.String()),
+			zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
@@ -201,7 +203,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	if len(move.Shipments) > 0 {
-		go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run(ctx)
+		go awardqueue.NewAwardQueue(h.DB(), h.HoneyZapLogger()).Run(ctx)
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
