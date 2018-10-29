@@ -181,6 +181,16 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
+	// Cache the transit distance
+	if move.TransitDistance == nil {
+		transitDistance, err := TransitDistance(move, h.Planner())
+		if err != nil {
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+		// Save this value for access later
+		move.TransitDistance = transitDistance
+	}
+
 	// Transaction to save move and dependencies
 	verrs, err := models.SaveMoveDependencies(h.DB(), move)
 	if err != nil || verrs.HasAny() {
@@ -222,12 +232,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	transitDistance, err := TransitDistance(&move, h.Planner())
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	summary, err := models.CalculateMoveDates(h.DB(), transitDistance, &move, moveDate, nil, nil)
+	summary, err := models.CalculateMoveDates(h.DB(), &move, moveDate, nil, nil)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

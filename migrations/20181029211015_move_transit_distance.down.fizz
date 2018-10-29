@@ -1,0 +1,1 @@
+add_column("moves", "transit_distance", "integer", {"null": true})

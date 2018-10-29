@@ -37,7 +37,7 @@ func payloadForShipmentModel(db *pop.Connection, s models.Shipment) *internalmes
 
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
-		summary, _ := models.CalculateMoveDatesFromShipment(db, &s, nil)
+		summary, _ := models.CalculateMoveDatesFromShipment(db, &s)
 
 		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
 			Pack:     handlers.FmtDateSlice(summary.PackDays),
@@ -328,19 +328,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 func updateShipmentDatesWithPayload(h handlers.HandlerContext, shipment *models.Shipment, payload *internalmessages.Shipment) error {
 
-	// FetchMoveForMoveDates will get all the required associations used below.
-	move, err := models.FetchMoveForMoveDates(h.DB(), shipment.MoveID)
-	if err != nil {
-		return err
-	}
-
-	// Don't use &shipment.Move below because it won't have the needed associations
-	transitDistance, err := TransitDistance(&move, h.Planner())
-	if err != nil {
-		return err
-	}
-
-	summary, err := models.CalculateMoveDatesFromShipment(h.DB(), shipment, transitDistance)
+	summary, err := models.CalculateMoveDatesFromShipment(h.DB(), shipment)
 	if err != nil {
 		return nil
 	}

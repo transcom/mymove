@@ -53,6 +53,7 @@ type Move struct {
 	Status                  MoveStatus              `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
+	TransitDistance         *int                    `json:"transit_distance" db:"transit_distance"`
 }
 
 // Moves is not required by pop and may be deleted

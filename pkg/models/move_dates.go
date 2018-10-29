@@ -21,7 +21,7 @@ type MoveDatesSummary struct {
 }
 
 // CalculateMoveDates will calculate the MoveDatesSummary given a Move object
-func CalculateMoveDates(db *pop.Connection, transitDistance *int, move *Move, moveDate time.Time, estimatedPackDays *int64, estimatedTransitDays *int64) (MoveDatesSummary, error) {
+func CalculateMoveDates(db *pop.Connection, move *Move, moveDate time.Time, estimatedPackDays *int64, estimatedTransitDays *int64) (MoveDatesSummary, error) {
 	var summary MoveDatesSummary
 
 	if estimatedPackDays == nil || estimatedTransitDays == nil {
@@ -34,8 +34,8 @@ func CalculateMoveDates(db *pop.Connection, transitDistance *int, move *Move, mo
 			packDays := PackDays(entitlementWeight)
 			estimatedPackDays = &packDays
 		}
-		if estimatedTransitDays == nil && transitDistance != nil {
-			transitDays, err := TransitDays(entitlementWeight, *transitDistance)
+		if estimatedTransitDays == nil && move.TransitDistance != nil {
+			transitDays, err := TransitDays(entitlementWeight, *move.TransitDistance)
 			if err != nil {
 				return summary, err
 			}
@@ -75,14 +75,14 @@ func CalculateMoveDates(db *pop.Connection, transitDistance *int, move *Move, mo
 }
 
 // CalculateMoveDatesFromShipment will calculate the MoveDatesSummary given a Shipment object
-func CalculateMoveDatesFromShipment(db *pop.Connection, shipment *Shipment, transitDistance *int) (MoveDatesSummary, error) {
+func CalculateMoveDatesFromShipment(db *pop.Connection, shipment *Shipment) (MoveDatesSummary, error) {
 	// Error checking
 	if shipment.RequestedPickupDate == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
 	}
 
 	moveDate := time.Time(*shipment.RequestedPickupDate)
-	return CalculateMoveDates(db, transitDistance, &shipment.Move, moveDate, shipment.EstimatedPackDays, shipment.EstimatedTransitDays)
+	return CalculateMoveDates(db, &shipment.Move, moveDate, shipment.EstimatedPackDays, shipment.EstimatedTransitDays)
 }
 
 func createFutureMoveDates(startDate time.Time, numDays int64, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
