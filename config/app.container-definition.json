@@ -128,7 +128,7 @@
     },
     {
       "name": "DOD_CA_PACKAGE",
-      "value": "/config/Certificates_PKCS7_v5.4_DoD.der.p7b"
+      "value": "/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b"
     }
   ],
   "logConfiguration": {
