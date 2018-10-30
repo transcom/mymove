@@ -118,8 +118,7 @@ func (u *Uploader) DeleteUpload(upload *models.Upload) error {
 		return err
 	}
 
-	err := models.DeleteUpload(u.db, upload)
-	return err
+	return models.DeleteUpload(u.db, upload)
 }
 
 // Download fetches an Upload's file and stores it in a tempfile. The path to this

@@ -1279,7 +1279,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:da0718c0c9c4e7f11cf3c488d3c2784673b7966c2601c6e84f81d048b949af90"
+  digest = "1:d62da5b0854dc7008633ade4a6e72f94aa45df28a6710674783c52a6e90ff3fb"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -1294,7 +1294,7 @@
     "internal/gopathwalk",
   ]
   pruneopts = ""
-  revision = "bb28844c46df63910d88c11eb36098ce781adfa0"
+  revision = "6c7e314b6563ee0a4dc169c7ee9960e0b709c035"
 
 [[projects]]
   digest = "1:8c432632a230496c35a15cfdf441436f04c90e724ad99c8463ef0c82bbe93edb"
@@ -1374,7 +1374,6 @@
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/gobuffalo/pop",
     "github.com/gobuffalo/pop/soda",
-    "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/gofrs/uuid",
