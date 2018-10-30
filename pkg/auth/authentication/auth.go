@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
