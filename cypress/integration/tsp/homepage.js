@@ -4,10 +4,26 @@ describe('TSP Home Page', function() {
     Cypress.config('baseUrl', 'http://tsplocal:4000');
   });
   it('successfully loads when not logged in', function() {
-    // Logs out any users
-    cy.logout();
-    cy.visit('/');
-    cy.contains('tsp.move.mil');
-    cy.contains('Sign In');
+    tspUserLogsOut();
+    tspUserIsOnSignInPage();
+  });
+  it('tsp user is properly welcomed', function() {
+    tspUserIsWelcomed();
   });
 });
+
+function tspUserLogsOut() {
+  // Logs out any users
+  cy.logout();
+  cy.visit('/');
+}
+
+function tspUserIsOnSignInPage() {
+  cy.contains('tsp.move.mil');
+  cy.contains('Sign In');
+}
+
+function tspUserIsWelcomed() {
+  cy.signIntoTSP();
+  cy.get('strong').contains('Welcome, Leo');
+}
