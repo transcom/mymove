@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
@@ -33,13 +32,13 @@ var affiliationMap = map[models.ServiceMemberAffiliation]dpsmessages.Affiliation
 // Handle returns user information given an encrypted token
 func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	token := params.Token
-	smID, err := dpsauth.CookieToServiceMemberID(token)
+	loginGovID, err := dpsauth.CookieToLoginGovID(token)
 	if err != nil {
 		h.Logger().Error("Extracting user ID from token", zap.Error(err))
 		return dps.NewGetUserInternalServerError()
 	}
 
-	payload, err := getPayload(h.DB(), smID, h.IWSRealTimeBrokerService())
+	payload, err := getPayload(h.DB(), loginGovID, h.IWSRealTimeBrokerService())
 	if err != nil {
 		h.Logger().Error("Fetching user data from user ID", zap.Error(err))
 		return dps.NewGetUserInternalServerError()
@@ -48,19 +47,19 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	return dps.NewGetUserOK().WithPayload(payload)
 }
 
-func getPayload(db *pop.Connection, smID string, rbs iws.RealTimeBrokerService) (*dpsmessages.AuthenticationUserPayload, error) {
-	id, err := uuid.FromString(smID)
+func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerService) (*dpsmessages.AuthenticationUserPayload, error) {
+	userIdentity, err := models.FetchUserIdentity(db, loginGovID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Fetching user identity")
 	}
 
-	sm, err := models.FetchServiceMember(db, id)
+	if userIdentity.ServiceMemberID == nil {
+		return nil, errors.New("User is missing Service Member ID")
+	}
+
+	sm, err := models.FetchServiceMember(db, *userIdentity.ServiceMemberID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Fetching service member")
-	}
-	user, err := models.GetUser(db, sm.UserID)
-	if err != nil {
-		return nil, errors.Wrap(err, "Fetching user")
 	}
 
 	var affiliation *dpsmessages.Affiliation
@@ -80,12 +79,12 @@ func getPayload(db *pop.Connection, smID string, rbs iws.RealTimeBrokerService) 
 
 	payload := dpsmessages.AuthenticationUserPayload{
 		Affiliation:          affiliation,
-		Email:                user.LoginGovEmail,
+		Email:                userIdentity.Email,
 		FirstName:            *sm.FirstName,
 		MiddleName:           sm.MiddleName,
 		LastName:             *sm.LastName,
 		Suffix:               sm.Suffix,
-		LoginGovID:           strfmt.UUID(user.LoginGovUUID.String()),
+		LoginGovID:           strfmt.UUID(loginGovID),
 		SocialSecurityNumber: strfmt.SSN(ssn),
 		Telephone:            sm.Telephone,
 	}

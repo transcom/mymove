@@ -24,14 +24,14 @@ func (suite *dpsAuthSuite) SetupSuite() {
 func (suite *dpsAuthSuite) TestCookie() {
 	t := suite.T()
 	userID := uuid.Must(uuid.NewV4()).String()
-	cookie, err := ServiceMemberIDToCookie(userID)
+	cookie, err := LoginGovIDToCookie(userID)
 	if err != nil {
 		t.Error("Error generating cookie value from user ID", err)
 	}
 
 	// Mimic cookie being passed back in an API call via query param
 	escaped := url.QueryEscape(cookie)
-	userIDFromCookie, err := CookieToServiceMemberID(escaped)
+	userIDFromCookie, err := CookieToLoginGovID(escaped)
 	if err != nil {
 		t.Error("Error extracting user ID from cookie value", err)
 	}
