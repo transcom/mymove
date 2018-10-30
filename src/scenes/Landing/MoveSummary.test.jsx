@@ -29,7 +29,7 @@ describe('MoveSummary', () => {
       />,
     );
   };
-  describe('when a move is in canceled state', () => {
+  describe('when a ppm move is in canceled state', () => {
     it('renders cancel content', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
@@ -58,7 +58,7 @@ describe('MoveSummary', () => {
       ).toEqual('<h2>New move</h2>');
     });
   });
-  describe('when a move is in submitted state', () => {
+  describe('when a move with a ppm is in submitted state', () => {
     it('renders submitted content', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED' };
       const futureFortNight = moment().add(14, 'day');
@@ -149,7 +149,7 @@ describe('MoveSummary', () => {
       // ).toEqual('<div class="title">Next Step: Get ready to move</div>');
     });
   });
-  describe('when a move is in in progress state', () => {
+  describe('when a move with a ppm is in in progress state', () => {
     it('renders in progress content', () => {
       const moveObj = { status: 'APPROVED' };
       const pastFortNight = moment().subtract(14, 'day');
