@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 )
 
@@ -46,7 +47,12 @@ func (h DPSAuthCookieHandler) Handle(params dps_auth.SetDPSAuthCookieParams) mid
 	}
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	cookie, err := dpsauth.UserIDToCookie(session.ServiceMemberID.String())
+	user, err := models.GetUser(h.DB(), session.UserID)
+	if err != nil {
+		h.Logger().Error("Fetching user", zap.Error(err))
+		return dps_auth.NewSetDPSAuthCookieInternalServerError()
+	}
+	cookie, err := dpsauth.UserIDToCookie(user.LoginGovUUID.String())
 	if err != nil {
 		h.Logger().Error("Converting user ID to cookie value", zap.Error(err))
 		return dps_auth.NewSetDPSAuthCookieInternalServerError()
