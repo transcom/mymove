@@ -132,7 +132,7 @@
     },
     {
       "name": "IWS_RBS_HOST",
-      "value": "pkict.dmdc.osd.mil"
+      "value": "{{ .IWS_RBS_HOST }}"
     }
   ],
   "logConfiguration": {

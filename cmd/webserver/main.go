@@ -148,7 +148,7 @@ func main() {
 	honeycombDataset := flag.String("honeycomb_dataset", "", "Dataset for Honeycomb")
 	honeycombDebug := flag.Bool("honeycomb_debug", false, "Debug honeycomb using stdout.")
 
-	iwsRbsHost := flag.String("iws_rbs_host", "pkict.dmdc.osd.mil", "Hostname for the IWS RBS")
+	iwsRbsHost := flag.String("iws_rbs_host", "", "Hostname for the IWS RBS")
 
 	flag.Parse()
 
