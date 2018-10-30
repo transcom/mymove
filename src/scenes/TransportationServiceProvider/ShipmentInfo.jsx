@@ -46,7 +46,7 @@ import {
   transportShipment,
   deliverShipment,
 } from './ducks';
-import ServiceAgents from './ServiceAgents';
+import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from './Weights';
 import Dates from './Dates';
 import LocationsContainer from './LocationsContainer';
@@ -378,7 +378,7 @@ class ShipmentInfo extends Component {
                     update={this.props.patchShipment}
                   />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  <ServiceAgents
+                  <TspContainer
                     ref={this.assignServiceMember}
                     editOriginServiceAgent={this.state.editOriginServiceAgent}
                     setEditServiceAgent={this.setEditServiceAgent}
