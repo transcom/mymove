@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -14,13 +14,13 @@ const AccountingDisplay = props => {
     schema: props.ordersSchema,
     values: props.orders,
   };
-
+  const isRequired = props.isHHG ? true : false;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelSwaggerField title="Department indicator" fieldName="department_indicator" required {...fieldProps} />
 
-        <PanelSwaggerField title="SAC" fieldName="sac" {...fieldProps} />
+        <PanelSwaggerField title="SAC" required={isRequired} fieldName="sac" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         <PanelSwaggerField title="TAC" required fieldName="tac" {...fieldProps} />
@@ -31,6 +31,7 @@ const AccountingDisplay = props => {
 
 const AccountingEdit = props => {
   const { ordersSchema } = props;
+  const isRequired = props.isHHG ? true : false;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -40,7 +41,7 @@ const AccountingEdit = props => {
         <SwaggerField title="TAC" fieldName="tac" swagger={ordersSchema} required />
       </div>
       <div className="editable-panel-column">
-        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} />
+        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} required={isRequired} />
       </div>
     </React.Fragment>
   );
@@ -68,6 +69,7 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
 
     orders: orders,
+    isHHG: !isEmpty(get(state, 'office.officeMove.shipments.0', {})),
     isUpdating: state.office.ordersAreUpdating,
 
     // editablePanelify
