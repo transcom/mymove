@@ -25,7 +25,7 @@ function tspUserViewsHeaderInfo() {
   });
 
   // Check the move type and code
-  cy.contains('MOVE INFO - HHG CODE D');
+  cy.contains('MOVE INFO — HHG CODE D');
 
   // Check the name is correct
   cy.get('h1').contains('Submitted, HHG');
