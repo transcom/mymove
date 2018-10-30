@@ -68,11 +68,11 @@ type Context struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort string) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
-		callbackTemplate: fmt.Sprintf("%s%%s:%d/", callbackProtocol, callbackPort),
+		callbackTemplate: fmt.Sprintf("%s%%s:%s/", callbackProtocol, callbackPort),
 	}
 	return context
 }

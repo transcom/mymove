@@ -10,7 +10,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"regexp"
-	"strconv"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -77,7 +76,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	myMoveMil := "my.move.host"
 	officeMoveMil := "office.move.host"
 	tspMoveMil := "tsp.move.host"
-	callbackPort := 1234
+	callbackPort := "1234"
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
 	req, err := http.NewRequest("GET", "/auth/logout", nil)
@@ -110,7 +109,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	suite.Nil(err)
 	suite.Equal(officeMoveMil, postRedirectURI.Hostname())
-	suite.Equal(strconv.Itoa(callbackPort), postRedirectURI.Port())
+	suite.Equal(callbackPort, postRedirectURI.Port())
 	token := params["id_token_hint"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
 }
