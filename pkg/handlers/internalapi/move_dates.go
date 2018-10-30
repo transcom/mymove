@@ -80,12 +80,12 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
 	usCalendar := handlers.NewUSCalendar()
 
-	if shipment.RequestedPickupDate == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
+	if shipment.OriginalPackDate == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have a OriginalPackDate")
 	}
 
 	var mostCurrentPackDate time.Time
-	if shipment.ActualPickupDate != nil {
+	if shipment.ActualPackDate != nil {
 		mostCurrentPackDate = *shipment.ActualPackDate
 	} else if shipment.PmSurveyPlannedPackDate != nil {
 		mostCurrentPackDate = *shipment.PmSurveyPlannedPackDate
@@ -93,6 +93,9 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 		mostCurrentPackDate = *shipment.OriginalPackDate
 	}
 
+	if shipment.RequestedPickupDate == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
+	}
 	var mostCurrentPickupDate time.Time
 	if shipment.ActualPickupDate != nil {
 		mostCurrentPickupDate = *shipment.ActualPickupDate
@@ -102,28 +105,31 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 		mostCurrentPickupDate = *shipment.RequestedPickupDate
 	}
 
+	if shipment.OriginalDeliveryDate == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have a OriginalDeliveryDate")
+	}
 	var mostCurrentDeliveryDate time.Time
 	if shipment.ActualDeliveryDate != nil {
 		mostCurrentDeliveryDate = *shipment.ActualDeliveryDate
-	} else if shipment.PmSurveyPlannedPickupDate != nil {
+	} else if shipment.PmSurveyPlannedDeliveryDate != nil {
 		mostCurrentDeliveryDate = *shipment.PmSurveyPlannedDeliveryDate
 	} else {
 		mostCurrentDeliveryDate = *shipment.OriginalDeliveryDate
 	}
+
 	// assigns the pack dates
-	packDates, err := createValidDatesBetweenTwoDates(mostCurrentPackDate, mostCurrentPickupDate, false, usCalendar)
+	packDates, err := createValidDatesBetweenTwoDates(mostCurrentPackDate, mostCurrentPickupDate, false, true, usCalendar)
 	if err != nil {
 		return MoveDatesSummary{}, err
 	}
-
 	pickupDates := createFutureMoveDates(mostCurrentPickupDate, 1, false, usCalendar)
 
 	firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
-	if shipment.EstimatedTransitDays == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
-	}
+	//if shipment.EstimatedTransitDays == nil {
+	//	return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
+	//}
 
-	transitDates, err := createValidDatesBetweenTwoDates(firstPossibleTransitDay, mostCurrentDeliveryDate, true, usCalendar)
+	transitDates, err := createValidDatesBetweenTwoDates(firstPossibleTransitDay, mostCurrentDeliveryDate, true, true, usCalendar)
 	if err != nil {
 		return MoveDatesSummary{}, err
 	}
@@ -167,14 +173,25 @@ func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHol
 	return dates
 }
 
-func createValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, calendar *cal.Calendar) ([]time.Time, error) {
+func createValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, reassignEndDate bool, calendar *cal.Calendar) ([]time.Time, error) {
+	// returns date range inclusive of startDate, exclusive of endDate (unless endDate is before startDate and reassignEndDate)
 	var dates []time.Time
-	dateToAdd := startDate
+
 	if !calendar.IsWorkday(endDate) && !includeWeekendsAndHolidays {
 		return dates, errors.New("End date cannot be a weekend or holiday")
 	}
 
-	for dateToAdd != endDate {
+	if startDate.After(endDate) {
+		if reassignEndDate == true {
+			dates = append(dates, startDate)
+			return dates, nil
+		}
+		return dates, errors.New("End date cannot be before start date")
+	}
+
+	dateToAdd := startDate
+
+	for dateToAdd.Before(endDate) {
 		if includeWeekendsAndHolidays || calendar.IsWorkday(dateToAdd) {
 			dates = append(dates, dateToAdd)
 		}
