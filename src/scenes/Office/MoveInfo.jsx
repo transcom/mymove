@@ -20,7 +20,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import Dates from 'shared/Dates';
+import Dates from 'shared/ShipmentDates';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import Weights from 'shared/ShipmentWeights';
