@@ -4,14 +4,16 @@ import PropTypes from 'prop-types';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-export const ServiceAgentDisplay = ({ serviceAgentProps, role }) => (
-  <div className="editable-panel-column">
-    <span className="column-subhead">{role}</span>
-    <PanelSwaggerField fieldName="company" required {...serviceAgentProps} />
-    <PanelSwaggerField fieldName="email" required {...serviceAgentProps} />
-    <PanelSwaggerField fieldName="phone_number" required {...serviceAgentProps} />
-  </div>
-);
+export const ServiceAgentDisplay = ({ serviceAgentProps, role }) => {
+  return (
+    <div className="editable-panel-column">
+      <span className="column-subhead">{role}</span>
+      <PanelSwaggerField fieldName="company" required {...serviceAgentProps} />
+      <PanelSwaggerField fieldName="email" required {...serviceAgentProps} />
+      <PanelSwaggerField fieldName="phone_number" required {...serviceAgentProps} />
+    </div>
+  );
+};
 
 ServiceAgentDisplay.defaultProps = {
   serviceAgentProps: {},
@@ -25,13 +27,15 @@ ServiceAgentDisplay.propTypes = {
   }),
 };
 
-export const ServiceAgentEdit = ({ serviceAgentProps, role }) => (
-  <Fragment>
-    <div className="editable-panel-column">
-      <span className="column-subhead">{role}</span>
-      <SwaggerField fieldName="company" {...serviceAgentProps} required />
-      <SwaggerField fieldName="email" {...serviceAgentProps} required />
-      <SwaggerField fieldName="phone_number" {...serviceAgentProps} required />
-    </div>
-  </Fragment>
-);
+export const ServiceAgentEdit = ({ serviceAgentProps, role }) => {
+  return (
+    <Fragment>
+      <div className="editable-panel-column">
+        <span className="column-subhead">{role}</span>
+        <SwaggerField fieldName="company" {...serviceAgentProps} required />
+        <SwaggerField fieldName="email" {...serviceAgentProps} required />
+        <SwaggerField fieldName="phone_number" {...serviceAgentProps} required />
+      </div>
+    </Fragment>
+  );
+};

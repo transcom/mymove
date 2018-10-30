@@ -15,7 +15,7 @@ function mapStateToProps(state, props) {
   let formValues = getFormValues(form)(state);
   // This returns the last value. Currently there should only be one record for each role.
   serviceAgents.forEach(agent => (initialValues[agent.role] = agent));
-  const { ORIGIN: originServiceAgent = {}, DESTINATION: destinationServiceAgent = {} } = initialValues;
+  const { ORIGIN: origin_service_agent = {}, DESTINATION: destination_service_agent = {} } = initialValues;
 
   return {
     // reduxForm
@@ -23,12 +23,11 @@ function mapStateToProps(state, props) {
     tspSchema: getPublicSwaggerDefinition(state, 'TransportationServiceProvider', null),
     formValues,
     initialValues: {
-      company: originServiceAgent.company,
-      phone_number: originServiceAgent.phone_number,
-      email: originServiceAgent.email,
+      origin_service_agent,
+      destination_service_agent,
     },
-    originServiceAgent,
-    destinationServiceAgent,
+    origin_service_agent,
+    destination_service_agent,
     title: 'TSP & Servicing Agents',
     form,
 
@@ -38,7 +37,11 @@ function mapStateToProps(state, props) {
 
     // editablePanel
     getUpdateArgs: function() {
-      return [get(props, 'shipment.id'), Object.assign({}, formValues, { role: 'ORIGIN' })];
+      const params = {
+        origin_service_agent: formValues.origin_service_agent,
+        destination_service_agent: formValues.destination_service_agent,
+      };
+      return [get(props, 'shipment.id'), params];
     },
   };
 }

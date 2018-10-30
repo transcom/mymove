@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
-import { reduxForm } from 'redux-form';
+import { reduxForm, FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 
@@ -165,12 +165,12 @@ ServiceAgentEditablePanel.defaultProps = {
 const TSPDisplay = props => {
   const originSAProps = {
     schema: props.saSchema,
-    values: props.originServiceAgent,
+    values: props.origin_service_agent,
   };
 
   const destinationSAProps = {
     schema: props.saSchema,
-    values: props.destinationServiceAgent,
+    values: props.destination_service_agent,
   };
   // const TSPprops = {
   //   schame: props.tspSchema,
@@ -191,14 +191,18 @@ const TSPEdit = props => {
 
   return (
     <Fragment>
-      <ServiceAgentEdit
-        serviceAgentProps={{
-          swagger: saSchema,
-          values: originValues,
-        }}
-        role="Origin"
-      />
-      <ServiceAgentEdit serviceAgentProps={{ swagger: saSchema, values: destinationValues }} role="Destination" />
+      <FormSection name="origin_service_agent">
+        <ServiceAgentEdit
+          serviceAgentProps={{
+            swagger: saSchema,
+            values: originValues,
+          }}
+          role="Origin"
+        />
+      </FormSection>
+      <FormSection name="destination_service_agent">
+        <ServiceAgentEdit serviceAgentProps={{ swagger: saSchema, values: destinationValues }} role="Destination" />
+      </FormSection>
     </Fragment>
   );
 };
