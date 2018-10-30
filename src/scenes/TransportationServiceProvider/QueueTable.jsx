@@ -78,7 +78,7 @@ class QueueTable extends Component {
               {
                 Header: 'Status',
                 accessor: 'status',
-                Cell: row => <span classname="status">{capitalize(row.value.replace('_', ' '))}</span>,
+                Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
               },
               {
                 Header: 'GBL',
@@ -109,7 +109,11 @@ class QueueTable extends Component {
               {
                 Header: 'Pickup Date',
                 id: 'pickup_date',
-                accessor: d => d.actual_pickup_date || d.pm_survey_planned_pickup_date || d.requested_pickup_date,
+                accessor: d =>
+                  d.actual_pickup_date ||
+                  d.pm_survey_planned_pickup_date ||
+                  d.requested_pickup_date ||
+                  d.original_pickup_date,
                 Cell: row => <span className="pickup_date">{formatDate(row.value)}</span>,
               },
               {

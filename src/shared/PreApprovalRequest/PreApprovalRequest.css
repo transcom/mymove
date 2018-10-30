@@ -1,10 +1,10 @@
 /*PreApproval Table styles*/
-.accessorial-panel {
+.pre-approval-panel {
   border-width: 3px;
   empty-cells: hide;
   margin-bottom: 18px;
 }
-.accessorial-panel table {
+.pre-approval-panel table {
   table-layout: fixed;
   display: table;
   width: 100%;
@@ -13,45 +13,46 @@
 
 /* Custom widths for columns in the preapproval request table */
 /*Code */
-.accessorial-panel table > tbody > tr > th:nth-child(1) {
+.pre-approval-panel table > tbody > tr > th:nth-child(1) {
   width: 5%;
 }
 /* Loc. */
-.accessorial-panel table > tbody > tr > th:nth-child(3) {
+.pre-approval-panel table > tbody > tr > th:nth-child(3) {
   width: 9%;
 }
 /*Base Quantity*/
-.accessorial-panel table > tbody > tr > th:nth-child(4) {
+.pre-approval-panel table > tbody > tr > th:nth-child(4) {
   width: 10%;
 }
 /*Item*/
-.accessorial-panel table > tbody > tr > th:nth-child(2) {
+.pre-approval-panel table > tbody > tr > th:nth-child(2) {
   width: 15%;
 }
 /*Notes*/
-.accessorial-panel table > tbody > tr > th:nth-child(5) {
+.pre-approval-panel table > tbody > tr > th:nth-child(5) {
   width: 16%;
 }
 /*Status*/
-.accessorial-panel table > tbody > tr > th:nth-child(7) {
+.pre-approval-panel table > tbody > tr > th:nth-child(7) {
   width: 12%;
 }
 /* submitted, action icons*/
-.accessorial-panel table > tbody > tr > th:nth-child(6),
-.accessorial-panel table > tbody > tr > th:nth-child(8) {
+.pre-approval-panel table > tbody > tr > th:nth-child(6),
+.pre-approval-panel table > tbody > tr > th:nth-child(8) {
   width: 9%;
 }
 
 .cancel-link {
   padding: 1em;
+  cursor: pointer;
 }
-.accessorial-panel th,
-.accessorial-panel td {
+.pre-approval-panel th,
+.pre-approval-panel td {
   border: none;
   text-align: left;
 }
 
-.accessorial-panel th {
+.pre-approval-panel th {
   font-weight: bold;
   font-size: 0.8em;
   border-bottom: solid 1px #a2a2a2;
@@ -59,7 +60,7 @@
   padding: 0rem 2rem 1rem 0rem;
 }
 
-.accessorial-panel table > tbody > tr > td {
+.pre-approval-panel table > tbody > tr > td {
   border-bottom: 1px solid #f1f1f1;
   font-size: 0.8em;
   padding: 1rem 1rem 1rem 0rem;
@@ -76,7 +77,7 @@
   cursor: pointer;
 }
 
-.accessorial-panel-modal {
+.pre-approval-panel-modal {
   border: 3px dashed #00a6d2;
   padding-left: 1.7rem;
   padding-right: 1.7rem;
@@ -84,12 +85,20 @@
   padding-bottom: 9px;
 }
 
-.accessorial-panel-modal .title {
+.pre-approval-edit {
+  background-color: #F6FDFE;
+}
+
+.pre-approval-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;
 }
-.accessorial-panel .align-right {
+.pre-approval-panel .align-right {
   text-align: right !important;
+}
+
+.pre-approval-form {
+  font-size: inherit !important;
 }
 
 .cancel button {

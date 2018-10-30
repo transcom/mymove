@@ -2,40 +2,52 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import PreApprovalRequest from './PreApprovalRequest';
 
-describe('PreApprovalRequest tests', () => {
-  let wrapper;
-  let onDelete;
-  const dummyFn = function() {};
-  const shipmentAccessorial = {
+function shipmentLineItem(status) {
+  return {
     id: 'sldkjf',
-    accessorial: { code: '105D', item: 'Reg Shipping' },
+    tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
     location: 'D',
-    base_quantity: 167000,
+    quantity_1: 167000,
     notes: '',
     created_at: '2018-09-24T14:05:38.847Z',
-    status: 'SUBMITTED',
+    status: status || 'SUBMITTED',
   };
+}
+
+describe('PreApprovalRequest tests', () => {
+  let wrapper;
+  let onDelete = jest.fn();
+  let onApproval = jest.fn();
+  const dummyFn = function() {};
   describe('When on approval is passed in and status is submitted', () => {
-    it('renders without crashing', () => {
+    beforeEach(() => {
+      onApproval.mockClear();
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial}
+          shipmentLineItem={shipmentLineItem()}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
-          onApproval={dummyFn}
+          onApproval={onApproval}
         />,
       );
+    });
+    it('renders without crashing', () => {
       const icons = wrapper.find('.icon');
       expect(wrapper.find('tr').length).toEqual(1);
-      expect(icons.length).toBe(2);
+      expect(icons.length).toBe(3);
+    });
+    it('it calls onApproval with the correct ID.', () => {
+      wrapper.find('[data-test="approve-request"]').simulate('click');
+      expect(onApproval.mock.calls.length).toBe(1);
+      expect(onApproval.mock.calls[0][0]).toBe(shipmentLineItem().id);
     });
   });
   describe('When on approval is NOT passed in and status is SUBMITTED', () => {
     beforeEach(() => {
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial}
+          shipmentLineItem={shipmentLineItem()}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
@@ -44,15 +56,14 @@ describe('PreApprovalRequest tests', () => {
     });
     it('it shows the appropriate number of icons.', () => {
       const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(1);
+      expect(icons.length).toBe(2);
     });
   });
   describe('When on approval is passed in and status is APPROVED', () => {
     beforeEach(() => {
-      shipmentAccessorial.status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial}
+          shipmentLineItem={shipmentLineItem('APPROVED')}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
@@ -67,10 +78,9 @@ describe('PreApprovalRequest tests', () => {
   });
   describe('When on approval is NOT passed in and status is APPROVED', () => {
     beforeEach(() => {
-      shipmentAccessorial.status = 'APPROVED';
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial}
+          shipmentLineItem={shipmentLineItem('APPROVED')}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
@@ -83,12 +93,11 @@ describe('PreApprovalRequest tests', () => {
     });
   });
   describe('When on delete is passed in', () => {
-    onDelete = jest.fn();
     beforeEach(() => {
-      shipmentAccessorial.status = 'APPROVED';
+      onDelete.mockClear();
       wrapper = shallow(
         <PreApprovalRequest
-          shipmentLineItem={shipmentAccessorial}
+          shipmentLineItem={shipmentLineItem('APPROVED')}
           isActionable={true}
           isActive={dummyFn}
           onDelete={onDelete}

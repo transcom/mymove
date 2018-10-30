@@ -117,6 +117,7 @@ class DocumentViewer extends Component {
     const defaultPath = `/moves/:moveId/documents`;
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
+    const currentMoveDocumentId = this.props.match.params.moveDocumentId;
 
     const defaultTabIndex = this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
@@ -170,7 +171,11 @@ class DocumentViewer extends Component {
                 </div>
                 <div>
                   {' '}
-                  <DocumentList detailUrlPrefix={`/moves/${move.id}/documents`} moveDocuments={moveDocuments} />
+                  <DocumentList
+                    currentMoveDocumentId={currentMoveDocumentId}
+                    detailUrlPrefix={`/moves/${move.id}/documents`}
+                    moveDocuments={moveDocuments}
+                  />
                 </div>
               </TabPanel>
 

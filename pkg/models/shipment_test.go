@@ -28,9 +28,9 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		"status":                         []string{"status can not be blank."},
 		"estimated_pack_days":            []string{"-2 is less than or equal to zero."},
 		"estimated_transit_days":         []string{"0 is less than or equal to zero."},
-		"weight_estimate":                []string{"-3 is less than or equal to zero."},
-		"progear_weight_estimate":        []string{"-12 is less than or equal to zero."},
-		"spouse_progear_weight_estimate": []string{"-9 is less than or equal to zero."},
+		"weight_estimate":                []string{"-3 is less than zero."},
+		"progear_weight_estimate":        []string{"-12 is less than zero."},
+		"spouse_progear_weight_estimate": []string{"-9 is less than zero."},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
@@ -109,15 +109,23 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 
 	shipDate := time.Now()
 
+	// Can pack shipment
+	err = shipment.Pack(shipDate)
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
+	suite.Equal(*shipment.ActualPackDate, shipDate, "expected Actual Pack Date to be set")
+
 	// Can transport shipment
 	err = shipment.Transport(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
+	suite.Equal(*shipment.ActualPickupDate, shipDate, "expected Actual Pickup Date to be set")
 
 	// Can deliver shipment
 	err = shipment.Deliver(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
+	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
 
 	// Can complete shipment
 	err = shipment.Complete()
@@ -191,13 +199,13 @@ func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
 }
 
 // TestShipmentAssignGBLNumber tests that a GBL number is created correctly
-func (suite *ModelSuite) TestCreateShipmentAccessorial() {
+func (suite *ModelSuite) TestCreateShipmentLineItem() {
 	acc := testdatagen.MakeDefaultTariff400ngItem(suite.db)
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
 
 	q1 := int64(5)
 	notes := "It's a giant moose head named Fred he seemed rather pleasant"
-	shipmentAccessorial, verrs, err := shipment.CreateShipmentAccessorial(suite.db,
+	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.db,
 		acc.ID,
 		&q1,
 		nil,
@@ -205,7 +213,7 @@ func (suite *ModelSuite) TestCreateShipmentAccessorial() {
 		&notes)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(5, shipmentAccessorial.Quantity1.ToUnitInt())
-		suite.Equal(acc.ID.String(), shipmentAccessorial.Accessorial.ID.String())
+		suite.Equal(5, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(acc.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 	}
 }

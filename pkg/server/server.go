@@ -38,18 +38,18 @@ type TLSCert struct {
 // Server represents an http or https listening server. HTTPS listeners support
 // requiring client authentication with a provided CA.
 type Server struct {
-	CACertPEMBlock []byte
+	CaCertPool     *x509.CertPool
 	ClientAuthType tls.ClientAuthType
 	HTTPHandler    http.Handler
 	ListenAddress  string
 	Logger         *zap.Logger
-	Port           string
+	Port           int
 	TLSCerts       []TLSCert
 }
 
 // addr generates an address:port string to be used in defining an http.Server
-func addr(listenAddress, port string) string {
-	return fmt.Sprintf("%s:%s", listenAddress, port)
+func addr(listenAddress string, port int) string {
+	return fmt.Sprintf("%s:%d", listenAddress, port)
 }
 
 // stdLogError creates a *log.logger based off an existing zap.Logger instance.
@@ -87,7 +87,6 @@ func (s Server) serverConfig(tlsConfig *tls.Config) (*http.Server, error) {
 
 // tlsConfig generates a new *tls.Config. It will
 func (s Server) tlsConfig() (*tls.Config, error) {
-	var caCerts *x509.CertPool
 	var tlsCerts []tls.Certificate
 	var err error
 
@@ -95,14 +94,8 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 	// cert authentication.
 	if s.ClientAuthType == tls.VerifyClientCertIfGiven ||
 		s.ClientAuthType == tls.RequireAndVerifyClientCert {
-		if s.CACertPEMBlock == nil {
+		if s.CaCertPool == nil || len(s.CaCertPool.Subjects()) == 0 {
 			return nil, ErrMissingCACert
-
-		}
-		caCerts = x509.NewCertPool()
-		ok := caCerts.AppendCertsFromPEM(s.CACertPEMBlock)
-		if !ok {
-			return nil, ErrUnparseableCACert
 		}
 	}
 
@@ -132,7 +125,7 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 		},
 		Certificates: tlsCerts,
 		ClientAuth:   s.ClientAuthType,
-		ClientCAs:    caCerts,
+		ClientCAs:    s.CaCertPool,
 		CurvePreferences: []tls.CurveID{
 			tls.CurveP256,
 			tls.X25519,
@@ -174,7 +167,7 @@ func (s Server) ListenAndServeTLS() error {
 		zap.Duration("idle-timeout", server.IdleTimeout),
 		zap.Any("listen-address", s.ListenAddress),
 		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.String("port", s.Port),
+		zap.Int("port", s.Port),
 	)
 
 	serverFunc = func(httpServer *http.Server) error {
@@ -208,7 +201,7 @@ func (s Server) ListenAndServe() error {
 		zap.Duration("idle-timeout", server.IdleTimeout),
 		zap.Any("listen-address", s.ListenAddress),
 		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.String("port", s.Port),
+		zap.Int("port", s.Port),
 	)
 
 	serverFunc = func(httpServer *http.Server) error {

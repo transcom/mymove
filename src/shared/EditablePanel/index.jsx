@@ -69,10 +69,11 @@ SwaggerValue.propTypes = {
 };
 
 export const PanelSwaggerField = props => {
-  const { fieldName, required, schema, values } = props;
+  const { fieldName, className, required, schema, values } = props;
   const title = props.title || get(schema, `properties.${fieldName}.title`, fieldName);
+  const classes = classNames(fieldName, className);
   let component = (
-    <PanelField title={title} className={fieldName}>
+    <PanelField title={title} className={classes}>
       <SwaggerValue {...props} />
       {props.children}
     </PanelField>
@@ -81,7 +82,7 @@ export const PanelSwaggerField = props => {
   /* eslint-disable security/detect-object-injection */
   if (required && !values[fieldName]) {
     component = (
-      <PanelField title={title} className={fieldName} required>
+      <PanelField title={title} className={classes} required>
         {props.children}
       </PanelField>
     );
@@ -97,6 +98,7 @@ PanelSwaggerField.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node,
   required: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export class EditablePanel extends Component {
@@ -177,19 +179,17 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
       if (isValid) {
         let args = this.props.getUpdateArgs();
         this.props.update(...args);
-        this.toggleEditable();
+        this.toggleEdit();
       }
+    };
+
+    toggleEdit = () => {
+      this.setState({ isEditable: !this.state.isEditable });
     };
 
     cancel = () => {
       this.props.reset();
-      this.toggleEditable();
-    };
-
-    toggleEditable = () => {
-      this.setState({
-        isEditable: !this.state.isEditable,
-      });
+      this.toggleEdit();
     };
 
     render() {
@@ -207,7 +207,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
             title={this.props.title}
             className={this.props.className}
             onSave={this.save}
-            onEdit={this.toggleEditable}
+            onEdit={this.toggleEdit}
             onCancel={this.cancel}
             isEditable={isEditable}
             editEnabled={editEnabled}

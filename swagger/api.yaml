@@ -138,7 +138,7 @@ definitions:
       - bytes
       - created_at
       - updated_at
-  AccessorialLocation:
+  Tariff400ngItemLocation:
     type: string
     title: Location
     enum:
@@ -151,7 +151,7 @@ definitions:
       DESTINATION: Destination
       NEITHER: Neither
       EITHER: Either
-  ShipmentAccessorialLocation:
+  ShipmentLineItemLocation:
     type: string
     title: Location
     enum:
@@ -162,7 +162,7 @@ definitions:
       ORIGIN: Origin
       DESTINATION: Destination
       NEITHER: Neither
-  AccessorialStatus:
+  ShipmentLineItemStatus:
     type: string
     title: Status
     enum:
@@ -193,7 +193,7 @@ definitions:
         title: Discount
         example: dHHG
       location:
-        $ref: '#/definitions/AccessorialLocation'
+        $ref: '#/definitions/Tariff400ngItemLocation'
       item:
         type: string
         title: Item
@@ -216,11 +216,11 @@ definitions:
       updated_at:
         type: string
         format: date-time
-  ShipmentAccessorials:
+  ShipmentLineItems:
     type: array
     items:
-      $ref: '#/definitions/ShipmentAccessorial'
-  ShipmentAccessorial:
+      $ref: '#/definitions/ShipmentLineItem'
+  ShipmentLineItem:
     type: object
     properties:
       id:
@@ -231,9 +231,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      accessorial:
+      tariff400ng_item:
         $ref: '#/definitions/Tariff400ngItem'
-      accessorial_id:
+      tariff400ng_item_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -241,25 +241,25 @@ definitions:
         type: integer
         format: basequantity
         title: Base Quantity
-        description: 1st Accessorial base quantity
+        description: 1st Tariff400ngItem base quantity
         minimum: 0
         example: 167000
       quantity_2:
         type: integer
         format: basequantity
         title: 2nd Quantity
-        description: 2nd Accessorial base quantity
+        description: 2nd Tariff400ngItem base quantity
         minimum: 0
         example: 10000
       location:
-        $ref: '#/definitions/ShipmentAccessorialLocation'
+        $ref: '#/definitions/ShipmentLineItemLocation'
       notes:
         type: string
         format: textarea
         title: Notes
         example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       status:
-        $ref: '#/definitions/AccessorialStatus'
+        $ref: '#/definitions/ShipmentLineItemStatus'
       submitted_date:
         type: string
         title: Submitted Date
@@ -275,7 +275,7 @@ definitions:
         type: string
         format: date-time
     required:
-      - accessorial_id
+      - tariff400ng_item_id
       - quantity_1
       - location
   Address:
@@ -851,33 +851,9 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      traffic_distribution_list:
-        $ref: '#/definitions/TrafficDistributionList'
+      status:
+        $ref: '#/definitions/ShipmentStatus'
         readOnly: true
-      service_member:
-        $ref: '#/definitions/ServiceMember'
-        readOnly: true
-      actual_pickup_date:
-        type: string
-        format: date
-        example: '2018-04-21'
-        x-nullable: true
-      actual_pack_date:
-        type: string
-        format: date
-        example: '2018-04-21'
-        x-nullable: true
-      actual_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-27'
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
       source_gbloc:
         $ref: '#/definitions/GBLOC'
         readOnly: true
@@ -893,49 +869,97 @@ definitions:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true
         x-nullable: true
-      book_date:
+      created_at:
         type: string
-        format: date
-        example: '2018-03-15'
-      requested_pickup_date:
+        format: date-time
+      updated_at:
         type: string
-        format: date
-        example: '2018-04-19'
+        format: date-time
+      traffic_distribution_list:
+        $ref: '#/definitions/TrafficDistributionList'
+        readOnly: true
+      service_member:
+        $ref: '#/definitions/ServiceMember'
+        readOnly: true
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
-      status:
-        $ref: '#/definitions/ShipmentStatus'
+      book_date:
+        type: string
+        format: date
+        example: '2018-04-26'
         readOnly: true
+        x-nullable: true
+      requested_pickup_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        x-nullable: true
+      original_delivery_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      original_pack_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      actual_pickup_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      actual_delivery_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
       estimated_pack_days:
-        type: integer
         description: Estimated days packing
+        type: integer
         minimum: 0
-        example: 2
+        example: 3
+        readOnly: true
         x-nullable: true
       estimated_transit_days:
-        type: integer
         description: Estimated days in transit
+        type: integer
         minimum: 0
         example: 30
+        readOnly: true
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
+        default: false
         title: 'Do you have household goods at any other pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_delivery_address:
         type: boolean
+        default: false
         title: 'Do you know the delivery address at destination yet?'
       delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
       has_partial_sit_delivery_address:
         type: boolean
+        default: false
+        title: 'Will some of your items be stored in transit?'
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
@@ -1254,7 +1278,7 @@ definitions:
       DELIVERED: Delivered
       COMPLETED: Completed
       CANCELED: Canceled
-  ActualPickupDate:
+  TransportPayload:
     type: object
     properties:
       actual_pickup_date:
@@ -1263,8 +1287,40 @@ definitions:
         example: '2018-04-02'
         title: Actual Pickup Date
         x-nullable: true
+      actual_pack_date:
+        type: string
+        format: date
+        example: '2018-04-02'
+        title: Actual Pack Date
+        x-nullable: true
+      net_weight:
+        type: integer
+        description: Actual net weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Net
+      gross_weight:
+        type: integer
+        description: Gross weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Gross
+      tare_weight:
+        type: integer
+        description: Tare weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Tare
     required:
       - actual_pickup_date
+      - actual_pack_date
+      - net_weight
   ActualDeliveryDate:
     type: object
     properties:
@@ -1952,7 +2008,7 @@ paths:
   /shipments/{shipmentId}/transport:
     post:
       summary: Places an accepted shipment into transit state
-      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT.
+      description: Places a shipment accepted by a TSP in transit. The status of the shipment will be updated to IN_TRANSIT and the pickup date will be set.
       operationId: transportShipment
       tags:
         - shipments
@@ -1967,7 +2023,7 @@ paths:
           name: payload
           required: true
           schema:
-            $ref: '#/definitions/ActualPickupDate'
+            $ref: '#/definitions/TransportPayload'
       responses:
         200:
           description: returns updated (in_transit) shipment object
@@ -2094,7 +2150,7 @@ paths:
         201:
           description: successfully created GBL move document for shipment
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
         400:
           description: invalid request
         401:
@@ -2107,9 +2163,9 @@ paths:
           description: server error
   /shipments/{shipmentId}/accessorials:
     get:
-      summary: Retrieve shipment accessorials associated with a shipment
-      description: Gets a list of all shipment accessorials associated with a shipment.
-      operationId: getShipmentAccessorials
+      summary: Retrieve shipment line items associated with a shipment
+      description: Gets a list of all shipment line items associated with a shipment.
+      operationId: getShipmentLineItems
       tags:
         - accessorials
       parameters:
@@ -2121,21 +2177,21 @@ paths:
           description: UUID of the shipment
       responses:
         200:
-          description: list of shipment accessorials associated with shipment
+          description: list of shipment line items associated with shipment
           schema:
-            $ref: '#/definitions/ShipmentAccessorials'
+            $ref: '#/definitions/ShipmentLineItems'
         400:
           description: invalid request
         403:
-          description: not authorized to get list of accessorials for this shipment
+          description: not authorized to get list of shipment line items for this shipment
         404:
           description: Shipment UUID not found in system
         500:
           description: server error
     post:
-      summary: Creates a new shipment accessorial item associated with a shipment
-      description: Creates a new shipment accessorial item associated with a shipment
-      operationId: createShipmentAccessorial
+      summary: Creates a new shipment line item associated with a shipment
+      description: Creates a new shipment line item associated with a shipment
+      operationId: createShipmentLineItem
       tags:
         - accessorials
       parameters:
@@ -2149,46 +2205,46 @@ paths:
           name: payload
           required: true
           schema:
-            $ref: '#/definitions/ShipmentAccessorial'
+            $ref: '#/definitions/ShipmentLineItem'
       responses:
         201:
-          description: successfully created shipment acessorial for shipment
+          description: successfully created shipment line item for shipment
           schema:
-            $ref: '#/definitions/ShipmentAccessorial'
+            $ref: '#/definitions/ShipmentLineItem'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized to add accessorials to this shipment
+          description: not authorized to add line items to this shipment
         417:
-          description: failed to meet data requirements for accessorials
+          description: failed to meet data requirements for line items
         500:
           description: server error
-  /shipments/accessorials/{shipmentAccessorialId}:
+  /shipments/accessorials/{shipmentLineItemId}:
     put:
-      summary: Updates a shipment accessorial item
-      description: Update a shipment accessorial with the given information
-      operationId: updateShipmentAccessorial
+      summary: Updates a shipment line item
+      description: Update a shipment line item with the given information
+      operationId: updateShipmentLineItem
       tags:
         - accessorials
       parameters:
         - in: path
-          name: shipmentAccessorialId
+          name: shipmentLineItemId
           type: string
           format: uuid
           required: true
-          description: UUID of the shipment accessorial model
+          description: UUID of the shipment line item model
         - in: body
-          name: updateShipmentAccessorial
+          name: payload
           required: true
           schema:
-            $ref: '#/definitions/ShipmentAccessorial'
+            $ref: '#/definitions/ShipmentLineItem'
       responses:
         200:
-          description: updated instance of shipment accessorial
+          description: updated instance of shipment line
           schema:
-            $ref: '#/definitions/ShipmentAccessorial'
+            $ref: '#/definitions/ShipmentLineItem'
         400:
           description: invalid request
         401:
@@ -2196,55 +2252,55 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: shipment accessorial not found
+          description: shipment line item not found
         500:
           description: internal server error
     delete:
-      summary: delete the associated shipment accessorial
-      operationId: deleteShipmentAccessorial
+      summary: delete the associated shipment line
+      operationId: deleteShipmentLineItem
       tags:
         - accessorials
       parameters:
         - in: path
-          name: shipmentAccessorialId
+          name: shipmentLineItemId
           type: string
           format: uuid
           required: true
-          description: the unique identifier for the shipment accessorial
+          description: the unique identifier for the shipment line
       responses:
         200:
-          description: the shipment accessorial was successfully deleted
+          description: the shipment line item was successfully deleted
           schema:
-            $ref: '#/definitions/ShipmentAccessorial'
+            $ref: '#/definitions/ShipmentLineItem'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized to access the associated accessorial
+          description: not authorized to access the associated shipment line item
         404:
-          description: no shipment accessorial found with that UUID
+          description: no shipment line item found with that UUID
         500:
           description: server error
-  /shipments/accessorials/{shipmentAccessorialId}/approve:
+  /shipments/accessorials/{shipmentLineItemId}/approve:
     post:
-      summary: Updates a shipment accessorial item to approve status
-      description: Update a shipment accessorial with approve status
-      operationId: approveShipmentAccessorial
+      summary: Updates a shipment line item to approve status
+      description: Update a shipment line item with approve status
+      operationId: approveShipmentLineItem
       tags:
         - accessorials
       parameters:
         - in: path
-          name: shipmentAccessorialId
+          name: shipmentLineItemId
           type: string
           format: uuid
           required: true
-          description: UUID of the shipment accessorial model
+          description: UUID of the shipment line item model
       responses:
         200:
-          description: shipment accessorial approved
+          description: shipment line item approved
           schema:
-            $ref: '#/definitions/ShipmentAccessorial'
+            $ref: '#/definitions/ShipmentLineItem'
         400:
           description: invalid request
         401:
@@ -2252,7 +2308,7 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: shipment accessorial not found
+          description: shipment line item not found
         500:
           description: internal server error
   /shipments/{shipmentId}/reject:

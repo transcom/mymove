@@ -2,6 +2,7 @@ package server
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -53,7 +54,7 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           "8443",
+		Port:           8443,
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
@@ -74,7 +75,7 @@ func (suite *serverSuite) TestParseBadTLSCert() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           "8443",
+		Port:           8443,
 		TLSCerts:       []TLSCert{tlsCert1},
 	}
 
@@ -99,7 +100,7 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           "8443",
+		Port:           8443,
 		TLSCerts: []TLSCert{
 			tlsLocalhost,
 			tlsOfficelocal},
@@ -117,13 +118,17 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 		CertPEMBlock: suite.readFile("localhost.pem"),
 		KeyPEMBlock:  suite.readFile("localhost.key"),
 	}
+	caFile := suite.readFile("ca.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caFile)
+
 	httpsServer := Server{
 		ClientAuthType: tls.RequireAndVerifyClientCert,
-		CACertPEMBlock: suite.readFile("ca.pem"),
+		CaCertPool:     caCertPool,
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           "8443",
+		Port:           8443,
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
@@ -141,12 +146,12 @@ func (suite *serverSuite) TestTLSConfigWithMissingCA() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           "8443",
+		Port:           8443,
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
 	_, err := httpsServer.tlsConfig()
-	suite.Equal(err, ErrMissingCACert)
+	suite.Equal(ErrMissingCACert, err)
 }
 
 func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
@@ -154,18 +159,23 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 		CertPEMBlock: suite.readFile("localhost.pem"),
 		KeyPEMBlock:  suite.readFile("localhost.key"),
 	}
+	caFile := suite.readFile("localhost-bad.pem")
+	caCertPool := x509.NewCertPool()
+	certOk := caCertPool.AppendCertsFromPEM(caFile)
+	suite.False(certOk)
+
 	httpsServer := Server{
 		ClientAuthType: tls.RequireAndVerifyClientCert,
-		CACertPEMBlock: suite.readFile("localhost-bad.pem"),
+		CaCertPool:     caCertPool,
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           "8443",
+		Port:           8443,
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
 	_, err := httpsServer.tlsConfig()
-	suite.Equal(err, ErrUnparseableCACert)
+	suite.Equal(ErrMissingCACert, err)
 }
 
 func (suite *serverSuite) TestHTTPServerConfig() {
@@ -175,7 +185,7 @@ func (suite *serverSuite) TestHTTPServerConfig() {
 		ListenAddress: "127.0.0.1",
 		HTTPHandler:   suite.httpHandler,
 		Logger:        suite.logger,
-		Port:          "8080",
+		Port:          8080,
 	}
 
 	config, err := httpServer.serverConfig(tlsConfig)

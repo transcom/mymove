@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import LoginButton from 'shared/User/LoginButton';
-import Email from 'shared/User/Email';
+import UserGreeting from 'shared/User/UserGreeting';
 
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
@@ -57,7 +57,7 @@ function Header() {
       <div className="my-move-header">
         <div className="usa-nav-container">
           <div className="my-move-login">
-            <Email />
+            <UserGreeting />
             <LoginButton />
           </div>
           <div className="usa-navbar">

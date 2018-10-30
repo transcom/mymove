@@ -3,13 +3,15 @@ h2 {
 }
 
 .shipment_box {
-  border: 3px solid lightgrey;
+  border: 3px solid #f1f1f1;
   overflow: hidden;
   margin-top: 1em;
+  padding-bottom: 4rem;
+  position: relative;
 }
 
 img.move_sm {
-  height: 0.75em;
+  height: 1em;
   display: inline;
   margin-bottom: 0;
   margin-right: 0.3em;
@@ -21,7 +23,7 @@ img.status_icon {
 }
 
 .shipment_type {
-  background-color: lightgrey;
+  background-color: #f1f1f1;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.7em;

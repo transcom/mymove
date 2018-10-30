@@ -1,0 +1,14 @@
+create_table("shipment_line_items") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("shipment_id", "uuid", {})
+	t.Column("tariff400ng_item_id", "uuid", {})
+	t.Column("quantity_1", "integer", {})
+	t.Column("quantity_2", "integer", {})
+	t.Column("location", "string", {})
+	t.Column("notes", "text", {})
+	t.Column("status", "string", {})
+	t.Column("submitted_date", "datetime", {})
+	t.Column("approved_date", "datetime", {})
+	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {"on_delete": "restrict"})
+	t.ForeignKey("tariff400ng_item_id", {"tariff400ng_items": ["id"]}, {"on_delete": "restrict"})
+}

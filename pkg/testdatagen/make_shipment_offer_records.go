@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -136,7 +137,6 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
 	destinationGBLOC := "HAFC"
-	oneWeek, _ := time.ParseDuration("7d")
 	selectedMoveType := "HHG"
 	if len(statuses) == 0 {
 		// Statuses for shipments attached to a shipment offer should not be DRAFT or SUBMITTED
@@ -163,10 +163,6 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	})
 
 	for i := 1; i <= numShipments; i++ {
-		now := time.Now()
-		nowPlusOne := now.Add(oneWeek)
-		nowPlusTwo := now.Add(oneWeek * 2)
-
 		// Service Member Details
 		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
 
@@ -186,10 +182,16 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		}
 		newDutyStation := MakeDutyStation(db, newDutyStationAssertions)
 
-		// Move Details
+		// Move and Order Details
 		moveStatus := models.MoveStatusSUBMITTED
-		if shipmentStatus == models.ShipmentStatusAPPROVED {
+		orderStatus := models.OrderStatusSUBMITTED
+		ordTypeDetHHGPermit := internalmessages.OrdersTypeDetailHHGPERMITTED
+		if shipmentStatus == models.ShipmentStatusAPPROVED ||
+			shipmentStatus == models.ShipmentStatusINTRANSIT ||
+			shipmentStatus == models.ShipmentStatusDELIVERED ||
+			shipmentStatus == models.ShipmentStatusCOMPLETED {
 			moveStatus = models.MoveStatusAPPROVED
+			orderStatus = models.OrderStatusAPPROVED
 		}
 
 		shipmentAssertions := Assertions{
@@ -199,34 +201,44 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			Order: models.Order{
 				NewDutyStationID: newDutyStation.ID,
 				NewDutyStation:   newDutyStation,
+				Status:           orderStatus,
+				OrdersTypeDetail: &ordTypeDetHHGPermit,
 			},
 			Move: models.Move{
 				SelectedMoveType: &selectedMoveType,
 				Status:           moveStatus,
 			},
 			Shipment: models.Shipment{
-				RequestedPickupDate:     &now,
 				TrafficDistributionList: &tdl,
 				SourceGBLOC:             &sourceGBLOC,
 				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 				Status:                  shipmentStatus,
+				OriginalPackDate:        &Now,
+				RequestedPickupDate:     &Now,
+				OriginalDeliveryDate:    &NowPlusOneWeek,
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
 
+		durIndex := time.Duration(i + 1)
+
 		// Set dates based on status
 		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
-			shipment.PmSurveyConductedDate = &now
-			shipment.PmSurveyPlannedPackDate = &nowPlusOne
-			shipment.PmSurveyPlannedPickupDate = &nowPlusOne
-			shipment.PmSurveyPlannedDeliveryDate = &nowPlusTwo
-			shipment.ActualPackDate = &now
-			shipment.ActualPickupDate = &nowPlusOne
+			shipment.PmSurveyConductedDate = &Now
+			shipment.PmSurveyPlannedPackDate = &NowPlusOneWeek
+			shipment.PmSurveyPlannedPickupDate = &NowPlusOneWeek
+			shipment.PmSurveyPlannedDeliveryDate = &NowPlusTwoWeeks
+			shipment.ActualPackDate = &Now
+			// For sortability, we need varying pickup dates
+			pickupDate := Now.Add(OneDay * durIndex)
+			shipment.ActualPickupDate = &pickupDate
 		}
 
 		if shipmentStatus == models.ShipmentStatusDELIVERED {
-			shipment.ActualDeliveryDate = &nowPlusTwo
+			// For sortability, we need varying delivery dates
+			deliveryDate := Now.Add(OneWeek * durIndex)
+			shipment.ActualDeliveryDate = &deliveryDate
 		}
 
 		// Assign a new unique GBL number using source GBLOC

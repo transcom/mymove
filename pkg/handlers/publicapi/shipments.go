@@ -1,6 +1,8 @@
 package publicapi
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -21,37 +23,51 @@ import (
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
-		ID: *handlers.FmtUUID(s.ID),
-		TrafficDistributionList:             payloadForTrafficDistributionListModel(s.TrafficDistributionList),
-		ServiceMember:                       payloadForServiceMemberModel(&s.ServiceMember),
-		ActualPickupDate:                    handlers.FmtDatePtr(s.ActualPickupDate),
-		ActualPackDate:                      handlers.FmtDatePtr(s.ActualPackDate),
-		ActualDeliveryDate:                  handlers.FmtDatePtr(s.ActualDeliveryDate),
-		CreatedAt:                           strfmt.DateTime(s.CreatedAt),
-		UpdatedAt:                           strfmt.DateTime(s.UpdatedAt),
-		SourceGbloc:                         apimessages.GBLOC(*s.SourceGBLOC),
-		DestinationGbloc:                    apimessages.GBLOC(*s.DestinationGBLOC),
-		GblNumber:                           s.GBLNumber,
-		Market:                              apimessages.ShipmentMarket(*s.Market),
-		BookDate:                            *handlers.FmtDatePtr(s.BookDate),
-		RequestedPickupDate:                 *handlers.FmtDatePtr(s.RequestedPickupDate),
-		Move:                                payloadForMoveModel(&s.Move),
-		Status:                              apimessages.ShipmentStatus(s.Status),
-		EstimatedPackDays:                   handlers.FmtInt64(*s.EstimatedPackDays),
-		EstimatedTransitDays:                handlers.FmtInt64(*s.EstimatedTransitDays),
-		PickupAddress:                       payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:           *handlers.FmtBool(s.HasSecondaryPickupAddress),
-		SecondaryPickupAddress:              payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:                  *handlers.FmtBool(s.HasDeliveryAddress),
-		DeliveryAddress:                     payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress:        *handlers.FmtBool(s.HasPartialSITDeliveryAddress),
-		PartialSitDeliveryAddress:           payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:                      handlers.FmtPoundPtr(s.WeightEstimate),
-		ProgearWeightEstimate:               handlers.FmtPoundPtr(s.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate:         handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
-		NetWeight:                           handlers.FmtPoundPtr(s.NetWeight),
-		GrossWeight:                         handlers.FmtPoundPtr(s.GrossWeight),
-		TareWeight:                          handlers.FmtPoundPtr(s.TareWeight),
+		ID:               *handlers.FmtUUID(s.ID),
+		Status:           apimessages.ShipmentStatus(s.Status),
+		SourceGbloc:      apimessages.GBLOC(*s.SourceGBLOC),
+		DestinationGbloc: apimessages.GBLOC(*s.DestinationGBLOC),
+		GblNumber:        s.GBLNumber,
+		Market:           apimessages.ShipmentMarket(*s.Market),
+		CreatedAt:        strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
+
+		// associations
+		TrafficDistributionList: payloadForTrafficDistributionListModel(s.TrafficDistributionList),
+		ServiceMember:           payloadForServiceMemberModel(&s.ServiceMember),
+		Move:                    payloadForMoveModel(&s.Move),
+
+		// dates
+		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
+		ActualPackDate:       handlers.FmtDatePtr(s.ActualPackDate),
+		ActualDeliveryDate:   handlers.FmtDatePtr(s.ActualDeliveryDate),
+		BookDate:             handlers.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:  handlers.FmtDatePtr(s.RequestedPickupDate),
+		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
+		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
+
+		// calculated durations
+		EstimatedPackDays:    s.EstimatedPackDays,
+		EstimatedTransitDays: s.EstimatedTransitDays,
+
+		// addresses
+		PickupAddress:                payloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    handlers.FmtBool(s.HasSecondaryPickupAddress),
+		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           handlers.FmtBool(s.HasDeliveryAddress),
+		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: handlers.FmtBool(s.HasPartialSITDeliveryAddress),
+		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
+
+		// weights
+		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
+		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
+		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
+
+		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
@@ -217,7 +233,7 @@ type TransportShipmentHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+// Handle updates the shipment with pack and pickup dates and weights and puts it in-transit - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -238,12 +254,30 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 		return shipmentop.NewTransportShipmentBadRequest()
 	}
 
+	actualPackDate := (time.Time)(*params.Payload.ActualPackDate)
+
+	err = shipment.Pack(actualPackDate)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	actualPickupDate := (time.Time)(*params.Payload.ActualPickupDate)
 
 	err = shipment.Transport(actualPickupDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+
+	shipment.NetWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.NetWeight)
+
+	if params.Payload.GrossWeight != nil {
+		shipment.GrossWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.GrossWeight)
+	}
+
+	if params.Payload.TareWeight != nil {
+		shipment.TareWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.TareWeight)
+	}
+
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
@@ -393,30 +427,50 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 			updateAddressWithPayload(shipment.PickupAddress, payload.PickupAddress)
 		}
 	}
-	if payload.HasSecondaryPickupAddress == false {
-		shipment.SecondaryPickupAddress = nil
-	} else if payload.HasSecondaryPickupAddress == true {
-		if payload.SecondaryPickupAddress != nil {
-			if shipment.SecondaryPickupAddress == nil {
-				shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
-			} else {
-				updateAddressWithPayload(shipment.SecondaryPickupAddress, payload.SecondaryPickupAddress)
+	if payload.HasSecondaryPickupAddress != nil {
+		if *payload.HasSecondaryPickupAddress == false {
+			shipment.SecondaryPickupAddress = nil
+		} else if *payload.HasSecondaryPickupAddress == true {
+			if payload.SecondaryPickupAddress != nil {
+				if shipment.SecondaryPickupAddress == nil {
+					shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
+				} else {
+					updateAddressWithPayload(shipment.SecondaryPickupAddress, payload.SecondaryPickupAddress)
+				}
 			}
 		}
+		shipment.HasSecondaryPickupAddress = *payload.HasSecondaryPickupAddress
 	}
-	shipment.HasSecondaryPickupAddress = payload.HasSecondaryPickupAddress
-	if payload.HasDeliveryAddress == false {
-		shipment.DeliveryAddress = nil
-	} else if payload.HasDeliveryAddress == true {
-		if payload.DeliveryAddress != nil {
-			if shipment.DeliveryAddress == nil {
-				shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
-			} else {
-				updateAddressWithPayload(shipment.DeliveryAddress, payload.DeliveryAddress)
+
+	if payload.HasDeliveryAddress != nil {
+		if *payload.HasDeliveryAddress == false {
+			shipment.DeliveryAddress = nil
+		} else if *payload.HasDeliveryAddress == true {
+			if payload.DeliveryAddress != nil {
+				if shipment.DeliveryAddress == nil {
+					shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
+				} else {
+					updateAddressWithPayload(shipment.DeliveryAddress, payload.DeliveryAddress)
+				}
 			}
 		}
+		shipment.HasDeliveryAddress = *payload.HasDeliveryAddress
 	}
-	shipment.HasDeliveryAddress = payload.HasDeliveryAddress
+
+	if payload.HasPartialSitDeliveryAddress != nil {
+		if *payload.HasPartialSitDeliveryAddress == false {
+			shipment.PartialSITDeliveryAddress = nil
+		} else if *payload.HasPartialSitDeliveryAddress == true {
+			if payload.PartialSitDeliveryAddress != nil {
+				if shipment.PartialSITDeliveryAddress == nil {
+					shipment.PartialSITDeliveryAddress = addressModelFromPayload(payload.PartialSitDeliveryAddress)
+				} else {
+					updateAddressWithPayload(shipment.PartialSITDeliveryAddress, payload.PartialSitDeliveryAddress)
+				}
+			}
+		}
+		shipment.HasPartialSITDeliveryAddress = *payload.HasPartialSitDeliveryAddress
+	}
 }
 
 // PatchShipmentHandler allows a TSP to refuse a particular shipment
@@ -480,8 +534,16 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	// Don't allow GBL generation for shipments that already have a GBL move document
 	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
 	if len(extantGBLS) > 0 {
-		h.Logger().Error("There are already GBLs for this shipment.")
-		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("there is already a Bill of Lading for this shipment"), http.StatusBadRequest)
+	}
+
+	// Don't allow GBL generation for incomplete orders
+	orders, ordersErr := models.FetchOrder(h.DB(), shipment.Move.OrdersID)
+	if ordersErr != nil {
+		return handlers.ResponseForError(h.Logger(), ordersErr)
+	}
+	if orders.IsCompleteForGBL() != true {
+		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"), http.StatusExpectationFailed)
 	}
 
 	// Create PDF for GBL
@@ -520,7 +582,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	aFile, err := h.FileStorer().FileSystem().Create("some name")
+	aFile, err := h.FileStorer().FileSystem().Create(gbl.GBLNumber1)
 	if err != nil {
 		h.Logger().Error("Error creating a new afero file for GBL form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
@@ -541,7 +603,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment
-	_, verrs, err = shipment.Move.CreateMoveDocument(h.DB(),
+	doc, verrs, err := shipment.Move.CreateMoveDocument(h.DB(),
 		uploads,
 		&shipmentID,
 		models.MoveDocumentTypeGOVBILLOFLADING,
@@ -552,25 +614,24 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	url, err := uploader.PresignedURL(upload)
+
+	documentPayload, err := payloadForDocumentModel(h.FileStorer(), doc.Document)
 	if err != nil {
-		h.Logger().Error("failed to get presigned url", zap.Error(err))
+		h.Logger().Error("Error fetching document for gbl doc", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	// TODO: (andrea) Return a document payload instead, once the HHG document is defined in public swagger
-	// This one is copy pasted from internal.yaml to api.yaml :/
-	uploadPayload := &apimessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	moveDocumentPayload := &apimessages.MoveDocumentPayload{
+		ID:               handlers.FmtUUID(doc.ID),
+		ShipmentID:       handlers.FmtUUIDPtr(doc.ShipmentID),
+		Document:         documentPayload,
+		Title:            handlers.FmtStringPtr(&doc.Title),
+		MoveDocumentType: apimessages.MoveDocumentType(doc.MoveDocumentType),
+		Status:           apimessages.MoveDocumentStatus(doc.Status),
+		Notes:            handlers.FmtStringPtr(doc.Notes),
 	}
-	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(uploadPayload)
 
+	return shipmentop.NewCreateGovBillOfLadingCreated().WithPayload(moveDocumentPayload)
 }
 
 // GetShipmentContactDetailsHandler allows a TSP to accept a particular shipment

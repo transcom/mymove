@@ -55,7 +55,7 @@ export async function RejectShipment(shipmentId, reason) {
 
 export async function TransportShipment(shipmentId, payload) {
   const client = await getPublicClient();
-  const payloadDef = client.spec.definitions.ActualPickupDate;
+  const payloadDef = client.spec.definitions.TransportPayload;
   const response = await client.apis.shipments.transportShipment({
     shipmentId,
     payload: formatPayload(payload, payloadDef),
@@ -71,7 +71,7 @@ export async function DeliverShipment(shipmentId, payload) {
     shipmentId,
     payload: formatPayload(payload, payloadDef),
   });
-  checkResponse(response, 'failed to pick up shipment due to server error');
+  checkResponse(response, 'failed to deliver shipment due to server error');
   return response.body;
 }
 

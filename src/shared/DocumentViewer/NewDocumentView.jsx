@@ -56,21 +56,20 @@ class NewDocumentView extends Component {
     } = this.props;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const documentDetailUrlPrefix = `/shipments/${shipmentId}/documents`;
+    const currentMoveDocumentId = this.props.match.params.moveDocumentId;
 
     return (
       <div className="usa-grid doc-viewer">
         <div className="usa-width-two-thirds">
           <div className="tab-content">
-            <div className="document-contents">
-              <DocumentUploader
-                form="shipmment-documents"
-                initialValues={{}}
-                genericMoveDocSchema={genericMoveDocSchema}
-                moveDocSchema={moveDocSchema}
-                onSubmit={this.handleSubmit}
-                isPublic={true}
-              />
-            </div>
+            <DocumentUploader
+              form="shipment-documents"
+              initialValues={{}}
+              genericMoveDocSchema={genericMoveDocSchema}
+              moveDocSchema={moveDocSchema}
+              onSubmit={this.handleSubmit}
+              isPublic={true}
+            />
           </div>
         </div>
         <div className="usa-width-one-third">
@@ -92,7 +91,11 @@ class NewDocumentView extends Component {
                 </div>
                 <div>
                   {' '}
-                  <DocumentList detailUrlPrefix={documentDetailUrlPrefix} moveDocuments={moveDocuments} />
+                  <DocumentList
+                    currentMoveDocumentId={currentMoveDocumentId}
+                    detailUrlPrefix={documentDetailUrlPrefix}
+                    moveDocuments={moveDocuments}
+                  />
                 </div>
               </TabPanel>
             </Tabs>
