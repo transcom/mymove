@@ -19,7 +19,7 @@
   "command": [
     "-env",
     "container",
-    "-debug_logging"
+    "--debug-logging"
   ],
   "environment": [
     {
