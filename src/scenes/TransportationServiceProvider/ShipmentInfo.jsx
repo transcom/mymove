@@ -235,7 +235,7 @@ class ShipmentInfo extends Component {
       <div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-two-thirds">
-            MOVE INFO - {move.selected_move_type} CODE D
+            MOVE INFO &mdash; {move.selected_move_type} CODE {shipment.traffic_distribution_list.code_of_service}
             <h1>
               {serviceMember.last_name}, {serviceMember.first_name}
             </h1>
