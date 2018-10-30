@@ -25,7 +25,7 @@ describe('office user finds the move', () => {
     cy.get('.usa-alert-success').contains('Move #CANCEL for Submitted, PPM has been canceled');
   });
   it('Service Member starts a new move after previous move is canceled.', () => {
-    cy.signInAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb7');
+    cy.signIntoMyMoveAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb7');
 
     // Landing page contains move canceled alert message
     cy.contains('Your move was canceled');
