@@ -1,6 +1,7 @@
 package dpsapi
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -40,7 +41,13 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 
 	payload, err := getPayload(h.DB(), loginGovID, h.IWSRealTimeBrokerService())
 	if err != nil {
-		h.Logger().Error("Fetching user data from user ID", zap.Error(err))
+		switch e := err.(type) {
+		case *errUserMissingData:
+			h.Logger().Error("Fetching user data from user ID", zap.Error(err), zap.String("user", e.userID.String()))
+		default:
+			h.Logger().Error("Fetching user data from user ID", zap.Error(err))
+		}
+
 		return dps.NewGetUserInternalServerError()
 	}
 
@@ -54,7 +61,10 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerSer
 	}
 
 	if userIdentity.ServiceMemberID == nil {
-		return nil, errors.New("User is missing Service Member ID")
+		return nil, &errUserMissingData{
+			userID:     userIdentity.ID,
+			errMessage: fmt.Sprintf("User %s is missing a service member ID", userIdentity.ID.String()),
+		}
 	}
 
 	sm, err := models.FetchServiceMember(db, *userIdentity.ServiceMemberID)
@@ -68,13 +78,22 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerSer
 		affiliation = &dpsaffiliation
 	}
 
-	ssn, err := getSSNFromIWS(sm.Edipi, rbs)
+	if sm.Edipi == nil {
+		return nil, &errUserMissingData{
+			userID:     userIdentity.ID,
+			errMessage: fmt.Sprintf("User %s is missing EDIPI", userIdentity.ID.String()),
+		}
+	}
+	ssn, err := getSSNFromIWS(*sm.Edipi, rbs)
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting SSN from IWS using EDIPI")
 	}
 
 	if sm.FirstName == nil || sm.LastName == nil {
-		return nil, errors.New("Service member is missing first and/or last name")
+		return nil, &errUserMissingData{
+			userID:     userIdentity.ID,
+			errMessage: fmt.Sprintf("User %s is missing first and/or last name", userIdentity.ID.String()),
+		}
 	}
 
 	payload := dpsmessages.AuthenticationUserPayload{
@@ -91,12 +110,8 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerSer
 	return &payload, nil
 }
 
-func getSSNFromIWS(edipi *string, rbs iws.RealTimeBrokerService) (string, error) {
-	if edipi == nil {
-		return "", errors.New("Service member is missing EDIPI")
-	}
-
-	edipiInt, err := strconv.ParseUint(*edipi, 10, 64)
+func getSSNFromIWS(edipi string, rbs iws.RealTimeBrokerService) (string, error) {
+	edipiInt, err := strconv.ParseUint(edipi, 10, 64)
 	if err != nil {
 		return "", errors.Wrap(err, "Converting EDIPI from string to int")
 	}
