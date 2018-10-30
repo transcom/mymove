@@ -236,7 +236,7 @@ class ShipmentInfo extends Component {
           <div className="usa-width-two-thirds">
             MOVE INFO - {move.selected_move_type} CODE D
             <h1>
-              Shipment Info: {serviceMember.last_name}, {serviceMember.first_name}
+              {serviceMember.last_name}, {serviceMember.first_name}
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
