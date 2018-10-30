@@ -148,6 +148,8 @@ func main() {
 	honeycombDataset := flag.String("honeycomb_dataset", "", "Dataset for Honeycomb")
 	honeycombDebug := flag.Bool("honeycomb_debug", false, "Debug honeycomb using stdout.")
 
+	iwsRbsHost := flag.String("iws_rbs_host", "pkict.dmdc.osd.mil", "Hostname for the IWS RBS")
+
 	flag.Parse()
 
 	logger, err := logging.Config(*env, *debugLogging)
@@ -260,8 +262,11 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
-	rbs := createRealTimeBrokerService(*moveMilDODTLSCert, *moveMilDODTLSKey, logger)
-	handlerContext.SetIWSRealTimeBrokerService(rbs)
+	rbs, err := iws.NewRealTimeBrokerService(*iwsRbsHost, *dodCACertPackage, *moveMilDODTLSCert, *moveMilDODTLSKey)
+	if err != nil {
+		zap.L().Fatal("Could not instantiate IWS RBS", zap.Error(err))
+	}
+	handlerContext.SetIWSRealTimeBrokerService(*rbs)
 
 	// Base routes
 	site := goji.NewMux()
@@ -458,39 +463,5 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(mergedHTML))
-	}
-}
-
-func createRealTimeBrokerService(certString string, keyString string, logger *zap.Logger) iws.RealTimeBrokerService {
-	// Load client cert
-	cert, err := tls.X509KeyPair([]byte(certString), []byte(keyString))
-	if err != nil {
-		logger.Fatal("could not load cert", zap.Error(err))
-	}
-
-	/* TODO: add root CAs when James' PR is in
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(<root cas []byte>)
-	*/
-
-	// Setup HTTPS client
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		//RootCAs:      caCertPool,
-	}
-	tlsConfig.BuildNameToCertificate()
-	transport := &http.Transport{TLSClientConfig: tlsConfig}
-
-	client := http.Client{Transport: transport}
-	host := os.Getenv("IWS_RBS_HOST")
-	custNum := os.Getenv("IWS_RBS_CUST_NUM")
-	if host == "" || custNum == "" {
-		logger.Fatal("IWS host or customer number is not set")
-	}
-
-	return iws.RealTimeBrokerService{
-		Client:  client,
-		Host:    host,
-		CustNum: custNum,
 	}
 }

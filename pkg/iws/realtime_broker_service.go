@@ -1,20 +1,23 @@
 package iws
 
 import (
+	"crypto/tls"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/server"
 )
 
 // RealTimeBrokerService handles requests to the Real-Time Broker Service
 type RealTimeBrokerService struct {
-	Client  http.Client
-	Host    string
-	CustNum string
+	Client http.Client
+	Host   string
 }
 
 // GetPersonUsingSSNParams contains person-specific query parameters for GetPidsUsingSSN
@@ -24,13 +27,14 @@ type GetPersonUsingSSNParams struct {
 	FirstName string
 }
 
+var myMoveCustNum = "2675"
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$")
 var ssnRegex = regexp.MustCompile("^\\d{9}$")
 
 // GetPersonUsingEDIPI retrieves personal information through the IWS:RBS REST API using that person's EDIPI (aka DOD ID number).
 // If matched succesfully, it returns the full name and SSN information, as well as the personnel information for each of the organizations the person belongs to
 func (r RealTimeBrokerService) GetPersonUsingEDIPI(edipi uint64) (*Person, []Personnel, error) {
-	url, err := buildEdiURL(r.Host, r.CustNum, edipi)
+	url, err := buildEdiURL(r.Host, myMoveCustNum, edipi)
 	if err != nil {
 		return nil, []Personnel{}, err
 	}
@@ -46,7 +50,7 @@ func (r RealTimeBrokerService) GetPersonUsingEDIPI(edipi uint64) (*Person, []Per
 // GetPersonUsingSSN retrieves personal information (including EDIPI) through the IWS:RBS REST API using a SSN, last name, and optionally a first name
 // If matched succesfully, it returns the EDIPI, the full name and SSN information, and the personnel information for each of the organizations the person belongs to
 func (r RealTimeBrokerService) GetPersonUsingSSN(params GetPersonUsingSSNParams) (MatchReasonCode, uint64, *Person, []Personnel, error) {
-	url, err := buildPidsURL(r.Host, r.CustNum, params.Ssn, params.LastName, params.FirstName)
+	url, err := buildPidsURL(r.Host, myMoveCustNum, params.Ssn, params.LastName, params.FirstName)
 	if err != nil {
 		return MatchReasonCodeNone, 0, nil, []Personnel{}, err
 	}
@@ -62,7 +66,7 @@ func (r RealTimeBrokerService) GetPersonUsingSSN(params GetPersonUsingSSNParams)
 // GetPersonUsingWorkEmail retrieves personal information (including SSN and EDIPI) through the IWS:RBS REST API using a work e-mail address.
 // If matched succesfully, it returns the EDIPI, the full name and SSN information, and the personnel information for each of the organizations the person belongs to
 func (r RealTimeBrokerService) GetPersonUsingWorkEmail(workEmail string) (uint64, *Person, []Personnel, error) {
-	url, err := buildWkEmaURL(r.Host, r.CustNum, workEmail)
+	url, err := buildWkEmaURL(r.Host, myMoveCustNum, workEmail)
 	if err != nil {
 		return 0, nil, []Personnel{}, err
 	}
@@ -73,6 +77,43 @@ func (r RealTimeBrokerService) GetPersonUsingWorkEmail(workEmail string) (uint64
 	}
 
 	return parseWkEmaResponse(response)
+}
+
+// NewRealTimeBrokerService creates a new instance of RealtimeBrokerService. This should
+// only be instantiated once
+func NewRealTimeBrokerService(host string, dodCACertPackage string, certString string, keyString string) (*RealTimeBrokerService, error) {
+	if host == "" {
+		return nil, errors.New("IWS host is not set")
+	}
+
+	// Load client cert
+	cert, err := tls.X509KeyPair([]byte(certString), []byte(keyString))
+	if err != nil {
+		return nil, err
+	}
+
+	// Load CA certs
+	pkcs7Package, err := ioutil.ReadFile(filepath.Clean(dodCACertPackage)) // to placate GOSEC
+	if err != nil {
+		return nil, err
+	}
+	caCertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
+	if err != nil {
+		return nil, err
+	}
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+	}
+	tlsConfig.BuildNameToCertificate()
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+
+	return &RealTimeBrokerService{
+		Client: http.Client{Transport: transport},
+		Host:   host,
+	}, nil
 }
 
 func (r RealTimeBrokerService) sendGetRequest(url string) ([]byte, error) {

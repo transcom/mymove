@@ -131,10 +131,6 @@
       "value": "/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b"
     },
     {
-      "name": "IWS_RBS_CUST_NUM",
-      "value": "2675"
-    },
-    {
       "name": "IWS_RBS_HOST",
       "value": "pkict.dmdc.osd.mil"
     }

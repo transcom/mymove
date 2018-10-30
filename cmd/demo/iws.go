@@ -1,21 +1,16 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/iws"
-	"github.com/transcom/mymove/pkg/server"
 )
 
 func main() {
 	host := flag.String("iws_rbs_host", "", "hostname of the IWS RBS environment")
-	custNum := flag.String("iws_rbs_cust_num", "", "customer number to present when connecting to IWS RBS")
 	dodCaCertPackage := flag.String("dod_ca_package", "", "Path to PKCS7 package containing all DoD Certificate Authority certificates.")
 	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "The DoD-signed TLS certificate for various move.mil services.")
 	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
@@ -28,47 +23,20 @@ func main() {
 	flag.Parse()
 
 	// Load client cert
-	cert, err := tls.X509KeyPair([]byte(*moveMilDODTLSCert), []byte(*moveMilDODTLSKey))
+	rbs, err := iws.NewRealTimeBrokerService(*host, *dodCaCertPackage, *moveMilDODTLSCert, *moveMilDODTLSKey)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	// Load CA certs
-	pkcs7Package, err := ioutil.ReadFile(*dodCaCertPackage)
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-	caCertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	// Setup HTTPS client
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		RootCAs:      caCertPool,
-	}
-	tlsConfig.BuildNameToCertificate()
-	transport := &http.Transport{TLSClientConfig: tlsConfig}
-
-	client := http.Client{Transport: transport}
-
-	rbs := iws.RealTimeBrokerService{
-		Client:  client,
-		Host:    *host,
-		CustNum: *custNum,
-	}
 	var retcode int
 
 	if *edipi != 0 {
-		retcode = edi(rbs, *edipi)
+		retcode = edi(*rbs, *edipi)
 	} else if *ssn != "" {
-		retcode = pids(rbs, *ssn, *lastName, *firstName)
+		retcode = pids(*rbs, *ssn, *lastName, *firstName)
 	} else if *workEmail != "" {
-		retcode = wkEma(rbs, *workEmail)
+		retcode = wkEma(*rbs, *workEmail)
 	} else {
 		flag.Usage()
 		retcode = -1
@@ -78,7 +46,7 @@ func main() {
 }
 
 func edi(rbs iws.RealTimeBrokerService, edipi uint64) int {
-	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: edi\nEDIPI: %d\n", rbs.Host, rbs.CustNum, edipi)
+	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nOperation: edi\nEDIPI: %d\n", rbs.Host, edipi)
 	person, personnel, err := rbs.GetPersonUsingEDIPI(edipi)
 
 	if err != nil {
@@ -96,7 +64,7 @@ func edi(rbs iws.RealTimeBrokerService, edipi uint64) int {
 }
 
 func pids(rbs iws.RealTimeBrokerService, ssn string, lastName string, firstName string) int {
-	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: pids-P\nSSN: %s\nLast Name: %s\nFirst Name: %s\n", rbs.Host, rbs.CustNum, ssn, lastName, firstName)
+	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nOperation: pids-P\nSSN: %s\nLast Name: %s\nFirst Name: %s\n", rbs.Host, ssn, lastName, firstName)
 
 	params := iws.GetPersonUsingSSNParams{
 		Ssn:       ssn,
@@ -120,7 +88,7 @@ func pids(rbs iws.RealTimeBrokerService, ssn string, lastName string, firstName 
 }
 
 func wkEma(rbs iws.RealTimeBrokerService, email string) int {
-	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nCustomer Number: %s\nOperation: wkEma\nWork E-mail: %s\n", rbs.Host, rbs.CustNum, email)
+	fmt.Printf("Identity Web Services: Real-Time Broker Service (REST)\nHost: %s\nOperation: wkEma\nWork E-mail: %s\n", rbs.Host, email)
 	edipi, person, personnel, err := rbs.GetPersonUsingWorkEmail(email)
 
 	if err != nil {
