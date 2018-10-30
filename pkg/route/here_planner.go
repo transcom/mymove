@@ -190,12 +190,12 @@ func (p *herePlanner) TransitDistance(source *models.Address, destination *model
 	return p.LatLongTransitDistance(srcLatLong, destLatLong)
 }
 
-func addKeysToEndpoint(endpoint string, id string, code string) string {
-	return fmt.Sprintf("%s?app_id=%s&app_code=%s", endpoint, id, code)
+func addKeysToEndpoint(endpoint *string, id *string, code *string) string {
+	return fmt.Sprintf("%s?app_id=%s&app_code=%s", *endpoint, *id, *code)
 }
 
 // NewHEREPlanner constructs and returns a Planner which uses the HERE Map API to plan routes.
-func NewHEREPlanner(logger *zap.Logger, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) Planner {
+func NewHEREPlanner(logger *zap.Logger, geocodeEndpoint *string, routeEndpoint *string, appID *string, appCode *string) Planner {
 	return &herePlanner{
 		logger:                  logger,
 		httpClient:              http.Client{Timeout: hereRequestTimeout},

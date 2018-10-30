@@ -18,5 +18,5 @@ func (suite *HereFullSuite) SetupTest() {
 		suite.T().Fatal("You must set HERE_... environment variables to run this test")
 	}
 
-	suite.planner = NewHEREPlanner(suite.logger, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	suite.planner = NewHEREPlanner(suite.logger, &geocodeEndpoint, &routingEndpoint, &testAppID, &testAppCode)
 }
