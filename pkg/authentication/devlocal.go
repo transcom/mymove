@@ -101,12 +101,12 @@ type AssignUserHandler devlocalAuthHandler
 type CreateUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac *Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) *AssignUserHandler {
+func NewAssignUserHandler(ac *Context, db *pop.Connection, sessionConfig *server.SessionCookieConfig) *AssignUserHandler {
 	return &AssignUserHandler{
 		Context:             *ac,
 		db:                  db,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
+		clientAuthSecretKey: sessionConfig.Secret,
+		noSessionTimeout:    sessionConfig.NoTimeout,
 	}
 }
 
@@ -132,12 +132,12 @@ func (h *AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac *Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) *CreateUserHandler {
+func NewCreateUserHandler(ac *Context, db *pop.Connection, sessionConfig *server.SessionCookieConfig) *CreateUserHandler {
 	return &CreateUserHandler{
 		Context:             *ac,
 		db:                  db,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
+		clientAuthSecretKey: sessionConfig.Secret,
+		noSessionTimeout:    sessionConfig.NoTimeout,
 	}
 }
 

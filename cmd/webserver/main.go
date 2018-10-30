@@ -345,7 +345,7 @@ func serveSite(cfg *config.ListenerConfig, hostsConfig *server.HostsConfig, site
 			KeyPEMBlock: []byte(cfg.DoDTLSKey),
 		},
 	}
-	pkcs7Package, err := ioutil.ReadFile(*dodCACertPackage)
+	pkcs7Package, err := ioutil.ReadFile(cfg.DoDCACertPackage)
 	if err != nil {
 		l.Fatal("Failed to read DoD CA certificate package", zap.Error(err))
 	}
@@ -380,7 +380,6 @@ func serveSite(cfg *config.ListenerConfig, hostsConfig *server.HostsConfig, site
 			// using the package of DoD root and intermediate CAs provided by DISA
 			CaCertPool:     dodCACertPool,
 			ClientAuthType: tls.RequireAndVerifyClientCert,
-			CACertPEMBlock: []byte(cfg.DoDCACert),
 			ListenAddress:  hostsConfig.ListenInterface,
 			HTTPHandler:    siteHandler,
 			Logger:         l,
@@ -406,6 +405,7 @@ func dependencies() *di.Container {
 	internalapi.AddProviders(c)
 	publicapi.AddProviders(c)
 	ordersapi.AddProviders(c)
+	dpsapi.AddProviders(c)
 	authentication.AddProviders(c)
 	route.AddProviders(c)
 	notifications.AddProviders(c)

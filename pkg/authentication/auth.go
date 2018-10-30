@@ -87,11 +87,11 @@ type LogoutHandler struct {
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac *Context, clientAuthSecretKey string, noSessionTimeout bool) *LogoutHandler {
+func NewLogoutHandler(ac *Context, sessionConfig *server.SessionCookieConfig) *LogoutHandler {
 	return &LogoutHandler{
 		Context:             *ac,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
+		clientAuthSecretKey: sessionConfig.Secret,
+		noSessionTimeout:    sessionConfig.NoTimeout,
 	}
 }
 
@@ -160,12 +160,12 @@ type CallbackHandler struct {
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) *CallbackHandler {
+func NewCallbackHandler(ac *Context, db *pop.Connection, sessionConfig *server.SessionCookieConfig) *CallbackHandler {
 	return &CallbackHandler{
-		Context:             ac,
+		Context:             *ac,
 		db:                  db,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
+		clientAuthSecretKey: sessionConfig.Secret,
+		noSessionTimeout:    sessionConfig.NoTimeout,
 	}
 }
 

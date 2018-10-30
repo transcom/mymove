@@ -44,12 +44,13 @@ type NewRelicConfig struct {
 
 // ListenerConfig contains configuration for the various HTTP(S) listeners
 type ListenerConfig struct {
-	NoTLSPort     string // Port with no TLS
-	TLSPort       string // Port for regular TLS access
-	MutualTLSPort string // Port for TLS with client certs
-	DoDCACert     string // The DoD CA certificate used to sign the move.mil TLS certificates
-	DoDTLSCert    string // The DoD signed tls certificate for various move.mil services
-	DoDTLSKey     string // The DoD signed tls key for various move.mil services
+	NoTLSPort        string // Port with no TLS
+	TLSPort          string // Port for regular TLS access
+	MutualTLSPort    string // Port for TLS with client certs
+	DoDCACert        string // The DoD CA certificate used to sign the move.mil TLS certificates
+	DoDTLSCert       string // The DoD signed tls certificate for various move.mil services
+	DoDTLSKey        string // The DoD signed tls key for various move.mil services
+	DoDCACertPackage string // Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs
 }
 
 // WebServerConfig rolls up the various bits of config, so parseConfig provider has a sensible return value
@@ -98,6 +99,7 @@ func ParseConfig() WebServerConfig {
 	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	dpsSwagger := flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
 
+	dodCACertPackage := flag.String("dod_ca_package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	moveMilDODCACert := flag.String("move_mil_dod_ca_cert", "", "The DoD CA certificate used to sign the move.mil TLS certificates.")
 	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "the DoD signed tls certificate for various move.mil services.")
 	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "the DoD signed tls key for various move.mil services.")
@@ -210,12 +212,13 @@ func ParseConfig() WebServerConfig {
 			Secret:           *loginGovSecretKey,
 		},
 		TLSConfig: &ListenerConfig{
-			NoTLSPort:     *noTLSPort,
-			TLSPort:       *tlsPort,
-			MutualTLSPort: *mutualTLSPort,
-			DoDCACert:     *moveMilDODCACert,
-			DoDTLSCert:    *moveMilDODTLSCert,
-			DoDTLSKey:     *moveMilDODTLSKey,
+			NoTLSPort:        *noTLSPort,
+			TLSPort:          *tlsPort,
+			MutualTLSPort:    *mutualTLSPort,
+			DoDCACert:        *moveMilDODCACert,
+			DoDTLSCert:       *moveMilDODTLSCert,
+			DoDTLSKey:        *moveMilDODTLSKey,
+			DoDCACertPackage: *dodCACertPackage,
 		},
 	}
 }
