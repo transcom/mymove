@@ -36,6 +36,11 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	loginGovID, err := dpsauth.CookieToLoginGovID(token)
 	if err != nil {
 		h.Logger().Error("Extracting user ID from token", zap.Error(err))
+
+		switch err.(type) {
+		case *dpsauth.ErrInvalidCookie:
+			return dps.NewGetUserUnprocessableEntity()
+		}
 		return dps.NewGetUserInternalServerError()
 	}
 

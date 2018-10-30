@@ -1,6 +1,7 @@
 package dpsauth
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -40,22 +41,21 @@ func LoginGovIDToCookie(userID string) (string, error) {
 // valid, unexpired cookie.
 func CookieToLoginGovID(cookieValue string) (string, error) {
 	if !strings.HasPrefix(cookieValue, prefix) {
-		return "", errors.New("Invalid cookie: missing prefix")
+		return "", &ErrInvalidCookie{errMessage: "Invalid cookie: missing prefix"}
 	}
 	token, err := jwt.ParseWithClaims(cookieValue[len(prefix):], &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
-	if err != nil || token == nil || !token.Valid {
-		return "", errors.Wrap(err, "Failed token validation")
+	if err != nil {
+		return "", &ErrInvalidCookie{errMessage: fmt.Sprintf("Invalid cookie: unable to parse JWT - %s", err.Error())}
+	}
+
+	if token == nil || !token.Valid {
+		return "", &ErrInvalidCookie{errMessage: "Invalid cookie: failed JWT validation"}
 	}
 
 	claims := token.Claims.(*jwt.StandardClaims)
-
-	if time.Now().Unix() > claims.ExpiresAt {
-		return "", errors.New("Cookie is expired")
-	}
-
 	return claims.Subject, nil
 }
 
