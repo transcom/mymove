@@ -9,8 +9,6 @@
   * [Style and Conventions](#style-and-conventions)
   * [Querying the Database Safely](#querying-the-database-safely)
   * [`models.Fetch*` functions](#modelsfetch-functions)
-  * [Instrumentation](#instrumentation)
-    * [What Fields Should be Added to Honeycomb](#what-fields-should-be-added-to-honeycomb)
   * [Logging](#logging)
     * [Logging Levels](#logging-levels)
   * [Errors](#errors)
@@ -128,50 +126,6 @@ This is for a few reasons:
   models are used makes the code more consistent and avoids needing to convert to and from pointers.
 * Any methods on struct model instances need to have pointer receivers in order to mutate the struct. This is a common point of confusion
   and an easy way to introduce bugs into a codebase.
-
-### Instrumentation
-
-[Honeycomb](https://honeycomb.io) is a hosted service used debug requests flowing through the live AWS environments. The MyMove application is configured to send events to the HoneyComb API using the [beeline-go](https://docs.honeycomb.io/getting-data-in/beelines/go-beeline/) library. The library ties into the [HTTP handler](https://golang.org/pkg/net/http/#Handler) and sends structured events to the Honeycomb API. By default, beeline-go derives fields from the incoming HTTP request. Each HTTP request maps to 1 event in Honeycomb. Below is a sample of some of the fields that are captured.
-
-| field name           | field value             |
-|----------------------|-------------------------|
-| request.path         | /internal/duty_stations |
-| duration_ms          | 848.190559              |
-| response.status_code | 200                     |
-
-The standard HTTP fields are a good start, but Honeycomb is more useful when we add more fields specific to MyMove. For example, we also send the various ids associated with a session.
-
-| field name                    | field value                          |
-|-------------------------------|--------------------------------------|
-| app.session.office_user_id    | 00000000-0000-0000-0000-000000000000 |
-| app.session.service_member_id | 2825c651-1343-40c3-a62e-2884cab25606 |
-| app.session.tsp_user_id       | 00000000-0000-0000-0000-000000000000 |
-| app.session.user_id           | 59cba4f7-99de-4d39-8b5b-3373efc7ea4c |
-
-These event is stored in the [HTTP request context](https://golang.org/pkg/net/http/#Request.Context). New fields can be added by calling [AddField](https://godoc.org/github.com/honeycombio/beeline-go#AddField).
-
-```golang
-    mw := func(w http.ResponseWriter, r *http.Request) {
-            session := auth.SessionFromRequestContext(r)
-            beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
-    }
-```
-
-As you can see in the session ids example above, all new fields will show up in the Honeycomb query UI with a prefix of `app.{field_name}`.
-
-#### What Fields Should be Added to Honeycomb
-
-_Do_:
-
-* Try to come up with good field names that are descriptive to the data being represented.
-  * A good naming convention to follow is `{go pkg name}.{field name}`, so for the session package `session.office_user_id`
-* More fields are better. The Honeycomb dataset is only as powerful as the data we decide to send, so if you think it would be useful to query requests on a particular field name, add it sooner rather than later.
-* Honeycomb does a particularly good job of filtering events with unique fields like UUIDs.
-
-_Don't_:
-
-* Any fields that could potentially contain Personally Identifiable Information (PII) is a no go.
-  * Examples of PII include Name, email, social security number, date of birth etc.
 
 ### Logging
 

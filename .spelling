@@ -366,14 +366,18 @@ request.path
 duty_stations
 duration_ms
 response.status_code
-app.session.office_user_id
-app.session.service_member_id
-app.session.tsp_user_id
-app.session.user_id
 AddField
 UUIDs
-2825c651-1343-40c3-a62e-2884cab25606
-59cba4f7-99de-4d39-8b5b-3373efc7ea4c
+hnyzap
+TraceDebug
+TraceInfo
+TraceWarn
+TraceError
+TraceFatal
+SubmitMoveHandler
+auth.office_user_id
+span.AddField
+zap.Object
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md
