@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -147,6 +148,8 @@ func main() {
 	honeycombDataset := flag.String("honeycomb_dataset", "", "Dataset for Honeycomb")
 	honeycombDebug := flag.Bool("honeycomb_debug", false, "Debug honeycomb using stdout.")
 
+	iwsRbsHost := flag.String("iws_rbs_host", "", "Hostname for the IWS RBS")
+
 	flag.Parse()
 
 	logger, err := logging.Config(*env, *debugLogging)
@@ -258,6 +261,12 @@ func main() {
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
+
+	rbs, err := iws.NewRealTimeBrokerService(*iwsRbsHost, *dodCACertPackage, *moveMilDODTLSCert, *moveMilDODTLSKey)
+	if err != nil {
+		zap.L().Fatal("Could not instantiate IWS RBS", zap.Error(err))
+	}
+	handlerContext.SetIWSRealTimeBrokerService(*rbs)
 
 	// Base routes
 	site := goji.NewMux()
