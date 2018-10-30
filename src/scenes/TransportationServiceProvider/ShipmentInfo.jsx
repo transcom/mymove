@@ -7,6 +7,7 @@ import { get, capitalize } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -58,8 +59,8 @@ import PickupForm from './PickupForm';
 import './tsp.css';
 
 const attachmentsErrorMessages = {
-  400: 'There is already a GBL for this shipment. ',
-  417: 'Missing data required to generate a GBL.',
+  400: 'An error occurred',
+  417: 'Missing data required to generate a Bill of Lading.',
 };
 
 class AcceptShipmentPanel extends Component {
@@ -162,8 +163,6 @@ class ShipmentInfo extends Component {
 
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
-  packShipment = values => this.props.packShipment(this.props.shipment.id, values);
-
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   // Access Service Agent Panels
@@ -238,7 +237,7 @@ class ShipmentInfo extends Component {
           <div className="usa-width-two-thirds">
             MOVE INFO - {move.selected_move_type} CODE D
             <h1>
-              Shipment Info: {serviceMember.last_name}, {serviceMember.first_name}
+              {serviceMember.last_name}, {serviceMember.first_name}
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
@@ -308,12 +307,16 @@ class ShipmentInfo extends Component {
 
               {generateGBLError && (
                 <p>
-                  <Alert type="warning" heading="An error occurred">
-                    {attachmentsErrorMessages[this.props.error.statusCode] ||
+                  <Alert
+                    type="warning"
+                    heading={attachmentsErrorMessages[this.props.generateGBLError.status] || 'An error occurred'}
+                  >
+                    {titleCase(get(generateGBLError.response, 'body.message', '')) ||
                       'Something went wrong contacting the server.'}
                   </Alert>
                 </p>
               )}
+
               {generateGBLSuccess && (
                 <p>
                   <Alert type="success" heading="GBL has been created">
@@ -406,19 +409,16 @@ class ShipmentInfo extends Component {
                     </Link>
                   )}
                 </h2>
-                {showDocumentViewer && shipmentDocuments.length ? (
-                  <DocumentList
-                    detailUrlPrefix={`/shipments/${shipmentId}/documents`}
-                    moveDocuments={shipmentDocuments}
-                  />
-                ) : (
-                  <Link className="status" to={newDocumentUrl} target="_blank">
-                    <span>
-                      <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                    </span>
-                    Upload new document
-                  </Link>
-                )}
+                <DocumentList
+                  detailUrlPrefix={`/shipments/${shipmentId}/documents`}
+                  moveDocuments={shipmentDocuments}
+                />
+                <Link className="status upload-documents-link" to={newDocumentUrl} target="_blank">
+                  <span>
+                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
+                  </span>
+                  Upload new document
+                </Link>
               </div>
             </div>
           </div>

@@ -206,6 +206,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:e048ea497a949a07065a2076746a43629df92f2439ae5e2c476d1eb700052fa7"
+  name = "github.com/fullsailor/pkcs7"
+  packages = ["."]
+  pruneopts = ""
+  revision = "8306686428a5fe132eac8cb7c4848af725098bd4"
+
+[[projects]]
+  branch = "master"
   digest = "1:ff0a3cc34addcbd669622ba0dc8231d4eff046eec7b3eae1ccafd06a901279d3"
   name = "github.com/globalsign/mgo"
   packages = [
@@ -1299,6 +1307,7 @@
     "github.com/docker/go-units",
     "github.com/dustin/go-humanize",
     "github.com/felixge/httpsnoop",
+    "github.com/fullsailor/pkcs7",
     "github.com/go-gomail/gomail",
     "github.com/go-openapi/errors",
     "github.com/go-openapi/loads",
@@ -1330,6 +1339,8 @@
     "github.com/securego/gosec/cmd/gosec",
     "github.com/segmentio/chamber",
     "github.com/spf13/afero",
+    "github.com/spf13/pflag",
+    "github.com/spf13/viper",
     "github.com/stretchr/testify/suite",
     "github.com/tealeg/xlsx",
     "github.com/trussworks/pdfcpu/pkg/api",
