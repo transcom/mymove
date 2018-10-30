@@ -1,5 +1,5 @@
 #!/bin/bash
-# Dump the contents of the development database for later restore.
+# Backup the contents of the development database for later restore.
 
 set -eu -o pipefail
 
@@ -8,7 +8,7 @@ export PGPASSWORD="mysecretpassword"
 
 readonly name=${1:-}
 if [[ -z "$name" ]]; then
-  echo "usage: $0 <name for dump>"
+  echo "usage: $0 <name for backup>"
   exit 1
 fi
 
