@@ -24,7 +24,7 @@ export default function HHGShipmentSummary(props) {
       <h3>
         <img src={truckIcon} alt="HHG shipment" /> Shipment - Government moves all of your stuff (HHG)
       </h3>
-      <div className="usa-width-one-half review-section ppm-review-section">
+      <div className="usa-width-one-half review-section ppm-review-section hhg-dates">
         <p className="heading">
           Move Dates
           <span className="edit-section-link">
