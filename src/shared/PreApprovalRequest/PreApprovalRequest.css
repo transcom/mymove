@@ -1,11 +1,10 @@
-
 /*PreApproval Table styles*/
-.accessorial-panel {
+.pre-approval-panel {
   border-width: 3px;
   empty-cells: hide;
   margin-bottom: 18px;
 }
-.accessorial-panel table {
+.pre-approval-panel table {
   table-layout: fixed;
   display: table;
   width: 100%;
@@ -13,40 +12,47 @@
 }
 
 /* Custom widths for columns in the preapproval request table */
-/*Code, Loc. */
-.accessorial-panel table > tbody > tr > th:nth-child(1),
-.accessorial-panel table > tbody > tr > th:nth-child(3) {
-  width: 4%;
+/*Code */
+.pre-approval-panel table > tbody > tr > th:nth-child(1) {
+  width: 5%;
+}
+/* Loc. */
+.pre-approval-panel table > tbody > tr > th:nth-child(3) {
+  width: 9%;
 }
 /*Base Quantity*/
-.accessorial-panel table > tbody > tr > th:nth-child(4) {
-  width: 7%;
+.pre-approval-panel table > tbody > tr > th:nth-child(4) {
+  width: 10%;
 }
 /*Item*/
-.accessorial-panel table > tbody > tr > th:nth-child(2) {
+.pre-approval-panel table > tbody > tr > th:nth-child(2) {
   width: 15%;
 }
 /*Notes*/
-.accessorial-panel table > tbody > tr > th:nth-child(5) {
+.pre-approval-panel table > tbody > tr > th:nth-child(5) {
   width: 16%;
 }
 /*Status*/
-.accessorial-panel table > tbody > tr > th:nth-child(7) {
+.pre-approval-panel table > tbody > tr > th:nth-child(7) {
   width: 12%;
 }
 /* submitted, action icons*/
-.accessorial-panel table > tbody > tr > th:nth-child(6),
-.accessorial-panel table > tbody > tr > th:nth-child(8) {
+.pre-approval-panel table > tbody > tr > th:nth-child(6),
+.pre-approval-panel table > tbody > tr > th:nth-child(8) {
   width: 9%;
 }
 
-.accessorial-panel th,
-.accessorial-panel td {
+.cancel-link {
+  padding: 1em;
+  cursor: pointer;
+}
+.pre-approval-panel th,
+.pre-approval-panel td {
   border: none;
   text-align: left;
 }
 
-.accessorial-panel th {
+.pre-approval-panel th {
   font-weight: bold;
   font-size: 0.8em;
   border-bottom: solid 1px #a2a2a2;
@@ -54,7 +60,7 @@
   padding: 0rem 2rem 1rem 0rem;
 }
 
-.accessorial-panel table > tbody > tr > td {
+.pre-approval-panel table > tbody > tr > td {
   border-bottom: 1px solid #f1f1f1;
   font-size: 0.8em;
   padding: 1rem 1rem 1rem 0rem;
@@ -71,7 +77,7 @@
   cursor: pointer;
 }
 
-.accessorial-panel-modal {
+.pre-approval-panel-modal {
   border: 3px dashed #00a6d2;
   padding-left: 1.7rem;
   padding-right: 1.7rem;
@@ -79,12 +85,20 @@
   padding-bottom: 9px;
 }
 
-.accessorial-panel-modal .title {
+.pre-approval-edit {
+  background-color: #F6FDFE;
+}
+
+.pre-approval-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;
 }
-.accessorial-panel .align-right {
+.pre-approval-panel .align-right {
   text-align: right !important;
+}
+
+.pre-approval-form {
+  font-size: inherit !important;
 }
 
 .cancel button {
@@ -115,6 +129,54 @@
   vertical-align: top;
 }
 
+.bq-explanation {
+  font-size: 0.8em;
+  padding: 0rem 0rem 3rem 0rem;
+}
 
+.bq-explanation p {
+  line-height: 1rem;
+  padding: 0rem 0rem 0rem 0rem;
+}
 
+.bq-explanation li {
+  line-height: 1.5em;
+  margin: 0rem 0rem 0rem 0rem;
+}
 
+tr.delete-active {
+  border-top: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  border-bottom: 2px solid #6BD7F4;
+  background-color: #D3F3FA;
+}
+
+tr.delete-active td {
+  background-color: transparent;
+}
+
+tr.delete-confirm-row td.delete-confirm {
+  border-bottom: 2px dashed #00a6d2;
+  border-left: 2px dashed #00a6d2;
+  border-right: 2px dashed #00a6d2;
+  background-color: #F6FDFE;
+
+  display: table-cell;
+  border-collapse: collapse;
+
+  padding: 0;
+  font-size: 1em;
+}
+
+td.delete-confirm strong {
+  margin: 0 5%;
+}
+
+.tariff400__control {
+  height: 5rem;
+  border-color: #5b616b !important;
+  background-color: rgb(248, 248, 248) !important;
+  box-shadow: none !important;
+  border-radius: 7px !important;
+}

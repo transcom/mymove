@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -10,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -49,20 +51,20 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	})
 
 	addressPayload := fakeAddressPayload()
+	requestedPickupDate := strfmt.Date(testdatagen.DateInsideNonPeakRateCycle)
 
 	newShipment := internalmessages.Shipment{
-		EstimatedPackDays:            swag.Int64(2),
-		EstimatedTransitDays:         swag.Int64(5),
 		PickupAddress:                addressPayload,
-		HasSecondaryPickupAddress:    true,
+		HasSecondaryPickupAddress:    handlers.FmtBool(true),
 		SecondaryPickupAddress:       addressPayload,
-		HasDeliveryAddress:           true,
+		HasDeliveryAddress:           handlers.FmtBool(true),
 		DeliveryAddress:              addressPayload,
-		HasPartialSitDeliveryAddress: true,
+		HasPartialSitDeliveryAddress: handlers.FmtBool(true),
 		PartialSitDeliveryAddress:    addressPayload,
 		WeightEstimate:               swag.Int64(4500),
 		ProgearWeightEstimate:        swag.Int64(325),
 		SpouseProgearWeightEstimate:  swag.Int64(120),
+		RequestedPickupDate:          &requestedPickupDate,
 	}
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment", nil)
@@ -75,28 +77,42 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	}
 
 	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	planner := route.NewTestingPlanner(2000)
+	handler.SetPlanner(planner)
+
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
+	createShipmentPayload := unwrapped.Payload
 
-	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
-	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
-	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
-	suite.Equal(swag.String("D"), unwrapped.Payload.CodeOfService)
-	suite.Equal(swag.String("dHHG"), unwrapped.Payload.Market)
-	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
-	suite.Equal(swag.Int64(5), unwrapped.Payload.EstimatedTransitDays)
-	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PickupAddress)
-	suite.Equal(true, unwrapped.Payload.HasSecondaryPickupAddress)
-	suite.verifyAddressFields(addressPayload, unwrapped.Payload.SecondaryPickupAddress)
-	suite.Equal(true, unwrapped.Payload.HasDeliveryAddress)
-	suite.verifyAddressFields(addressPayload, unwrapped.Payload.DeliveryAddress)
-	suite.Equal(true, unwrapped.Payload.HasPartialSitDeliveryAddress)
-	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PartialSitDeliveryAddress)
-	suite.Equal(swag.Int64(4500), unwrapped.Payload.WeightEstimate)
-	suite.Equal(swag.Int64(325), unwrapped.Payload.ProgearWeightEstimate)
-	suite.Equal(swag.Int64(120), unwrapped.Payload.SpouseProgearWeightEstimate)
+	suite.Equal(strfmt.UUID(move.ID.String()), createShipmentPayload.MoveID)
+	suite.Equal(strfmt.UUID(sm.ID.String()), createShipmentPayload.ServiceMemberID)
+	suite.Equal(internalmessages.ShipmentStatusDRAFT, createShipmentPayload.Status)
+	suite.Equal(swag.String("D"), createShipmentPayload.CodeOfService)
+	suite.Equal(swag.String("dHHG"), createShipmentPayload.Market)
+	suite.EqualValues(3, *createShipmentPayload.EstimatedPackDays)
+	suite.EqualValues(12, *createShipmentPayload.EstimatedTransitDays)
+	suite.verifyAddressFields(addressPayload, createShipmentPayload.PickupAddress)
+	suite.Equal(true, *createShipmentPayload.HasSecondaryPickupAddress)
+	suite.verifyAddressFields(addressPayload, createShipmentPayload.SecondaryPickupAddress)
+	suite.Equal(true, *createShipmentPayload.HasDeliveryAddress)
+	suite.verifyAddressFields(addressPayload, createShipmentPayload.DeliveryAddress)
+	suite.Equal(true, *createShipmentPayload.HasPartialSitDeliveryAddress)
+	suite.verifyAddressFields(addressPayload, createShipmentPayload.PartialSitDeliveryAddress)
+	suite.Equal(swag.Int64(4500), createShipmentPayload.WeightEstimate)
+	suite.Equal(swag.Int64(325), createShipmentPayload.ProgearWeightEstimate)
+	suite.Equal(swag.Int64(120), createShipmentPayload.SpouseProgearWeightEstimate)
+
+	suite.EqualValues(*createShipmentPayload.EstimatedPackDays, 3, "EstimatedPackDays was not updated")
+	suite.EqualValues(*createShipmentPayload.EstimatedTransitDays, 12, "EstimatedTransitDays was not updated")
+	suite.EqualValues(*createShipmentPayload.RequestedPickupDate, requestedPickupDate, "RequestedPickupDate was not updated")
+
+	expectedOriginalDeliveryDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	suite.EqualValues(time.Time(*createShipmentPayload.OriginalDeliveryDate), expectedOriginalDeliveryDate, "OriginalDeliveryDate was not updated")
+
+	expectedOriginalPackDate := time.Date(testdatagen.TestYear, time.September, 27, 0, 0, 0, 0, time.UTC)
+	suite.EqualValues(time.Time(*createShipmentPayload.OriginalPackDate), expectedOriginalPackDate, "OriginalPackDate was not updated")
 
 	count, err := suite.TestDB().Where("move_id=$1", move.ID).Count(&models.Shipment{})
 	suite.Nil(err, "could not count shipments")
@@ -132,12 +148,18 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(swag.String("dHHG"), unwrapped.Payload.Market)
 	suite.Nil(unwrapped.Payload.CodeOfService) // Won't be able to assign a TDL since we do not have a pickup address.
+	suite.Nil(unwrapped.Payload.EstimatedPackDays)
+	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
+	suite.Nil(unwrapped.Payload.ActualPackDate)
+	suite.Nil(unwrapped.Payload.ActualPickupDate)
+	suite.Nil(unwrapped.Payload.ActualDeliveryDate)
+	suite.Equal(internalmessages.ShipmentMoveDatesSummary{}, *unwrapped.Payload.MoveDatesSummary)
 	suite.Nil(unwrapped.Payload.PickupAddress)
-	suite.Equal(false, unwrapped.Payload.HasSecondaryPickupAddress)
+	suite.Equal(false, *unwrapped.Payload.HasSecondaryPickupAddress)
 	suite.Nil(unwrapped.Payload.SecondaryPickupAddress)
-	suite.Equal(false, unwrapped.Payload.HasDeliveryAddress)
+	suite.Equal(false, *unwrapped.Payload.HasDeliveryAddress)
 	suite.Nil(unwrapped.Payload.DeliveryAddress)
-	suite.Equal(false, unwrapped.Payload.HasPartialSitDeliveryAddress)
+	suite.Equal(false, *unwrapped.Payload.HasPartialSitDeliveryAddress)
 	suite.Nil(unwrapped.Payload.PartialSitDeliveryAddress)
 	suite.Nil(unwrapped.Payload.WeightEstimate)
 	suite.Nil(unwrapped.Payload.ProgearWeightEstimate)
@@ -186,9 +208,8 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	newAddress := otherFakeAddressPayload()
 
 	payload := internalmessages.Shipment{
-		EstimatedPackDays:           swag.Int64(15),
-		HasSecondaryPickupAddress:   false,
-		HasDeliveryAddress:          true,
+		HasSecondaryPickupAddress:   handlers.FmtBool(false),
+		HasDeliveryAddress:          handlers.FmtBool(true),
 		DeliveryAddress:             newAddress,
 		SpouseProgearWeightEstimate: swag.Int64(100),
 	}
@@ -206,14 +227,56 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	okResponse := response.(*shipmentop.PatchShipmentOK)
 	patchShipmentPayload := okResponse.Payload
 
-	suite.Equal(patchShipmentPayload.HasDeliveryAddress, true, "HasDeliveryAddress should have been updated.")
+	suite.Equal(*patchShipmentPayload.HasDeliveryAddress, true, "HasDeliveryAddress should have been updated.")
 	suite.verifyAddressFields(newAddress, patchShipmentPayload.DeliveryAddress)
 
-	suite.Equal(patchShipmentPayload.HasSecondaryPickupAddress, false, "HasSecondaryPickupAddress should have been updated.")
+	suite.Equal(*patchShipmentPayload.HasSecondaryPickupAddress, false, "HasSecondaryPickupAddress should have been updated.")
 	suite.Nil(patchShipmentPayload.SecondaryPickupAddress, "SecondaryPickupAddress should have been updated to nil.")
 
-	suite.Equal(*patchShipmentPayload.EstimatedPackDays, int64(15), "EstimatedPackDays should have been set to 15")
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")
+}
+
+func (suite *HandlerSuite) TestSetShipmentDates() {
+	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	sm := move.Orders.ServiceMember
+	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Move:   move,
+			MoveID: move.ID,
+		},
+	})
+
+	req := httptest.NewRequest("POST", "/moves/move_id/shipment/shipment_id", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	requestedPickupDate := strfmt.Date(testdatagen.DateInsideNonPeakRateCycle)
+	payload := internalmessages.Shipment{
+		RequestedPickupDate: &requestedPickupDate,
+	}
+
+	patchShipmentParams := shipmentop.PatchShipmentParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		Shipment:    &payload,
+	}
+
+	planner := route.NewTestingPlanner(2000)
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler.SetPlanner(planner)
+
+	response := handler.Handle(patchShipmentParams)
+	okResponse := response.(*shipmentop.PatchShipmentOK)
+	patchShipmentPayload := okResponse.Payload
+
+	suite.EqualValues(*patchShipmentPayload.EstimatedPackDays, 3, "EstimatedPackDays was not updated")
+	suite.EqualValues(*patchShipmentPayload.EstimatedTransitDays, 12, "EstimatedTransitDays was not updated")
+	suite.EqualValues(*patchShipmentPayload.RequestedPickupDate, requestedPickupDate, "RequestedPickupDate was not updated")
+
+	expectedOriginalDeliveryDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	suite.EqualValues(time.Time(*patchShipmentPayload.OriginalDeliveryDate), expectedOriginalDeliveryDate, "OriginalDeliveryDate was not updated")
+
+	expectedOriginalPackDate := time.Date(testdatagen.TestYear, time.September, 27, 0, 0, 0, 0, time.UTC)
+	suite.EqualValues(time.Time(*patchShipmentPayload.OriginalPackDate), expectedOriginalPackDate, "OriginalPackDate was not updated")
 }
 
 func (suite *HandlerSuite) TestApproveHHGHandler() {

@@ -141,12 +141,12 @@
   version = "v0.3.3"
 
 [[projects]]
-  branch = "master"
   digest = "1:f1a75a8e00244e5ea77ff274baa9559eb877437b240ee7b278f3fc560d9f08bf"
   name = "github.com/dustin/go-humanize"
   packages = ["."]
   pruneopts = ""
   revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -203,6 +203,14 @@
   pruneopts = ""
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e048ea497a949a07065a2076746a43629df92f2439ae5e2c476d1eb700052fa7"
+  name = "github.com/fullsailor/pkcs7"
+  packages = ["."]
+  pruneopts = ""
+  revision = "8306686428a5fe132eac8cb7c4848af725098bd4"
 
 [[projects]]
   branch = "master"
@@ -1311,6 +1319,7 @@
     "github.com/docker/go-units",
     "github.com/dustin/go-humanize",
     "github.com/felixge/httpsnoop",
+    "github.com/fullsailor/pkcs7",
     "github.com/go-gomail/gomail",
     "github.com/go-openapi/errors",
     "github.com/go-openapi/loads",
@@ -1342,6 +1351,8 @@
     "github.com/securego/gosec/cmd/gosec",
     "github.com/segmentio/chamber",
     "github.com/spf13/afero",
+    "github.com/spf13/pflag",
+    "github.com/spf13/viper",
     "github.com/stretchr/testify/suite",
     "github.com/tealeg/xlsx",
     "github.com/trussworks/pdfcpu/pkg/api",

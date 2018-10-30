@@ -1,4 +1,4 @@
-import { fillAndSavePremoveSurvey } from '../../support/testPremoveSurvey';
+import { selectPreMoveSurveyPanel, fillAndSavePremoveSurvey } from '../../support/testPremoveSurvey';
 
 /* global cy */
 describe('TSP Interacts With the Weights & Items Panel', function() {
@@ -73,6 +73,7 @@ function tspUserSeesEstimatedWeights() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
+  selectPreMoveSurveyPanel();
   fillAndSavePremoveSurvey();
 
   // Check that the display view is correct for the estimated weights
@@ -137,6 +138,13 @@ function tspUserEntersNetWeight() {
 
   // Fill out the net weight and save it
   withinWeightsAndItemsPanel(() => {
+    cy.get('label[for="weights.pm_survey_weight_estimate"]').should('have.text', 'TSP estimateOptional');
+    cy
+      .get('input[name="weights.pm_survey_weight_estimate"]')
+      .clear()
+      .first()
+      .type('5000')
+      .blur();
     cy.get('label[for="weights.gross_weight"]').should('have.text', 'Gross');
     cy
       .get('input[name="weights.gross_weight"]')

@@ -12,7 +12,7 @@ export function isMovingExpenseDocument(moveDocument) {
   return includes(expenseTypes, type);
 }
 
-export function createMovingExpenseDocument(
+export function createMovingExpenseDocument({
   moveId,
   personallyProcuredMoveId,
   uploadIds,
@@ -22,7 +22,7 @@ export function createMovingExpenseDocument(
   requestedAmountCents,
   paymentMethod,
   notes,
-) {
+}) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.createMovingExpenseDocument({

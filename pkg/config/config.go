@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
-	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/authentication"
 	"github.com/transcom/mymove/pkg/di"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -33,6 +33,7 @@ type SwaggerConfig struct {
 	Internal string
 	API      string
 	Orders   string
+	DPS      string
 }
 
 // NewRelicConfig contains the App ID and Key for New Relic
@@ -87,6 +88,7 @@ func ParseConfig() WebServerConfig {
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
 	tspHostname := flag.String("http_tsp_server_name", "tsplocal", "Hostname according to environment.")
 	ordersHostname := flag.String("http_orders_server_name", "orderslocal", "Hostname according to environment.")
+	dpsHostname := flag.String("http_dps_server_name", "dpslocal", "Hostname according to environment.")
 
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
@@ -94,6 +96,7 @@ func ParseConfig() WebServerConfig {
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
+	dpsSwagger := flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
 
 	moveMilDODCACert := flag.String("move_mil_dod_ca_cert", "", "The DoD CA certificate used to sign the move.mil TLS certificates.")
 	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "the DoD signed tls certificate for various move.mil services.")
@@ -168,7 +171,8 @@ func ParseConfig() WebServerConfig {
 			MyName:          *myHostname,
 			OfficeName:      *officeHostname,
 			TspName:         *tspHostname,
-			OrdersName:      *ordersHostname},
+			OrdersName:      *ordersHostname,
+			DPSName:         *dpsHostname},
 		Cookie: &server.SessionCookieConfig{
 			Secret:    *clientAuthSecretKey,
 			NoTimeout: *noSessionTimeout,
@@ -177,6 +181,7 @@ func ParseConfig() WebServerConfig {
 			*internalSwagger,
 			*apiSwagger,
 			*ordersSwagger,
+			*dpsSwagger,
 		},
 		Here: &route.HEREConfig{
 			RouteEndpoint:   *hereRouteEndpoint,

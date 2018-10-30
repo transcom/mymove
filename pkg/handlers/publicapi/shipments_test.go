@@ -330,7 +330,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
+	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -379,7 +379,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
+	status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -428,7 +428,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
+	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -477,7 +477,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	numTspUsers := 1
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
-	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
+	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
 	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
@@ -671,9 +671,15 @@ func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	path := fmt.Sprintf("/shipments/%s/transport", shipment.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	actualPickupDate := time.Now()
-	body := apimessages.ActualPickupDate{
+	actualPackDate := testdatagen.Now
+	actualPickupDate := testdatagen.NowPlusTwoDays
+
+	body := apimessages.TransportPayload{
+		ActualPackDate:   handlers.FmtDatePtr(&actualPackDate),
 		ActualPickupDate: handlers.FmtDatePtr(&actualPickupDate),
+		NetWeight:        swag.Int64(2000),
+		GrossWeight:      swag.Int64(3000),
+		TareWeight:       swag.Int64(1000),
 	}
 	params := shipmentop.TransportShipmentParams{
 		HTTPRequest: req,
@@ -686,6 +692,10 @@ func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	okResponse := response.(*shipmentop.TransportShipmentOK)
 	suite.Equal("IN_TRANSIT", string(okResponse.Payload.Status))
 	suite.Equal(actualPickupDate, time.Time(*okResponse.Payload.ActualPickupDate))
+	suite.Equal(actualPackDate, time.Time(*okResponse.Payload.ActualPackDate))
+	suite.Equal(int64(2000), *okResponse.Payload.NetWeight)
+	suite.Equal(int64(3000), *okResponse.Payload.GrossWeight)
+	suite.Equal(int64(1000), *okResponse.Payload.TareWeight)
 }
 
 // TestDeliverShipmentHandler tests the api endpoint that delivers a shipment

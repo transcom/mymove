@@ -7,6 +7,7 @@ type HostsConfig struct {
 	OfficeName      string
 	TspName         string
 	OrdersName      string
+	DPSName         string
 }
 
 // LocalEnvConfig contains environment type and  directories for the running server

@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181017235059_test_tsp_and_tdl.sql")

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
-import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
+import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
 import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -46,8 +46,8 @@ export class Locations extends Component {
 
     return this.props
       .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
-      .then(data => {
-        return this.props.setCurrentShipment(data.body);
+      .then(action => {
+        return this.props.setCurrentShipmentID(Object.keys(action.entities.shipments)[0]);
       })
       .catch(err => {
         this.setState({
@@ -59,7 +59,6 @@ export class Locations extends Component {
 
   render() {
     const { pages, pageKey, error, initialValues } = this.props;
-
     // Shipment Wizard
     return (
       <LocationsWizardForm
@@ -98,10 +97,10 @@ Locations.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdateShipment, setCurrentShipment, getShipment }, dispatch);
+  return bindActionCreators({ createOrUpdateShipment, setCurrentShipmentID, getShipment }, dispatch);
 }
 function mapStateToProps(state) {
-  const shipment = currentShipment(state);
+  const shipment = getCurrentShipment(state);
   const props = {
     schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),

@@ -11,7 +11,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -40,60 +39,70 @@ const (
 )
 
 // Shipment represents a single shipment within a Service Member's move.
-// ActualPickupDate: when the shipment is currently scheduled to be picked up by the TSP
-// RequestedPickupDate: when the shipment was originally scheduled to be picked up
-// DeliveryDate: when the shipment is to be delivered
-// BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
-	ID                                  uuid.UUID                `json:"id" db:"id"`
-	TrafficDistributionListID           *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	TrafficDistributionList             *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
-	ServiceMemberID                     uuid.UUID                `json:"service_member_id" db:"service_member_id"`
-	ServiceMember                       ServiceMember            `belongs_to:"service_member"`
-	ActualPickupDate                    *time.Time               `json:"actual_pickup_date" db:"actual_pickup_date"`
-	ActualPackDate                      *time.Time               `json:"actual_pack_date" db:"actual_pack_date"`
-	ActualDeliveryDate                  *time.Time               `json:"actual_delivery_date" db:"actual_delivery_date"`
-	CreatedAt                           time.Time                `json:"created_at" db:"created_at"`
-	UpdatedAt                           time.Time                `json:"updated_at" db:"updated_at"`
-	SourceGBLOC                         *string                  `json:"source_gbloc" db:"source_gbloc"`
-	DestinationGBLOC                    *string                  `json:"destination_gbloc" db:"destination_gbloc"`
-	GBLNumber                           *string                  `json:"gbl_number" db:"gbl_number"`
-	Market                              *string                  `json:"market" db:"market"`
-	BookDate                            *time.Time               `json:"book_date" db:"book_date"`
-	RequestedPickupDate                 *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
-	MoveID                              uuid.UUID                `json:"move_id" db:"move_id"`
-	Move                                Move                     `belongs_to:"move"`
-	Status                              ShipmentStatus           `json:"status" db:"status"`
-	EstimatedPackDays                   *int64                   `json:"estimated_pack_days" db:"estimated_pack_days"`
-	EstimatedTransitDays                *int64                   `json:"estimated_transit_days" db:"estimated_transit_days"`
-	PickupAddressID                     *uuid.UUID               `json:"pickup_address_id" db:"pickup_address_id"`
-	PickupAddress                       *Address                 `belongs_to:"address"`
-	HasSecondaryPickupAddress           bool                     `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
-	SecondaryPickupAddressID            *uuid.UUID               `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
-	SecondaryPickupAddress              *Address                 `belongs_to:"address"`
-	HasDeliveryAddress                  bool                     `json:"has_delivery_address" db:"has_delivery_address"`
-	DeliveryAddressID                   *uuid.UUID               `json:"delivery_address_id" db:"delivery_address_id"`
-	DeliveryAddress                     *Address                 `belongs_to:"address"`
-	HasPartialSITDeliveryAddress        bool                     `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
-	PartialSITDeliveryAddressID         *uuid.UUID               `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
-	PartialSITDeliveryAddress           *Address                 `belongs_to:"address"`
-	WeightEstimate                      *unit.Pound              `json:"weight_estimate" db:"weight_estimate"`
-	ProgearWeightEstimate               *unit.Pound              `json:"progear_weight_estimate" db:"progear_weight_estimate"`
-	SpouseProgearWeightEstimate         *unit.Pound              `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
-	NetWeight                           *unit.Pound              `json:"net_weight" db:"net_weight"`
-	GrossWeight                         *unit.Pound              `json:"gross_weight" db:"gross_weight"`
-	TareWeight                          *unit.Pound              `json:"tare_weight" db:"tare_weight"`
-	ServiceAgents                       ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
-	PmSurveyConductedDate               *time.Time               `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
-	PmSurveyPlannedPackDate             *time.Time               `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
-	PmSurveyPlannedPickupDate           *time.Time               `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
-	PmSurveyPlannedDeliveryDate         *time.Time               `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
-	PmSurveyWeightEstimate              *unit.Pound              `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
-	PmSurveyProgearWeightEstimate       *unit.Pound              `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
-	PmSurveySpouseProgearWeightEstimate *unit.Pound              `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
-	PmSurveyNotes                       *string                  `json:"pm_survey_notes" db:"pm_survey_notes"`
-	PmSurveyMethod                      string                   `json:"pm_survey_method" db:"pm_survey_method"`
-	ShipmentOffers                      ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
+	ID               uuid.UUID      `json:"id" db:"id"`
+	Status           ShipmentStatus `json:"status" db:"status"`
+	SourceGBLOC      *string        `json:"source_gbloc" db:"source_gbloc"`
+	DestinationGBLOC *string        `json:"destination_gbloc" db:"destination_gbloc"`
+	GBLNumber        *string        `json:"gbl_number" db:"gbl_number"`
+	Market           *string        `json:"market" db:"market"`
+	CreatedAt        time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time      `json:"updated_at" db:"updated_at"`
+
+	// associations
+	TrafficDistributionListID *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	TrafficDistributionList   *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
+	ServiceMemberID           uuid.UUID                `json:"service_member_id" db:"service_member_id"`
+	ServiceMember             ServiceMember            `belongs_to:"service_member"`
+	MoveID                    uuid.UUID                `json:"move_id" db:"move_id"`
+	Move                      Move                     `belongs_to:"move"`
+	ShipmentOffers            ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
+	ServiceAgents             ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
+
+	// dates
+	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"`         // when shipment is scheduled to be picked up by the TSP
+	ActualPackDate       *time.Time `json:"actual_pack_date" db:"actual_pack_date"`             // when packing began
+	ActualDeliveryDate   *time.Time `json:"actual_delivery_date" db:"actual_delivery_date"`     // when shipment was delivered
+	BookDate             *time.Time `json:"book_date" db:"book_date"`                           // when shipment was most recently offered to a TSP
+	RequestedPickupDate  *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`   // when shipment was originally scheduled to be picked up
+	OriginalDeliveryDate *time.Time `json:"original_delivery_date" db:"original_delivery_date"` // when shipment is to be delivered
+	OriginalPackDate     *time.Time `json:"original_pack_date" db:"original_pack_date"`         // when packing is to begin
+
+	// calculated durations
+	EstimatedPackDays    *int64 `json:"estimated_pack_days" db:"estimated_pack_days"`       // how many days it will take to pack
+	EstimatedTransitDays *int64 `json:"estimated_transit_days" db:"estimated_transit_days"` // how many days it will take to get to destination
+
+	// addresses
+	PickupAddressID              *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
+	PickupAddress                *Address   `belongs_to:"address"`
+	HasSecondaryPickupAddress    bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
+	SecondaryPickupAddressID     *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
+	SecondaryPickupAddress       *Address   `belongs_to:"address"`
+	HasDeliveryAddress           bool       `json:"has_delivery_address" db:"has_delivery_address"`
+	DeliveryAddressID            *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
+	DeliveryAddress              *Address   `belongs_to:"address"`
+	HasPartialSITDeliveryAddress bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
+	PartialSITDeliveryAddressID  *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
+	PartialSITDeliveryAddress    *Address   `belongs_to:"address"`
+
+	// weights
+	WeightEstimate              *unit.Pound `json:"weight_estimate" db:"weight_estimate"`
+	ProgearWeightEstimate       *unit.Pound `json:"progear_weight_estimate" db:"progear_weight_estimate"`
+	SpouseProgearWeightEstimate *unit.Pound `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
+	NetWeight                   *unit.Pound `json:"net_weight" db:"net_weight"`
+	GrossWeight                 *unit.Pound `json:"gross_weight" db:"gross_weight"`
+	TareWeight                  *unit.Pound `json:"tare_weight" db:"tare_weight"`
+
+	// pre-move survey
+	PmSurveyConductedDate               *time.Time  `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
+	PmSurveyPlannedPackDate             *time.Time  `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
+	PmSurveyPlannedPickupDate           *time.Time  `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
+	PmSurveyPlannedDeliveryDate         *time.Time  `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
+	PmSurveyWeightEstimate              *unit.Pound `json:"pm_survey_weight_estimate" db:"pm_survey_weight_estimate"`
+	PmSurveyProgearWeightEstimate       *unit.Pound `json:"pm_survey_progear_weight_estimate" db:"pm_survey_progear_weight_estimate"`
+	PmSurveySpouseProgearWeightEstimate *unit.Pound `json:"pm_survey_spouse_progear_weight_estimate" db:"pm_survey_spouse_progear_weight_estimate"`
+	PmSurveyNotes                       *string     `json:"pm_survey_notes" db:"pm_survey_notes"`
+	PmSurveyMethod                      string      `json:"pm_survey_method" db:"pm_survey_method"`
 }
 
 // Shipments is not required by pop and may be deleted
@@ -106,9 +115,9 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
 		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
 		&OptionalInt64IsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
-		&OptionalPoundIsPositive{Field: s.WeightEstimate, Name: "weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
 	), nil
 }
 
@@ -172,6 +181,16 @@ func (s *Shipment) Transport(actualPickupDate time.Time) error {
 	return nil
 }
 
+// Pack updates the Shipment actual pack date. Must be in an Approved state.
+// TODO: cgilmer 2018/10/18 - fold this into the Transport() state change when the fields are merged in the UI
+func (s *Shipment) Pack(actualPackDate time.Time) error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Approved")
+	}
+	s.ActualPackDate = &actualPackDate
+	return nil
+}
+
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
 func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	if s.Status != ShipmentStatusINTRANSIT {
@@ -193,26 +212,6 @@ func (s *Shipment) Complete() error {
 
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
-	// TODO: These values should be ultimately calculated, but we're hard-coding them for now.
-	// TODO: Remove after proper calculations are in place.
-	if s.Status == ShipmentStatusSUBMITTED {
-		if s.EstimatedPackDays == nil {
-			s.EstimatedPackDays = swag.Int64(3)
-		}
-		if s.EstimatedTransitDays == nil {
-			s.EstimatedTransitDays = swag.Int64(10)
-		}
-		if s.ActualDeliveryDate == nil {
-			if s.RequestedPickupDate != nil {
-				newDate := s.RequestedPickupDate.AddDate(0, 0, int(*s.EstimatedTransitDays))
-				s.ActualDeliveryDate = &newDate
-			}
-		}
-		if s.ActualPickupDate == nil {
-			s.ActualPickupDate = s.RequestedPickupDate
-		}
-	}
-
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record
 	// is created/updated.
 	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
@@ -283,8 +282,8 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	return &trafficDistributionList, nil
 }
 
-// CreateShipmentAccessorial creates a new ShipmentAccessorial tied to the Shipment
-func (s *Shipment) CreateShipmentAccessorial(db *pop.Connection, accessorialID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentAccessorial, *validate.Errors, error) {
+// CreateShipmentLineItem creates a new ShipmentLineItem tied to the Shipment
+func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentLineItem, *validate.Errors, error) {
 	var quantity2 unit.BaseQuantity
 	if q2 != nil {
 		quantity2 = unit.BaseQuantity(*q2)
@@ -295,29 +294,29 @@ func (s *Shipment) CreateShipmentAccessorial(db *pop.Connection, accessorialID u
 		notesVal = *notes
 	}
 
-	shipmentAccessorial := ShipmentAccessorial{
-		ShipmentID:    s.ID,
-		AccessorialID: accessorialID,
-		Quantity1:     unit.BaseQuantity(*q1),
-		Quantity2:     quantity2,
-		Location:      ShipmentAccessorialLocation(location),
-		Notes:         notesVal,
-		SubmittedDate: time.Now(),
-		Status:        ShipmentAccessorialStatusSUBMITTED,
+	shipmentLineItem := ShipmentLineItem{
+		ShipmentID:        s.ID,
+		Tariff400ngItemID: tariff400ngItemID,
+		Quantity1:         unit.BaseQuantity(*q1),
+		Quantity2:         quantity2,
+		Location:          ShipmentLineItemLocation(location),
+		Notes:             notesVal,
+		SubmittedDate:     time.Now(),
+		Status:            ShipmentLineItemStatusSUBMITTED,
 	}
 
-	verrs, err := db.ValidateAndCreate(&shipmentAccessorial)
+	verrs, err := db.ValidateAndCreate(&shipmentLineItem)
 	if verrs.HasAny() || err != nil {
-		return &ShipmentAccessorial{}, verrs, err
+		return &ShipmentLineItem{}, verrs, err
 	}
 
-	// Loads accessorial information
-	err = db.Load(&shipmentAccessorial)
+	// Loads line item information
+	err = db.Load(&shipmentLineItem)
 	if err != nil {
-		return &ShipmentAccessorial{}, validate.NewErrors(), err
+		return &ShipmentLineItem{}, validate.NewErrors(), err
 	}
 
-	return &shipmentAccessorial, validate.NewErrors(), nil
+	return &shipmentLineItem, validate.NewErrors(), nil
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment

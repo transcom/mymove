@@ -6,6 +6,7 @@ import (
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/transcom/mymove/pkg/config"
 	"github.com/transcom/mymove/pkg/di"
+	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -18,14 +19,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
-	"go.uber.org/zap"
-	"goji.io"
-	"goji.io/pat"
-
 	"github.com/honeycombio/beeline-go"
 
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
@@ -35,6 +31,9 @@ import (
 	documentServices "github.com/transcom/mymove/pkg/services/document"
 	userServices "github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/storage"
+	"go.uber.org/zap"
+	"goji.io"
+	"goji.io/pat"
 )
 
 // max request body size is 20 mb
@@ -213,6 +212,7 @@ type BuildSiteParams struct {
 	OrdersAPIHandler      ordersapi.Handler
 	PublicAPIHandler      publicapi.Handler
 	InternalAPIHandler    internalapi.Handler
+	DPSAPIHandler         dpsapi.Handler
 	AuthContext           *authentication.Context
 	AuthCallbackHandler   *authentication.CallbackHandler
 	AuthLogoutHandler     *authentication.LogoutHandler
@@ -253,7 +253,7 @@ func buildSite(p BuildSiteParams, l *zap.Logger) (SiteHandler, error) {
 
 	// /orders/* has specific authentication controls
 	ordersMux := goji.SubMux()
-	ordersDetectionMiddleware := auth.OrdersDetectorMiddleware(l, p.Hosts.OrdersName)
+	ordersDetectionMiddleware := server.HostnameDetectorMiddleware(l, p.Hosts.OrdersName)
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(p.Swagger.Orders))
@@ -261,7 +261,15 @@ func buildSite(p BuildSiteParams, l *zap.Logger) (SiteHandler, error) {
 	ordersMux.Handle(pat.New("/*"), p.OrdersAPIHandler)
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
 
-	// Rest of the site is server handled by the root handler
+	dpsMux := goji.SubMux()
+	dpsDetectionMiddleware := server.HostnameDetectorMiddleware(l, p.Hosts.DPSName)
+	dpsMux.Use(dpsDetectionMiddleware)
+	dpsMux.Use(noCacheMiddleware)
+	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(p.Swagger.Orders))
+	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(p.Env.SiteDir, "swagger-ui", "dps.html")))
+	dpsMux.Handle(pat.New("/*"), p.DPSAPIHandler)
+	site.Handle(pat.New("/dps/v0/*"), dpsMux)
+
 	root := goji.NewMux()
 	root.Use(p.SessionCookieMiddleware)
 	root.Use(p.AppDetectorMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
@@ -325,6 +333,7 @@ func buildSite(p BuildSiteParams, l *zap.Logger) (SiteHandler, error) {
 
 func serveSite(cfg *config.ListenerConfig, hostsConfig *server.HostsConfig, siteHandler SiteHandler, l *zap.Logger) error {
 	errChan := make(chan error)
+
 	moveMilCerts := []server.TLSCert{
 		{
 			//Append move.mil cert with CA certificate chain
@@ -336,6 +345,15 @@ func serveSite(cfg *config.ListenerConfig, hostsConfig *server.HostsConfig, site
 			KeyPEMBlock: []byte(cfg.DoDTLSKey),
 		},
 	}
+	pkcs7Package, err := ioutil.ReadFile(*dodCACertPackage)
+	if err != nil {
+		l.Fatal("Failed to read DoD CA certificate package", zap.Error(err))
+	}
+	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
+	if err != nil {
+		l.Fatal("Failed to parse DoD CA certificate package", zap.Error(err))
+	}
+
 	go func() {
 		noTLSServer := server.Server{
 			ListenAddress: hostsConfig.ListenInterface,
@@ -358,8 +376,9 @@ func serveSite(cfg *config.ListenerConfig, hostsConfig *server.HostsConfig, site
 	}()
 	go func() {
 		mutualTLSServer := server.Server{
-			// Only allow certificates validated by the specified
-			// client certificate CA.
+			// Ensure that any DoD-signed client certificate can be validated,
+			// using the package of DoD root and intermediate CAs provided by DISA
+			CaCertPool:     dodCACertPool,
 			ClientAuthType: tls.RequireAndVerifyClientCert,
 			CACertPEMBlock: []byte(cfg.DoDCACert),
 			ListenAddress:  hostsConfig.ListenInterface,

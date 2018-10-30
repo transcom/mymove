@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -5,6 +6,9 @@ import { Redirect } from 'react-router-dom';
 import { get, capitalize } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
+import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
@@ -17,13 +21,22 @@ import {
   selectShipmentDocuments,
   getShipmentDocumentsLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
+import {
+  getAllTariff400ngItems,
+  selectTariff400ngItems,
+  getTariff400ngItemsLabel,
+} from 'shared/Entities/modules/tariff400ngItems';
+import {
+  getAllShipmentLineItems,
+  selectShipmentLineItems,
+  getShipmentLineItemsLabel,
+} from 'shared/Entities/modules/shipmentLineItems';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-
 import {
   loadShipmentDependencies,
   patchShipment,
@@ -39,12 +52,14 @@ import Dates from './Dates';
 import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
+import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import PickupForm from './PickupForm';
 
 import './tsp.css';
 
 const attachmentsErrorMessages = {
   400: 'There is already a GBL for this shipment. ',
-  417: 'Missing data required to generate a Bill of Lading.',
+  417: 'Missing data required to generate a GBL.',
 };
 
 class AcceptShipmentPanel extends Component {
@@ -74,48 +89,61 @@ class AcceptShipmentPanel extends Component {
   }
 }
 
-let PickupDateForm = props => {
+const DeliveryDateFormView = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <SwaggerField fieldName="actual_pickup_date" swagger={schema} required />
-
-      <button onClick={onCancel}>Cancel</button>
-      <button type="submit" disabled={submitting || !valid}>
-        Done
-      </button>
-    </form>
-  );
-};
-
-PickupDateForm = reduxForm({ form: 'pickup_shipment' })(PickupDateForm);
-
-let DeliveryDateForm = props => {
-  const { schema, onCancel, handleSubmit, submitting, valid } = props;
-
-  return (
-    <form onSubmit={handleSubmit}>
+    <form className="infoPanel-wizard" onSubmit={handleSubmit}>
+      <div className="infoPanel-wizard-header">Enter Delivery</div>
       <SwaggerField fieldName="actual_delivery_date" swagger={schema} required />
+      <p className="infoPanel-wizard-help">
+        After clicking "Done", please upload the <strong>destination docs</strong>. Use the "Upload new document" link
+        in the Documents panel at right.
+      </p>
 
-      <button onClick={onCancel}>Cancel</button>
-      <button type="submit" disabled={submitting || !valid}>
-        Done
-      </button>
+      <div className="infoPanel-wizard-actions-container">
+        <a className="infoPanel-wizard-cancel" onClick={onCancel}>
+          Cancel
+        </a>
+        <button className="usa-button-primary" type="submit" disabled={submitting || !valid}>
+          Done
+        </button>
+      </div>
     </form>
   );
 };
 
-DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateForm);
+const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFormView);
+
+// Action Buttons Conditions
+const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
+const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_planned_pack_date;
 
 class ShipmentInfo extends Component {
+  constructor(props) {
+    super(props);
+
+    this.assignServiceMember = React.createRef();
+    this.enterPreMoveSurvey = React.createRef();
+  }
   state = {
     redirectToHome: false,
+    editOriginServiceAgent: false,
+    editPreMoveSurvey: false,
   };
 
   componentDidMount() {
-    this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
-    this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.match.params.shipmentId);
+    this.props.loadShipmentDependencies(this.props.match.params.shipmentId).catch(err => {
+      this.props.history.replace('/');
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if ((!prevProps.shipment.id && this.props.shipment.id) || prevProps.shipment.id !== this.props.shipment.id) {
+      this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
+      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
+    }
   }
 
   acceptShipment = () => {
@@ -132,24 +160,74 @@ class ShipmentInfo extends Component {
     });
   };
 
-  pickupShipment = values => this.props.transportShipment(this.props.shipment.id, values);
+  transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
-  render() {
-    const { context, shipment, shipmentDocuments } = this.props;
+  // Access Service Agent Panels
+  setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
 
+  scrollToOriginServiceAgentPanel = () => {
+    const domNode = ReactDOM.findDOMNode(this.assignServiceMember.current);
+    domNode.scrollIntoView();
+  };
+  toggleEditOriginServiceAgent = () => {
+    this.scrollToOriginServiceAgentPanel();
+    this.setEditServiceAgent(true);
+  };
+
+  // Access Pre Move Survey Panels
+  setEditPreMoveSurvey = editPreMoveSurvey => this.setState({ editPreMoveSurvey });
+
+  scrollToPreMoveSurveyPanel = () => {
+    const domNode = ReactDOM.findDOMNode(this.enterPreMoveSurvey.current);
+    domNode.scrollIntoView();
+  };
+  toggleEditPreMoveSurvey = () => {
+    this.scrollToPreMoveSurveyPanel();
+    this.setEditPreMoveSurvey(true);
+  };
+
+  render() {
+    const {
+      context,
+      shipment,
+      shipmentDocuments,
+      generateGBLSuccess,
+      generateGBLError,
+      generateGBLInProgress,
+      serviceAgents,
+      loadTspDependenciesHasSuccess,
+    } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
 
     const shipmentId = this.props.match.params.shipmentId;
-
+    const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
     const approved = shipment.status === 'APPROVED';
+    const accepted = shipment.status === 'ACCEPTED';
     const inTransit = shipment.status === 'IN_TRANSIT';
+    const pmSurveyComplete = Boolean(
+      shipment.pm_survey_conducted_date &&
+        shipment.pm_survey_method &&
+        shipment.pm_survey_planned_pack_date &&
+        shipment.pm_survey_planned_pickup_date &&
+        shipment.pm_survey_planned_delivery_date &&
+        shipment.pm_survey_weight_estimate,
+    );
+    const gblGenerated =
+      shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+    const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
+    const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
+    const canEnterPackAndPickup = approved && gblGenerated;
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
+    }
+
+    if (!loadTspDependenciesHasSuccess) {
+      return <LoadingPlaceholder />;
     }
 
     return (
@@ -167,23 +245,38 @@ class ShipmentInfo extends Component {
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
-            {!awarded && (
-              <NavLink to="/queues/all" activeClassName="usa-current">
-                <span>All Shipments Queue</span>
+            {approved && (
+              <NavLink to="/queues/approved" activeClassName="usa-current">
+                <span>Approved Shipments Queue</span>
               </NavLink>
             )}
+            {!awarded &&
+              !approved && (
+                <NavLink to="/queues/all" activeClassName="usa-current">
+                  <span>All Shipments Queue</span>
+                </NavLink>
+              )}
           </div>
         </div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>GBL# {gbl}&nbsp;</li>
-              <li>Locator# {move.locator}&nbsp;</li>
+              <li>
+                GBL# {gbl}
+                &nbsp;
+              </li>
+              <li>
+                Locator# {move.locator}
+                &nbsp;
+              </li>
               <li>
                 {this.props.shipment.source_gbloc} to {this.props.shipment.destination_gbloc}
                 &nbsp;
               </li>
-              <li>DoD ID# {serviceMember.edipi}&nbsp;</li>
+              <li>
+                DoD ID# {serviceMember.edipi}
+                &nbsp;
+              </li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -203,15 +296,90 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide panels-body">
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
+              {awarded && (
+                <AcceptShipmentPanel
+                  acceptShipment={this.acceptShipment}
+                  rejectShipment={this.rejectShipment}
+                  shipmentStatus={this.props.shipment.status}
+                />
+              )}
+
+              {generateGBLError && (
+                <p>
+                  <Alert type="warning" heading="An error occurred">
+                    {attachmentsErrorMessages[this.props.error.statusCode] ||
+                      'Something went wrong contacting the server.'}
+                  </Alert>
+                </p>
+              )}
+              {generateGBLSuccess && (
+                <p>
+                  <Alert type="success" heading="GBL has been created">
+                    <span className="usa-grid usa-alert-no-padding">
+                      <span className="usa-width-two-thirds">
+                        Click the button to view, print, or download the GBL.
+                      </span>
+                      <span className="usa-width-one-third">
+                        <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                          <button>View GBL</button>
+                        </Link>
+                      </span>
+                    </span>
+                  </Alert>
+                </p>
+              )}
+              {approved &&
+                pmSurveyComplete &&
+                !gblGenerated && (
+                  <div>
+                    <button onClick={this.generateGBL} disabled={generateGBLInProgress}>
+                      Generate the GBL
+                    </button>
+                  </div>
+                )}
+              {canEnterPreMoveSurvey && (
+                <button className="usa-button-primary" onClick={this.toggleEditPreMoveSurvey}>
+                  Enter pre-move survey
+                </button>
+              )}
+              {canAssignServiceAgents && (
+                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
+                  Assign servicing agents
+                </button>
+              )}
+
+              {inTransit && (
+                <FormButton
+                  FormComponent={DeliveryDateForm}
+                  schema={this.props.deliverSchema}
+                  onSubmit={this.deliverShipment}
+                  buttonTitle="Enter Delivery"
+                />
+              )}
+              {canEnterPackAndPickup && (
+                <FormButton
+                  FormComponent={PickupForm}
+                  schema={this.props.transportSchema}
+                  onSubmit={this.transportShipment}
+                  buttonTitle="Enter Pickup"
+                />
+              )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <PremoveSurvey
+                    ref={this.enterPreMoveSurvey}
+                    editPreMoveSurvey={this.state.editPreMoveSurvey}
+                    setEditPreMoveSurvey={this.setEditPreMoveSurvey}
                     title="Premove Survey"
                     shipment={this.props.shipment}
                     update={this.props.patchShipment}
                   />
+                  <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <ServiceAgents
+                    ref={this.assignServiceMember}
+                    editOriginServiceAgent={this.state.editOriginServiceAgent}
+                    setEditServiceAgent={this.setEditServiceAgent}
                     title="ServiceAgents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
@@ -222,65 +390,30 @@ class ShipmentInfo extends Component {
               )}
             </div>
             <div className="usa-width-one-third">
-              {awarded && (
-                <AcceptShipmentPanel
-                  acceptShipment={this.acceptShipment}
-                  rejectShipment={this.rejectShipment}
-                  shipmentStatus={this.props.shipment.status}
-                />
-              )}
-              {approved && (
-                <FormButton
-                  FormComponent={PickupDateForm}
-                  schema={this.props.pickupSchema}
-                  onSubmit={this.pickupShipment}
-                  buttonTitle="Enter Pickup"
-                />
-              )}
-              {inTransit && (
-                <FormButton
-                  FormComponent={DeliveryDateForm}
-                  schema={this.props.deliverSchema}
-                  onSubmit={this.deliverShipment}
-                  buttonTitle="Enter Delivery"
-                />
-              )}
-              {this.props.generateGBLError && (
-                <Alert type="warning" heading="An error occurred">
-                  {attachmentsErrorMessages[this.props.error.statusCode] ||
-                    'Something went wrong contacting the server.'}
-                </Alert>
-              )}
-              {this.props.generateGBLSuccess && (
-                <Alert type="success" heading="Success!">
-                  GBL generated successfully.
-                </Alert>
-              )}
-              <div>
-                <button onClick={this.generateGBL}>Generate Bill of Lading</button>
-              </div>
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
                 <CustomerInfo />
               </div>
               <div className="documents">
-                <h2 className="documents-list-header">
+                <h2 className="extras usa-heading">
                   Documents
                   {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                   {showDocumentViewer && (
-                    <Link to={`/shipments/${shipmentId}/documents/new`} target="_blank">
+                    <Link to={newDocumentUrl} target="_blank">
                       <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                     </Link>
                   )}
                 </h2>
-                {showDocumentViewer && shipmentDocuments.length ? (
-                  <DocumentList
-                    detailUrlPrefix={`/shipments/${shipmentId}/documents`}
-                    moveDocuments={shipmentDocuments}
-                  />
-                ) : (
-                  <p>No orders have been uploaded.</p>
-                )}
+                <DocumentList
+                  detailUrlPrefix={`/shipments/${shipmentId}/documents`}
+                  moveDocuments={shipmentDocuments}
+                />
+                <Link className="status upload-documents-link" to={newDocumentUrl} target="_blank">
+                  <span>
+                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
+                  </span>
+                  Upload new document
+                </Link>
               </div>
             </div>
           </div>
@@ -297,14 +430,18 @@ const mapStateToProps = state => {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
     shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    tariff400ngItems: selectTariff400ngItems(state),
+    shipmentLineItems: selectShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
+    generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
+    gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
-    pickupSchema: get(state, 'swaggerPublic.spec.definitions.ActualPickupDate', {}),
+    transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
 };
@@ -320,8 +457,12 @@ const mapDispatchToProps = dispatch =>
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
+      getAllTariff400ngItems,
+      getAllShipmentLineItems,
     },
     dispatch,
   );
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
+const connectedShipmentInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
+
+export { DeliveryDateFormView, connectedShipmentInfo as default };

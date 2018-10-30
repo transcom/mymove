@@ -3,12 +3,12 @@ import { shallow } from 'enzyme';
 import PreApprovalTable from './PreApprovalTable';
 
 describe('PreApprovalTable tests', () => {
-  let wrapper, icons;
+  let wrapper;
   const onEdit = jest.fn();
-  const shipment_accessorials = [
+  const shipmentLineItems = [
     {
-      code: '105D',
-      item: 'Unpack Reg Crate',
+      id: 'sldkjf',
+      tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 167000,
       notes: '',
@@ -16,8 +16,8 @@ describe('PreApprovalTable tests', () => {
       status: 'SUBMITTED',
     },
     {
-      code: '105E',
-      item: 'Unpack Reg Crate',
+      id: 'sldsdff',
+      tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 788300,
       notes: 'Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft',
@@ -25,73 +25,43 @@ describe('PreApprovalTable tests', () => {
       status: 'SUBMITTED',
     },
   ];
-  describe('When on approval is passed in and status is submitted', () => {
+  describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
+          shipmentLineItems={shipmentLineItems}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
           onApproval={onEdit}
         />,
       );
-      const icons = wrapper.find('.icon');
-      expect(wrapper.find('.accessorial-panel').length).toEqual(1);
-      expect(icons.length).toBe(6);
+      expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
     });
   });
-  describe('When on approval is NOT passed in and status is SUBMITTED', () => {
-    beforeEach(() => {
+  describe('When a request is being acted upon', () => {
+    it('is the only request that is actionable', () => {
+      const onActivation = jest.fn();
       wrapper = shallow(
         <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
-          isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-        />,
-      );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(4);
-    });
-  });
-  describe('When on approval is passed in and status is APPROVED', () => {
-    beforeEach(() => {
-      shipment_accessorials[0].status = 'APPROVED';
-      shipment_accessorials[1].status = 'APPROVED';
-      wrapper = shallow(
-        <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
+          shipmentLineItems={shipmentLineItems}
+          onRequestActivation={onActivation}
           isActionable={true}
           onEdit={onEdit}
           onDelete={onEdit}
           onApproval={onEdit}
         />,
       );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(2);
-    });
-  });
-  describe('When on approval is NOT passed in and status is APPROVED', () => {
-    beforeEach(() => {
-      shipment_accessorials[0].status = 'APPROVED';
-      shipment_accessorials[1].status = 'APPROVED';
-      wrapper = shallow(
-        <PreApprovalTable
-          shipment_accessorials={shipment_accessorials}
-          isActionable={true}
-          onEdit={onEdit}
-          onDelete={onEdit}
-        />,
-      );
-    });
-    it('it shows the appropriate number of icons.', () => {
-      const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(2);
+      wrapper.setState({ actionRequestId: shipmentLineItems[0].id });
+      const requests = wrapper.find('PreApprovalRequest');
+      expect(requests.length).toEqual(2);
+      requests.forEach(req => {
+        if (req.prop('shipmentLineItem').id === shipmentLineItems[0].id) {
+          expect(req.prop('isActionable')).toBe(true);
+        } else {
+          expect(req.prop('isActionable')).toBe(false);
+        }
+      });
     });
   });
 });

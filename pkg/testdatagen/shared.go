@@ -20,7 +20,6 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
-	Accessorial                              models.ShipmentAccessorial
 	Address                                  models.Address
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
@@ -36,7 +35,7 @@ type Assertions struct {
 	ServiceAgent                             models.ServiceAgent
 	ServiceMember                            models.ServiceMember
 	Shipment                                 models.Shipment
-	ShipmentAccessorial                      models.ShipmentAccessorial
+	ShipmentLineItem                         models.ShipmentLineItem
 	ShipmentOffer                            models.ShipmentOffer
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngZip3                          models.Tariff400ngZip3
@@ -69,20 +68,20 @@ func timePointer(t time.Time) *time.Time {
 func mustCreate(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {
-		log.Panic(fmt.Errorf("Errors encountered saving %v: %v", model, err))
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
 	}
 	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("Validation errors encountered saving %v: %v", model, verrs))
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
 	}
 }
 
 func mustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
-		log.Panic(fmt.Errorf("Errors encountered saving %v: %v", model, err))
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
 	}
 	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("Validation errors encountered saving %v: %v", model, verrs))
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
 	}
 }
 

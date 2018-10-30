@@ -162,27 +162,6 @@
   margin-top: 1em;
 }
 
-.document-contents {
-  background: lightgray;
-}
-
-.document-contents .pdf-placeholder {
-  padding: 1em;
-  background: white;
-  font-style: italic;
-  text-align: right;
-}
-
-.document-contents .pdf-placeholder .filename {
-  font-weight: bold;
-  font-style: normal;
-  float: left;
-}
-
-.document-contents .page {
-  padding: 1em;
-}
-
 .orders-page-fields h3 {
   margin-bottom: 0;
 }

@@ -18,10 +18,11 @@ import (
 var qualityBands = []int{1, 2, 3, 4}
 
 // OffersPerQualityBand is a map of the number of shipments to be offered per round to each quality band
+// TODO: change these back to [5, 3, 2, 1] after the B&M pilot
 var OffersPerQualityBand = map[int]int{
-	1: 5,
-	2: 3,
-	3: 2,
+	1: 1,
+	2: 1,
+	3: 1,
 	4: 1,
 }
 
@@ -200,12 +201,15 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 func FetchTSPPerformancesForQualityBandAssignment(tx *pop.Connection, perfGroup TSPPerformanceGroup, mps float64) (TransportationServiceProviderPerformances, error) {
 	var perfs TransportationServiceProviderPerformances
 	err := tx.
+		Select("transportation_service_provider_performances.*").
+		Join("transportation_service_providers AS tsp", "tsp.id = transportation_service_provider_performances.transportation_service_provider_id").
 		Where("traffic_distribution_list_id = ?", perfGroup.TrafficDistributionListID).
 		Where("performance_period_start = ?", perfGroup.PerformancePeriodStart).
 		Where("performance_period_end = ?", perfGroup.PerformancePeriodEnd).
 		Where("rate_cycle_start = ?", perfGroup.RateCycleStart).
 		Where("rate_cycle_end = ?", perfGroup.RateCycleEnd).
 		Where("best_value_score > ?", mps).
+		Where("enrolled = true").
 		Order("best_value_score DESC").
 		All(&perfs)
 
@@ -218,7 +222,9 @@ func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups
 	var perfs TransportationServiceProviderPerformances
 	err := db.
 		Select("traffic_distribution_list_id", "performance_period_start", "performance_period_end", "rate_cycle_start", "rate_cycle_end").
-		Where("quality_band is NULL").
+		Join("transportation_service_providers AS tsp", "tsp.id = transportation_service_provider_performances.transportation_service_provider_id").
+		Where("quality_band IS NULL").
+		Where("enrolled = true").
 		GroupBy("traffic_distribution_list_id", "performance_period_start", "performance_period_end", "rate_cycle_start", "rate_cycle_end").
 		Order("traffic_distribution_list_id, performance_period_start, rate_cycle_start").
 		All(&perfs)

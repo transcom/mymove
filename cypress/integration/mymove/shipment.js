@@ -19,10 +19,23 @@ describe('completing the hhg flow', function() {
     cy.get('button.next').should('be.disabled');
 
     // Calendar move date
+
+    // Try to get today, which should be disabled even after clicked.  We may have to go back a month
+    // to find today since the calendar scrolls to the month with the first available move date.
     cy
-      .get('.DayPicker-Day--today') // gets today, which should be disabled even after clicked
-      .click()
-      .should('have.class', 'DayPicker-Day--disabled');
+      .get('body')
+      .then($body => {
+        if ($body.find('.DayPicker-Day--today').length === 0) {
+          cy.get('.DayPicker-NavButton--prev').click();
+        }
+      })
+      .then(() => {
+        cy
+          .get('.DayPicker-Day--today')
+          .first()
+          .click()
+          .should('have.class', 'DayPicker-Day--disabled');
+      });
 
     // We may or may not have an available date in the current month.  If not, then
     // we skip to the next month which should (at least at this point) have an available
@@ -42,8 +55,9 @@ describe('completing the hhg flow', function() {
           .should('have.class', 'DayPicker-Day--selected');
       });
 
-    // Check for calendar move dates summary
+    // Check for calendar move dates summary and color-coding of calendar.
     cy.contains('Movers Packing');
+    cy.get('.DayPicker-Day.DayPicker-Day--pickup');
     cy.nextPage();
 
     cy.location().should(loc => {
@@ -93,28 +107,87 @@ describe('completing the hhg flow', function() {
     cy.nextPage();
 
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-form/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-weight/);
     });
 
-    // Weights
+    // Weight calculator
+    cy
+      .get('input[name="rooms"]')
+      .clear()
+      .type('9');
+
+    cy.get('select[name="stuff"]').select('more');
+
+    cy.get('input[name="weight_estimate"]').should('have.value', '13500');
+
+    // Weight over entitlement
     cy
       .get('input[name="weight_estimate"]')
       .clear()
-      .type('3000')
+      .type('50000');
+
+    cy.contains('Entitlement exceeded');
+
+    // Weight
+    cy
+      .get('input[name="weight_estimate"]')
+      .clear()
+      .type('3000');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-progear/);
+    });
+
+    // Progear Weights
+
+    // Check yes for radios
+    cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
+
+    cy
       .get('input[name="progear_weight_estimate"]')
       .clear()
-      .type('250')
+      .type('2500');
+
+    cy.contains('Entitlement exceeded');
+
+    cy
+      .get('input[name="progear_weight_estimate"]')
+      .clear()
+      .type('250');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
+
+    cy
+      .get('input[name="spouse_progear_weight_estimate"]')
+      .clear()
+      .type('1580');
+
+    cy.contains('Entitlement exceeded');
+
+    cy
       .get('input[name="spouse_progear_weight_estimate"]')
       .clear()
       .type('158');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
 
     // Review page
     cy.nextPage();
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
     });
+    cy.contains('Government moves all of your stuff (HHG)');
 
-    // TODO: when shipment info is available on Review page, test edit of fields
+    cy.contains('123 Elm Street'); // pickup address
+    cy.contains('543 Oak Street'); // secondary pickup address
+    cy.contains('678 Madrone Street'); // destination address
+
+    cy.contains('3,000 lbs + 250 lbs pro-gear + 158 lbs spouse pro-gear');
+    cy.contains('Great! You appear within your weight allowance.');
 
     cy.nextPage();
     cy.contains('SIGNATURE');
@@ -123,6 +196,6 @@ describe('completing the hhg flow', function() {
     // Status summary page
     cy.nextPage();
     cy.contains('Success');
-    cy.contains('Next Step: Awaiting approval');
+    cy.contains('Government Movers and Packers');
   });
 });

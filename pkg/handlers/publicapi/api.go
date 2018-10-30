@@ -46,10 +46,11 @@ func NewPublicAPIHandler(context handlers.HandlerContext) Handler {
 	publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{context}
 
 	// Accessorials
-	publicAPI.AccessorialsGetShipmentAccessorialsHandler = GetShipmentAccessorialsHandler{context}
-	publicAPI.AccessorialsUpdateShipmentAccessorialHandler = UpdateShipmentAccessorialHandler{context}
-	publicAPI.AccessorialsCreateShipmentAccessorialHandler = CreateShipmentAccessorialHandler{context}
-	publicAPI.AccessorialsDeleteShipmentAccessorialHandler = DeleteShipmentAccessorialHandler{context}
+	publicAPI.AccessorialsGetShipmentLineItemsHandler = GetShipmentLineItemsHandler{context}
+	publicAPI.AccessorialsUpdateShipmentLineItemHandler = UpdateShipmentLineItemHandler{context}
+	publicAPI.AccessorialsCreateShipmentLineItemHandler = CreateShipmentLineItemHandler{context}
+	publicAPI.AccessorialsDeleteShipmentLineItemHandler = DeleteShipmentLineItemHandler{context}
+	publicAPI.AccessorialsApproveShipmentLineItemHandler = ApproveShipmentLineItemHandler{context}
 
 	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 

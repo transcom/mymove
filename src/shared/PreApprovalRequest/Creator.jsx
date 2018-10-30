@@ -17,17 +17,18 @@ export class Creator extends Component {
   }
   openForm = () => {
     this.setState({ showForm: true });
-    this.props.onFormActivation(false);
+    this.props.onFormActivation(true);
   };
   closeForm = () => {
     this.setState({ showForm: false });
-    this.props.onFormActivation(true);
+    this.props.onFormActivation(false);
   };
   onSubmit = values => {
     // Convert quantity_1 to base quantity unit before hitting endpoint
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
+    values.tariff400ng_item_id = values.tariff400ng_item.id;
     this.props.savePreApprovalRequest(values);
   };
   saveAndClear = () => {
@@ -38,23 +39,25 @@ export class Creator extends Component {
   saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
-      this.props.onFormActivation(true);
+      this.props.onFormActivation(false);
     });
   };
   render() {
     if (this.state.showForm)
       return (
-        <div className="accessorial-panel-modal">
+        <div className="pre-approval-panel-modal">
           <div className="title">Add a request</div>
-          <PreApprovalForm accessorials={this.props.accessorials} onSubmit={this.onSubmit} />
+          <PreApprovalForm tariff400ngItems={this.props.tariff400ngItems} onSubmit={this.onSubmit} />
           <div className="usa-grid">
-            <div className="usa-width-one-half cancel">
-              <a className="usa-button-secondary" onClick={this.closeForm}>
-                Cancel
-              </a>
+            <div className="usa-width-one-half">
+              <p className="cancel-link">
+                <a className="usa-button-secondary" onClick={this.closeForm}>
+                  Cancel
+                </a>
+              </p>
             </div>
 
-            <div className="usa-width-one-half">
+            <div className="usa-width-one-half align-right">
               <button
                 className="button button-secondary"
                 disabled={!this.props.formEnabled}
@@ -80,7 +83,7 @@ export class Creator extends Component {
   }
 }
 Creator.propTypes = {
-  accessorials: PropTypes.array,
+  tariff400ngItems: PropTypes.array,
   savePreApprovalRequest: PropTypes.func.isRequired,
   formEnabled: PropTypes.bool.isRequired,
   hasSubmitSucceeded: PropTypes.bool.isRequired,

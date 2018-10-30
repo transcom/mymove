@@ -21,7 +21,7 @@ const acceptShipmentType = 'ACCEPT_SHIPMENT';
 const generateGBLType = 'GENERATE_GBL';
 const rejectShipmentType = 'REJECT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
-const deliverShipmentType = 'TRANSPORT_SHIPMENT';
+const deliverShipmentType = 'DELIVER_SHIPMENT';
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
@@ -103,7 +103,8 @@ export function loadShipmentDependencies(shipmentId) {
       await Promise.all([dispatch(loadShipment(shipmentId)), dispatch(indexServiceAgents(shipmentId))]);
       return dispatch(actions.success());
     } catch (ex) {
-      return dispatch(actions.error(ex));
+      dispatch(actions.error(ex));
+      throw new Error(ex);
     }
   };
 }
@@ -138,12 +139,15 @@ const initialState = {
   serviceAgentIsUpdating: false,
   serviceAgentHasUpdatedSucces: false,
   serviceAgentHasUpdatedError: null,
+  shipment: {},
   loadTspDependenciesHasSuccess: false,
   loadTspDependenciesHasError: null,
   flashMessage: false,
   serviceAgents: [],
   generateGBLSuccess: false,
   generateGBLError: null,
+  generateGBLInProgress: false,
+  gblDocUrl: null,
 };
 
 export function tspReducer(state = initialState, action) {
@@ -168,7 +172,6 @@ export function tspReducer(state = initialState, action) {
         shipmentIsLoading: false,
         shipmentHasLoadSuccess: false,
         shipmentHasLoadError: null,
-        shipment: null,
         error: action.error.message,
       });
     case PATCH_SHIPMENT.start:
@@ -244,7 +247,6 @@ export function tspReducer(state = initialState, action) {
         shipmentHasTransportError: null,
         error: action.error.message,
       });
-
     case DELIVER_SHIPMENT.start:
       return Object.assign({}, state, {
         shipmentIsDelivering: true,
@@ -372,17 +374,24 @@ export function tspReducer(state = initialState, action) {
       return Object.assign({}, state, {
         generateGBLSuccess: false,
         generateGBLError: null,
+        generateGBLInProgress: true,
+        gblDocUrl: null,
       });
     case GENERATE_GBL.success:
+      const gblDocumentUrl = '/shipments/' + action.payload.shipment_id + '/documents/' + action.payload.id;
       return Object.assign({}, state, {
         generateGBLSuccess: true,
         generateGBLError: false,
+        generateGBLInProgress: false,
+        gblDocUrl: gblDocumentUrl,
       });
     case GENERATE_GBL.failure:
       return Object.assign({}, state, {
         generateGBLSuccess: false,
         generateGBLError: true,
+        generateGBLInProgress: false,
         error: action.error,
+        gblDocUrl: null,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES

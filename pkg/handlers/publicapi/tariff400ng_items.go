@@ -31,7 +31,7 @@ func payloadForTariff400ngItemModel(a *models.Tariff400ngItem) *apimessages.Tari
 		Code:         *handlers.FmtString(a.Code),
 		DiscountType: *handlers.FmtString(string(a.DiscountType)),
 		Item:         *handlers.FmtString(a.Item),
-		Location:     apimessages.AccessorialLocation(string(a.AllowedLocation)),
+		Location:     apimessages.Tariff400ngItemLocation(string(a.AllowedLocation)),
 		RefCode:      *handlers.FmtString(string(a.RateRefCode)),
 		Uom1:         *handlers.FmtString(string(a.MeasurementUnit1)),
 		Uom2:         *handlers.FmtString(string(a.MeasurementUnit2)),

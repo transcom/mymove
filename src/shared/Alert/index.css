@@ -2,6 +2,14 @@
 	white-space: pre-wrap;
 }
 
-.usa-alert.usa-alert-success p{
+.usa-alert.usa-alert-success p {
 	margin-bottom: 1rem;
+}
+
+.usa-alert .usa-alert-no-padding {
+  padding: 0em;
+}
+
+.usa-alert .usa-alert-right {
+  float: right;
 }

@@ -118,6 +118,8 @@ build_tools: server_deps server_generate
 	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
+	go build -i -o bin/iws ./cmd/demo/iws.go
+	go build -i -o bin/health_checker ./cmd/health_checker
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
@@ -165,8 +167,6 @@ db_dev_run:
 			postgres:10.1 && \
 		DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
-# This is just an alias for backwards compatibility
-db_dev_init: db_dev_run
 db_dev_reset:
 	echo "Attempting to reset local dev database..."
 	docker kill $(DB_DOCKER_CONTAINER) &&	\
@@ -176,10 +176,6 @@ db_dev_migrate: server_deps db_dev_run
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
 		./soda -c ../config/database.yml -p ../migrations migrate up
-db_dev_migrate_down: server_deps db_dev_run
-	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd bin && \
-		./soda -c ../config/database.yml -p ../migrations migrate down
 
 db_e2e_init: build_tools db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
@@ -226,5 +222,5 @@ clean:
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
-.PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset
+.PHONY: db_dev_run db_dev_reset db_dev_migrate db_test_reset
 .PHONY: clean pretty

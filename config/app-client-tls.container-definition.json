@@ -71,6 +71,10 @@
       "value": "orders.{{ .domain }}"
     },
     {
+      "name": "HTTP_DPS_SERVER_NAME",
+      "value": "dps.{{ .domain }}"
+    },
+    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     },
@@ -125,6 +129,10 @@
     {
       "name": "NEW_RELIC_LICENSE_KEY",
       "value": "{{ .NEW_RELIC_LICENSE_KEY }}"
+    },
+    {
+      "name": "DOD_CA_PACKAGE",
+      "value": "/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b"
     }
   ],
   "logConfiguration": {

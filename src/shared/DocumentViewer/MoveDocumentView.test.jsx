@@ -16,6 +16,7 @@ describe('MoveDocumentView', () => {
     const documentView = shallow(
       <MoveDocumentView
         documentDetailUrlPrefix=""
+        match={{ params: {} }}
         moveDocument={defaultMoveDocument}
         moveDocumentSchema={{}}
         moveDocumentId=""
@@ -40,10 +41,12 @@ describe('MoveDocumentView', () => {
     newDocumentUrl = '',
     serviceMember = { name: '', edipi: '' },
     uploads = [],
+    match = { params: {} },
   }) =>
     shallow(
       <MoveDocumentView
         documentDetailUrlPrefix={documentDetailUrlPrefix}
+        match={match}
         moveDocument={moveDocument}
         moveDocumentSchema={moveDocumentSchema}
         moveDocumentId={moveDocumentId}

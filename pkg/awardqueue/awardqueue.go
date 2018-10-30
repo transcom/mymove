@@ -24,7 +24,8 @@ const numQualBands = 4
 
 // Minimum Performance Score (MPS) is the lowest BVS a TSP can have and still be assigned shipments.
 // TODO: This will eventually need to be configurable; implement as something other than a constant.
-const mps = 10
+//       Setting to zero for now to make sure that no TSPs are accidentally excluded.
+const mps = 0
 
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
@@ -41,7 +42,9 @@ func (aq *AwardQueue) findAllUnassignedShipments() (models.Shipments, error) {
 // a TSP.
 // TODO: refactor this method to ensure the transaction is wrapping what it needs to
 func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.ShipmentOffer, error) {
-	aq.logger.Info("Attempting to offer shipment", zap.Any("shipment_id", shipment.ID))
+	aq.logger.Info("Attempting to offer shipment",
+		zap.Any("shipment_id", shipment.ID),
+		zap.Any("traffic_distribution_list_id", shipment.TrafficDistributionListID))
 
 	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
@@ -91,7 +94,14 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 					if isAdministrativeShipment == true {
 						aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 					} else {
-						aq.logger.Info("Shipment offered to TSP!", zap.Int("current_count", tspPerformance.OfferCount))
+						qb := -1
+						if tspPerformance.QualityBand != nil {
+							qb = *tspPerformance.QualityBand
+						}
+
+						aq.logger.Info("Shipment offered to TSP!",
+							zap.Int("quality_band", qb),
+							zap.Int("offer_count", tspPerformance.OfferCount))
 						foundAvailableTSP = true
 
 						// Award the shipment

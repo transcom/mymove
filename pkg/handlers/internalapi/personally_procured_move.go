@@ -239,6 +239,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		err = h.updateEstimates(ppm)
 		if err != nil {
 			h.Logger().Error("Unable to set calculated fields on PPM", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 	}
 
@@ -252,7 +253,6 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 	return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
-
 }
 
 // ppmNeedsEstimatesRecalculated determines whether the fields that comprise

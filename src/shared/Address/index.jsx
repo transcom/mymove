@@ -28,6 +28,10 @@ export const AddressElementDisplay = ({ address, title }) => (
   </PanelField>
 );
 
+AddressElementDisplay.defaultProps = {
+  address: {},
+};
+
 AddressElementDisplay.propTypes = {
   address: PropTypes.shape({
     street_address_1: PropTypes.string,
@@ -40,7 +44,7 @@ AddressElementDisplay.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-export const AddressElementEdit = ({ addressProps, title }) => (
+export const AddressElementEdit = ({ addressProps, title, zipPattern }) => (
   <Fragment>
     <div className="panel-subhead">{title}</div>
     <SwaggerField fieldName="street_address_1" {...addressProps} required />
@@ -48,6 +52,6 @@ export const AddressElementEdit = ({ addressProps, title }) => (
     <SwaggerField fieldName="street_address_3" {...addressProps} />
     <SwaggerField fieldName="city" {...addressProps} required />
     <SwaggerField fieldName="state" {...addressProps} required />
-    <SwaggerField fieldName="postal_code" {...addressProps} required />
+    <SwaggerField fieldName="postal_code" {...addressProps} zipPattern={zipPattern} required />
   </Fragment>
 );

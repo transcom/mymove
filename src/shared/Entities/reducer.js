@@ -15,9 +15,26 @@ function mergeEntities(entities, newEntities) {
   return entities;
 }
 
+// deletes all items from entities with matching key, id in deleteEntities
+function deleteEntities(entities, deleteEntities) {
+  Object.keys(deleteEntities).forEach(function(key) {
+    /* eslint-disable security/detect-object-injection */
+    if (entities[key]) {
+      Object.keys(deleteEntities[key]).forEach(function(id) {
+        delete entities[key][id];
+      });
+    }
+    /* eslint-enable security/detect-object-injection */
+  });
+  return entities;
+}
+
 const initialState = {
-  shipments: {},
+  moves: {},
   moveDocuments: {},
+  shipments: {},
+  tariff400ngItems: {},
+  shipmentLineItems: {},
 };
 
 // Actions of either of these types will be merged into the store:
@@ -30,6 +47,9 @@ export function entitiesReducer(state = initialState, action) {
   if (startsWith(action.type, '@@swagger')) {
     const parts = action.type.split('/');
     if (last(parts) === 'SUCCESS') {
+      if (action.method === 'delete') {
+        return deleteEntities(state, action.entities);
+      }
       return mergeEntities(state, action.entities);
     }
   }

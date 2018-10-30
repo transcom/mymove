@@ -1,4 +1,4 @@
-import { get, uniqueId } from 'lodash';
+import { get, some, uniqueId } from 'lodash';
 import { normalize } from 'normalizr';
 
 // Given a schema path (e.g. shipments.getShipment), return the
@@ -8,9 +8,10 @@ function findMatchingRoute(paths, operationPath) {
 
   let routeDefinition;
   Object.values(paths).some(function(path) {
-    return Object.values(path).some(function(route) {
+    return some(path, function(route, method) {
       if (route.operationId === operationId && route.tags[0] === tagName) {
         routeDefinition = route;
+        routeDefinition.method = method;
         return true;
       }
       return false;
@@ -62,8 +63,8 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
     };
     dispatch({
       type: `@@swagger/${operationPath}/START`,
-      label,
       request: requestLog,
+      label,
     });
 
     let request;
@@ -80,8 +81,9 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
       });
       dispatch({
         type: `@@swagger/${operationPath}/ERROR`,
-        error,
         request: updatedRequestLog,
+        error,
+        label,
       });
       return Promise.reject(error);
     }
@@ -94,16 +96,18 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           isLoading: false,
         });
 
-        const action = {
-          type: `@@swagger/${operationPath}/SUCCESS`,
-          request: updatedRequestLog,
-          response,
-        };
-
         const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
         if (!routeDefinition) {
           throw new Error(`Could not find routeDefinition for ${operationPath}`);
         }
+
+        const action = {
+          type: `@@swagger/${operationPath}/SUCCESS`,
+          request: updatedRequestLog,
+          method: routeDefinition.method,
+          response,
+          label,
+        };
 
         let schemaKey = successfulReturnType(routeDefinition, response.status);
         if (!schemaKey) {
@@ -120,13 +124,13 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
         // eslint-disable-next-line security/detect-object-injection
         const payloadSchema = schema[schemaKey];
-        action.entities = normalizePayload(response.body, payloadSchema).entities;
         if (!payloadSchema) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
+        action.entities = normalizePayload(response.body, payloadSchema).entities;
 
         dispatch(action);
-        return response;
+        return action;
       })
       .catch(response => {
         console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
@@ -136,12 +140,14 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           response,
           isLoading: false,
         });
-        dispatch({
+        const action = {
           type: `@@swagger/${operationPath}/FAILURE`,
-          response,
           request: updatedRequestLog,
-        });
-        return Promise.reject(response);
+          response,
+          label,
+        };
+        dispatch(action);
+        return Promise.reject(action);
       });
   };
 }

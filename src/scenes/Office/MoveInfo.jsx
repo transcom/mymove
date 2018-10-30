@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize, isEmpty, includes } from 'lodash';
+import { get, capitalize, has, isEmpty, includes } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
@@ -28,6 +28,17 @@ import ServiceAgents from './ServiceAgents';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
+import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import {
+  getAllTariff400ngItems,
+  selectTariff400ngItems,
+  getTariff400ngItemsLabel,
+} from 'shared/Entities/modules/tariff400ngItems';
+import {
+  getAllShipmentLineItems,
+  selectShipmentLineItems,
+  getShipmentLineItemsLabel,
+} from 'shared/Entities/modules/shipmentLineItems';
 
 import {
   loadMoveDependencies,
@@ -38,6 +49,7 @@ import {
   cancelMove,
   patchShipment,
   sendHHGInvoice,
+  resetMove,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -97,6 +109,7 @@ const HHGTabContent = props => {
           serviceAgents={props.officeShipment.service_agents}
         />
       )}
+      {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
     </div>
   );
 };
@@ -109,6 +122,17 @@ class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
+    this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
+      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.resetMove();
   }
 
   approveBasics = () => {
@@ -440,6 +464,8 @@ const mapStateToProps = state => ({
   officeHHG: get(state, 'office.officeMove.shipments.0', {}),
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+  tariff400ngItems: selectTariff400ngItems(state),
+  shipmentLineItems: selectShipmentLineItems(state),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),
@@ -461,6 +487,9 @@ const mapDispatchToProps = dispatch =>
       cancelMove,
       patchShipment,
       sendHHGInvoice,
+      getAllTariff400ngItems,
+      getAllShipmentLineItems,
+      resetMove,
     },
     dispatch,
   );
