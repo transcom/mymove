@@ -52,7 +52,7 @@ func (h DPSAuthCookieHandler) Handle(params dps_auth.SetDPSAuthCookieParams) mid
 		h.Logger().Error("Fetching user", zap.Error(err))
 		return dps_auth.NewSetDPSAuthCookieInternalServerError()
 	}
-	cookie, err := dpsauth.UserIDToCookie(user.LoginGovUUID.String())
+	cookie, err := dpsauth.LoginGovIDToCookie(user.LoginGovUUID.String())
 	if err != nil {
 		h.Logger().Error("Converting user ID to cookie value", zap.Error(err))
 		return dps_auth.NewSetDPSAuthCookieInternalServerError()
