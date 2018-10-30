@@ -81,8 +81,14 @@ func CalculateMoveDatesFromShipment(db *pop.Connection, shipment *Shipment) (Mov
 		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
 	}
 
+	// FetchMoveForMoveDates will get all the required associations used below.
+	move, err := FetchMoveForMoveDates(db, shipment.MoveID)
+	if err != nil {
+		return MoveDatesSummary{}, err
+	}
+
 	moveDate := time.Time(*shipment.RequestedPickupDate)
-	return CalculateMoveDates(db, &shipment.Move, moveDate, shipment.EstimatedPackDays, shipment.EstimatedTransitDays)
+	return CalculateMoveDates(db, &move, moveDate, shipment.EstimatedPackDays, shipment.EstimatedTransitDays)
 }
 
 func createFutureMoveDates(startDate time.Time, numDays int64, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {

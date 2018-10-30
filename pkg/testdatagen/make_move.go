@@ -21,12 +21,14 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	if selectedMoveType == nil {
 		selectedMoveType = &defaultMoveType
 	}
+	transitDistance := 100
 	move := models.Move{
 		Orders:           orders,
 		OrdersID:         orders.ID,
 		SelectedMoveType: selectedMoveType,
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
+		TransitDistance:  &transitDistance,
 	}
 
 	// Overwrite values with those from assertions
