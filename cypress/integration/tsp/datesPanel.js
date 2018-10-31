@@ -89,7 +89,7 @@ function tspUserEntersDates() {
 
   cy.reload();
 
-  cy.get('div.original_pack_date').contains('15-May-19');
+  cy.get('div.original_pack_date').contains('13-May-19');
   cy.get('div.pm_survey_planned_pack_date').contains('01-Aug-18');
   cy.get('div.actual_pack_date').contains('02-Aug-18');
 
@@ -156,7 +156,7 @@ function tspUserEntersDates() {
 
   cy.reload();
 
-  cy.get('div.original_delivery_date').contains('15-May-19');
+  cy.get('div.original_delivery_date').contains('20-May-19');
   cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
   cy.get('div.actual_delivery_date').contains('08-Oct-18');
   cy.get('div.rdd').contains('07-Oct-18');
@@ -290,13 +290,13 @@ function tspUserEntersAndRemovesDates() {
 
   cy.get('div.pm_survey_conducted_date').contains('20-Jul-18');
   cy.get('div.pm_survey_method').contains('Phone');
-  cy.get('div.original_pack_date').contains('15-May-19');
+  cy.get('div.original_pack_date').contains('13-May-19');
   cy.get('div.pm_survey_planned_pack_date').contains('01-Aug-18');
   cy.get('div.actual_pack_date').contains('02-Aug-18');
   cy.get('div.requested_pickup_date').contains('15-May-19');
   cy.get('div.pm_survey_planned_pickup_date').contains('02-Aug-18');
   cy.get('div.actual_pickup_date').contains('03-Aug-18');
-  cy.get('div.original_delivery_date').contains('15-May-19');
+  cy.get('div.original_delivery_date').contains('20-May-19');
   cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
   cy.get('div.actual_delivery_date').contains('08-Oct-18');
   cy.get('div.rdd').contains('07-Oct-18');
@@ -378,14 +378,14 @@ function tspUserEntersAndRemovesDates() {
   cy.reload();
 
   cy.get('div.pm_survey_conducted_date').contains('missing');
-  cy.get('div.original_pack_date').contains('15-May-19');
+  cy.get('div.original_pack_date').contains('13-May-19');
   cy.get('div.pm_survey_planned_pack_date').contains('missing');
   cy.get('div.actual_pack_date').contains('missing');
   cy.get('div.requested_pickup_date').contains('15-May-19');
   cy.get('div.pm_survey_planned_pickup_date').contains('missing');
   cy.get('div.actual_pickup_date').contains('missing');
-  cy.get('div.original_delivery_date').contains('15-May-19');
+  cy.get('div.original_delivery_date').contains('20-May-19');
   cy.get('div.pm_survey_planned_delivery_date').contains('missing');
   cy.get('div.actual_delivery_date').contains('missing');
-  cy.get('div.rdd').contains('15-May-19');
+  cy.get('div.rdd').contains('20-May-19');
 }
