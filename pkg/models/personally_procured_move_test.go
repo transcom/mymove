@@ -1,9 +1,9 @@
 package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -32,7 +32,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 	SavePersonallyProcuredMove(suite.db, ppm)
 	session := server.Session{
 		UserID:          serviceMember.User.ID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: server.MyApp,
 		ServiceMemberID: serviceMember.ID,
 	}
 	fetchedPPM, err := FetchPersonallyProcuredMove(suite.db, &session, ppm.ID)

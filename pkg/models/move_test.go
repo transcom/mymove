@@ -1,11 +1,11 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -51,7 +51,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	session := &server.Session{
 		UserID:          order1.ServiceMember.UserID,
 		ServiceMemberID: order1.ServiceMemberID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: server.MyApp,
 	}
 	var selectedType = internalmessages.SelectedMoveTypeHHG
 

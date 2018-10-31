@@ -99,7 +99,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(&loginGovConfig, fakeLoginGovProvider(suite.logger), suite.logger)
-	handler := NewLogoutHandler(authContext, "fake key", false)
+	handler := NewLogoutHandler(authContext, &server.SessionCookieConfig{Secret: "fake key", NoTimeout: false})
 	wrappedHandler := server.NewAppDetectorMiddleware(&hostsConfig, suite.logger)(handler)
 	rr := httptest.NewRecorder()
 	wrappedHandler.ServeHTTP(rr, req.WithContext(ctx))

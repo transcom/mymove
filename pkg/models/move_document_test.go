@@ -3,10 +3,9 @@ package models_test
 import (
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/server"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
@@ -60,7 +59,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 	testdatagen.MakeShipmentOffer(suite.db, assertions)
 	// When: the logged in user is a TSP user
 	session := &server.Session{
-		ApplicationName: auth.TspApp,
+		ApplicationName: server.TspApp,
 		UserID:          *tspUser.UserID,
 		TspUserID:       tspUser.ID,
 	}
@@ -85,7 +84,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 	}
 	// When: a user without authority is logged in
 	session = &server.Session{
-		ApplicationName: auth.TspApp,
+		ApplicationName: server.TspApp,
 		UserID:          sm.UserID,
 		TspUserID:       sm.ID,
 	}
@@ -118,7 +117,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 
 	// User is authorized to fetch move doc
 	session := &server.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: server.MyApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,
 	}
@@ -147,7 +146,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 	session.UserID = *officeUser.UserID
 	session.OfficeUserID = officeUser.ID
-	session.ApplicationName = auth.OfficeApp
+	session.ApplicationName = server.OfficeApp
 
 	moveDocsOffice, err := FetchApprovedMovingExpenseDocuments(suite.db, session, ppm.Move.PersonallyProcuredMoves[0].ID)
 	if suite.NoError(err) {
@@ -176,7 +175,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	})
 	// User is authorized to fetch move doc
 	session := &server.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: server.MyApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,
 	}
@@ -198,7 +197,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 	session.UserID = *officeUser.UserID
 	session.OfficeUserID = officeUser.ID
-	session.ApplicationName = auth.OfficeApp
+	session.ApplicationName = server.OfficeApp
 
 	// Then: move document is returned
 	moveDocOfficeUser, err := FetchMoveDocument(suite.db, session, moveDocument.ID)

@@ -1,11 +1,11 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -74,7 +74,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	// User is authorized to fetch order
 	session := &server.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: server.MyApp,
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
 	}
