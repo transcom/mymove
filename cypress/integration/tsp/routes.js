@@ -6,6 +6,9 @@ describe('TSP User Navigating the App', function() {
   it('tsp user navigates to an invalid shipment', function() {
     tspUserViewsInvalidShipment();
   });
+  it('tsp user enters an invalid url route', function() {
+    tspUserNavigatesToInvalidRoute();
+  });
 });
 
 function unauthorizedTspUserGoesToAuthorizedRoute() {
@@ -27,6 +30,22 @@ function tspUserViewsInvalidShipment() {
   cy.visit('/shipments/some-invalid-uuid');
 
   // redirected to the queues page due to invalid shipment
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+}
+
+function tspUserNavigatesToInvalidRoute() {
+  cy.signIntoTSP();
+
+  // Open new shipments queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // visits an invalid url
+  cy.visit('/i-do-not-exist');
+
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });

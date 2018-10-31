@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -253,9 +254,26 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 
+	// And: the Orders are missing required data
+	shipment.Move.Orders.TAC = nil
+	suite.MustSave(&shipment.Move.Orders)
+
 	// And: the create gbl handler is called
 	handler := CreateGovBillOfLadingHandler{context}
 	response := handler.Handle(params)
+
+	// Then: expect a 417 status code
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse := response.(*handlers.ErrResponse)
+	suite.Assertions.Equal(http.StatusExpectationFailed, errResponse.Code)
+
+	// When: the Orders have all required data
+	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
+	suite.MustSave(&shipment.Move.Orders)
+
+	// And: the create gbl handler is called
+	handler = CreateGovBillOfLadingHandler{context}
+	response = handler.Handle(params)
 
 	// Then: expect a 200 status code
 	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingCreated{}, response)
@@ -265,7 +283,9 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code
-	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingBadRequest{}, response)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	errResponse = response.(*handlers.ErrResponse)
+	suite.Assertions.Equal(http.StatusBadRequest, errResponse.Code)
 
 	// When: an unauthed TSP user hits the handler
 	req = suite.AuthenticateTspRequest(req, unauthedTSPUser)
@@ -650,42 +670,6 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	suite.Equal(false, *shipmentOffer.Accepted)
 	suite.Equal(reason, *shipmentOffer.RejectionReason)
 
-}
-
-// TestPackShipmentHandler tests the api endpoint that transports a shipment
-func (suite *HandlerSuite) TestPackShipmentHandler() {
-	numTspUsers := 1
-	numShipments := 1
-	numShipmentOfferSplit := []int{1}
-	status := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
-	suite.NoError(err)
-
-	tspUser := tspUsers[0]
-	shipment := shipments[0]
-
-	// Handler to Test
-	handler := PackShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-
-	// Test query with first user
-	path := fmt.Sprintf("/shipments/%s/transport", shipment.ID.String())
-	req := httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	actualPackDate := time.Now()
-	body := apimessages.ActualPackDate{
-		ActualPackDate: handlers.FmtDatePtr(&actualPackDate),
-	}
-	params := shipmentop.PackShipmentParams{
-		HTTPRequest: req,
-		ShipmentID:  *handlers.FmtUUID(shipment.ID),
-		Payload:     &body,
-	}
-
-	response := handler.Handle(params)
-	suite.Assertions.IsType(&shipmentop.PackShipmentOK{}, response)
-	okResponse := response.(*shipmentop.PackShipmentOK)
-	suite.Equal("APPROVED", string(okResponse.Payload.Status))
-	suite.Equal(actualPackDate, time.Time(*okResponse.Payload.ActualPackDate))
 }
 
 // TestTransportShipmentHandler tests the api endpoint that transports a shipment

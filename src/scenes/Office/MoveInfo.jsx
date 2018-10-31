@@ -49,6 +49,7 @@ import {
   cancelMove,
   patchShipment,
   sendHHGInvoice,
+  resetMove,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -128,6 +129,10 @@ class MoveInfo extends Component {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
     }
+  }
+
+  componentWillUnmount() {
+    this.props.resetMove();
   }
 
   approveBasics = () => {
@@ -484,6 +489,7 @@ const mapDispatchToProps = dispatch =>
       sendHHGInvoice,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      resetMove,
     },
     dispatch,
   );

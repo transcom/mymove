@@ -17,10 +17,8 @@ type GovBillOfLadingExtractor struct {
 	// GBL Number is in two places on the form
 	GBLNumber1 string `db:"gbl_number_1"`
 	GBLNumber2 string `db:"gbl_number_2"`
-	// TBD - from TSP
+	// From TSP on shipmentOffer
 	TSPName string `db:"tsp_name"`
-	// TBD -from ServiceAgent
-	ServiceAgentName string `db:"service_agent_name"`
 	// From Shipment.TransportationServiceProvider.StandardCarrierAlphaCode
 	StandardCarrierAlphaCode string `db:"standard_carrier_alpha_code"`
 	// From Shipment.TrafficDistributionList.CodeOfService
@@ -127,10 +125,10 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 	sql := `SELECT
 				s.gbl_number AS gbl_number_1,
 				s.gbl_number AS gbl_number_2,
-				s.book_date AS date_issued,
 				s.pm_survey_planned_pack_date AS requested_pack_date,
 				s.pm_survey_planned_pickup_date AS requested_pickup_date,
 				s.pm_survey_planned_delivery_date AS required_delivery_date,
+				CASE WHEN s.has_delivery_address THEN s.delivery_address_id ELSE ds.address_id END AS consignee_address_id,
 				s.secondary_pickup_address_id,
 				s.pickup_address_id,
 				s.destination_gbloc,
@@ -139,11 +137,10 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				sm.edipi AS service_member_edipi,
 				sm.rank AS service_member_rank,
 				sm.affiliation AS service_member_affiliation,
-				sm.residential_address_id AS consignee_address_id,
 				o.issue_date AS orders_issue_date,
 				concat_ws(' ', o.orders_number, o.paragraph_number, o.orders_issuing_agency) AS authority_for_shipment,
 				CASE WHEN o.has_dependents THEN 'WD' ELSE 'WOD' END AS service_member_dependent_status,
-				sa.company AS service_agent_name,
+				tsp.name AS tsp_name,
 				tsp.standard_carrier_alpha_code,
 				tdl.code_of_service,
 				source_to.name AS full_name_of_shipper,
@@ -162,6 +159,8 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				ON s.move_id = m.id
 			INNER JOIN orders o
 				ON m.orders_id = o.id
+			INNER JOIN duty_stations ds
+				ON o.new_duty_station_id = ds.id
 			INNER JOIN service_agents sa
 			ON s.id = sa.shipment_id
 			INNER JOIN transportation_offices source_to
@@ -184,6 +183,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				AND s.pm_survey_planned_delivery_date IS NOT NULL
 				AND sm.edipi IS NOT NULL
 				AND sa.company IS NOT NULL
+				AND tsp.name IS NOT NULL
 				AND o.department_indicator IS NOT NULL
 				AND o.sac IS NOT NULL
 				AND o.tac IS NOT NULL
@@ -194,6 +194,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 	}
 
 	// These values are hardcoded for now
+	gbl.DateIssued = time.Now()
 	gbl.BillChargesToName = "US Bank PowerTrack\n" +
 		"Minneapolis, MN\n" +
 		"800-417-1844\n" +

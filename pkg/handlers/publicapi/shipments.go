@@ -1,6 +1,8 @@
 package publicapi
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -39,10 +41,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
 		ActualPackDate:       handlers.FmtDatePtr(s.ActualPackDate),
 		ActualDeliveryDate:   handlers.FmtDatePtr(s.ActualDeliveryDate),
-		BookDate:             *handlers.FmtDatePtr(s.BookDate),
-		RequestedPickupDate:  *handlers.FmtDatePtr(s.RequestedPickupDate),
-		OriginalDeliveryDate: *handlers.FmtDatePtr(s.OriginalDeliveryDate),
-		OriginalPackDate:     *handlers.FmtDatePtr(s.OriginalPackDate),
+		BookDate:             handlers.FmtDatePtr(s.BookDate),
+		RequestedPickupDate:  handlers.FmtDatePtr(s.RequestedPickupDate),
+		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
+		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
 
 		// calculated durations
 		EstimatedPackDays:    s.EstimatedPackDays,
@@ -282,46 +284,6 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 	}
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewTransportShipmentOK().WithPayload(sp)
-}
-
-// PackShipmentHandler allows a TSP to set actual pack date for a particular shipment
-type PackShipmentHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PackShipmentHandler) Handle(params shipmentop.PackShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
-	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
-	// See original commits in https://github.com/transcom/mymove/pull/802
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewPackShipmentForbidden()
-	}
-
-	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewPackShipmentBadRequest()
-	}
-
-	actualPackDate := (time.Time)(*params.Payload.ActualPackDate)
-
-	err = shipment.Pack(actualPackDate)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	verrs, err := h.DB().ValidateAndUpdate(shipment)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-	sp := payloadForShipmentModel(*shipment)
-	return shipmentop.NewPackShipmentOK().WithPayload(sp)
 }
 
 // DeliverShipmentHandler allows a TSP to start transporting a particular shipment
@@ -572,8 +534,16 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	// Don't allow GBL generation for shipments that already have a GBL move document
 	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
 	if len(extantGBLS) > 0 {
-		h.Logger().Error("There are already GBLs for this shipment.")
-		return shipmentop.NewCreateGovBillOfLadingBadRequest()
+		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("there is already a Bill of Lading for this shipment"), http.StatusBadRequest)
+	}
+
+	// Don't allow GBL generation for incomplete orders
+	orders, ordersErr := models.FetchOrder(h.DB(), shipment.Move.OrdersID)
+	if ordersErr != nil {
+		return handlers.ResponseForError(h.Logger(), ordersErr)
+	}
+	if orders.IsCompleteForGBL() != true {
+		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"), http.StatusExpectationFailed)
 	}
 
 	// Create PDF for GBL

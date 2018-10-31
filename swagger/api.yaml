@@ -884,48 +884,60 @@ definitions:
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
+      book_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      requested_pickup_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        x-nullable: true
+      original_delivery_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
+      original_pack_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        readOnly: true
+        x-nullable: true
       actual_pickup_date:
         type: string
         format: date
-        example: '2018-04-21'
+        example: '2018-04-26'
+        readOnly: true
         x-nullable: true
       actual_pack_date:
         type: string
         format: date
-        example: '2018-04-21'
+        example: '2018-04-26'
+        readOnly: true
         x-nullable: true
       actual_delivery_date:
         type: string
         format: date
-        example: '2018-04-27'
+        example: '2018-04-26'
+        readOnly: true
         x-nullable: true
-      book_date:
-        type: string
-        format: date
-        example: '2018-03-15'
-      requested_pickup_date:
-        type: string
-        format: date
-        example: '2018-04-19'
-      original_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-19'
-      original_pack_date:
-        type: string
-        format: date
-        example: '2018-04-19'
       estimated_pack_days:
-        type: integer
         description: Estimated days packing
+        type: integer
         minimum: 0
-        example: 2
+        example: 3
+        readOnly: true
         x-nullable: true
       estimated_transit_days:
-        type: integer
         description: Estimated days in transit
+        type: integer
         minimum: 0
         example: 30
+        readOnly: true
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
@@ -1266,17 +1278,6 @@ definitions:
       DELIVERED: Delivered
       COMPLETED: Completed
       CANCELED: Canceled
-  ActualPackDate:
-    type: object
-    properties:
-      actual_pack_date:
-        type: string
-        format: date
-        example: '2018-04-02'
-        title: Actual Pack Date
-        x-nullable: true
-    required:
-      - actual_pack_date
   TransportPayload:
     type: object
     properties:
@@ -1990,42 +1991,6 @@ paths:
       responses:
         200:
           description: returns updated (accepted) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to accept this shipment
-        409:
-          description: the shipment is not in a state to be accepted
-          schema:
-            $ref: '#/definitions/Shipment'
-        500:
-          description: server error
-  /shipments/{shipmentId}/pack:
-    post:
-      summary: Updates the pack date of the shipment
-      description: Updates the pack date of the shipment.
-      operationId: packShipment
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - in: body
-          name: payload
-          required: true
-          schema:
-            $ref: '#/definitions/ActualPackDate'
-      responses:
-        200:
-          description: returns updated shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:

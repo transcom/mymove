@@ -7,7 +7,7 @@ var Form1203Layout = FormLayout{
 	FieldsLayout: map[string]FieldPos{
 		"GBLNumber1":               FormField(173, 5, 40, floatPtr(10), floatPtr(4)),
 		"GBLNumber2":               FormField(79, 197, 30, floatPtr(10), floatPtr(4)),
-		"ServiceAgentName":         FormField(28, 12, 79, nil, nil),
+		"TSPName":                  FormField(28, 12, 79, nil, nil),
 		"StandardCarrierAlphaCode": FormField(109, 16, 19, nil, nil),
 		"CodeOfService":            FormField(131, 16, 19, nil, nil),
 		"ShipmentNumber":           FormField(152, 16, 19, nil, nil),
@@ -18,7 +18,6 @@ var Form1203Layout = FormLayout{
 		"ServiceMemberFullName":    FormField(109, 26.5, 30, nil, nil),
 		"ServiceMemberEdipi":       FormField(140, 26.5, 25, nil, nil),
 		"ServiceMemberRank":        FormField(165, 26.5, 50, nil, nil),
-		// "TSPName": FormField(),
 		// "ServiceMemberStatus": FormField(),
 		// "ServiceMemberDependentStatus": FormField(),
 		"AuthorityForShipment":         FormField(110, 37.5, 60, nil, nil),
