@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	"github.com/transcom/mymove/pkg/paperwork"

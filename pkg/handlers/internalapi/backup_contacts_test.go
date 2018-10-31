@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
 
 	contactop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -50,7 +49,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 		t.Errorf("Expected to find 1 result but found %v", len(contacts))
 	}
 
-	if !uuid.Equal(contacts[0].ServiceMember.ID, serviceMember.ID) {
+	if contacts[0].ServiceMember.ID != serviceMember.ID {
 		t.Errorf("Expected to find a backup contact for service member")
 	}
 
