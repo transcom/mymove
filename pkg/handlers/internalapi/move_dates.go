@@ -22,6 +22,7 @@ type MoveDatesSummary struct {
 	ReportDays   []time.Time
 }
 
+// calculateMoveDates is used on the hhg wizard DatePicker page to show move dates summary
 func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDatesSummary, error) {
 	var summary MoveDatesSummary
 
@@ -77,6 +78,7 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 }
 
 // calculateMoveDatesFromShipment takes stored values on the shipment to calculate the most up-to-date move date ranges
+// this is used to display date ranges for the SM HHG review page and the status timeline on the post-hhg-submission landing page
 func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
 	usCalendar := handlers.NewUSCalendar()
 
