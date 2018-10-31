@@ -207,6 +207,41 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
 	/*
+	 * A PPM move that has been canceled.
+	 */
+	email = "ppm-canceled@example.com"
+	uuidStr = "20102768-4d45-449c-a585-81bc386204b1"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	nowTime = time.Now()
+	ppmCanceled := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2da0d5e6-4efb-4ea1-9443-bf9ef64ace65"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Canceled"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("6b88c856-5f41-427e-a480-a7fb6c87533b"),
+			Locator: "PPMCAN",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+		},
+		Uploader: loader,
+	})
+	ppmCanceled.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	ppmCanceled.Move.Cancel("reasons")
+	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+
+	/*
 	 * Service member with orders and a move
 	 */
 	email = "profile@comple.te"
@@ -280,6 +315,36 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
 			Locator: "REWGIE",
+		},
+	})
+
+	/*
+	 * Another service member with orders and a move, but no move type selected
+	 */
+	email = "sm_no_move_type@example.com"
+	uuidStr = "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7554e347-2215-484f-9240-c61bae050220"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHGDude2"),
+			LastName:      models.StringPointer("UserPerson2"),
+			Edipi:         models.StringPointer("6833908164"),
+			PersonalEmail: models.StringPointer(email),
+			DutyStationID: &dutyStation.ID,
+			DutyStation:   dutyStation,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
+			Locator: "ZPGVED",
 		},
 	})
 
@@ -1377,6 +1442,41 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg24 := offer24.Shipment
 	hhg24.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg24.Move)
+
+	/*
+	 * Service member with a cancelled HHG move.
+	 */
+	email = "hhg@cancel.ed"
+
+	hhg25 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("05ea5bc3-fd77-4f42-bdc5-a984a81b3829")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("d27bcb66-fc51-42b6-a13b-c896d34c79fb"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Cancelled"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("da6bf1f4-a810-486d-befe-ddf8e9a4e2ef"),
+			Locator:          "HHGCAN",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("d89dba9c-5ee9-40ee-8430-2e3eb13eedeb"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+	})
+
+	hhg25.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg25.Move)
+	hhg25.Move.Cancel("reasons")
+	models.SaveMoveDependencies(db, &hhg25.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
