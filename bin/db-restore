@@ -6,7 +6,7 @@ set -eu -o pipefail
 export DB_NAME=dev_db
 export PGPASSWORD="mysecretpassword"
 
-list() {
+function list() {
   echo "Available backups are:"
   # shellcheck disable=SC2012
   ls -lctohT tmp/db | awk '{printf "%20s %6s %5s %2s %s\n", $9, $4, $5, $6, $7, $8}'

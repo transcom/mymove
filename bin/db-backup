@@ -6,6 +6,16 @@ set -eu -o pipefail
 export DB_NAME=dev_db
 export PGPASSWORD="mysecretpassword"
 
+function proceed() {
+  proceed_message=${1:-"proceed"}
+  echo -n "${proceed_message} (y/N) "
+  read -r proceed
+  if [[ "$proceed" =~ ^[^yY]*$ ]]; then
+    echo "exiting"
+    exit 0
+  fi
+}
+
 readonly name=${1:-}
 if [[ -z "$name" ]]; then
   echo "usage: $0 <name for backup>"
@@ -13,4 +23,10 @@ if [[ -z "$name" ]]; then
 fi
 
 mkdir -p tmp/db
-pg_dump -h localhost -U postgres -c dev_db > "tmp/db/$name"
+
+readonly path="tmp/db/$name"
+if [[ -f "$path" ]]; then
+  proceed "There is already a backup named '$name'. Do you wish to overwrite it?"
+fi
+
+pg_dump -h localhost -U postgres -c dev_db > "$path"
