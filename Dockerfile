@@ -9,6 +9,6 @@ COPY build /build
 
 ENTRYPOINT ["/bin/mymove-server"]
 
-CMD ["-debug_logging"]
+CMD ["--debug-logging"]
 
 EXPOSE 8080
