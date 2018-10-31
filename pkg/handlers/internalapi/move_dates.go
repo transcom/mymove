@@ -82,8 +82,16 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
 	usCalendar := handlers.NewUSCalendar()
 
-	if shipment.OriginalPackDate == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a OriginalPackDate")
+	if shipment.EstimatedPackDays == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have a EstimatedPackDays")
+	}
+
+	if shipment.RequestedPickupDate == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
+	}
+
+	if shipment.EstimatedTransitDays == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
 	}
 
 	var mostCurrentPackDate time.Time
@@ -91,13 +99,13 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 		mostCurrentPackDate = *shipment.ActualPackDate
 	} else if shipment.PmSurveyPlannedPackDate != nil {
 		mostCurrentPackDate = *shipment.PmSurveyPlannedPackDate
-	} else {
+	} else if shipment.OriginalPackDate != nil {
 		mostCurrentPackDate = *shipment.OriginalPackDate
+	} else if shipment.EstimatedPackDays != nil && shipment.RequestedPickupDate != nil {
+		lastPossiblePackDay := shipment.RequestedPickupDate.AddDate(0, 0, -1)
+		mostCurrentPackDate = createPastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)[0]
 	}
 
-	if shipment.RequestedPickupDate == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
-	}
 	var mostCurrentPickupDate time.Time
 	if shipment.ActualPickupDate != nil {
 		mostCurrentPickupDate = *shipment.ActualPickupDate
@@ -106,18 +114,21 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 	} else {
 		mostCurrentPickupDate = *shipment.RequestedPickupDate
 	}
-	if shipment.OriginalDeliveryDate == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a OriginalDeliveryDate")
-	}
+
 	var mostCurrentDeliveryDate time.Time
+
 	if shipment.ActualDeliveryDate != nil {
 		mostCurrentDeliveryDate = *shipment.ActualDeliveryDate
 	} else if shipment.PmSurveyPlannedDeliveryDate != nil {
 		mostCurrentDeliveryDate = *shipment.PmSurveyPlannedDeliveryDate
-	} else {
+	} else if shipment.OriginalDeliveryDate != nil {
 		mostCurrentDeliveryDate = *shipment.OriginalDeliveryDate
+	} else if shipment.EstimatedTransitDays != nil && shipment.RequestedPickupDate != nil {
+		// transit days can be on weekends and holidays and delivery cannot, so calculations must be separated out
+		estimatedTransitDates := createFutureMoveDates(*shipment.RequestedPickupDate, int(*shipment.EstimatedTransitDays), true, usCalendar)
+		lastEstimatedTransitDate := estimatedTransitDates[len(estimatedTransitDates)-1]
+		mostCurrentDeliveryDate = createFutureMoveDates(lastEstimatedTransitDate.AddDate(0, 0, 1), 1, false, usCalendar)[0]
 	}
-
 	// assigns the pack dates
 	packDates, err := createValidDatesBetweenTwoDates(mostCurrentPackDate, mostCurrentPickupDate, false, true, usCalendar)
 	if err != nil {
@@ -126,9 +137,6 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 	pickupDates := createFutureMoveDates(mostCurrentPickupDate, 1, false, usCalendar)
 
 	firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
-	//if shipment.EstimatedTransitDays == nil {
-	//	return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
-	//}
 
 	transitDates, err := createValidDatesBetweenTwoDates(firstPossibleTransitDay, mostCurrentDeliveryDate, true, true, usCalendar)
 	if err != nil {
@@ -145,6 +153,7 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 	return summary, nil
 }
 
+// createFutureMoveDates is used when a startDate is known, an end date is not, number of days into the future is known.  Inclusive of startDate.
 func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
 	dates := make([]time.Time, 0, numDays)
 
@@ -159,6 +168,7 @@ func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndH
 	return dates
 }
 
+// createPastMoveDates is used when a startDate is known and number of days into the past is known.  Inclusive of startDate.
 func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
 	dates := make([]time.Time, numDays)
 

@@ -21,6 +21,34 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingPickupDate()
 	suite.Error(err)
 }
 
+func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingEstimatedPackDays() {
+	// create a shipment
+	transitDays := int64(5)
+	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
+	var shipment = models.Shipment{
+		EstimatedTransitDays: &transitDays,
+		RequestedPickupDate:  &pickupDate,
+	}
+
+	_, err := calculateMoveDatesFromShipment(&shipment)
+
+	suite.Error(err)
+}
+
+func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingEstimatedTransitDays() {
+	// create a shipment
+	packDays := int64(5)
+	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
+	var shipment = models.Shipment{
+		EstimatedTransitDays: &packDays,
+		RequestedPickupDate:  &pickupDate,
+	}
+
+	_, err := calculateMoveDatesFromShipment(&shipment)
+
+	suite.Error(err)
+}
+
 func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingOriginalPackDate() {
 	// create a shipment
 	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
