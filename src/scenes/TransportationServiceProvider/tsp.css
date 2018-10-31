@@ -157,6 +157,21 @@
   margin-top: 1em;
 }
 
+.documents .status {
+  font-size: 1.3rem;
+}
+
+.documents .upload-documents-link {
+  display: block;
+  padding-top: 8px;
+  border-top: 1px solid #f1f1f1;
+  text-decoration: none;
+}
+
+.documents .upload-documents-link:visited {
+  color: #0071bc;
+}
+
 .documents-list-header {
   margin-top: 0;
   font-size: '2rem';
@@ -183,4 +198,8 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+}
+
+.infoPanel-wizard .infoPanel-wizard-help {
+  margin-bottom: 0px;
 }

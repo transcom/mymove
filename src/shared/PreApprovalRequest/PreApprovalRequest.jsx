@@ -9,7 +9,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
-export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentAccessorialId) {
+export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
   //TODO: hiding edit action until we have implementation
@@ -17,7 +17,7 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
     <Fragment>
       {onApproval &&
         status === 'SUBMITTED' && (
-          <span data-test="approve-request" onClick={() => onApproval(shipmentAccessorialId)}>
+          <span data-test="approve-request" onClick={() => onApproval(shipmentLineItemId)}>
             <FontAwesomeIcon className="icon actionable" icon={faCheck} />
           </span>
         )}
@@ -51,8 +51,8 @@ export class PreApprovalRequest extends Component {
     this.props.isActive(true);
     this.setState({ showEditForm: true });
   };
-  saveEdit = (shipmentAccessorialId, editPayload) => {
-    this.props.onEdit(shipmentAccessorialId, editPayload);
+  saveEdit = (shipmentLineItemId, editPayload) => {
+    this.props.onEdit(shipmentLineItemId, editPayload);
   };
   cancelEdit = () => {
     this.props.isActive(false);
@@ -78,10 +78,10 @@ export class PreApprovalRequest extends Component {
     if (this.state.showEditForm) {
       return (
         <tr>
-          <td colSpan="8" className="accessorial-form">
+          <td colSpan="8" className="pre-approval-form">
             <Editor
               tariff400ngItems={this.props.tariff400ngItems}
-              shipmentAccessorial={row}
+              shipmentLineItem={row}
               saveEdit={this.saveEdit}
               cancelEdit={this.cancelEdit}
               onSaveComplete={this.cancelEdit}
@@ -98,8 +98,8 @@ export class PreApprovalRequest extends Component {
       return (
         <Fragment>
           <tr key={row.id} className={deleteActiveClass}>
-            <td align="left">{row.accessorial.code}</td>
-            <td align="left">{row.accessorial.item}</td>
+            <td align="left">{row.tariff400ng_item.code}</td>
+            <td align="left">{row.tariff400ng_item.item}</td>
             <td align="left"> {row.location[0].toUpperCase() + row.location.substring(1).toLowerCase()} </td>
             <td align="left">{formatFromBaseQuantity(row.quantity_1)}</td>
             <td align="left">{row.notes} </td>

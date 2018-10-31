@@ -16,14 +16,14 @@ export class Editor extends Component {
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
-    values.accessorial_id = values.accessorial.id;
-    this.props.saveEdit(this.props.shipmentAccessorial.id, values);
+    values.tariff400ng_item_id = values.tariff400ng_item.id;
+    this.props.saveEdit(this.props.shipmentLineItem.id, values);
   };
   render() {
-    let initialValues = cloneDeep(this.props.shipmentAccessorial);
+    let initialValues = cloneDeep(this.props.shipmentLineItem);
     initialValues.quantity_1 = convertFromBaseQuantity(initialValues.quantity_1);
     return (
-      <div className="accessorial-panel-modal accessorial-edit">
+      <div className="pre-approval-panel-modal pre-approval-edit">
         <div className="title">Edit request</div>
         <PreApprovalForm
           tariff400ngItems={this.props.tariff400ngItems}
@@ -55,7 +55,7 @@ export class Editor extends Component {
 }
 Editor.propTypes = {
   tariff400ngItems: PropTypes.array,
-  shipmentAccessorial: PropTypes.object.isRequired,
+  shipmentLineItem: PropTypes.object.isRequired,
   saveEdit: PropTypes.func.isRequired,
   cancelEdit: PropTypes.func.isRequired,
   onSaveComplete: PropTypes.func.isRequired,

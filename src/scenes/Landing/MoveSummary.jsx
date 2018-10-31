@@ -164,11 +164,7 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer
-              moveDate={shipment.requested_pickup_date}
-              moveId={shipment.move_id}
-              bookDate={shipment.book_date}
-            />
+            <StatusTimelineContainer bookDate={shipment.book_date} moveDates={shipment.move_dates_summary} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
@@ -347,24 +343,34 @@ const ppmSummaryStatusComponents = {
 const hhgSummaryStatusComponents = {
   DRAFT: DraftMoveSummary,
   SUBMITTED: SubmittedHhgMoveSummary,
-  APPROVED: ApprovedMoveSummary,
-  CANCELED: CanceledMoveSummary,
   AWARDED: SubmittedHhgMoveSummary,
   ACCEPTED: SubmittedHhgMoveSummary,
+  APPROVED: SubmittedHhgMoveSummary,
+  IN_TRANSIT: SubmittedHhgMoveSummary,
+  DELIVERED: SubmittedHhgMoveSummary,
   COMPLETED: SubmittedHhgMoveSummary,
+  CANCELED: CanceledMoveSummary,
 };
 
 const getStatus = (moveStatus, moveType, ppm, shipment) => {
   let status = 'DRAFT';
   if (moveType === 'PPM') {
-    // assign the status
+    // PPM status determination
     const ppmStatus = get(ppm, 'status', 'DRAFT');
     status =
       moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
   } else if (moveType === 'HHG') {
-    // assign the status
+    // HHG status determination
+    if (moveStatus === 'CANCELED') {
+      // Shipment does not have a canceled status, but move does.
+      return moveStatus;
+    }
     const shipmentStatus = get(shipment, 'status', 'DRAFT');
-    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED'].includes(shipmentStatus) ? shipmentStatus : 'DRAFT';
+    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
+      shipmentStatus,
+    )
+      ? shipmentStatus
+      : 'DRAFT';
   }
   return status;
 };
@@ -386,6 +392,9 @@ export const MoveSummary = props => {
   const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
   const StatusComponent =
     move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
+  const showTsp =
+    move.selected_move_type !== 'PPM' &&
+    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(status);
   return (
     <Fragment>
       {status === 'CANCELED' && (
@@ -422,7 +431,7 @@ export const MoveSummary = props => {
             <div className="title">Contacts</div>
             <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
             {status !== 'CANCELED' && <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />}
-            {['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'COMPLETED'].includes(status) && (
+            {showTsp && (
               <div className="titled_block">
                 <strong>TSP name</strong>
                 <div>phone #</div>

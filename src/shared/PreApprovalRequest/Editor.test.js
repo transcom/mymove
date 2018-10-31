@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 
 import { Editor } from './Editor';
 
-const accessorials = [
+const tariff400ng_items = [
   {
     id: 'sdlfkj',
     code: 'F9D',
@@ -15,9 +15,9 @@ const accessorials = [
     item: 'Crate',
   },
 ];
-const shipmentAccessorial = {
+const shipmentLineItem = {
   id: 'sldkjf',
-  accessorial: accessorials[0],
+  tariff400ng_item: tariff400ng_items[0],
   location: 'D',
   quantity_1: 167000,
   notes: '',
@@ -36,8 +36,8 @@ describe('given an Editor', () => {
       cancel.mockClear();
       wrapper = shallow(
         <Editor
-          tariff400ngItems={accessorials}
-          shipmentAccessorial={shipmentAccessorial}
+          tariff400ngItems={tariff400ng_items}
+          shipmentLineItem={shipmentLineItem}
           saveEdit={save}
           cancelEdit={cancel}
           onSaveComplete={saveComplete}
@@ -65,8 +65,8 @@ describe('given an Editor', () => {
       submit.mockClear();
       wrapper = shallow(
         <Editor
-          tariff400ngItems={accessorials}
-          shipmentAccessorial={shipmentAccessorial}
+          tariff400ngItems={tariff400ng_items}
+          shipmentLineItem={shipmentLineItem}
           saveEdit={save}
           cancelEdit={cancel}
           onSaveComplete={saveComplete}

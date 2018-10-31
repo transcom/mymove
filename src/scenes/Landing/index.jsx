@@ -23,12 +23,14 @@ export class Landing extends Component {
     const {
       serviceMember,
       createdServiceMemberIsLoading,
+      createdServiceMemberError,
       loggedInUserSuccess,
       createServiceMember,
       isProfileComplete,
     } = this.props;
+
     if (loggedInUserSuccess) {
-      if (!createdServiceMemberIsLoading && isEmpty(serviceMember)) {
+      if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
         createServiceMember({});
@@ -107,7 +109,7 @@ export class Landing extends Component {
               )}
               {createdServiceMemberError && (
                 <Alert type="error" heading="An error occurred">
-                  There was an error creating your move.
+                  There was an error creating your profile information.
                 </Alert>
               )}
             </div>
