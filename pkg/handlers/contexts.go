@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
@@ -22,17 +23,20 @@ type HandlerContext interface {
 	SetCookieSecret(secret string)
 	NoSessionTimeout() bool
 	SetNoSessionTimeout()
+	IWSRealTimeBrokerService() iws.RealTimeBrokerService
+	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
 }
 
 // A single handlerContext is passed to each handler
 type handlerContext struct {
-	db                 *pop.Connection
-	logger             *zap.Logger
-	cookieSecret       string
-	noSessionTimeout   bool
-	planner            route.Planner
-	storage            storage.FileStorer
-	notificationSender notifications.NotificationSender
+	db                       *pop.Connection
+	logger                   *zap.Logger
+	cookieSecret             string
+	noSessionTimeout         bool
+	planner                  route.Planner
+	storage                  storage.FileStorer
+	notificationSender       notifications.NotificationSender
+	iwsRealTimeBrokerService iws.RealTimeBrokerService
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -101,4 +105,12 @@ func (context *handlerContext) NoSessionTimeout() bool {
 // SetNoSessionTimeout is a simple setter for the noSessionTimeout private Field
 func (context *handlerContext) SetNoSessionTimeout() {
 	context.noSessionTimeout = true
+}
+
+func (context *handlerContext) IWSRealTimeBrokerService() iws.RealTimeBrokerService {
+	return context.iwsRealTimeBrokerService
+}
+
+func (context *handlerContext) SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService) {
+	context.iwsRealTimeBrokerService = rbs
 }

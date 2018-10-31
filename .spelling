@@ -339,6 +339,7 @@ time.Time.
 hcl
 s3
 sql
+filesystem
 elliottdotgov
 hlieberman-gov
 ntwyman
@@ -351,6 +352,7 @@ JSONPath
 dataset
 FedRAMP
 ad-hoc
+HOWTOs
 rdsutils
 html
 sql-alterrole

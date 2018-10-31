@@ -51,18 +51,18 @@ func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) 
 	}
 }
 
-func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, callbackProtocol string, callbackPort string) (goth.Provider, error) {
+func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, callbackProtocol string, callbackPort int) (goth.Provider, error) {
 	return openidConnect.New(
 		clientID,
 		p.secretKey,
-		fmt.Sprintf("%s%s:%s/auth/login-gov/callback", callbackProtocol, hostname, callbackPort),
+		fmt.Sprintf("%s%s:%d/auth/login-gov/callback", callbackProtocol, hostname, callbackPort),
 		fmt.Sprintf("https://%s/.well-known/openid-configuration", p.hostname),
 	)
 }
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func (p LoginGovProvider) RegisterProvider(myHostname string, myClientID string, officeHostname string, officeClientID string, tspHostname string, tspClientID string, callbackProtocol string, callbackPort string) error {
+func (p LoginGovProvider) RegisterProvider(myHostname string, myClientID string, officeHostname string, officeClientID string, tspHostname string, tspClientID string, callbackProtocol string, callbackPort int) error {
 
 	myProvider, err := p.getOpenIDProvider(myHostname, myClientID, callbackProtocol, callbackPort)
 	if err != nil {

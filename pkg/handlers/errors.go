@@ -94,6 +94,14 @@ func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 	return ResponseForError(skipLogger, err)
 }
 
+// ResponseForCustomErrors checks for custom errors and returns a custom response body message
+func ResponseForCustomErrors(logger *zap.Logger, err error, httpStatus int) middleware.Responder {
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
+	skipLogger.Error("Encountered error", zap.Error(err))
+
+	return newErrResponse(httpStatus, err)
+}
+
 // ResponseForConflictErrors checks for conflict errors
 func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))

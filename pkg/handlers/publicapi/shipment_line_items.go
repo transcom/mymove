@@ -111,6 +111,15 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	}
 
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
+	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	if !tariff400ngItem.RequiresPreApproval {
+		return accessorialop.NewCreateShipmentLineItemForbidden()
+	}
+
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
 		tariff400ngItemID,
 		params.Payload.Quantity1,
@@ -162,6 +171,11 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	}
 
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
+	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
+
+	if !tariff400ngItem.RequiresPreApproval {
+		return accessorialop.NewUpdateShipmentLineItemForbidden()
+	}
 
 	// update
 	shipmentLineItem.Tariff400ngItemID = tariff400ngItemID
@@ -206,6 +220,10 @@ func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmen
 
 		h.Logger().Error("Error fetching shipment line item for shipment", zap.Error(err))
 		return accessorialop.NewDeleteShipmentLineItemInternalServerError()
+	}
+
+	if !shipmentLineItem.Tariff400ngItem.RequiresPreApproval {
+		return accessorialop.NewDeleteShipmentLineItemForbidden()
 	}
 
 	// authorization
