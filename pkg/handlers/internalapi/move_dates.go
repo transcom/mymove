@@ -6,8 +6,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
-	"github.com/rickar/cal"
-	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
@@ -55,21 +54,21 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 	}
 
 	numPackDays := models.PackDays(entitlementWeight)
-	usCalendar := handlers.NewUSCalendar()
+	usCalendar := dates.NewUSCalendar()
 
 	lastPossiblePackDay := moveDate.AddDate(0, 0, -1)
-	summary.PackDays = createPastMoveDates(lastPossiblePackDay, numPackDays, false, usCalendar)
+	summary.PackDays = dates.CreatePastMoveDates(lastPossiblePackDay, numPackDays, false, usCalendar)
 
 	firstPossiblePickupDay := moveDate
-	pickupDays := createFutureMoveDates(firstPossiblePickupDay, 1, false, usCalendar)
+	pickupDays := dates.CreateFutureMoveDates(firstPossiblePickupDay, 1, false, usCalendar)
 	summary.PickupDays = pickupDays
 
 	firstPossibleTransitDay := time.Time(pickupDays[len(pickupDays)-1]).AddDate(0, 0, 1)
-	transitDays := createFutureMoveDates(firstPossibleTransitDay, numTransitDays, true, usCalendar)
+	transitDays := dates.CreateFutureMoveDates(firstPossibleTransitDay, numTransitDays, true, usCalendar)
 	summary.TransitDays = transitDays
 
 	firstPossibleDeliveryDay := time.Time(transitDays[len(transitDays)-1]).AddDate(0, 0, 1)
-	summary.DeliveryDays = createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
+	summary.DeliveryDays = dates.CreateFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
 
 	summary.ReportDays = []time.Time{move.Orders.ReportByDate.UTC()}
 
@@ -77,7 +76,7 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 }
 
 func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
-	usCalendar := handlers.NewUSCalendar()
+	usCalendar := dates.NewUSCalendar()
 
 	if shipment.RequestedPickupDate == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
@@ -87,18 +86,18 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 	if shipment.EstimatedPackDays == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have a EstimatedPackDays")
 	}
-	packDates := createPastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)
+	packDates := dates.CreatePastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)
 
-	pickupDates := createFutureMoveDates(*shipment.RequestedPickupDate, 1, false, usCalendar)
+	pickupDates := dates.CreateFutureMoveDates(*shipment.RequestedPickupDate, 1, false, usCalendar)
 
 	firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
 	if shipment.EstimatedTransitDays == nil {
 		return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
 	}
-	transitDates := createFutureMoveDates(firstPossibleTransitDay, int(*shipment.EstimatedTransitDays), true, usCalendar)
+	transitDates := dates.CreateFutureMoveDates(firstPossibleTransitDay, int(*shipment.EstimatedTransitDays), true, usCalendar)
 
 	firstPossibleDeliveryDay := time.Time(transitDates[int(*shipment.EstimatedTransitDays)-1].AddDate(0, 0, 1))
-	deliveryDates := createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
+	deliveryDates := dates.CreateFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
 
 	summary := MoveDatesSummary{
 		PackDays:     packDates,
@@ -107,33 +106,4 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 		DeliveryDays: deliveryDates,
 	}
 	return summary, nil
-}
-
-func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
-	dates := make([]time.Time, 0, numDays)
-
-	daysAdded := 0
-	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, 1) {
-		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
-			dates = append(dates, d)
-			daysAdded++
-		}
-	}
-
-	return dates
-}
-
-func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
-	dates := make([]time.Time, numDays)
-
-	daysAdded := 0
-	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, -1) {
-		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
-			// Since we're working backwards, put dates at end of slice.
-			dates[numDays-daysAdded-1] = d
-			daysAdded++
-		}
-	}
-
-	return dates
 }

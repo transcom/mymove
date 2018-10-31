@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -222,6 +223,25 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	if trafficDistributionList != nil {
 		s.TrafficDistributionListID = &trafficDistributionList.ID
 		s.TrafficDistributionList = trafficDistributionList
+	}
+
+	// Ensure that OriginalPackDate and OriginalDeliveryDate are set
+	// Requires that we know RequestedPickupDate, EstimatedPackDays, and EstimatedTransitDays
+	if s.RequestedPickupDate != nil {
+		usCalendar := dates.NewUSCalendar()
+		if s.EstimatedPackDays != nil && s.OriginalPackDate == nil {
+			lastPossiblePackDay := time.Time(*s.RequestedPickupDate).AddDate(0, 0, -1)
+			packDates := dates.CreatePastMoveDates(lastPossiblePackDay, int(*s.EstimatedPackDays), false, usCalendar)
+			s.OriginalPackDate = &packDates[0]
+		}
+		if s.EstimatedTransitDays != nil && s.OriginalDeliveryDate == nil {
+			pickupDates := dates.CreateFutureMoveDates(*s.RequestedPickupDate, 1, false, usCalendar)
+			firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
+			transitDates := dates.CreateFutureMoveDates(firstPossibleTransitDay, int(*s.EstimatedTransitDays), true, usCalendar)
+			firstPossibleDeliveryDay := time.Time(transitDates[int(*s.EstimatedTransitDays)-1].AddDate(0, 0, 1))
+			deliveryDates := dates.CreateFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
+			s.OriginalDeliveryDate = &deliveryDates[0]
+		}
 	}
 
 	return nil
