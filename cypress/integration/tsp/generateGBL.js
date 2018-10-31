@@ -68,14 +68,7 @@ function tspUserGeneratesGBL() {
   cy
     .get('button')
     .contains(gblButtonText)
-    .click();
-
-  cy
-    .get('button')
-    .contains(gblButtonText)
-    .should('be.disabled');
-
-  cy.get('.usa-alert-text').contains('There is already a Bill of Lading for this shipment');
+    .should('not.exist');
 }
 
 function tspUserViewsGBL() {
