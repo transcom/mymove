@@ -28,7 +28,7 @@ export class Summary extends Component {
     }
   }
   componentDidUpdate(prevProps) {
-    // if (get(this.props.reviewState, 'editSuccess', false)) {} ??????
+    // Only check entitlement for PPMs, not HHGs
     if (prevProps.currentPpm !== this.props.currentPpm) {
       this.props.onCheckEntitlement(this.props.match.params.moveId);
     }
