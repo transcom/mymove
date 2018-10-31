@@ -61,13 +61,13 @@ describe('testing landing pages', function() {
   // HHG: DELIVERED
   it('tests delivered HHG', function() {
     // hhg@de.livered
-    hhgMoveSummary('3339dd2a-a23f-4967-a035-3bc9987c6848');
+    hhgDeliveredOrCompletedMoveSummary('3339dd2a-a23f-4967-a035-3bc9987c6848');
   });
 
   // HHG: COMPLETED
   it('tests completed HHG', function() {
     // hhg@com.pleted
-    hhgMoveSummary('4449dd2a-a23f-4967-a035-3bc9987c6848');
+    hhgDeliveredOrCompletedMoveSummary('4449dd2a-a23f-4967-a035-3bc9987c6848');
   });
 
   // HHG: CANCELED
@@ -103,6 +103,13 @@ function hhgMoveSummary(userId) {
   cy.signInAsUser(userId);
   cy.contains('Government Movers and Packers (HHG)');
   cy.contains('Next Step: Prepare for move');
+  cy.logout();
+}
+
+function hhgDeliveredOrCompletedMoveSummary(userId) {
+  cy.signInAsUser(userId);
+  cy.contains('Government Movers and Packers (HHG)');
+  cy.contains('Next Step: Complete your customer satisfaction survey');
   cy.logout();
 }
 
