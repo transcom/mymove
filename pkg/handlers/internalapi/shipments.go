@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
-func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
+func payloadForShipmentModel(s models.Shipment, logger *zap.Logger) *internalmessages.Shipment {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
 	// TODO: closely match the database structure.
@@ -36,7 +36,10 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
-		summary, _ := calculateMoveDatesFromShipment(&s)
+		summary, err := calculateMoveDatesFromShipment(&s)
+		if err != nil {
+			logger.Error("error calculating move dates: ", zap.Error(err))
+		}
 
 		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
 			Pack:     handlers.FmtDateSlice(summary.PackDays),
