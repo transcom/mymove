@@ -385,7 +385,7 @@ class ShipmentInfo extends Component {
                     ref={this.assignServiceMember}
                     editOriginServiceAgent={this.state.editOriginServiceAgent}
                     setEditServiceAgent={this.setEditServiceAgent}
-                    title="ServiceAgents"
+                    tsp={this.props.tsp}
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
@@ -438,6 +438,7 @@ const mapStateToProps = state => {
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
+    tsp: get(state, 'tsp'),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),

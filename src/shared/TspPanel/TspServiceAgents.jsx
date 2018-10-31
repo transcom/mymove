@@ -5,6 +5,7 @@ import { reduxForm, FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 
+import { PanelSwaggerField } from 'shared/EditablePanel';
 import { ServiceAgentDisplay, ServiceAgentEdit } from './ServiceAgentViews';
 
 // TODO: Refactor when we switch to using a wizard
@@ -79,7 +80,7 @@ export class ServiceAgentEditablePanel extends Component {
 // TODO: Refactor when we switch to using a wizard
 // Editable panel specific to Assign Servivce Agents. Due to not using a wizard to assign the service agents this
 // panel has highly specific behavior (opening the edit view via clicking on Assign Service Agents button)
-export function ServiceAgentEditablePanelify(DisplayComponent, EditComponent, editEnabled = true) {
+export function TspEditablePanelify(DisplayComponent, EditComponent, editEnabled = true) {
   const Wrapper = class extends Component {
     state = {
       isEditable: false,
@@ -173,13 +174,16 @@ const TSPDisplay = props => {
     values: props.destination_service_agent,
   };
   // const TSPprops = {
-  //   schame: props.tspSchema,
-  //   values: TSP
+  //   schema: props.tspSchema,
+  //   values: props.tsp,
   // }
   return (
     <Fragment>
-      <ServiceAgentDisplay serviceAgentProps={originSAProps} role="Origin" />
-      <ServiceAgentDisplay serviceAgentProps={destinationSAProps} role="Destination" />
+      <div className="editable-panel-column">
+        <div className="column-subhead">TSP</div>
+      </div>
+      <ServiceAgentDisplay serviceAgentProps={originSAProps} saRole="Origin" />
+      <ServiceAgentDisplay serviceAgentProps={destinationSAProps} saRole="Destination" />
     </Fragment>
   );
 };
@@ -197,17 +201,17 @@ const TSPEdit = props => {
             swagger: saSchema,
             values: originValues,
           }}
-          role="Origin"
+          saRole="Origin"
         />
       </FormSection>
       <FormSection name="destination_service_agent">
-        <ServiceAgentEdit serviceAgentProps={{ swagger: saSchema, values: destinationValues }} role="Destination" />
+        <ServiceAgentEdit serviceAgentProps={{ swagger: saSchema, values: destinationValues }} saRole="Destination" />
       </FormSection>
     </Fragment>
   );
 };
 
-let TspPanel = ServiceAgentEditablePanelify(TSPDisplay, TSPEdit);
+let TspPanel = TspEditablePanelify(TSPDisplay, TSPEdit);
 
 TspPanel = reduxForm({
   // formName passed in implicitly by container

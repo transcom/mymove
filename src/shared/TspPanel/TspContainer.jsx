@@ -1,15 +1,16 @@
 import { connect } from 'react-redux';
-import { get } from 'lodash';
-import { bindActionCreators } from 'redux';
+import { get, isEmpty } from 'lodash';
 import { getFormValues } from 'redux-form';
+import { bindActionCreators } from 'redux';
 
-import { createOrUpdateServiceAgent } from 'scenes/TransportationServiceProvider/ducks';
-import ServiceAgents from './ServiceAgents';
+import TspServiceAgents from './TspServiceAgents';
+import { handleServiceAgents } from 'scenes/TransportationServiceProvider/ducks';
 
 import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
 
 function mapStateToProps(state, props) {
   let serviceAgents = props.serviceAgents;
+  let tsp = props.tsp;
   let initialValues = {};
   let form = 'tsp_service_agents';
   let formValues = getFormValues(form)(state);
@@ -22,6 +23,7 @@ function mapStateToProps(state, props) {
     saSchema: getPublicSwaggerDefinition(state, 'ServiceAgent', null),
     tspSchema: getPublicSwaggerDefinition(state, 'TransportationServiceProvider', null),
     formValues,
+    tsp,
     initialValues: {
       origin_service_agent,
       destination_service_agent,
@@ -38,21 +40,24 @@ function mapStateToProps(state, props) {
     // editablePanel
     getUpdateArgs: function() {
       const params = {
-        origin_service_agent: formValues.origin_service_agent,
-        destination_service_agent: formValues.destination_service_agent,
+        origin_service_agent: { ...formValues.origin_service_agent, role: 'ORIGIN' },
       };
+      // Avoid sending empty request for destination service agent
+      if (!isEmpty(formValues.destination_service_agent)) {
+        params.destination_service_agent = { ...formValues.destination_service_agent, role: 'DESTINATION' };
+      }
+
       return [get(props, 'shipment.id'), params];
     },
   };
 }
-
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: createOrUpdateServiceAgent,
+      update: handleServiceAgents,
     },
     dispatch,
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ServiceAgents);
+export default connect(mapStateToProps, mapDispatchToProps)(TspServiceAgents);

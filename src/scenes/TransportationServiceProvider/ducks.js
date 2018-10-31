@@ -85,6 +85,15 @@ export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(update
 // perform their work and exist to encapsulate when multiple requests
 // need to be made in response to a user action.
 
+export function handleServiceAgents(shipmentId, serviceAgents) {
+  return async function(dispatch, getState) {
+    for (const serviceAgent in serviceAgents) {
+      // eslint-disable-next-line security/detect-object-injection
+      dispatch(createOrUpdateServiceAgent(shipmentId, serviceAgents[serviceAgent]));
+    }
+  };
+}
+
 export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
   return async function(dispatch, getState) {
     if (serviceAgent.id) {

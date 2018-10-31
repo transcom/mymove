@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-export const ServiceAgentDisplay = ({ serviceAgentProps, role }) => {
+export const ServiceAgentDisplay = ({ serviceAgentProps, saRole }) => {
   return (
     <div className="editable-panel-column">
-      <span className="column-subhead">{role}</span>
+      <span className="column-subhead">{saRole}</span>
       <PanelSwaggerField fieldName="company" required {...serviceAgentProps} />
       <PanelSwaggerField fieldName="email" required {...serviceAgentProps} />
       <PanelSwaggerField fieldName="phone_number" required {...serviceAgentProps} />
@@ -27,14 +27,14 @@ ServiceAgentDisplay.propTypes = {
   }),
 };
 
-export const ServiceAgentEdit = ({ serviceAgentProps, role }) => {
+export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <span className="column-subhead">{role}</span>
-        <SwaggerField fieldName="company" {...serviceAgentProps} required />
-        <SwaggerField fieldName="email" {...serviceAgentProps} required />
-        <SwaggerField fieldName="phone_number" {...serviceAgentProps} required />
+        <span className="column-subhead">{saRole}</span>
+        <SwaggerField fieldName="company" {...serviceAgentProps} />
+        <SwaggerField fieldName="email" {...serviceAgentProps} />
+        <SwaggerField fieldName="phone_number" {...serviceAgentProps} />
       </div>
     </Fragment>
   );
