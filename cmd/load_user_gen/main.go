@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"github.com/transcom/mymove/pkg/models"
 	"io"

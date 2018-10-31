@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
@@ -68,11 +68,11 @@ type Context struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort string) Context {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
-		callbackTemplate: fmt.Sprintf("%s%%s:%s/", callbackProtocol, callbackPort),
+		callbackTemplate: fmt.Sprintf("%s%%s:%d/", callbackProtocol, callbackPort),
 	}
 	return context
 }

@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -18,6 +18,13 @@ type TransportationServiceProvider struct {
 	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
 	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
 	Enrolled                 bool      `json:"enrolled" db:"enrolled"`
+	Name                     *string   `json:"name" db:"name"`
+	PocGeneralName           *string   `json:"poc_general_name" db:"poc_general_name"`
+	PocGeneralEmail          *string   `json:"poc_general_email" db:"poc_general_email"`
+	PocGeneralPhone          *string   `json:"poc_general_phone" db:"poc_general_phone"`
+	PocClaimsName            *string   `json:"poc_claims_name" db:"poc_claims_name"`
+	PocClaimsEmail           *string   `json:"poc_claims_email" db:"poc_claims_email"`
+	PocClaimsPhone           *string   `json:"poc_claims_phone" db:"poc_claims_phone"`
 }
 
 // TSPWithBVSAndOfferCount represents a list of TSPs along with their BVS

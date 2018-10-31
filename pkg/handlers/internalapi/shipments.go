@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/rateengine"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
 )
 
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
@@ -33,6 +32,18 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	for _, serviceAgent := range s.ServiceAgents {
 		payload := payloadForServiceAgentModel(serviceAgent)
 		serviceAgentPayloads = append(serviceAgentPayloads, payload)
+	}
+
+	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
+	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
+		summary, _ := calculateMoveDatesFromShipment(&s)
+
+		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
+			Pack:     handlers.FmtDateSlice(summary.PackDays),
+			Pickup:   handlers.FmtDateSlice(summary.PickupDays),
+			Transit:  handlers.FmtDateSlice(summary.TransitDays),
+			Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
+		}
 	}
 
 	shipmentPayload := &internalmessages.Shipment{
@@ -59,6 +70,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		RequestedPickupDate:  handlers.FmtDatePtr(s.RequestedPickupDate),
 		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
 		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
+		MoveDatesSummary:     &moveDatesSummary,
 
 		// calculated durations
 		EstimatedPackDays:    s.EstimatedPackDays,
@@ -66,11 +78,11 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 
 		// addresses
 		PickupAddress:                payloadForAddressModel(s.PickupAddress),
-		HasSecondaryPickupAddress:    s.HasSecondaryPickupAddress,
+		HasSecondaryPickupAddress:    handlers.FmtBool(s.HasSecondaryPickupAddress),
 		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
-		HasDeliveryAddress:           s.HasDeliveryAddress,
+		HasDeliveryAddress:           handlers.FmtBool(s.HasDeliveryAddress),
 		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
-		HasPartialSitDeliveryAddress: s.HasPartialSITDeliveryAddress,
+		HasPartialSitDeliveryAddress: handlers.FmtBool(s.HasPartialSITDeliveryAddress),
 		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
 
 		// weights
@@ -123,6 +135,21 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		requestedPickupDate = &date
 	}
 
+	hasSecondaryPickupAddress := false
+	if payload.HasSecondaryPickupAddress != nil {
+		hasSecondaryPickupAddress = *payload.HasSecondaryPickupAddress
+	}
+
+	hasDeliveryAddress := false
+	if payload.HasDeliveryAddress != nil {
+		hasDeliveryAddress = *payload.HasDeliveryAddress
+	}
+
+	hasPartialSitDeliveryAddress := false
+	if payload.HasPartialSitDeliveryAddress != nil {
+		hasPartialSitDeliveryAddress = *payload.HasPartialSitDeliveryAddress
+	}
+
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		ServiceMemberID:              session.ServiceMemberID,
@@ -134,11 +161,11 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(payload.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate),
 		PickupAddress:                pickupAddress,
-		HasSecondaryPickupAddress:    payload.HasSecondaryPickupAddress,
+		HasSecondaryPickupAddress:    hasSecondaryPickupAddress,
 		SecondaryPickupAddress:       secondaryPickupAddress,
-		HasDeliveryAddress:           payload.HasDeliveryAddress,
+		HasDeliveryAddress:           hasDeliveryAddress,
 		DeliveryAddress:              deliveryAddress,
-		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
+		HasPartialSITDeliveryAddress: hasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
 		Market: &market,
 	}
@@ -153,6 +180,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	}
 
 	shipmentPayload := payloadForShipmentModel(newShipment)
+
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
 
@@ -199,43 +227,51 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 			updateAddressWithPayload(shipment.PickupAddress, payload.PickupAddress)
 		}
 	}
-	if payload.HasSecondaryPickupAddress == false {
-		shipment.SecondaryPickupAddress = nil
-	} else if payload.HasSecondaryPickupAddress == true {
-		if payload.SecondaryPickupAddress != nil {
-			if shipment.SecondaryPickupAddress == nil {
-				shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
-			} else {
-				updateAddressWithPayload(shipment.SecondaryPickupAddress, payload.SecondaryPickupAddress)
-			}
-		}
-	}
-	shipment.HasSecondaryPickupAddress = payload.HasSecondaryPickupAddress
-	if payload.HasDeliveryAddress == false {
-		shipment.DeliveryAddress = nil
-	} else if payload.HasDeliveryAddress == true {
-		if payload.DeliveryAddress != nil {
-			if shipment.DeliveryAddress == nil {
-				shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
-			} else {
-				updateAddressWithPayload(shipment.DeliveryAddress, payload.DeliveryAddress)
-			}
-		}
-	}
-	shipment.HasDeliveryAddress = payload.HasDeliveryAddress
 
-	if payload.HasPartialSitDeliveryAddress == false {
-		shipment.PartialSITDeliveryAddress = nil
-	} else if payload.HasPartialSitDeliveryAddress == true {
-		if payload.PartialSitDeliveryAddress != nil {
-			if shipment.PartialSITDeliveryAddress == nil {
-				shipment.PartialSITDeliveryAddress = addressModelFromPayload(payload.PartialSitDeliveryAddress)
-			} else {
-				updateAddressWithPayload(shipment.PartialSITDeliveryAddress, payload.PartialSitDeliveryAddress)
+	if payload.HasSecondaryPickupAddress != nil {
+		if *payload.HasSecondaryPickupAddress == false {
+			shipment.SecondaryPickupAddress = nil
+		} else if *payload.HasSecondaryPickupAddress == true {
+			if payload.SecondaryPickupAddress != nil {
+				if shipment.SecondaryPickupAddress == nil {
+					shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
+				} else {
+					updateAddressWithPayload(shipment.SecondaryPickupAddress, payload.SecondaryPickupAddress)
+				}
 			}
 		}
+		shipment.HasSecondaryPickupAddress = *payload.HasSecondaryPickupAddress
 	}
-	shipment.HasPartialSITDeliveryAddress = payload.HasPartialSitDeliveryAddress
+
+	if payload.HasDeliveryAddress != nil {
+		if *payload.HasDeliveryAddress == false {
+			shipment.DeliveryAddress = nil
+		} else if *payload.HasDeliveryAddress == true {
+			if payload.DeliveryAddress != nil {
+				if shipment.DeliveryAddress == nil {
+					shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
+				} else {
+					updateAddressWithPayload(shipment.DeliveryAddress, payload.DeliveryAddress)
+				}
+			}
+		}
+		shipment.HasDeliveryAddress = *payload.HasDeliveryAddress
+	}
+
+	if payload.HasPartialSitDeliveryAddress != nil {
+		if *payload.HasPartialSitDeliveryAddress == false {
+			shipment.PartialSITDeliveryAddress = nil
+		} else if *payload.HasPartialSitDeliveryAddress == true {
+			if payload.PartialSitDeliveryAddress != nil {
+				if shipment.PartialSITDeliveryAddress == nil {
+					shipment.PartialSITDeliveryAddress = addressModelFromPayload(payload.PartialSitDeliveryAddress)
+				} else {
+					updateAddressWithPayload(shipment.PartialSITDeliveryAddress, payload.PartialSitDeliveryAddress)
+				}
+			}
+		}
+		shipment.HasPartialSITDeliveryAddress = *payload.HasPartialSitDeliveryAddress
+	}
 
 	if payload.WeightEstimate != nil {
 		shipment.WeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate)
@@ -282,6 +318,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
@@ -329,6 +366,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
 
@@ -362,6 +400,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
 }
 
@@ -394,6 +433,7 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
+
 	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
 }
 

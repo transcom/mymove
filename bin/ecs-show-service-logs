@@ -11,12 +11,12 @@ usage() {
 [[ -z $1 || -z $2 ]] && usage
 set -u
 
+readonly prefix="app"
 readonly name=$1
 readonly environment=$2
-readonly cluster=app-$environment
+readonly cluster=$prefix-$environment
 
 # awslogs-stream-prefix settings
-readonly prefix=$name
 readonly container=$name-$environment
 readonly log_group_name=ecs-tasks-$name-$environment
 

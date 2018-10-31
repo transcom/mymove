@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/rickar/cal"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -13,8 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MoveDateSummary contains the set of dates for a move
-type MoveDateSummary struct {
+// MoveDatesSummary contains the set of dates for a move
+type MoveDatesSummary struct {
 	PackDays     []time.Time
 	PickupDays   []time.Time
 	TransitDays  []time.Time
@@ -22,8 +22,8 @@ type MoveDateSummary struct {
 	ReportDays   []time.Time
 }
 
-func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDateSummary, error) {
-	var summary MoveDateSummary
+func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDatesSummary, error) {
+	var summary MoveDatesSummary
 
 	// FetchMoveForMoveDates will get all the required associations used below.
 	move, err := models.FetchMoveForMoveDates(db, moveID)
@@ -73,6 +73,39 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 
 	summary.ReportDays = []time.Time{move.Orders.ReportByDate.UTC()}
 
+	return summary, nil
+}
+
+func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
+	usCalendar := handlers.NewUSCalendar()
+
+	if shipment.RequestedPickupDate == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
+	}
+	lastPossiblePackDay := time.Time(*shipment.RequestedPickupDate).AddDate(0, 0, -1)
+
+	if shipment.EstimatedPackDays == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have a EstimatedPackDays")
+	}
+	packDates := createPastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)
+
+	pickupDates := createFutureMoveDates(*shipment.RequestedPickupDate, 1, false, usCalendar)
+
+	firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
+	if shipment.EstimatedTransitDays == nil {
+		return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
+	}
+	transitDates := createFutureMoveDates(firstPossibleTransitDay, int(*shipment.EstimatedTransitDays), true, usCalendar)
+
+	firstPossibleDeliveryDay := time.Time(transitDates[int(*shipment.EstimatedTransitDays)-1].AddDate(0, 0, 1))
+	deliveryDates := createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
+
+	summary := MoveDatesSummary{
+		PackDays:     packDates,
+		PickupDays:   pickupDates,
+		TransitDays:  transitDates,
+		DeliveryDays: deliveryDates,
+	}
 	return summary, nil
 }
 

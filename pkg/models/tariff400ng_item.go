@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -109,4 +109,12 @@ func FetchTariff400ngItems(dbConnection *pop.Connection, onlyRequiresPreApproval
 	}
 
 	return items, err
+}
+
+// FetchTariff400ngItem returns a Tariff400ngItem for the given ID
+func FetchTariff400ngItem(dbConnection *pop.Connection, id uuid.UUID) (Tariff400ngItem, error) {
+	item := Tariff400ngItem{}
+	err := dbConnection.Find(&item, id)
+
+	return item, err
 }

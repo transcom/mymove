@@ -17,7 +17,7 @@ export class PreApprovalTable extends PureComponent {
     };
   };
   render() {
-    const { shipmentAccessorials, isActionable, onEdit, onApproval, onDelete } = this.props;
+    const { shipmentLineItems, isActionable, onEdit, onApproval, onDelete } = this.props;
     return (
       <div>
         <table cellSpacing={0}>
@@ -32,8 +32,8 @@ export class PreApprovalTable extends PureComponent {
               <th>Status</th>
               <th>&nbsp;</th>
             </tr>
-            {shipmentAccessorials.map(row => {
-              const requestIsActionable =
+            {shipmentLineItems.map(row => {
+              let requestIsActionable =
                 isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
               return (
                 <PreApprovalRequest
@@ -56,7 +56,7 @@ export class PreApprovalTable extends PureComponent {
 }
 
 PreApprovalTable.propTypes = {
-  shipmentAccessorials: PropTypes.array,
+  shipmentLineItems: PropTypes.array,
   tariff400ngItems: PropTypes.array,
   isActionable: PropTypes.bool,
   onEdit: PropTypes.func,

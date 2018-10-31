@@ -238,7 +238,6 @@ jobs:
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export HTTPS_CLIENT_AUTH_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
@@ -263,6 +262,7 @@ jobs:
               LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
               HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
               HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
+              DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
       - store_artifacts:
           path: cypress/videos
       - store_artifacts:
@@ -543,21 +543,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: healthchecker
+              only: viper_fix
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: healthchecker
+              only: viper_fix
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: healthchecker
+              only: viper_fix
 
       - deploy_staging_migrations:
           requires:

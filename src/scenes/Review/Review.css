@@ -88,3 +88,7 @@
   margin-top: 2em;
   color: gray;
 }
+
+.hhg-shipment-summary .not-implemented {
+  display: none;
+}

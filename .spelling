@@ -339,6 +339,7 @@ time.Time.
 hcl
 s3
 sql
+filesystem
 elliottdotgov
 hlieberman-gov
 ntwyman
@@ -351,6 +352,32 @@ JSONPath
 dataset
 FedRAMP
 ad-hoc
+HOWTOs
+rdsutils
+html
+sql-alterrole
+www.postgresql.org
+www.terraform.io
+scram-sha-256
+refractored
+ConnectionDetails
+NewConnection
+request.path
+duty_stations
+duration_ms
+response.status_code
+AddField
+UUIDs
+hnyzap
+TraceDebug
+TraceInfo
+TraceWarn
+TraceError
+TraceFatal
+SubmitMoveHandler
+auth.office_user_id
+span.AddField
+zap.Object
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md

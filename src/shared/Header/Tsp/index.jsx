@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import LoginButton from 'shared/User/LoginButton';
-import Email from 'shared/User/Email';
+import UserGreeting from 'shared/User/UserGreeting';
 
 import './index.css';
 
@@ -21,7 +21,7 @@ function TspHeader() {
       <div className="tspHeaderTwo">
         <ul className="usa-nav-primary">
           <li>
-            <Email />
+            <UserGreeting />
           </li>
           <li>
             <LoginButton />

@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
 )
@@ -44,7 +44,7 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // BeforeCreate populates the StorageKey on a newly created Upload
 func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 	// Populate ID if not exists
-	if uuid.Equal(u.ID, uuid.UUID{}) {
+	if u.ID == uuid.Nil {
 		u.ID = uuid.Must(uuid.NewV4())
 	}
 

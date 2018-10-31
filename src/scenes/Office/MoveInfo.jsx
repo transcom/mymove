@@ -35,10 +35,10 @@ import {
   getTariff400ngItemsLabel,
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
-  getAllShipmentAccessorials,
-  selectSortedShipmentAccessorials,
-  getShipmentAccessorialsLabel,
-} from 'shared/Entities/modules/shipmentAccessorials';
+  getAllShipmentLineItems,
+  selectShipmentLineItems,
+  getShipmentLineItemsLabel,
+} from 'shared/Entities/modules/shipmentLineItems';
 
 import {
   loadMoveDependencies,
@@ -49,6 +49,7 @@ import {
   cancelMove,
   patchShipment,
   sendHHGInvoice,
+  resetMove,
 } from './ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -126,8 +127,12 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
-      this.props.getAllShipmentAccessorials(getShipmentAccessorialsLabel, this.props.officeShipment.id);
+      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
     }
+  }
+
+  componentWillUnmount() {
+    this.props.resetMove();
   }
 
   approveBasics = () => {
@@ -460,7 +465,7 @@ const mapStateToProps = state => ({
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
   tariff400ngItems: selectTariff400ngItems(state),
-  shipmentAccessorials: selectSortedShipmentAccessorials(state),
+  shipmentLineItems: selectShipmentLineItems(state),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),
@@ -483,7 +488,8 @@ const mapDispatchToProps = dispatch =>
       patchShipment,
       sendHHGInvoice,
       getAllTariff400ngItems,
-      getAllShipmentAccessorials,
+      getAllShipmentLineItems,
+      resetMove,
     },
     dispatch,
   );

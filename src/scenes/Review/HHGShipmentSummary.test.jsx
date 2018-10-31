@@ -4,7 +4,7 @@ import HHGShipmentSummary from './HHGShipmentSummary';
 import Address from './Address';
 
 describe('HHG without a delivery address', function() {
-  const shipment = {};
+  const shipment = { move_dates_summary: { pack: [], pickup: [], transit: [], delivery: [] } };
   const entitlements = {};
   const wrapper = shallow(<HHGShipmentSummary shipment={shipment} entitlements={entitlements} movePath="" />);
 
@@ -25,6 +25,7 @@ describe('HHG with a delivery address', function() {
     delivery_address: {
       street_address_1: '123 some street',
     },
+    move_dates_summary: { pack: [], pickup: [], transit: [], delivery: [] },
   };
   const entitlements = {};
   const wrapper = shallow(<HHGShipmentSummary shipment={shipment} entitlements={entitlements} movePath="" />);
