@@ -16,14 +16,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
-	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
-	"go.uber.org/zap"
-	"goji.io"
-	"goji.io/pat"
-
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
-
+	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -31,11 +26,15 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
+	"go.uber.org/zap"
+	"goji.io"
+	"goji.io/pat"
 )
 
 // max request body size is 20 mb
@@ -108,9 +107,10 @@ func main() {
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
 
-	moveMilDODCACert := flag.String("move_mil_dod_ca_cert", "", "The DoD CA certificate used to sign the move.mil TLS certificates.")
-	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "the DoD signed tls certificate for various move.mil services.")
-	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "the DoD signed tls key for various move.mil services.")
+	dodCACertPackage := flag.String("dod_ca_package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
+	moveMilDODCACert := flag.String("move_mil_dod_ca_cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
+	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "The DoD-signed TLS certificate for various move.mil services.")
+	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
 
 	mutualTLSPort := flag.String("mutual_tls_port", "9443", "The `port` for the mutual TLS listener.")
 	tlsPort := flag.String("tls_port", "8443", "the `port` for the server side TLS listener.")
@@ -147,6 +147,8 @@ func main() {
 	honeycombAPIKey := flag.String("honeycomb_api_key", "", "API Key for Honeycomb")
 	honeycombDataset := flag.String("honeycomb_dataset", "", "Dataset for Honeycomb")
 	honeycombDebug := flag.Bool("honeycomb_debug", false, "Debug honeycomb using stdout.")
+
+	iwsRbsHost := flag.String("iws_rbs_host", "", "Hostname for the IWS RBS")
 
 	flag.Parse()
 
@@ -260,6 +262,12 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
+	rbs, err := iws.NewRealTimeBrokerService(*iwsRbsHost, *dodCACertPackage, *moveMilDODTLSCert, *moveMilDODTLSKey)
+	if err != nil {
+		zap.L().Fatal("Could not instantiate IWS RBS", zap.Error(err))
+	}
+	handlerContext.SetIWSRealTimeBrokerService(*rbs)
+
 	// Base routes
 	site := goji.NewMux()
 	// Add middleware: they are evaluated in the reverse order in which they
@@ -359,6 +367,7 @@ func main() {
 	}
 
 	errChan := make(chan error)
+
 	moveMilCerts := []server.TLSCert{
 		server.TLSCert{
 			//Append move.mil cert with CA certificate chain
@@ -370,6 +379,15 @@ func main() {
 			KeyPEMBlock: []byte(*moveMilDODTLSKey),
 		},
 	}
+	pkcs7Package, err := ioutil.ReadFile(*dodCACertPackage)
+	if err != nil {
+		logger.Fatal("Failed to read DoD CA certificate package", zap.Error(err))
+	}
+	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
+	if err != nil {
+		logger.Fatal("Failed to parse DoD CA certificate package", zap.Error(err))
+	}
+
 	go func() {
 		noTLSServer := server.Server{
 			ListenAddress: *listenInterface,
@@ -392,10 +410,10 @@ func main() {
 	}()
 	go func() {
 		mutualTLSServer := server.Server{
-			// Only allow certificates validated by the specified
-			// client certificate CA.
+			// Ensure that any DoD-signed client certificate can be validated,
+			// using the package of DoD root and intermediate CAs provided by DISA
+			CaCertPool:     dodCACertPool,
 			ClientAuthType: tls.RequireAndVerifyClientCert,
-			CACertPEMBlock: []byte(*moveMilDODCACert),
 			ListenAddress:  *listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,

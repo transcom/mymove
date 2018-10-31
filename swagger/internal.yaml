@@ -1485,6 +1485,34 @@ definitions:
         example: 30
         readOnly: true
         x-nullable: true
+      move_dates_summary:
+        type: object
+        properties:
+          pack:
+            type: array
+            readOnly: true
+            items:
+              type: string
+              format: date
+          pickup:
+            type: array
+            readOnly: true
+            items:
+              type: string
+              format: date
+          transit:
+            type: array
+            readOnly: true
+            items:
+              type: string
+              format: date
+          delivery:
+            type: array
+            readOnly: true
+            items:
+              type: string
+              format: date
+        x-nullable: true
       pickup_address_id:
         type: string
         format: uuid
@@ -1522,12 +1550,16 @@ definitions:
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
+        default: false
         title: 'Do you have household goods at any other pickup location?'
       has_delivery_address:
         type: boolean
+        default: false
         title: 'Do you know your home address at your destination yet?'
       has_partial_sit_delivery_address:
         type: boolean
+        default: false
+        title: 'Do you know the delivery address at destination yet?'
       weight_estimate:
         type: integer
         minimum: 0

@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
-import { fetchActive } from 'shared/utils';
+import { fetchActive, fetchActiveShipment } from 'shared/utils';
 import { GetShipment } from './api';
 
 // Types
@@ -38,7 +38,7 @@ export function hhgReducer(state = initialState, action) {
       // Initialize state when we get the logged in user
       const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
       const activeMove = fetchActive(get(activeOrders, 'moves'));
-      const activeHhg = fetchActive(get(activeMove, 'shipments'));
+      const activeHhg = fetchActiveShipment(get(activeMove, 'shipments'));
       return Object.assign({}, state, {
         currentHhg: activeHhg,
         hasLoadSuccess: true,

@@ -19,10 +19,23 @@ describe('completing the hhg flow', function() {
     cy.get('button.next').should('be.disabled');
 
     // Calendar move date
+
+    // Try to get today, which should be disabled even after clicked.  We may have to go back a month
+    // to find today since the calendar scrolls to the month with the first available move date.
     cy
-      .get('.DayPicker-Day--today') // gets today, which should be disabled even after clicked
-      .click()
-      .should('have.class', 'DayPicker-Day--disabled');
+      .get('body')
+      .then($body => {
+        if ($body.find('.DayPicker-Day--today').length === 0) {
+          cy.get('.DayPicker-NavButton--prev').click();
+        }
+      })
+      .then(() => {
+        cy
+          .get('.DayPicker-Day--today')
+          .first()
+          .click()
+          .should('have.class', 'DayPicker-Day--disabled');
+      });
 
     // We may or may not have an available date in the current month.  If not, then
     // we skip to the next month which should (at least at this point) have an available
@@ -97,6 +110,16 @@ describe('completing the hhg flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-weight/);
     });
 
+    // Weight calculator
+    cy
+      .get('input[name="rooms"]')
+      .clear()
+      .type('9');
+
+    cy.get('select[name="stuff"]').select('more');
+
+    cy.get('input[name="weight_estimate"]').should('have.value', '13500');
+
     // Weight over entitlement
     cy
       .get('input[name="weight_estimate"]')
@@ -120,13 +143,37 @@ describe('completing the hhg flow', function() {
     });
 
     // Progear Weights
+
+    // Check yes for radios
+    cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
+
     cy
       .get('input[name="progear_weight_estimate"]')
       .clear()
-      .type('250')
+      .type('2500');
+
+    cy.contains('Entitlement exceeded');
+
+    cy
+      .get('input[name="progear_weight_estimate"]')
+      .clear()
+      .type('250');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
+
+    cy
+      .get('input[name="spouse_progear_weight_estimate"]')
+      .clear()
+      .type('1580');
+
+    cy.contains('Entitlement exceeded');
+
+    cy
       .get('input[name="spouse_progear_weight_estimate"]')
       .clear()
       .type('158');
+
+    cy.contains('Entitlement exceeded').should('not.exist');
 
     // Review page
     cy.nextPage();
@@ -149,6 +196,6 @@ describe('completing the hhg flow', function() {
     // Status summary page
     cy.nextPage();
     cy.contains('Success');
-    cy.contains('Next Step: Awaiting approval');
+    cy.contains('Government Movers and Packers');
   });
 });

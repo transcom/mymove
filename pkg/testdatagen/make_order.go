@@ -48,22 +48,26 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	ordersNumber := "ORDER" + strconv.Itoa(rand.Intn(100))
 	TAC := "F8E1"
+	SAC := "SAC"
+	departmentIndicator := "AIR_FORCE"
 
 	order := models.Order{
-		ServiceMember:    sm,
-		ServiceMemberID:  sm.ID,
-		NewDutyStation:   station,
-		NewDutyStationID: station.ID,
-		UploadedOrders:   document,
-		UploadedOrdersID: document.ID,
-		IssueDate:        time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:     &ordersNumber,
-		HasDependents:    true,
-		SpouseHasProGear: true,
-		Status:           models.OrderStatusDRAFT,
-		TAC:              &TAC,
+		ServiceMember:       sm,
+		ServiceMemberID:     sm.ID,
+		NewDutyStation:      station,
+		NewDutyStationID:    station.ID,
+		UploadedOrders:      document,
+		UploadedOrdersID:    document.ID,
+		IssueDate:           time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:        time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
+		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:        &ordersNumber,
+		HasDependents:       true,
+		SpouseHasProGear:    true,
+		Status:              models.OrderStatusDRAFT,
+		TAC:                 &TAC,
+		SAC:                 &SAC,
+		DepartmentIndicator: &departmentIndicator,
 	}
 
 	// Overwrite values with those from assertions

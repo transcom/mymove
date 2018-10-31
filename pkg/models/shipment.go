@@ -10,7 +10,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -116,9 +115,9 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
 		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
 		&OptionalInt64IsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
-		&OptionalPoundIsPositive{Field: s.WeightEstimate, Name: "weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
-		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
+		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
 	), nil
 }
 
@@ -182,6 +181,16 @@ func (s *Shipment) Transport(actualPickupDate time.Time) error {
 	return nil
 }
 
+// Pack updates the Shipment actual pack date. Must be in an Approved state.
+// TODO: cgilmer 2018/10/18 - fold this into the Transport() state change when the fields are merged in the UI
+func (s *Shipment) Pack(actualPackDate time.Time) error {
+	if s.Status != ShipmentStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Approved")
+	}
+	s.ActualPackDate = &actualPackDate
+	return nil
+}
+
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
 func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	if s.Status != ShipmentStatusINTRANSIT {
@@ -203,26 +212,6 @@ func (s *Shipment) Complete() error {
 
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
-	// TODO: These values should be ultimately calculated, but we're hard-coding them for now.
-	// TODO: Remove after proper calculations are in place.
-	if s.Status == ShipmentStatusSUBMITTED {
-		if s.EstimatedPackDays == nil {
-			s.EstimatedPackDays = swag.Int64(3)
-		}
-		if s.EstimatedTransitDays == nil {
-			s.EstimatedTransitDays = swag.Int64(10)
-		}
-		if s.ActualDeliveryDate == nil {
-			if s.RequestedPickupDate != nil {
-				newDate := s.RequestedPickupDate.AddDate(0, 0, int(*s.EstimatedTransitDays))
-				s.ActualDeliveryDate = &newDate
-			}
-		}
-		if s.ActualPickupDate == nil {
-			s.ActualPickupDate = s.RequestedPickupDate
-		}
-	}
-
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record
 	// is created/updated.
 	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
@@ -293,8 +282,8 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	return &trafficDistributionList, nil
 }
 
-// CreateShipmentAccessorial creates a new ShipmentAccessorial tied to the Shipment
-func (s *Shipment) CreateShipmentAccessorial(db *pop.Connection, accessorialID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentAccessorial, *validate.Errors, error) {
+// CreateShipmentLineItem creates a new ShipmentLineItem tied to the Shipment
+func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentLineItem, *validate.Errors, error) {
 	var quantity2 unit.BaseQuantity
 	if q2 != nil {
 		quantity2 = unit.BaseQuantity(*q2)
@@ -305,29 +294,29 @@ func (s *Shipment) CreateShipmentAccessorial(db *pop.Connection, accessorialID u
 		notesVal = *notes
 	}
 
-	shipmentAccessorial := ShipmentAccessorial{
-		ShipmentID:    s.ID,
-		AccessorialID: accessorialID,
-		Quantity1:     unit.BaseQuantity(*q1),
-		Quantity2:     quantity2,
-		Location:      ShipmentAccessorialLocation(location),
-		Notes:         notesVal,
-		SubmittedDate: time.Now(),
-		Status:        ShipmentAccessorialStatusSUBMITTED,
+	shipmentLineItem := ShipmentLineItem{
+		ShipmentID:        s.ID,
+		Tariff400ngItemID: tariff400ngItemID,
+		Quantity1:         unit.BaseQuantity(*q1),
+		Quantity2:         quantity2,
+		Location:          ShipmentLineItemLocation(location),
+		Notes:             notesVal,
+		SubmittedDate:     time.Now(),
+		Status:            ShipmentLineItemStatusSUBMITTED,
 	}
 
-	verrs, err := db.ValidateAndCreate(&shipmentAccessorial)
+	verrs, err := db.ValidateAndCreate(&shipmentLineItem)
 	if verrs.HasAny() || err != nil {
-		return &ShipmentAccessorial{}, verrs, err
+		return &ShipmentLineItem{}, verrs, err
 	}
 
-	// Loads accessorial information
-	err = db.Load(&shipmentAccessorial)
+	// Loads line item information
+	err = db.Load(&shipmentLineItem)
 	if err != nil {
-		return &ShipmentAccessorial{}, validate.NewErrors(), err
+		return &ShipmentLineItem{}, validate.NewErrors(), err
 	}
 
-	return &shipmentAccessorial, validate.NewErrors(), nil
+	return &shipmentLineItem, validate.NewErrors(), nil
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment

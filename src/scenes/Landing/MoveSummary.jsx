@@ -16,6 +16,7 @@ import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import { Link } from 'react-router-dom';
 import { withContext } from 'shared/AppContext';
+import StatusTimelineContainer from './StatusTimeline';
 
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
@@ -102,7 +103,7 @@ export const DraftMoveSummary = props => {
   );
 };
 
-export const SubmittedMoveSummary = props => {
+export const SubmittedPpmMoveSummary = props => {
   const { ppm, orders, profile, move, entitlement } = props;
   return (
     <Fragment>
@@ -121,14 +122,14 @@ export const SubmittedMoveSummary = props => {
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
                   <div className="title">Next Step: Awaiting approval</div>
-                  <div>
-                    Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help?
-                    Contact your local Transportation Office (PPPO) at {profile.current_station.name}.
-                  </div>
+                  <div
+                  >{`Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
+                    profile.current_station.name
+                  }.`}</div>
                 </div>
               </div>
               <div className="usa-width-one-third">
-                <MoveDetails ppm={ppm} />
+                <PPMMoveDetails ppm={ppm} />
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
@@ -141,6 +142,50 @@ export const SubmittedMoveSummary = props => {
             </div>
             <div className="step-links">
               <FindWeightScales />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Fragment>
+  );
+};
+
+export const SubmittedHhgMoveSummary = props => {
+  const { shipment, orders, profile, move, entitlement } = props;
+  return (
+    <Fragment>
+      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
+      <br />
+      <div className="usa-width-three-fourths">
+        <div className="shipment_box">
+          <div className="shipment_type">
+            <img className="move_sm" src={truck} alt="hhg-truck" />
+            Government Movers and Packers (HHG)
+          </div>
+
+          <div className="shipment_box_contents">
+            <StatusTimelineContainer bookDate={shipment.book_date} moveDates={shipment.move_dates_summary} />
+            <div className="step-contents">
+              <div className="status_box usa-width-two-thirds">
+                <div className="step">
+                  <div className="title">Next Step: Prepare for move</div>
+                  <div>
+                    Your mover will contact you within ten days to schedule a pre-move survey, where they will provide
+                    you with a detailed weight estimate and more accurate packing and delivery dates.
+                  </div>
+                </div>
+              </div>
+              <div className="usa-width-one-third">
+                <HhgMoveDetails hhg={shipment} />
+                <div className="titled_block">
+                  <div className="title">Documents</div>
+                  <div className="details-links">
+                    <a href="placeholder" target="_blank" rel="noopener noreferrer">
+                      Pre-move tips
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -212,7 +257,7 @@ export const ApprovedMoveSummary = withContext(props => {
                 )}
               </div>
               <div className="usa-width-one-third">
-                <MoveDetails ppm={ppm} />
+                <PPMMoveDetails ppm={ppm} />
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
@@ -233,7 +278,7 @@ export const ApprovedMoveSummary = withContext(props => {
   );
 });
 
-const MoveDetails = props => {
+const PPMMoveDetails = props => {
   const { ppm } = props;
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
@@ -254,6 +299,15 @@ const MoveDetails = props => {
   );
 };
 
+const HhgMoveDetails = props => {
+  return (
+    <div className="titled_block">
+      <div className="title">Details</div>
+      <div>Weight (est.): {props.hhg.weight_estimate} lbs</div>
+    </div>
+  );
+};
+
 const FindWeightScales = () => (
   <span>
     <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
@@ -267,7 +321,7 @@ const MoveInfoHeader = props => {
   return (
     <Fragment>
       <h2>
-        {get(orders, 'new_duty_station.name', 'New move')} from {get(profile, 'current_station.name', '')}
+        {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h2>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {entitlement && (
@@ -279,20 +333,68 @@ const MoveInfoHeader = props => {
   );
 };
 
-const moveSummaryStatusComponents = {
+const ppmSummaryStatusComponents = {
   DRAFT: DraftMoveSummary,
-  SUBMITTED: SubmittedMoveSummary,
+  SUBMITTED: SubmittedPpmMoveSummary,
   APPROVED: ApprovedMoveSummary,
   CANCELED: CanceledMoveSummary,
 };
 
+const hhgSummaryStatusComponents = {
+  DRAFT: DraftMoveSummary,
+  SUBMITTED: SubmittedHhgMoveSummary,
+  AWARDED: SubmittedHhgMoveSummary,
+  ACCEPTED: SubmittedHhgMoveSummary,
+  APPROVED: SubmittedHhgMoveSummary,
+  IN_TRANSIT: SubmittedHhgMoveSummary,
+  DELIVERED: SubmittedHhgMoveSummary,
+  COMPLETED: SubmittedHhgMoveSummary,
+  CANCELED: CanceledMoveSummary,
+};
+
+const getStatus = (moveStatus, moveType, ppm, shipment) => {
+  let status = 'DRAFT';
+  if (moveType === 'PPM') {
+    // PPM status determination
+    const ppmStatus = get(ppm, 'status', 'DRAFT');
+    status =
+      moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
+  } else if (moveType === 'HHG') {
+    // HHG status determination
+    if (moveStatus === 'CANCELED') {
+      // Shipment does not have a canceled status, but move does.
+      return moveStatus;
+    }
+    const shipmentStatus = get(shipment, 'status', 'DRAFT');
+    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
+      shipmentStatus,
+    )
+      ? shipmentStatus
+      : 'DRAFT';
+  }
+  return status;
+};
+
 export const MoveSummary = props => {
-  const { profile, move, orders, ppm, editMove, entitlement, resumeMove, reviewProfile, requestPaymentSuccess } = props;
-  const move_status = get(move, 'status', 'DRAFT');
-  const ppm_status = get(ppm, 'status', 'DRAFT');
-  const status =
-    move_status === 'APPROVED' && (ppm_status === 'SUBMITTED' || ppm_status === 'DRAFT') ? 'SUBMITTED' : move_status;
-  const StatusComponent = moveSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
+  const {
+    profile,
+    move,
+    orders,
+    ppm,
+    shipment,
+    editMove,
+    entitlement,
+    resumeMove,
+    reviewProfile,
+    requestPaymentSuccess,
+  } = props;
+  const moveStatus = get(move, 'status', 'DRAFT');
+  const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
+  const StatusComponent =
+    move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
+  const showTsp =
+    move.selected_move_type !== 'PPM' &&
+    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(status);
   return (
     <Fragment>
       {status === 'CANCELED' && (
@@ -306,6 +408,7 @@ export const MoveSummary = props => {
         <StatusComponent
           className="status-component"
           ppm={ppm}
+          shipment={shipment}
           orders={orders}
           profile={profile}
           move={move}
@@ -328,6 +431,12 @@ export const MoveSummary = props => {
             <div className="title">Contacts</div>
             <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
             {status !== 'CANCELED' && <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />}
+            {showTsp && (
+              <div className="titled_block">
+                <strong>TSP name</strong>
+                <div>phone #</div>
+              </div>
+            )}
           </div>
         </div>
       </div>

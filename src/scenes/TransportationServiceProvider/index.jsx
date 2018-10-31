@@ -61,6 +61,7 @@ class TspWrapper extends Component {
                 <PrivateRoute path="/queues/:queueType(new|approved|in_transit|delivered|all)" component={Queues} />
                 {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
                 {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
+                <Redirect from="*" to="/queues/new" component={Queues} />
               </Switch>
             </div>
           </main>

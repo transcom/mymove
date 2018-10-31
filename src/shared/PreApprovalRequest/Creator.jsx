@@ -28,6 +28,7 @@ export class Creator extends Component {
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
+    values.tariff400ng_item_id = values.tariff400ng_item.id;
     this.props.savePreApprovalRequest(values);
   };
   saveAndClear = () => {
@@ -44,7 +45,7 @@ export class Creator extends Component {
   render() {
     if (this.state.showForm)
       return (
-        <div className="accessorial-panel-modal">
+        <div className="pre-approval-panel-modal">
           <div className="title">Add a request</div>
           <PreApprovalForm tariff400ngItems={this.props.tariff400ngItems} onSubmit={this.onSubmit} />
           <div className="usa-grid">
@@ -56,7 +57,7 @@ export class Creator extends Component {
               </p>
             </div>
 
-            <div className="usa-width-one-half">
+            <div className="usa-width-one-half align-right">
               <button
                 className="button button-secondary"
                 disabled={!this.props.formEnabled}

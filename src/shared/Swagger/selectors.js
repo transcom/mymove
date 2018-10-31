@@ -34,7 +34,12 @@ export function getLastError(state, label) {
   return state.requests.lastErrors[label];
 }
 
-// Return the Swagger definition for the provided name
+// Return the internal Swagger definition for the provided name
 export function getInternalSwaggerDefinition(state, name) {
   return get(state, `swaggerInternal.spec.definitions.${name}`, {});
+}
+
+// Return the public Swagger definition for the provided name
+export function getPublicSwaggerDefinition(state, name) {
+  return get(state, `swaggerPublic.spec.definitions.${name}`, {});
 }

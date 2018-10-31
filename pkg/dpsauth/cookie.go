@@ -1,6 +1,7 @@
 package dpsauth
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -15,8 +16,8 @@ var secretKey = initKey()
 
 const prefix = "mymove-"
 
-// UserIDToCookie takes the UUID of the current user and returns the cookie value.
-func UserIDToCookie(userID string) (string, error) {
+// LoginGovIDToCookie takes the Login.gov UUID of the current user and returns the cookie value.
+func LoginGovIDToCookie(userID string) (string, error) {
 	expiration, err := strconv.Atoi(cookieExpiresInMinutes)
 	if err != nil {
 		return "", errors.Wrap(err, "Converting DPS_COOKIE_EXPIRES_IN_MINUTES to int")
@@ -36,26 +37,25 @@ func UserIDToCookie(userID string) (string, error) {
 	return prefix + jwt, nil
 }
 
-// CookieToUserID takes a cookie value and returns the user's UUID only if it's a
+// CookieToLoginGovID takes a cookie value and returns the Login.gov UUID only if it's a
 // valid, unexpired cookie.
-func CookieToUserID(cookieValue string) (string, error) {
+func CookieToLoginGovID(cookieValue string) (string, error) {
 	if !strings.HasPrefix(cookieValue, prefix) {
-		return "", errors.New("Invalid cookie: missing prefix")
+		return "", &ErrInvalidCookie{errMessage: "Invalid cookie: missing prefix"}
 	}
 	token, err := jwt.ParseWithClaims(cookieValue[len(prefix):], &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
-	if err != nil || token == nil || !token.Valid {
-		return "", errors.Wrap(err, "Failed token validation")
+	if err != nil {
+		return "", &ErrInvalidCookie{errMessage: fmt.Sprintf("Invalid cookie: unable to parse JWT - %s", err.Error())}
+	}
+
+	if token == nil || !token.Valid {
+		return "", &ErrInvalidCookie{errMessage: "Invalid cookie: failed JWT validation"}
 	}
 
 	claims := token.Claims.(*jwt.StandardClaims)
-
-	if time.Now().Unix() > claims.ExpiresAt {
-		return "", errors.New("Cookie is expired")
-	}
-
 	return claims.Subject, nil
 }
 
