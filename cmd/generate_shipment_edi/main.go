@@ -59,7 +59,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	planner := route.NewHEREPlanner(logger, *hereGeoEndpoint, *hereRouteEndpoint, *hereAppID, *hereAppCode)
+	planner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
 	var costsByShipments []rateengine.CostByShipment
 
 	engine := rateengine.NewRateEngine(db, logger, planner)

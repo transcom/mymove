@@ -54,7 +54,7 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           8443,
+		Port:           "8443",
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
@@ -75,7 +75,7 @@ func (suite *serverSuite) TestParseBadTLSCert() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           8443,
+		Port:           "8443",
 		TLSCerts:       []TLSCert{tlsCert1},
 	}
 
@@ -100,7 +100,7 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           8443,
+		Port:           "8443",
 		TLSCerts: []TLSCert{
 			tlsLocalhost,
 			tlsOfficelocal},
@@ -128,7 +128,7 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           8443,
+		Port:           "8443",
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
@@ -146,7 +146,7 @@ func (suite *serverSuite) TestTLSConfigWithMissingCA() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           8443,
+		Port:           "8443",
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
@@ -170,7 +170,7 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
-		Port:           8443,
+		Port:           "8443",
 		TLSCerts:       []TLSCert{tlsCert},
 	}
 
@@ -185,7 +185,7 @@ func (suite *serverSuite) TestHTTPServerConfig() {
 		ListenAddress: "127.0.0.1",
 		HTTPHandler:   suite.httpHandler,
 		Logger:        suite.logger,
-		Port:          8080,
+		Port:          "8080",
 	}
 
 	config, err := httpServer.serverConfig(tlsConfig)
