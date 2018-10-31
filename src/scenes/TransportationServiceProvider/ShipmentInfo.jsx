@@ -48,7 +48,7 @@ import {
   deliverShipment,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
-import Weights from './Weights';
+import Weights from 'shared/ShipmentWeights';
 import Dates from './Dates';
 import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
