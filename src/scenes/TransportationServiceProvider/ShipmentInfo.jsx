@@ -29,7 +29,7 @@ import {
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
   getAllShipmentLineItems,
-  selectShipmentLineItems,
+  selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 
@@ -436,7 +436,7 @@ const mapStateToProps = state => {
     shipment,
     shipmentDocuments: selectShipmentDocuments(state, shipment.id),
     tariff400ngItems: selectTariff400ngItems(state),
-    shipmentLineItems: selectShipmentLineItems(state),
+    shipmentLineItems: selectSortedShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
