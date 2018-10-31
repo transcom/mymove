@@ -58,8 +58,12 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		destinationGBLOC = stringPointer(DefaultDstGBLOC)
 	}
 
+	requestedPickupDate := assertions.Shipment.RequestedPickupDate
+	if requestedPickupDate == nil {
+		requestedPickupDate = &PerformancePeriodStart
+	}
 	var summary dates.MoveDatesSummary
-	summary.CalculateMoveDates(PerformancePeriodStart, 2, 3)
+	summary.CalculateMoveDates(*requestedPickupDate, 2, 3)
 
 	shipment := models.Shipment{
 		Status:           status,

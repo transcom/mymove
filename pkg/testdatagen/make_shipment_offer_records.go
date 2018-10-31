@@ -214,9 +214,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				DestinationGBLOC:        &destinationGBLOC,
 				Market:                  &market,
 				Status:                  shipmentStatus,
-				OriginalPackDate:        &Now,
 				RequestedPickupDate:     &Now,
-				OriginalDeliveryDate:    &NowPlusOneWeek,
+				// Let the next method fill in original dates and estimated days
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
