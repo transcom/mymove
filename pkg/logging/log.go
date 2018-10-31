@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/felixge/httpsnoop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 

@@ -17,9 +17,9 @@
     "/bin/mymove-server"
   ],
   "command": [
-    "-env",
+    "--env",
     "container",
-    "-debug_logging"
+    "--debug-logging"
   ],
   "environment": [
     {

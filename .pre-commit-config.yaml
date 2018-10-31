@@ -8,7 +8,7 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v1.4.0-1
+    rev: v2.0.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -76,9 +76,9 @@ repos:
   - repo: git://github.com/dnephin/pre-commit-golang
     rev: v0.3.2
     hooks:
-    -   id: go-fmt
-    -   id: go-vet
-    -   id: go-lint
+      - id: go-fmt
+      - id: go-vet
+      - id: go-lint
 
   - repo: local
     hooks:
@@ -102,6 +102,13 @@ repos:
             vendor/|
             docs/adr/index.md
           )$
+
+  - repo: local
+    hooks:
+      - id: gen-docs
+        name: regenerate docs index
+        entry: bin/gen-docs-index
+        language: script
 
   - repo: local
     hooks:

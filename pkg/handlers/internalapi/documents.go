@@ -2,7 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	auth "github.com/transcom/mymove/pkg/auth"
