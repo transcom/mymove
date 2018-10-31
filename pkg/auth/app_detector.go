@@ -39,6 +39,7 @@ func DetectorMiddleware(logger *zap.Logger, myHostname string, officeHostname st
 	logger.Info("Creating host detector", zap.String("myHost", myHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			_, span := beeline.StartSpan(r.Context(), "DetectorMiddleware")
 			session := SessionFromRequestContext(r)
 			parts := strings.Split(r.Host, ":")
 			var appName application
@@ -55,7 +56,9 @@ func DetectorMiddleware(logger *zap.Logger, myHostname string, officeHostname st
 			}
 			session.ApplicationName = appName
 			session.Hostname = strings.ToLower(parts[0])
-			beeline.AddField(r.Context(), "application_name", appName)
+			span.AddField("auth.application_name", session.ApplicationName)
+			span.AddField("auth.hostname", session.Hostname)
+			span.Send()
 			next.ServeHTTP(w, r)
 			return
 		}

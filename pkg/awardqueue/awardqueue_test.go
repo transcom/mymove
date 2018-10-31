@@ -1,6 +1,7 @@
 package awardqueue
 
 import (
+	"context"
 	"log"
 	"strings"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -58,7 +60,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	})
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipment)
+	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
 
 	expectedError := "could not find a TSP without blackout dates"
 	// See if shipment was offered
@@ -125,7 +127,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	})
 
 	// Run the Award Queue
-	queue.assignShipments()
+	queue.assignShipments(context.Background())
 
 	shipmentOffer := models.ShipmentOffer{}
 	query := suite.db.Where("shipment_id = $1", shipment.ID)
@@ -291,7 +293,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	suite.Nil(err)
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipment)
+	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
 
 	// See if shipment was offered
 	if err != nil {
@@ -350,7 +352,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	suite.Nil(err)
 
 	// Run the Award Queue
-	offer, err := queue.attemptShipmentOffer(shipment)
+	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
 
 	// See if shipment was offered
 	if err == nil {
@@ -397,7 +399,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
-	queue.assignShipments()
+	queue.assignShipments(context.Background())
 
 	// Count the number of shipments offered to our TSP
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
@@ -469,7 +471,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
-	queue.assignShipments()
+	queue.assignShipments(context.Background())
 
 	// TODO: revert to [6, 5, 3, 2, 1] after the B&M pilot
 	suite.verifyOfferCount(tsp1, 4)
@@ -530,7 +532,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		}
 	}
 
-	err := queue.assignPerformanceBands()
+	err := queue.assignPerformanceBands(context.Background())
 
 	if err != nil {
 		t.Errorf("Failed to assign to performance bands: %v", err)
@@ -649,7 +651,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		t.Error(err)
 	}
 
-	queue.assignShipments()
+	queue.assignShipments(context.Background())
 
 	suite.verifyOfferCount(tspPeak, 1)
 	suite.verifyOfferCount(tspNonPeak, 1)
@@ -697,12 +699,13 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 }
 
 func (suite *AwardQueueSuite) Test_waitForLock() {
+	ctx := context.Background()
 	ret := make(chan int)
 	lockID := 1
 
 	go func() {
 		suite.db.Transaction(func(tx *pop.Connection) error {
-			suite.Nil(waitForLock(tx, lockID))
+			suite.Nil(waitForLock(ctx, tx, lockID))
 			time.Sleep(time.Second)
 			ret <- 1
 			return nil
@@ -712,7 +715,7 @@ func (suite *AwardQueueSuite) Test_waitForLock() {
 	go func() {
 		suite.db.Transaction(func(tx *pop.Connection) error {
 			time.Sleep(time.Millisecond * 500)
-			suite.Nil(waitForLock(tx, lockID))
+			suite.Nil(waitForLock(ctx, tx, lockID))
 			ret <- 2
 			return nil
 		})
@@ -740,7 +743,7 @@ func equalSlice(a []int, b []int) bool {
 type AwardQueueSuite struct {
 	suite.Suite
 	db     *pop.Connection
-	logger *zap.Logger
+	logger *hnyzap.Logger
 }
 
 func (suite *AwardQueueSuite) SetupTest() {
@@ -760,6 +763,9 @@ func TestAwardQueueSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	hs := &AwardQueueSuite{db: db, logger: logger}
+	hs := &AwardQueueSuite{
+		db:     db,
+		logger: &hnyzap.Logger{Logger: logger},
+	}
 	suite.Run(t, hs)
 }

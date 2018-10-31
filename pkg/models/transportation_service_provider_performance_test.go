@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"context"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -135,7 +136,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, mps, 0, .2, .3)
 	band := 1
 
-	err := AssignQualityBandToTSPPerformance(suite.db, band, perf.ID)
+	err := AssignQualityBandToTSPPerformance(context.Background(), suite.db, band, perf.ID)
 	if err != nil {
 		t.Fatalf("Did not update quality band: %v", err)
 	}
