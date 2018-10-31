@@ -268,6 +268,12 @@ definitions:
         type: string
         title: Approved Date
         format: date-time
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
     required:
       - tariff400ng_item_id
       - quantity_1
