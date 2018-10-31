@@ -221,7 +221,7 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 				zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
 			return shipmentop.NewRejectShipmentConflict()
 		} else {
-			h.HoneyZapLogger().TraceError(ctx, "Unknown Error", zap.Error(err))
+			h.Logger().Error("Unknown Error", zap.Error(err))
 			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 		}
 	}
