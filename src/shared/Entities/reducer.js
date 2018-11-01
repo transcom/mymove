@@ -20,6 +20,9 @@ function deleteEntities(entities, deleteEntities) {
   Object.keys(deleteEntities).forEach(function(key) {
     /* eslint-disable security/detect-object-injection */
     if (entities[key]) {
+      // before delete, create new object with same content
+      // this will ensure Reselect will pick up the deleted changes
+      entities[key] = { ...entities[key] };
       Object.keys(deleteEntities[key]).forEach(function(id) {
         delete entities[key][id];
       });
