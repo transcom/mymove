@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
 
@@ -93,7 +93,7 @@ func noErr(err error) {
 
 // isZeroUUID determines whether a UUID is its zero value
 func isZeroUUID(testID uuid.UUID) bool {
-	return uuid.Equal(testID, uuid.UUID{})
+	return testID == uuid.Nil
 }
 
 // mergeModels merges src into dst, if non-zero values are present

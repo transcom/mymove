@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"net/http"
 )
 

@@ -9,6 +9,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import CertificationText from './CertificationText';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { formatSwaggerDate } from 'shared/formatters';
 import './index.css';
 
 import { loadCertificationText, loadLatestCertification, signAndSubmitForApproval } from './ducks';
@@ -57,7 +58,7 @@ export class SignedCertification extends Component {
   }
   render() {
     const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
-    const today = new Date(Date.now()).toISOString().split('T')[0];
+    const today = formatSwaggerDate(new Date());
     const initialValues = {
       date: get(latestSignedCertification, 'date', today),
       signature: get(latestSignedCertification, 'signature', null),

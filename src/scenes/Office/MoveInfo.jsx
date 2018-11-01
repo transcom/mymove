@@ -23,7 +23,7 @@ import ExpensesPanel from './Ppm/ExpensesPanel';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
-import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
+import Weights from 'shared/ShipmentWeights';
 import ServiceAgents from './ServiceAgents';
 import PremoveSurvey from 'shared/PremoveSurvey';
 import { withContext } from 'shared/AppContext';
@@ -47,10 +47,10 @@ import {
   approveHHG,
   completeHHG,
   cancelMove,
-  patchShipment,
   sendHHGInvoice,
   resetMove,
 } from './ducks';
+import { loadShipment, patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -93,7 +93,7 @@ const HHGTabContent = props => {
       <RoutingPanel title="Routing" moveId={props.moveId} />
       <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
       <LocationsPanel title="Locations" moveId={props.moveId} />
-      <WeightAndInventoryPanel title="Weight & Inventory" moveId={props.moveId} />
+      <Weights title="Weights & Items" shipment={props.shipment} update={props.patchShipment} />
       {props.officeShipment && (
         <PremoveSurvey
           title="Premove Survey"
@@ -127,6 +127,7 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
+      this.props.loadShipment(this.props.officeShipment.id);
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
     }
   }
@@ -304,6 +305,7 @@ class MoveInfo extends Component {
                     officeShipment={this.props.officeShipment}
                     patchShipment={this.props.patchShipment}
                     moveId={this.props.match.params.moveId}
+                    shipment={this.props.shipment}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                   />
                 </PrivateRoute>
@@ -457,6 +459,7 @@ const mapStateToProps = state => ({
   swaggerError: get(state, 'swagger.hasErrored'),
   officeMove: get(state, 'office.officeMove', {}),
   officeShipment: get(state, 'office.officeShipment', {}),
+  shipment: get(state, 'tsp.shipment', {}),
   officeOrders: get(state, 'office.officeOrders', {}),
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
@@ -478,6 +481,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
+      loadShipment,
       loadMoveDependencies,
       getMoveDocumentsForMove,
       approveBasics,
