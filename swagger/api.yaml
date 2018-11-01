@@ -545,6 +545,12 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      has_dependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       status:
         $ref: '#/definitions/MoveStatus'
       locator:

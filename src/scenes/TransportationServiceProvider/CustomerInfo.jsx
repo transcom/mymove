@@ -3,12 +3,30 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
+import { loadEntitlements } from './ducks';
+import { PanelField } from 'shared/EditablePanel';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
-export const CustomerInfo = ({ serviceMember, backupContact }) => {
+function renderEntitlements(entitlements) {
+  const weightEntitlement = get(entitlements, 'weight', '0').toLocaleString();
+  const proGearEntitlement = get(entitlements, 'pro_gear', '0').toLocaleString();
+  const spouseProGearEntitlement = get(entitlements, 'pro_gear_spouse', '0').toLocaleString();
+
+  return (
+    <React.Fragment>
+      <b>Entitlements</b>
+      <br />
+      {weightEntitlement} lbs <br />
+      Pro-gear: {proGearEntitlement} lbs / Spouse: {spouseProGearEntitlement} <br />
+    </React.Fragment>
+  );
+}
+
+export const CustomerInfo = ({ serviceMember, backupContact, entitlements }) => {
   return (
     <div>
       <div className="usa-grid">
@@ -51,6 +69,7 @@ export const CustomerInfo = ({ serviceMember, backupContact }) => {
               </span>
             )}
           </p>
+          <p>{renderEntitlements(entitlements)}</p>
         </div>
       </div>
     </div>
@@ -127,6 +146,7 @@ const mapStateToProps = state => {
   return {
     serviceMember,
     backupContact,
+    entitlements: loadEntitlements(state),
   };
 };
 
