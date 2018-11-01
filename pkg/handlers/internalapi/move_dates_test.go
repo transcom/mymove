@@ -49,33 +49,6 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingEstimatedTra
 	suite.Error(err)
 }
 
-func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingOriginalPackDate() {
-	// create a shipment
-	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
-	deliveryDate := time.Date(2018, 12, 17, 0, 0, 0, 0, time.UTC)
-	var shipment = models.Shipment{
-		RequestedPickupDate:  &pickupDate,
-		OriginalDeliveryDate: &deliveryDate,
-	}
-	_, err := calculateMoveDatesFromShipment(&shipment)
-
-	suite.Error(err)
-}
-
-func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingOriginalDeliveryDate() {
-	// create a shipment
-	pickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
-	packDate := time.Date(2018, 12, 6, 0, 0, 0, 0, time.UTC)
-	var shipment = models.Shipment{
-		RequestedPickupDate: &pickupDate,
-		OriginalPackDate:    &packDate,
-	}
-
-	_, err := calculateMoveDatesFromShipment(&shipment)
-
-	suite.Error(err)
-}
-
 type testCase struct {
 	name     string
 	shipment models.Shipment
@@ -86,6 +59,9 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 	originalPackDate := time.Date(2018, 12, 6, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	originalDeliveryDate := time.Date(2018, 12, 17, 0, 0, 0, 0, time.UTC)
+
+	estimatedPackDays := int64(3)
+	estimatedTransitDays := int64(5)
 
 	pmSurveyPackDate := time.Date(2018, 12, 7, 0, 0, 0, 0, time.UTC)
 	pmSurveyPickupDate := time.Date(2018, 12, 12, 0, 0, 0, 0, time.UTC)
@@ -108,6 +84,8 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				RequestedPickupDate:  &requestedPickupDate,
 				OriginalPackDate:     &originalPackDate,
 				OriginalDeliveryDate: &originalDeliveryDate,
+				EstimatedPackDays:    &estimatedPackDays,
+				EstimatedTransitDays: &estimatedTransitDays,
 			},
 			summary: MoveDatesSummary{
 				[]time.Time{time.Date(2018, 12, 6, 0, 0, 0, 0, time.UTC),
@@ -129,6 +107,8 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				RequestedPickupDate:  &requestedPickupDate,
 				OriginalPackDate:     &originalPackDate,
 				OriginalDeliveryDate: &originalDeliveryDate,
+				EstimatedPackDays:    &estimatedPackDays,
+				EstimatedTransitDays: &estimatedTransitDays,
 
 				PmSurveyPlannedPickupDate:   &pmSurveyPickupDate,
 				PmSurveyPlannedPackDate:     &pmSurveyPackDate,
@@ -158,6 +138,8 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				RequestedPickupDate:  &requestedPickupDate,
 				OriginalPackDate:     &originalPackDate,
 				OriginalDeliveryDate: &originalDeliveryDate,
+				EstimatedPackDays:    &estimatedPackDays,
+				EstimatedTransitDays: &estimatedTransitDays,
 
 				ActualPickupDate:   &actualPickupDate,
 				ActualPackDate:     &actualPackDate,
@@ -187,6 +169,8 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				RequestedPickupDate:  &requestedPickupDate,
 				OriginalPackDate:     &originalPackDate,
 				OriginalDeliveryDate: &originalDeliveryDate,
+				EstimatedPackDays:    &estimatedPackDays,
+				EstimatedTransitDays: &estimatedTransitDays,
 
 				ActualPackDate:            &mostCurrentActualPackDate,
 				PmSurveyPlannedPickupDate: &mostCurrentPmSurveyPickupDate,
@@ -213,6 +197,8 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				RequestedPickupDate:  &requestedPickupDate,
 				OriginalPackDate:     &originalPackDate,
 				OriginalDeliveryDate: &originalDeliveryDate,
+				EstimatedPackDays:    &estimatedPackDays,
+				EstimatedTransitDays: &estimatedTransitDays,
 
 				ActualPackDate:              &actualPackDate,
 				ActualPickupDate:            &actualPickupDate,
@@ -236,6 +222,8 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				RequestedPickupDate:  &requestedPickupDate,
 				OriginalPackDate:     &originalPackDate,
 				OriginalDeliveryDate: &originalDeliveryDate,
+				EstimatedPackDays:    &estimatedPackDays,
+				EstimatedTransitDays: &estimatedTransitDays,
 
 				ActualPackDate:              &actualPackDate,
 				ActualPickupDate:            &actualPickupDate,
@@ -259,10 +247,10 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 		suite.T().Run(testCase.name, func(t *testing.T) {
 			summary, err := calculateMoveDatesFromShipment(&testCase.shipment)
 			suite.Nil(err)
-			suite.Equal(testCase.summary.PackDays, summary.PackDays, "PackDays did not match, expected %v, got %v", testCase.summary.PackDays, summary.PackDays)
-			suite.Equal(testCase.summary.PickupDays, summary.PickupDays, "PickupDays did not match, expected %v, got %v", testCase.summary.PickupDays, summary.PickupDays)
-			suite.Equal(testCase.summary.TransitDays, summary.TransitDays, "TransitDays did not match, expected %v, got %v", testCase.summary.TransitDays, summary.TransitDays)
-			suite.Equal(testCase.summary.DeliveryDays, summary.DeliveryDays, "DeliveryDays did not match, expected %v, got %v", testCase.summary.DeliveryDays, summary.DeliveryDays)
+			suite.Equal(testCase.summary.PackDays, summary.PackDays, "%v: PackDays did not match, expected %v, got %v", testCase.name, testCase.summary.PackDays, summary.PackDays)
+			suite.Equal(testCase.summary.PickupDays, summary.PickupDays, "%v: PickupDays did not match, expected %v, got %v", testCase.name, testCase.summary.PickupDays, summary.PickupDays)
+			suite.Equal(testCase.summary.TransitDays, summary.TransitDays, "%v: TransitDays did not match, expected %v, got %v", testCase.name, testCase.summary.TransitDays, summary.TransitDays)
+			suite.Equal(testCase.summary.DeliveryDays, summary.DeliveryDays, "%v: DeliveryDays did not match, expected %v, got %v", testCase.name, testCase.summary.DeliveryDays, summary.DeliveryDays)
 		})
 	}
 }

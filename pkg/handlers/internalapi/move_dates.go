@@ -83,7 +83,7 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 	usCalendar := handlers.NewUSCalendar()
 
 	if shipment.EstimatedPackDays == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a EstimatedPackDays")
+		return MoveDatesSummary{}, errors.New("Shipment must have EstimatedPackDays")
 	}
 
 	if shipment.RequestedPickupDate == nil {
@@ -101,7 +101,7 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 		mostCurrentPackDate = *shipment.PmSurveyPlannedPackDate
 	} else if shipment.OriginalPackDate != nil {
 		mostCurrentPackDate = *shipment.OriginalPackDate
-	} else if shipment.EstimatedPackDays != nil && shipment.RequestedPickupDate != nil {
+	} else {
 		lastPossiblePackDay := shipment.RequestedPickupDate.AddDate(0, 0, -1)
 		mostCurrentPackDate = createPastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)[0]
 	}
@@ -123,7 +123,7 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary
 		mostCurrentDeliveryDate = *shipment.PmSurveyPlannedDeliveryDate
 	} else if shipment.OriginalDeliveryDate != nil {
 		mostCurrentDeliveryDate = *shipment.OriginalDeliveryDate
-	} else if shipment.EstimatedTransitDays != nil && shipment.RequestedPickupDate != nil {
+	} else {
 		// transit days can be on weekends and holidays and delivery cannot, so calculations must be separated out
 		estimatedTransitDates := createFutureMoveDates(*shipment.RequestedPickupDate, int(*shipment.EstimatedTransitDays), true, usCalendar)
 		lastEstimatedTransitDate := estimatedTransitDates[len(estimatedTransitDates)-1]
