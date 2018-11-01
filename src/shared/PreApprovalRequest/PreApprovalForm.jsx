@@ -58,23 +58,23 @@ export class PreApprovalForm extends Component {
           <div className="usa-width-one-half">
             <div className="tariff400-select">
               <Field
-                name="accessorial"
+                name="tariff400ng_item"
                 title="Code & Item"
                 component={Tariff400ngItemSearch}
                 tariff400ngItems={this.props.tariff400ngItems}
               />
             </div>
-            {/* TODO andrea - set schema location enum array to accessorial selected location value */}
+            {/* TODO andrea - set schema location enum array to tariff400ng_item selected location value */}
             <SwaggerField
               fieldName="location"
               className="one-third-width rounded"
-              swagger={this.props.ship_accessorial_schema}
+              swagger={this.props.ship_line_item_schema}
               required
             />
             <SwaggerField
               fieldName="quantity_1"
               className="half-width"
-              swagger={this.props.ship_accessorial_schema}
+              swagger={this.props.ship_line_item_schema}
               required
             />
             <div className="bq-explanation">
@@ -99,7 +99,7 @@ export class PreApprovalForm extends Component {
             <SwaggerField
               fieldName="notes"
               className="three-quarter-width"
-              swagger={this.props.ship_accessorial_schema}
+              swagger={this.props.ship_line_item_schema}
             />
           </div>
         </div>
@@ -113,7 +113,7 @@ PreApprovalForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-const validateItemSelect = validateAdditionalFields(['accessorial_id']);
+const validateItemSelect = validateAdditionalFields(['tariff400ng_item']);
 export const formName = 'preapproval_request_form';
 
 PreApprovalForm = reduxForm({
@@ -125,7 +125,7 @@ PreApprovalForm = reduxForm({
 
 function mapStateToProps(state, props) {
   return {
-    ship_accessorial_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentAccessorial', {}),
+    ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
   };
 }
 

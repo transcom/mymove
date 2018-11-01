@@ -38,17 +38,16 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsRejectShipmentHandler = RejectShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
-	publicAPI.ShipmentsPackShipmentHandler = PackShipmentHandler{context}
 	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
 
 	publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{context}
 
 	// Accessorials
-	publicAPI.AccessorialsGetShipmentAccessorialsHandler = GetShipmentAccessorialsHandler{context}
-	publicAPI.AccessorialsUpdateShipmentAccessorialHandler = UpdateShipmentAccessorialHandler{context}
-	publicAPI.AccessorialsCreateShipmentAccessorialHandler = CreateShipmentAccessorialHandler{context}
-	publicAPI.AccessorialsDeleteShipmentAccessorialHandler = DeleteShipmentAccessorialHandler{context}
-	publicAPI.AccessorialsApproveShipmentAccessorialHandler = ApproveShipmentAccessorialHandler{context}
+	publicAPI.AccessorialsGetShipmentLineItemsHandler = GetShipmentLineItemsHandler{context}
+	publicAPI.AccessorialsUpdateShipmentLineItemHandler = UpdateShipmentLineItemHandler{context}
+	publicAPI.AccessorialsCreateShipmentLineItemHandler = CreateShipmentLineItemHandler{context}
+	publicAPI.AccessorialsDeleteShipmentLineItemHandler = DeleteShipmentLineItemHandler{context}
+	publicAPI.AccessorialsApproveShipmentLineItemHandler = ApproveShipmentLineItemHandler{context}
 
 	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 

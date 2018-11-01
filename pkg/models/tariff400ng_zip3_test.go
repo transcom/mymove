@@ -67,6 +67,15 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5() {
 	if rateArea != testdatagen.DefaultSrcRateArea {
 		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
 	}
+
+	rateArea, err = FetchRateAreaForZip5(suite.db, "72014-1234")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if rateArea != testdatagen.DefaultSrcRateArea {
+		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
+	}
 }
 
 func (suite *ModelSuite) Test_FetchRateAreaForZip5UsingZip5sTable() {
@@ -98,6 +107,15 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5UsingZip5sTable() {
 	if rateArea != testdatagen.DefaultSrcRateArea {
 		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
 	}
+
+	rateArea, err = FetchRateAreaForZip5(suite.db, "72014-1234")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if rateArea != testdatagen.DefaultSrcRateArea {
+		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
+	}
 }
 
 func (suite *ModelSuite) Test_FetchRegionForZip5() {
@@ -115,6 +133,15 @@ func (suite *ModelSuite) Test_FetchRegionForZip5() {
 	suite.mustSave(&zip3)
 
 	region, err := FetchRegionForZip5(suite.db, "72014")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if region != testdatagen.DefaultDstRegion {
+		t.Errorf("wrong region: expected %s, got %s", testdatagen.DefaultDstRegion, region)
+	}
+
+	region, err = FetchRegionForZip5(suite.db, "72014-1234")
 	if err != nil {
 		t.Fatal(err)
 	}

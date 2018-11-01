@@ -86,5 +86,7 @@ paths:
           description: Must be authenticated to use this endpoint
         404:
           description: Not found
+        422:
+          description: Cannot process request with given parameters
         500:
           description: Server error

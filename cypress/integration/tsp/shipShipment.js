@@ -5,30 +5,83 @@ describe('TSP User Ships a Shipment', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
-  it('tsp user Picks Up a shipment', function() {
-    tspUserPacksShipment();
-    tspUserPicksUpShipment();
+  it('tsp user enters Pack and Pick Up shipment info', function() {
+    tspUserEntersPackAndPickUpInfo();
     tspUserDeliversShipment();
+  });
+
+  it('tsp user enters a delivery date', function() {
+    tspUserVisitsAnInTransitShipment('ENTDEL');
+    tspUserVerifiesShipmentStatus('In_transit');
+    tspUserCancelsEnteringADeliveryDate();
+    tspUserEntersADeliveryDate();
+    tspUserVerifiesShipmentStatus('Delivered');
   });
 });
 
-function tspUserPacksShipment() {
-  // Open approved shipments queue
+function tspUserVerifiesShipmentStatus(status) {
+  cy.get('.move-info-header-meta > li').contains(`Status: ${status}`);
+}
+
+function tspUserCancelsEnteringADeliveryDate() {
   cy
-    .get('div')
-    .contains('Approved Shipments')
+    .get('button')
+    .contains('Enter Delivery')
+    .should('exist');
+
+  cy
+    .get('button')
+    .contains('Enter Delivery')
     .click();
 
+  cy
+    .get('input[name="actual_delivery_date"]')
+    .type('10/24/2018')
+    .blur();
+
+  cy
+    .get('a')
+    .contains('Cancel')
+    .click();
+
+  cy.get('input[name="actual_delivery_date"]').should('not.exist');
+}
+
+function tspUserEntersADeliveryDate() {
+  cy
+    .get('button')
+    .contains('Enter Delivery')
+    .click();
+
+  cy.get('input[name="actual_delivery_date"]').should('be.empty');
+
+  cy
+    .get('input[name="actual_delivery_date"]')
+    .type('10/24/2018')
+    .blur();
+
+  cy
+    .get('button')
+    .contains('Done')
+    .click();
+
+  cy.get('button').should('not.contain', 'Enter Delivery');
+}
+
+function tspUserVisitsAnInTransitShipment(locator) {
+  cy.visit('/queues/in_transit');
+
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved/);
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
   });
 
-  // Find shipment and open it
   cy
     .get('div')
-    .contains('SHIPME')
+    .contains(locator)
     .dblclick();
+}
 
+function tspUserPacksShipment() {
   // Click the Pack button
   cy
     .get('div')
@@ -83,7 +136,7 @@ function tspUserPacksShipment() {
     .click();
 
   cy
-    .get('div.DayPicker-Month')
+    .get('div.DayPicker-Day')
     .contains('10')
     .click();
 
@@ -95,12 +148,30 @@ function tspUserPacksShipment() {
   // Appears in dates panel
   cy.get('div.actual_pack_date').contains('10');
 }
-function tspUserPicksUpShipment() {
+function tspUserEntersPackAndPickUpInfo() {
+  cy.visit('/queues/new');
+
+  // Open approved shipments queue
+  cy
+    .get('div')
+    .contains('Approved Shipments')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/approved/);
+  });
+
+  // Find shipment and open it
+  cy
+    .get('div')
+    .contains('CONGBL')
+    .dblclick();
+
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Click the Transport button
+  // Click the Enter Pickup button
   cy
     .get('div')
     .contains('Enter Pickup')
@@ -115,8 +186,8 @@ function tspUserPicksUpShipment() {
   // Pick a date!
   cy
     .get('div')
-    .contains('Actual Pickup Date')
-    .get('input')
+    .contains('Actual pickup')
+    .get('input[name="actual_pickup_date"]')
     .click();
 
   cy
@@ -126,12 +197,12 @@ function tspUserPicksUpShipment() {
 
   // Cancel
   cy
-    .get('button')
+    .get('a')
     .contains('Cancel')
     .click();
 
   // Wash, Rinse, Repeat
-  // Click the Transport button
+  // Click the Enter Pickup button
   cy
     .get('div')
     .contains('Enter Pickup')
@@ -143,11 +214,23 @@ function tspUserPicksUpShipment() {
     .contains('Done')
     .should('be.disabled');
 
-  // Pick a date!
+  // Pick a Pack date!
   cy
     .get('div')
-    .contains('Actual Pickup Date')
-    .get('input')
+    .contains('Actual packing (first day)')
+    .get('input[name="actual_pack_date"]')
+    .click();
+
+  cy
+    .get('div.DayPicker-Month')
+    .contains('10')
+    .click();
+
+  // Pick a Pickup date!
+  cy
+    .get('div')
+    .contains('Actual pickup')
+    .get('input[name="actual_pickup_date"]')
     .click();
 
   cy
@@ -155,13 +238,49 @@ function tspUserPicksUpShipment() {
     .contains('11')
     .click();
 
+  // Done button should STILL be disabled.
+  cy
+    .get('button')
+    .contains('Done')
+    .should('be.disabled');
+  cy
+    .get('input[name="net_weight"]')
+    .first()
+    .clear()
+    .type('2000')
+    .blur();
+  // Done button should be enabled.
+  cy
+    .get('button')
+    .contains('Done')
+    .should('be.enabled');
+  cy
+    .get('input[name="gross_weight"]')
+    .first()
+    .clear()
+    .type('3000')
+    .blur();
+  cy
+    .get('input[name="tare_weight"]')
+    .first()
+    .clear()
+    .type('1000')
+    .blur();
   cy
     .get('button')
     .contains('Done')
     .click();
 
   // Appears in dates panel
+  cy.get('div.actual_pack_date').contains('10');
   cy.get('div.actual_pickup_date').contains('11');
+
+  // Appears in weights panel
+  cy.get('.net_weight').should($div => {
+    const text = $div.text();
+    expect(text).to.include('Actual');
+    expect(text).to.include('2,000 lbs');
+  });
 
   // New status
   cy.get('li').contains('In_transit');
@@ -198,7 +317,7 @@ function tspUserDeliversShipment() {
 
   // Cancel
   cy
-    .get('button')
+    .get('a')
     .contains('Cancel')
     .click();
 
