@@ -25,6 +25,8 @@ func payloadForMoveModel(move *models.Move) *apimessages.Move {
 	return &apimessages.Move{
 		SelectedMoveType: &SelectedMoveType,
 		OrdersID:         handlers.FmtUUID(move.OrdersID),
+		HasDependents:    *handlers.FmtBool(move.Orders.HasDependents),
+		SpouseHasProGear: *handlers.FmtBool(move.Orders.SpouseHasProGear),
 		Status:           apimessages.MoveStatus(move.Status),
 		Locator:          swag.String(move.Locator),
 		CancelReason:     swag.String(cancelReason),
