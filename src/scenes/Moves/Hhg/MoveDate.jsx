@@ -11,6 +11,7 @@ import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
+import { formatSwaggerDate } from 'shared/formatters';
 
 import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
 import { getAvailableMoveDates, selectAvailableMoveDates } from 'shared/Entities/modules/calendar';
@@ -120,7 +121,7 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const shipment = getCurrentShipment(state);
-  const today = new Date().toISOString().split('T')[0];
+  const today = formatSwaggerDate(new Date());
   const props = {
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),

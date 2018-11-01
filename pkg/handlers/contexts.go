@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
@@ -13,6 +14,7 @@ import (
 type HandlerContext interface {
 	DB() *pop.Connection
 	Logger() *zap.Logger
+	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -55,6 +57,11 @@ func (context *handlerContext) DB() *pop.Connection {
 // Logger returns the logger to use in this context
 func (context *handlerContext) Logger() *zap.Logger {
 	return context.logger
+}
+
+// HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
+func (context *handlerContext) HoneyZapLogger() *hnyzap.Logger {
+	return &hnyzap.Logger{Logger: context.logger}
 }
 
 // FileStorer returns the storage to use in the current context
