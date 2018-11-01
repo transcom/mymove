@@ -1,4 +1,4 @@
-import { last, startsWith } from 'lodash';
+import { cloneDeep, last, startsWith } from 'lodash';
 
 import { ADD_ENTITIES } from 'shared/Entities/actions';
 
@@ -17,19 +17,18 @@ function mergeEntities(entities, newEntities) {
 
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
+  // immutable update pattern
+  let mutateEntities = cloneDeep(entities);
   Object.keys(deleteEntities).forEach(function(key) {
     /* eslint-disable security/detect-object-injection */
-    if (entities[key]) {
-      // before delete, create new object with same content
-      // this will ensure Reselect will pick up the deleted changes
-      entities[key] = { ...entities[key] };
+    if (mutateEntities[key]) {
       Object.keys(deleteEntities[key]).forEach(function(id) {
-        delete entities[key][id];
+        delete mutateEntities[key][id];
       });
     }
     /* eslint-enable security/detect-object-injection */
   });
-  return entities;
+  return mutateEntities;
 }
 
 const initialState = {
