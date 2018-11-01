@@ -121,10 +121,13 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (dates.MoveDatesS
 	deliveryDates := dates.CreateFutureMoveDates(mostCurrentDeliveryDate, 1, false, usCalendar)
 
 	summary := dates.MoveDatesSummary{
-		PackDays:     packDates,
-		PickupDays:   pickupDates,
-		TransitDays:  transitDates,
-		DeliveryDays: deliveryDates,
+		MoveDate:             mostCurrentPickupDate,
+		PackDays:             packDates,
+		EstimatedPackDays:    int(*shipment.EstimatedPackDays),
+		PickupDays:           pickupDates,
+		TransitDays:          transitDates,
+		EstimatedTransitDays: int(*shipment.EstimatedTransitDays),
+		DeliveryDays:         deliveryDates,
 	}
 	return summary, nil
 }
