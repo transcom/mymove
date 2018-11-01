@@ -17,7 +17,7 @@ type Tariff400ngItemRate struct {
 	ServicesSchedule   int        `json:"services_schedule" db:"services_schedule"`
 	WeightLbsLower     unit.Pound `json:"weight_lbs_lower" db:"weight_lbs_lower"`
 	WeightLbsUpper     unit.Pound `json:"weight_lbs_upper" db:"weight_lbs_upper"`
-	RateMillicents     int        `json:"rate_millicents" db:"rate_millicents"`
+	RateCents          unit.Cents `json:"rate_cents" db:"rate_cents"`
 	EffectiveDateLower time.Time  `json:"effective_date_lower" db:"effective_date_lower"`
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 	CreatedAt          time.Time  `json:"created_at" db:"created_at"`
@@ -30,7 +30,7 @@ func (t *Tariff400ngItemRate) Validate(tx *pop.Connection) (*validate.Errors, er
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.Code, Name: "Code"},
 		&validators.IntIsPresent{Field: t.ServicesSchedule, Name: "ServicesSchedule"},
-		&validators.IntIsGreaterThan{Field: t.RateMillicents, Name: "RateMillicents", Compared: -1},
+		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
 		&validators.IntIsLessThan{Field: t.WeightLbsLower.Int(), Name: "WeightLbsLower",
 			Compared: t.WeightLbsUpper.Int()},
 		&validators.TimeAfterTime{
