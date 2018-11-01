@@ -10,7 +10,6 @@ import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
 
 function mapStateToProps(state, props) {
   let serviceAgents = props.serviceAgents;
-  let tsp = props.tsp;
   let initialValues = {};
   let form = 'tsp_service_agents';
   let formValues = getFormValues(form)(state);
@@ -21,9 +20,7 @@ function mapStateToProps(state, props) {
   return {
     // reduxForm
     saSchema: getPublicSwaggerDefinition(state, 'ServiceAgent', null),
-    tspSchema: getPublicSwaggerDefinition(state, 'TransportationServiceProvider', null),
     formValues,
-    tsp,
     initialValues: {
       origin_service_agent,
       destination_service_agent,

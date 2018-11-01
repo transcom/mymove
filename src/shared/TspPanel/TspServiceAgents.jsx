@@ -5,7 +5,6 @@ import { reduxForm, FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 
-import { PanelSwaggerField } from 'shared/EditablePanel';
 import { ServiceAgentDisplay, ServiceAgentEdit } from './ServiceAgentViews';
 
 // TODO: Refactor when we switch to using a wizard
@@ -173,15 +172,8 @@ const TSPDisplay = props => {
     schema: props.saSchema,
     values: props.destination_service_agent,
   };
-  // const TSPprops = {
-  //   schema: props.tspSchema,
-  //   values: props.tsp,
-  // }
   return (
     <Fragment>
-      <div className="editable-panel-column">
-        <div className="column-subhead">TSP</div>
-      </div>
       <ServiceAgentDisplay serviceAgentProps={originSAProps} saRole="Origin" />
       <ServiceAgentDisplay serviceAgentProps={destinationSAProps} saRole="Destination" />
     </Fragment>

@@ -8,9 +8,9 @@ export const ServiceAgentDisplay = ({ serviceAgentProps, saRole }) => {
   return (
     <div className="editable-panel-column">
       <span className="column-subhead">{saRole}</span>
-      <PanelSwaggerField fieldName="company" required {...serviceAgentProps} />
-      <PanelSwaggerField fieldName="email" required {...serviceAgentProps} />
-      <PanelSwaggerField fieldName="phone_number" required {...serviceAgentProps} />
+      <PanelSwaggerField fieldName="company" {...serviceAgentProps} />
+      <PanelSwaggerField fieldName="email" {...serviceAgentProps} />
+      <PanelSwaggerField fieldName="phone_number" {...serviceAgentProps} />
     </div>
   );
 };
@@ -32,9 +32,9 @@ export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
     <Fragment>
       <div className="editable-panel-column">
         <span className="column-subhead">{saRole}</span>
-        <SwaggerField fieldName="company" {...serviceAgentProps} />
-        <SwaggerField fieldName="email" {...serviceAgentProps} />
-        <SwaggerField fieldName="phone_number" {...serviceAgentProps} />
+        <SwaggerField fieldName="company" required {...serviceAgentProps} />
+        <SwaggerField fieldName="email" required {...serviceAgentProps} />
+        <SwaggerField fieldName="phone_number" required {...serviceAgentProps} />
       </div>
     </Fragment>
   );

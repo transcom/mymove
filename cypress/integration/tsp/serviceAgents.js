@@ -5,47 +5,40 @@ describe('TSP User enters and updates Service Agents', function() {
   });
   it('tsp user enters and cancels origin service agent', function() {
     tspUserEntersServiceAgent('Origin');
-    tspUserSeesNoServiceAgent();
+    tspUserSeesNoServiceAgent('Origin');
     tspUserInputsServiceAgent('Origin');
     tspUserCancelsServiceAgent('Origin');
   });
   it('tsp user enters and cancels destination service agent', function() {
     tspUserEntersServiceAgent('Destination');
-    tspUserSeesNoServiceAgent();
+    tspUserSeesNoServiceAgent('Destination');
     tspUserInputsServiceAgent('Destination');
     tspUserCancelsServiceAgent('Destination');
   });
-  it('tsp user enters origin service agent', function() {
+  it('tsp user enters origin and destination service agents', function() {
     tspUserEntersServiceAgent('Origin');
-    tspUserSeesNoServiceAgent();
+    tspUserSeesNoServiceAgent('Origin');
     tspUserInputsServiceAgent('Origin');
-    tspUserSavesServiceAgent('Origin');
-  });
-  it('tsp user enters destination service agent', function() {
-    tspUserEntersServiceAgent('Destination');
-    tspUserSeesNoServiceAgent();
+    tspUserSeesNoServiceAgent('Destination');
     tspUserInputsServiceAgent('Destination');
     tspUserSavesServiceAgent('Destination');
   });
-  it('tsp user updates origin service agent', function() {
+  it('tsp user updates origin and destination service agents', function() {
     tspUserEntersServiceAgent('Origin');
     tspUserClearsServiceAgent('Origin');
     tspUserInputsServiceAgent('OriginUpdate');
-    tspUserSavesServiceAgent('OriginUpdate');
-  });
-  it('tsp user updates destination service agent', function() {
-    tspUserEntersServiceAgent('Destination');
     tspUserClearsServiceAgent('Destination');
     tspUserInputsServiceAgent('DestinationUpdate');
-    tspUserSavesServiceAgent('DestinationUpdate');
+    tspUserSavesServiceAgent('OriginUpdate');
   });
   it('tsp user accepts a shipment', function() {
     tspUserAcceptsShipment();
   });
 
-  it('tsp user assigns a service agent', function() {
+  it('tsp user assigns origin and destination service agents', function() {
     tspUserClicksAssignServiceAgent('ASSIGN');
     tspUserInputsServiceAgent('Origin');
+    tspUserInputsServiceAgent('Destination');
     tspUserSavesServiceAgent('Origin');
     tspUserVerifiesServiceAgentAssigned();
   });
@@ -57,34 +50,39 @@ function getFixture(role) {
       Company: 'ACME Movers',
       Email: 'acme@example.com',
       Phone: '303-867-5309',
+      Role: 'origin_service_agent',
     },
     OriginUpdate: {
       Company: 'ACME Movers',
       Email: 'acmemovers@example.com',
       Phone: '303-867-5308',
+      Role: 'origin_service_agent',
     },
     Destination: {
       Company: 'ACE Movers',
       Email: 'acmemoving@example.com',
       Phone: '303-867-5310',
+      Role: 'destination_service_agent',
     },
     DestinationUpdate: {
       Company: 'ACE Moving Company',
       Email: 'moveme@example.com',
       Phone: '303-867-5311',
+      Role: 'destination_service_agent',
     },
   }[role];
 }
 
-function tspUserSeesNoServiceAgent() {
+function tspUserSeesNoServiceAgent(role) {
+  const fixture = getFixture(role);
   // Make sure the fields are empty to begin with
   // This helps make sure the test data hasn't changed elsewhere accidentally
-  cy.get('input[name="company"]').should('have.value', '');
-  cy.get('input[name="email"]').should('have.value', '');
-  cy.get('input[name="phone_number"]').should('have.value', '');
+  cy.get('input[name="' + fixture.Role + '.company"]').should('have.value', '');
+  cy.get('input[name="' + fixture.Role + '.email"]').should('have.value', '');
+  cy.get('input[name="' + fixture.Role + '.phone_number"]').should('have.value', '');
 }
 
-function tspUserEntersServiceAgent(role) {
+function tspUserEntersServiceAgent() {
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -103,7 +101,7 @@ function tspUserEntersServiceAgent(role) {
   // Click on edit Service Agent
   cy
     .get('.editable-panel-header')
-    .contains(role)
+    .contains('TSP & Servicing Agents')
     .siblings()
     .click();
 }
@@ -113,17 +111,17 @@ function tspUserInputsServiceAgent(role) {
 
   // Enter details in form
   cy
-    .get('input[name="company"]')
+    .get('input[name="' + fixture.Role + '.company"]')
     .first()
     .type(fixture.Company)
     .blur();
   cy
-    .get('input[name="email"]')
+    .get('input[name="' + fixture.Role + '.email"]')
     .first()
     .type(fixture.Email)
     .blur();
   cy
-    .get('input[name="phone_number"]')
+    .get('input[name="' + fixture.Role + '.phone_number"]')
     .first()
     .type(fixture.Phone)
     .blur();
@@ -134,20 +132,22 @@ function tspUserClearsServiceAgent(role) {
 
   // Clear details in form
   cy
-    .get('input[name="company"]')
+    .get('input[name="' + fixture.Role + '.company"]')
     .clear()
     .blur();
   cy
-    .get('input[name="email"]')
+    .get('input[name="' + fixture.Role + '.email"]')
     .clear()
     .blur();
   cy
-    .get('input[name="phone_number"]')
+    .get('input[name="' + fixture.Role + '.phone_number"]')
     .clear()
     .blur();
 }
 
 function tspUserCancelsServiceAgent(role) {
+  const fixture = getFixture(role);
+
   cy
     .get('button')
     .contains('Cancel')
