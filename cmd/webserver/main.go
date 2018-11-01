@@ -97,6 +97,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("config-dir", "config", "The location of server config files")
 	flag.String("env", "development", "The environment to run in, which configures the database.")
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
+	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 
 	flag.String("http-my-server-name", "localhost", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
@@ -205,13 +206,15 @@ func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
 
 	honeycombAPIKey := v.GetString("honeycomb-api-key")
 	honeycombDataset := v.GetString("honeycomb-dataset")
+	honeycombServiceName := v.GetString("service-name")
 
 	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 {
 		logger.Debug("Honeycomb Integration enabled", zap.String("honeycomb-dataset", honeycombDataset))
 		beeline.Init(beeline.Config{
-			WriteKey: honeycombAPIKey,
-			Dataset:  honeycombDataset,
-			Debug:    v.GetBool("honeycomb-debug"),
+			WriteKey:    honeycombAPIKey,
+			Dataset:     honeycombDataset,
+			Debug:       v.GetBool("honeycomb-debug"),
+			ServiceName: honeycombServiceName,
 		})
 		return true
 	}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { get, isEmpty } from 'lodash';
 
 import truckIcon from 'shared/icon/truck-black.svg';
 
@@ -17,6 +18,10 @@ export default function HHGShipmentSummary(props) {
   const editDatePath = movePath + '/edit-hhg-date';
   const editWeightsPath = movePath + '/edit-hhg-weights';
   const editLocationsPath = movePath + '/edit-hhg-locations';
+  const pack = get(shipment, 'move_dates_summary.pack', []);
+  const pickup = get(shipment, 'move_dates_summary.pickup', []);
+  const transit = get(shipment, 'move_dates_summary.transit', []);
+  const delivery = get(shipment, 'move_dates_summary.delivery', []);
 
   return (
     <div className="usa-grid-full ppm-container hhg-shipment-summary">
@@ -36,19 +41,19 @@ export default function HHGShipmentSummary(props) {
           <tbody>
             <tr>
               <td>Movers Packing: </td>
-              <td>{displayDateRange(shipment.move_dates_summary.pack)}</td>
+              <td>{isEmpty(pack) ? 'TBD' : displayDateRange(pack)}</td>
             </tr>
             <tr>
               <td>Loading Truck: </td>
-              <td>{displayDateRange(shipment.move_dates_summary.pickup)}</td>
+              <td>{isEmpty(pickup) ? 'TBD' : displayDateRange(pickup)}</td>
             </tr>
             <tr>
               <td>Move in Transit:</td>
-              <td>{displayDateRange(shipment.move_dates_summary.transit)}</td>
+              <td>{isEmpty(transit) ? 'TBD' : displayDateRange(transit)}</td>
             </tr>
             <tr>
               <td>Delivery:</td>
-              <td>{displayDateRange(shipment.move_dates_summary.delivery)}</td>
+              <td>{isEmpty(delivery) ? 'TBD' : displayDateRange(delivery)}</td>
             </tr>
           </tbody>
         </table>

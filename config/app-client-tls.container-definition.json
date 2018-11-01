@@ -21,7 +21,11 @@
     "container",
     "--debug-logging"
   ],
-  "environment": [
+    "environment": [
+    {
+      "name": "SERVICE_NAME",
+      "value": "app-client-tls"
+    },
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
