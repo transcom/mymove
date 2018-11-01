@@ -14,7 +14,7 @@ import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 
 import './Review.css';
@@ -123,7 +123,9 @@ class EditOrders extends Component {
         if (!this.props.hasSubmitError) {
           this.props.editSuccessful();
           this.props.history.goBack();
-          this.props.checkEntitlement(this.props.match.params.moveId);
+          if (this.props.isPpm) {
+            this.props.checkEntitlement(this.props.match.params.moveId);
+          }
         } else {
           window.scrollTo(0, 0);
         }
@@ -182,6 +184,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),
+    isPpm: isPpm(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
   };
   return props;

@@ -11,7 +11,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 
@@ -91,7 +91,9 @@ class EditProfile extends Component {
       if (!this.props.hasSubmitError) {
         this.props.editSuccessful();
         this.props.history.goBack();
-        this.props.checkEntitlement(moveId);
+        if (this.props.isPpm) {
+          this.props.checkEntitlement(moveId);
+        }
       } else {
         window.scrollTo(0, 0);
       }
@@ -140,6 +142,7 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     moveIsApproved: moveIsApproved(state),
+    isPpm: isPpm(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
   };
