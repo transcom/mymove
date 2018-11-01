@@ -37,7 +37,10 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 	var shipmentPayloads []*internalmessages.Shipment
 	for _, shipment := range move.Shipments {
-		payload := payloadForShipmentModel(shipment)
+		payload, err := payloadForShipmentModel(shipment)
+		if err != nil {
+			return nil, err
+		}
 		shipmentPayloads = append(shipmentPayloads, payload)
 	}
 
