@@ -259,6 +259,10 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 		return CostByShipment{}, errors.New("NetWeight is nil")
 	}
 
+	if shipment.ActualPickupDate == nil {
+		return CostByShipment{}, errors.New("ActualPickupDate is nil")
+	}
+
 	// All required relationships should exist at this point.
 	daysInSIT := 0
 	var sitDiscount unit.DiscountRate
