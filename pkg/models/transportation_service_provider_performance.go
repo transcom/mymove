@@ -277,14 +277,14 @@ func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid
 }
 
 // GetRateCycle returns the start date and end dates for a rate cycle of the
-// given year and season (peak/non-peak).
+// given year and season (peak/non-peak), inclusive.
 func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 	if peak {
 		start = time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
-		end = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year, time.September, 30, 0, 0, 0, 0, time.UTC)
 	} else {
 		start = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
-		end = time.Date(year+1, time.May, 15, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year+1, time.May, 14, 0, 0, 0, 0, time.UTC)
 	}
 
 	return start, end
