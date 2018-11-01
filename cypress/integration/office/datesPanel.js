@@ -16,7 +16,7 @@ describe('office user interacts with premove survey', function() {
 });
 
 function officeUserGoesToDatesPanel(locator) {
-  // Open new shipments queue
+  // Open new moves queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
