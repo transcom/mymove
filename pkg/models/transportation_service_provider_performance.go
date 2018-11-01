@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"sort"
@@ -10,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -244,12 +246,17 @@ func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups
 }
 
 // AssignQualityBandToTSPPerformance sets the QualityBand value for a TransportationServiceProviderPerformance.
-func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUID) error {
+func AssignQualityBandToTSPPerformance(ctx context.Context, db *pop.Connection, band int, id uuid.UUID) error {
+	_, span := beeline.StartSpan(ctx, "AssignQualityBandToTSPPerformance")
+	defer span.Send()
 	performance := TransportationServiceProviderPerformance{}
 	if err := db.Find(&performance, id); err != nil {
 		return err
 	}
+	span.AddField("tsp_performance_id", performance.ID.String())
+
 	performance.QualityBand = &band
+	span.AddField("tsp_performance_band", performance.QualityBand)
 	verrs, err := db.ValidateAndUpdate(&performance)
 	if err != nil {
 		return err
