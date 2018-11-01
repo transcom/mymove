@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 
 import { loadEntitlements } from './ducks';
-import { PanelField } from 'shared/EditablePanel';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
