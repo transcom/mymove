@@ -43,13 +43,13 @@ type Server struct {
 	HTTPHandler    http.Handler
 	ListenAddress  string
 	Logger         *zap.Logger
-	Port           string
+	Port           int
 	TLSCerts       []TLSCert
 }
 
 // addr generates an address:port string to be used in defining an http.Server
-func addr(listenAddress, port string) string {
-	return fmt.Sprintf("%s:%s", listenAddress, port)
+func addr(listenAddress string, port int) string {
+	return fmt.Sprintf("%s:%d", listenAddress, port)
 }
 
 // stdLogError creates a *log.logger based off an existing zap.Logger instance.
@@ -167,7 +167,7 @@ func (s Server) ListenAndServeTLS() error {
 		zap.Duration("idle-timeout", server.IdleTimeout),
 		zap.Any("listen-address", s.ListenAddress),
 		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.String("port", s.Port),
+		zap.Int("port", s.Port),
 	)
 
 	serverFunc = func(httpServer *http.Server) error {
@@ -201,7 +201,7 @@ func (s Server) ListenAndServe() error {
 		zap.Duration("idle-timeout", server.IdleTimeout),
 		zap.Any("listen-address", s.ListenAddress),
 		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.String("port", s.Port),
+		zap.Int("port", s.Port),
 	)
 
 	serverFunc = func(httpServer *http.Server) error {

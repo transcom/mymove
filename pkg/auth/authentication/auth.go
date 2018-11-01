@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
@@ -22,6 +22,7 @@ import (
 func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			_, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
@@ -44,11 +45,11 @@ func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler
 			}
 
 			// Include session office, service member, tsp and user IDs to the beeline event
-			beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
-			beeline.AddField(r.Context(), "session.service_member_id", session.ServiceMemberID)
-			beeline.AddField(r.Context(), "session.tsp_user_id", session.TspUserID)
-			beeline.AddField(r.Context(), "session.user_id", session.UserID)
-
+			span.AddField("auth.office_user_id", session.OfficeUserID)
+			span.AddField("auth.service_member_id", session.ServiceMemberID)
+			span.AddField("auth.tsp_user_id", session.TspUserID)
+			span.AddField("auth.user_id", session.UserID)
+			span.Send()
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -68,11 +69,11 @@ type Context struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort string) Context {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
-		callbackTemplate: fmt.Sprintf("%s%%s:%s/", callbackProtocol, callbackPort),
+		callbackTemplate: fmt.Sprintf("%s%%s:%d/", callbackProtocol, callbackPort),
 	}
 	return context
 }

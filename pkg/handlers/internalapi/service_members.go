@@ -2,8 +2,8 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"

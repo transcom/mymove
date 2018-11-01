@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 
 import { get, includes } from 'lodash';
 import moment from 'moment';
+import fedHolidays from '@18f/us-federal-holidays';
 
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import './MoveSummary.css';
@@ -11,7 +12,7 @@ import ppmDraft from './images/ppm-draft.png';
 import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
-import { ppmInfoPacket } from 'shared/constants';
+import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import { Link } from 'react-router-dom';
@@ -150,8 +151,64 @@ export const SubmittedPpmMoveSummary = props => {
   );
 };
 
+const getTenDaysBookedDate = bookDate => {
+  let businessDays = 0;
+  let newDate;
+  const bookDateMoment = moment(bookDate);
+  while (businessDays < 10) {
+    newDate = bookDateMoment.add(1, 'day');
+    // Saturday => 6, Sunday => 7
+    if (newDate.isoWeekday() !== 6 && newDate.isoWeekday() !== 7 && !fedHolidays.isAHoliday(newDate.toDate())) {
+      businessDays += 1;
+    }
+  }
+
+  return newDate;
+};
+
+const showHhgLandingPageText = shipment => {
+  const today = moment();
+  if (shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') {
+    return (
+      <div className="step">
+        <div className="title">Next Step: Complete your customer satisfaction survey</div>
+        <div>
+          Tell us about your move experience. You have up to one year to complete your{' '}
+          <a href="placeholder" target="_blank" rel="noopener noreferrer" className="Todo-phase2">
+            satisfaction survey
+          </a>. We use this information to decide which movers we allow to work with you.
+        </div>
+      </div>
+    );
+  } else if (today.isBefore(getTenDaysBookedDate(shipment.book_date), 'day')) {
+    return (
+      <div className="step">
+        <div className="title">Next Step: Prepare for move</div>
+        <div>
+          Your mover will contact you within ten days to schedule a pre-move survey, where they will provide you with a
+          detailed weight estimate and more accurate packing and delivery dates.
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="step">
+        <div className="title">Next step: Read pre-move tips</div>
+        <div>
+          Read the{' '}
+          <a href={hhgInfoPacket} target="_blank" rel="noopener noreferrer">
+            pre-move tips
+          </a>{' '}
+          documents, so you know what to expect and are prepared for your move.
+        </div>
+      </div>
+    );
+  }
+};
+
 export const SubmittedHhgMoveSummary = props => {
   const { shipment, orders, profile, move, entitlement } = props;
+  let today = moment();
   return (
     <Fragment>
       <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
@@ -164,23 +221,33 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer bookDate={shipment.book_date} moveDates={shipment.move_dates_summary} />
+            <StatusTimelineContainer
+              bookDate={shipment.book_date}
+              moveDates={shipment.move_dates_summary}
+              shipment={shipment}
+            />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
-                <div className="step">
-                  <div className="title">Next Step: Prepare for move</div>
-                  <div>
-                    Your mover will contact you within ten days to schedule a pre-move survey, where they will provide
-                    you with a detailed weight estimate and more accurate packing and delivery dates.
+                {showHhgLandingPageText(shipment)}
+                {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
+                  <div className="step">
+                    <div className="title">File a Claim</div>
+                    <div>
+                      If you have household goods damaged or lost during the move, contact{' '}
+                      <span className="Todo-phase2">Able Movers Claims</span> to file a claim:{' '}
+                      <span className="Todo-phase2">(567) 980-4321.</span> If, after attempting to work with them, you
+                      do not feel that you are receiving adequate compensation, contact the Military Claims Office for
+                      help.
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <div className="usa-width-one-third">
                 <HhgMoveDetails hhg={shipment} />
                 <div className="titled_block">
                   <div className="title">Documents</div>
                   <div className="details-links">
-                    <a href="placeholder" target="_blank" rel="noopener noreferrer">
+                    <a href={hhgInfoPacket} target="_blank" rel="noopener noreferrer">
                       Pre-move tips
                     </a>
                   </div>

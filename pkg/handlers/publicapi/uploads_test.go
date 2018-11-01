@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	internaluploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	uploadop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/uploads"

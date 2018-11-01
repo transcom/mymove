@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
-func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
+func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
 	// TODO: closely match the database structure.
@@ -36,8 +36,10 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
-		summary, _ := calculateMoveDatesFromShipment(&s)
-
+		summary, err := calculateMoveDatesFromShipment(&s)
+		if err != nil {
+			return nil, err
+		}
 		moveDatesSummary = internalmessages.ShipmentMoveDatesSummary{
 			Pack:     handlers.FmtDateSlice(summary.PackDays),
 			Pickup:   handlers.FmtDateSlice(summary.PickupDays),
@@ -101,7 +103,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
 	}
-	return shipmentPayload
+	return shipmentPayload, nil
 }
 
 // CreateShipmentHandler creates a Shipment
@@ -179,7 +181,10 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(newShipment)
+	shipmentPayload, err := payloadForShipmentModel(newShipment)
+	if err != nil {
+		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+	}
 
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
@@ -317,7 +322,10 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	if err != nil {
+		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+	}
 
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
@@ -365,7 +373,10 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	if err != nil {
+		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+	}
 
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
@@ -399,7 +410,10 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	if err != nil {
+		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+	}
 
 	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
 }
@@ -432,7 +446,10 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*shipment)
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
+	if err != nil {
+		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+	}
 
 	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
 }

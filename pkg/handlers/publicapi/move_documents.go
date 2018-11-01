@@ -2,7 +2,7 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"

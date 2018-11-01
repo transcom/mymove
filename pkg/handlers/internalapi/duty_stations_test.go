@@ -3,7 +3,7 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"

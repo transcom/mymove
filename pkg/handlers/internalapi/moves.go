@@ -5,7 +5,8 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -36,7 +37,10 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 	var shipmentPayloads []*internalmessages.Shipment
 	for _, shipment := range move.Shipments {
-		payload := payloadForShipmentModel(shipment)
+		payload, err := payloadForShipmentModel(shipment)
+		if err != nil {
+			return nil, err
+		}
 		shipmentPayloads = append(shipmentPayloads, payload)
 	}
 
@@ -165,9 +169,13 @@ type SubmitMoveHandler struct {
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
+	ctx, span := beeline.StartSpan(ctx, "SubmitMoveHandler")
+	defer span.Send()
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
+	span.AddField("move_id", moveID)
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
@@ -175,8 +183,11 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	err = move.Submit()
+	span.AddField("move-status", string(move.Status))
 	if err != nil {
-		h.Logger().Error("Failed to change move status to submit", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status)))
+		h.HoneyZapLogger().TraceError(ctx, "Failed to change move status to submit",
+			zap.String("move_id", moveID.String()),
+			zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
@@ -195,7 +206,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	if len(move.Shipments) > 0 {
-		go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run()
+		go awardqueue.NewAwardQueue(h.DB(), h.HoneyZapLogger()).Run(ctx)
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

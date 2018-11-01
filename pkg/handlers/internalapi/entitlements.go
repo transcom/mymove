@@ -5,7 +5,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
