@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		WeightEstimate:  3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
-	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	showHandler := ShowPPMSitEstimateHandler{suite.HandlerContextWithServices()}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
