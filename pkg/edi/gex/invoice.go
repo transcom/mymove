@@ -2,11 +2,13 @@ package gex
 
 import (
 	"crypto/tls"
-	"crypto/x509"
-	"go.uber.org/zap"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/server"
+	"go.uber.org/zap"
 )
 
 // SendInvoiceToGex sends an edi file string as a POST to the gex api
@@ -47,15 +49,26 @@ func SendInvoiceToGex(logger *zap.Logger, edi string, transactionName string) (s
 
 // GetTLSConfig gets the configuration certs for the GEX connection
 func GetTLSConfig() (*tls.Config, error) {
-	clientCert := os.Getenv("CLIENT_TLS_CERT")
-	clientKey := os.Getenv("CLIENT_TLS_KEY")
-	certificate, err := tls.X509KeyPair([]byte(clientCert), []byte(clientKey))
+	clientCA := os.Getenv("MOVE_MIL_DOD_CA_CERT")
+	clientCert := os.Getenv("MOVE_MIL_DOD_TLS_CERT")
+	clientKey := os.Getenv("MOVE_MIL_DOD_TLS_KEY")
+	// At this time, GEX does not already trust the intermediate CA that signed our certs; so include it with our cert
+	clientCertPlusCA := strings.Join([]string{clientCert, clientCA}, "")
+
+	certificate, err := tls.X509KeyPair([]byte(clientCertPlusCA), []byte(clientKey))
 	if err != nil {
 		return nil, err
 	}
 
-	rootCAs := x509.NewCertPool()
-	rootCAs.AppendCertsFromPEM([]byte(os.Getenv("GEX_DOD_CA")))
+	// Load DOD CA certs so that we can validate GEX's server cert
+	pkcs7Package, err := ioutil.ReadFile(os.Getenv("DOD_CA_PACKAGE"))
+	if err != nil {
+		return nil, err
+	}
+	rootCAs, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
+	if err != nil {
+		return nil, err
+	}
 
 	return &tls.Config{
 		Certificates: []tls.Certificate{certificate},
