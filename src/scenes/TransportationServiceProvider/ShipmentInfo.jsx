@@ -124,12 +124,12 @@ class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
 
-    this.assignServiceMember = React.createRef();
+    this.assignTspServiceAgent = React.createRef();
     this.enterPreMoveSurvey = React.createRef();
   }
   state = {
     redirectToHome: false,
-    editOriginServiceAgent: false,
+    editTspServiceAgent: false,
     editPreMoveSurvey: false,
   };
 
@@ -166,14 +166,14 @@ class ShipmentInfo extends Component {
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   // Access Service Agent Panels
-  setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
+  setEditServiceAgent = editTspServiceAgent => this.setState({ editTspServiceAgent });
 
-  scrollToOriginServiceAgentPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.assignServiceMember.current);
+  scrollToTspServiceAgentPanel = () => {
+    const domNode = ReactDOM.findDOMNode(this.assignTspServiceAgent.current);
     domNode.scrollIntoView();
   };
-  toggleEditOriginServiceAgent = () => {
-    this.scrollToOriginServiceAgentPanel();
+  toggleEditTspServiceAgent = () => {
+    this.scrollToTspServiceAgentPanel();
     this.setEditServiceAgent(true);
   };
 
@@ -348,7 +348,7 @@ class ShipmentInfo extends Component {
                 </button>
               )}
               {canAssignServiceAgents && (
-                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
+                <button className="usa-button-primary" onClick={this.toggleEditTspServiceAgent}>
                   Assign servicing agents
                 </button>
               )}
@@ -382,8 +382,8 @@ class ShipmentInfo extends Component {
                   />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <TspContainer
-                    ref={this.assignServiceMember}
-                    editOriginServiceAgent={this.state.editOriginServiceAgent}
+                    ref={this.assignTspServiceAgent}
+                    editTspServiceAgent={this.state.editTspServiceAgent}
                     setEditServiceAgent={this.setEditServiceAgent}
                     tsp={this.props.tsp}
                     shipment={this.props.shipment}
