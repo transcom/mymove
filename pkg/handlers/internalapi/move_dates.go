@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/rickar/cal"
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
@@ -107,7 +106,7 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (dates.MoveDatesS
 		mostCurrentDeliveryDate = dates.CreateFutureMoveDates(lastEstimatedTransitDate.AddDate(0, 0, 1), 1, false, usCalendar)[0]
 	}
 	// assigns the pack dates
-	packDates, err := createValidDatesBetweenTwoDates(mostCurrentPackDate, mostCurrentPickupDate, false, true, usCalendar)
+	packDates, err := dates.CreateValidDatesBetweenTwoDates(mostCurrentPackDate, mostCurrentPickupDate, false, true, usCalendar)
 	if err != nil {
 		return dates.MoveDatesSummary{}, err
 	}
@@ -115,7 +114,7 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (dates.MoveDatesS
 
 	firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
 
-	transitDates, err := createValidDatesBetweenTwoDates(firstPossibleTransitDay, mostCurrentDeliveryDate, true, true, usCalendar)
+	transitDates, err := dates.CreateValidDatesBetweenTwoDates(firstPossibleTransitDay, mostCurrentDeliveryDate, true, true, usCalendar)
 	if err != nil {
 		return dates.MoveDatesSummary{}, err
 	}
@@ -128,30 +127,4 @@ func calculateMoveDatesFromShipment(shipment *models.Shipment) (dates.MoveDatesS
 		DeliveryDays: deliveryDates,
 	}
 	return summary, nil
-}
-
-func createValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, allowEarlierOrSameEndDate bool, calendar *cal.Calendar) ([]time.Time, error) {
-	// returns date range inclusive of startDate, exclusive of endDate (unless endDate is before or equal to startDate and allowEarlierEndDate)
-	var dates []time.Time
-
-	if !calendar.IsWorkday(endDate) && !includeWeekendsAndHolidays {
-		return dates, errors.New("End date cannot be a weekend or holiday")
-	}
-
-	if startDate.After(endDate) || startDate == endDate {
-		if allowEarlierOrSameEndDate == true {
-			return dates, nil
-		}
-		return dates, errors.New("End date cannot be before or equal to start date")
-	}
-
-	dateToAdd := startDate
-
-	for dateToAdd.Before(endDate) {
-		if includeWeekendsAndHolidays || calendar.IsWorkday(dateToAdd) {
-			dates = append(dates, dateToAdd)
-		}
-		dateToAdd = dateToAdd.AddDate(0, 0, 1)
-	}
-	return dates, nil
 }
