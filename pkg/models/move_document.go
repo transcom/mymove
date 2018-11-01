@@ -28,18 +28,52 @@ const (
 type MoveDocumentType string
 
 const (
+	// Shared Doc Types
+
 	// MoveDocumentTypeOTHER captures enum value "OTHER"
 	MoveDocumentTypeOTHER MoveDocumentType = "OTHER"
 	// MoveDocumentTypeWEIGHTTICKET captures enum value "WEIGHT_TICKET"
 	MoveDocumentTypeWEIGHTTICKET MoveDocumentType = "WEIGHT_TICKET"
+	// MoveDocumentTypeWEIGHTTICKETREWEIGH captures enum value "WEIGHT_TICKET_REWEIGH"
+	MoveDocumentTypeWEIGHTTICKETREWEIGH = "WEIGHT_TICKET_REWEIGH"
+
+	// PPM Doc Types
+
 	// MoveDocumentTypeSTORAGEEXPENSE captures enum value "STORAGE_EXPENSE"
 	MoveDocumentTypeSTORAGEEXPENSE MoveDocumentType = "STORAGE_EXPENSE"
 	// MoveDocumentTypeSHIPMENTSUMMARY captures enum value "SHIPMENT_SUMMARY"
 	MoveDocumentTypeSHIPMENTSUMMARY MoveDocumentType = "SHIPMENT_SUMMARY"
 	// MoveDocumentTypeEXPENSE captures enum value "EXPENSE"
 	MoveDocumentTypeEXPENSE MoveDocumentType = "EXPENSE"
+
+	// HHG Doc Types
+
 	// MoveDocumentTypeGOVBILLOFLADING captures enum value "GOV_BILL_OF_LADING"
 	MoveDocumentTypeGOVBILLOFLADING MoveDocumentType = "GOV_BILL_OF_LADING"
+	// MoveDocumentTypeORIGINPACKET captures enum value "ORIGIN_PACKET"
+	MoveDocumentTypeORIGINPACKET = "ORIGIN_PACKET"
+	// MoveDocumentTypeORIGIN619 captures enum value "ORIGIN_619"
+	MoveDocumentTypeORIGIN619 = "ORIGIN_619"
+	// MoveDocumentTypeORIGIN6191 captures enum value "ORIGIN_619_1"
+	MoveDocumentTypeORIGIN6191 = "ORIGIN_619_1"
+	// MoveDocumentTypeORIGININVENTORY captures enum value "ORIGIN_INVENTORY"
+	MoveDocumentTypeORIGININVENTORY = "ORIGIN_INVENTORY"
+	// MoveDocumentTypeDESTINATIONPACKET captures enum value "DESTINATION_PACKET"
+	MoveDocumentTypeDESTINATIONPACKET = "DESTINATION_PACKET"
+	// MoveDocumentTypeDESTINATION619 captures enum value "DESTINATION_619"
+	MoveDocumentTypeDESTINATION619 = "DESTINATION_619"
+	// MoveDocumentTypeDESTINATIONINVENTORY captures enum value "DESTINATION_INVENTORY"
+	MoveDocumentTypeDESTINATIONINVENTORY = "DESTINATION_INVENTORY"
+	// MoveDocumentTypeTHIRDPARTYINVOICE captures enum value "THIRD_PARTY_INVOICE"
+	MoveDocumentTypeTHIRDPARTYINVOICE = "THIRD_PARTY_INVOICE"
+	// MoveDocumentTypeTHIRDPARTYESTIMATE captures enum value "THIRD_PARTY_ESTIMATE"
+	MoveDocumentTypeTHIRDPARTYESTIMATE = "THIRD_PARTY_ESTIMATE"
+	// MoveDocumentTypeNOTICEOFLOSSORDAMAGE captures enum value "NOTICE_OF_LOSS_OR_DAMAGE"
+	MoveDocumentTypeNOTICEOFLOSSORDAMAGE = "NOTICE_OF_LOSS_OR_DAMAGE"
+	// MoveDocumentTypeFIREARMSCHAINOFCUSTODY captures enum value "FIREARMS_CHAIN_OF_CUSTODY"
+	MoveDocumentTypeFIREARMSCHAINOFCUSTODY = "FIREARMS_CHAIN_OF_CUSTODY"
+	// MoveDocumentTypePHOTO captures enum value "PHOTO"
+	MoveDocumentTypePHOTO = "PHOTO"
 )
 
 // MoveDocumentSaveAction represents actions that can be taken during save
