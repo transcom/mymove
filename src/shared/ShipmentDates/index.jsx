@@ -8,7 +8,7 @@ import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/Editable
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDate } from 'shared/formatters';
 
-import './Dates.css';
+import './index.css';
 
 const datesFields = [
   'pm_survey_conducted_date',

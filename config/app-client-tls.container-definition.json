@@ -17,11 +17,15 @@
     "/bin/mymove-server"
   ],
   "command": [
-    "-env",
+    "--env",
     "container",
-    "-debug_logging"
+    "--debug-logging"
   ],
-  "environment": [
+    "environment": [
+    {
+      "name": "SERVICE_NAME",
+      "value": "app-client-tls"
+    },
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"

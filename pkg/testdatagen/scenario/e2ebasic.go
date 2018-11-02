@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	"github.com/transcom/mymove/pkg/paperwork"
@@ -207,6 +207,41 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
 	/*
+	 * A PPM move that has been canceled.
+	 */
+	email = "ppm-canceled@example.com"
+	uuidStr = "20102768-4d45-449c-a585-81bc386204b1"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	nowTime = time.Now()
+	ppmCanceled := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2da0d5e6-4efb-4ea1-9443-bf9ef64ace65"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Canceled"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("6b88c856-5f41-427e-a480-a7fb6c87533b"),
+			Locator: "PPMCAN",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+		},
+		Uploader: loader,
+	})
+	ppmCanceled.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	ppmCanceled.Move.Cancel("reasons")
+	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+
+	/*
 	 * Service member with orders and a move
 	 */
 	email = "profile@comple.te"
@@ -280,6 +315,36 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
 			Locator: "REWGIE",
+		},
+	})
+
+	/*
+	 * Another service member with orders and a move, but no move type selected
+	 */
+	email = "sm_no_move_type@example.com"
+	uuidStr = "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7554e347-2215-484f-9240-c61bae050220"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHGDude2"),
+			LastName:      models.StringPointer("UserPerson2"),
+			Edipi:         models.StringPointer("6833908164"),
+			PersonalEmail: models.StringPointer(email),
+			DutyStationID: &dutyStation.ID,
+			DutyStation:   dutyStation,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
+			Locator: "ZPGVED",
 		},
 	})
 
@@ -1377,6 +1442,146 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg24 := offer24.Shipment
 	hhg24.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg24.Move)
+
+	/*
+	 * Service member with a cancelled HHG move.
+	 */
+	email = "hhg@cancel.ed"
+
+	hhg25 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("05ea5bc3-fd77-4f42-bdc5-a984a81b3829")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("d27bcb66-fc51-42b6-a13b-c896d34c79fb"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Cancelled"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("da6bf1f4-a810-486d-befe-ddf8e9a4e2ef"),
+			Locator:          "HHGCAN",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("d89dba9c-5ee9-40ee-8430-2e3eb13eedeb"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+	})
+
+	hhg25.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg25.Move)
+	hhg25.Move.Cancel("reasons")
+	models.SaveMoveDependencies(db, &hhg25.Move)
+
+	/*
+	 * Service member with uploaded orders and an approved shipment to have weight added in the office app
+	 */
+	email = "hhg@addweights.office"
+
+	offer26 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("611aea22-1689-4e16-90e7-e55d49010069")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("033297aa-4f4d-4df1-a05d-d22d717f6d5b"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("2be4f6a3-82f5-4919-a257-39a24859058f"),
+			Locator:          "WTSPNL",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("d2c24faf-3439-451f-b020-fc1492f6b4bf"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAWARDED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg26 := offer26.Shipment
+	hhg26.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg26.Move)
+
+	/*
+	* Service member to update dates from office app
+	 */
+	email = "hhg1@officeda.te"
+
+	hhg27 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("5e2f7338-0f54-4ba9-99cc-796153da94f3")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("8cfe7777-d8a5-43ed-bb0e-5ba2ceda2251"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444555888"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("47e9c534-a93c-4986-ae8f-41fddefaa618"),
+			Locator:          "ODATES",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("51004395-ecbf-4ab2-9edc-ec5041bbe390"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+	})
+
+	hhg27.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg27.Move)
+
+	/*
+	 * Service member to update dates from office app
+	 */
+	email = "hhg2@officeda.te"
+
+	hhg28 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("961108be-ace1-407c-b110-7e996e95d286")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("823a2177-3d68-43a5-a3ed-6b10454a6481"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444999888"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("762f2ec2-f362-4c14-b601-d7178c4862fe"),
+			Locator:          "ODATE0",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("12e17ea7-9c94-4b61-a28d-5a81744a355c"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+	})
+	hhg28.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg28.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation

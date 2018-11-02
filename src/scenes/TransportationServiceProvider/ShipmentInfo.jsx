@@ -48,8 +48,8 @@ import {
   deliverShipment,
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
-import Weights from './Weights';
-import Dates from './Dates';
+import Weights from 'shared/ShipmentWeights';
+import Dates from 'shared/ShipmentDates';
 import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
@@ -199,6 +199,7 @@ class ShipmentInfo extends Component {
       generateGBLInProgress,
       serviceAgents,
       loadTspDependenciesHasSuccess,
+      gblGenerated,
     } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
 
@@ -206,9 +207,11 @@ class ShipmentInfo extends Component {
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
-    const approved = shipment.status === 'APPROVED';
     const accepted = shipment.status === 'ACCEPTED';
+    const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
+    const delivered = shipment.status === 'DELIVERED';
+    const completed = shipment.status === 'COMPLETED';
     const pmSurveyComplete = Boolean(
       shipment.pm_survey_conducted_date &&
         shipment.pm_survey_method &&
@@ -217,8 +220,6 @@ class ShipmentInfo extends Component {
         shipment.pm_survey_planned_delivery_date &&
         shipment.pm_survey_weight_estimate,
     );
-    const gblGenerated =
-      shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
     const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
@@ -246,13 +247,37 @@ class ShipmentInfo extends Component {
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
+            {accepted && (
+              <NavLink to="/queues/accepted" activeClassName="usa-current">
+                <span>Accepted Shipments Queue</span>
+              </NavLink>
+            )}
             {approved && (
               <NavLink to="/queues/approved" activeClassName="usa-current">
                 <span>Approved Shipments Queue</span>
               </NavLink>
             )}
+            {inTransit && (
+              <NavLink to="/queues/in_transit" activeClassName="usa-current">
+                <span>In Transit Shipments Queue</span>
+              </NavLink>
+            )}
+            {delivered && (
+              <NavLink to="/queues/delivered" activeClassName="usa-current">
+                <span>Delivered Shipments Queue</span>
+              </NavLink>
+            )}
+            {completed && (
+              <NavLink to="/queues/completed" activeClassName="usa-current">
+                <span>Completed Shipments Queue</span>
+              </NavLink>
+            )}
             {!awarded &&
-              !approved && (
+              !accepted &&
+              !approved &&
+              !inTransit &&
+              !delivered &&
+              !completed && (
                 <NavLink to="/queues/all" activeClassName="usa-current">
                   <span>All Shipments Queue</span>
                 </NavLink>
@@ -318,20 +343,16 @@ class ShipmentInfo extends Component {
               )}
 
               {generateGBLSuccess && (
-                <p>
-                  <Alert type="success" heading="GBL has been created">
-                    <span className="usa-grid usa-alert-no-padding">
-                      <span className="usa-width-two-thirds">
-                        Click the button to view, print, or download the GBL.
-                      </span>
-                      <span className="usa-width-one-third">
-                        <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
-                          <button>View GBL</button>
-                        </Link>
-                      </span>
+                <Alert type="success" heading="GBL has been created">
+                  <span className="usa-grid usa-alert-no-padding">
+                    <span className="usa-width-two-thirds">Click the button to view, print, or download the GBL.</span>
+                    <span className="usa-width-one-third">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                        <button>View GBL</button>
+                      </Link>
                     </span>
-                  </Alert>
-                </p>
+                  </span>
+                </Alert>
               )}
               {approved &&
                 pmSurveyComplete &&
@@ -430,11 +451,18 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
+  const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
+  const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+
+  // When we create the GBL, we store the success, but don't add it to the docs in the entities reducer
+  // We should fix that, but for now here's a bandaid
+  const gblGenerated = state.tsp.generateGBLSuccess || gbl;
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
-    shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    shipmentDocuments,
+    gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),

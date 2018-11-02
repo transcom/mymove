@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -48,6 +48,8 @@ type ShipmentLineItem struct {
 	Quantity2     unit.BaseQuantity      `json:"quantity_2" db:"quantity_2"`
 	Notes         string                 `json:"notes" db:"notes"`
 	Status        ShipmentLineItemStatus `json:"status" db:"status"`
+	InvoiceID     *uuid.UUID             `json:"invoice_id" db:"invoice_id"`
+	AmountCents   *unit.Cents            `json:"amount_cents" db:"amount_cents"`
 	SubmittedDate time.Time              `json:"submitted_date" db:"submitted_date"`
 	ApprovedDate  time.Time              `json:"approved_date" db:"approved_date"`
 	CreatedAt     time.Time              `json:"created_at" db:"created_at"`

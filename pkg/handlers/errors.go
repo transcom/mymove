@@ -75,7 +75,7 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 		skipLogger.Debug("invalid transition", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
-		skipLogger.Error("Unexpected error", zap.Error(err))
+		skipLogger.Error("unexpected error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError, err)
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/awardqueue"
@@ -121,24 +121,27 @@ type GetShipmentHandler struct {
 
 // Handle returns a specified shipment
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
-
+	var shipment *models.Shipment
+	var err error
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
-	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
-	// See original commits in https://github.com/transcom/mymove/pull/802
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
+	if session.IsTspUser() {
+		// Check that the TSP user can access the shipment
+		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
+			return shipmentop.NewGetShipmentForbidden()
+		}
+	} else if session.IsOfficeUser() {
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
+			return shipmentop.NewGetShipmentForbidden()
+		}
+	} else {
 		return shipmentop.NewGetShipmentForbidden()
-	}
-
-	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewGetShipmentBadRequest()
 	}
 
 	sp := payloadForShipmentModel(*shipment)
@@ -194,7 +197,7 @@ type RejectShipmentHandler struct {
 func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) middleware.Responder {
 	// set reason, set thing
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
+	ctx := params.HTTPRequest.Context()
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
@@ -202,7 +205,7 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 	// See original commits in https://github.com/transcom/mymove/pull/802
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
+		h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
 		return shipmentop.NewRejectShipmentForbidden()
 	}
 
@@ -210,11 +213,15 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 	shipment, shipmentOffer, verrs, err := models.RejectShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, *params.Payload.Reason)
 	if err != nil || verrs.HasAny() {
 		if err == models.ErrFetchNotFound {
-			h.Logger().Error("DB Query", zap.Error(err))
+			h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
 			return shipmentop.NewRejectShipmentBadRequest()
 		} else if err == models.ErrInvalidTransition {
-			h.Logger().Info("Attempted to reject shipment, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
-			h.Logger().Info("Attempted to reject shipment offer, got invalid transition", zap.Error(err), zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
+			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment, got invalid transition",
+				zap.Error(err),
+				zap.String("shipment_status", string(shipment.Status)))
+			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment offer, got invalid transition",
+				zap.Error(err),
+				zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
 			return shipmentop.NewRejectShipmentConflict()
 		} else {
 			h.Logger().Error("Unknown Error", zap.Error(err))
@@ -222,7 +229,7 @@ func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) mi
 		}
 	}
 
-	go awardqueue.NewAwardQueue(h.DB(), h.Logger()).Run()
+	go awardqueue.NewAwardQueue(h.DB(), h.HoneyZapLogger()).Run(ctx)
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
@@ -480,20 +487,27 @@ type PatchShipmentHandler struct {
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
-
+	var shipment *models.Shipment
+	var err error
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return shipmentop.NewPatchShipmentForbidden()
-	}
-
-	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
+	// authorization
+	if session.IsTspUser() {
+		// Check that the TSP user can access the shipment
+		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
+			return shipmentop.NewPatchShipmentBadRequest()
+		}
+	} else if session.IsOfficeUser() {
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
+			return shipmentop.NewPatchShipmentBadRequest()
+		}
+	} else {
 		return shipmentop.NewPatchShipmentBadRequest()
 	}
 
