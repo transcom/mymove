@@ -29,6 +29,9 @@ function tspUserViewsNewShipments() {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: New Shipments');
+
   // Find shipment and check properties in row
   cy
     .get('div')
@@ -64,6 +67,9 @@ function tspUserViewsInTransitShipments() {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: In Transit Shipments');
+
   // Find in transit (generated in e2ebasic.go) and open it
   cy
     .get('div')
@@ -89,6 +95,9 @@ function tspUserViewsDeliveredShipments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/delivered/);
   });
+
+  // Find title
+  cy.get('h1').contains('Queue: Delivered Shipments');
 
   // Find delivered shipment (generated in e2ebasic.go) and open it
   cy
@@ -120,6 +129,9 @@ function tspUserViewsAcceptedShipments() {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: Accepted Shipments');
+
   // Find shipment
   cy
     .get('div')
@@ -145,6 +157,9 @@ function tspUserViewsApprovedShipments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/approved/);
   });
+
+  // Find title
+  cy.get('h1').contains('Queue: Approved Shipments');
 
   // Find shipment
   cy
@@ -175,6 +190,9 @@ function tspUserViewsCompletedShipments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/completed/);
   });
+
+  // Find title
+  cy.get('h1').contains('Queue: Completed Shipments');
 
   // Find shipment
   cy
