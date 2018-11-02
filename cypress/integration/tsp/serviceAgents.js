@@ -257,7 +257,7 @@ function tspUserAcceptsShipment() {
     .get('b')
     .contains('Accepted');
 
-  cy.get('a').contains('All Shipments Queue');
+  cy.get('a').contains('Accepted Shipments Queue');
 }
 
 function tspUserClicksAssignServiceAgent(locator) {

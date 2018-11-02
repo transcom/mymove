@@ -39,6 +39,19 @@ var rankDisplayValue = map[internalmessages.ServiceMemberRank]string{
 	internalmessages.ServiceMemberRankACADEMYCADETMIDSHIPMAN: "Service Academy Cadet/Midshipman",
 }
 
+var affiliationDisplayValue = map[internalmessages.Affiliation]string{
+	internalmessages.AffiliationARMY:       "Army",
+	internalmessages.AffiliationNAVY:       "Navy",
+	internalmessages.AffiliationMARINES:    "Marines",
+	internalmessages.AffiliationAIRFORCE:   "Air Force",
+	internalmessages.AffiliationCOASTGUARD: "Coast Guard",
+}
+
+var deptIndDisplayValue = map[internalmessages.DeptIndicator]string{
+	internalmessages.DeptIndicatorAIRFORCE: "Air Force",
+	internalmessages.DeptIndicatorMARINES:  "Marines",
+}
+
 // These are hardcoded for now
 const (
 	pageOrientation string  = "P"
@@ -167,10 +180,16 @@ func (f *FormFiller) DrawData(data interface{}) error {
 				displayValue = rankDisplayValue[*v]
 			}
 		case internalmessages.Affiliation:
-			displayValue = string(v)
+			displayValue = affiliationDisplayValue[v]
 		case *internalmessages.Affiliation:
 			if v != nil {
-				displayValue = string(*v)
+				displayValue = affiliationDisplayValue[*v]
+			}
+		case internalmessages.DeptIndicator:
+			displayValue = deptIndDisplayValue[v]
+		case *internalmessages.DeptIndicator:
+			if v != nil {
+				displayValue = "DI: " + deptIndDisplayValue[*v]
 			}
 		case models.Address:
 			displayValue = v.Format()

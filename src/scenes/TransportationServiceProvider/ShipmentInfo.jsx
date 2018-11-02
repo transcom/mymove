@@ -49,7 +49,7 @@ import {
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from 'shared/ShipmentWeights';
-import Dates from './Dates';
+import Dates from 'shared/ShipmentDates';
 import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
@@ -207,9 +207,11 @@ class ShipmentInfo extends Component {
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
-    const approved = shipment.status === 'APPROVED';
     const accepted = shipment.status === 'ACCEPTED';
+    const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
+    const delivered = shipment.status === 'DELIVERED';
+    const completed = shipment.status === 'COMPLETED';
     const pmSurveyComplete = Boolean(
       shipment.pm_survey_conducted_date &&
         shipment.pm_survey_method &&
@@ -245,13 +247,37 @@ class ShipmentInfo extends Component {
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
+            {accepted && (
+              <NavLink to="/queues/accepted" activeClassName="usa-current">
+                <span>Accepted Shipments Queue</span>
+              </NavLink>
+            )}
             {approved && (
               <NavLink to="/queues/approved" activeClassName="usa-current">
                 <span>Approved Shipments Queue</span>
               </NavLink>
             )}
+            {inTransit && (
+              <NavLink to="/queues/in_transit" activeClassName="usa-current">
+                <span>In Transit Shipments Queue</span>
+              </NavLink>
+            )}
+            {delivered && (
+              <NavLink to="/queues/delivered" activeClassName="usa-current">
+                <span>Delivered Shipments Queue</span>
+              </NavLink>
+            )}
+            {completed && (
+              <NavLink to="/queues/completed" activeClassName="usa-current">
+                <span>Completed Shipments Queue</span>
+              </NavLink>
+            )}
             {!awarded &&
-              !approved && (
+              !accepted &&
+              !approved &&
+              !inTransit &&
+              !delivered &&
+              !completed && (
                 <NavLink to="/queues/all" activeClassName="usa-current">
                   <span>All Shipments Queue</span>
                 </NavLink>

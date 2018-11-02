@@ -3,21 +3,27 @@ describe('TSP User Views Shipment', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
-  it('tsp user views shipments in queue new shipments', function() {
-    tspUserViewsShipments();
+  it('tsp user views shipments in new shipments queue', function() {
+    tspUserViewsNewShipments();
   });
-  it('tsp user views shipments in queue new shipments', function() {
+  it('tsp user views shipments in accepted shipments queue', function() {
+    tspUserViewsAcceptedShipments();
+  });
+  it('tsp user views shipments in approved shipments queue', function() {
     tspUserViewsApprovedShipments();
   });
-  it('tsp user views in transit hhg moves in queue HHGs In Transit', function() {
-    tspUserViewsInTransitShipment();
+  it('tsp user views shipments in in_transit shipments queue', function() {
+    tspUserViewsInTransitShipments();
   });
-  it('tsp user views delivered hhg moves in queue HHGs Delivered', function() {
-    tspUserViewsDeliveredShipment();
+  it('tsp user views shipments in delivered shipments queue', function() {
+    tspUserViewsDeliveredShipments();
+  });
+  it('tsp user views shipments in completed shipments queue', function() {
+    tspUserViewsCompletedShipments();
   });
 });
 
-function tspUserViewsShipments() {
+function tspUserViewsNewShipments() {
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -51,8 +57,8 @@ function tspUserViewsShipments() {
   });
 }
 
-function tspUserViewsInTransitShipment() {
-  // Open new shipments queue
+function tspUserViewsInTransitShipments() {
+  // Open in transit shipments queue
   cy.visit('/queues/in_transit');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
@@ -67,10 +73,18 @@ function tspUserViewsInTransitShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
+
+  // Status should be In Transit
+  cy
+    .get('li')
+    .get('b')
+    .contains('In_transit');
+
+  cy.get('a').contains('In Transit Shipments Queue');
 }
 
-function tspUserViewsDeliveredShipment() {
-  // Open new shipments queue
+function tspUserViewsDeliveredShipments() {
+  // Open delivered shipments queue
   cy.visit('/queues/delivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/delivered/);
@@ -85,10 +99,44 @@ function tspUserViewsDeliveredShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
+
+  // Status should be Delivered
+  cy
+    .get('li')
+    .get('b')
+    .contains('Delivered');
+
+  cy.get('a').contains('Delivered Shipments Queue');
+}
+
+function tspUserViewsAcceptedShipments() {
+  // Open accepted shipments queue
+  cy
+    .get('div')
+    .contains('Accepted Shipments')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/accepted/);
+  });
+
+  // Find shipment
+  cy
+    .get('div')
+    .contains('BACON3')
+    .dblclick();
+
+  // Status should be Delivered
+  cy
+    .get('li')
+    .get('b')
+    .contains('Accepted');
+
+  cy.get('a').contains('Accepted Shipments Queue');
 }
 
 function tspUserViewsApprovedShipments() {
-  // Open accepted shipments queue
+  // Open approved shipments queue
   cy
     .get('div')
     .contains('Approved Shipments')
@@ -99,9 +147,46 @@ function tspUserViewsApprovedShipments() {
   });
 
   // Find shipment
-  cy.get('div').contains('APPRVD');
   cy
     .get('div')
     .contains('BACON1')
     .should('not.exist');
+  cy
+    .get('div')
+    .contains('APPRVD')
+    .dblclick();
+
+  // Status should be Delivered
+  cy
+    .get('li')
+    .get('b')
+    .contains('Approved');
+
+  cy.get('a').contains('Approved Shipments Queue');
+}
+
+function tspUserViewsCompletedShipments() {
+  // Open completed shipments queue
+  cy
+    .get('div')
+    .contains('Completed Shipments')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/completed/);
+  });
+
+  // Find shipment
+  cy
+    .get('div')
+    .contains('NOCHKA')
+    .dblclick();
+
+  // Status should be Delivered
+  cy
+    .get('li')
+    .get('b')
+    .contains('Completed');
+
+  cy.get('a').contains('Completed Shipments Queue');
 }

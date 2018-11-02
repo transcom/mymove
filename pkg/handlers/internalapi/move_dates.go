@@ -6,24 +6,16 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/rickar/cal"
-	"github.com/transcom/mymove/pkg/handlers"
+
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MoveDatesSummary contains the set of dates for a move
-type MoveDatesSummary struct {
-	PackDays     []time.Time
-	PickupDays   []time.Time
-	TransitDays  []time.Time
-	DeliveryDays []time.Time
-	ReportDays   []time.Time
-}
-
-func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (MoveDatesSummary, error) {
-	var summary MoveDatesSummary
+// calculateMoveDates is used on the hhg wizard DatePicker page to show move dates summary
+func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveID uuid.UUID, moveDate time.Time) (dates.MoveDatesSummary, error) {
+	var summary dates.MoveDatesSummary
 
 	// FetchMoveForMoveDates will get all the required associations used below.
 	move, err := models.FetchMoveForMoveDates(db, moveID)
@@ -49,91 +41,94 @@ func calculateMoveDates(db *pop.Connection, planner route.Planner, moveID uuid.U
 	entitlementWeight := unit.Pound(models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
 		move.Orders.SpouseHasProGear))
 
-	numTransitDays, err := models.TransitDays(entitlementWeight, transitDistance)
+	estimatedPackDays := models.PackDays(entitlementWeight)
+	estimatedTransitDays, err := models.TransitDays(entitlementWeight, transitDistance)
 	if err != nil {
 		return summary, err
 	}
 
-	numPackDays := models.PackDays(entitlementWeight)
-	usCalendar := handlers.NewUSCalendar()
-
-	lastPossiblePackDay := moveDate.AddDate(0, 0, -1)
-	summary.PackDays = createPastMoveDates(lastPossiblePackDay, numPackDays, false, usCalendar)
-
-	firstPossiblePickupDay := moveDate
-	pickupDays := createFutureMoveDates(firstPossiblePickupDay, 1, false, usCalendar)
-	summary.PickupDays = pickupDays
-
-	firstPossibleTransitDay := time.Time(pickupDays[len(pickupDays)-1]).AddDate(0, 0, 1)
-	transitDays := createFutureMoveDates(firstPossibleTransitDay, numTransitDays, true, usCalendar)
-	summary.TransitDays = transitDays
-
-	firstPossibleDeliveryDay := time.Time(transitDays[len(transitDays)-1]).AddDate(0, 0, 1)
-	summary.DeliveryDays = createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
-
+	summary.CalculateMoveDates(moveDate, estimatedPackDays, estimatedTransitDays)
+	// ReportDays isn't set by CalculateMoveDates and must be added here to display in the calendar widget
 	summary.ReportDays = []time.Time{move.Orders.ReportByDate.UTC()}
 
 	return summary, nil
 }
 
-func calculateMoveDatesFromShipment(shipment *models.Shipment) (MoveDatesSummary, error) {
-	usCalendar := handlers.NewUSCalendar()
-
-	if shipment.RequestedPickupDate == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
-	}
-	lastPossiblePackDay := time.Time(*shipment.RequestedPickupDate).AddDate(0, 0, -1)
+// calculateMoveDatesFromShipment takes stored values on the shipment to calculate the most up-to-date move date ranges
+// this is used to display date ranges for the SM HHG review page and the status timeline on the post-hhg-submission landing page
+func calculateMoveDatesFromShipment(shipment *models.Shipment) (dates.MoveDatesSummary, error) {
+	usCalendar := dates.NewUSCalendar()
 
 	if shipment.EstimatedPackDays == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have a EstimatedPackDays")
+		return dates.MoveDatesSummary{}, errors.New("Shipment must have EstimatedPackDays")
 	}
-	packDates := createPastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)
 
-	pickupDates := createFutureMoveDates(*shipment.RequestedPickupDate, 1, false, usCalendar)
+	if shipment.RequestedPickupDate == nil {
+		return dates.MoveDatesSummary{}, errors.New("Shipment must have a RequestedPickupDate")
+	}
+
+	if shipment.EstimatedTransitDays == nil {
+		return dates.MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
+	}
+
+	var mostCurrentPackDate time.Time
+	if shipment.ActualPackDate != nil {
+		mostCurrentPackDate = *shipment.ActualPackDate
+	} else if shipment.PmSurveyPlannedPackDate != nil {
+		mostCurrentPackDate = *shipment.PmSurveyPlannedPackDate
+	} else if shipment.OriginalPackDate != nil {
+		mostCurrentPackDate = *shipment.OriginalPackDate
+	} else {
+		lastPossiblePackDay := shipment.RequestedPickupDate.AddDate(0, 0, -1)
+		mostCurrentPackDate = dates.CreatePastMoveDates(lastPossiblePackDay, int(*shipment.EstimatedPackDays), false, usCalendar)[0]
+	}
+
+	var mostCurrentPickupDate time.Time
+	if shipment.ActualPickupDate != nil {
+		mostCurrentPickupDate = *shipment.ActualPickupDate
+	} else if shipment.PmSurveyPlannedPickupDate != nil {
+		mostCurrentPickupDate = *shipment.PmSurveyPlannedPickupDate
+	} else {
+		mostCurrentPickupDate = *shipment.RequestedPickupDate
+	}
+
+	var mostCurrentDeliveryDate time.Time
+
+	if shipment.ActualDeliveryDate != nil {
+		mostCurrentDeliveryDate = *shipment.ActualDeliveryDate
+	} else if shipment.PmSurveyPlannedDeliveryDate != nil {
+		mostCurrentDeliveryDate = *shipment.PmSurveyPlannedDeliveryDate
+	} else if shipment.OriginalDeliveryDate != nil {
+		mostCurrentDeliveryDate = *shipment.OriginalDeliveryDate
+	} else {
+		// transit days can be on weekends and holidays and delivery cannot, so calculations must be separated out
+		estimatedTransitDates := dates.CreateFutureMoveDates(*shipment.RequestedPickupDate, int(*shipment.EstimatedTransitDays), true, usCalendar)
+		lastEstimatedTransitDate := estimatedTransitDates[len(estimatedTransitDates)-1]
+		mostCurrentDeliveryDate = dates.CreateFutureMoveDates(lastEstimatedTransitDate.AddDate(0, 0, 1), 1, false, usCalendar)[0]
+	}
+	// assigns the pack dates
+	packDates, err := dates.CreateValidDatesBetweenTwoDates(mostCurrentPackDate, mostCurrentPickupDate, false, true, usCalendar)
+	if err != nil {
+		return dates.MoveDatesSummary{}, err
+	}
+	pickupDates := dates.CreateFutureMoveDates(mostCurrentPickupDate, 1, false, usCalendar)
 
 	firstPossibleTransitDay := time.Time(pickupDates[len(pickupDates)-1]).AddDate(0, 0, 1)
-	if shipment.EstimatedTransitDays == nil {
-		return MoveDatesSummary{}, errors.New("Shipment must have EstimatedTransitDays")
+
+	transitDates, err := dates.CreateValidDatesBetweenTwoDates(firstPossibleTransitDay, mostCurrentDeliveryDate, true, true, usCalendar)
+	if err != nil {
+		return dates.MoveDatesSummary{}, err
 	}
-	transitDates := createFutureMoveDates(firstPossibleTransitDay, int(*shipment.EstimatedTransitDays), true, usCalendar)
+	deliveryDates := dates.CreateFutureMoveDates(mostCurrentDeliveryDate, 1, false, usCalendar)
 
-	firstPossibleDeliveryDay := time.Time(transitDates[int(*shipment.EstimatedTransitDays)-1].AddDate(0, 0, 1))
-	deliveryDates := createFutureMoveDates(firstPossibleDeliveryDay, 1, false, usCalendar)
-
-	summary := MoveDatesSummary{
-		PackDays:     packDates,
-		PickupDays:   pickupDates,
-		TransitDays:  transitDates,
-		DeliveryDays: deliveryDates,
+	summary := dates.MoveDatesSummary{
+		MoveDate:             mostCurrentPickupDate,
+		PackDays:             packDates,
+		EstimatedPackDays:    int(*shipment.EstimatedPackDays),
+		PickupDays:           pickupDates,
+		TransitDays:          transitDates,
+		EstimatedTransitDays: int(*shipment.EstimatedTransitDays),
+		DeliveryDays:         deliveryDates,
 	}
 	return summary, nil
-}
-
-func createFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
-	dates := make([]time.Time, 0, numDays)
-
-	daysAdded := 0
-	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, 1) {
-		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
-			dates = append(dates, d)
-			daysAdded++
-		}
-	}
-
-	return dates
-}
-
-func createPastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
-	dates := make([]time.Time, numDays)
-
-	daysAdded := 0
-	for d := startDate; daysAdded < numDays; d = d.AddDate(0, 0, -1) {
-		if includeWeekendsAndHolidays || calendar.IsWorkday(d) {
-			// Since we're working backwards, put dates at end of slice.
-			dates[numDays-daysAdded-1] = d
-			daysAdded++
-		}
-	}
-
-	return dates
 }

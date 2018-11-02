@@ -3,6 +3,7 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/transcom/mymove/pkg/dates"
 	calendarop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,7 +28,7 @@ func (h ShowAvailableMoveDatesHandler) Handle(params calendarop.ShowAvailableMov
 	daysChecked := 0
 	shortFuseDaysFound := 0
 
-	usCalendar := handlers.NewUSCalendar()
+	usCalendar := dates.NewUSCalendar()
 	firstPossibleDate := startDate.AddDate(0, 0, 1) // We never include the start date.
 	for d := firstPossibleDate; daysChecked < daysToCheckAfterStartDate; d = d.AddDate(0, 0, 1) {
 		if usCalendar.IsWorkday(d) {
