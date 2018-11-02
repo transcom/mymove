@@ -20,7 +20,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
+import Dates from 'shared/ShipmentDates';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import Weights from 'shared/ShipmentWeights';
@@ -91,7 +91,7 @@ const HHGTabContent = props => {
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
-      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
+      <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
       <LocationsPanel title="Locations" moveId={props.moveId} />
       <Weights title="Weights & Items" shipment={props.shipment} update={props.patchShipment} />
       {props.officeShipment && (

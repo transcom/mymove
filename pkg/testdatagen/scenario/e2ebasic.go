@@ -1517,6 +1517,71 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg26 := offer26.Shipment
 	hhg26.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg26.Move)
+
+	/*
+	* Service member to update dates from office app
+	 */
+	email = "hhg1@officeda.te"
+
+	hhg27 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("5e2f7338-0f54-4ba9-99cc-796153da94f3")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("8cfe7777-d8a5-43ed-bb0e-5ba2ceda2251"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444555888"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("47e9c534-a93c-4986-ae8f-41fddefaa618"),
+			Locator:          "ODATES",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("51004395-ecbf-4ab2-9edc-ec5041bbe390"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+	})
+
+	hhg27.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg27.Move)
+
+	/*
+	 * Service member to update dates from office app
+	 */
+	email = "hhg2@officeda.te"
+
+	hhg28 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("961108be-ace1-407c-b110-7e996e95d286")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("823a2177-3d68-43a5-a3ed-6b10454a6481"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4444999888"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("762f2ec2-f362-4c14-b601-d7178c4862fe"),
+			Locator:          "ODATE0",
+			SelectedMoveType: models.StringPointer("HHG"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("12e17ea7-9c94-4b61-a28d-5a81744a355c"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+	})
+	hhg28.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg28.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation

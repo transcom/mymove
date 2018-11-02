@@ -68,9 +68,9 @@ type GovBillOfLadingExtractor struct {
 	// TSP enters
 	FreightBillNumber string
 	// Accounting info from orders - DI, TAC, and SAC (see description)
-	TAC                 string `db:"tac"`
-	SAC                 string `db:"sac"`
-	DepartmentIndicator string `db:"department_indicator"`
+	TAC                 string                          `db:"tac"`
+	SAC                 string                          `db:"sac"`
+	DepartmentIndicator *internalmessages.DeptIndicator `db:"department_indicator"`
 	// (func to "getRemarks" with hardcoded values - See description - 16 cases account for. For now: "Direct Delivery Requested"). If any of ForUsePayingOffice... are true, must explain here
 	Remarks string `db:"remarks"`
 	// TGBL shipment case - see description ("LOT").
@@ -148,7 +148,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				source_to.name AS issuing_office_name,
 				source_to.address_id AS issuing_office_address_id,
 				s.source_gbloc AS issuing_office_gbloc,
-				concat('DI: ', o.department_indicator) AS department_indicator,
+				o.department_indicator AS department_indicator,
 				concat('SAC: ', o.sac) AS sac,
 				concat('TAC: ', o.tac) AS tac,
 				perf.linehaul_rate AS linehaul_transportation_rate

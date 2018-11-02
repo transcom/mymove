@@ -1,22 +1,22 @@
 import { userEntersDates, userEntersAndRemovesDates } from '../../support/datesPanel';
 
 /* global cy */
-describe('TSP User Completes Dates Panel', function() {
+describe('office user interacts with premove survey', function() {
   beforeEach(() => {
-    cy.signIntoTSP();
+    cy.signIntoOffice();
   });
-  it('tsp user completes dates panel', function() {
-    tspUserGoesToDatesPanel('DATESP');
+  it('office user completes dates panel', function() {
+    officeUserGoesToDatesPanel('ODATES');
     userEntersDates();
   });
   it('tsp user completes dates panel and zeroes it out', function() {
-    tspUserGoesToDatesPanel('DATESZ');
+    officeUserGoesToDatesPanel('ODATE0');
     userEntersAndRemovesDates();
   });
 });
 
-function tspUserGoesToDatesPanel(locator) {
-  // Open new shipments queue
+function officeUserGoesToDatesPanel(locator) {
+  // Open new moves queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
@@ -28,7 +28,16 @@ function tspUserGoesToDatesPanel(locator) {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('.title')
+    .contains('HHG')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
   cy
