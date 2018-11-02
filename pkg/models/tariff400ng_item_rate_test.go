@@ -15,24 +15,24 @@ func intPointer(i int) *int {
 func (suite *ModelSuite) TestFetchTariff400ngItemRateBySchedule() {
 	testdatagen.MakeTariff400ngItemRate(suite.db, testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			ServicesSchedule: intPointer(1),
-			RateCents:        unit.Cents(1001),
+			Schedule:  intPointer(1),
+			RateCents: unit.Cents(1001),
 		},
 	})
 	rate2 := testdatagen.MakeTariff400ngItemRate(suite.db, testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			ServicesSchedule: intPointer(2),
-			RateCents:        unit.Cents(1002),
+			Schedule:  intPointer(2),
+			RateCents: unit.Cents(1002),
 		},
 	})
 	testdatagen.MakeTariff400ngItemRate(suite.db, testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			ServicesSchedule: intPointer(3),
-			RateCents:        unit.Cents(1003),
+			Schedule:  intPointer(3),
+			RateCents: unit.Cents(1003),
 		},
 	})
 
-	rate, err := models.FetchTariff400ngItemRate(suite.db, rate2.Code, *rate2.ServicesSchedule, 1000, time.Date(2018, time.August, 15, 0, 0, 0, 0, time.UTC))
+	rate, err := models.FetchTariff400ngItemRate(suite.db, rate2.Code, *rate2.Schedule, 1000, time.Date(2018, time.August, 15, 0, 0, 0, 0, time.UTC))
 
 	// Ensure we get back rate2's rate and not one for a different schedule
 	if suite.NoError(err) {
@@ -43,8 +43,8 @@ func (suite *ModelSuite) TestFetchTariff400ngItemRateBySchedule() {
 func (suite *ModelSuite) TestFetchTariff400ngItemRateNullSchedule() {
 	rate1 := testdatagen.MakeTariff400ngItemRate(suite.db, testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			ServicesSchedule: nil,
-			RateCents:        unit.Cents(1001),
+			Schedule:  nil,
+			RateCents: unit.Cents(1001),
 		},
 	})
 

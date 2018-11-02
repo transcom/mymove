@@ -12,7 +12,7 @@ import (
 func MakeTariff400ngItemRate(db *pop.Connection, assertions Assertions) models.Tariff400ngItemRate {
 	rate := models.Tariff400ngItemRate{
 		Code:               "105B",
-		ServicesSchedule:   nil,
+		Schedule:           nil,
 		WeightLbsLower:     unit.Pound(0),
 		WeightLbsUpper:     unit.Pound(2147483647),
 		RateCents:          1000,

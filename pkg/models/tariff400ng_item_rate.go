@@ -14,7 +14,7 @@ import (
 type Tariff400ngItemRate struct {
 	ID                 uuid.UUID  `json:"id" db:"id"`
 	Code               string     `json:"code" db:"code"`
-	ServicesSchedule   *int       `json:"schedule" db:"schedule"`
+	Schedule           *int       `json:"schedule" db:"schedule"`
 	WeightLbsLower     unit.Pound `json:"weight_lbs_lower" db:"weight_lbs_lower"`
 	WeightLbsUpper     unit.Pound `json:"weight_lbs_upper" db:"weight_lbs_upper"`
 	RateCents          unit.Cents `json:"rate_cents" db:"rate_cents"`
