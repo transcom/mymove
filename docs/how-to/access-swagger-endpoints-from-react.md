@@ -95,7 +95,7 @@ If you need to load data based on a value that isn't passed in as a `prop`, it's
 
 ## 4. Use a Selector to Access the Data
 
-All data access should be done through selectors and not by directly accessing the global Redux state.  
+All data access should be done through selectors and not by directly accessing the global Redux state.
 
 Add a function to `src/shared/Entities/modules/$MODEL.js` that returns the value from Redux. This example uses `denormalize`:
 

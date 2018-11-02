@@ -1,3 +1,4 @@
+import { isNull, get } from 'lodash';
 import {
   LoadShipment,
   PatchShipment,
@@ -13,6 +14,7 @@ import {
 } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
+import { getEntitlements } from 'shared/entitlements.js';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadShipmentType = 'LOAD_SHIPMENT';
@@ -119,7 +121,15 @@ export function loadShipmentDependencies(shipmentId) {
 }
 
 // Selectors
-
+export function loadEntitlements(state) {
+  const hasDependents = get(state, 'tsp.shipment.move.has_dependents', null);
+  const spouseHasProGear = get(state, 'tsp.shipment.move.spouse_has_pro_gear', null);
+  const rank = get(state, 'tsp.shipment.service_member.rank', null);
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
+}
 // Reducer
 const initialState = {
   shipmentIsLoading: false,
