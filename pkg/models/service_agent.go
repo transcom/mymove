@@ -77,7 +77,24 @@ func (s *ServiceAgent) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 	return validate.NewErrors(), nil
 }
 
-// FetchServiceAgentsByTSP looks up all service agents beloning to a TSP and a shipment
+// FetchServiceAgentsOnShipment looks up all service agents belonging to a shipment
+func FetchServiceAgentsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) ([]ServiceAgent, error) {
+
+	serviceAgents := []ServiceAgent{}
+
+	err := tx.
+		Where("shipments.id = $1", shipmentID).
+		LeftJoin("shipments", "service_agents.shipment_id=shipments.id").
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		All(&serviceAgents)
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceAgents, err
+}
+
+// FetchServiceAgentsByTSP looks up all service agents belonging to a TSP and a shipment
 func FetchServiceAgentsByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) ([]ServiceAgent, error) {
 
 	serviceAgents := []ServiceAgent{}

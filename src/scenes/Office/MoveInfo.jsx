@@ -50,7 +50,7 @@ import {
   sendHHGInvoice,
   resetMove,
 } from './ducks';
-import { loadShipment, patchShipment } from 'scenes/TransportationServiceProvider/ducks';
+import { loadShipmentDependencies, patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -106,7 +106,7 @@ const HHGTabContent = props => {
         <TspContainer
           title="TSP & Servicing Agents"
           shipment={props.officeShipment}
-          serviceAgents={props.officeShipment.service_agents}
+          serviceAgents={props.serviceAgents}
         />
       )}
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
@@ -127,8 +127,8 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
-      this.props.loadShipment(this.props.officeShipment.id);
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
+      this.props.loadShipmentDependencies(this.props.officeShipment.id);
     }
   }
 
@@ -306,6 +306,7 @@ class MoveInfo extends Component {
                     patchShipment={this.props.patchShipment}
                     moveId={this.props.match.params.moveId}
                     shipment={this.props.shipment}
+                    serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                   />
                 </PrivateRoute>
@@ -468,6 +469,7 @@ const mapStateToProps = state => ({
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
   tariff400ngItems: selectTariff400ngItems(state),
+  serviceAgents: get(state, 'tsp.serviceAgents', []),
   shipmentLineItems: selectShipmentLineItems(state),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
@@ -481,7 +483,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      loadShipment,
+      loadShipmentDependencies,
       loadMoveDependencies,
       getMoveDocumentsForMove,
       approveBasics,
