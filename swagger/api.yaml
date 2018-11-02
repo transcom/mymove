@@ -585,11 +585,37 @@ definitions:
     title: Document Type
     example: WEIGHT_TICKET
     enum: &MOVEDOCUMENTTYPE
-      - OTHER
       - WEIGHT_TICKET
+      - WEIGHT_TICKET_REWEIGH
+      - ORIGIN_PACKET
+      - ORIGIN_619
+      - ORIGIN_INVENTORY
+      - DESTINATION_PACKET
+      - DESTINATION_619
+      - DESTINATION_619_1
+      - DESTINATION_INVENTORY
+      - THIRD_PARTY_INVOICE
+      - THIRD_PARTY_ESTIMATE
+      - NOTICE_OF_LOSS_OR_DAMAGE
+      - FIREARMS_CHAIN_OF_CUSTODY
+      - PHOTO
+      - OTHER
     x-display-value:
-      OTHER: Other document type
       WEIGHT_TICKET: Weight ticket
+      WEIGHT_TICKET_REWEIGH: Weight ticket reweigh
+      ORIGIN_PACKET: Origin packet
+      ORIGIN_619: Origin 619
+      ORIGIN_INVENTORY: Origin inventory
+      DESTINATION_PACKET: Destination packet
+      DESTINATION_619: Destination 619
+      DESTINATION_619_1: Origin 619-1
+      DESTINATION_INVENTORY: Destination inventory
+      THIRD_PARTY_INVOICE: 3rd-party invoice
+      THIRD_PARTY_ESTIMATE: 3rd-party estimate
+      NOTICE_OF_LOSS_OR_DAMAGE: 1850 - Notice of loss/damage
+      FIREARMS_CHAIN_OF_CUSTODY: Firearms chain of custody
+      PHOTO: Photo
+      OTHER: Other document type
   SelectedMoveType:
     type: string
     title: Selected Move Type
