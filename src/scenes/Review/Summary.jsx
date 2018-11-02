@@ -79,7 +79,7 @@ export class Summary extends Component {
         <ServiceMemberSummary
           orders={currentOrders}
           backupContacts={currentBackupContacts}
-          serviceMember={serviceMember || {}}
+          serviceMember={serviceMember}
           schemaRank={schemaRank}
           schemaAffiliation={schemaAffiliation}
           schemaOrdersType={schemaOrdersType}

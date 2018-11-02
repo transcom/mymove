@@ -59,7 +59,7 @@ export const lastMoveIsCanceled = state => get(state, 'moves.latestMove.status')
 
 export const selectedMoveType = state => get(state, 'moves.currentMove.selected_move_type');
 
-export const isPpm = state => get(state, 'ppm.currentPpm', false);
+export const isPpm = state => Boolean(get(state, 'ppm.currentPpm', false));
 
 // Reducer
 const initialState = {
