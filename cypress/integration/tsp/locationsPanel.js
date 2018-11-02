@@ -46,9 +46,9 @@ describe('TSP User Checks Shipment Locations', function() {
   });
   it('tsp user primary delivery location when delivery address does not exist', function() {
     const address = {
-      city: 'Beverly Hills',
+      city: 'Duty Stationland',
       state: 'CA',
-      postal_code: '90210',
+      postal_code: '94535',
     };
     const expectation = text => {
       expect(text).to.equal(`${address.city}, ${address.state} ${address.postal_code}`);
@@ -123,9 +123,9 @@ function tspUserEntersLocations() {
     postal_code: '66666-6666',
   };
   const newDutyStation = {
-    city: 'Beverly Hills',
+    city: 'Duty Stationland',
     state: 'CA',
-    postal_code: '90210',
+    postal_code: '94535',
   };
 
   // Open new shipments queue
