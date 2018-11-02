@@ -192,7 +192,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 	if err != nil {
 		return gbl, err
 	}
-	fmt.Println("DDKSLKDJF", *gbl.DepartmentIndicator)
+
 	// These values are hardcoded for now
 	gbl.DateIssued = time.Now()
 	gbl.BillChargesToName = "US Bank PowerTrack\n" +
