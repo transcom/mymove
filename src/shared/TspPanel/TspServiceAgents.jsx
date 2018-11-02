@@ -86,7 +86,7 @@ export function TspEditablePanelify(DisplayComponent, EditComponent, editEnabled
     };
 
     componentDidUpdate = (prevProps, prevState) => {
-      if (!prevProps.editServiceAgent && this.props.editServiceAgent) {
+      if (!prevProps.editTspServiceAgent && this.props.editTspServiceAgent) {
         this.setIsEditable(true);
       }
     };
@@ -103,9 +103,7 @@ export function TspEditablePanelify(DisplayComponent, EditComponent, editEnabled
     cancel = () => {
       this.props.reset();
       this.setIsEditable(false);
-      if (this.props.title === 'Origin Service Agent') {
-        this.props.setEditServiceAgent(false);
-      }
+      this.props.setEditTspServiceAgent(false);
     };
 
     setIsEditable = isEditable => this.setState({ isEditable });

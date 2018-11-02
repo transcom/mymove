@@ -166,7 +166,7 @@ class ShipmentInfo extends Component {
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   // Access Service Agent Panels
-  setEditServiceAgent = editTspServiceAgent => this.setState({ editTspServiceAgent });
+  setEditTspServiceAgent = editTspServiceAgent => this.setState({ editTspServiceAgent });
 
   scrollToTspServiceAgentPanel = () => {
     const domNode = ReactDOM.findDOMNode(this.assignTspServiceAgent.current);
@@ -174,7 +174,7 @@ class ShipmentInfo extends Component {
   };
   toggleEditTspServiceAgent = () => {
     this.scrollToTspServiceAgentPanel();
-    this.setEditServiceAgent(true);
+    this.setEditTspServiceAgent(true);
   };
 
   // Access Pre Move Survey Panels
@@ -384,7 +384,7 @@ class ShipmentInfo extends Component {
                   <TspContainer
                     ref={this.assignTspServiceAgent}
                     editTspServiceAgent={this.state.editTspServiceAgent}
-                    setEditServiceAgent={this.setEditServiceAgent}
+                    setEditTspServiceAgent={this.setEditTspServiceAgent}
                     tsp={this.props.tsp}
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
