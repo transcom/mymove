@@ -4,8 +4,8 @@ import (
 	"io"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -118,10 +118,7 @@ func (u *Uploader) DeleteUpload(upload *models.Upload) error {
 		return err
 	}
 
-	if err := models.DeleteUpload(u.db, upload); err != nil {
-		return err
-	}
-	return nil
+	return models.DeleteUpload(u.db, upload)
 }
 
 // Download fetches an Upload's file and stores it in a tempfile. The path to this

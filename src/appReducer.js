@@ -49,6 +49,7 @@ export const appReducer = combineReducers({
   office: officeReducer,
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
+  tsp: tspReducer,
 });
 
 export const tspAppReducer = combineReducers({

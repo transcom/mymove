@@ -23,7 +23,7 @@ describe('completing the hhg flow', function() {
     // Try to get today, which should be disabled even after clicked.  We may have to go back a month
     // to find today since the calendar scrolls to the month with the first available move date.
     cy
-      .get('body')
+      .get('.DayPicker-Body')
       .then($body => {
         if ($body.find('.DayPicker-Day--today').length === 0) {
           cy.get('.DayPicker-NavButton--prev').click();
@@ -41,7 +41,7 @@ describe('completing the hhg flow', function() {
     // we skip to the next month which should (at least at this point) have an available
     // date.
     cy
-      .get('body')
+      .get('.DayPicker-Body')
       .then($body => {
         if ($body.find('[class=DayPicker-Day]').length === 0) {
           cy.get('.DayPicker-NavButton--next').click();

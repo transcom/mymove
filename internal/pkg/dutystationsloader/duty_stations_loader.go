@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -281,7 +281,7 @@ func (b *MigrationBuilder) generateInsertionBlock(pair StationOfficePair) string
 	office := pair.TransportationOffice
 
 	// New office, need to add IDs and INSERT
-	if office.Name != "" && uuid.Equal(office.ID, uuid.Nil) {
+	if office.Name != "" && office.ID == uuid.Nil {
 		// We need to generate IDs before we create the INSERT statements
 		office.Address.ID = uuid.Must(uuid.NewV4())
 		query.WriteString(b.createInsertQuery(office.Address, &pop.Model{Value: models.Address{}}))
@@ -302,7 +302,7 @@ func (b *MigrationBuilder) generateInsertionBlock(pair StationOfficePair) string
 
 	if station.Name != "" {
 		// If we have a valid office, set up the relationship
-		if !uuid.Equal(office.ID, uuid.Nil) {
+		if office.ID != uuid.Nil {
 			station.TransportationOfficeID = &office.ID
 		}
 
@@ -443,7 +443,7 @@ func (b *MigrationBuilder) pairOfficesToStations(stations []DutyStationWrapper, 
 	for n := range unpairedOfficeNames {
 		office := officesByName[n]
 		// Existing offices will have a populated ID field, we don't need to append them since there's no station to worry about
-		if uuid.Equal(office.ID, uuid.Nil) {
+		if office.ID == uuid.Nil {
 			b.logger.Debug("New Office has no matching duty station", zap.String("TransportationOffice Name", n))
 			pairs = append(pairs, StationOfficePair{
 				TransportationOffice: officesByName[n].TransportationOffice,

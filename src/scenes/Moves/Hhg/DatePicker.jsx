@@ -50,8 +50,8 @@ export class HHGDatePicker extends Component {
     if (disabled) {
       return;
     }
-    const moveDate = day.toISOString().split('T')[0];
-    this.props.input.onChange(formatSwaggerDate(day));
+    const moveDate = formatSwaggerDate(day);
+    this.props.input.onChange(moveDate);
     this.props.getMoveDatesSummary(getMoveDatesSummaryLabel, this.props.moveID, moveDate);
     this.setState({
       selectedDay: moveDate,

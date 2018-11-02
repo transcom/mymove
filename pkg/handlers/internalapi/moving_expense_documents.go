@@ -2,7 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -80,7 +80,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}
-		if !uuid.Equal(ppm.MoveID, moveID) {
+		if ppm.MoveID != moveID {
 			return movedocop.NewCreateMovingExpenseDocumentBadRequest()
 		}
 
