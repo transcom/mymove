@@ -17,6 +17,7 @@ type MoveDatesSummary struct {
 }
 
 // CalculateMoveDates returns a MoveDatesSummary based on the expected move date and estimated pack and transit days
+// This method will not set ReportDays - users must set that manually if its needed
 func (summary *MoveDatesSummary) CalculateMoveDates(moveDate time.Time, estimatedPackDays int, estimatedTransitDays int) {
 	usCalendar := NewUSCalendar()
 

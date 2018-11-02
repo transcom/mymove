@@ -48,6 +48,7 @@ func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveI
 	}
 
 	summary.CalculateMoveDates(moveDate, estimatedPackDays, estimatedTransitDays)
+	// ReportDays isn't set by CalculateMoveDates and must be added here to display in the calendar widget
 	summary.ReportDays = []time.Time{move.Orders.ReportByDate.UTC()}
 
 	return summary, nil
