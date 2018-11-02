@@ -196,8 +196,8 @@ describe('completing the hhg flow', function() {
       .click();
 
     cy.contains('Pick a moving date');
-    cy.get('body').then($body => {
-      if ($body.find('[class=DayPicker-Day]').length === 0) {
+    cy.get('.DayPicker-Body').then($body => {
+      if ($body.find('.DayPicker-Body').length === 0) {
         cy.get('.DayPicker-NavButton--next').click();
       }
     });
