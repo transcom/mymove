@@ -226,7 +226,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	summary, err := calculateMoveDates(h.DB(), h.Planner(), moveID, moveDate)
+	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

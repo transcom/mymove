@@ -1,4 +1,4 @@
-package handlers
+package dates
 
 import "github.com/rickar/cal"
 

@@ -38,7 +38,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField title="PM survey conducted" fieldName="pm_survey_conducted_date" required {...fieldProps} />
         <PanelSwaggerField title="Survey Method" fieldName="pm_survey_method" required {...fieldProps} />
         <div className="column-subhead">Packing</div>
-        <PanelSwaggerField fieldName="original_pack_date" title="Original" {...fieldProps} />
+        <PanelSwaggerField fieldName="original_pack_date" title="Original" required {...fieldProps} />
         <PanelSwaggerField fieldName="pm_survey_planned_pack_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_pack_date" required title="Actual" {...fieldProps} />
       </div>
@@ -48,7 +48,7 @@ const DatesDisplay = props => {
         <PanelSwaggerField fieldName="pm_survey_planned_pickup_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_pickup_date" required title="Actual" {...fieldProps} />
         <div className="column-subhead">Delivery</div>
-        <PanelSwaggerField fieldName="original_delivery_date" title="Original" {...fieldProps} />
+        <PanelSwaggerField fieldName="original_delivery_date" title="Original" required {...fieldProps} />
         <PanelSwaggerField fieldName="pm_survey_planned_delivery_date" required title="Planned" {...fieldProps} />
         <PanelSwaggerField fieldName="actual_delivery_date" required title="Actual" {...fieldProps} />
         <PanelField className="rdd" title="RDD" value={rdd && formatDate(rdd)} />

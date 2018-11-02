@@ -1,7 +1,7 @@
 package internalapi
 
 import (
-	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	"testing"
 	"time"
@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingEstimatedTra
 type testCase struct {
 	name     string
 	shipment models.Shipment
-	summary  MoveDatesSummary
+	summary  dates.MoveDatesSummary
 }
 
 func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
@@ -87,18 +87,17 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				EstimatedPackDays:    &estimatedPackDays,
 				EstimatedTransitDays: &estimatedTransitDays,
 			},
-			summary: MoveDatesSummary{
-				[]time.Time{time.Date(2018, 12, 6, 0, 0, 0, 0, time.UTC),
+			summary: dates.MoveDatesSummary{
+				PackDays: []time.Time{time.Date(2018, 12, 6, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 7, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 10, 0, 0, 0, 0, time.UTC)},
-				[]time.Time{requestedPickupDate},
-				[]time.Time{time.Date(2018, 12, 12, 0, 0, 0, 0, time.UTC),
+				PickupDays: []time.Time{requestedPickupDate},
+				TransitDays: []time.Time{time.Date(2018, 12, 12, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 13, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 14, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 16, 0, 0, 0, 0, time.UTC)},
-				[]time.Time{originalDeliveryDate},
-				[]time.Time{},
+				DeliveryDays: []time.Time{originalDeliveryDate},
 			},
 		},
 		{
@@ -114,22 +113,21 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				PmSurveyPlannedPackDate:     &pmSurveyPackDate,
 				PmSurveyPlannedDeliveryDate: &pmSurveyDeliveryDate,
 			},
-			summary: MoveDatesSummary{
-				[]time.Time{
+			summary: dates.MoveDatesSummary{
+				PackDays: []time.Time{
 					time.Date(2018, 12, 7, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 10, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{pmSurveyPickupDate},
-				[]time.Time{
+				PickupDays: []time.Time{pmSurveyPickupDate},
+				TransitDays: []time.Time{
 					time.Date(2018, 12, 13, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 14, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 16, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 17, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{pmSurveyDeliveryDate},
-				[]time.Time{},
+				DeliveryDays: []time.Time{pmSurveyDeliveryDate},
 			},
 		},
 		{
@@ -145,22 +143,21 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				ActualPackDate:     &actualPackDate,
 				ActualDeliveryDate: &actualDeliveryDate,
 			},
-			summary: MoveDatesSummary{
-				[]time.Time{
+			summary: dates.MoveDatesSummary{
+				PackDays: []time.Time{
 					time.Date(2018, 12, 7, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 10, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{actualPickupDate},
-				[]time.Time{
+				PickupDays: []time.Time{actualPickupDate},
+				TransitDays: []time.Time{
 					time.Date(2018, 12, 13, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 14, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 16, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 17, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{actualDeliveryDate},
-				[]time.Time{},
+				DeliveryDays: []time.Time{actualDeliveryDate},
 			},
 		},
 		{
@@ -175,20 +172,19 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				ActualPackDate:            &mostCurrentActualPackDate,
 				PmSurveyPlannedPickupDate: &mostCurrentPmSurveyPickupDate,
 			},
-			summary: MoveDatesSummary{
-				[]time.Time{
+			summary: dates.MoveDatesSummary{
+				PackDays: []time.Time{
 					time.Date(2018, 12, 10, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 12, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{mostCurrentPmSurveyPickupDate},
-				[]time.Time{
+				PickupDays: []time.Time{mostCurrentPmSurveyPickupDate},
+				TransitDays: []time.Time{
 					time.Date(2018, 12, 14, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 16, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{originalDeliveryDate},
-				[]time.Time{},
+				DeliveryDays: []time.Time{originalDeliveryDate},
 			},
 		},
 		{
@@ -204,16 +200,15 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				ActualPickupDate:            &actualPickupDate,
 				PmSurveyPlannedDeliveryDate: &earlierDeliveryDate,
 			},
-			summary: MoveDatesSummary{
-				[]time.Time{
+			summary: dates.MoveDatesSummary{
+				PackDays: []time.Time{
 					time.Date(2018, 12, 7, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 10, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{actualPickupDate},
-				[]time.Time(nil),
-				[]time.Time{earlierDeliveryDate},
-				[]time.Time{},
+				PickupDays:   []time.Time{actualPickupDate},
+				TransitDays:  []time.Time(nil),
+				DeliveryDays: []time.Time{earlierDeliveryDate},
 			},
 		},
 		{
@@ -229,16 +224,15 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 				ActualPickupDate:            &actualPickupDate,
 				PmSurveyPlannedDeliveryDate: &equalToDeliveryDate,
 			},
-			summary: MoveDatesSummary{
-				[]time.Time{
+			summary: dates.MoveDatesSummary{
+				PackDays: []time.Time{
 					time.Date(2018, 12, 7, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 10, 0, 0, 0, 0, time.UTC),
 					time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC),
 				},
-				[]time.Time{actualPickupDate},
-				[]time.Time(nil),
-				[]time.Time{equalToDeliveryDate},
-				[]time.Time{},
+				PickupDays:   []time.Time{actualPickupDate},
+				TransitDays:  []time.Time(nil),
+				DeliveryDays: []time.Time{equalToDeliveryDate},
 			},
 		},
 	}
@@ -253,12 +247,4 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 			suite.Equal(testCase.summary.DeliveryDays, summary.DeliveryDays, "%v: DeliveryDays did not match, expected %v, got %v", testCase.name, testCase.summary.DeliveryDays, summary.DeliveryDays)
 		})
 	}
-}
-
-func (suite *HandlerSuite) TestCreateValidDatesBetweenTwoDatesEndDateMustBeLater() {
-	startDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
-	endDate := time.Date(2018, 12, 7, 0, 0, 0, 0, time.UTC)
-	usCalendar := handlers.NewUSCalendar()
-	_, err := createValidDatesBetweenTwoDates(startDate, endDate, true, false, usCalendar)
-	suite.Error(err)
 }
