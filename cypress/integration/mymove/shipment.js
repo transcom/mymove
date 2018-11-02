@@ -202,7 +202,7 @@ describe('completing the hhg flow', function() {
       }
     });
     cy
-      .get('[class=DayPicker-Day]')
+      .get('.DayPicker-Day')
       .last()
       .click()
       .should('have.class', 'DayPicker-Day--selected')

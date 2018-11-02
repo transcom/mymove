@@ -29,39 +29,41 @@ export default function HHGShipmentSummary(props) {
       <h3>
         <img src={truckIcon} alt="HHG shipment" /> Shipment - Government moves all of your stuff (HHG)
       </h3>
-      <div className="usa-width-one-half review-section ppm-review-section hhg-dates">
-        <p className="heading">
-          Move Dates
-          <span className="edit-section-link">
-            {' '}
-            <Link to={editDatePath}>Edit</Link>
-          </span>
-        </p>
+      <div className="usa-width-one-half review-section ppm-review-sections">
+        <div className="hhg-dates">
+          <p className="heading">
+            Move Dates
+            <span className="edit-section-link">
+              {' '}
+              <Link to={editDatePath}>Edit</Link>
+            </span>
+          </p>
 
-        <table>
-          <tbody>
-            <tr>
-              <td>Movers Packing: </td>
-              <td>{isEmpty(pack) ? 'TBD' : displayDateRange(pack)}</td>
-            </tr>
-            <tr>
-              <td>Loading Truck: </td>
-              <td>{isEmpty(pickup) ? 'TBD' : displayDateRange(pickup)}</td>
-            </tr>
-            <tr>
-              <td>Move in Transit:</td>
-              <td>{isEmpty(transit) ? 'TBD' : displayDateRange(transit)}</td>
-            </tr>
-            <tr>
-              <td>Delivery:</td>
-              <td>{isEmpty(delivery) ? 'TBD' : displayDateRange(delivery)}</td>
-            </tr>
-          </tbody>
-        </table>
+          <table>
+            <tbody>
+              <tr>
+                <td>Movers Packing: </td>
+                <td>{isEmpty(pack) ? 'TBD' : displayDateRange(pack)}</td>
+              </tr>
+              <tr>
+                <td>Loading Truck: </td>
+                <td>{isEmpty(pickup) ? 'TBD' : displayDateRange(pickup)}</td>
+              </tr>
+              <tr>
+                <td>Move in Transit:</td>
+                <td>{isEmpty(transit) ? 'TBD' : displayDateRange(transit)}</td>
+              </tr>
+              <tr>
+                <td>Delivery:</td>
+                <td>{isEmpty(delivery) ? 'TBD' : displayDateRange(delivery)}</td>
+              </tr>
+            </tbody>
+          </table>
 
-        <p className="notice">
-          Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.
-        </p>
+          <p className="notice">
+            Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.
+          </p>
+        </div>
 
         <p className="heading">
           Your Stuff
