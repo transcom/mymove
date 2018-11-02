@@ -58,7 +58,10 @@ class TspWrapper extends Component {
                 <PrivateRoute path="/shipments/:shipmentId/documents/:moveDocumentId" component={DocumentViewer} />
                 <PrivateRoute path="/shipments/:shipmentId" component={ShipmentInfo} />
                 {/* Be specific about available routes by listing them */}
-                <PrivateRoute path="/queues/:queueType(new|approved|in_transit|delivered|all)" component={Queues} />
+                <PrivateRoute
+                  path="/queues/:queueType(new|accepted|approved|in_transit|delivered|completed|all)"
+                  component={Queues}
+                />
                 {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
                 {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
                 <Redirect from="*" to="/queues/new" component={Queues} />
