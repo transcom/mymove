@@ -104,7 +104,7 @@ const HHGTabContent = props => {
       )}
       {props.officeShipment.service_agents && (
         <TspContainer
-          title="Service Agents"
+          title="TSP & Servicing Agents"
           shipment={props.officeShipment}
           serviceAgents={props.officeShipment.service_agents}
         />

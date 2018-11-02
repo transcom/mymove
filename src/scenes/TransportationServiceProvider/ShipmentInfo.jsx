@@ -406,7 +406,7 @@ class ShipmentInfo extends Component {
                     ref={this.assignTspServiceAgent}
                     editTspServiceAgent={this.state.editTspServiceAgent}
                     setEditTspServiceAgent={this.setEditTspServiceAgent}
-                    tsp={this.props.tsp}
+                    title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />

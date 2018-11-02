@@ -10,6 +10,7 @@ import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
 
 function mapStateToProps(state, props) {
   let serviceAgents = props.serviceAgents;
+  let title = props.title;
   let initialValues = {};
   let form = 'tsp_service_agents';
   let formValues = getFormValues(form)(state);
@@ -27,7 +28,7 @@ function mapStateToProps(state, props) {
     },
     origin_service_agent,
     destination_service_agent,
-    title: 'TSP & Servicing Agents',
+    title,
     form,
 
     hasError: false,
