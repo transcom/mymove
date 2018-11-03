@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/transcom/mymove/pkg/services"
 	"net/http"
 	"strings"
 
@@ -59,7 +60,7 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	case models.ErrFetchNotFound:
 		skipLogger.Debug("not found", zap.Error(err))
 		return newErrResponse(http.StatusNotFound, err)
-	case models.ErrFetchForbidden:
+	case models.ErrFetchForbidden, services.ErrFetchForbidden: // FOR NOW
 		skipLogger.Debug("forbidden", zap.Error(err))
 		return newErrResponse(http.StatusForbidden, err)
 	case models.ErrUserUnauthorized:

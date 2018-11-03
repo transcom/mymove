@@ -276,8 +276,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
-	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.TestDB())
+	// Given: a logged in user - needs to office to have permissions for all SMs
+	user := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 	servicememberUUID := uuid.Must(uuid.NewV4())
 
@@ -288,7 +288,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	req = suite.AuthenticateUserRequest(req, user)
+	req = suite.AuthenticateOfficeRequest(req, user)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
