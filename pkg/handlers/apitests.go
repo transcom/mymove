@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/transcom/mymove/pkg/server"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -16,6 +15,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/server"
+	documentServices "github.com/transcom/mymove/pkg/services/document"
+	userServices "github.com/transcom/mymove/pkg/services/user"
 )
 
 // BaseTestSuite abstracts the common methods needed for handler tests
@@ -215,4 +217,17 @@ func (suite *BaseTestSuite) Fixture(name string) *runtime.File {
 	suite.CloseFile(returnFile)
 
 	return returnFile
+}
+
+// HandlerContextWithServices constructs a handler context with the service layers dependencies populated
+func (suite *BaseTestSuite) HandlerContextWithServices() HandlerContext {
+	h := NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	fetchServiceMember := userServices.NewFetchServiceMemberService(models.NewServiceMemberDB(suite.TestDB()))
+	h.SetFetchServiceMember(fetchServiceMember)
+	documentDB := models.NewDocumentDB(suite.TestDB())
+	fetchDocument := documentServices.NewFetchDocumentService(documentDB, fetchServiceMember)
+	h.SetFetchDocument(fetchDocument)
+	fetchUpload := documentServices.NewFetchUploadService(documentDB, fetchDocument)
+	h.SetFetchUpload(fetchUpload)
+	return h
 }

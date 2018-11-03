@@ -7,8 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeAddress creates a single Address and associated service member.
-func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
+// GetAddress constructs a single Address object
+func GetAddress(assertions Assertions) *models.Address {
 	address := models.Address{
 		StreetAddress1: "123 Any Street",
 		StreetAddress2: swag.String("P.O. Box 12345"),
@@ -18,15 +18,18 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 		PostalCode:     "90210",
 		Country:        swag.String("US"),
 	}
-
 	mergeModels(&address, assertions.Address)
-
-	mustCreate(db, &address)
-
-	return address
+	return &address
 }
 
-// MakeAddress2 creates a different single Address and associated service member.
+// MakeAddress creates a single Address
+func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
+	addr := GetAddress(assertions)
+	mustCreate(db, addr)
+	return *addr
+}
+
+// MakeAddress2 creates a different single Address
 func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 	address := models.Address{
 		StreetAddress1: "987 Any Avenue",
@@ -49,6 +52,10 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 func MakeDefaultAddress(db *pop.Connection) models.Address {
 	// Make associated lookup table records.
 	MakeDefaultTariff400ngZip3(db)
-
 	return MakeAddress(db, Assertions{})
+}
+
+// GetDefaultAddress returns an address with default values
+func GetDefaultAddress() *models.Address {
+	return GetAddress(Assertions{})
 }

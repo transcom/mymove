@@ -172,7 +172,7 @@ func (suite *serverSuite) TestSessionCookieMiddlewareWithExpiredToken() {
 	suite.Equal(1, len(setCookies), "expected cookie to be set")
 }
 
-func (suite *authSuite) TestSessionCookiePR161162731() {
+func (suite *serverSuite) TestSessionCookiePR161162731() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
@@ -200,7 +200,7 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 		resultingSession = SessionFromRequestContext(r)
 		WriteSessionCookie(w, resultingSession, "freddy", false, suite.logger)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+	middleware := NewSessionCookieMiddleware(&SessionCookieConfig{Secret: pem, NoTimeout: false}, suite.logger)(handler)
 
 	middleware.ServeHTTP(rr, req)
 

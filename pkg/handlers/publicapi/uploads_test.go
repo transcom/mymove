@@ -31,7 +31,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, tspUse
 
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	context.SetFileStorer(fakeS3)
 	handler := CreateUploadHandler{context}
 	response := handler.Handle(params)
@@ -262,7 +262,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, upload.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	context.SetFileStorer(fakeS3)
 	handler := DeleteUploadHandler{context}
 	response := handler.Handle(params)
@@ -302,7 +302,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, upload1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := suite.HandlerContextWithServices()
 	context.SetFileStorer(fakeS3)
 	handler := DeleteUploadsHandler{context}
 	response := handler.Handle(params)
