@@ -152,14 +152,6 @@ export function userEntersDates() {
   cy.reload();
 
   cy.get('div.pm_survey_notes').contains('Notes notes notes for dates');
-
-  // Verify Premove Survey contains the same data
-  cy
-    .get('.editable-panel-header')
-    .contains('Premove Survey')
-    .parent()
-    .parent()
-    .contains('07-Oct-18');
 }
 
 export function userEntersAndRemovesDates() {
