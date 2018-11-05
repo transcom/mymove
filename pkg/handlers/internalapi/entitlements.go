@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// ValidateEntitlementHandler validates a weight estimate based on entitlement
+// ValidateEntitlementHandler validates a weight estimate based on entitlement for a PPM move
 type ValidateEntitlementHandler struct {
 	handlers.HandlerContext
 }
@@ -38,8 +38,9 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	// Return 404 if there's no PPM or Rank
-	if len(move.PersonallyProcuredMoves) < 1 || serviceMember.Rank == nil {
+	// Return 404 if there's no PPM or Rank, or this is an HHG
+	// TODO: Handle Combo moves
+	if len(move.PersonallyProcuredMoves) < 1 || len(move.Shipments) >= 1 || serviceMember.Rank == nil {
 		return entitlementop.NewValidateEntitlementNotFound()
 	}
 	// PPMs are in descending order - this is the last one created
