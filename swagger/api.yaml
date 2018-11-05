@@ -1105,6 +1105,72 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
+  TransportationServiceProvider:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 2a6a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      standard_carrier_alpha_code:
+        type: string
+        example: '51980581983'
+        x-nullable: true
+      enrolled:
+        type: boolean
+        default: false
+      name:
+        type: string
+        example: 'EXTRA Good TSP'
+        x-nullable: true
+      poc_general_name:
+        type: string
+        example: 'Jon Bon Jovi'
+        x-nullable: true
+      poc_general_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        description: Email used to contact shipping agent
+        example: jenny_tsp@example.com
+        x-nullable: true
+        title: Email
+      poc_general_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 303-867-5309
+        x-nullable: true
+        title: Phone Number
+      poc_claims_name:
+        type: string
+        example: 'Tupac Shakur'
+        x-nullable: true
+      poc_claims_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        description: Email used to contact shipping agent
+        example: tupac_tsp@example.com
+        x-nullable: true
+        title: Email
+      poc_claims_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 404-827-5309
+        x-nullable: true
+        title: Phone Number
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+    - standard_carrier_alpha_code
+    - enrolled
   IndexServiceAgents:
     type: array
     items:

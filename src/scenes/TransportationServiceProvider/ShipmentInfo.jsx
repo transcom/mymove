@@ -47,7 +47,7 @@ import {
   transportShipment,
   deliverShipment,
 } from './ducks';
-import ServiceAgents from './ServiceAgents';
+import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
 import LocationsContainer from './LocationsContainer';
@@ -124,12 +124,12 @@ class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
 
-    this.assignServiceMember = React.createRef();
+    this.assignTspServiceAgent = React.createRef();
     this.enterPreMoveSurvey = React.createRef();
   }
   state = {
     redirectToHome: false,
-    editOriginServiceAgent: false,
+    editTspServiceAgent: false,
     editPreMoveSurvey: false,
   };
 
@@ -166,15 +166,15 @@ class ShipmentInfo extends Component {
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   // Access Service Agent Panels
-  setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
+  setEditTspServiceAgent = editTspServiceAgent => this.setState({ editTspServiceAgent });
 
-  scrollToOriginServiceAgentPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.assignServiceMember.current);
+  scrollToTspServiceAgentPanel = () => {
+    const domNode = ReactDOM.findDOMNode(this.assignTspServiceAgent.current);
     domNode.scrollIntoView();
   };
-  toggleEditOriginServiceAgent = () => {
-    this.scrollToOriginServiceAgentPanel();
-    this.setEditServiceAgent(true);
+  toggleEditTspServiceAgent = () => {
+    this.scrollToTspServiceAgentPanel();
+    this.setEditTspServiceAgent(true);
   };
 
   // Access Pre Move Survey Panels
@@ -369,7 +369,7 @@ class ShipmentInfo extends Component {
                 </button>
               )}
               {canAssignServiceAgents && (
-                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
+                <button className="usa-button-primary" onClick={this.toggleEditTspServiceAgent}>
                   Assign servicing agents
                 </button>
               )}
@@ -402,11 +402,11 @@ class ShipmentInfo extends Component {
                     update={this.props.patchShipment}
                   />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  <ServiceAgents
-                    ref={this.assignServiceMember}
-                    editOriginServiceAgent={this.state.editOriginServiceAgent}
-                    setEditServiceAgent={this.setEditServiceAgent}
-                    title="ServiceAgents"
+                  <TspContainer
+                    ref={this.assignTspServiceAgent}
+                    editTspServiceAgent={this.state.editTspServiceAgent}
+                    setEditTspServiceAgent={this.setEditTspServiceAgent}
+                    title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
@@ -466,6 +466,7 @@ const mapStateToProps = state => {
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
+    tsp: get(state, 'tsp'),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
