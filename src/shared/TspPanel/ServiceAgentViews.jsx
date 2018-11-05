@@ -15,10 +15,6 @@ export const ServiceAgentDisplay = ({ serviceAgentProps, saRole }) => {
   );
 };
 
-ServiceAgentDisplay.defaultProps = {
-  serviceAgentProps: {},
-};
-
 ServiceAgentDisplay.propTypes = {
   serviceAgentProps: PropTypes.shape({
     company: PropTypes.string,

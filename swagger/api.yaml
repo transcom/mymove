@@ -2521,35 +2521,6 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
-  /tsps/{tspId}:
-    get:
-      summary: Retrieve a particular TSP
-      description: Gets a specific TSP by ID.
-      operationId: getTsp
-      tags:
-        - tsps
-      parameters:
-        - name: tspId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the TSP
-      responses:
-        200:
-          description: returns the details of the TSP
-          schema:
-            $ref: '#/definitions/TransportationServiceProvider'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to see the details of this TSP
-        404:
-          description: TSP UUID not found in system
-        500:
-          description: server error
   /tsps/{tspId}/blackouts:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
