@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/aws/aws-sdk-go/aws"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/namsral/flag"
@@ -60,11 +58,12 @@ func main() {
 		if *s3KeyNamespace == "" {
 			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
 		}
-		aws := awssession.Must(awssession.NewSession(&aws.Config{
-			Region: s3Region,
-		}))
 
-		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
+		cfg := &storage.S3StorerConfig{Bucket: *s3Bucket, KeyNamespace: *s3KeyNamespace, Region: *s3Region}
+		storer, err = storage.NewS3(cfg, logger)
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
 		zap.L().Info("Using filesystem storage backend")
 		fsParams := storage.DefaultFilesystemParams(logger)
