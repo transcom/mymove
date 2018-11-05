@@ -1,7 +1,5 @@
 import {
-  getFixture,
   userClearsServiceAgent,
-  userCancelsServiceAgent,
   userInputsServiceAgent,
   userSavesServiceAgent,
 } from '../../support/testTspServiceAgents';
