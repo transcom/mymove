@@ -102,13 +102,11 @@ const HHGTabContent = props => {
           error={props.surveyError}
         />
       )}
-      {props.officeShipment.service_agents && (
-        <TspContainer
-          title="TSP & Servicing Agents"
-          shipment={props.officeShipment}
-          serviceAgents={props.serviceAgents}
-        />
-      )}
+      <TspContainer
+        title="TSP & Servicing Agents"
+        shipment={props.officeShipment}
+        serviceAgents={props.serviceAgents}
+      />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
     </div>
   );
