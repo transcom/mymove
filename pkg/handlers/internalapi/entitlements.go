@@ -39,6 +39,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	}
 
 	// Return 404 if there's no PPM or Rank, or this is an HHG
+	// TODO: Handle Combo moves
 	if len(move.PersonallyProcuredMoves) < 1 || len(move.Shipments) >= 1 || serviceMember.Rank == nil {
 		return entitlementop.NewValidateEntitlementNotFound()
 	}
