@@ -393,6 +393,7 @@ class ShipmentInfo extends Component {
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
+                  <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <PremoveSurvey
                     ref={this.enterPreMoveSurvey}
                     editPreMoveSurvey={this.state.editPreMoveSurvey}
@@ -410,7 +411,6 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                 </div>
               )}
