@@ -20,7 +20,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
+import Dates from 'shared/ShipmentDates';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import Weights from 'shared/ShipmentWeights';
@@ -91,7 +91,7 @@ const HHGTabContent = props => {
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
-      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
+      <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
       <LocationsPanel title="Locations" moveId={props.moveId} />
       <Weights title="Weights & Items" shipment={props.shipment} update={props.patchShipment} />
       {props.officeShipment && (
@@ -201,7 +201,6 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
     const currentTab = pathnames[pathnames.length - 1];
-
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
@@ -214,6 +213,8 @@ class MoveInfo extends Component {
     const hhgDelivered = hhg.status === 'DELIVERED';
     const hhgCompleted = hhg.status === 'COMPLETED';
     const moveApproved = move.status === 'APPROVED';
+
+    const moveDate = isPPM ? ppm.planned_move_date : hhg.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -258,7 +259,7 @@ class MoveInfo extends Component {
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
-              <li>Move date {formatDate(ppm.planned_move_date)}&nbsp;</li>
+              <li>Move date {formatDate(moveDate)}&nbsp;</li>
             </ul>
           </div>
         </div>

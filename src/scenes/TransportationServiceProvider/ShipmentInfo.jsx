@@ -49,7 +49,7 @@ import {
 } from './ducks';
 import ServiceAgents from './ServiceAgents';
 import Weights from 'shared/ShipmentWeights';
-import Dates from './Dates';
+import Dates from 'shared/ShipmentDates';
 import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';

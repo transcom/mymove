@@ -27,9 +27,16 @@ export class Summary extends Component {
       this.props.onDidMount();
     }
   }
+  componentDidUpdate(prevProps) {
+    // Only check entitlement for PPMs, not HHGs
+    if (prevProps.currentPpm !== this.props.currentPpm) {
+      this.props.onCheckEntitlement(this.props.match.params.moveId);
+    }
+  }
+
   render() {
     const {
-      currentMove,
+      getCurrentMove,
       currentPpm,
       currentShipment,
       currentBackupContacts,
@@ -61,7 +68,7 @@ export class Summary extends Component {
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert type="success" heading={editSuccessBlurb} />
           )}
-        {currentMove &&
+        {getCurrentMove &&
           this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert type="info" heading={editSuccessBlurb + 'Note that the entitlement has also changed.'}>
@@ -97,7 +104,7 @@ export class Summary extends Component {
 
 Summary.propTypes = {
   currentBackupContacts: PropTypes.array,
-  currentMove: PropTypes.object,
+  getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPpm: PropTypes.object,
   currentShipment: PropTypes.object,
@@ -113,7 +120,7 @@ function mapStateToProps(state, ownProps) {
     currentPpm: state.ppm.currentPpm,
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: getMove(state, ownProps.match.params.moveId),
+    getCurrentMove: getMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
@@ -134,7 +141,9 @@ function mapDispatchToProps(dispatch, ownProps) {
           dispatch(getShipment('Summary.getShipment', shipment.id));
         });
       });
-      dispatch(checkEntitlement(moveID));
+    },
+    onCheckEntitlement: moveId => {
+      dispatch(checkEntitlement(moveId));
     },
   };
 }

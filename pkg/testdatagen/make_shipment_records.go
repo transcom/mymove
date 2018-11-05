@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -57,6 +58,13 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		destinationGBLOC = stringPointer(DefaultDstGBLOC)
 	}
 
+	requestedPickupDate := assertions.Shipment.RequestedPickupDate
+	if requestedPickupDate == nil {
+		requestedPickupDate = &PerformancePeriodStart
+	}
+	var summary dates.MoveDatesSummary
+	summary.CalculateMoveDates(*requestedPickupDate, 2, 3)
+
 	shipment := models.Shipment{
 		Status:           status,
 		SourceGBLOC:      sourceGBLOC,
@@ -77,13 +85,13 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		ActualPackDate:       nil,
 		ActualDeliveryDate:   nil,
 		BookDate:             timePointer(DateInsidePerformancePeriod),
-		RequestedPickupDate:  timePointer(PerformancePeriodStart),
-		OriginalDeliveryDate: timePointer(PerformancePeriodStart),
-		OriginalPackDate:     timePointer(PerformancePeriodStart),
+		OriginalPackDate:     timePointer(summary.PackDays[0]),
+		RequestedPickupDate:  timePointer(summary.MoveDate),
+		OriginalDeliveryDate: timePointer(summary.DeliveryDays[0]),
 
 		// calculated durations
-		EstimatedPackDays:    models.Int64Pointer(2),
-		EstimatedTransitDays: models.Int64Pointer(3),
+		EstimatedPackDays:    models.Int64Pointer(int64(summary.EstimatedPackDays)),
+		EstimatedTransitDays: models.Int64Pointer(int64(summary.EstimatedTransitDays)),
 
 		// addresses
 		PickupAddressID:              &pickupAddress.ID,

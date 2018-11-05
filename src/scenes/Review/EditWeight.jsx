@@ -13,7 +13,8 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { createOrUpdatePpm, getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
+
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
@@ -206,6 +207,7 @@ class EditWeight extends Component {
         if (!this.props.hasSubmitError) {
           this.props.editSuccessful();
           this.props.history.goBack();
+          this.props.checkEntitlement(moveId);
         } else {
           window.scrollTo(0, 0);
         }
@@ -275,6 +277,7 @@ function mapDispatchToProps(dispatch) {
       editBegin,
       editSuccessful,
       entitlementChangeBegin,
+      checkEntitlement,
     },
     dispatch,
   );
