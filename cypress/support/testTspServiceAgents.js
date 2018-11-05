@@ -1,7 +1,38 @@
 /* global cy, Cypress*/
 
 export function getFixture(role) {
-  return {
+  switch(role) {
+    case 'Origin':
+      return Origin: {
+        Company: 'ACME Movers',
+        Email: 'acme@example.com',
+        Phone: '303-867-5309',
+        Role: 'origin_service_agent',
+      };
+    case 'OriginUpdate':
+      return OriginUpdate: {
+        Company: 'ACME Movers',
+        Email: 'acmemovers@example.com',
+        Phone: '303-867-5308',
+        Role: 'origin_service_agent',
+      };
+    case 'Destination':
+      return {
+        Company: 'ACE Movers',
+        Email: 'acmemoving@example.com',
+        Phone: '303-867-5310',
+        Role: 'destination_service_agent',
+      };
+    case 'DestinationUpdate':
+      return {
+        Company: 'ACE Moving Company',
+        Email: 'moveme@example.com',
+        Phone: '303-867-5311',
+        Role: 'destination_service_agent',
+      };
+    default:
+      return {};
+  }
     Origin: {
       Company: 'ACME Movers',
       Email: 'acme@example.com',
