@@ -23,12 +23,12 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 		MakeDefaultTariff400ngZip3(db)
 		MakeTariff400ngZip3(db, Assertions{
 			Tariff400ngZip3: models.Tariff400ngZip3{
-				Zip3:          "945",
-				BasepointCity: "Walnut Creek",
-				State:         "CA",
-				ServiceArea:   "80",
-				RateArea:      "US87",
-				Region:        "2",
+				Zip3:          "503",
+				BasepointCity: "Des Moines",
+				State:         "IA",
+				ServiceArea:   "296",
+				RateArea:      "US53",
+				Region:        "7",
 			},
 		})
 	}

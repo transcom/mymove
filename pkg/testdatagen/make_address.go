@@ -48,12 +48,12 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 // MakeAddress3 creates a different single Address and associated service member.
 func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 	address := models.Address{
-		StreetAddress1: "987 Any Avenue",
-		StreetAddress2: swag.String("P.O. Box 9876"),
-		StreetAddress3: swag.String("c/o Some Person"),
-		City:           "Duty Stationland",
-		State:          "CA",
-		PostalCode:     "94535",
+		StreetAddress1: "987 Other Avenue",
+		StreetAddress2: swag.String("P.O. Box 1234"),
+		StreetAddress3: swag.String("c/o Another Person"),
+		City:           "Des Moines",
+		State:          "IA",
+		PostalCode:     "50309",
 		Country:        swag.String("US"),
 	}
 
