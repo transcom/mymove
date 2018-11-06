@@ -22,12 +22,13 @@
 
 .column-head{
   font-weight: 700;
-  margin: 1.5em 0.8em 0.8em 0;
+  margin: 1em 0.8em 0em 0;
+  font-size: 1em;
 }
 
 .column-subhead{
   display: block;
-  margin: 1.5em 0.8em 0.8em 0em;
+  margin: 1.3em 0.8em 0em 0em;
   font-size: 0.8em;
   font-weight: bold;
 }
@@ -160,26 +161,38 @@
 .editable-panel.is-editable .field-value {
   display: block;
   margin-left: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .editable-panel.is-editable .field-title {
   display: block;
-  font-size: 1.6rem;
-  margin: 1rem 0;
+  font-size: 1.4rem;
+  margin: .8rem 0;
 }
 
 .editable-panel.is-editable .panel-field {
   border: 0;
-  margin: 1rem 0 1rem;
+  margin: .8rem 0 .8rem;
 }
 
 .editable-panel.is-editable .panel-subhead {
-  margin-top: 3rem;
+  margin-top: 2rem;
   display: block;
-  font-size: 1.7rem;
+  font-size: 1.5rem;
+}
+
+.editable-panel.is-editable .field-with-units {
+  font-size: 1.4rem;
 }
 
 .disable-edit .editable-panel-edit {
   display: none;
+}
+
+.editable-panel.is-editable label {
+  margin-top: 1rem;
+}
+
+.editable-panel.is-editable .usa-input-label {
+  font-size: 1.4rem;
 }
