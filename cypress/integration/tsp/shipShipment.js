@@ -1,4 +1,5 @@
 import { testPremoveSurvey } from '../../support/testPremoveSurvey';
+import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
 
 /* global cy */
 describe('TSP User Ships a Shipment', function() {
@@ -12,16 +13,12 @@ describe('TSP User Ships a Shipment', function() {
 
   it('tsp user enters a delivery date', function() {
     tspUserVisitsAnInTransitShipment('ENTDEL');
-    tspUserVerifiesShipmentStatus('In_transit');
+    tspUserVerifiesShipmentStatus('Inbound');
     tspUserCancelsEnteringADeliveryDate();
     tspUserEntersADeliveryDate();
     tspUserVerifiesShipmentStatus('Delivered');
   });
 });
-
-function tspUserVerifiesShipmentStatus(status) {
-  cy.get('.move-info-header-meta > li').contains(`Status: ${status}`);
-}
 
 function tspUserCancelsEnteringADeliveryDate() {
   cy
@@ -283,7 +280,7 @@ function tspUserEntersPackAndPickUpInfo() {
   });
 
   // New status
-  cy.get('li').contains('In_transit');
+  tspUserVerifiesShipmentStatus('Inbound');
 }
 
 function tspUserDeliversShipment() {
@@ -352,5 +349,5 @@ function tspUserDeliversShipment() {
     .click();
 
   // New status
-  cy.get('li').contains('Delivered');
+  tspUserVerifiesShipmentStatus('Delivered');
 }

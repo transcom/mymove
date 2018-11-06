@@ -1,4 +1,5 @@
 import { fillAndSavePremoveSurvey, testPremoveSurvey } from '../../support/testPremoveSurvey';
+import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
 
 /* global cy */
 describe('TSP User Completes Premove Survey', function() {
@@ -12,6 +13,7 @@ describe('TSP User Completes Premove Survey', function() {
     tspUserClicksEnterPreMoveSurvey();
     tspUserFillsInPreMoveSurvey();
     tspUserVerifiesPreMoveSurveyEntered();
+    tspUserVerifiesShipmentStatus('Pre-move survey complete');
   });
 });
 
@@ -49,10 +51,7 @@ function tspUserClicksEnterPreMoveSurvey() {
   });
 
   // Status should be Approved for "Enter pre-move survey" button to exist
-  cy
-    .get('li')
-    .get('b')
-    .contains('Approved');
+  tspUserVerifiesShipmentStatus('Awaiting pre-move survey');
 
   cy
     .get('button')

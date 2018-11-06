@@ -1,3 +1,5 @@
+import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
+
 /* global cy */
 describe('TSP User Views Shipment', function() {
   beforeEach(() => {
@@ -80,11 +82,8 @@ function tspUserViewsInTransitShipments() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Status should be In Transit
-  cy
-    .get('li')
-    .get('b')
-    .contains('In_transit');
+  // Status
+  tspUserVerifiesShipmentStatus('Inbound');
 
   cy.get('a').contains('In Transit Shipments Queue');
 }
@@ -109,11 +108,8 @@ function tspUserViewsDeliveredShipments() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Delivered');
+  // Status
+  tspUserVerifiesShipmentStatus('Delivered');
 
   cy.get('a').contains('Delivered Shipments Queue');
 }
@@ -138,11 +134,8 @@ function tspUserViewsAcceptedShipments() {
     .contains('BACON3')
     .dblclick();
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Accepted');
+  // Status
+  tspUserVerifiesShipmentStatus('Shipment accepted');
 
   cy.get('a').contains('Accepted Shipments Queue');
 }
@@ -171,11 +164,8 @@ function tspUserViewsApprovedShipments() {
     .contains('APPRVD')
     .dblclick();
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Approved');
+  // Status
+  tspUserVerifiesShipmentStatus('Awaiting pre-move survey');
 
   cy.get('a').contains('Approved Shipments Queue');
 }
@@ -200,11 +190,8 @@ function tspUserViewsCompletedShipments() {
     .contains('NOCHKA')
     .dblclick();
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Completed');
+  // Status
+  tspUserVerifiesShipmentStatus('Delivered');
 
   cy.get('a').contains('Completed Shipments Queue');
 }

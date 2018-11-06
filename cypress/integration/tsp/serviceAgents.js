@@ -5,6 +5,7 @@ import {
   userInputsServiceAgent,
   userSavesServiceAgent,
 } from '../../support/testTspServiceAgents';
+import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
 
 /* global cy */
 describe('TSP User enters and updates Service Agents', function() {
@@ -102,10 +103,7 @@ function tspUserAcceptsShipment() {
   });
 
   // Status should be Awarded
-  cy
-    .get('li')
-    .get('b')
-    .contains('Awarded');
+  tspUserVerifiesShipmentStatus('Shipment awarded');
 
   cy.get('a').contains('New Shipments Queue');
 
@@ -120,10 +118,7 @@ function tspUserAcceptsShipment() {
     .click();
 
   // Status should be Accepted
-  cy
-    .get('li')
-    .get('b')
-    .contains('Accepted');
+  tspUserVerifiesShipmentStatus('Shipment accepted');
 
   cy.get('a').contains('Accepted Shipments Queue');
 }
@@ -142,10 +137,7 @@ function tspUserClicksAssignServiceAgent(locator) {
   });
 
   // Status should be Accepted or Approved for "Assign servicing agents" button to exist
-  cy
-    .get('li')
-    .get('b')
-    .contains('Accepted');
+  tspUserVerifiesShipmentStatus('Shipment accepted');
 
   cy
     .get('button')
