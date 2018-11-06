@@ -71,24 +71,32 @@ const WeightsEdit = props => {
         <div className="editable-panel-column">
           <div className="column-head">Weights</div>
           <PanelSwaggerField fieldName="weight_estimate" required title="Customer estimate" {...fieldProps} />
-          <SwaggerField
-            className="short-field"
-            fieldName="pm_survey_weight_estimate"
-            title="TSP estimate"
-            swagger={schema}
-          />{' '}
-          lbs
+          <div className="field-with-units">
+            <SwaggerField
+              className="short-field"
+              fieldName="pm_survey_weight_estimate"
+              title="TSP estimate"
+              swagger={schema}
+            />{' '}
+            lbs
+          </div>
           <div className="column-subhead">Actual Weights</div>
-          <SwaggerField className="short-field" fieldName="gross_weight" swagger={schema} required /> lbs
-          <SwaggerField className="short-field" fieldName="tare_weight" swagger={schema} required /> lbs
-          <SwaggerField
-            title="Net (Gross - Tare)"
-            className="short-field"
-            fieldName="net_weight"
-            swagger={schema}
-            required
-          />{' '}
-          lbs
+          <div className="field-with-units">
+            <SwaggerField className="short-field" fieldName="gross_weight" swagger={schema} required /> lbs
+          </div>
+          <div className="field-with-units">
+            <SwaggerField className="short-field" fieldName="tare_weight" swagger={schema} required /> lbs
+          </div>
+          <div className="field-with-units">
+            <SwaggerField
+              title="Net (Gross - Tare)"
+              className="short-field"
+              fieldName="net_weight"
+              swagger={schema}
+              required
+            />{' '}
+            lbs
+          </div>
         </div>
         <div className="editable-panel-column">
           <div className="column-head">
@@ -102,20 +110,24 @@ const WeightsEdit = props => {
             </span>
           </PanelField>
           <div className="column-subhead">TSP Estimate</div>
-          <SwaggerField
-            className="short-field"
-            fieldName="pm_survey_progear_weight_estimate"
-            title="Service member"
-            swagger={schema}
-          />{' '}
-          lbs
-          <SwaggerField
-            className="short-field"
-            fieldName="pm_survey_spouse_progear_weight_estimate"
-            title="Spouse"
-            swagger={schema}
-          />{' '}
-          lbs
+          <div className="field-with-units">
+            <SwaggerField
+              className="short-field"
+              fieldName="pm_survey_progear_weight_estimate"
+              title="Service member"
+              swagger={schema}
+            />{' '}
+            lbs
+          </div>
+          <div className="field-with-units">
+            <SwaggerField
+              className="short-field"
+              fieldName="pm_survey_spouse_progear_weight_estimate"
+              title="Spouse"
+              swagger={schema}
+            />{' '}
+            lbs
+          </div>
         </div>
       </FormSection>
     </Fragment>
