@@ -12,7 +12,7 @@ function mergeEntities(entities, newEntities) {
       ...result[key],
       ...newEntities[key],
     };
-    /* eslint-disable security/detect-object-injection */
+    /* eslint-enable security/detect-object-injection */
   });
 
   return result;
