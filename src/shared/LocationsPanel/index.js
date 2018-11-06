@@ -179,7 +179,7 @@ const mapStateToProps = state => {
     newDutyStation,
 
     initialValues: {
-      pickup_address: shipment.pickup_address,
+      pickup_address: get(shipment, 'pickup_address', {}),
       delivery_address: get(shipment, 'delivery_address', {}),
       secondary_pickup_address: get(shipment, 'secondary_pickup_address', {}),
       has_delivery_address: shipment.has_delivery_address,
