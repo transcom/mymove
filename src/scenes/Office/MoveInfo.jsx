@@ -9,7 +9,7 @@ import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import LocationsPanel from 'shared/LocationsPanel';
+import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
@@ -92,7 +92,7 @@ const HHGTabContent = props => {
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
       <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
-      <LocationsPanel update={props.patchShipment} />
+      <LocationsContainer update={props.patchShipment} />
       <Weights title="Weights & Items" shipment={props.shipment} update={props.patchShipment} />
       {props.officeShipment && (
         <PremoveSurvey
