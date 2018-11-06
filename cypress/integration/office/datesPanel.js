@@ -9,7 +9,7 @@ describe('office user interacts with premove survey', function() {
     officeUserGoesToDatesPanel('ODATES');
     userEntersDates();
   });
-  it('tsp user completes dates panel and zeroes it out', function() {
+  it('office user completes dates panel and zeroes it out', function() {
     officeUserGoesToDatesPanel('ODATE0');
     userEntersAndRemovesDates();
   });

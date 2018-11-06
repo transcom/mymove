@@ -436,3 +436,7 @@ head .panel-subhead {
 .expense-panel table > tbody > tr > td:last-child {
   font-weight: normal;
 }
+.notes {
+  white-space: normal;
+  word-wrap: break-word;
+}
