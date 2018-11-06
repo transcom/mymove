@@ -11,7 +11,7 @@ import Alert from 'shared/Alert';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import './index.css';
+import './PremoveSurvey.css';
 
 const surveyFields = [
   'pm_survey_conducted_date',
