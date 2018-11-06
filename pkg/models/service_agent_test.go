@@ -2,6 +2,7 @@ package models_test
 
 import (
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_ServiceAgentValidations() {
@@ -14,4 +15,35 @@ func (suite *ModelSuite) Test_ServiceAgentValidations() {
 	}
 
 	suite.verifyValidationErrors(serviceAgent, expErrors)
+}
+
+// Test_FetchServiceAgentsOnShipment tests that a shipment's service agents are returned when we fetch.
+func (suite *ModelSuite) Test_FetchServiceAgentsOnShipment() {
+	t := suite.T()
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	// Make 2 Service Agents on a shipment
+	testdatagen.MakeServiceAgent(suite.db, testdatagen.Assertions{
+		ServiceAgent: ServiceAgent{
+			ShipmentID: shipment.ID,
+			Shipment:   &shipment,
+		},
+	})
+	testdatagen.MakeServiceAgent(suite.db, testdatagen.Assertions{
+		ServiceAgent: ServiceAgent{
+			Role:       RoleDESTINATION,
+			ShipmentID: shipment.ID,
+			Shipment:   &shipment,
+		},
+	})
+	// And 1 Service Agent on a different shipment
+	testdatagen.MakeDefaultServiceAgent(suite.db)
+
+	serviceAgents, err := FetchServiceAgentsOnShipment(suite.db, shipment.ID)
+
+	// Expect 2 service agents returned
+	if err != nil {
+		t.Errorf("Failed to find Service Agents: %v", err)
+	} else if len(serviceAgents) != 2 {
+		t.Errorf("Returned incorrect number of service agents. Expected 2, got %v", len(serviceAgents))
+	}
 }
