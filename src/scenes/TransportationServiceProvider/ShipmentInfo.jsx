@@ -14,7 +14,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
-import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
@@ -55,6 +54,7 @@ import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import PickupForm from './PickupForm';
+import PremoveSurveyForm from './PremoveSurveyForm';
 
 import './tsp.css';
 
@@ -125,12 +125,10 @@ class ShipmentInfo extends Component {
     super(props);
 
     this.assignTspServiceAgent = React.createRef();
-    this.enterPreMoveSurvey = React.createRef();
   }
   state = {
     redirectToHome: false,
     editTspServiceAgent: false,
-    editPreMoveSurvey: false,
   };
 
   componentDidMount() {
@@ -161,6 +159,8 @@ class ShipmentInfo extends Component {
     });
   };
 
+  enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
+
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
@@ -175,18 +175,6 @@ class ShipmentInfo extends Component {
   toggleEditTspServiceAgent = () => {
     this.scrollToTspServiceAgentPanel();
     this.setEditTspServiceAgent(true);
-  };
-
-  // Access Pre Move Survey Panels
-  setEditPreMoveSurvey = editPreMoveSurvey => this.setState({ editPreMoveSurvey });
-
-  scrollToPreMoveSurveyPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.enterPreMoveSurvey.current);
-    domNode.scrollIntoView();
-  };
-  toggleEditPreMoveSurvey = () => {
-    this.scrollToPreMoveSurveyPanel();
-    this.setEditPreMoveSurvey(true);
   };
 
   render() {
@@ -383,9 +371,12 @@ class ShipmentInfo extends Component {
                   </div>
                 )}
               {canEnterPreMoveSurvey && (
-                <button className="usa-button-primary" onClick={this.toggleEditPreMoveSurvey}>
-                  Enter pre-move survey
-                </button>
+                <FormButton
+                  FormComponent={PremoveSurveyForm}
+                  schema={this.props.shipmentSchema}
+                  onSubmit={this.enterPreMoveSurvey}
+                  buttonTitle="Enter pre-move survey"
+                />
               )}
               {canAssignServiceAgents && (
                 <button className="usa-button-primary" onClick={this.toggleEditTspServiceAgent}>
@@ -413,14 +404,6 @@ class ShipmentInfo extends Component {
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <PremoveSurvey
-                    ref={this.enterPreMoveSurvey}
-                    editPreMoveSurvey={this.state.editPreMoveSurvey}
-                    setEditPreMoveSurvey={this.setEditPreMoveSurvey}
-                    title="Premove Survey"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <TspContainer
                     ref={this.assignTspServiceAgent}
@@ -494,6 +477,7 @@ const mapStateToProps = state => {
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
     gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
