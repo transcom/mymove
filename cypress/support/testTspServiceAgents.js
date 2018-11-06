@@ -69,8 +69,6 @@ export function userClearsServiceAgent(role) {
 }
 
 export function userCancelsServiceAgent(role) {
-  const fixture = getFixture(role);
-
   cy
     .get('button')
     .contains('Cancel')
@@ -80,20 +78,6 @@ export function userCancelsServiceAgent(role) {
     .get('button')
     .contains('Cancel')
     .click();
-
-  // Verify data has been saved in the UI
-  cy
-    .get('div.company')
-    .get('span')
-    .contains('missing');
-  cy
-    .get('div.email')
-    .get('span')
-    .contains('missing');
-  cy
-    .get('div.phone_number')
-    .get('span')
-    .contains('missing');
 }
 
 export function userSavesServiceAgent(role) {
