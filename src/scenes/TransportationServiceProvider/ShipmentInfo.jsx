@@ -50,7 +50,7 @@ import {
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
-import LocationsContainer from './LocationsContainer';
+import LocationsPanel from 'shared/LocationsPanel';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -411,7 +411,7 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <LocationsContainer update={this.props.patchShipment} />
+                  <LocationsPanel update={this.props.patchShipment} />
                 </div>
               )}
             </div>

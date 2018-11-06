@@ -4,7 +4,7 @@ describe('Office User Checks Shipment Locations', function() {
     cy.signIntoOffice();
   });
 
-  it('tsp user primary pickup location', function() {
+  it('office user primary pickup location', function() {
     const address = {
       street_1: '123 Any Street',
       street_2: 'P.O. Box 12345',
@@ -23,7 +23,7 @@ describe('Office User Checks Shipment Locations', function() {
     officeUserViewsLocation({ shipmentId: 'BACON3', type: 'Pickup', expectation });
   });
 
-  it('tsp user primary delivery location when delivery address exists', function() {
+  it('office user primary delivery location when delivery address exists', function() {
     const address = {
       street_1: '987 Any Avenue',
       street_2: 'P.O. Box 9876',
@@ -46,7 +46,7 @@ describe('Office User Checks Shipment Locations', function() {
     });
   });
 
-  it('tsp user primary delivery location when delivery address does not exist', function() {
+  it('office user primary delivery location when delivery address does not exist', function() {
     const address = {
       city: 'Beverly Hills',
       state: 'CA',
@@ -101,16 +101,16 @@ function officeUserViewsLocation({ shipmentId, type, expectation }) {
     });
 }
 
-describe('TSP User Completes Locations Panel', function() {
+describe('office user Completes Locations Panel', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  it('tsp user completes locations panel', function() {
-    tspUserEntersLocations();
+  it('office user completes locations panel', function() {
+    officeUserEntersLocations();
   });
 });
 
-function tspUserEntersLocations() {
+function officeUserEntersLocations() {
   const deliveryAddress = {
     street_1: '500 Something Avenue',
     city: 'Grandfather',

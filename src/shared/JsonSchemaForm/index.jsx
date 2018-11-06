@@ -62,7 +62,6 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
   // first, check that all required fields are present
   if (spec.required) {
     spec.required.forEach(requiredFieldName => {
-      // console.log('all logged stuff', values, spec, requiredFieldName);
       if (values[requiredFieldName] === undefined || values[requiredFieldName] === '') {
         // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
         let schemaForKey = spec.properties[requiredFieldName];
@@ -87,7 +86,6 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
     let schemaForKey = spec.properties[key];
     if (schemaForKey) {
       if (schemaForKey.type === 'object') {
-        console.log('line 90', values, key);
         let subErrors = recursivelyValidateRequiredFields(values[key], schemaForKey);
         if (!isEmpty(subErrors)) {
           requiredErrors[key] = subErrors;
@@ -107,7 +105,6 @@ export const validateRequiredFields = (values, form) => {
   const swaggerSpec = form.schema;
   let requiredErrors;
   if (swaggerSpec && !isEmpty(swaggerSpec)) {
-    console.log('values on line 109', values);
     requiredErrors = recursivelyValidateRequiredFields(values, swaggerSpec);
   }
   return requiredErrors;
