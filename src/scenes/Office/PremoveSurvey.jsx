@@ -11,7 +11,7 @@ import Alert from 'shared/Alert';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import './index.css';
+import './office.css';
 
 const surveyFields = [
   'pm_survey_conducted_date',
@@ -111,7 +111,6 @@ export function PreMoveSurveyEditablePanelify(DisplayComponent, EditComponent, e
     cancel = () => {
       this.props.reset();
       this.setIsEditable(false);
-      this.props.setEditPreMoveSurvey(false);
     };
     setIsEditable = isEditable => this.setState({ isEditable });
     render() {
