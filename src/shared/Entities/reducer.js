@@ -1,34 +1,30 @@
-import { cloneDeep, last, startsWith } from 'lodash';
+import { each, clone, omit, mapValues, last, startsWith } from 'lodash';
 
 import { ADD_ENTITIES } from 'shared/Entities/actions';
 
 // merge new entities into existing entities
 function mergeEntities(entities, newEntities) {
-  Object.keys(newEntities).forEach(function(key) {
+  // shallow clone to mutate
+  let result = clone(entities);
+  each(newEntities, function(_value, key) {
     /* eslint-disable security/detect-object-injection */
-    entities[key] = {
-      ...entities[key],
+    result[key] = {
+      ...result[key],
       ...newEntities[key],
     };
-    /* eslint-enable security/detect-object-injection */
+    /* eslint-disable security/detect-object-injection */
   });
-  return entities;
+
+  return result;
 }
 
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
-  // immutable update pattern
-  let mutateEntities = cloneDeep(entities);
-  Object.keys(deleteEntities).forEach(function(key) {
-    /* eslint-disable security/detect-object-injection */
-    if (mutateEntities[key]) {
-      Object.keys(deleteEntities[key]).forEach(function(id) {
-        delete mutateEntities[key][id];
-      });
-    }
-    /* eslint-enable security/detect-object-injection */
+  return mapValues(entities, function(value, key) {
+    // eslint-disable-next-line
+    const idsToDelete = Object.keys(deleteEntities[key] || {});
+    return omit(value, idsToDelete);
   });
-  return mutateEntities;
 }
 
 const initialState = {
