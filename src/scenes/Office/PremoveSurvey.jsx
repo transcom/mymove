@@ -111,7 +111,6 @@ export function PreMoveSurveyEditablePanelify(DisplayComponent, EditComponent, e
     cancel = () => {
       this.props.reset();
       this.setIsEditable(false);
-      this.props.setEditPreMoveSurvey(false);
     };
     setIsEditable = isEditable => this.setState({ isEditable });
     render() {
