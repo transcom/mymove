@@ -2,6 +2,7 @@ import {
   userClearsServiceAgent,
   userInputsServiceAgent,
   userSavesServiceAgent,
+  userCancelsServiceAgent,
 } from '../../support/testTspServiceAgents';
 
 /* global cy */
@@ -9,6 +10,12 @@ describe('office user can view service agents', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
+
+  it('office user opens and cancels service agent panel', function() {
+    officeUserEntersServiceAgents();
+    userCancelsServiceAgent();
+  });
+
   it('office user views and edits service agent panels', function() {
     officeUserEntersServiceAgents();
     userClearsServiceAgent('Origin');

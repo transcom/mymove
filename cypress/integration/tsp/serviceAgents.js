@@ -16,12 +16,14 @@ describe('TSP User enters and updates Service Agents', function() {
     tspUserSeesNoServiceAgent('Origin');
     userInputsServiceAgent('Origin');
     userCancelsServiceAgent('Origin');
+    tspUserViewsBlankServiceAgent();
   });
   it('tsp user enters and cancels destination service agent', function() {
     tspUserEntersServiceAgent();
     tspUserSeesNoServiceAgent('Destination');
     userInputsServiceAgent('Destination');
     userCancelsServiceAgent('Destination');
+    tspUserViewsBlankServiceAgent();
   });
   it('tsp user enters origin and destination service agents', function() {
     tspUserEntersServiceAgent();
@@ -59,6 +61,22 @@ function tspUserSeesNoServiceAgent(role) {
   cy.get('input[name="' + fixture.Role + '.company"]').should('have.value', '');
   cy.get('input[name="' + fixture.Role + '.email"]').should('have.value', '');
   cy.get('input[name="' + fixture.Role + '.phone_number"]').should('have.value', '');
+}
+
+function tspUserViewsBlankServiceAgent() {
+  // Verify data has been saved in the UI
+  cy
+    .get('div.company')
+    .get('span')
+    .contains('missing');
+  cy
+    .get('div.email')
+    .get('span')
+    .contains('missing');
+  cy
+    .get('div.phone_number')
+    .get('span')
+    .contains('missing');
 }
 
 function tspUserEntersServiceAgent() {
