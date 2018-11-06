@@ -95,13 +95,13 @@
   text-decoration: none;
 }
 
-.office-tab.editable-panel.is-editable .editable-panel-header {
+.office-tab .editable-panel.is-editable .editable-panel-header {
   background: rgb(176,176,176);
   border-color: rgb(176,176,176);
   color: white;
 }
 
-.office-tab.editable-panel.is-editable .editable-panel-content {
+.office-tab .editable-panel.is-editable .editable-panel-content {
   border-style: dashed;
   border-color: rgb(176,176,176);
 }
