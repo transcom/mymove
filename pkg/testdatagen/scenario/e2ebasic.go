@@ -1808,9 +1808,9 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	 */
 	email := "hhg@ready_to.invoice"
 	netWeight := unit.Pound(3000)
-	packDate := time.Now().AddDate(0, 0, 1)
-	pickupDate := time.Now().AddDate(0, 0, 5)
-	deliveryDate := time.Now().AddDate(0, 0, 10)
+	packDate := time.Date(2018, 11, 5, 0, 0, 0, 0, time.UTC)
+	pickupDate := time.Date(2018, 11, 8, 0, 0, 0, 0, time.UTC)
+	deliveryDate := time.Date(2018, 11, 19, 0, 0, 0, 0, time.UTC)
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
@@ -1863,6 +1863,8 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			PmSurveyPlannedDeliveryDate: &deliveryDate,
 			NetWeight:                   &netWeight,
 			ActualPickupDate:            &pickupDate,
+			OriginalDeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:          &deliveryDate,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -1875,14 +1877,17 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 		},
 	})
 
-	testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{TransportationServiceProvider: tspUser.TransportationServiceProvider,
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			TrafficDistributionListID:       *offer.Shipment.TrafficDistributionListID,
+			QualityBand:                     models.IntPointer(3),
+			BestValueScore:                  0.40,
+			OfferCount:                      5,
+			LinehaulRate:                    unit.DiscountRate(0.50),
+			SITRate:                         unit.DiscountRate(0.55),
+		},
+	})
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
