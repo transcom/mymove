@@ -197,13 +197,13 @@ describe('completing the hhg flow', function() {
 
     cy.contains('Pick a moving date');
     cy.get('.DayPicker-Body').then($body => {
-      if ($body.find('.DayPicker-Body').length === 0) {
+      if ($body.find('.DayPicker-Day--transit[aria-disabled=false]').length === 0) {
         cy.get('.DayPicker-NavButton--next').click();
       }
     });
     cy
-      .get('.DayPicker-Day')
-      .last()
+      .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
+      .first()
       .click()
       .should('have.class', 'DayPicker-Day--selected')
       .invoke('attr', 'aria-label')
@@ -235,6 +235,8 @@ describe('completing the hhg flow', function() {
   });
 });
 
+// Verify that the date shown on the review page for loading is the same date
+// that dateLabel was most recently set to.
 function checkLoadingDate() {
   cy
     .get('.hhg-shipment-summary .hhg-dates tr')
