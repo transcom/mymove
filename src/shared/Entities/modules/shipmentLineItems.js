@@ -2,7 +2,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getPublicClient } from 'shared/Swagger/api';
 import { shipmentLineItems } from '../schema';
 import { denormalize } from 'normalizr';
-import { get, orderBy } from 'lodash';
+import { get, orderBy, filter, map } from 'lodash';
 import { createSelector } from 'reselect';
 
 export function createShipmentLineItem(label, shipmentId, payload) {
@@ -42,3 +42,16 @@ export const approveShipmentLineItemLabel = 'ShipmentLineItems.approveShipmentLi
 export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLineItem';
 
 export const selectShipmentLineItem = (state, id) => denormalize([id], shipmentLineItems, state.entities)[0];
+
+export const selectUnbilledShipmentLineItemsForShipment = (state, shipmentId) => {
+  const items = filter(state.entities.shipmentLineItems, item => {
+    return item.shipment_id === shipmentId && !item.invoice_id;
+  });
+
+  //this denormalize step can be skipped because tariff400ng_item data is already available under items
+  //but this is the right way to hydrate the data structure so leaving it in
+  let denormItems = denormalize(map(items, 'id'), shipmentLineItems, state.entities);
+  return denormItems.filter(item => {
+    return !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED';
+  });
+};
