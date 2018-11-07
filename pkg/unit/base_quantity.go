@@ -20,6 +20,11 @@ import (
 // TH = Hours
 type BaseQuantity int
 
+// BaseQuantityFromInt creates a BaseQuantity for a provided int
+func BaseQuantityFromInt(i int) BaseQuantity {
+	return BaseQuantity(i * 10000)
+}
+
 // String returns the value of self as string
 func (bq BaseQuantity) String() string {
 	return strconv.Itoa(int(bq))
