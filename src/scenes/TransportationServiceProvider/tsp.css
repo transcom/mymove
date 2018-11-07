@@ -257,3 +257,7 @@
   animation-fill-mode: forwards;
   animation-duration: 2s;
 }
+
+.icon-grey {
+  color: rgba(171,171,171,1.00);
+}
