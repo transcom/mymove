@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import BasicPanel from 'shared/BasicPanel';
-import { selectShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import { selectUnbilledShipmentLineItemsForShipment } from 'shared/Entities/modules/shipmentLineItems';
 import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 
 export class InvoicePanel extends Component {
@@ -17,7 +17,7 @@ export class InvoicePanel extends Component {
 
   render() {
     let invoicingContent = <span className="empty-content">No line items</span>;
-    if (this.props.shipmentLineItems.length > 0 || this.props.tariff400ngItems.length > 0) {
+    if (this.props.shipmentLineItems.length > 0) {
       //stand up a table
     }
 
@@ -31,14 +31,12 @@ export class InvoicePanel extends Component {
 
 InvoicePanel.propTypes = {
   shipmentLineItems: PropTypes.array,
-  tariff400ngItems: PropTypes.array,
   shipmentId: PropTypes.string,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   return {
-    shipmentLineItems: selectShipmentLineItems(state),
-    tariff400ngItems: selectTariff400ngItems(state),
+    shipmentLineItems: selectUnbilledShipmentLineItemsForShipment(state, ownProps.shipmentId),
   };
 }
 

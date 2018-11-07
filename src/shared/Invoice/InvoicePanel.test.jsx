@@ -8,7 +8,6 @@ import { InvoicePanel } from './InvoicePanel';
 describe('InvoicePanel tests', () => {
   let wrapper;
   const shipmentLineItems = [''];
-  const tariff400ng_items = [''];
   const mockStore = configureStore();
   let store;
   beforeEach(() => {
@@ -16,7 +15,7 @@ describe('InvoicePanel tests', () => {
 
     wrapper = mount(
       <Provider store={store}>
-        <InvoicePanel shipmentLineItems={shipmentLineItems} tariff400ng_items={tariff400ng_items} />
+        <InvoicePanel shipmentLineItems={shipmentLineItems} />
       </Provider>,
     );
   });
