@@ -1,6 +1,6 @@
 package dpsapi
 
-import "github.com/gobuffalo/uuid"
+import "github.com/gofrs/uuid"
 
 type errUserMissingData struct {
 	userID     uuid.UUID
