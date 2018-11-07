@@ -506,7 +506,7 @@ export const MoveSummary = withContext(props => {
             {/* ToDo: Replace this url */}
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <a href="#">
+                <a href="">
                   <FontAwesomeIcon icon={faPlus} />
                   Add PPM Shipment
                 </a>
