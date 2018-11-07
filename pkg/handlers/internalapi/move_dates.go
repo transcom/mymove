@@ -30,8 +30,8 @@ func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveI
 		return summary, errors.New("NewDutyStation must have an address")
 	}
 
-	if move.Orders.NewDutyStation.Address == move.Orders.ServiceMember.DutyStation.Address {
-		return summary, errors.New("NewDutyStation must not have the same address as original DutyStation")
+	if move.Orders.NewDutyStation.Address.PostalCode[0:5] == move.Orders.ServiceMember.DutyStation.Address.PostalCode[0:5] {
+		return summary, errors.New("NewDutyStation must not have the same zip code as the original DutyStation")
 	}
 
 	var source = move.Orders.ServiceMember.DutyStation.Address
