@@ -27,16 +27,17 @@ func payloadForTariff400ngItemModel(a *models.Tariff400ngItem) *apimessages.Tari
 	}
 
 	return &apimessages.Tariff400ngItem{
-		ID:           *handlers.FmtUUID(a.ID),
-		Code:         *handlers.FmtString(a.Code),
-		DiscountType: *handlers.FmtString(string(a.DiscountType)),
-		Item:         *handlers.FmtString(a.Item),
-		Location:     apimessages.Tariff400ngItemLocation(string(a.AllowedLocation)),
-		RefCode:      *handlers.FmtString(string(a.RateRefCode)),
-		Uom1:         *handlers.FmtString(string(a.MeasurementUnit1)),
-		Uom2:         *handlers.FmtString(string(a.MeasurementUnit2)),
-		CreatedAt:    *handlers.FmtDateTime(a.CreatedAt),
-		UpdatedAt:    *handlers.FmtDateTime(a.UpdatedAt),
+		ID:                  *handlers.FmtUUID(a.ID),
+		Code:                *handlers.FmtString(a.Code),
+		DiscountType:        *handlers.FmtString(string(a.DiscountType)),
+		Item:                *handlers.FmtString(a.Item),
+		Location:            apimessages.Tariff400ngItemLocation(string(a.AllowedLocation)),
+		RefCode:             *handlers.FmtString(string(a.RateRefCode)),
+		Uom1:                *handlers.FmtString(string(a.MeasurementUnit1)),
+		Uom2:                *handlers.FmtString(string(a.MeasurementUnit2)),
+		RequiresPreApproval: *handlers.FmtBool(a.RequiresPreApproval),
+		CreatedAt:           *handlers.FmtDateTime(a.CreatedAt),
+		UpdatedAt:           *handlers.FmtDateTime(a.UpdatedAt),
 	}
 }
 

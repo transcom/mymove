@@ -216,6 +216,9 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      requires_pre_approval:
+        type: boolean
+        title: Requires pre-approval
   ShipmentLineItems:
     type: array
     items:
