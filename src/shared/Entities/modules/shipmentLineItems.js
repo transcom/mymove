@@ -43,7 +43,7 @@ export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLine
 
 export const selectShipmentLineItem = (state, id) => denormalize([id], shipmentLineItems, state.entities)[0];
 
-export const selectUnbilledShipmentLineItemsForShipment = (state, shipmentId) => {
+const selectUnbilledShipmentLineItems = (state, shipmentId) => {
   const items = filter(state.entities.shipmentLineItems, item => {
     return item.shipment_id === shipmentId && !item.invoice_id;
   });
@@ -55,3 +55,5 @@ export const selectUnbilledShipmentLineItemsForShipment = (state, shipmentId) =>
     return !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED';
   });
 };
+
+export const makeGetUnbilledShipmentLineItems = () => createSelector([selectUnbilledShipmentLineItems], items => items);

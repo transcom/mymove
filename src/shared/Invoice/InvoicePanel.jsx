@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import BasicPanel from 'shared/BasicPanel';
-import { selectUnbilledShipmentLineItemsForShipment } from 'shared/Entities/modules/shipmentLineItems';
+import { makeGetUnbilledShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 
 export class InvoicePanel extends Component {
@@ -35,8 +35,10 @@ InvoicePanel.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+  //
+  const getLineItems = makeGetUnbilledShipmentLineItems();
   return {
-    shipmentLineItems: selectUnbilledShipmentLineItemsForShipment(state, ownProps.shipmentId),
+    shipmentLineItems: getLineItems(state, ownProps.shipmentId),
   };
 }
 
