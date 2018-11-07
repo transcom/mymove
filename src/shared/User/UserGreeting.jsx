@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 const UserGreeting = ({ isLoggedIn, firstName }) =>
-  isLoggedIn && (
+  isLoggedIn &&
+  firstName && (
     <span>
       <strong>Welcome, {firstName}</strong>
     </span>

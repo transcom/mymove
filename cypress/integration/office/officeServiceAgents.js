@@ -1,15 +1,33 @@
+import {
+  userClearsServiceAgent,
+  userInputsServiceAgent,
+  userSavesServiceAgent,
+  userCancelsServiceAgent,
+} from '../../support/testTspServiceAgents';
+
 /* global cy */
 describe('office user can view service agents', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  it('office user views service agent panels', function() {
-    officeUserViewsServiceAgents();
+
+  it('office user opens and cancels service agent panel', function() {
+    officeUserEntersServiceAgents();
+    userCancelsServiceAgent();
+  });
+
+  it('office user views and edits service agent panels', function() {
+    officeUserEntersServiceAgents();
+    userClearsServiceAgent('Origin');
+    userInputsServiceAgent('OriginUpdate');
+    userClearsServiceAgent('Destination');
+    userInputsServiceAgent('DestinationUpdate');
+    userSavesServiceAgent('OriginUpdate');
   });
 });
 
-function officeUserViewsServiceAgents() {
-  // Open new moves queue
+function officeUserEntersServiceAgents() {
+  // Open all moves queue
   cy.visit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
@@ -36,4 +54,11 @@ function officeUserViewsServiceAgents() {
 
   // Verify that the Service Agent Panel contains expected data
   cy.get('span').contains('ACME Movers');
+
+  // Click on edit Service Agent
+  cy
+    .get('.editable-panel-header')
+    .contains('TSP & Servicing Agents')
+    .siblings()
+    .click();
 }

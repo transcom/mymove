@@ -112,11 +112,7 @@ function officeUserEntersNetWeight() {
   openMoveHhgPanel();
   // Check that the initial display view for net weight is correct
   withinWeightsAndItemsPanel(() => {
-    cy.get('.net_weight').should($div => {
-      const text = $div.text();
-      expect(text).to.include('Actual');
-      expect(text).to.include('missing');
-    });
+    cy.get('.net_weight').should('not.exist');
   });
 
   cy

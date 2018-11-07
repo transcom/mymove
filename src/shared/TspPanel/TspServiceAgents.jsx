@@ -1,18 +1,11 @@
-import React, { Component, Fragment } from 'react';
 import { get } from 'lodash';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues } from 'redux-form';
+import { reduxForm, FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { createOrUpdateServiceAgent } from './ducks';
-
-import { PanelSwaggerField } from 'shared/EditablePanel';
-
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { ServiceAgentDisplay, ServiceAgentEdit } from './ServiceAgentViews';
 
 // TODO: Refactor when we switch to using a wizard
 // Editable panel specific to Assign Service Agents. Due to not using a wizard to assign the service agents this
@@ -86,14 +79,14 @@ export class ServiceAgentEditablePanel extends Component {
 // TODO: Refactor when we switch to using a wizard
 // Editable panel specific to Assign Servivce Agents. Due to not using a wizard to assign the service agents this
 // panel has highly specific behavior (opening the edit view via clicking on Assign Service Agents button)
-export function ServiceAgentEditablePanelify(DisplayComponent, EditComponent, editEnabled = true) {
+export function TspEditablePanelify(DisplayComponent, EditComponent, editEnabled = true) {
   const Wrapper = class extends Component {
     state = {
       isEditable: false,
     };
 
     componentDidUpdate = (prevProps, prevState) => {
-      if (!prevProps.editOriginServiceAgent && this.props.editOriginServiceAgent) {
+      if (!prevProps.editTspServiceAgent && this.props.editTspServiceAgent) {
         this.setIsEditable(true);
       }
     };
@@ -110,9 +103,7 @@ export function ServiceAgentEditablePanelify(DisplayComponent, EditComponent, ed
     cancel = () => {
       this.props.reset();
       this.setIsEditable(false);
-      if (this.props.title === 'Origin Service Agent') {
-        this.props.setEditServiceAgent(false);
-      }
+      this.props.setEditTspServiceAgent(false);
     };
 
     setIsEditable = isEditable => this.setState({ isEditable });
@@ -169,113 +160,53 @@ ServiceAgentEditablePanel.defaultProps = {
   editEnabled: true,
 };
 
-const ServiceAgentDisplay = props => {
-  let serviceAgent = props.initialValues || {};
+const TSPDisplay = props => {
+  const originSAProps = {
+    schema: props.saSchema,
+    values: props.origin_service_agent,
+  };
 
-  const fieldProps = {
-    schema: props.schema,
-    values: serviceAgent,
+  const destinationSAProps = {
+    schema: props.saSchema,
+    values: props.destination_service_agent,
   };
   return (
     <Fragment>
-      <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="company" required {...fieldProps} />
-        <PanelSwaggerField fieldName="email" required {...fieldProps} />
-        <PanelSwaggerField fieldName="phone_number" required {...fieldProps} />
-      </div>
+      <ServiceAgentDisplay serviceAgentProps={originSAProps} saRole="Origin" />
+      <ServiceAgentDisplay serviceAgentProps={destinationSAProps} saRole="Destination" />
     </Fragment>
   );
 };
 
-const ServiceAgentEdit = props => {
-  const schema = props.schema;
+const TSPEdit = props => {
+  const saSchema = props.saSchema;
+  const originValues = get(props, 'formValues.ORIGIN', {});
+  const destinationValues = get(props, 'formValues.DESTINATION', {});
+
   return (
     <Fragment>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="company" swagger={schema} required />
-        <SwaggerField fieldName="email" swagger={schema} required />
-        <SwaggerField fieldName="phone_number" swagger={schema} required />
-      </div>
+      <FormSection name="origin_service_agent">
+        <ServiceAgentEdit
+          serviceAgentProps={{
+            swagger: saSchema,
+            values: originValues,
+          }}
+          saRole="Origin"
+        />
+      </FormSection>
+      <FormSection name="destination_service_agent">
+        <ServiceAgentEdit serviceAgentProps={{ swagger: saSchema, values: destinationValues }} saRole="Destination" />
+      </FormSection>
     </Fragment>
   );
 };
 
-const formName = 'service_agents_panel';
+let TspPanel = TspEditablePanelify(TSPDisplay, TSPEdit);
 
-let ServiceAgentPanel = ServiceAgentEditablePanelify(ServiceAgentDisplay, ServiceAgentEdit);
-
-ServiceAgentPanel = reduxForm({
-  form: formName,
+TspPanel = reduxForm({
+  // formName passed in implicitly by container
   enableReinitialize: true,
   keepDirtyOnReinitialize: true,
-})(ServiceAgentPanel);
+})(TspPanel);
 
-const ServiceAgents = props => {
-  const { schema } = props;
-
-  if (!schema) {
-    return <LoadingPlaceholder />;
-  }
-
-  return (
-    <Fragment>
-      <ServiceAgentPanel
-        form="origin_service_agent"
-        title="Origin Service Agent"
-        editOriginServiceAgent={props.editOriginServiceAgent}
-        setEditServiceAgent={props.setEditServiceAgent}
-        update={props.update}
-        schema={props.schema}
-        initialValues={props.initialValues.ORIGIN}
-        getUpdateArgs={props.getOriginUpdateArgs}
-      />
-
-      <ServiceAgentPanel
-        form="destination_service_agent"
-        title="Destination Service Agent"
-        update={props.update}
-        schema={props.schema}
-        initialValues={props.initialValues.DESTINATION}
-        getUpdateArgs={props.getDestinationUpdateArgs}
-      />
-    </Fragment>
-  );
-};
-
-function mapStateToProps(state, props) {
-  let originFormValues = getFormValues('origin_service_agent')(state);
-  let destFormValues = getFormValues('destination_service_agent')(state);
-  let serviceAgents = props.serviceAgents;
-  let initialValues = {};
-  // This returns the last value. Currently there should only be one record for each role.
-  serviceAgents.forEach(agent => (initialValues[agent.role] = agent));
-
-  return {
-    // reduxForm
-    schema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', null),
-    initialValues,
-
-    hasError: false,
-    errorMessage: get(state, 'tsp.error', {}),
-    isUpdating: false,
-
-    // editablePanel
-    getOriginUpdateArgs: function() {
-      return [get(props, 'shipment.id'), Object.assign({}, originFormValues, { role: 'ORIGIN' })];
-    },
-    getDestinationUpdateArgs: function() {
-      return [get(props, 'shipment.id'), Object.assign({}, destFormValues, { role: 'DESTINATION' })];
-    },
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      update: createOrUpdateServiceAgent,
-    },
-    dispatch,
-  );
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ServiceAgents);
+export default TspPanel;
