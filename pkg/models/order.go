@@ -207,7 +207,7 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 }
 
 // CreateNewMove creates a move associated with these Orders
-func (o *Order) CreateNewMove(db *pop.Connection, moveType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
+func (o *Order) CreateNewMove(db *pop.Connection, moveType *SelectedMoveType) (*Move, *validate.Errors, error) {
 	return createNewMove(db, *o, moveType)
 }
 

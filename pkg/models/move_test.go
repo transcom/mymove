@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -24,9 +23,9 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := testdatagen.MakeDefaultOrder(suite.db)
-	var selectedType = internalmessages.SelectedMoveTypeHHG
+	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
@@ -53,9 +52,9 @@ func (suite *ModelSuite) TestFetchMove() {
 		ServiceMemberID: order1.ServiceMemberID,
 		ApplicationName: auth.MyApp,
 	}
-	var selectedType = internalmessages.SelectedMoveTypeHHG
+	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := order1.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
@@ -96,9 +95,9 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -122,9 +121,9 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	reason := ""
@@ -189,9 +188,9 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -223,9 +222,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = ""
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -239,9 +238,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -269,8 +268,8 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	selectedMoveType := SelectedMoveTypeHHGPPM
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 

@@ -16,7 +16,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		orders = MakeOrder(db, assertions)
 	}
 
-	defaultMoveType := "PPM"
+	defaultMoveType := models.SelectedMoveTypePPM
 	selectedMoveType := assertions.Move.SelectedMoveType
 	if selectedMoveType == nil {
 		selectedMoveType = &defaultMoveType

@@ -623,7 +623,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		models.MoveDocumentTypeGOVBILLOFLADING,
 		string("Government Bill Of Lading"),
 		swag.String(""),
-		string(apimessages.SelectedMoveTypeHHG),
+		models.SelectedMoveType(apimessages.SelectedMoveTypeHHG),
 	)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

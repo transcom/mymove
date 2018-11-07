@@ -210,7 +210,6 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
-	selectedType := internalmessages.SelectedMoveTypeCOMBO
 	suite.mustSave(&uploadedOrder)
 	orders := Order{
 		ServiceMemberID:     serviceMember1.ID,
@@ -230,7 +229,8 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	}
 	suite.mustSave(&orders)
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	selectedMoveType := SelectedMoveTypeHHGPPM
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders

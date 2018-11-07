@@ -137,7 +137,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
 	destinationGBLOC := "HAFC"
-	selectedMoveType := "HHG"
+	selectedMoveType := models.SelectedMoveTypeHHG
 	if len(statuses) == 0 {
 		// Statuses for shipments attached to a shipment offer should not be DRAFT or SUBMITTED
 		// because this should be after the award queue has run and SUBMITTED shipments have been awarded
