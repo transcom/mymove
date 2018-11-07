@@ -28,7 +28,7 @@ import {
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
   getAllShipmentLineItems,
-  selectShipmentLineItems,
+  selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 
@@ -466,7 +466,7 @@ const mapStateToProps = state => {
     shipmentDocuments,
     gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
-    shipmentLineItems: selectShipmentLineItems(state),
+    shipmentLineItems: selectSortedShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     tsp: get(state, 'tsp'),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
