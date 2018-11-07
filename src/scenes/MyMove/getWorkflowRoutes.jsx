@@ -72,6 +72,11 @@ const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType !== 'HHG';
 const isCombo = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'COMBO';
+const _isCombo = ({ selectedMoveType }) => {
+  console.log('selectedMoveType', selectedMoveType);
+  // TODO: Once a move is made combo, use isCombo instead: https://www.pivotaltracker.com/story/show/161467476
+  return true;
+};
 
 const pages = {
   '/service-member/:serviceMemberId/create': {
@@ -241,7 +246,17 @@ const pages = {
       return <Agreement pages={pages} pageKey={key} match={match} />;
     },
   },
+  '/moves/:moveId/combo-start': {
+    isInFlow: _isCombo,
+    isComplete: (sm, orders, move, ppm) => {
+      return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
+    },
+    render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={comboMovePages} pageKey={key} match={match} />,
+  },
 };
+
+const comboMovePages = ['/moves/:moveId/combo-start'];
+
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
     // eslint-disable-next-line security/detect-object-injection

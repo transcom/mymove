@@ -63,6 +63,7 @@ export class DateAndLocation extends Component {
   };
 
   render() {
+    console.log('props', this.props);
     const { pages, pageKey, error, currentOrders, initialValues, sitReimbursement, hasEstimateError } = this.props;
     return (
       <DateAndLocationWizardForm
