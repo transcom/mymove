@@ -19,6 +19,9 @@ import { Link } from 'react-router-dom';
 import { withContext } from 'shared/AppContext';
 import StatusTimelineContainer from './StatusTimeline';
 
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
+
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
   const currentStation = get(profile, 'current_station');
@@ -501,7 +504,13 @@ export const MoveSummary = withContext(props => {
           </div>
           <div>
             {/* ToDo: Replace this url */}
-            {showAddShipmentLink && hhgAndPpmEnabled && <a href="#">Add Shipment</a>}
+            {showAddShipmentLink &&
+              hhgAndPpmEnabled && (
+                <a href="#">
+                  <FontAwesomeIcon icon={faPlus} />
+                  Add PPM Shipment
+                </a>
+              )}
           </div>
           <div className="contact_block">
             <div className="title">Contacts</div>
