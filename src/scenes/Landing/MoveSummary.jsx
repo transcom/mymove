@@ -508,7 +508,7 @@ export const MoveSummary = withContext(props => {
               hhgAndPpmEnabled && (
                 <a href="">
                   <FontAwesomeIcon icon={faPlus} />
-                  Add PPM Shipment
+                  <span> Add PPM Shipment</span>
                 </a>
               )}
           </div>
