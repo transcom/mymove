@@ -73,9 +73,6 @@ function tspUserSeesEstimatedWeights() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  selectPreMoveSurveyPanel();
-  fillAndSavePremoveSurvey();
-
   // Check that the display view is correct for the estimated weights
   withinWeightsAndItemsPanel(() => testReadOnlyWeights);
 

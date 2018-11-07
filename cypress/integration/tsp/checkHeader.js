@@ -1,3 +1,5 @@
+import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
+
 /* global cy */
 describe('TSP User Checks Shipment Info Header', function() {
   beforeEach(() => {
@@ -28,7 +30,10 @@ function tspUserViewsHeaderInfo() {
   cy.contains('MOVE INFO — HHG CODE D');
 
   // Check the name is correct
-  cy.get('h1').contains('Submitted, HHG');
+  cy.get('div').contains('Submitted, HHG');
+
+  // Check the status
+  tspUserVerifiesShipmentStatus('Shipment awarded');
 
   // Check the info bar
   cy
@@ -40,8 +45,6 @@ function tspUserViewsHeaderInfo() {
     .contains('li', 'LKBM to LKBM')
     .parentsUntil('div')
     .contains('li', 'DoD ID# 4444567890')
-    .parentsUntil('div')
-    .contains('li', 'Status: Awarded')
     .parentsUntil('div')
     .contains('li', '555-555-5555');
 }

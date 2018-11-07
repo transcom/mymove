@@ -203,3 +203,57 @@
 .infoPanel-wizard .infoPanel-wizard-help {
   margin-bottom: 0px;
 }
+
+.page-title {
+  display: flex;
+  align-items: flex-end;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.move-info {
+  display: block;
+}
+
+.move-info-code {
+  text-transform: uppercase;
+  display: block;
+}
+
+.service-member-name {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 4rem;
+}
+
+@keyframes shipmentStatusFade {
+  from {
+    background-color: rgb(231, 244, 228);
+    color: rgb(46, 133, 64);
+  }
+
+  to {
+    background-color: rgb(241, 241, 241);
+    color: #212121;
+  }
+}
+
+.shipment-status {
+  display: inline-block;
+  font-weight: bold;
+  margin-left: 24px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  position: relative;
+
+  /* Fall back color if animation doesn't work */
+  background-color: rgb(241, 241, 241);
+  color: #212121;
+
+  /* Animation to fade from green to black/grey */
+  animation: shipmentStatusFade ease-in 1;
+  animation-fill-mode: forwards;
+  animation-duration: 2s;
+}

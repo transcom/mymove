@@ -1,3 +1,5 @@
+import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
+
 /* global cy */
 describe('TSP User generates GBL', function() {
   beforeEach(() => {
@@ -6,6 +8,7 @@ describe('TSP User generates GBL', function() {
 
   it('tsp user generates GBL from shipment info page', function() {
     tspUserGeneratesGBL();
+    tspUserVerifiesShipmentStatus('Outbound');
   });
 
   it('tsp user can open a GBL from the shipment info page', function() {

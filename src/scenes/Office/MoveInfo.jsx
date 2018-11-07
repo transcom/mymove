@@ -25,7 +25,7 @@ import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
-import PremoveSurvey from 'shared/PremoveSurvey';
+import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -36,7 +36,7 @@ import {
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
   getAllShipmentLineItems,
-  selectShipmentLineItems,
+  selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 
@@ -471,7 +471,7 @@ const mapStateToProps = state => ({
   moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
   tariff400ngItems: selectTariff400ngItems(state),
   serviceAgents: get(state, 'tsp.serviceAgents', []),
-  shipmentLineItems: selectShipmentLineItems(state),
+  shipmentLineItems: selectSortedShipmentLineItems(state),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),

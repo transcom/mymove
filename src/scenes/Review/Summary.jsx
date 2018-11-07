@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
-import { getMove } from 'shared/Entities/modules/moves';
+import { getMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -36,7 +36,7 @@ export class Summary extends Component {
 
   render() {
     const {
-      getCurrentMove,
+      currentMove,
       currentPpm,
       currentShipment,
       currentBackupContacts,
@@ -68,7 +68,7 @@ export class Summary extends Component {
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert type="success" heading={editSuccessBlurb} />
           )}
-        {getCurrentMove &&
+        {currentMove &&
           this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert type="info" heading={editSuccessBlurb + 'Note that the entitlement has also changed.'}>
@@ -120,7 +120,7 @@ function mapStateToProps(state, ownProps) {
     currentPpm: state.ppm.currentPpm,
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
-    getCurrentMove: getMove(state, ownProps.match.params.moveId),
+    currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),

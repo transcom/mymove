@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { get, capitalize } from 'lodash';
+import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
@@ -14,7 +14,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
-import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
@@ -29,7 +28,7 @@ import {
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
   getAllShipmentLineItems,
-  selectShipmentLineItems,
+  selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 
@@ -55,6 +54,7 @@ import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import PickupForm from './PickupForm';
+import PremoveSurveyForm from './PremoveSurveyForm';
 
 import './tsp.css';
 
@@ -125,12 +125,10 @@ class ShipmentInfo extends Component {
     super(props);
 
     this.assignTspServiceAgent = React.createRef();
-    this.enterPreMoveSurvey = React.createRef();
   }
   state = {
     redirectToHome: false,
     editTspServiceAgent: false,
-    editPreMoveSurvey: false,
   };
 
   componentDidMount() {
@@ -161,6 +159,8 @@ class ShipmentInfo extends Component {
     });
   };
 
+  enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
+
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
@@ -175,18 +175,6 @@ class ShipmentInfo extends Component {
   toggleEditTspServiceAgent = () => {
     this.scrollToTspServiceAgentPanel();
     this.setEditTspServiceAgent(true);
-  };
-
-  // Access Pre Move Survey Panels
-  setEditPreMoveSurvey = editPreMoveSurvey => this.setState({ editPreMoveSurvey });
-
-  scrollToPreMoveSurveyPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.enterPreMoveSurvey.current);
-    domNode.scrollIntoView();
-  };
-  toggleEditPreMoveSurvey = () => {
-    this.scrollToPreMoveSurveyPanel();
-    this.setEditPreMoveSurvey(true);
   };
 
   render() {
@@ -224,6 +212,24 @@ class ShipmentInfo extends Component {
     const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
 
+    // Some statuses are directly related to the shipment status and some to combo states
+    var statusText = 'Unknown status';
+    if (awarded) {
+      statusText = 'Shipment awarded';
+    } else if (accepted) {
+      statusText = 'Shipment accepted';
+    } else if (approved && !pmSurveyComplete) {
+      statusText = 'Awaiting pre-move survey';
+    } else if (approved && pmSurveyComplete && !gblGenerated) {
+      statusText = 'Pre-move survey complete';
+    } else if (approved && pmSurveyComplete && gblGenerated) {
+      statusText = 'Outbound';
+    } else if (inTransit) {
+      statusText = 'Inbound';
+    } else if (delivered || completed) {
+      statusText = 'Delivered';
+    }
+
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -235,11 +241,16 @@ class ShipmentInfo extends Component {
     return (
       <div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds">
-            MOVE INFO &mdash; {move.selected_move_type} CODE {shipment.traffic_distribution_list.code_of_service}
-            <h1>
-              {serviceMember.last_name}, {serviceMember.first_name}
-            </h1>
+          <div className="usa-width-two-thirds page-title">
+            <div className="move-info">
+              <div className="move-info-code">
+                MOVE INFO &mdash; {move.selected_move_type} CODE {shipment.traffic_distribution_list.code_of_service}
+              </div>
+              <div className="service-member-name">
+                {serviceMember.last_name}, {serviceMember.first_name}
+              </div>
+            </div>
+            <div className="shipment-status">Status: {statusText}</div>
           </div>
           <div className="usa-width-one-third nav-controls">
             {awarded && (
@@ -312,10 +323,6 @@ class ShipmentInfo extends Component {
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
                 &nbsp;
               </li>
-              <li>
-                Status: <b>{capitalize(this.props.shipment.status)}</b>
-                &nbsp;
-              </li>
             </ul>
           </div>
         </div>
@@ -364,9 +371,12 @@ class ShipmentInfo extends Component {
                   </div>
                 )}
               {canEnterPreMoveSurvey && (
-                <button className="usa-button-primary" onClick={this.toggleEditPreMoveSurvey}>
-                  Enter pre-move survey
-                </button>
+                <FormButton
+                  FormComponent={PremoveSurveyForm}
+                  schema={this.props.shipmentSchema}
+                  onSubmit={this.enterPreMoveSurvey}
+                  buttonTitle="Enter pre-move survey"
+                />
               )}
               {canAssignServiceAgents && (
                 <button className="usa-button-primary" onClick={this.toggleEditTspServiceAgent}>
@@ -394,14 +404,7 @@ class ShipmentInfo extends Component {
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <PremoveSurvey
-                    ref={this.enterPreMoveSurvey}
-                    editPreMoveSurvey={this.state.editPreMoveSurvey}
-                    setEditPreMoveSurvey={this.setEditPreMoveSurvey}
-                    title="Premove Survey"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
+                  <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <TspContainer
                     ref={this.assignTspServiceAgent}
@@ -411,7 +414,6 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <LocationsContainer update={this.props.patchShipment} />
                 </div>
               )}
             </div>
@@ -464,7 +466,7 @@ const mapStateToProps = state => {
     shipmentDocuments,
     gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
-    shipmentLineItems: selectShipmentLineItems(state),
+    shipmentLineItems: selectSortedShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
     tsp: get(state, 'tsp'),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
@@ -475,6 +477,7 @@ const mapStateToProps = state => {
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
     gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
