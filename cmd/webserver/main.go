@@ -26,6 +26,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
@@ -106,7 +107,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
 	flag.String("http-dps-server-name", "dpslocal", "Hostname according to environment.")
-	flag.String("http-sddc-server-name", "localhost", "Hostname according to envrionment.")
+	flag.String("http-sddc-server-name", "sddclocal", "Hostname according to envrionment.")
 
 	// Initialize Swagger
 	flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
@@ -445,6 +446,9 @@ func main() {
 	}
 	handlerContext.SetIWSRealTimeBrokerService(*rbs)
 
+	sddcHostname := v.GetString("http-sddc-server-name")
+	handlerContext.SetSDDCHostname(sddcHostname)
+
 	// Base routes
 	site := goji.NewMux()
 	// Add middleware: they are evaluated in the reverse order in which they
@@ -481,6 +485,13 @@ func main() {
 	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
+
+	sddcDPSMux := goji.SubMux()
+	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, sddcHostname)
+	sddcDPSMux.Use(sddcDetectionMiddleware)
+	sddcDPSMux.Use(noCacheMiddleware)
+	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
+	sddcDPSMux.Handle(pat.Get("/set_cookie"), dpsauth.NewSetCookieHandler(logger))
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)

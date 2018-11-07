@@ -1,7 +1,9 @@
 package internalapi
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -18,20 +20,20 @@ const cookieExpiresInHours = 1
 // SetDPSAuthCookieOKResponder is a custom responder that sets the DPS authentication cookie
 // when writing the response
 type SetDPSAuthCookieOKResponder struct {
-	cookie http.Cookie
+	request     *http.Request
+	redirectURL string
 }
 
 // NewSetDPSAuthCookieOKResponder creates a new SetDPSAuthCookieOKResponder
-func NewSetDPSAuthCookieOKResponder(cookie http.Cookie) *SetDPSAuthCookieOKResponder {
-	return &SetDPSAuthCookieOKResponder{cookie: cookie}
+func NewSetDPSAuthCookieOKResponder(r *http.Request, url string) *SetDPSAuthCookieOKResponder {
+	return &SetDPSAuthCookieOKResponder{request: r, redirectURL: url}
 }
 
 // WriteResponse to the client
 func (o *SetDPSAuthCookieOKResponder) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-	http.SetCookie(rw, &o.cookie)
+	//rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-	rw.WriteHeader(200)
+	http.Redirect(rw, o.request, o.redirectURL, http.StatusSeeOther)
 }
 
 // DPSAuthCookieHandler handles the authentication process for DPS
@@ -39,27 +41,29 @@ type DPSAuthCookieHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle sets the cookie necessary for beginning the authentication process for DPS
+// Handle begins the authentication process for DPS
 func (h DPSAuthCookieHandler) Handle(params dps_auth.SetDPSAuthCookieParams) middleware.Responder {
 	cookieName := "DPS"
 	if params.CookieName != nil {
 		cookieName = *params.CookieName
 	}
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	request := params.HTTPRequest
+	session := auth.SessionFromRequestContext(request)
 	user, err := models.GetUser(h.DB(), session.UserID)
 	if err != nil {
 		h.Logger().Error("Fetching user", zap.Error(err))
 		return dps_auth.NewSetDPSAuthCookieInternalServerError()
 	}
-	cookie, err := dpsauth.LoginGovIDToCookie(user.LoginGovUUID.String())
+	redirectURL, err := url.Parse(fmt.Sprintf("http://%s:8080%s", h.SDDCHostname(), dpsauth.SetCookiePath))
 	if err != nil {
-		h.Logger().Error("Converting user ID to cookie value", zap.Error(err))
+		h.Logger().Error("Creating redirect URL", zap.Error(err))
 		return dps_auth.NewSetDPSAuthCookieInternalServerError()
 	}
-
-	cookie.Name = cookieName
-	cookie.Domain = ".sddc.army.mil"
-	cookie.Path = "/"
-	return NewSetDPSAuthCookieOKResponder(*cookie)
+	q := redirectURL.Query()
+	q.Set("login_gov_id", user.LoginGovUUID.String())
+	q.Set("cookie_name", cookieName)
+	redirectURL.RawQuery = q.Encode()
+	fmt.Println(redirectURL.String())
+	return NewSetDPSAuthCookieOKResponder(request, redirectURL.String())
 }
