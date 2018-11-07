@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestIndexServiceAgentsHandler() {
+func (suite *HandlerSuite) TestTspUserIndexServiceAgentsHandler() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -29,6 +29,35 @@ func (suite *HandlerSuite) TestIndexServiceAgentsHandler() {
 	path := fmt.Sprintf("/shipments/%s/service_agents", shipment.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
+	params := serviceagentop.IndexServiceAgentsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	handler := IndexServiceAgentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&serviceagentop.IndexServiceAgentsOK{}, response)
+	okResponse := response.(*serviceagentop.IndexServiceAgentsOK)
+
+	suite.Equal(2, len(okResponse.Payload))
+}
+
+func (suite *HandlerSuite) TestOfficeUserIndexServiceAgentsHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	shipment := shipments[0]
+
+	// And: the context contains the auth values
+	path := fmt.Sprintf("/shipments/%s/service_agents", shipment.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 	params := serviceagentop.IndexServiceAgentsParams{
 		HTTPRequest: req,
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),

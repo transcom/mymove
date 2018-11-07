@@ -1,3 +1,5 @@
+import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
+
 /* global cy */
 describe('TSP User Views Shipment', function() {
   beforeEach(() => {
@@ -28,6 +30,9 @@ function tspUserViewsNewShipments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
+
+  // Find title
+  cy.get('h1').contains('Queue: New Shipments');
 
   // Find shipment and check properties in row
   cy
@@ -64,6 +69,9 @@ function tspUserViewsInTransitShipments() {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: In Transit Shipments');
+
   // Find in transit (generated in e2ebasic.go) and open it
   cy
     .get('div')
@@ -74,11 +82,8 @@ function tspUserViewsInTransitShipments() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Status should be In Transit
-  cy
-    .get('li')
-    .get('b')
-    .contains('In_transit');
+  // Status
+  tspUserVerifiesShipmentStatus('Inbound');
 
   cy.get('a').contains('In Transit Shipments Queue');
 }
@@ -90,6 +95,9 @@ function tspUserViewsDeliveredShipments() {
     expect(loc.pathname).to.match(/^\/queues\/delivered/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: Delivered Shipments');
+
   // Find delivered shipment (generated in e2ebasic.go) and open it
   cy
     .get('div')
@@ -100,11 +108,8 @@ function tspUserViewsDeliveredShipments() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Delivered');
+  // Status
+  tspUserVerifiesShipmentStatus('Delivered');
 
   cy.get('a').contains('Delivered Shipments Queue');
 }
@@ -120,17 +125,17 @@ function tspUserViewsAcceptedShipments() {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: Accepted Shipments');
+
   // Find shipment
   cy
     .get('div')
     .contains('BACON3')
     .dblclick();
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Accepted');
+  // Status
+  tspUserVerifiesShipmentStatus('Shipment accepted');
 
   cy.get('a').contains('Accepted Shipments Queue');
 }
@@ -146,6 +151,9 @@ function tspUserViewsApprovedShipments() {
     expect(loc.pathname).to.match(/^\/queues\/approved/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: Approved Shipments');
+
   // Find shipment
   cy
     .get('div')
@@ -156,11 +164,8 @@ function tspUserViewsApprovedShipments() {
     .contains('APPRVD')
     .dblclick();
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Approved');
+  // Status
+  tspUserVerifiesShipmentStatus('Awaiting pre-move survey');
 
   cy.get('a').contains('Approved Shipments Queue');
 }
@@ -176,17 +181,17 @@ function tspUserViewsCompletedShipments() {
     expect(loc.pathname).to.match(/^\/queues\/completed/);
   });
 
+  // Find title
+  cy.get('h1').contains('Queue: Completed Shipments');
+
   // Find shipment
   cy
     .get('div')
     .contains('NOCHKA')
     .dblclick();
 
-  // Status should be Delivered
-  cy
-    .get('li')
-    .get('b')
-    .contains('Completed');
+  // Status
+  tspUserVerifiesShipmentStatus('Delivered');
 
   cy.get('a').contains('Completed Shipments Queue');
 }

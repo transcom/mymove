@@ -13,6 +13,12 @@ describe('setting up service member profile', function() {
 
 function serviceMemberProfile(reloadAfterEveryPage) {
   //dod info
+  // does not have welcome message throughout setup
+  cy
+    .get('span')
+    .contains('Welcome,')
+    .should('not.exist');
+
   cy.get('button.next').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
   cy.get('input[name="edipi"]').type('1234567890');

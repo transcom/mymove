@@ -27,6 +27,13 @@ export class Summary extends Component {
       this.props.onDidMount();
     }
   }
+  componentDidUpdate(prevProps) {
+    // Only check entitlement for PPMs, not HHGs
+    if (prevProps.currentPpm !== this.props.currentPpm) {
+      this.props.onCheckEntitlement(this.props.match.params.moveId);
+    }
+  }
+
   render() {
     const {
       currentMove,
@@ -97,7 +104,7 @@ export class Summary extends Component {
 
 Summary.propTypes = {
   currentBackupContacts: PropTypes.array,
-  currentMove: PropTypes.object,
+  getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPpm: PropTypes.object,
   currentShipment: PropTypes.object,
@@ -134,7 +141,9 @@ function mapDispatchToProps(dispatch, ownProps) {
           dispatch(getShipment('Summary.getShipment', shipment.id));
         });
       });
-      dispatch(checkEntitlement(moveID));
+    },
+    onCheckEntitlement: moveId => {
+      dispatch(checkEntitlement(moveId));
     },
   };
 }

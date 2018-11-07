@@ -337,7 +337,7 @@ func updateShipmentDatesWithPayload(h handlers.HandlerContext, shipment *models.
 
 	moveDate := time.Time(*payload.RequestedPickupDate)
 
-	summary, err := calculateMoveDates(h.DB(), h.Planner(), shipment.MoveID, moveDate)
+	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), shipment.MoveID, moveDate)
 	if err != nil {
 		return nil
 	}
