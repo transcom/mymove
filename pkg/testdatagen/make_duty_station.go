@@ -9,6 +9,14 @@ import (
 
 // MakeDutyStation creates a single DutyStation
 func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStation {
+	// Check if assertions have duty station name -
+	// if so, fetch duty station and transportation address and Address
+	// If no assertions, try to fetch Yuma AFB - if it doesn't exist, create it
+	defaultStation, err := models.FetchDutyStationByName(db, "Yuma AFB")
+	if err == nil {
+		return defaultStation
+	}
+
 	transportationOffice := assertions.DutyStation.TransportationOffice
 	if assertions.DutyStation.TransportationOfficeID == nil {
 		transportationOffice = MakeTransportationOffice(db, assertions)
