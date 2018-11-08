@@ -264,7 +264,7 @@ export const SubmittedHhgMoveSummary = props => {
   );
 };
 
-export const ApprovedMoveSummary = withContext(props => {
+export const ApprovedMoveSummary = props => {
   const { ppm, orders, profile, move, entitlement, requestPaymentSuccess } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.planned_move_date, 'YYYY-MM-DD').isSameOrBefore();
@@ -346,7 +346,7 @@ export const ApprovedMoveSummary = withContext(props => {
       </div>
     </Fragment>
   );
-});
+};
 
 const PPMMoveDetails = props => {
   const { ppm } = props;
