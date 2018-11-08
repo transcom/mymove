@@ -529,4 +529,4 @@ export const MoveSummaryWithoutContext = props => {
   );
 };
 
-export const MoveSummary = props => withContext(<MoveSummaryWithoutContext {...props} />);
+export const MoveSummary = withContext(MoveSummaryWithoutContext);
