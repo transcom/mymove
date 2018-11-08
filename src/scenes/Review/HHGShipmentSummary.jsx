@@ -13,11 +13,12 @@ import { displayDateRange } from 'shared/formatters';
 import './Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { movePath, shipment, entitlements } = props;
+  const { shipment, entitlements } = props;
 
-  const editDatePath = movePath + '/edit-hhg-date';
-  const editWeightsPath = movePath + '/edit-hhg-weights';
-  const editLocationsPath = movePath + '/edit-hhg-locations';
+  const shipmentPath = `/shipments/${shipment.id}/review`;
+  const editDatePath = shipmentPath + '/edit-hhg-dates';
+  const editWeightsPath = shipmentPath + '/edit-hhg-weights';
+  const editLocationsPath = shipmentPath + '/edit-hhg-locations';
   const pack = get(shipment, 'move_dates_summary.pack', []);
   const pickup = get(shipment, 'move_dates_summary.pickup', []);
   const transit = get(shipment, 'move_dates_summary.transit', []);
@@ -28,39 +29,41 @@ export default function HHGShipmentSummary(props) {
       <h3>
         <img src={truckIcon} alt="HHG shipment" /> Shipment - Government moves all of your stuff (HHG)
       </h3>
-      <div className="usa-width-one-half review-section ppm-review-section">
-        <p className="heading">
-          Move Dates
-          <span className="not-implemented edit-section-link">
-            {' '}
-            <Link to={editDatePath}>Edit</Link>
-          </span>
-        </p>
+      <div className="usa-width-one-half review-section ppm-review-sections">
+        <div className="hhg-dates">
+          <p className="heading">
+            Move Dates
+            <span className="edit-section-link">
+              {' '}
+              <Link to={editDatePath}>Edit</Link>
+            </span>
+          </p>
 
-        <table>
-          <tbody>
-            <tr>
-              <td>Movers Packing: </td>
-              <td>{isEmpty(pack) ? 'TBD' : displayDateRange(pack)}</td>
-            </tr>
-            <tr>
-              <td>Loading Truck: </td>
-              <td>{isEmpty(pickup) ? 'TBD' : displayDateRange(pickup)}</td>
-            </tr>
-            <tr>
-              <td>Move in Transit:</td>
-              <td>{isEmpty(transit) ? 'TBD' : displayDateRange(transit)}</td>
-            </tr>
-            <tr>
-              <td>Delivery:</td>
-              <td>{isEmpty(delivery) ? 'TBD' : displayDateRange(delivery)}</td>
-            </tr>
-          </tbody>
-        </table>
+          <table>
+            <tbody>
+              <tr>
+                <td>Movers Packing: </td>
+                <td>{isEmpty(pack) ? 'TBD' : displayDateRange(pack)}</td>
+              </tr>
+              <tr>
+                <td>Loading Truck: </td>
+                <td>{isEmpty(pickup) ? 'TBD' : displayDateRange(pickup)}</td>
+              </tr>
+              <tr>
+                <td>Move in Transit:</td>
+                <td>{isEmpty(transit) ? 'TBD' : displayDateRange(transit)}</td>
+              </tr>
+              <tr>
+                <td>Delivery:</td>
+                <td>{isEmpty(delivery) ? 'TBD' : displayDateRange(delivery)}</td>
+              </tr>
+            </tbody>
+          </table>
 
-        <p className="notice">
-          Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.
-        </p>
+          <p className="notice">
+            Move dates are subject to change. Your mover will confirm final dates after your pre-move survey.
+          </p>
+        </div>
 
         <p className="heading">
           Your Stuff
@@ -130,6 +133,5 @@ export default function HHGShipmentSummary(props) {
 
 HHGShipmentSummary.propTypes = {
   shipment: PropTypes.object.isRequired,
-  movePath: PropTypes.string.isRequired,
   entitlements: PropTypes.object.isRequired,
 };

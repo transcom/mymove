@@ -17,7 +17,7 @@ export class DatesSummary extends Component {
     return isNil(this.props.moveDates) ? (
       <LoadingPlaceholder />
     ) : (
-      <table>
+      <table className="dates-summary">
         <tbody>
           <tr>
             <th colSpan="3">Preferred Moving Dates Summary</th>
@@ -25,7 +25,7 @@ export class DatesSummary extends Component {
 
           <tr>
             <td aria-label="pattern">
-              <div className="legend-square DayPicker-Day--pack" />
+              <div className="legend-square pack" />
             </td>
             <td className="legend-label">Movers Packing</td>
             <td>
@@ -35,21 +35,21 @@ export class DatesSummary extends Component {
           </tr>
           <tr>
             <td aria-label="pattern">
-              <div className="legend-square DayPicker-Day--pickup" />
+              <div className="legend-square pickup" />
             </td>
             <td className="legend-label"> Movers Loading Truck</td>
             <td>{displayDateRange(pickupDates)}</td>
           </tr>
           <tr>
             <td aria-label="pattern">
-              <div className="legend-square DayPicker-Day--transit" />
+              <div className="legend-square transit" />
             </td>
             <td className="legend-label">Moving Truck in Transit</td>
             <td>{displayDateRange(transitDates)}</td>
           </tr>
           <tr>
             <td aria-label="pattern">
-              <div className="legend-square DayPicker-Day--delivery" />
+              <div className="legend-square delivery" />
             </td>
             <td className="legend-label">Movers Delivering</td>
             <td>
@@ -59,7 +59,7 @@ export class DatesSummary extends Component {
           </tr>
           <tr>
             <td aria-label="pattern">
-              <div className="legend-square DayPicker-Day--report" />
+              <div className="legend-square report" />
             </td>
             <td className="legend-label">Report By Date</td>
             <td>{displayDateRange(reportDates)}</td>

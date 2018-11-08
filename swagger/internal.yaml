@@ -3086,8 +3086,8 @@ paths:
         500:
           description: server error
     get:
-      summary: Returns a Shipment for the given move
-      description: Returns a Shipment tied to the move ID
+      summary: Fetch a Shipment
+      description: Returns the shipment with the provided ID
       operationId: getShipment
       tags:
         - shipments

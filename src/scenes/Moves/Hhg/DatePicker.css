@@ -23,6 +23,10 @@ span.estimate {
   margin-left: 0.5rem;
 }
 
+.DayPicker-Day:focus {
+  outline: none;
+}
+
 .DayPicker-Day--pack {
   background-color: #a3bddf;
   border-radius: 0;
@@ -49,4 +53,18 @@ span.estimate {
   color: white;
   background-color: #000000;
   border-radius: 0;
+}
+
+.hhg-date-picker .instruction-heading {
+  padding: 1rem 0 3rem;
+}
+
+.hhg-date-picker .pack-days-notice {
+  padding-top: 3rem;
+}
+
+.hhg-date-picker .weight-info-box {
+  background-color: #eff5fc;
+  padding: 1.5rem;
+  border: 1px solid #d1d1d1;
 }
