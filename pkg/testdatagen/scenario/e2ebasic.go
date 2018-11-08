@@ -284,7 +284,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	dutyStationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
 		Address: models.Address{
-			StreetAddress1: "Sam Houston Blvd.",
+			StreetAddress1: "Fort Gordon",
 			City:           "Augusta",
 			State:          "GA",
 			PostalCode:     "30813",
@@ -294,7 +294,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	dutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
 		DutyStation: models.DutyStation{
-			Name:        "Fake Fort Sam Houston",
+			Name:        "Fort Doobity Bop",
 			Affiliation: internalmessages.AffiliationARMY,
 			AddressID:   dutyStationAddress.ID,
 			Address:     dutyStationAddress,
