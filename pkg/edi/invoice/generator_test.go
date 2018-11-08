@@ -1,9 +1,6 @@
 package ediinvoice_test
 
 import (
-	"log"
-	"testing"
-
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/edi/invoice"
@@ -11,6 +8,9 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"go.uber.org/zap"
+	"log"
+	"regexp"
+	"testing"
 )
 
 func (suite *InvoiceSuite) TestGenerate858C() {
@@ -28,9 +28,19 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	var costsByShipments []rateengine.CostByShipment
 	costsByShipments = append(costsByShipments, costByShipment)
 
-	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db)
+	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db, true)
 	suite.NoError(err, "generates error")
 	suite.NotEmpty(generatedResult, "result is empty")
+
+	re := regexp.MustCompile("\\*" + "T" + "\\*")
+	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to T."+
+		" This is set by the if statement in Generate858C() that checks a boolean variable named invoiceIsATest")
+
+	generatedResult, err = ediinvoice.Generate858C(costsByShipments, suite.db, false)
+
+	re = regexp.MustCompile("\\*" + "P" + "\\*")
+	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to P."+
+		" This is set by the if statement in Generate858C() that checks a boolean variable named invoiceIsATest")
 }
 
 type InvoiceSuite struct {

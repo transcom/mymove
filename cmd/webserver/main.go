@@ -145,6 +145,9 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("here-maps-app-id", "", "HERE maps App ID for this application")
 	flag.String("here-maps-app-code", "", "HERE maps App API code")
 
+	// EDI Invoice Config
+	flag.Bool("invoice-is-a-test", true, "Flag (bool) for EDI Invoices to signify if they are tests")
+
 	flag.String("storage-backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
@@ -338,6 +341,9 @@ func main() {
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
 	routePlanner := initRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
+
+	// Set InvoiceIsATest for ediinvoice
+	handlerContext.SetInvoiceIsATest(v.GetBool("invoice-is-a-test"))
 
 	storageBackend := v.GetString("storage-backend")
 
