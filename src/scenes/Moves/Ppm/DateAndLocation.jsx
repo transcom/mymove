@@ -63,7 +63,6 @@ export class DateAndLocation extends Component {
   };
 
   render() {
-    console.log('props', this.props);
     const { pages, pageKey, error, currentOrders, initialValues, sitReimbursement, hasEstimateError } = this.props;
     // TODO: Remove when selectedMoveType can be COMBO
     const isCombo = true;
