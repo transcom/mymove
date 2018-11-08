@@ -1,10 +1,3 @@
-/*InvoicePannel Table styles*/
-.invoice-panel {
-  border-width: 3px;
-  empty-cells: hide;
-  margin-bottom: 18px;
-}
-
 .empty-content {
-  font-size: 14px;
+  font-size: 0.8em;
 }
