@@ -462,7 +462,7 @@ export const MoveSummary = withContext(props => {
   const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
   const StatusComponent =
     move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
-  const hhgAndPpmEnabled = props.context.flags.hhgAndPpm;
+  const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
     move.selected_move_type === 'HHG' &&
     ['SUBMITTED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
