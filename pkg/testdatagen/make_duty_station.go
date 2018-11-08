@@ -17,7 +17,20 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 	address := assertions.DutyStation.Address
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.DutyStation.AddressID) {
-		address = MakeAddress(db, assertions)
+		address = MakeAddress3(db, assertions)
+
+		// Make the required Tariff 400 NG Zip3 to correspond with the duty station address
+		MakeDefaultTariff400ngZip3(db)
+		MakeTariff400ngZip3(db, Assertions{
+			Tariff400ngZip3: models.Tariff400ngZip3{
+				Zip3:          "503",
+				BasepointCity: "Des Moines",
+				State:         "IA",
+				ServiceArea:   "296",
+				RateArea:      "US53",
+				Region:        "7",
+			},
+		})
 	}
 
 	station := models.DutyStation{

@@ -259,6 +259,14 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 		return CostByShipment{}, errors.New("NetWeight is nil")
 	}
 
+	if shipment.ActualPickupDate == nil {
+		return CostByShipment{}, errors.New("ActualPickupDate is nil")
+	}
+
+	if shipment.PickupAddress.PostalCode[0:5] == shipment.Move.Orders.NewDutyStation.Address.PostalCode[0:5] {
+		return CostByShipment{}, errors.New("PickupAddress cannot have the same PostalCode as the NewDutyStation PostalCode")
+	}
+
 	// All required relationships should exist at this point.
 	daysInSIT := 0
 	var sitDiscount unit.DiscountRate
