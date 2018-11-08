@@ -4,7 +4,7 @@ describe('service member adds a ppm to an hhg', function() {
   it('service member clicks on Add PPM Shipment', function() {
     serviceMemberSignsIn('7980f0cf-63e3-4722-b5aa-ba46f8f7ac64');
     serviceMemberAddsPPMToHHG();
-    serviceMemeberCancelsAddPPMToHHG();
+    serviceMemberCancelsAddPPMToHHG();
     serviceMemberCannotAddPPMToHHG();
   });
 });
@@ -24,7 +24,7 @@ function serviceMemberAddsPPMToHHG() {
   });
 }
 
-function serviceMemeberCancelsAddPPMToHHG() {
+function serviceMemberCancelsAddPPMToHHG() {
   cy
     .get('.usa-button-secondary')
     .contains('Cancel')
