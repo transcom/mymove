@@ -469,7 +469,12 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 // FetchShipment Fetches and Validates a Shipment model
 func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
-	err := db.Eager().Find(&shipment, id)
+	err := db.Eager(
+		"Move.Orders.NewDutyStation.Address",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DeliveryAddress").Find(&shipment, id)
+
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound

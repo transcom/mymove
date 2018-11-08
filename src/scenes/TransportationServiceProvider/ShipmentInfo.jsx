@@ -49,7 +49,7 @@ import {
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
-import LocationsContainer from './LocationsContainer';
+import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
