@@ -30,6 +30,29 @@ describe('when getting the routes for the current workflow', () => {
         ]);
       });
     });
+    describe('given a HHG PPM move', () => {
+      const props = { selectedMoveType: 'HHG_PPM' };
+      const pages = getPagesInFlow(props);
+      it('getPagesInFlow returns profile review, the order and move pages', () => {
+        expect(pages).toEqual([
+          '/service-member/:serviceMemberId/create',
+          '/service-member/:serviceMemberId/name',
+          '/service-member/:serviceMemberId/contact-info',
+          '/service-member/:serviceMemberId/duty-station',
+          '/service-member/:serviceMemberId/residence-address',
+          '/service-member/:serviceMemberId/backup-mailing-address',
+          '/service-member/:serviceMemberId/backup-contacts',
+          '/service-member/:serviceMemberId/transition',
+          '/orders/',
+          '/orders/upload',
+          '/orders/transition',
+          '/moves/:moveId',
+          '/moves/:moveId/hhg-ppm-start',
+          '/moves/:moveId/review',
+          '/moves/:moveId/agreement',
+        ]);
+      });
+    });
     describe('given a canceled PPM', () => {
       const props = { lastMoveIsCanceled: true, selectedMoveType: 'PPM' };
       const pages = getPagesInFlow(props);

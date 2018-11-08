@@ -69,8 +69,8 @@ const always = () => true;
 // Todo: update this when moves can be completed
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
-const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType !== 'PPM';
-const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType !== 'HHG';
+const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG';
+const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
 const isCombo = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'COMBO';
 const hasHHGPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG_PPM';
 
@@ -235,7 +235,7 @@ const pages = {
     isComplete: (sm, orders, move, ppm) => {
       return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
-    render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={comboMovePages} pageKey={key} match={match} />,
+    render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/review': {
     isInFlow: always,
@@ -251,7 +251,7 @@ const pages = {
   },
 };
 
-const comboMovePages = ['/moves/:moveId/hhg-ppm-start'];
+const hhgPPMPages = ['/moves/:moveId/hhg-ppm-start'];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
