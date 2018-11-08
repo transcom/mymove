@@ -1847,7 +1847,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("fb4105cf-f5a5-43be-845e-d59fdb34f31c"),
 			Locator:          "DOOB",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
