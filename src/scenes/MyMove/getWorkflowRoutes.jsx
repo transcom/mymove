@@ -72,11 +72,7 @@ const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType !== 'HHG';
 const isCombo = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'COMBO';
-const _isCombo = ({ selectedMoveType }) => {
-  console.log('selectedMoveType', selectedMoveType);
-  // TODO: Once a move is made combo, use isCombo instead: https://www.pivotaltracker.com/story/show/161467476
-  return true;
-};
+const hasHHGPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG_PPM';
 
 const pages = {
   '/service-member/:serviceMemberId/create': {
@@ -235,7 +231,7 @@ const pages = {
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-ppm-start': {
-    isInFlow: _isCombo,
+    isInFlow: hasHHGPPM,
     isComplete: (sm, orders, move, ppm) => {
       return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
