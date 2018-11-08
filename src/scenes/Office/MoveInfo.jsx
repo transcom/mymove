@@ -252,10 +252,12 @@ class MoveInfo extends Component {
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
-                  <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />
+                  <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
-                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                {serviceMember.text_message_is_preferred && (
+                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
+                )}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
