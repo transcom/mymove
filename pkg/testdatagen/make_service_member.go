@@ -61,7 +61,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	Army := models.AffiliationARMY
 	E1 := models.ServiceMemberRankE1
 
-	station := MakeDefaultDutyStation(db)
+	station := FetchOrMakeDefaultDutyStation(db)
 	emailPreferred := true
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{

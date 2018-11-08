@@ -254,7 +254,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	// Given: A shipment's move with orders in acceptable status
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 	serviceMember.DutyStationID = &dutyStation.ID
 	serviceMember.DutyStation = dutyStation

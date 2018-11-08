@@ -62,12 +62,12 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 }
 func (suite *ModelSuite) Test_FetchDutyStationTransportationOffice() {
 	t := suite.T()
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 
-	yuma, err := models.FetchDutyStationByName(suite.db, "Yuma AFB")
-	if err != nil {
-		t.Errorf("Fetch Duty Station by name error: %v", err)
-	}
+	// yuma, err := models.FetchDutyStationByName(suite.db, "Yuma AFB")
+	// if err != nil {
+	// 	t.Errorf("Fetch Duty Station by name error: %v", err)
+	// }
 
 	office, err := models.FetchDutyStationTransportationOffice(suite.db, dutyStation.ID)
 	if err != nil {
