@@ -164,6 +164,13 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// IWS
 	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
+
+	// DB Config
+	flag.String("db-name", "dev_db", "Database Name")
+	flag.String("db-host", "localhost", "Database Hostname")
+	flag.String("db-port", "5432", "Database Port")
+	flag.String("db-user", "postgres", "Database Username")
+	flag.String("db-password", "", "Database Password")
 }
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
@@ -231,6 +238,67 @@ func initRealTimeBrokerService(v *viper.Viper, logger *zap.Logger) (*iws.RealTim
 		v.GetString("move-mil-dod-tls-key"))
 }
 
+func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
+
+	env := v.GetString("env")
+	dbName := v.GetString("db-name")
+	dbHost := v.GetString("db-host")
+	dbPort := v.GetString("db-port")
+	dbUser := v.GetString("db-user")
+	dbPassword := v.GetString("db-password")
+
+	// Modify DB options by environment
+	dbOptions := map[string]string{"sslmode": "disable"}
+	if env == "test" {
+		// Leave the test database name hardcoded, since we run tests in the same
+		// environment as development, and it's extra confusing to have to swap env
+		// variables before running tests.
+		dbName = "test_db"
+	} else if env == "container" {
+		// Require sslmode for containers
+		dbOptions["sslmode"] = "require"
+	}
+
+	// Configure DB connection details
+	dbConnectionDetails := pop.ConnectionDetails{
+		Dialect:  "postgres",
+		Database: dbName,
+		Host:     dbHost,
+		Port:     dbPort,
+		User:     dbUser,
+		Password: dbPassword,
+		Options:  dbOptions,
+	}
+	err := dbConnectionDetails.Finalize()
+	if err != nil {
+		logger.Error("Failed to finalize DB connection details", zap.Error(err))
+		return nil, err
+	}
+
+	// Set up the connection
+	connection, err := pop.NewConnection(&dbConnectionDetails)
+	if err != nil {
+		logger.Error("Failed create DB conection", zap.Error(err))
+		return nil, err
+	}
+
+	if env == "development" || env == "test" {
+		logger.Debug("Connecting to the database", zap.String("connection", connection.String()))
+	} else {
+		logger.Debug("Connecting to the database")
+	}
+
+	// Open the connection
+	err = connection.Open()
+	if err != nil {
+		logger.Error("Failed to open DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Return the open connection
+	return connection, nil
+}
+
 func main() {
 
 	flag := pflag.CommandLine
@@ -272,12 +340,8 @@ func main() {
 		log.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
-	//DB connection
-	err = pop.AddLookupPaths(v.GetString("config-dir"))
-	if err != nil {
-		logger.Fatal("Adding Pop config path", zap.Error(err))
-	}
-	dbConnection, err := pop.Connect(env)
+	// Create a connection to the DB
+	dbConnection, err := initDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
