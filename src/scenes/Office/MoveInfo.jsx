@@ -9,6 +9,7 @@ import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
+import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
@@ -21,7 +22,6 @@ import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import Dates from 'shared/ShipmentDates';
-import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
@@ -93,7 +93,7 @@ const HHGTabContent = props => {
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
       <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
-      <LocationsPanel title="Locations" moveId={props.moveId} />
+      <LocationsContainer update={props.patchShipment} />
       <Weights title="Weights & Items" shipment={props.shipment} update={props.patchShipment} />
       {props.officeShipment && (
         <PremoveSurvey
@@ -252,10 +252,12 @@ class MoveInfo extends Component {
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
-                  <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />
+                  <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
-                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                {serviceMember.text_message_is_preferred && (
+                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
+                )}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>

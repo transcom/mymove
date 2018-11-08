@@ -43,9 +43,21 @@ export const CustomerInfo = ({ serviceMember, backupContact, entitlements }) => 
             <a href={`mailto:${serviceMember.personal_email}`}>{serviceMember.personal_email}</a>
             <br />
             Preferred contact method:{' '}
-            {serviceMember.phone_is_preferred && <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />}
-            {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
-            {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+            {serviceMember.phone_is_preferred && (
+              <span>
+                <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" /> <span>Phone</span>
+              </span>
+            )}
+            {serviceMember.text_message_is_preferred && (
+              <span>
+                <FontAwesomeIcon className="icon icon-grey" icon={faComments} /> <span>Text</span>
+              </span>
+            )}
+            {serviceMember.email_is_preferred && (
+              <span>
+                <FontAwesomeIcon className="icon icon-grey" icon={faEmail} /> <span>Email</span>
+              </span>
+            )}
           </p>
           <p>
             {backupContact.name && (
