@@ -459,6 +459,8 @@ export const MoveSummary = withContext(props => {
     requestPaymentSuccess,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
+  const moveId = get(move, 'id');
+
   const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
   const StatusComponent =
     move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
@@ -503,13 +505,12 @@ export const MoveSummary = withContext(props => {
             </button>
           </div>
           <div>
-            {/* ToDo: Replace this url */}
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <a href="">
+                <Link onClick={() => props.updateMove(moveId, 'HHG_PPM')} to={`/moves/${moveId}/hhg-ppm-start`}>
                   <FontAwesomeIcon icon={faPlus} />
                   <span> Add PPM Shipment</span>
-                </a>
+                </Link>
               )}
           </div>
           <div className="contact_block">
