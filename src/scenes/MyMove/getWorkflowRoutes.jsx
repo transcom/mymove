@@ -234,6 +234,13 @@ const pages = {
     isComplete: (sm, orders, move, ppm) => get(ppm, 'weight_estimate', null),
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
+  '/moves/:moveId/hhg-ppm-start': {
+    isInFlow: _isCombo,
+    isComplete: (sm, orders, move, ppm) => {
+      return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
+    },
+    render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={comboMovePages} pageKey={key} match={match} />,
+  },
   '/moves/:moveId/review': {
     isInFlow: always,
     isComplete: (sm, orders, move, ppm) => get(move, 'status', 'DRAFT') === 'SUBMITTED',
@@ -246,16 +253,9 @@ const pages = {
       return <Agreement pages={pages} pageKey={key} match={match} />;
     },
   },
-  '/moves/:moveId/combo-start': {
-    isInFlow: _isCombo,
-    isComplete: (sm, orders, move, ppm) => {
-      return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
-    },
-    render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={comboMovePages} pageKey={key} match={match} />,
-  },
 };
 
-const comboMovePages = ['/moves/:moveId/combo-start'];
+const comboMovePages = ['/moves/:moveId/hhg-ppm-start'];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
