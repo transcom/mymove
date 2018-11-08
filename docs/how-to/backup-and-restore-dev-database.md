@@ -8,6 +8,12 @@ Run `bin/db-backup` to backup the `dev_db` to a file on the filesystem. The back
 $ bin/db-backup clean-state
 ```
 
+If you'd like to backup a database other than `dev_db`, specify it by setting the value of the `DB_NAME` environment variable. In bash, the following command will backup `test_db`:
+
+```console
+$ DB_NAME=test_db bin/db-backup clean-slate
+```
+
 ## Restore a Backup
 
 Run `bin/db-restore` to overwrite the `dev_db` database with the contents of the named backup:
@@ -17,6 +23,12 @@ $ bin/db-restore clean-state
 ```
 
 **This is a destructive command!** All data currently in `dev_db` will be removed when this command is run.
+
+If you'd like to restore to a database other than `dev_db`, specify it by setting the value of the `DB_NAME` environment variable. In bash, that looks like this:
+
+```console
+$ DB_NAME=test_db bin/db-restore clean-slate
+```
 
 ## List Existing Backups
 
