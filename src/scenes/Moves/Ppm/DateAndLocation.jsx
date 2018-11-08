@@ -73,7 +73,7 @@ export class DateAndLocation extends Component {
       hasEstimateError,
       selectedMoveType,
     } = this.props;
-    const isCombo = selectedMoveType === 'HHG_PPM';
+    const isHHGPPMComboMove = selectedMoveType === 'HHG_PPM';
 
     return (
       <DateAndLocationWizardForm
@@ -85,7 +85,7 @@ export class DateAndLocation extends Component {
         enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
       >
         <h2 className="sm-heading">PPM Dates & Locations</h2>
-        {isCombo && <div>Great! Let's review your pickup and destination information.</div>}
+        {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
         <h3> Move Date </h3>
         <SwaggerField
           fieldName="planned_move_date"
@@ -100,7 +100,7 @@ export class DateAndLocation extends Component {
           swagger={this.props.schema}
           required
         />
-        {!isCombo && (
+        {!isHHGPPMComboMove && (
           <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
         )}
         {get(this.props, 'formValues.has_additional_postal_code', false) && (
@@ -121,7 +121,7 @@ export class DateAndLocation extends Component {
           </Fragment>
         )}
         <h3>Destination Location</h3>
-        {!isCombo && (
+        {!isHHGPPMComboMove && (
           <p>
             Enter the ZIP for your new home if you know it, or for{' '}
             {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
@@ -137,7 +137,9 @@ export class DateAndLocation extends Component {
           The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
           {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
         </span>
-        {!isCombo && <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />}
+        {!isHHGPPMComboMove && (
+          <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
+        )}
         {get(this.props, 'formValues.has_sit', false) && (
           <Fragment>
             <SwaggerField
