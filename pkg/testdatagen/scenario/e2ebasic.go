@@ -1932,7 +1932,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 		models.MoveDocumentTypeGOVBILLOFLADING,
 		string("Government Bill Of Lading"),
 		swag.String(""),
-		string(apimessages.SelectedMoveTypeHHG),
+		selectedMoveTypeHHG,
 	)
 
 	return offer.Shipment
