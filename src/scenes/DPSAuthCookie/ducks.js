@@ -1,11 +1,11 @@
-import { SetDPSAuthCookie } from './api.js';
+import { GetCookieURL } from './api.js';
 import * as helpers from 'shared/ReduxHelpers';
 
 const resource = 'SET_DPS_AUTH_COOKIE';
 
 export const actionsTypes = helpers.generateAsyncActionTypes(resource);
 
-export const setDPSAuthCookie = helpers.generateAsyncActionCreator(resource, SetDPSAuthCookie);
+export const getCookieURL = helpers.generateAsyncActionCreator(resource, GetCookieURL);
 
 const initialStateMixin = { schema: {} };
 

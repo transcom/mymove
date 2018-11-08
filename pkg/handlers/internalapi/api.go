@@ -93,7 +93,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{context}
 
-	internalAPI.DpsAuthSetDPSAuthCookieHandler = DPSAuthCookieHandler{context}
+	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{context}
 
 	return internalAPI.Serve(nil)
 }

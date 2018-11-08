@@ -1319,6 +1319,12 @@ definitions:
       gex_response:
         type: string
         title: The HTTP response body received from GEX
+  DPSAuthCookieURLPayload:
+    type: object
+    properties:
+      cookie_url:
+        type: string
+        format: uri
   TShirtSize:
     type: string
     x-nullable: true
@@ -4176,11 +4182,11 @@ paths:
         500:
           description: internal server error
 
-  /dps_auth/cookie:
+  /dps_auth/cookie_url:
     post:
-      summary: Sets a cookie for DPS authentication
-      description: Sets a cookie for DPS authentication
-      operationId: setDPSAuthCookie
+      summary: Returns the URL to redirect to that begins DPS auth
+      description: Returns the URL to redirect to that begins DPS auth
+      operationId: getCookieURL
       tags:
         - dps_auth
       parameters:
@@ -4191,7 +4197,9 @@ paths:
           required: false
       responses:
         200:
-          description: set cookie
+          description: Success
+          schema:
+            $ref: '#/definitions/DPSAuthCookieURLPayload'
         400:
           description: invalid request
         500:

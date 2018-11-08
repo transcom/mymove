@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { setDPSAuthCookie } from './ducks';
+import { getCookieURL } from './ducks';
 
 const schema = {
   properties: {
@@ -17,7 +18,13 @@ const schema = {
 
 export class DPSAuthCookie extends Component {
   sendRequest = values => {
-    this.props.setDPSAuthCookie(values.cookie_name);
+    this.props.getCookieURL(values.cookie_name).then(response => {
+      console.log(response);
+      var cookieURL = get(response, 'payload.cookie_url', '');
+      if (cookieURL) {
+        window.location = cookieURL;
+      }
+    });
   };
 
   render() {
@@ -33,7 +40,7 @@ export class DPSAuthCookie extends Component {
   }
 }
 DPSAuthCookie.propTypes = {
-  setDPSAuthCookie: PropTypes.func.isRequired,
+  getCookieURL: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
 };
 
@@ -44,7 +51,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ setDPSAuthCookie }, dispatch);
+  return bindActionCreators({ getCookieURL }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({ form: 'dpsAuthCookie' })(DPSAuthCookie));
