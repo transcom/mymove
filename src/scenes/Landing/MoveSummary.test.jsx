@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import {
-  MoveSummaryWithoutContext,
+  MoveSummary,
   CanceledMoveSummary,
   ApprovedMoveSummary,
   DraftMoveSummary,
@@ -27,7 +27,7 @@ describe('MoveSummary', () => {
     hhgObj,
     editMoveFn,
     resumeMoveFn,
-  ) => {  
+  ) => {
     const componentWrapper = shallow(
       <MoveSummary
         entitlement={entitlementObj}
