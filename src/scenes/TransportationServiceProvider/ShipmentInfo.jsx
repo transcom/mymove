@@ -20,6 +20,7 @@ import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
   getShipmentDocumentsLabel,
+  generateGBL,
 } from 'shared/Entities/modules/shipmentDocuments';
 import {
   getAllTariff400ngItems,
@@ -41,7 +42,6 @@ import {
   loadShipmentDependencies,
   patchShipment,
   acceptShipment,
-  generateGBL,
   rejectShipment,
   transportShipment,
   deliverShipment,
@@ -57,6 +57,8 @@ import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 
 import './tsp.css';
+
+const generateGblLabel = 'Shipments.createGovBillOfLading';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',
@@ -150,7 +152,7 @@ class ShipmentInfo extends Component {
   };
 
   generateGBL = () => {
-    return this.props.generateGBL(this.props.shipment.id);
+    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
   };
 
   rejectShipment = reason => {
@@ -457,10 +459,7 @@ const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
   const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
-
-  // When we create the GBL, we store the success, but don't add it to the docs in the entities reducer
-  // We should fix that, but for now here's a bandaid
-  const gblGenerated = state.tsp.generateGBLSuccess || gbl;
+  const gblGenerated = !!gbl;
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
