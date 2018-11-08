@@ -6,8 +6,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import BasicPanel from 'shared/BasicPanel';
-import { makeGetUnbilledShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
-import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+import {
+  makeGetUnbilledShipmentLineItems,
+  makeTotalFromUnbilledLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
 
 export class InvoicePanel extends Component {
   constructor() {
@@ -32,17 +34,24 @@ export class InvoicePanel extends Component {
 InvoicePanel.propTypes = {
   shipmentLineItems: PropTypes.array,
   shipmentId: PropTypes.string,
+  lineItemsTotal: PropTypes.number,
 };
 
-function mapStateToProps(state, ownProps) {
-  //
-  const getLineItems = makeGetUnbilledShipmentLineItems();
-  return {
-    shipmentLineItems: getLineItems(state, ownProps.shipmentId),
+//https://github.com/reduxjs/reselect#sharing-selectors-with-props-across-multiple-component-instances
+const makeMapStateToProps = () => {
+  //using a memoized selector
+  const mapStateToProps = (state, ownProps) => {
+    const getLineItems = makeGetUnbilledShipmentLineItems();
+    const getLineItemSum = makeTotalFromUnbilledLineItems();
+    return {
+      shipmentLineItems: getLineItems(state, ownProps.shipmentId),
+      lineItemsTotal: getLineItemSum(state, ownProps.shipmentId),
+    };
   };
-}
+  return mapStateToProps;
+};
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
-export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);
+export default connect(makeMapStateToProps, mapDispatchToProps)(InvoicePanel);
