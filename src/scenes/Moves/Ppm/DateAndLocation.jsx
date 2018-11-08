@@ -63,9 +63,18 @@ export class DateAndLocation extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, currentOrders, initialValues, sitReimbursement, hasEstimateError } = this.props;
-    // TODO: Remove when selectedMoveType can be COMBO
-    const isCombo = true;
+    const {
+      pages,
+      pageKey,
+      error,
+      currentOrders,
+      initialValues,
+      sitReimbursement,
+      hasEstimateError,
+      selectedMoveType,
+    } = this.props;
+    const isCombo = selectedMoveType === 'HHG_PPM';
+
     return (
       <DateAndLocationWizardForm
         handleSubmit={this.handleSubmit}
@@ -174,6 +183,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
+    selectedMoveType: state.moves.currentMove.selected_move_type,
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   props.initialValues = props.currentPpm
