@@ -466,7 +466,7 @@ export const MoveSummaryWithoutContext = props => {
     move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
   const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
-    move.selected_move_type === 'HHG' &&
+    (move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM') &&
     ['SUBMITTED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
   const showTsp =
     move.selected_move_type !== 'PPM' &&
@@ -507,7 +507,11 @@ export const MoveSummaryWithoutContext = props => {
           <div>
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <Link onClick={() => props.updateMove(moveId, 'HHG_PPM')} to={`/moves/${moveId}/hhg-ppm-start`}>
+                <Link
+                  className="add-ppm-shipment"
+                  onClick={() => props.updateMove(moveId, 'HHG_PPM')}
+                  to={`/moves/${moveId}/hhg-ppm-start`}
+                >
                   <FontAwesomeIcon icon={faPlus} />
                   <span> Add PPM Shipment</span>
                 </Link>
