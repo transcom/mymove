@@ -284,7 +284,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	dutyStationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
 		Address: models.Address{
-			StreetAddress1: "Fort Gordon",
+			StreetAddress1: "123 Any Street",
 			City:           "Augusta",
 			State:          "GA",
 			PostalCode:     "30813",
