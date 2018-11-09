@@ -13,13 +13,16 @@ const schema = {
       type: 'string',
       title: 'Cookie Name',
     },
+    dps_redirect_url: {
+      type: 'string',
+      title: 'DPS Redirect URL',
+    },
   },
 };
 
 export class DPSAuthCookie extends Component {
   sendRequest = values => {
-    this.props.getCookieURL(values.cookie_name).then(response => {
-      console.log(response);
+    this.props.getCookieURL(values).then(response => {
       var cookieURL = get(response, 'payload.cookie_url', '');
       if (cookieURL) {
         window.location = cookieURL;
@@ -33,6 +36,7 @@ export class DPSAuthCookie extends Component {
         <h1 className="sm-heading">Set DPS Auth Cookie</h1>
         <form onSubmit={this.props.handleSubmit(this.sendRequest)}>
           <SwaggerField fieldName="cookie_name" swagger={this.props.schema} />
+          <SwaggerField fieldName="dps_redirect_url" swagger={this.props.schema} />
           <button type="submit">Submit</button>
         </form>
       </div>

@@ -4195,6 +4195,11 @@ paths:
           type: string
           description: The name of the cookie to set, DPS by default
           required: false
+        - in: query
+          name: dps_redirect_url
+          type: string
+          description: The DPS URL to redirec to
+          required: false
       responses:
         200:
           description: Success

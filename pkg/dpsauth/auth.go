@@ -1,43 +1,53 @@
 package dpsauth
 
 import (
-	"fmt"
 	"net/http"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"go.uber.org/zap"
 )
 
 // SetCookiePath is the path for this resource
 const SetCookiePath = "/dps_auth/set_cookie"
 
+// Claims contains information passed to the endpoint that sets the DPS auth cookie
+type Claims struct {
+	jwt.StandardClaims
+	CookieName     string
+	DPSRedirectURL string
+}
+
 // SetCookieHandler handles setting the DPS auth cookie and redirecting to DPS
 type SetCookieHandler struct {
-	logger *zap.Logger
+	logger       *zap.Logger
+	secretKey    string
+	cookieDomain string
 }
 
 // NewSetCookieHandler creates a new SetCookieHandler
-func NewSetCookieHandler(logger *zap.Logger) SetCookieHandler {
-	return SetCookieHandler{logger: logger}
+func NewSetCookieHandler(logger *zap.Logger, secretKey string, cookieDomain string) SetCookieHandler {
+	return SetCookieHandler{logger: logger, secretKey: secretKey, cookieDomain: cookieDomain}
 }
 
 func (h SetCookieHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("***In ServeHTTP***")
+	claims, err := ParseToken(r.URL.Query().Get("token"), h.secretKey)
+	if err != nil {
+		h.logger.Error("Parsing token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 
-	loginGovID := r.URL.Query().Get("login_gov_id")
-	cookieName := r.URL.Query().Get("cookie_name")
-	cookie, err := LoginGovIDToCookie(loginGovID)
+	cookie, err := LoginGovIDToCookie(claims.StandardClaims.Subject)
 	if err != nil {
 		h.logger.Error("Converting user ID to cookie value", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	cookie.Name = cookieName
-	//cookie.Domain = ".sddc.army.mil"
+	cookie.Name = claims.CookieName
+	cookie.Domain = h.cookieDomain
 	cookie.Path = "/"
-	fmt.Println(cookie.String())
 	w.Header().Set("Set-Cookie", cookie.String())
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	http.Redirect(w, r, "https://github.com", http.StatusSeeOther)
+	http.Redirect(w, r, claims.DPSRedirectURL, http.StatusSeeOther)
 }

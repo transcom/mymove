@@ -141,10 +141,6 @@
     {
       "name": "IWS_RBS_HOST",
       "value": "{{ .IWS_RBS_HOST }}"
-    },
-    {
-      "name": "HTTP_SDDC_SERVER_NAME",
-      "value": "{{ .HTTP_SDDC_SERVER_NAME }}"
     }
   ],
   "logConfiguration": {

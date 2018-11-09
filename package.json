@@ -93,9 +93,6 @@
     },
     "/downloads": {
       "target": "http://localhost:8080"
-    },
-    "/dps_auth/set_cookie": {
-      "target": "http://localhost:8080"
     }
   },
   "version": "0.1.0",

@@ -107,7 +107,15 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
 	flag.String("http-dps-server-name", "dpslocal", "Hostname according to environment.")
+
+	// SDDC + DPS Auth config
 	flag.String("http-sddc-server-name", "sddclocal", "Hostname according to envrionment.")
+	flag.String("http-sddc-protocol", "https", "Protocol for sddc")
+	flag.String("http-sddc-port", "", "The port for sddc")
+	flag.String("dps-auth-secret-key", "", "DPS auth JWT secret key")
+	flag.String("dps-redirect-url", "", "DPS url to redirect to")
+	flag.String("dps-cookie-name", "", "Name of the DPS cookie")
+	flag.String("dps-cookie-domain", "sddclocal", "Domain of the DPS cookie")
 
 	// Initialize Swagger
 	flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
@@ -447,7 +455,17 @@ func main() {
 	handlerContext.SetIWSRealTimeBrokerService(*rbs)
 
 	sddcHostname := v.GetString("http-sddc-server-name")
-	handlerContext.SetSDDCHostname(sddcHostname)
+	dpsAuthSecretKey := v.GetString("dps-auth-secret-key")
+	handlerContext.SetDPSAuthParams(
+		dpsauth.Params{
+			SDDCProtocol:   v.GetString("http-sddc-protocol"),
+			SDDCHostname:   sddcHostname,
+			SDDCPort:       v.GetString("http-sddc-port"),
+			SecretKey:      dpsAuthSecretKey,
+			DPSRedirectURL: v.GetString("dps-redirect-url"),
+			CookieName:     v.GetString("dps-cookie-name"),
+		},
+	)
 
 	// Base routes
 	site := goji.NewMux()
@@ -491,7 +509,7 @@ func main() {
 	sddcDPSMux.Use(sddcDetectionMiddleware)
 	sddcDPSMux.Use(noCacheMiddleware)
 	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
-	sddcDPSMux.Handle(pat.Get("/set_cookie"), dpsauth.NewSetCookieHandler(logger))
+	sddcDPSMux.Handle(pat.Get("/set_cookie"), dpsauth.NewSetCookieHandler(logger, dpsAuthSecretKey, v.GetString("dps-cookie-domain")))
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
