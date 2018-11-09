@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -259,6 +260,11 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 		dbOptions["sslmode"] = "require"
 	}
 
+	// Construct a safe URL and log it
+	s := "postgres://%s:%s@%s:%s/%s?sslmode=%s"
+	dbURL := fmt.Sprintf(s, dbUser, "*****", dbHost, dbPort, dbName, dbOptions["sslmode"])
+	logger.Debug("Connecting to the database", zap.String("url", dbURL))
+
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
@@ -280,12 +286,6 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 	if err != nil {
 		logger.Error("Failed create DB conection", zap.Error(err))
 		return nil, err
-	}
-
-	if env == "development" || env == "test" {
-		logger.Debug("Connecting to the database", zap.String("connection", connection.String()))
-	} else {
-		logger.Debug("Connecting to the database")
 	}
 
 	// Open the connection
