@@ -1,11 +1,11 @@
 package ediinvoice
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
@@ -22,7 +22,13 @@ const receiverCode = "8004171844" // Syncada
 
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection) (string, error) {
-	interchangeControlNumber := 1 //TODO: increment this
+	var interchangeControlNumber int
+	query := "SELECT nextval('interchange_control_number');"
+	err := db.RawQuery(query).First(&interchangeControlNumber)
+	if err != nil {
+		return "", errors.Wrap(err, "Failed to return nextval from 'interchange_control_number'")
+	}
+
 	currentTime := time.Now()
 	isa := edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
