@@ -3,7 +3,7 @@
 
 set -eu -o pipefail
 
-export DB_NAME=dev_db
+readonly db=${DB_NAME:-db_dev}
 export PGPASSWORD="mysecretpassword"
 
 function list() {
@@ -27,4 +27,4 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-psql -h localhost -U postgres -q < "$path" > /dev/null
+psql -h localhost -U postgres -q -d "$db" < "$path" > /dev/null

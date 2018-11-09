@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
-	var newType = internalmessages.SelectedMoveTypeCOMBO
+	var newType = internalmessages.SelectedMoveTypeHHGPPM
 	patchPayload := internalmessages.PatchMovePayload{
 		SelectedMoveType: &newType,
 	}
@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, anotherUser)
 
-	var newType = internalmessages.SelectedMoveTypeCOMBO
+	var newType = internalmessages.SelectedMoveTypeHHGPPM
 	patchPayload := internalmessages.PatchMovePayload{
 		SelectedMoveType: &newType,
 	}
@@ -111,7 +111,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, user)
 
-	var newType = internalmessages.SelectedMoveTypeCOMBO
+	var newType = internalmessages.SelectedMoveTypeHHGPPM
 	patchPayload := internalmessages.PatchMovePayload{
 		SelectedMoveType: &newType,
 	}

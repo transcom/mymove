@@ -49,7 +49,7 @@ import {
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
-import LocationsContainer from './LocationsContainer';
+import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -317,10 +317,12 @@ class ShipmentInfo extends Component {
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
-                  <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />
+                  <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
-                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                {serviceMember.text_message_is_preferred && (
+                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
+                )}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;
               </li>
             </ul>

@@ -28,7 +28,7 @@ func main() {
 	flag.Parse()
 
 	if *moveIDString == "" {
-		log.Fatal("Usage: cmd/generate_shipment_edi/main.go --moveID <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+		log.Fatal("Usage: cmd/generate_shipment_edi/main.go --moveID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --gex false")
 	}
 
 	db, err := pop.Connect(*env)

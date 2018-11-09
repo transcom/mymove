@@ -11,6 +11,7 @@ import { forEach } from 'lodash';
 const defaultFlags = {
   ppm: true,
   hhg: true,
+  hhgAndPpm: true,
   documentViewer: true,
 };
 
@@ -23,7 +24,9 @@ const environmentFlags = {
 
   staging: Object.assign({}, defaultFlags),
 
-  production: Object.assign({}, defaultFlags),
+  production: Object.assign({}, defaultFlags, {
+    hhgAndPpm: false,
+  }),
 };
 
 export function flagsFromURL(search) {

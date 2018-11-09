@@ -622,12 +622,18 @@ definitions:
     enum:
       - HHG
       - PPM
-      - COMBO
+      - UB
+      - POV
+      - NTS
+      - HHG_PPM
     x-nullable: true
     x-display-value:
       HHG: Household Goods Move
       PPM: Personal Procured Move
-      COMBO: Both HHG and PPM
+      UB: Unaccompanied Baggage
+      POV: Privately-Owned Vehicle
+      NTS: Non-Temporary Storage
+      HHG_PPM: Both HHG and PPM
   ServiceAgentRole:
     type: string
     title: Service Agent Role

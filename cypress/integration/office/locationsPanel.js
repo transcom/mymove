@@ -1,10 +1,10 @@
 /* global cy */
-describe('TSP User Checks Shipment Locations', function() {
+describe('Office User Checks Shipment Locations', function() {
   beforeEach(() => {
-    cy.signIntoTSP();
+    cy.signIntoOffice();
   });
 
-  it('tsp user primary pickup location', function() {
+  it('office user primary pickup location', function() {
     const address = {
       street_1: '123 Any Street',
       street_2: 'P.O. Box 12345',
@@ -20,9 +20,10 @@ describe('TSP User Checks Shipment Locations', function() {
       expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
 
-    tspUserViewsLocation({ shipmentId: 'BACON1', type: 'Pickup', expectation });
+    officeUserViewsLocation({ shipmentId: 'BACON3', type: 'Pickup', expectation });
   });
-  it('tsp user primary delivery location when delivery address exists', function() {
+
+  it('office user primary delivery location when delivery address exists', function() {
     const address = {
       street_1: '987 Any Avenue',
       street_2: 'P.O. Box 9876',
@@ -38,13 +39,14 @@ describe('TSP User Checks Shipment Locations', function() {
       expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
 
-    tspUserViewsLocation({
-      shipmentId: 'BACON1',
+    officeUserViewsLocation({
+      shipmentId: 'BACON3',
       type: 'Delivery',
       expectation,
     });
   });
-  it('tsp user primary delivery location when delivery address does not exist', function() {
+
+  it('office user primary delivery location when delivery address does not exist', function() {
     const address = {
       city: 'Des Moines',
       state: 'IA',
@@ -54,7 +56,7 @@ describe('TSP User Checks Shipment Locations', function() {
       expect(text).to.equal(`${address.city}, ${address.state} ${address.postal_code}`);
     };
 
-    tspUserViewsLocation({
+    officeUserViewsLocation({
       shipmentId: 'DTYSTN',
       type: 'Delivery',
       expectation,
@@ -62,7 +64,7 @@ describe('TSP User Checks Shipment Locations', function() {
   });
 });
 
-function tspUserViewsLocation({ shipmentId, type, expectation }) {
+function officeUserViewsLocation({ shipmentId, type, expectation }) {
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -75,8 +77,13 @@ function tspUserViewsLocation({ shipmentId, type, expectation }) {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
+
+  cy
+    .get('a')
+    .contains('HHG')
+    .click(); // navtab
 
   // Expect Customer Info to be loaded
   cy
@@ -94,16 +101,16 @@ function tspUserViewsLocation({ shipmentId, type, expectation }) {
     });
 }
 
-describe('TSP User Completes Locations Panel', function() {
+describe('office user Completes Locations Panel', function() {
   beforeEach(() => {
-    cy.signIntoTSP();
+    cy.signIntoOffice();
   });
-  it('tsp user completes locations panel', function() {
-    tspUserEntersLocations();
+  it('office user completes locations panel', function() {
+    officeUserEntersLocations();
   });
 });
 
-function tspUserEntersLocations() {
+function officeUserEntersLocations() {
   const deliveryAddress = {
     street_1: '500 Something Avenue',
     city: 'Grandfather',
@@ -136,12 +143,17 @@ function tspUserEntersLocations() {
   // Find shipment and open it
   cy
     .get('div')
-    .contains('BACON1')
+    .contains('BACON3')
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
+
+  cy
+    .get('a')
+    .contains('HHG')
+    .click(); // navtab
 
   cy
     .get('.editable-panel-header')

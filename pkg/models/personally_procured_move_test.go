@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -55,9 +54,9 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
