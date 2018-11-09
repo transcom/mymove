@@ -1,6 +1,8 @@
 package rateengine
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -51,6 +53,7 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 			Quantity1: unit.BaseQuantity(50000),
 			Shipment:  shipment,
 			Status:    models.ShipmentLineItemStatusAPPROVED,
+			Location:  models.ShipmentLineItemLocationORIGIN,
 		},
 		Tariff400ngItem: models.Tariff400ngItem{
 			Code:                itemCode,
@@ -70,5 +73,52 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 
 	if suite.NoError(err) {
 		suite.Equal(rateCents.Multiply(5), computedPrice)
+	}
+}
+
+// Iterates through all codes that have pricers and make sure they don't explode with sane values
+func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
+	rateCents := unit.Cents(100)
+	netWeight := unit.Pound(1000)
+	shipment := suite.createShipmentWithServiceArea(testdatagen.Assertions{
+		Shipment: models.Shipment{
+			BookDate:  &testdatagen.Tariff400ngItemRateDefaultValidDate,
+			NetWeight: &netWeight,
+		},
+	})
+
+	for code := range tariff400ngItemPricing {
+		item := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Quantity1: unit.BaseQuantityFromInt(1),
+				Shipment:  shipment,
+				Status:    models.ShipmentLineItemStatusAPPROVED,
+				Location:  models.ShipmentLineItemLocationORIGIN,
+			},
+			Tariff400ngItem: models.Tariff400ngItem{
+				Code:                code,
+				RequiresPreApproval: true,
+			},
+		})
+
+		rateCode := code
+		if newCode, ok := tariff400ngItemRateMap[code]; ok {
+			rateCode = newCode
+		}
+
+		testdatagen.MakeTariff400ngItemRate(suite.db, testdatagen.Assertions{
+			Tariff400ngItemRate: models.Tariff400ngItemRate{
+				Code:      rateCode,
+				RateCents: rateCents,
+			},
+		})
+
+		engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+		_, err := engine.ComputeShipmentLineItemCharge(item, item.Shipment)
+
+		// Make sure we don't error
+		if !suite.NoError(err) {
+			fmt.Printf("Failed while running code %v\n", code)
+		}
 	}
 }

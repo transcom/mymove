@@ -46,6 +46,29 @@ func (m minimumQuantityPricer) price(rate unit.Cents, q1 unit.BaseQuantity, disc
 	return calculatedRate
 }
 
+// Line the min quantity pricer, but multiplies rate by quantity / 100
+type minimumQuantityHundredweightPricer struct {
+	min int
+}
+
+func newMinimumQuantityHundredweightPricer(min int) minimumQuantityHundredweightPricer {
+	return minimumQuantityHundredweightPricer{min}
+}
+
+func (m minimumQuantityHundredweightPricer) price(rate unit.Cents, q1 unit.BaseQuantity, discount *unit.DiscountRate) unit.Cents {
+	if qConv := q1.ToUnitFloat(); qConv < float64(m.min) {
+		q1 = unit.BaseQuantityFromInt(m.min)
+	}
+
+	calculatedRate := rate.MultiplyFloat64(q1.ToUnitFloat() / 100.0)
+
+	if discount != nil {
+		calculatedRate = discount.Apply(calculatedRate)
+	}
+
+	return calculatedRate
+}
+
 // Ignores quantity, just returns rate with discount applied
 type flatRatePricer struct{}
 
@@ -55,33 +78,6 @@ func newFlatRatePricer() flatRatePricer {
 
 func (m flatRatePricer) price(rate unit.Cents, q1 unit.BaseQuantity, discount *unit.DiscountRate) unit.Cents {
 	calculatedRate := rate
-
-	if discount != nil {
-		calculatedRate = discount.Apply(calculatedRate)
-	}
-
-	return calculatedRate
-}
-
-// Like min quantity pricer, but the provided rate is scaled by some factor and needs to be unscaled before application
-type scaledRateMinimumQuantityPricer struct {
-	scale int
-	min   int
-}
-
-func newScaledRateMinimumQuantityPricer(scale, min int) scaledRateMinimumQuantityPricer {
-	return scaledRateMinimumQuantityPricer{scale, min}
-}
-
-func (m scaledRateMinimumQuantityPricer) price(rate unit.Cents, q1 unit.BaseQuantity, discount *unit.DiscountRate) unit.Cents {
-	// Need to divide the rate by the scale to get the actual rate
-	rate = rate.Multiply(1 / m.scale)
-
-	if qConv := q1.ToUnitFloat(); qConv < float64(m.min) {
-		q1 = unit.BaseQuantityFromInt(m.min)
-	}
-
-	calculatedRate := rate.MultiplyFloat64(q1.ToUnitFloat())
 
 	if discount != nil {
 		calculatedRate = discount.Apply(calculatedRate)

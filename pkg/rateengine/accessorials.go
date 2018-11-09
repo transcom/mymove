@@ -11,9 +11,16 @@ var tariff400ngItemPricing = map[string]pricer{
 	"4A": newBasicQuantityPricer(),
 	"4B": newBasicQuantityPricer(),
 
-	// Attempted delivery - 31-50 miles
+	// Attempted delivery from SIT
+	"17A": newFlatRatePricer(),
 	"17B": newFlatRatePricer(),
+	// Priced using base linehaul rate, needs more work
+	// "17C": newFlatRatePricer(),
+	"17D": newMinimumQuantityHundredweightPricer(1000),
+	"17E": newFlatRatePricer(),
 	"17F": newFlatRatePricer(),
+	// Priced using base linehaul rate, needs more work
+	// "17G": newFlatRatePricer(),
 
 	// Extra pickups, diversions
 	"28A": newBasicQuantityPricer(),
@@ -38,6 +45,12 @@ var tariff400ngItemPricing = map[string]pricer{
 	"120E": newBasicQuantityPricer(),
 	"120F": newBasicQuantityPricer(),
 
+	// Shuttle service
+	"125A": newFlatRatePricer(),
+	"125B": newFlatRatePricer(),
+	"125C": newFlatRatePricer(),
+	"125D": newFlatRatePricer(),
+
 	// Bulky items
 	"130A": newBasicQuantityPricer(),
 	"130B": newBasicQuantityPricer(),
@@ -50,16 +63,39 @@ var tariff400ngItemPricing = map[string]pricer{
 	"130I": newBasicQuantityPricer(),
 	"130J": newBasicQuantityPricer(),
 
+	// Overtime loading/unloading
+	// Note: this pricer doesn't allow for weights under 1,000, which the below excerpt would imply is possible
+	// "If only a portion of a shipment is loaded/unloaded a separate weight ticket MUST be provided,
+	// otherwise TSP is limited to billing 1,000 lbs."
+	"175A": newMinimumQuantityPricer(1000),
+
+	// SIT
+	"185A": newMinimumQuantityHundredweightPricer(1000),
+	// Priced using two quantities (weight and days), needs more work
+	// "185B": newMinimumQuantityHundredweightPricer(1000),
+
+	// SIT P/D OT
+	"210D": newFlatRatePricer(),
+	"210E": newFlatRatePricer(),
+
 	// Pickup/delivery at third-party and self-storage warehouses
-	"225A": newMinimumQuantityPricer(1000),
-	"225B": newScaledRateMinimumQuantityPricer(10, 1000),
+	"225A": newFlatRatePricer(),
+	"225B": newFlatRatePricer(),
 
 	// Misc. charge
 	"226A": newBasicQuantityPricer(),
 }
 
+// Some codes (17, mainly) are explicitly priced using rates corresponding to a different item code
+var tariff400ngItemRateMap = map[string]string{
+	"17A": "210A",
+	"17D": "185A",
+	"17E": "210D",
+}
+
 // ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item
 func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem, shipment models.Shipment) (unit.Cents, error) {
+	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
 	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {
 		zip = Zip5ToZip3(shipment.Move.Orders.NewDutyStation.Address.PostalCode)
@@ -71,25 +107,40 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		return unit.Cents(0), errors.Wrap(err, "Fetching 400ng service area from db")
 	}
 
-	rate, err := models.FetchTariff400ngItemRate(re.db,
-		shipmentLineItem.Tariff400ngItem.Code,
-		serviceArea.ServicesSchedule,
-		*shipment.NetWeight,
-		*shipDate,
-	)
-	if err != nil {
-		return unit.Cents(0), errors.Wrap(err, "Fetching 400ng item rate from db")
+	var rateCents unit.Cents
+	// Rates for SIT are stored  on the service area, else get the rate from the tariff400ng_item_rate table
+	if shipmentLineItem.Tariff400ngItem.Code == "185A" {
+		rateCents = serviceArea.SIT185ARateCents
+	} else if shipmentLineItem.Tariff400ngItem.Code == "185B" {
+		rateCents = serviceArea.SIT185BRateCents
+	} else {
+		// If code is priced using rate from separate code, use that
+		effectiveItemCode := shipmentLineItem.Tariff400ngItem.Code
+		if mappedCode, ok := tariff400ngItemRateMap[effectiveItemCode]; ok {
+			effectiveItemCode = mappedCode
+		}
+
+		rate, err := models.FetchTariff400ngItemRate(re.db,
+			effectiveItemCode,
+			serviceArea.ServicesSchedule,
+			*shipment.NetWeight,
+			*shipDate,
+		)
+		if err != nil {
+			return unit.Cents(0), errors.Wrap(err, "Fetching 400ng item rate from db")
+		}
+		rateCents = rate.RateCents
 	}
 
 	var discountRate *unit.DiscountRate
-	if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHG {
+	if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHG || shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHGLINEHAUL50 {
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
 	} else if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeSIT {
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.SITRate
 	}
 
 	if itemPricer, ok := tariff400ngItemPricing[shipmentLineItem.Tariff400ngItem.Code]; ok {
-		return itemPricer.price(rate.RateCents, shipmentLineItem.Quantity1, discountRate), nil
+		return itemPricer.price(rateCents, shipmentLineItem.Quantity1, discountRate), nil
 	}
 
 	return unit.Cents(0), errors.New("Could not find pricing function for given code")
