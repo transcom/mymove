@@ -99,38 +99,6 @@ describe('when getting the routes for the current workflow', () => {
         ]);
       });
     });
-    describe('given a complete service member with a COMBO', () => {
-      const props = {
-        selectedMoveType: 'COMBO',
-      };
-      const pages = getPagesInFlow(props);
-      it('getPagesInFlow returns service member, order and move pages', () => {
-        expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
-          '/orders/',
-          '/orders/upload',
-          '/orders/transition',
-          '/moves/:moveId',
-          '/moves/:moveId/hhg-transition',
-          '/moves/:moveId/hhg-start',
-          '/moves/:moveId/hhg-locations',
-          '/moves/:moveId/hhg-weight',
-          '/moves/:moveId/hhg-progear',
-          '/moves/:moveId/ppm-transition',
-          '/moves/:moveId/ppm-size',
-          '/moves/:moveId/ppm-incentive',
-          '/moves/:moveId/review',
-          '/moves/:moveId/agreement',
-        ]);
-      });
-    });
   });
   describe('given an incomplete service member', () => {
     describe('given no move', () => {
@@ -207,38 +175,6 @@ describe('when getting the routes for the current workflow', () => {
           '/moves/:moveId/hhg-locations',
           '/moves/:moveId/hhg-weight',
           '/moves/:moveId/hhg-progear',
-          '/moves/:moveId/review',
-          '/moves/:moveId/agreement',
-        ]);
-      });
-    });
-    describe('given a complete service member with a COMBO', () => {
-      const props = {
-        selectedMoveType: 'COMBO',
-      };
-      const pages = getPagesInFlow(props);
-      it('getPagesInFlow returns service member, order and move pages', () => {
-        expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
-          '/orders/',
-          '/orders/upload',
-          '/orders/transition',
-          '/moves/:moveId',
-          '/moves/:moveId/hhg-transition',
-          '/moves/:moveId/hhg-start',
-          '/moves/:moveId/hhg-locations',
-          '/moves/:moveId/hhg-weight',
-          '/moves/:moveId/hhg-progear',
-          '/moves/:moveId/ppm-transition',
-          '/moves/:moveId/ppm-size',
-          '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);

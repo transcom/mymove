@@ -22,7 +22,6 @@ import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import MoveType from 'scenes/Moves/MoveTypeWizard';
-import Transition from 'scenes/Moves/Transition';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
@@ -71,7 +70,6 @@ const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG';
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
-const isCombo = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'COMBO';
 const hasHHGPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG_PPM';
 
 const pages = {
@@ -167,15 +165,6 @@ const pages = {
     isComplete: (sm, orders, move, ppm) => get(move, 'selected_move_type', null),
     render: (key, pages) => ({ match }) => <MoveType pages={pages} pageKey={key} match={match} />,
   },
-  '/moves/:moveId/hhg-transition': {
-    isInFlow: isCombo,
-    isComplete: always,
-    render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-        <Transition />
-      </WizardPage>
-    ),
-  },
   '/moves/:moveId/hhg-start': {
     isInFlow: hasHHG,
     isComplete: (sm, orders, move, hhg) => {
@@ -203,15 +192,6 @@ const pages = {
       return every([hhg.pickup_address]);
     },
     render: (key, pages) => ({ match }) => <Progear pages={pages} pageKey={key} match={match} />,
-  },
-  '/moves/:moveId/ppm-transition': {
-    isInFlow: isCombo,
-    isComplete: always,
-    render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-        <Transition />
-      </WizardPage>
-    ),
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
