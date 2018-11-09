@@ -282,9 +282,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	// Move date picker only works with an address of name "Fort Gordon"
 	dutyStationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
 		Address: models.Address{
-			StreetAddress1: "123 Any Street",
+			StreetAddress1: "Fort Gordon",
 			City:           "Augusta",
 			State:          "GA",
 			PostalCode:     "30813",
