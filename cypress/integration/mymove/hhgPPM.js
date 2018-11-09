@@ -5,7 +5,6 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberSignsIn('7980f0cf-63e3-4722-b5aa-ba46f8f7ac64');
     serviceMemberAddsPPMToHHG();
     serviceMemberCancelsAddPPMToHHG();
-    serviceMemberCannotAddPPMToHHG();
   });
 });
 
@@ -33,8 +32,4 @@ function serviceMemberCancelsAddPPMToHHG() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\//);
   });
-}
-
-function serviceMemberCannotAddPPMToHHG() {
-  cy.get('.sidebar > div > a').should('not.exist');
 }
