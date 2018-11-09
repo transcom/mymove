@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -169,7 +170,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// DB Config
 	flag.String("db-name", "dev_db", "Database Name")
 	flag.String("db-host", "localhost", "Database Hostname")
-	flag.String("db-port", "5432", "Database Port")
+	flag.Int("db-port", 5432, "Database Port")
 	flag.String("db-user", "postgres", "Database Username")
 	flag.String("db-password", "", "Database Password")
 }
@@ -244,7 +245,7 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 	env := v.GetString("env")
 	dbName := v.GetString("db-name")
 	dbHost := v.GetString("db-host")
-	dbPort := v.GetString("db-port")
+	dbPort := strconv.Itoa(v.GetInt("db-port"))
 	dbUser := v.GetString("db-user")
 	dbPassword := v.GetString("db-password")
 
