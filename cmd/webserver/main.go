@@ -285,7 +285,7 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 	// Set up the connection
 	connection, err := pop.NewConnection(&dbConnectionDetails)
 	if err != nil {
-		logger.Error("Failed create DB conection", zap.Error(err))
+		logger.Error("Failed create DB connection", zap.Error(err))
 		return nil, err
 	}
 
