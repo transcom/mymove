@@ -11,14 +11,15 @@ var tariff400ngItemPricing = map[string]pricer{
 	"4A": newBasicQuantityPricer(),
 	"4B": newBasicQuantityPricer(),
 
+	// Below are SIT-related codes, uncomment after SIT is implemented
 	// Attempted delivery from SIT
-	"17A": newFlatRatePricer(),
-	"17B": newFlatRatePricer(),
+	// "17A": newFlatRatePricer(),
+	// "17B": newFlatRatePricer(),
 	// Priced using base linehaul rate, needs more work
 	// "17C": newFlatRatePricer(),
-	"17D": newMinimumQuantityHundredweightPricer(1000),
-	"17E": newFlatRatePricer(),
-	"17F": newFlatRatePricer(),
+	// "17D": newMinimumQuantityHundredweightPricer(1000),
+	// "17E": newFlatRatePricer(),
+	// "17F": newFlatRatePricer(),
 	// Priced using base linehaul rate, needs more work
 	// "17G": newFlatRatePricer(),
 
@@ -69,14 +70,16 @@ var tariff400ngItemPricing = map[string]pricer{
 	// otherwise TSP is limited to billing 1,000 lbs."
 	"175A": newMinimumQuantityPricer(1000),
 
+	// Below are SIT-related codes, uncomment after SIT is implemented
 	// SIT
-	"185A": newMinimumQuantityHundredweightPricer(1000),
+	// "185A": newMinimumQuantityHundredweightPricer(1000),
 	// Priced using two quantities (weight and days), needs more work
 	// "185B": newMinimumQuantityHundredweightPricer(1000),
 
+	// Below are SIT-related codes, uncomment after SIT is implemented
 	// SIT P/D OT
-	"210D": newFlatRatePricer(),
-	"210E": newFlatRatePricer(),
+	// "210D": newFlatRatePricer(),
+	// "210E": newFlatRatePricer(),
 
 	// Pickup/delivery at third-party and self-storage warehouses
 	"225A": newFlatRatePricer(),
