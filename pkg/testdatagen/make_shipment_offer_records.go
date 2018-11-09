@@ -170,17 +170,21 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		shipmentStatus := statuses[rand.Intn(len(statuses))]
 
 		// New Duty Station
-		newDutyStationAssertions := Assertions{
-			Address: models.Address{
-				City:       "Aurora",
-				State:      "CO",
-				PostalCode: "80011",
-			},
-			DutyStation: models.DutyStation{
-				Name: fmt.Sprintf("Buckley AFB %d", i),
-			},
+		// Check if Buckley Duty Station exists, if not, create
+		newDutyStation, err := models.FetchDutyStationByName(db, "Buckley AFB")
+		if err != nil {
+			newDutyStationAssertions := Assertions{
+				Address: models.Address{
+					City:       "Aurora",
+					State:      "CO",
+					PostalCode: "80011",
+				},
+				DutyStation: models.DutyStation{
+					Name: "Buckley AFB",
+				},
+			}
+			newDutyStation = MakeDutyStation(db, newDutyStationAssertions)
 		}
-		newDutyStation := MakeDutyStation(db, newDutyStationAssertions)
 
 		// Move and Order Details
 		moveStatus := models.MoveStatusSUBMITTED
