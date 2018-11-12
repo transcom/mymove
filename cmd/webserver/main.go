@@ -146,7 +146,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("here-maps-app-code", "", "HERE maps App API code")
 
 	// EDI Invoice Config
-	flag.Bool("invoice-is-a-test", true, "Flag (bool) for EDI Invoices to signify if they are tests")
+	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 
 	flag.String("storage-backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
@@ -342,8 +342,8 @@ func main() {
 	routePlanner := initRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
 
-	// Set InvoiceIsATest for ediinvoice
-	handlerContext.SetInvoiceIsATest(v.GetBool("invoice-is-a-test"))
+	// Set SendProductionInvoice for ediinvoice
+	handlerContext.SetSendProductionInvoice(v.GetBool("send-prod-invoice"))
 
 	storageBackend := v.GetString("storage-backend")
 

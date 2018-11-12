@@ -28,19 +28,14 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	var costsByShipments []rateengine.CostByShipment
 	costsByShipments = append(costsByShipments, costByShipment)
 
-	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db, true)
+	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db, false)
 	suite.NoError(err, "generates error")
 	suite.NotEmpty(generatedResult, "result is empty")
 
 	re := regexp.MustCompile("\\*" + "T" + "\\*")
 	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to T."+
-		" This is set by the if statement in Generate858C() that checks a boolean variable named invoiceIsATest")
+		" This is set by the if statement in Generate858C() that checks a boolean variable named sendProductionInvoice")
 
-	generatedResult, err = ediinvoice.Generate858C(costsByShipments, suite.db, false)
-
-	re = regexp.MustCompile("\\*" + "P" + "\\*")
-	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to P."+
-		" This is set by the if statement in Generate858C() that checks a boolean variable named invoiceIsATest")
 }
 
 type InvoiceSuite struct {
