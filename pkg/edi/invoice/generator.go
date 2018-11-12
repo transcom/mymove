@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -363,9 +364,6 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 var GetNextICN = getNextICN
 
 // getNextICN returns the next Interchange Control Number in a PostgreSQL sequence
-func getNextICN(db *pop.Connection) (int, error) {
-	var interchangeControlNumber int
-	query := "SELECT nextval($1);"
-	err := db.RawQuery(query, ICNSequenceName).First(&interchangeControlNumber)
-	return interchangeControlNumber, err
+func getNextICN(db *pop.Connection) (int64, error) {
+	return sequence.NextVal(db, ICNSequenceName)
 }

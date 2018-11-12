@@ -9,7 +9,7 @@ import (
 // IEA represents the IEA EDI segment
 type IEA struct {
 	NumberOfIncludedFunctionalGroups int
-	InterchangeControlNumber         int
+	InterchangeControlNumber         int64
 }
 
 // String converts IEA to its X12 single line string representation
@@ -34,6 +34,6 @@ func (s *IEA) Parse(elements []string) error {
 	if err != nil {
 		return err
 	}
-	s.InterchangeControlNumber, err = strconv.Atoi(elements[1])
+	s.InterchangeControlNumber, err = strconv.ParseInt(elements[1], 10, 64)
 	return err
 }

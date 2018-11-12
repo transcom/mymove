@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -35,8 +36,8 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 func (suite *InvoiceSuite) TestGetNextICN() {
 	var testCases = []struct {
-		initial  int
-		expected int
+		initial  int64
+		expected int64
 	}{
 		{1, 2},
 		{999999999, 1},
@@ -44,7 +45,7 @@ func (suite *InvoiceSuite) TestGetNextICN() {
 
 	for _, testCase := range testCases {
 		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
-			err := suite.db.RawQuery("SELECT setval('interchange_control_number', $1);", testCase.initial).Exec()
+			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
 			suite.NoError(err, "error setting sequence value")
 
 			actualICN, err := ediinvoice.GetNextICN(suite.db)
