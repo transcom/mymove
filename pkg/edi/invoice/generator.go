@@ -173,6 +173,12 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	if GBL == nil {
 		return segments, errors.New("GBL Number is missing for Shipment Identification Number (BX04)")
 	}
+	weightLbs := shipment.NetWeight
+	var netWeight float64
+	if weightLbs == nil {
+		return segments, errors.New("Shipment is missing the NetWeight")
+	}
+	netWeight = float64(*weightLbs)
 
 	return []edisegment.Segment{
 		&edisegment.BX{
@@ -239,9 +245,9 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			FinancialInformationCode:     *tac,
 		},
 		&edisegment.L10{
-			Weight:          108.2, // TODO: real weight
-			WeightQualifier: "B",   // Billing weight
-			WeightUnitCode:  "L",   // Pounds
+			Weight:          netWeight,
+			WeightQualifier: "B", // Billing weight
+			WeightUnitCode:  "L", // Pounds
 		},
 	}, nil
 }
@@ -253,7 +259,16 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	// L1 segment: p. 82
 	// TODO: These are sample line items, need to pull actual line items from shipment
 	// that are ready to be invoiced
+	shipment := shipmentWithCost.Shipment
+	segments := []edisegment.Segment{}
+
 	cost := shipmentWithCost.Cost
+	weightLbs := shipment.NetWeight
+	var netWeight float64
+	if weightLbs == nil {
+		return segments, errors.New("Shipment is missing the NetWeight")
+	}
+	netWeight = float64(*weightLbs)
 
 	return []edisegment.Segment{
 		// Linehaul. Not sure why this uses the 303 code, but that's what I saw from DPS
@@ -279,12 +294,12 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               netWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77,
+			FreightRate:        67.14,
 			RateValueQualifier: "RC", // Rate
 			Charge:             cost.NonLinehaulCostComputation.PackFee.ToDollarFloat(),
 			SpecialChargeDescription: "105A", // Full pack
@@ -296,7 +311,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               netWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
@@ -313,12 +328,12 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               netWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07,
+			FreightRate:        7.59,
 			RateValueQualifier: "RC", // Rate
 			Charge:             cost.NonLinehaulCostComputation.OriginServiceFee.ToDollarFloat(),
 			SpecialChargeDescription: "135A", // Origin service charge
@@ -330,15 +345,15 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               netWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07,
+			FreightRate:        5.31,
 			RateValueQualifier: "RC", // Rate
 			Charge:             cost.NonLinehaulCostComputation.DestinationServiceFee.ToDollarFloat(),
-			SpecialChargeDescription: "135B", // TODO: check if correct for Destination service charge
+			SpecialChargeDescription: "135B",
 		},
 		// Fuel surcharge - linehaul
 		&edisegment.HL{

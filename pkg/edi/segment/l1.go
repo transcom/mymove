@@ -20,7 +20,7 @@ func (s *L1) String(delimiter string) string {
 	elements := []string{
 		"L1",
 		strconv.Itoa(s.LadingLineItemNumber),
-		strconv.FormatFloat(s.FreightRate, 'f', 4, 64),
+		strconv.FormatFloat(s.FreightRate, 'f', 2, 64),
 		s.RateValueQualifier,
 		FloatToNx(s.Charge, 2),
 		"",
