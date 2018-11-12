@@ -12,6 +12,9 @@ appropriate authorization checks for the session
 
 */
 type FetchServiceMember interface {
-	// Execute ensures that the session passed in is authorized to access the details of the ServiceMember identified by id
-	Execute(session *server.Session, id uuid.UUID) (*models.ServiceMember, error)
+	/*
+		Execute ensures that the session passed in is authorized to access the details of the ServiceMember identified by id.
+		If session is nil, then no authorization checks are performed
+	*/
+	Execute(id uuid.UUID, session *server.Session) (*models.ServiceMember, error)
 }

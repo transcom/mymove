@@ -18,16 +18,18 @@ func NewFetchServiceMemberService(smDB models.ServiceMemberDB) services.FetchSer
 	}
 }
 
-func (s *fetchServiceMemberService) Execute(session *server.Session, id uuid.UUID) (*models.ServiceMember, error) {
-	// TODO: Handle case where more than one user is authorized to modify serviceMember
-	if session.IsMyApp() && id != session.ServiceMemberID {
-		return nil, services.ErrFetchForbidden
-	} else if session.IsTspApp() {
-		isManaging, err := s.smDB.IsTspManagingShipment(session.TspUserID, id)
-		if err != nil {
-			return nil, err
-		} else if !isManaging {
+func (s *fetchServiceMemberService) Execute(id uuid.UUID, session *server.Session) (*models.ServiceMember, error) {
+	if session != nil {
+		// TODO: Handle case where more than one user is authorized to modify serviceMember
+		if session.IsMyApp() && id != session.ServiceMemberID {
 			return nil, services.ErrFetchForbidden
+		} else if session.IsTspApp() {
+			isManaging, err := s.smDB.IsTspManagingShipment(session.TspUserID, id)
+			if err != nil {
+				return nil, err
+			} else if !isManaging {
+				return nil, services.ErrFetchForbidden
+			}
 		}
 	}
 	return s.smDB.Fetch(id, true)

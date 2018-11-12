@@ -70,7 +70,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(serviceMemberID, session)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

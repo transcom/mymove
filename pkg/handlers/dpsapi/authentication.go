@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
@@ -44,7 +43,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 		return dps.NewGetUserInternalServerError()
 	}
 
-	payload, err := getPayload(h.DB(), loginGovID, h.IWSRealTimeBrokerService())
+	payload, err := h.getPayload(loginGovID)
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissingData:
@@ -59,8 +58,8 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	return dps.NewGetUserOK().WithPayload(payload)
 }
 
-func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerService) (*dpsmessages.AuthenticationUserPayload, error) {
-	userIdentity, err := models.FetchUserIdentity(db, loginGovID)
+func (h GetUserHandler) getPayload(loginGovID string) (*dpsmessages.AuthenticationUserPayload, error) {
+	userIdentity, err := models.FetchUserIdentity(h.DB(), loginGovID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Fetching user identity")
 	}
@@ -72,15 +71,15 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerSer
 		}
 	}
 
-	sm, err := models.FetchServiceMember(db, *userIdentity.ServiceMemberID)
+	sm, err := h.FetchServiceMember().Execute(*userIdentity.ServiceMemberID, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "Fetching service member")
 	}
 
 	var affiliation *dpsmessages.Affiliation
 	if sm.Affiliation != nil {
-		dpsaffiliation := affiliationMap[*sm.Affiliation]
-		affiliation = &dpsaffiliation
+		dpsAffiliation := affiliationMap[*sm.Affiliation]
+		affiliation = &dpsAffiliation
 	}
 
 	if sm.Edipi == nil {
@@ -89,7 +88,7 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerSer
 			errMessage: fmt.Sprintf("User %s is missing EDIPI", userIdentity.ID.String()),
 		}
 	}
-	ssn, err := getSSNFromIWS(*sm.Edipi, rbs)
+	ssn, err := getSSNFromIWS(*sm.Edipi, h.IWSRealTimeBrokerService())
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting SSN from IWS using EDIPI")
 	}

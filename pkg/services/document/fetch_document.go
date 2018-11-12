@@ -29,7 +29,7 @@ func (s *fetchDocumentService) Execute(session *server.Session, id uuid.UUID) (m
 	}
 
 	// Now see if we have permissions to access the associated ServiceMember
-	_, smErr := s.fetchServiceMember.Execute(session, document.ServiceMemberID)
+	_, smErr := s.fetchServiceMember.Execute(document.ServiceMemberID, session)
 	if smErr != nil {
 		return models.Document{}, smErr
 	}

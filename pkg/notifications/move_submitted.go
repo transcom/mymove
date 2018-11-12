@@ -50,7 +50,7 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := m.smService.Execute(m.session, orders.ServiceMemberID)
+	serviceMember, err := m.smService.Execute(orders.ServiceMemberID, m.session)
 	if err != nil {
 		return emails, err
 	}

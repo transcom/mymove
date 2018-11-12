@@ -33,7 +33,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	serviceMember, err := h.FetchServiceMember().Execute(session, orders.ServiceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(orders.ServiceMemberID, session)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

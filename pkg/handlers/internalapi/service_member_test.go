@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	session.ServiceMemberID = serviceMemberID
 	// For Now - this should all use stubbed out services
 	serviceMemberDB := models.NewServiceMemberDB(suite.TestDB())
-	serviceMember, err := userServices.NewFetchServiceMemberService(serviceMemberDB).Execute(session, serviceMemberID)
+	serviceMember, err := userServices.NewFetchServiceMemberService(serviceMemberDB).Execute(serviceMemberID, session)
 	suite.Assertions.NoError(err)
 
 	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))

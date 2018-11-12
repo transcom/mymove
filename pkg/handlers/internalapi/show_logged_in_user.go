@@ -53,7 +53,7 @@ func (h *showLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) m
 	}
 
 	// Load Servicemember and first level associations
-	serviceMember, err := h.fetchServiceMember.Execute(session, session.ServiceMemberID)
+	serviceMember, err := h.fetchServiceMember.Execute(session.ServiceMemberID, session)
 	if err != nil {
 		h.logger.Error("Error retrieving service_member", zap.Error(err))
 		return userop.NewShowLoggedInUserUnauthorized()

@@ -151,7 +151,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(serviceMemberID, session)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -170,7 +170,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(serviceMemberID, session)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -278,7 +278,7 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 	session := server.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(serviceMemberID, session)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

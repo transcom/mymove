@@ -48,7 +48,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	// Fetch to check auth
-	serviceMember, err := h.FetchServiceMember().Execute(session, serviceMemberID)
+	serviceMember, err := h.FetchServiceMember().Execute(serviceMemberID, session)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

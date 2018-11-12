@@ -64,7 +64,7 @@ func (s *smTestSuite) TestFetchServiceMemberForUser() {
 	}
 	fetchServiceMemberService := NewFetchServiceMemberService(smDB)
 
-	goodSm, err := fetchServiceMemberService.Execute(session, sm.ID)
+	goodSm, err := fetchServiceMemberService.Execute(sm.ID, session)
 	if s.NoError(err) {
 		s.Equal(sm.FirstName, goodSm.FirstName)
 		s.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
@@ -72,7 +72,7 @@ func (s *smTestSuite) TestFetchServiceMemberForUser() {
 
 	// Wrong ServiceMember
 	wrongID, _ := uuid.NewV4()
-	_, err = fetchServiceMemberService.Execute(session, wrongID)
+	_, err = fetchServiceMemberService.Execute(wrongID, session)
 	if s.Error(err) {
 		s.Equal(services.ErrFetchForbidden, err)
 	}
@@ -80,8 +80,14 @@ func (s *smTestSuite) TestFetchServiceMemberForUser() {
 	// User is forbidden from fetching ServiceMember
 	session.UserID = user2.ID
 	session.ServiceMemberID = uuid.Nil
-	_, err = fetchServiceMemberService.Execute(session, sm.ID)
+	_, err = fetchServiceMemberService.Execute(sm.ID, session)
 	if s.Error(err) {
 		s.Equal(services.ErrFetchForbidden, err)
+	}
+
+	// No session, no checks
+	noSessionSm, err := fetchServiceMemberService.Execute(sm.ID, nil)
+	if s.NoError(err) {
+		s.Equal(noSessionSm.ID, sm.ID)
 	}
 }
