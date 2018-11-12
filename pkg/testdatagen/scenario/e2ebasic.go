@@ -284,24 +284,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	dutyStationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "Fort Gordon",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30813",
-			Country:        swag.String("United States"),
-		},
-	})
-
-	dutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			Name:        "Fort Sam Houston",
-			Affiliation: internalmessages.AffiliationARMY,
-			AddressID:   dutyStationAddress.ID,
-			Address:     dutyStationAddress,
-		},
-	})
+	// Check if Fort Gordon exists, if not, create
+	// Move date picker for this test case only works with an address of street name "Fort Gordon"
+	fortGordon, err := models.FetchDutyStationByName(db, "Fort Gordon")
+	if err != nil {
+		fortGordonAssertions := testdatagen.Assertions{
+			Address: models.Address{
+				City:       "Augusta",
+				State:      "GA",
+				PostalCode: "30813",
+			},
+			DutyStation: models.DutyStation{
+				Name: "Fort Gordon",
+			},
+		}
+		fortGordon = testdatagen.MakeDutyStation(db, fortGordonAssertions)
+	}
 
 	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -311,8 +309,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson"),
 			Edipi:         models.StringPointer("6833908163"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &dutyStation.ID,
-			DutyStation:   dutyStation,
+			DutyStationID: &fortGordon.ID,
+			DutyStation:   fortGordon,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
@@ -341,8 +339,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson2"),
 			Edipi:         models.StringPointer("6833908164"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &dutyStation.ID,
-			DutyStation:   dutyStation,
+			DutyStationID: &fortGordon.ID,
+			DutyStation:   fortGordon,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
@@ -486,7 +484,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	_, err := testdatagen.MakeTSPPerformanceDeprecated(db,
+	_, err = testdatagen.MakeTSPPerformanceDeprecated(db,
 		tspUser.TransportationServiceProvider,
 		*offer2.Shipment.TrafficDistributionList,
 		models.IntPointer(3),

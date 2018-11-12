@@ -84,6 +84,13 @@ func FetchDutyStation(tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
 	return station, err
 }
 
+// FetchDutyStationByName returns a station for a given unique name
+func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error) {
+	var station DutyStation
+	err := tx.Where("name = ?", name).Eager().First(&station)
+	return station, err
+}
+
 // FindDutyStations returns all duty stations matching a search query and military affiliation
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
