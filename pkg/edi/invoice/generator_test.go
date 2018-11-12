@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
 	"log"
 	"regexp"
@@ -15,14 +16,19 @@ import (
 
 func (suite *InvoiceSuite) TestGenerate858C() {
 	shipments := make([]models.Shipment, 1)
-	shipments[0] = testdatagen.MakeDefaultShipment(suite.db)
-	err := shipments[0].AssignGBLNumber(suite.db)
-	suite.mustSave(&shipments[0])
+	shipment := shipments[0]
+	shipment = testdatagen.MakeDefaultShipment(suite.db)
+	var weight unit.Pound
+	weight = 3000
+	shipment.NetWeight = &weight
+
+	err := shipment.AssignGBLNumber(suite.db)
+	suite.mustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
 
 	var cost rateengine.CostComputation
 	costByShipment := rateengine.CostByShipment{
-		Shipment: shipments[0],
+		Shipment: shipment,
 		Cost:     cost,
 	}
 	var costsByShipments []rateengine.CostByShipment
