@@ -20,13 +20,14 @@ const senderCode = "MYMOVE"
 //const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
 const receiverCode = "8004171844" // Syncada
 
+// ICNSequenceName used to query Interchange Control Numbers from DB
+const ICNSequenceName = "interchange_control_number"
+
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection) (string, error) {
-	var interchangeControlNumber int
-	query := "SELECT nextval('interchange_control_number');"
-	err := db.RawQuery(query).First(&interchangeControlNumber)
+	interchangeControlNumber, err := getNextICN(db)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to return nextval from 'interchange_control_number'")
+		return "", errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
 	}
 
 	currentTime := time.Now()
@@ -355,4 +356,16 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			SpecialChargeDescription: "16A", // Fuel surchage - linehaul
 		},
 	}, nil
+}
+
+// GetNextICN is a public wrapper around getNextICN for testing
+// See: link issue when created
+var GetNextICN = getNextICN
+
+// getNextICN returns the next Interchange Control Number in a PostgreSQL sequence
+func getNextICN(db *pop.Connection) (int, error) {
+	var interchangeControlNumber int
+	query := "SELECT nextval($1);"
+	err := db.RawQuery(query, ICNSequenceName).First(&interchangeControlNumber)
+	return interchangeControlNumber, err
 }

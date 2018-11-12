@@ -5,32 +5,42 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/pop"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"go.uber.org/zap"
 )
 
 func (suite *InvoiceSuite) TestGenerate858C() {
-	shipments := make([]models.Shipment, 1)
-	shipments[0] = testdatagen.MakeDefaultShipment(suite.db)
+	shipments := [1]models.Shipment{testdatagen.MakeDefaultShipment(suite.db)}
 	err := shipments[0].AssignGBLNumber(suite.db)
 	suite.mustSave(&shipments[0])
 	suite.NoError(err, "could not assign GBLNumber")
 
-	var cost rateengine.CostComputation
-	costByShipment := rateengine.CostByShipment{
+	costsByShipments := []rateengine.CostByShipment{{
 		Shipment: shipments[0],
-		Cost:     cost,
-	}
-	var costsByShipments []rateengine.CostByShipment
-	costsByShipments = append(costsByShipments, costByShipment)
+		Cost:     rateengine.CostComputation{},
+	}}
 
 	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db)
+
 	suite.NoError(err, "generates error")
 	suite.NotEmpty(generatedResult, "result is empty")
+}
+
+func (suite *InvoiceSuite) TestGetNextICN() {
+	err := suite.db.RawQuery("SELECT setval($1, 1);", ediinvoice.ICNSequenceTable).Exec()
+	suite.NoError(err, "error setting sequence value")
+
+	actualICN, err := ediinvoice.GetNextICN(suite.db)
+
+	if suite.NoError(err) {
+		assert.Equal(suite.T(), 2, actualICN)
+	}
 }
 
 type InvoiceSuite struct {
