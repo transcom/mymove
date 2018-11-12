@@ -36,6 +36,10 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to T."+
 		" This is set by the if statement in Generate858C() that checks a boolean variable named sendProductionInvoice")
 
+	re = regexp.MustCompile("((\\*)(27)(\\*)[A-Z]{4})") // The 27 value in here as it stands is a fixed value in the EDI string.
+	suite.Equal(2, len(re.FindAllString(generatedResult, -1)), "This fails if the EDI string does not have a SourceGBLOC and/or DestinationGBLOC. "+
+		"This is set in getHeadingSegments() in the ediinvoice pkg.")
+
 }
 
 type InvoiceSuite struct {
