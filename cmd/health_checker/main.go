@@ -349,6 +349,8 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	defer logger.Sync()
+
 	err = checkConfig(v)
 	if err != nil {
 		switch e := err.(type) {
