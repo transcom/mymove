@@ -28,6 +28,16 @@ export function getLastRequestIsLoading(state, label) {
   }
 }
 
+// Return if the last request for a given label was a success
+export function getLastRequestIsSuccess(state, label) {
+  const last = getLastRequest(state, label);
+  if (last && last.ok) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 // Return the last error for a given label
 export function getLastError(state, label) {
   // eslint-disable-next-line security/detect-object-injection

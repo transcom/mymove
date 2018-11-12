@@ -20,6 +20,7 @@ import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
   getShipmentDocumentsLabel,
+  generateGBL,
 } from 'shared/Entities/modules/shipmentDocuments';
 import {
   getAllTariff400ngItems,
@@ -41,7 +42,6 @@ import {
   loadShipmentDependencies,
   patchShipment,
   acceptShipment,
-  generateGBL,
   rejectShipment,
   transportShipment,
   deliverShipment,
@@ -55,8 +55,11 @@ import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
+import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
 
 import './tsp.css';
+
+const generateGblLabel = 'Shipments.createGovBillOfLading';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',
@@ -150,7 +153,7 @@ class ShipmentInfo extends Component {
   };
 
   generateGBL = () => {
-    return this.props.generateGBL(this.props.shipment.id);
+    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
   };
 
   rejectShipment = reason => {
@@ -457,10 +460,7 @@ const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
   const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
-
-  // When we create the GBL, we store the success, but don't add it to the docs in the entities reducer
-  // We should fix that, but for now here's a bandaid
-  const gblGenerated = state.tsp.generateGBLSuccess || gbl;
+  const gblGenerated = !!gbl;
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
@@ -475,9 +475,9 @@ const mapStateToProps = state => {
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
-    generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
-    generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
-    gblDocUrl: get(state, 'tsp.gblDocUrl'),
+    generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
+    generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
+    gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
