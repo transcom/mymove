@@ -1,0 +1,10 @@
+create_table("tariff400ng_item_rates") {
+    t.Column("id", "uuid", {"primary": true})
+    t.Column("code", "string", {})
+    t.Column("schedule", "integer", {"null": true})
+    t.Column("weight_lbs_lower", "integer", {"default": 0})
+    t.Column("weight_lbs_upper", "integer", {"default": 2147483647})
+    t.Column("rate_cents", "integer", {})
+    t.Column("effective_date_lower", "date", {})
+    t.Column("effective_date_upper", "date", {})
+}

@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/namsral/flag"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"

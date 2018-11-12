@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
@@ -13,6 +15,7 @@ import (
 type HandlerContext interface {
 	DB() *pop.Connection
 	Logger() *zap.Logger
+	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -29,20 +32,23 @@ type HandlerContext interface {
 	SetFetchDocument(services.FetchDocument)
 	FetchUpload() services.FetchUpload
 	SetFetchUpload(services.FetchUpload)
+	IWSRealTimeBrokerService() iws.RealTimeBrokerService
+	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
 }
 
 // A single handlerContext is passed to each handler
 type handlerContext struct {
-	db                 *pop.Connection
-	logger             *zap.Logger
-	cookieSecret       string
-	noSessionTimeout   bool
-	planner            route.Planner
-	storage            storage.FileStorer
-	notificationSender notifications.NotificationSender
-	fetchServiceMember services.FetchServiceMember
-	fetchDocument      services.FetchDocument
-	fetchUpload        services.FetchUpload
+	db                       *pop.Connection
+	logger                   *zap.Logger
+	cookieSecret             string
+	noSessionTimeout         bool
+	planner                  route.Planner
+	storage                  storage.FileStorer
+	notificationSender       notifications.NotificationSender
+	fetchServiceMember       services.FetchServiceMember
+	fetchDocument            services.FetchDocument
+	fetchUpload              services.FetchUpload
+	iwsRealTimeBrokerService iws.RealTimeBrokerService
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -61,6 +67,11 @@ func (context *handlerContext) DB() *pop.Connection {
 // Logger returns the logger to use in this context
 func (context *handlerContext) Logger() *zap.Logger {
 	return context.logger
+}
+
+// HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
+func (context *handlerContext) HoneyZapLogger() *hnyzap.Logger {
+	return &hnyzap.Logger{Logger: context.logger}
 }
 
 // FileStorer returns the storage to use in the current context
@@ -141,4 +152,12 @@ func (context *handlerContext) NoSessionTimeout() bool {
 // SetNoSessionTimeout is a simple setter for the noSessionTimeout private Field
 func (context *handlerContext) SetNoSessionTimeout() {
 	context.noSessionTimeout = true
+}
+
+func (context *handlerContext) IWSRealTimeBrokerService() iws.RealTimeBrokerService {
+	return context.iwsRealTimeBrokerService
+}
+
+func (context *handlerContext) SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService) {
+	context.iwsRealTimeBrokerService = rbs
 }

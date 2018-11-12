@@ -4,7 +4,7 @@ import (
 	"github.com/transcom/mymove/pkg/server"
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

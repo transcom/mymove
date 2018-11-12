@@ -20,12 +20,12 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
+import Dates from 'shared/ShipmentDates';
 import LocationsPanel from './Hhg/LocationsPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
-import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
-import ServiceAgents from './ServiceAgents';
-import PremoveSurvey from 'shared/PremoveSurvey';
+import TspContainer from 'shared/TspPanel/TspContainer';
+import Weights from 'shared/ShipmentWeights';
+import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -36,7 +36,7 @@ import {
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
   getAllShipmentLineItems,
-  selectShipmentLineItems,
+  selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 
@@ -47,10 +47,10 @@ import {
   approveHHG,
   completeHHG,
   cancelMove,
-  patchShipment,
   sendHHGInvoice,
   resetMove,
 } from './ducks';
+import { loadShipmentDependencies, patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -63,6 +63,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import { no_op_action } from '../../shared/utils';
 
 const BasicsTabContent = props => {
   return (
@@ -91,9 +92,9 @@ const HHGTabContent = props => {
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
-      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
+      <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
       <LocationsPanel title="Locations" moveId={props.moveId} />
-      <WeightAndInventoryPanel title="Weight & Inventory" moveId={props.moveId} />
+      <Weights title="Weights & Items" shipment={props.shipment} update={props.patchShipment} />
       {props.officeShipment && (
         <PremoveSurvey
           title="Premove Survey"
@@ -102,13 +103,12 @@ const HHGTabContent = props => {
           error={props.surveyError}
         />
       )}
-      {props.officeShipment.service_agents && (
-        <ServiceAgents
-          title="Service Agents"
-          shipment={props.officeShipment}
-          serviceAgents={props.officeShipment.service_agents}
-        />
-      )}
+      <TspContainer
+        setEditTspServiceAgent={no_op_action}
+        title="TSP & Servicing Agents"
+        shipment={props.officeShipment}
+        serviceAgents={props.serviceAgents}
+      />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
     </div>
   );
@@ -128,6 +128,7 @@ class MoveInfo extends Component {
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
+      this.props.loadShipmentDependencies(this.props.officeShipment.id);
     }
   }
 
@@ -200,7 +201,6 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
     const currentTab = pathnames[pathnames.length - 1];
-
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
@@ -213,6 +213,8 @@ class MoveInfo extends Component {
     const hhgDelivered = hhg.status === 'DELIVERED';
     const hhgCompleted = hhg.status === 'COMPLETED';
     const moveApproved = move.status === 'APPROVED';
+
+    const moveDate = isPPM ? ppm.planned_move_date : hhg.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -257,7 +259,7 @@ class MoveInfo extends Component {
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
-              <li>Move date {formatDate(ppm.planned_move_date)}&nbsp;</li>
+              <li>Move date {formatDate(moveDate)}&nbsp;</li>
             </ul>
           </div>
         </div>
@@ -304,6 +306,8 @@ class MoveInfo extends Component {
                     officeShipment={this.props.officeShipment}
                     patchShipment={this.props.patchShipment}
                     moveId={this.props.match.params.moveId}
+                    shipment={this.props.shipment}
+                    serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                   />
                 </PrivateRoute>
@@ -457,6 +461,7 @@ const mapStateToProps = state => ({
   swaggerError: get(state, 'swagger.hasErrored'),
   officeMove: get(state, 'office.officeMove', {}),
   officeShipment: get(state, 'office.officeShipment', {}),
+  shipment: get(state, 'tsp.shipment', {}),
   officeOrders: get(state, 'office.officeOrders', {}),
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
@@ -465,7 +470,8 @@ const mapStateToProps = state => ({
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
   tariff400ngItems: selectTariff400ngItems(state),
-  shipmentLineItems: selectShipmentLineItems(state),
+  serviceAgents: get(state, 'tsp.serviceAgents', []),
+  shipmentLineItems: selectSortedShipmentLineItems(state),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),
@@ -478,6 +484,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
+      loadShipmentDependencies,
       loadMoveDependencies,
       getMoveDocumentsForMove,
       approveBasics,

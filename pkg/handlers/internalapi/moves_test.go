@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

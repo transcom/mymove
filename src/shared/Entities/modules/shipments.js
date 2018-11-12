@@ -12,8 +12,8 @@ export function createOrUpdateShipment(label, moveId, shipment, id) {
   }
 }
 
-export function getShipment(label, shipmentId, moveId) {
-  return swaggerRequest(getClient, 'shipments.getShipment', { moveId, shipmentId }, { label });
+export function getShipment(label, shipmentId) {
+  return swaggerRequest(getClient, 'shipments.getShipment', { shipmentId }, { label });
 }
 
 export function createShipment(

@@ -3,17 +3,17 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { get, capitalize } from 'lodash';
+import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
-import PremoveSurvey from 'shared/PremoveSurvey';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
@@ -28,7 +28,7 @@ import {
 } from 'shared/Entities/modules/tariff400ngItems';
 import {
   getAllShipmentLineItems,
-  selectShipmentLineItems,
+  selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 
@@ -46,20 +46,21 @@ import {
   transportShipment,
   deliverShipment,
 } from './ducks';
-import ServiceAgents from './ServiceAgents';
-import Weights from './Weights';
-import Dates from './Dates';
+import TspContainer from 'shared/TspPanel/TspContainer';
+import Weights from 'shared/ShipmentWeights';
+import Dates from 'shared/ShipmentDates';
 import LocationsContainer from './LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import PickupForm from './PickupForm';
+import PremoveSurveyForm from './PremoveSurveyForm';
 
 import './tsp.css';
 
 const attachmentsErrorMessages = {
-  400: 'There is already a GBL for this shipment. ',
-  417: 'Missing data required to generate a GBL.',
+  400: 'An error occurred',
+  417: 'Missing data required to generate a Bill of Lading.',
 };
 
 class AcceptShipmentPanel extends Component {
@@ -123,13 +124,11 @@ class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
 
-    this.assignServiceMember = React.createRef();
-    this.enterPreMoveSurvey = React.createRef();
+    this.assignTspServiceAgent = React.createRef();
   }
   state = {
     redirectToHome: false,
-    editOriginServiceAgent: false,
-    editPreMoveSurvey: false,
+    editTspServiceAgent: false,
   };
 
   componentDidMount() {
@@ -160,32 +159,22 @@ class ShipmentInfo extends Component {
     });
   };
 
+  enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
+
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
   // Access Service Agent Panels
-  setEditServiceAgent = editOriginServiceAgent => this.setState({ editOriginServiceAgent });
+  setEditTspServiceAgent = editTspServiceAgent => this.setState({ editTspServiceAgent });
 
-  scrollToOriginServiceAgentPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.assignServiceMember.current);
+  scrollToTspServiceAgentPanel = () => {
+    const domNode = ReactDOM.findDOMNode(this.assignTspServiceAgent.current);
     domNode.scrollIntoView();
   };
-  toggleEditOriginServiceAgent = () => {
-    this.scrollToOriginServiceAgentPanel();
-    this.setEditServiceAgent(true);
-  };
-
-  // Access Pre Move Survey Panels
-  setEditPreMoveSurvey = editPreMoveSurvey => this.setState({ editPreMoveSurvey });
-
-  scrollToPreMoveSurveyPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.enterPreMoveSurvey.current);
-    domNode.scrollIntoView();
-  };
-  toggleEditPreMoveSurvey = () => {
-    this.scrollToPreMoveSurveyPanel();
-    this.setEditPreMoveSurvey(true);
+  toggleEditTspServiceAgent = () => {
+    this.scrollToTspServiceAgentPanel();
+    this.setEditTspServiceAgent(true);
   };
 
   render() {
@@ -198,6 +187,7 @@ class ShipmentInfo extends Component {
       generateGBLInProgress,
       serviceAgents,
       loadTspDependenciesHasSuccess,
+      gblGenerated,
     } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
 
@@ -205,9 +195,11 @@ class ShipmentInfo extends Component {
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const awarded = shipment.status === 'AWARDED';
-    const approved = shipment.status === 'APPROVED';
     const accepted = shipment.status === 'ACCEPTED';
+    const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
+    const delivered = shipment.status === 'DELIVERED';
+    const completed = shipment.status === 'COMPLETED';
     const pmSurveyComplete = Boolean(
       shipment.pm_survey_conducted_date &&
         shipment.pm_survey_method &&
@@ -216,11 +208,27 @@ class ShipmentInfo extends Component {
         shipment.pm_survey_planned_delivery_date &&
         shipment.pm_survey_weight_estimate,
     );
-    const gblGenerated =
-      shipmentDocuments && shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
     const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
+
+    // Some statuses are directly related to the shipment status and some to combo states
+    var statusText = 'Unknown status';
+    if (awarded) {
+      statusText = 'Shipment awarded';
+    } else if (accepted) {
+      statusText = 'Shipment accepted';
+    } else if (approved && !pmSurveyComplete) {
+      statusText = 'Awaiting pre-move survey';
+    } else if (approved && pmSurveyComplete && !gblGenerated) {
+      statusText = 'Pre-move survey complete';
+    } else if (approved && pmSurveyComplete && gblGenerated) {
+      statusText = 'Outbound';
+    } else if (inTransit) {
+      statusText = 'Inbound';
+    } else if (delivered || completed) {
+      statusText = 'Delivered';
+    }
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -233,11 +241,16 @@ class ShipmentInfo extends Component {
     return (
       <div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds">
-            MOVE INFO - {move.selected_move_type} CODE D
-            <h1>
-              Shipment Info: {serviceMember.last_name}, {serviceMember.first_name}
-            </h1>
+          <div className="usa-width-two-thirds page-title">
+            <div className="move-info">
+              <div className="move-info-code">
+                MOVE INFO &mdash; {move.selected_move_type} CODE {shipment.traffic_distribution_list.code_of_service}
+              </div>
+              <div className="service-member-name">
+                {serviceMember.last_name}, {serviceMember.first_name}
+              </div>
+            </div>
+            <div className="shipment-status">Status: {statusText}</div>
           </div>
           <div className="usa-width-one-third nav-controls">
             {awarded && (
@@ -245,13 +258,37 @@ class ShipmentInfo extends Component {
                 <span>New Shipments Queue</span>
               </NavLink>
             )}
+            {accepted && (
+              <NavLink to="/queues/accepted" activeClassName="usa-current">
+                <span>Accepted Shipments Queue</span>
+              </NavLink>
+            )}
             {approved && (
               <NavLink to="/queues/approved" activeClassName="usa-current">
                 <span>Approved Shipments Queue</span>
               </NavLink>
             )}
+            {inTransit && (
+              <NavLink to="/queues/in_transit" activeClassName="usa-current">
+                <span>In Transit Shipments Queue</span>
+              </NavLink>
+            )}
+            {delivered && (
+              <NavLink to="/queues/delivered" activeClassName="usa-current">
+                <span>Delivered Shipments Queue</span>
+              </NavLink>
+            )}
+            {completed && (
+              <NavLink to="/queues/completed" activeClassName="usa-current">
+                <span>Completed Shipments Queue</span>
+              </NavLink>
+            )}
             {!awarded &&
-              !approved && (
+              !accepted &&
+              !approved &&
+              !inTransit &&
+              !delivered &&
+              !completed && (
                 <NavLink to="/queues/all" activeClassName="usa-current">
                   <span>All Shipments Queue</span>
                 </NavLink>
@@ -286,10 +323,6 @@ class ShipmentInfo extends Component {
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
                 &nbsp;
               </li>
-              <li>
-                Status: <b>{capitalize(this.props.shipment.status)}</b>
-                &nbsp;
-              </li>
             </ul>
           </div>
         </div>
@@ -306,27 +339,27 @@ class ShipmentInfo extends Component {
 
               {generateGBLError && (
                 <p>
-                  <Alert type="warning" heading="An error occurred">
-                    {attachmentsErrorMessages[this.props.error.statusCode] ||
+                  <Alert
+                    type="warning"
+                    heading={attachmentsErrorMessages[this.props.generateGBLError.status] || 'An error occurred'}
+                  >
+                    {titleCase(get(generateGBLError.response, 'body.message', '')) ||
                       'Something went wrong contacting the server.'}
                   </Alert>
                 </p>
               )}
+
               {generateGBLSuccess && (
-                <p>
-                  <Alert type="success" heading="GBL has been created">
-                    <span className="usa-grid usa-alert-no-padding">
-                      <span className="usa-width-two-thirds">
-                        Click the button to view, print, or download the GBL.
-                      </span>
-                      <span className="usa-width-one-third">
-                        <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
-                          <button>View GBL</button>
-                        </Link>
-                      </span>
+                <Alert type="success" heading="GBL has been created">
+                  <span className="usa-grid usa-alert-no-padding">
+                    <span className="usa-width-two-thirds">Click the button to view, print, or download the GBL.</span>
+                    <span className="usa-width-one-third">
+                      <Link to={`${this.props.gblDocUrl}`} className="usa-alert-right" target="_blank">
+                        <button>View GBL</button>
+                      </Link>
                     </span>
-                  </Alert>
-                </p>
+                  </span>
+                </Alert>
               )}
               {approved &&
                 pmSurveyComplete &&
@@ -338,12 +371,15 @@ class ShipmentInfo extends Component {
                   </div>
                 )}
               {canEnterPreMoveSurvey && (
-                <button className="usa-button-primary" onClick={this.toggleEditPreMoveSurvey}>
-                  Enter pre-move survey
-                </button>
+                <FormButton
+                  FormComponent={PremoveSurveyForm}
+                  schema={this.props.shipmentSchema}
+                  onSubmit={this.enterPreMoveSurvey}
+                  buttonTitle="Enter pre-move survey"
+                />
               )}
               {canAssignServiceAgents && (
-                <button className="usa-button-primary" onClick={this.toggleEditOriginServiceAgent}>
+                <button className="usa-button-primary" onClick={this.toggleEditTspServiceAgent}>
                   Assign servicing agents
                 </button>
               )}
@@ -367,25 +403,17 @@ class ShipmentInfo extends Component {
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
                   <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <PremoveSurvey
-                    ref={this.enterPreMoveSurvey}
-                    editPreMoveSurvey={this.state.editPreMoveSurvey}
-                    setEditPreMoveSurvey={this.setEditPreMoveSurvey}
-                    title="Premove Survey"
-                    shipment={this.props.shipment}
-                    update={this.props.patchShipment}
-                  />
+                  <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
+                  <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  <ServiceAgents
-                    ref={this.assignServiceMember}
-                    editOriginServiceAgent={this.state.editOriginServiceAgent}
-                    setEditServiceAgent={this.setEditServiceAgent}
-                    title="ServiceAgents"
+                  <TspContainer
+                    ref={this.assignTspServiceAgent}
+                    editTspServiceAgent={this.state.editTspServiceAgent}
+                    setEditTspServiceAgent={this.setEditTspServiceAgent}
+                    title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                   />
-                  <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <LocationsContainer update={this.props.patchShipment} />
                 </div>
               )}
             </div>
@@ -425,14 +453,22 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
+  const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
+  const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+
+  // When we create the GBL, we store the success, but don't add it to the docs in the entities reducer
+  // We should fix that, but for now here's a bandaid
+  const gblGenerated = state.tsp.generateGBLSuccess || gbl;
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
-    shipmentDocuments: selectShipmentDocuments(state, shipment.id),
+    shipmentDocuments,
+    gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
-    shipmentLineItems: selectShipmentLineItems(state),
+    shipmentLineItems: selectSortedShipmentLineItems(state),
     serviceAgents: get(state, 'tsp.serviceAgents', []),
+    tsp: get(state, 'tsp'),
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
@@ -441,6 +477,7 @@ const mapStateToProps = state => {
     generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
     gblDocUrl: get(state, 'tsp.gblDocUrl'),
     error: get(state, 'tsp.error'),
+    shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };

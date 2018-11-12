@@ -2,15 +2,15 @@ package models
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/server"
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-
+	"github.com/transcom/mymove/pkg/dates"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -222,6 +222,21 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	if trafficDistributionList != nil {
 		s.TrafficDistributionListID = &trafficDistributionList.ID
 		s.TrafficDistributionList = trafficDistributionList
+	}
+
+	// Ensure that OriginalPackDate and OriginalDeliveryDate are set
+	// Requires that we know RequestedPickupDate, EstimatedPackDays, and EstimatedTransitDays
+	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil &&
+		(s.OriginalPackDate == nil || s.OriginalDeliveryDate != nil) {
+		var summary dates.MoveDatesSummary
+		summary.CalculateMoveDates(*s.RequestedPickupDate, int(*s.EstimatedPackDays), int(*s.EstimatedTransitDays))
+
+		if s.OriginalPackDate == nil {
+			s.OriginalPackDate = &summary.PackDays[0]
+		}
+		if s.OriginalDeliveryDate == nil {
+			s.OriginalDeliveryDate = &summary.DeliveryDays[0]
+		}
 	}
 
 	return nil
@@ -482,6 +497,8 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
 		"Move.Orders.NewDutyStation.Address",
+		"Move.Orders.HasDependents",
+		"Move.Orders.SpouseHasProGear",
 		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",

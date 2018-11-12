@@ -2,11 +2,8 @@ package models_test
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/server"
-
-	"github.com/gobuffalo/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -67,7 +64,7 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 		ApplicationName: server.MyApp,
 	}
 	shouldSucceed, err := models.FetchBackupContact(suite.db, session, backupContact.ID)
-	if err != nil || !uuid.Equal(backupContact.ID, shouldSucceed.ID) {
+	if err != nil || backupContact.ID != shouldSucceed.ID {
 		t.Errorf("failed retrieving own backup contact: %v", err)
 	}
 

@@ -2,13 +2,13 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
-	"github.com/transcom/mymove/pkg/server"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
 )
 

@@ -2,14 +2,14 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
-	"github.com/transcom/mymove/pkg/server"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/server"
 )
 
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve

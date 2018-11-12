@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

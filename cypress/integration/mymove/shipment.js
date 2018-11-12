@@ -1,4 +1,4 @@
-/* global cy */
+/* global cy, Cypress*/
 
 describe('completing the hhg flow', function() {
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('completing the hhg flow', function() {
     // Try to get today, which should be disabled even after clicked.  We may have to go back a month
     // to find today since the calendar scrolls to the month with the first available move date.
     cy
-      .get('body')
+      .get('.DayPicker-Body')
       .then($body => {
         if ($body.find('.DayPicker-Day--today').length === 0) {
           cy.get('.DayPicker-NavButton--prev').click();
@@ -41,7 +41,7 @@ describe('completing the hhg flow', function() {
     // we skip to the next month which should (at least at this point) have an available
     // date.
     cy
-      .get('body')
+      .get('.DayPicker-Body')
       .then($body => {
         if ($body.find('[class=DayPicker-Day]').length === 0) {
           cy.get('.DayPicker-NavButton--next').click();
@@ -189,6 +189,41 @@ describe('completing the hhg flow', function() {
     cy.contains('3,000 lbs + 250 lbs pro-gear + 158 lbs spouse pro-gear');
     cy.contains('Great! You appear within your weight allowance.');
 
+    // Go back and edit dates
+    cy
+      .get('.hhg-shipment-summary .hhg-dates a')
+      .contains('Edit')
+      .click();
+
+    cy.contains('Pick a moving date');
+    cy.get('.DayPicker-Body').then($body => {
+      if ($body.find('.DayPicker-Day--transit[aria-disabled=false]').length === 0) {
+        cy.get('.DayPicker-NavButton--next').click();
+      }
+    });
+    cy
+      .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
+      .first()
+      .click()
+      .should('have.class', 'DayPicker-Day--selected')
+      .invoke('attr', 'aria-label')
+      .as('dateLabel');
+
+    cy.contains('Save').click();
+
+    // verify new date is shown
+    checkLoadingDate();
+
+    // click edit again and then click cancel
+    cy
+      .get('.hhg-shipment-summary .hhg-dates a')
+      .contains('Edit')
+      .click();
+    cy.contains('Cancel').click();
+
+    // verify loading date hasn't changed
+    checkLoadingDate();
+
     cy.nextPage();
     cy.contains('SIGNATURE');
     cy.get('input[name="signature"]').type('SM Signature');
@@ -199,3 +234,17 @@ describe('completing the hhg flow', function() {
     cy.contains('Government Movers and Packers');
   });
 });
+
+// Verify that the date shown on the review page for loading is the same date
+// that dateLabel was most recently set to.
+function checkLoadingDate() {
+  cy
+    .get('.hhg-shipment-summary .hhg-dates tr')
+    .contains('Loading Truck:')
+    .next()
+    .then(function($tr) {
+      const expectedDate = Cypress.moment(this.dateLabel, 'ddd MMM DD YYYY').toString();
+      const actualDate = Cypress.moment($tr.text(), 'ddd, MMM DD').toString();
+      expect(actualDate).to.equal(expectedDate);
+    });
+}

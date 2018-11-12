@@ -2,13 +2,13 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
-	"github.com/transcom/mymove/pkg/server"
+	"github.com/gofrs/uuid"
 
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -76,7 +76,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}
-		if !uuid.Equal(ppm.MoveID, moveID) {
+		if ppm.MoveID != moveID {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()
 		}
 

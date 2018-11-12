@@ -2,14 +2,14 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
-	"github.com/transcom/mymove/pkg/server"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 

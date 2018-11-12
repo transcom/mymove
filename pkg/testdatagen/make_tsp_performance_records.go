@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -28,7 +28,7 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) models.Transp
 
 	var tsp models.TransportationServiceProvider
 	id := assertions.TransportationServiceProviderPerformance.TransportationServiceProviderID
-	if uuid.Equal(id, uuid.Nil) {
+	if id == uuid.Nil {
 		tsp = MakeDefaultTSP(db)
 	} else {
 		tsp = assertions.TransportationServiceProviderPerformance.TransportationServiceProvider
@@ -36,7 +36,7 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) models.Transp
 
 	var tdl models.TrafficDistributionList
 	id = assertions.TransportationServiceProviderPerformance.TrafficDistributionListID
-	if uuid.Equal(id, uuid.Nil) {
+	if id == uuid.Nil {
 		tdl = MakeDefaultTDL(db)
 	} else {
 		tdl = assertions.TransportationServiceProviderPerformance.TrafficDistributionList

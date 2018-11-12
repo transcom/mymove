@@ -76,7 +76,7 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 		skipLogger.Debug("invalid transition", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
-		skipLogger.Error("Unexpected error", zap.Error(err))
+		skipLogger.Error("unexpected error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError, err)
 	}
 }
@@ -93,6 +93,14 @@ func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 		return newValidationErrorsResponse(errors)
 	}
 	return ResponseForError(skipLogger, err)
+}
+
+// ResponseForCustomErrors checks for custom errors and returns a custom response body message
+func ResponseForCustomErrors(logger *zap.Logger, err error, httpStatus int) middleware.Responder {
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
+	skipLogger.Error("Encountered error", zap.Error(err))
+
+	return newErrResponse(httpStatus, err)
 }
 
 // ResponseForConflictErrors checks for conflict errors

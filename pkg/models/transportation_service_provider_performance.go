@@ -1,15 +1,17 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"sort"
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -244,12 +246,17 @@ func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups
 }
 
 // AssignQualityBandToTSPPerformance sets the QualityBand value for a TransportationServiceProviderPerformance.
-func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUID) error {
+func AssignQualityBandToTSPPerformance(ctx context.Context, db *pop.Connection, band int, id uuid.UUID) error {
+	_, span := beeline.StartSpan(ctx, "AssignQualityBandToTSPPerformance")
+	defer span.Send()
 	performance := TransportationServiceProviderPerformance{}
 	if err := db.Find(&performance, id); err != nil {
 		return err
 	}
+	span.AddField("tsp_performance_id", performance.ID.String())
+
 	performance.QualityBand = &band
+	span.AddField("tsp_performance_band", performance.QualityBand)
 	verrs, err := db.ValidateAndUpdate(&performance)
 	if err != nil {
 		return err
@@ -277,21 +284,21 @@ func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid
 }
 
 // GetRateCycle returns the start date and end dates for a rate cycle of the
-// given year and season (peak/non-peak).
+// given year and season (peak/non-peak), inclusive.
 func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 	if peak {
 		start = time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
-		end = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year, time.September, 30, 0, 0, 0, 0, time.UTC)
 	} else {
 		start = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
-		end = time.Date(year+1, time.May, 15, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year+1, time.May, 14, 0, 0, 0, 0, time.UTC)
 	}
 
 	return start, end
 }
 
 // FetchDiscountRates returns the discount linehaul and SIT rates for the TSP with the highest
-// BVS during the specified data, limited to those TSPs in the channel defined by the
+// BVS during the specified date, limited to those TSPs in the channel defined by the
 // originZip and destinationZip.
 func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (linehaulDiscount unit.DiscountRate, sitDiscount unit.DiscountRate, err error) {
 	rateArea, err := FetchRateAreaForZip5(db, originZip)
@@ -309,7 +316,7 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 		Where("tdl.source_rate_area = ?", rateArea).
 		Where("tdl.destination_region = ?", region).
 		Where("tdl.code_of_service = ?", cos).
-		Where("? BETWEEN transportation_service_provider_performances.rate_cycle_start AND transportation_service_provider_performances.rate_cycle_end", date).
+		Where("? BETWEEN transportation_service_provider_performances.performance_period_start AND transportation_service_provider_performances.performance_period_end", date).
 		Order("transportation_service_provider_performances.best_value_score DESC").
 		First(&tspPerformance)
 

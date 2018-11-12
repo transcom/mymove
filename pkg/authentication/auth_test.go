@@ -2,7 +2,7 @@ package authentication
 
 import (
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/server"
 	"go.uber.org/zap"
@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -85,7 +86,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	loginGovConfig := LoginGovConfig{
 		Host:             "login.gov",
 		CallbackProtocol: "https://",
-		CallbackPort:     "1234",
+		CallbackPort:     1234,
 	}
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
@@ -117,9 +118,8 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
 
 	suite.Nil(err)
-	suite.logger.Info(postRedirectURI.String())
 	suite.Equal(hostsConfig.OfficeName, postRedirectURI.Hostname())
-	suite.Equal(loginGovConfig.CallbackPort, postRedirectURI.Port())
+	suite.Equal(strconv.Itoa(loginGovConfig.CallbackPort), postRedirectURI.Port())
 	token := params["id_token_hint"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
 }

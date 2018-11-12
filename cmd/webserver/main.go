@@ -3,14 +3,6 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
-	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
-	"github.com/transcom/mymove/pkg/config"
-	"github.com/transcom/mymove/pkg/di"
-	"github.com/transcom/mymove/pkg/handlers/dpsapi"
-	"github.com/transcom/mymove/pkg/handlers/internalapi"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"go.uber.org/dig"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -20,20 +12,29 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/honeycombio/beeline-go"
-
-	"github.com/transcom/mymove/pkg/authentication"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/ordersapi"
-	"github.com/transcom/mymove/pkg/handlers/publicapi"
-	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/server"
-	documentServices "github.com/transcom/mymove/pkg/services/document"
-	userServices "github.com/transcom/mymove/pkg/services/user"
-	"github.com/transcom/mymove/pkg/storage"
+	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/spf13/viper"
+	"go.uber.org/dig"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
+
+	"github.com/transcom/mymove/pkg/authentication"
+	"github.com/transcom/mymove/pkg/di"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/dpsapi"
+	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"github.com/transcom/mymove/pkg/handlers/ordersapi"
+	"github.com/transcom/mymove/pkg/handlers/publicapi"
+	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/server"
+	"github.com/transcom/mymove/pkg/services"
+	documentServices "github.com/transcom/mymove/pkg/services/document"
+	userServices "github.com/transcom/mymove/pkg/services/user"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // max request body size is 20 mb
@@ -87,30 +88,34 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
-func newDatabase(cfg *config.DatabaseConfig) (*pop.Connection, error) {
-	if err := pop.AddLookupPaths(cfg.ConfigDir); err != nil {
+func newDatabase(v *viper.Viper) (*pop.Connection, error) {
+	if err := pop.AddLookupPaths(v.GetString("config-dir")); err != nil {
 		return nil, err
 	}
-	return pop.Connect(cfg.Environment)
+	return pop.Connect(v.GetString("env"))
 }
 
-func initializeHoneycomb(cfg *config.HoneycombConfig, logger *zap.Logger) {
-	// For now, this should be part of the config parsing and validation
-	if cfg.Enabled != nil && cfg.APIKey != nil && cfg.DataSet != nil && *cfg.Enabled && len(*cfg.APIKey) > 0 && len(*cfg.DataSet) > 0 {
-		cfg.UseHoneycomb = true
-	}
+// HoneycombEnabled is a type alias for dependency injection. Indicated if honeycomb is enabled for the site
+type HoneycombEnabled bool
 
-	if cfg.UseHoneycomb {
-		logger.Debug("Honeycomb Integration enabled", zap.String("honeycomb-dataset", *cfg.DataSet))
+func initializeHoneycomb(v *viper.Viper, l *zap.Logger) HoneycombEnabled {
+	honeycombAPIKey := v.GetString("honeycomb-api-key")
+	honeycombDataSet := v.GetString("honeycomb-dataset")
+	honeycombServiceName := v.GetString("service-name")
+
+	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataSet) > 0 {
+		l.Debug("Honeycomb Integration enabled", zap.String("honeycomb-dataset", honeycombDataSet))
 		beeline.Init(beeline.Config{
-			WriteKey: *cfg.APIKey,
-			Dataset:  *cfg.DataSet,
-			Debug:    *cfg.Debug,
+			WriteKey:    honeycombAPIKey,
+			Dataset:     honeycombDataSet,
+			Debug:       v.GetBool("honeycomb-debug"),
+			ServiceName: honeycombServiceName,
 		})
-	} else {
-		logger.Debug("Honeycomb Integration disabled")
+		return true
 	}
 
+	l.Debug("Honeycomb Integration disabled")
+	return false
 }
 
 // Assert that our secret keys can be parsed into actual private keys
@@ -124,6 +129,14 @@ func validateKeys(cCfg *server.SessionCookieConfig, lgConfig *authentication.Log
 	}
 }
 
+func initRealTimeBrokerService(v *viper.Viper) (*iws.RealTimeBrokerService, error) {
+	return iws.NewRealTimeBrokerService(
+		v.GetString("iws-rbs-host"),
+		v.GetString("dod-ca-package"),
+		v.GetString("move-mil-dod-tls-cert"),
+		v.GetString("move-mil-dod-tls-key"))
+}
+
 // PopulateHandlerContextParams is the list of dependencies needed to populate the HandlerContext
 type PopulateHandlerContextParams struct {
 	dig.In
@@ -133,7 +146,8 @@ type PopulateHandlerContextParams struct {
 	notifications.NotificationSender
 	route.Planner
 	storage.FileStorer
-	Cookie *server.SessionCookieConfig
+	Cookie                *server.SessionCookieConfig
+	RealTimeBrokerService *iws.RealTimeBrokerService
 }
 
 // FOR NOW - Once handlers are implemented like handlers.internalapi.ShowLoggedInUserHandler and have explicit
@@ -151,6 +165,7 @@ func populateHandlerContext(ctxt handlers.HandlerContext, p PopulateHandlerConte
 	ctxt.SetFetchServiceMember(p.FetchServiceMember)
 	ctxt.SetFetchDocument(p.FetchDocument)
 	ctxt.SetFetchUpload(p.FetchUpload)
+	ctxt.SetIWSRealTimeBrokerService(*p.RealTimeBrokerService)
 }
 
 // fileHandler serves up a single file
@@ -165,7 +180,7 @@ type IndexHandlerFunc http.HandlerFunc
 
 // indexHandler injects New Relic client code and credentials into index.html
 // and returns a handler that will serve the resulting content
-func indexHandler(localEnv *server.LocalEnvConfig, cfg *config.NewRelicConfig, l *zap.Logger) IndexHandlerFunc {
+func indexHandler(localEnv *server.LocalEnvConfig, cfg *NewRelicConfig, l *zap.Logger) IndexHandlerFunc {
 	data := map[string]string{
 		"NewRelicApplicationID": cfg.AppID,
 		"NewRelicLicenseKey":    cfg.Key,
@@ -206,7 +221,7 @@ type BuildSiteParams struct {
 	authentication.UserAuthMiddleware
 	IndexHandlerFunc
 	Env                   *server.LocalEnvConfig
-	Swagger               *config.SwaggerConfig
+	Swagger               *SwaggerConfig
 	Hosts                 *server.HostsConfig
 	S3Config              *storage.S3StorerConfig
 	OrdersAPIHandler      ordersapi.Handler
@@ -219,7 +234,7 @@ type BuildSiteParams struct {
 	AuthUserListHandler   *authentication.UserListHandler
 	AuthAssignUserHandler *authentication.AssignUserHandler
 	AuthCreateUserHandler *authentication.CreateUserHandler
-	HoneycombConfig       *config.HoneycombConfig
+	HoneycombEnabled
 }
 
 // SiteHandler is the DI marker for the main site http.Handler
@@ -325,13 +340,13 @@ func buildSite(p BuildSiteParams, l *zap.Logger) (SiteHandler, error) {
 	root.HandleFunc(pat.Get("/*"), p.IndexHandlerFunc)
 
 	// return site, wrapping in honeycomb if needed
-	if p.HoneycombConfig == nil {
+	if !p.HoneycombEnabled {
 		return site, nil
 	}
 	return hnynethttp.WrapHandler(site), nil
 }
 
-func serveSite(cfg *config.ListenerConfig, hostsConfig *server.HostsConfig, siteHandler SiteHandler, l *zap.Logger) error {
+func serveSite(cfg *ListenerConfig, hostsConfig *server.HostsConfig, siteHandler SiteHandler, l *zap.Logger) error {
 	errChan := make(chan error)
 
 	moveMilCerts := []server.TLSCert{
@@ -391,12 +406,21 @@ func serveSite(cfg *config.ListenerConfig, hostsConfig *server.HostsConfig, site
 	return <-errChan
 }
 
-func dependencies() *di.Container {
+func dependencies(config *viper.Viper) *di.Container {
 
-	c := di.NewContainer(config.ParseConfig)
+	c := di.NewContainer(config)
 	c.MustInvoke(zap.ReplaceGlobals)
-	// Now hook up the DI providers
+
+	// Need to be able to get a DB connection
 	c.MustProvide(newDatabase)
+
+	// And to initialize honeycomb
+	c.MustProvide(initializeHoneycomb)
+
+	// Finally, parse all the config from the command like
+	c.MustProvide(serverConfig)
+
+	// And all the other dependency providers
 	server.AddProviders(c)
 	models.AddProviders(c)
 	userServices.AddProviders(c)
@@ -411,27 +435,27 @@ func dependencies() *di.Container {
 	notifications.AddProviders(c)
 	storage.AddProviders(c)
 	c.MustProvide(indexHandler)
+	c.MustProvide(initRealTimeBrokerService)
 	return c
 }
 
 func main() {
 
-	// Set up the DI context and logging
-	diContext := dependencies()
+	cfg := parseConfig()
 
-	// Initialize honeycomb
-	diContext.MustInvoke(initializeHoneycomb)
+	// Set up the DI context and logging
+	diContext := dependencies(cfg)
 
 	//  Validate that the keys used for RSA encryption are well formed
 	diContext.MustInvoke(validateKeys)
 
-	// FOR NOW configure handler context. This should not be necessary once each handler
-	// declares its own dependencies.
+	// FOR NOW configure handler context.
+	// This should not be necessary once each handler declares its own dependencies explicitly
 	diContext.MustInvoke(populateHandlerContext)
 
 	// Construct the main site handler
 	diContext.MustProvide(buildSite)
 
-	// And run the services
+	// And run the servers
 	diContext.MustInvoke(serveSite)
 }

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
-import { getMove } from 'shared/Entities/modules/moves';
+import { getMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -27,6 +27,13 @@ export class Summary extends Component {
       this.props.onDidMount();
     }
   }
+  componentDidUpdate(prevProps) {
+    // Only check entitlement for PPMs, not HHGs
+    if (prevProps.currentPpm !== this.props.currentPpm) {
+      this.props.onCheckEntitlement(this.props.match.params.moveId);
+    }
+  }
+
   render() {
     const {
       currentMove,
@@ -97,7 +104,7 @@ export class Summary extends Component {
 
 Summary.propTypes = {
   currentBackupContacts: PropTypes.array,
-  currentMove: PropTypes.object,
+  getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPpm: PropTypes.object,
   currentShipment: PropTypes.object,
@@ -113,7 +120,7 @@ function mapStateToProps(state, ownProps) {
     currentPpm: state.ppm.currentPpm,
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: getMove(state, ownProps.match.params.moveId),
+    currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
@@ -134,7 +141,9 @@ function mapDispatchToProps(dispatch, ownProps) {
           dispatch(getShipment('Summary.getShipment', shipment.id));
         });
       });
-      dispatch(checkEntitlement(moveID));
+    },
+    onCheckEntitlement: moveId => {
+      dispatch(checkEntitlement(moveId));
     },
   };
 }

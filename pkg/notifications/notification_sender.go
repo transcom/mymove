@@ -30,9 +30,9 @@ type NotificationSender interface {
 	SendNotification(notification) error
 }
 
-// SESNotificationConfig is the config needed to send notifications
+// SESNotificationConfig is the config needed to send notifications via SES
 type SESNotificationConfig struct {
-	aws.Config
+	Region string // AWS SES region
 }
 
 // SESNotificationSender is the state needed to send Notifications via SES
@@ -43,7 +43,7 @@ type SESNotificationSender struct {
 
 // NewSESNotificationSender returns a new SESNotificationSender
 func NewSESNotificationSender(cfg *SESNotificationConfig, l *zap.Logger) (*SESNotificationSender, error) {
-	sesSession, err := awssession.NewSession(&cfg.Config)
+	sesSession, err := awssession.NewSession(&aws.Config{Region: aws.String(cfg.Region)})
 	if err != nil {
 		return nil, err
 	}

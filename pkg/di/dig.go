@@ -1,16 +1,11 @@
 package di
 
 import (
+	"github.com/spf13/viper"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 	"log"
 )
-
-// Config contains the environment name and debug logging flag for configuring zap.Logging
-type Config struct {
-	Environment  string
-	DebugLogging bool
-}
 
 // Container wraps dig.Container so we can add MustProvide and MustInvoke wrapper methods
 type Container struct {
@@ -19,17 +14,18 @@ type Container struct {
 
 // NewContainer constructs a dependency injection Container.
 // configProvider should, minimally, provide *Config
-func NewContainer(configProvider interface{}, opts ...dig.ProvideOption) *Container {
-
+func NewContainer(cfg *viper.Viper, opts ...dig.ProvideOption) *Container {
 	dc := dig.New()
-	if err := dc.Provide(configProvider, opts...); err != nil {
+	if err := dc.Provide(func() *viper.Viper { return cfg }, opts...); err != nil {
 		log.Fatal("Provide(configProvider)", zap.Error(err))
 	}
 	// Set up logger so we can invoke MustProvide & MustInvoke
 	if err := dc.Provide(NewLogger); err != nil {
 		log.Fatal("Provide(loggingProvider", zap.Error(err))
 	}
-	return &Container{*dc}
+	c := &Container{*dc}
+	c.MustInvoke(zap.ReplaceGlobals)
+	return c
 }
 
 // MustProvide wraps dig.Container.Provide in a fatal error check. Used for required initialization

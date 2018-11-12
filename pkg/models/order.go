@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -226,6 +226,20 @@ func (o *Order) IsComplete() bool {
 	if o.TAC == nil {
 		return false
 	}
+	return true
+}
 
+// IsCompleteForGBL checks if orders have all fields necessary to generate a GBL
+func (o *Order) IsCompleteForGBL() bool {
+
+	if o.DepartmentIndicator == nil {
+		return false
+	}
+	if o.TAC == nil {
+		return false
+	}
+	if o.SAC == nil {
+		return false
+	}
 	return true
 }

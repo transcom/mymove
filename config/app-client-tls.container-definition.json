@@ -17,11 +17,15 @@
     "/bin/mymove-server"
   ],
   "command": [
-    "-env",
+    "--env",
     "container",
-    "-debug_logging"
+    "--debug-logging"
   ],
-  "environment": [
+    "environment": [
+    {
+      "name": "SERVICE_NAME",
+      "value": "app-client-tls"
+    },
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
@@ -133,6 +137,10 @@
     {
       "name": "DOD_CA_PACKAGE",
       "value": "/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b"
+    },
+    {
+      "name": "IWS_RBS_HOST",
+      "value": "{{ .IWS_RBS_HOST }}"
     }
   ],
   "logConfiguration": {

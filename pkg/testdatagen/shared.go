@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
 
@@ -38,6 +38,7 @@ type Assertions struct {
 	ShipmentLineItem                         models.ShipmentLineItem
 	ShipmentOffer                            models.ShipmentOffer
 	Tariff400ngItem                          models.Tariff400ngItem
+	Tariff400ngItemRate                      models.Tariff400ngItemRate
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationOffice                     models.TransportationOffice
@@ -93,7 +94,7 @@ func noErr(err error) {
 
 // isZeroUUID determines whether a UUID is its zero value
 func isZeroUUID(testID uuid.UUID) bool {
-	return uuid.Equal(testID, uuid.UUID{})
+	return testID == uuid.Nil
 }
 
 // mergeModels merges src into dst, if non-zero values are present

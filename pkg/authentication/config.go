@@ -8,5 +8,5 @@ type LoginGovConfig struct {
 	OfficeClientID   string
 	TspClientID      string
 	CallbackProtocol string
-	CallbackPort     string
+	CallbackPort     int
 }

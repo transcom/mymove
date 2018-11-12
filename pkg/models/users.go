@@ -53,8 +53,8 @@ const (
 	ServiceMemberRankO10 ServiceMemberRank = "O_10"
 	// ServiceMemberRankAVIATIONCADET captures enum value "AVIATION_CADET"
 	ServiceMemberRankAVIATIONCADET ServiceMemberRank = "AVIATION_CADET"
-	// ServiceMemberRankCIVILIANEMPLOYEE captures enum value "CIVILIANT_EMPLOYEE"
-	ServiceMemberRankCIVILIANEMPLOYEE ServiceMemberRank = "CIVILIANT_EMPLOYEE"
+	// ServiceMemberRankCIVILIANEMPLOYEE captures enum value "CIVILIAN_EMPLOYEE"
+	ServiceMemberRankCIVILIANEMPLOYEE ServiceMemberRank = "CIVILIAN_EMPLOYEE"
 	// ServiceMemberRankACADEMYCADETMIDSHIPMAN captures enum value "ACADEMY_CADET_MIDSHIPMAN"
 	ServiceMemberRankACADEMYCADETMIDSHIPMAN ServiceMemberRank = "ACADEMY_CADET_MIDSHIPMAN"
 )
