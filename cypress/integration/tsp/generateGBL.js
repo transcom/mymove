@@ -47,6 +47,8 @@ function tspUserGeneratesGBL() {
   // If clicked too soon, there's a server error
   cy.wait(500);
 
+  cy.get('.documents').should('not.contain', 'Government Bill Of Lading');
+
   cy
     .get('button')
     .contains(gblButtonText)
@@ -72,6 +74,8 @@ function tspUserGeneratesGBL() {
     .get('button')
     .contains(gblButtonText)
     .should('not.exist');
+
+  cy.get('.documents').should('contain', 'Government Bill Of Lading');
 }
 
 function tspUserViewsGBL() {

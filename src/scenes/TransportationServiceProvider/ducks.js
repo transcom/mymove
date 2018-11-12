@@ -9,7 +9,6 @@ import {
   CreateServiceAgent,
   IndexServiceAgents,
   UpdateServiceAgent,
-  GenerateGBL,
   GetAllShipmentDocuments,
 } from './api.js';
 
@@ -20,7 +19,6 @@ import { getEntitlements } from 'shared/entitlements.js';
 const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
-const generateGBLType = 'GENERATE_GBL';
 const rejectShipmentType = 'REJECT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
 const deliverShipmentType = 'DELIVER_SHIPMENT';
@@ -42,8 +40,6 @@ const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipme
 const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
 const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
 
-const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
-
 const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceAgentsType);
 
 const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(createServiceAgentsType);
@@ -61,8 +57,6 @@ export const loadShipment = ReduxHelpers.generateAsyncActionCreator(loadShipment
 export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
 export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(acceptShipmentType, AcceptShipment);
-
-export const generateGBL = ReduxHelpers.generateAsyncActionCreator(generateGBLType, GenerateGBL);
 
 export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(rejectShipmentType, RejectShipment);
 
@@ -163,10 +157,6 @@ const initialState = {
   loadTspDependenciesHasError: null,
   flashMessage: false,
   serviceAgents: [],
-  generateGBLSuccess: false,
-  generateGBLError: null,
-  generateGBLInProgress: false,
-  gblDocUrl: null,
 };
 
 export function tspReducer(state = initialState, action) {
@@ -387,29 +377,6 @@ export function tspReducer(state = initialState, action) {
         serviceAgentHasUpdatedError: null,
         serviceAgents: [],
         error: action.error.message,
-      });
-    // Gov bill of lading
-    case GENERATE_GBL.start:
-      return Object.assign({}, state, {
-        generateGBLSuccess: false,
-        generateGBLError: null,
-        generateGBLInProgress: true,
-        gblDocUrl: null,
-      });
-    case GENERATE_GBL.success:
-      const gblDocumentUrl = '/shipments/' + action.payload.shipment_id + '/documents/' + action.payload.id;
-      return Object.assign({}, state, {
-        generateGBLSuccess: true,
-        generateGBLError: false,
-        generateGBLInProgress: false,
-        gblDocUrl: gblDocumentUrl,
-      });
-    case GENERATE_GBL.failure:
-      return Object.assign({}, state, {
-        generateGBLSuccess: false,
-        generateGBLError: action.error,
-        generateGBLInProgress: false,
-        gblDocUrl: null,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES

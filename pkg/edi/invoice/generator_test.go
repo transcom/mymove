@@ -3,6 +3,7 @@ package ediinvoice_test
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"testing"
 
 	"github.com/gobuffalo/pop"
@@ -28,10 +29,14 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		Cost:     rateengine.CostComputation{},
 	}}
 
-	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db)
-
+	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db, false)
 	suite.NoError(err, "generates error")
 	suite.NotEmpty(generatedResult, "result is empty")
+
+	re := regexp.MustCompile("\\*" + "T" + "\\*")
+	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to T."+
+		" This is set by the if statement in Generate858C() that checks a boolean variable named sendProductionInvoice")
+
 }
 
 func (suite *InvoiceSuite) TestGetNextICN() {

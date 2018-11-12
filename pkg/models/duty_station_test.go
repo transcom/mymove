@@ -62,7 +62,7 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 }
 func (suite *ModelSuite) Test_FetchDutyStationTransportationOffice() {
 	t := suite.T()
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 
 	office, err := models.FetchDutyStationTransportationOffice(suite.db, dutyStation.ID)
 	if err != nil {

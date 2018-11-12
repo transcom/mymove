@@ -119,16 +119,6 @@ export async function IndexServiceAgents(shipmentId) {
   return response.body;
 }
 
-// Generate Gov Bill of Lading
-export async function GenerateGBL(shipmentId) {
-  const client = await getPublicClient();
-  const response = await client.apis.shipments.createGovBillOfLading({
-    shipmentId: shipmentId,
-  });
-  checkResponse(response, 'failed to create government bill of lading due to server error');
-  return response.body;
-}
-
 // All documents for shipment
 export async function GetAllShipmentDocuments(shipmentId) {
   const client = await getPublicClient();
