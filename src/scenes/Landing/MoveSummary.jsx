@@ -445,7 +445,7 @@ const getStatus = (moveStatus, moveType, ppm, shipment) => {
   return status;
 };
 
-export const MoveSummary = withContext(props => {
+export const MoveSummaryWithoutContext = props => {
   const {
     profile,
     move,
@@ -459,12 +459,14 @@ export const MoveSummary = withContext(props => {
     requestPaymentSuccess,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
+  const moveId = get(move, 'id');
+
   const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
   const StatusComponent =
     move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
   const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
-    move.selected_move_type === 'HHG' &&
+    (move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM') &&
     ['SUBMITTED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
   const showTsp =
     move.selected_move_type !== 'PPM' &&
@@ -503,13 +505,16 @@ export const MoveSummary = withContext(props => {
             </button>
           </div>
           <div>
-            {/* ToDo: Replace this url */}
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <a href="">
+                <Link
+                  className="add-ppm-shipment"
+                  onClick={() => props.updateMove(moveId, 'HHG_PPM')}
+                  to={`/moves/${moveId}/hhg-ppm-start`}
+                >
                   <FontAwesomeIcon icon={faPlus} />
                   <span> Add PPM Shipment</span>
-                </a>
+                </Link>
               )}
           </div>
           <div className="contact_block">
@@ -527,4 +532,6 @@ export const MoveSummary = withContext(props => {
       </div>
     </Fragment>
   );
-});
+};
+
+export const MoveSummary = withContext(MoveSummaryWithoutContext);

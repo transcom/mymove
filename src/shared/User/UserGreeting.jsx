@@ -12,7 +12,7 @@ const UserGreeting = ({ isLoggedIn, firstName }) =>
 
 UserGreeting.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
-  firstName: PropTypes.string.isRequired,
+  firstName: PropTypes.string,
 };
 
 const mapStateToProps = ({ user }) => ({
