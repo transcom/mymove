@@ -368,7 +368,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 }
 
 // GetNextICN is a public wrapper around getNextICN for testing
-// See: link issue when created
+// See: https://www.pivotaltracker.com/n/projects/2136865/stories/161905170
 var GetNextICN = getNextICN
 
 // getNextICN returns the next Interchange Control Number in a PostgreSQL sequence
