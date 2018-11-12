@@ -96,8 +96,16 @@ var tariff400ngItemRateMap = map[string]string{
 	"17E": "210D",
 }
 
+// These codes have charges based on weight, which will use the final measured shipment weight
+var tariff400ngWeightBasedItems = map[string]bool{
+	"17D":  true,
+	"175A": true,
+	"185A": true,
+}
+
 // ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item
 func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem, shipment models.Shipment) (unit.Cents, error) {
+	itemCode := shipmentLineItem.Tariff400ngItem.Code
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
 	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {
@@ -112,13 +120,13 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 
 	var rateCents unit.Cents
 	// Rates for SIT are stored  on the service area, else get the rate from the tariff400ng_item_rate table
-	if shipmentLineItem.Tariff400ngItem.Code == "185A" {
+	if itemCode == "185A" {
 		rateCents = serviceArea.SIT185ARateCents
-	} else if shipmentLineItem.Tariff400ngItem.Code == "185B" {
+	} else if itemCode == "185B" {
 		rateCents = serviceArea.SIT185BRateCents
 	} else {
 		// If code is priced using rate from separate code, use that
-		effectiveItemCode := shipmentLineItem.Tariff400ngItem.Code
+		effectiveItemCode := itemCode
 		if mappedCode, ok := tariff400ngItemRateMap[effectiveItemCode]; ok {
 			effectiveItemCode = mappedCode
 		}
@@ -142,8 +150,17 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.SITRate
 	}
 
-	if itemPricer, ok := tariff400ngItemPricing[shipmentLineItem.Tariff400ngItem.Code]; ok {
-		return itemPricer.price(rateCents, shipmentLineItem.Quantity1, discountRate), nil
+	// Weight-based items will pull final weight values from the shipment when available
+	appliedQuantity := shipmentLineItem.Quantity1
+	if _, ok := tariff400ngWeightBasedItems[itemCode]; ok {
+		if shipment.NetWeight == nil {
+			return unit.Cents(0), errors.New("Can't price a weight-based accessorial without shipment net weight")
+		}
+		appliedQuantity = unit.BaseQuantityFromInt(shipment.NetWeight.Int())
+	}
+
+	if itemPricer, ok := tariff400ngItemPricing[itemCode]; ok {
+		return itemPricer.price(rateCents, appliedQuantity, discountRate), nil
 	}
 
 	return unit.Cents(0), errors.New("Could not find pricing function for given code")
