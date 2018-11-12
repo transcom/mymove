@@ -27,6 +27,8 @@ type HandlerContext interface {
 	SetNoSessionTimeout()
 	IWSRealTimeBrokerService() iws.RealTimeBrokerService
 	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
+	SendProductionInvoice() bool
+	SetSendProductionInvoice(sendProductionInvoice bool)
 }
 
 // A single handlerContext is passed to each handler
@@ -39,6 +41,7 @@ type handlerContext struct {
 	storage                  storage.FileStorer
 	notificationSender       notifications.NotificationSender
 	iwsRealTimeBrokerService iws.RealTimeBrokerService
+	sendProductionInvoice    bool
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -120,4 +123,14 @@ func (context *handlerContext) IWSRealTimeBrokerService() iws.RealTimeBrokerServ
 
 func (context *handlerContext) SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService) {
 	context.iwsRealTimeBrokerService = rbs
+}
+
+// InvoiceIsATest is a flag to notify EDI invoice generation whether it should be sent as a test transaction
+func (context *handlerContext) SendProductionInvoice() bool {
+	return context.sendProductionInvoice
+}
+
+// Set UsageIndicator flag for use in EDI invoicing (ediinvoice pkg)
+func (context *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
+	context.sendProductionInvoice = sendProductionInvoice
 }

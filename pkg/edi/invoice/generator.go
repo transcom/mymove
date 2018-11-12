@@ -21,9 +21,17 @@ const senderCode = "MYMOVE"
 const receiverCode = "8004171844" // Syncada
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection) (string, error) {
+func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool) (string, error) {
 	interchangeControlNumber := 1 //TODO: increment this
 	currentTime := time.Now()
+	var usageIndicator string
+
+	if sendProductionInvoice {
+		usageIndicator = "P"
+	} else {
+		usageIndicator = "T"
+	}
+
 	isa := edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          fmt.Sprintf("%010d", 0),
@@ -39,7 +47,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		InterchangeControlVersionNumber:   "00401",
 		InterchangeControlNumber:          interchangeControlNumber,
 		AcknowledgementRequested:          1,
-		UsageIndicator:                    "T", // T for test, P for production
+		UsageIndicator:                    usageIndicator, // T for test, P for production
 		ComponentElementSeparator:         "|",
 	}
 	gs := edisegment.GS{
