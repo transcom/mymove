@@ -1,6 +1,7 @@
 package ediinvoice_test
 
 import (
+	"fmt"
 	"log"
 	"testing"
 
@@ -33,13 +34,25 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 }
 
 func (suite *InvoiceSuite) TestGetNextICN() {
-	err := suite.db.RawQuery("SELECT setval($1, 1);", ediinvoice.ICNSequenceTable).Exec()
-	suite.NoError(err, "error setting sequence value")
+	var testCases = []struct {
+		initial  int
+		expected int
+	}{
+		{1, 2},
+		{999999999, 1},
+	}
 
-	actualICN, err := ediinvoice.GetNextICN(suite.db)
+	for _, testCase := range testCases {
+		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
+			err := suite.db.RawQuery("SELECT setval('interchange_control_number', $1);", testCase.initial).Exec()
+			suite.NoError(err, "error setting sequence value")
 
-	if suite.NoError(err) {
-		assert.Equal(suite.T(), 2, actualICN)
+			actualICN, err := ediinvoice.GetNextICN(suite.db)
+
+			if suite.NoError(err) {
+				assert.Equal(t, testCase.expected, actualICN)
+			}
+		})
 	}
 }
 
