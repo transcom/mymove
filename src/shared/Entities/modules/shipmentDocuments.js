@@ -20,6 +20,10 @@ export function createShipmentDocument(label, shipmentId, createGenericMoveDocum
   );
 }
 
+export function generateGBL(label, shipmentId) {
+  return swaggerRequest(getPublicClient, 'shipments.createGovBillOfLading', { shipmentId }, { label });
+}
+
 // Gives an array of objects of the doucments that belong to a specific shipment
 export const selectShipmentDocuments = (state, shipmentId) =>
   Object.values(state.entities.moveDocuments).filter(document => document.shipment_id === shipmentId);

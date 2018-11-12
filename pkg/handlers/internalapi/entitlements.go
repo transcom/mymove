@@ -39,14 +39,17 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	}
 
 	// Return 404 if there's no PPM or Rank, or this is an HHG
-	// TODO: Handle Combo moves
+	// TODO: Handle COMBO moves
 	if len(move.PersonallyProcuredMoves) < 1 || len(move.Shipments) >= 1 || serviceMember.Rank == nil {
 		return entitlementop.NewValidateEntitlementNotFound()
 	}
 	// PPMs are in descending order - this is the last one created
 	weightEstimate := *move.PersonallyProcuredMoves[0].WeightEstimate
 
-	smEntitlement := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
+	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 	if int(weightEstimate) > smEntitlement {
 		return handlers.ResponseForConflictErrors(h.Logger(), fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
 	}

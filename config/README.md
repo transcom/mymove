@@ -6,7 +6,12 @@ The `*container-definition*` files define how the ECS containers are configured.
 
 ## Database
 
-The `database.yaml` file is for configuring how to connect to the database. The key called "container" is for configuring how the deployed app will connect.
+The `database.yaml` file is for configuring how to connect to the database. In the app the database is configured using
+environment variables. The environments "development", "test", and "container" each have specific modifications to the
+database connection. Specifically, "test" environment will always use the database name `test_db` no matter what the
+value of `$DB_NAME` is set to. The "container" environment will require that SSL mode is required.
+
+Note: This file is critical for use with the `soda` command to initialize and migrate the DB.
 
 ## TLS cert/key (optional)
 

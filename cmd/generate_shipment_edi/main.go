@@ -70,7 +70,7 @@ func main() {
 		}
 		costsByShipments = append(costsByShipments, costByShipment)
 	}
-	edi, err := ediinvoice.Generate858C(costsByShipments, db)
+	edi, err := ediinvoice.Generate858C(costsByShipments, db, false)
 	if err != nil {
 		log.Fatal(err)
 	}

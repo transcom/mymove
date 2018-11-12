@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -145,6 +147,9 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("here-maps-app-id", "", "HERE maps App ID for this application")
 	flag.String("here-maps-app-code", "", "HERE maps App API code")
 
+	// EDI Invoice Config
+	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+
 	flag.String("storage-backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
@@ -164,6 +169,13 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// IWS
 	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
+
+	// DB Config
+	flag.String("db-name", "dev_db", "Database Name")
+	flag.String("db-host", "localhost", "Database Hostname")
+	flag.Int("db-port", 5432, "Database Port")
+	flag.String("db-user", "postgres", "Database Username")
+	flag.String("db-password", "", "Database Password")
 }
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
@@ -231,6 +243,66 @@ func initRealTimeBrokerService(v *viper.Viper, logger *zap.Logger) (*iws.RealTim
 		v.GetString("move-mil-dod-tls-key"))
 }
 
+func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
+
+	env := v.GetString("env")
+	dbName := v.GetString("db-name")
+	dbHost := v.GetString("db-host")
+	dbPort := strconv.Itoa(v.GetInt("db-port"))
+	dbUser := v.GetString("db-user")
+	dbPassword := v.GetString("db-password")
+
+	// Modify DB options by environment
+	dbOptions := map[string]string{"sslmode": "disable"}
+	if env == "test" {
+		// Leave the test database name hardcoded, since we run tests in the same
+		// environment as development, and it's extra confusing to have to swap env
+		// variables before running tests.
+		dbName = "test_db"
+	} else if env == "container" {
+		// Require sslmode for containers
+		dbOptions["sslmode"] = "require"
+	}
+
+	// Construct a safe URL and log it
+	s := "postgres://%s:%s@%s:%s/%s?sslmode=%s"
+	dbURL := fmt.Sprintf(s, dbUser, "*****", dbHost, dbPort, dbName, dbOptions["sslmode"])
+	logger.Debug("Connecting to the database", zap.String("url", dbURL))
+
+	// Configure DB connection details
+	dbConnectionDetails := pop.ConnectionDetails{
+		Dialect:  "postgres",
+		Database: dbName,
+		Host:     dbHost,
+		Port:     dbPort,
+		User:     dbUser,
+		Password: dbPassword,
+		Options:  dbOptions,
+	}
+	err := dbConnectionDetails.Finalize()
+	if err != nil {
+		logger.Error("Failed to finalize DB connection details", zap.Error(err))
+		return nil, err
+	}
+
+	// Set up the connection
+	connection, err := pop.NewConnection(&dbConnectionDetails)
+	if err != nil {
+		logger.Error("Failed create DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Open the connection
+	err = connection.Open()
+	if err != nil {
+		logger.Error("Failed to open DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Return the open connection
+	return connection, nil
+}
+
 func main() {
 
 	flag := pflag.CommandLine
@@ -272,12 +344,8 @@ func main() {
 		log.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
-	//DB connection
-	err = pop.AddLookupPaths(v.GetString("config-dir"))
-	if err != nil {
-		logger.Fatal("Adding Pop config path", zap.Error(err))
-	}
-	dbConnection, err := pop.Connect(env)
+	// Create a connection to the DB
+	dbConnection, err := initDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
@@ -338,6 +406,9 @@ func main() {
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
 	routePlanner := initRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
+
+	// Set SendProductionInvoice for ediinvoice
+	handlerContext.SetSendProductionInvoice(v.GetBool("send-prod-invoice"))
 
 	storageBackend := v.GetString("storage-backend")
 
