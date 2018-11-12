@@ -12,6 +12,16 @@ import (
 
 const testSequence = "test_sequence"
 
+func (suite *SequenceSuite) TestSetVal() {
+	err := SetVal(suite.db, testSequence, 30)
+	suite.NoError(err, "Error setting value of sequence")
+
+	var nextVal int64
+	err = suite.db.RawQuery("SELECT nextval($1);", testSequence).First(&nextVal)
+	suite.NoError(err, "Error getting current value of sequence")
+	assert.Equal(suite.T(), nextVal, int64(31))
+}
+
 func (suite *SequenceSuite) TestNextVal() {
 	actual, err := NextVal(suite.db, testSequence)
 	if suite.NoError(err) {
