@@ -64,7 +64,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		ApplicationReceiversCode: receiverCode,
 		Date:                  currentTime.Format(dateFormat),
 		Time:                  currentTime.Format(timeFormat),
-		GroupControlNumber:    1,
+		GroupControlNumber:    interchangeControlNumber,
 		ResponsibleAgencyCode: "X", // Accredited Standards Committee X12
 		Version:               "004010",
 	}
@@ -85,7 +85,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 
 	ge := edisegment.GE{
 		NumberOfTransactionSetsIncluded: len(shipments),
-		GroupControlNumber:              1,
+		GroupControlNumber:              interchangeControlNumber,
 	}
 	iea := edisegment.IEA{
 		NumberOfIncludedFunctionalGroups: 1,

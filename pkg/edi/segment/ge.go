@@ -9,7 +9,7 @@ import (
 // GE represents the GE EDI segment
 type GE struct {
 	NumberOfTransactionSetsIncluded int
-	GroupControlNumber              int
+	GroupControlNumber              int64
 }
 
 // String converts GE to its X12 single line string representation
@@ -17,7 +17,7 @@ func (s *GE) String(delimiter string) string {
 	elements := []string{
 		"GE",
 		strconv.Itoa(s.NumberOfTransactionSetsIncluded),
-		strconv.Itoa(s.GroupControlNumber),
+		strconv.FormatInt(s.GroupControlNumber, 10),
 	}
 	return strings.Join(elements, delimiter) + "\n"
 }
@@ -34,6 +34,6 @@ func (s *GE) Parse(elements []string) error {
 	if err != nil {
 		return err
 	}
-	s.GroupControlNumber, err = strconv.Atoi(elements[1])
+	s.GroupControlNumber, err = strconv.ParseInt(elements[1], 10, 64)
 	return err
 }
