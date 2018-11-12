@@ -1,5 +1,9 @@
 package models
 
+import (
+	"fmt"
+)
+
 // WeightAllotment represents the weights allotted for a rank
 type WeightAllotment struct {
 	TotalWeightSelf               int
@@ -197,21 +201,26 @@ func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
 }
 
 // GetEntitlement calculates the entitlement for a rank, has dependents and has spouseprogear
-func GetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProGear bool) int {
+func GetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProGear bool) (int, error) {
 
 	entitlements := makeEntitlements()
 	spouseProGear := 0
 	weight := 0
 
+	selfEntitlement, ok := entitlements[rank]
+	if !ok {
+		return 0, fmt.Errorf("Rank %s not found in entitlement map", rank)
+	}
+
 	if hasDependents {
 		if spouseHasProGear {
-			spouseProGear = entitlements[rank].ProGearWeightSpouse
+			spouseProGear = selfEntitlement.ProGearWeightSpouse
 		}
-		weight = entitlements[rank].TotalWeightSelfPlusDependents
+		weight = selfEntitlement.TotalWeightSelfPlusDependents
 	} else {
-		weight = entitlements[rank].TotalWeightSelf
+		weight = selfEntitlement.TotalWeightSelf
 	}
-	proGear := entitlements[rank].ProGearWeight
+	proGear := selfEntitlement.ProGearWeight
 
-	return weight + proGear + spouseProGear
+	return weight + proGear + spouseProGear, nil
 }

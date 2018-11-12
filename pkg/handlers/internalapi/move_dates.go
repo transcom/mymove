@@ -42,9 +42,12 @@ func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveI
 		return summary, err
 	}
 
-	entitlementWeight := unit.Pound(models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
-		move.Orders.SpouseHasProGear))
-
+	entitlement, err := models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
+		move.Orders.SpouseHasProGear)
+	if err != nil {
+		return summary, err
+	}
+	entitlementWeight := unit.Pound(entitlement)
 	estimatedPackDays := models.PackDays(entitlementWeight)
 	estimatedTransitDays, err := models.TransitDays(entitlementWeight, transitDistance)
 	if err != nil {
