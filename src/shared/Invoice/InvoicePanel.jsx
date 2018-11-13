@@ -10,6 +10,7 @@ import {
   makeGetUnbilledShipmentLineItems,
   makeTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
+import InvoiceTable from 'shared/Invoice/InvoiceTable';
 
 export class InvoicePanel extends Component {
   constructor() {
@@ -20,7 +21,9 @@ export class InvoicePanel extends Component {
   render() {
     let invoicingContent = <span className="empty-content">No line items</span>;
     if (this.props.shipmentLineItems.length > 0) {
-      //stand up a table
+      invoicingContent = (
+        <InvoiceTable shipmentLineItems={this.props.shipmentLineItems} totalAmount={this.props.lineItemsTotal} />
+      );
     }
 
     return (
