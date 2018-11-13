@@ -344,10 +344,19 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
+	healthCheckErrors := make([]error, 0)
+	defer func() {
+		if len(healthCheckErrors) > 0 {
+			os.Exit(1)
+		}
+	}()
+
 	logger, err := createLogger(v.GetString("log-env"), v.GetString("log-level"))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
+	defer logger.Sync()
 
 	err = checkConfig(v)
 	if err != nil {
@@ -377,7 +386,6 @@ func main() {
 	backoff := v.GetInt("backoff")
 	exitOnError := v.GetBool("exit-on-error")
 
-	healthCheckErrors := make([]error, 0)
 	for _, scheme := range schemes {
 		for _, host := range hosts {
 			for _, path := range paths {
@@ -414,10 +422,6 @@ func main() {
 				}
 			}
 		}
-	}
-
-	if len(healthCheckErrors) > 0 {
-		os.Exit(1)
 	}
 
 }
