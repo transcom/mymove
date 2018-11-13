@@ -164,7 +164,7 @@ db_dev_run:
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p 5432:5432 \
-			postgres:10.1 && \
+			postgres:10.6 && \
 		DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
 db_dev_reset:
