@@ -10,10 +10,9 @@ import (
 
 // MakeShipmentLineItem creates a single shipment line item record with an associated tariff400ngItem
 func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.ShipmentLineItem {
-	shipmentID := assertions.ShipmentLineItem.ShipmentID
-	if isZeroUUID(shipmentID) {
-		shipment := MakeShipment(db, assertions)
-		shipmentID = shipment.ID
+	shipment := assertions.ShipmentLineItem.Shipment
+	if isZeroUUID(shipment.ID) {
+		shipment = MakeShipment(db, assertions)
 	}
 
 	tariff400ngItem := assertions.ShipmentLineItem.Tariff400ngItem
@@ -23,7 +22,8 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 
 	//filled in dummy data
 	shipmentLineItem := models.ShipmentLineItem{
-		ShipmentID:        shipmentID,
+		ShipmentID:        shipment.ID,
+		Shipment:          shipment,
 		Tariff400ngItemID: tariff400ngItem.ID,
 		Tariff400ngItem:   tariff400ngItem,
 		Location:          models.ShipmentLineItemLocationDESTINATION,
