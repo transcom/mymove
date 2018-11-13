@@ -316,8 +316,8 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: 'United States'
-        default: United States
+        example: 'USA'
+        default: USA
     required:
       - street_address_1
       - state
