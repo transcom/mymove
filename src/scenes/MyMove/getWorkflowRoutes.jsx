@@ -198,7 +198,7 @@ const pages = {
     isComplete: (sm, orders, move, ppm) => {
       return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
-    render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />,
+    render: key => ({ match }) => <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
