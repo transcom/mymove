@@ -20,9 +20,12 @@ export class InvoicePanel extends Component {
 
   render() {
     let invoicingContent = <span className="empty-content">No line items</span>;
-    if (this.props.shipmentLineItems.length > 0) {
+    if (this.props.unbilledShipmentLineItems.length > 0) {
       invoicingContent = (
-        <InvoiceTable shipmentLineItems={this.props.shipmentLineItems} totalAmount={this.props.lineItemsTotal} />
+        <InvoiceTable
+          shipmentLineItems={this.props.unbilledShipmentLineItems}
+          totalAmount={this.props.lineItemsTotal}
+        />
       );
     }
 
@@ -35,7 +38,7 @@ export class InvoicePanel extends Component {
 }
 
 InvoicePanel.propTypes = {
-  shipmentLineItems: PropTypes.array,
+  unbilledShipmentLineItems: PropTypes.array,
   shipmentId: PropTypes.string,
   lineItemsTotal: PropTypes.number,
 };
@@ -47,7 +50,7 @@ const makeMapStateToProps = () => {
     const getLineItems = makeGetUnbilledShipmentLineItems();
     const getLineItemSum = makeTotalFromUnbilledLineItems();
     return {
-      shipmentLineItems: getLineItems(state, ownProps.shipmentId),
+      unbilledShipmentLineItems: getLineItems(state, ownProps.shipmentId),
       lineItemsTotal: getLineItemSum(state, ownProps.shipmentId),
     };
   };
