@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { formatFromBaseQuantity } from 'shared/formatters';
+import { formatFromBaseQuantity, formatCents } from 'shared/formatters';
 import './InvoicePanel.css';
 
 class InvoiceTable extends PureComponent {
@@ -21,9 +21,9 @@ class InvoiceTable extends PureComponent {
               <tr key={item.id}>
                 <td>{item.tariff400ng_item.code}</td>
                 <td>{item.tariff400ng_item.item}</td>
-                <td>{item.location[0]}</td>
+                <td>{item.location[0] + item.location.substring(1).toLowerCase()}</td>
                 <td>{formatFromBaseQuantity(item.quantity_1)}</td>
-                <td>{formatFromBaseQuantity(item.amount)}</td>
+                <td>${formatCents(item.amount)}</td>
               </tr>
             );
           })}
@@ -32,7 +32,7 @@ class InvoiceTable extends PureComponent {
             <td>Total</td>
             <td />
             <td />
-            <td>{this.props.totalAmount}</td>
+            <td>${formatCents(this.props.totalAmount)}</td>
           </tr>
         </tbody>
       </table>
