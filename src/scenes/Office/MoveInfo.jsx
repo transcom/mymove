@@ -29,6 +29,8 @@ import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
+
 import {
   getAllTariff400ngItems,
   selectTariff400ngItems,
@@ -110,6 +112,7 @@ const HHGTabContent = props => {
         serviceAgents={props.serviceAgents}
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
+      {has(props, 'officeShipment.id') && <InvoicePanel shipmentId={props.officeShipment.id} />}
     </div>
   );
 };
