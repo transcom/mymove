@@ -508,7 +508,7 @@ export const MoveSummary = withContext(props => {
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
                 <Link
-                  className="add-ppm-shipment"
+                  className="remain-unvisited"
                   onClick={() => props.updateMove(moveId, 'HHG_PPM')}
                   to={`/moves/${moveId}/hhg-ppm-start`}
                 >
