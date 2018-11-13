@@ -45,6 +45,7 @@ import {
   rejectShipment,
   transportShipment,
   deliverShipment,
+  handleServiceAgents,
 } from './ducks';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
@@ -55,6 +56,7 @@ import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
+import ServiceAgentForm from './ServiceAgentForm';
 import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
 
 import './tsp.css';
@@ -163,6 +165,12 @@ class ShipmentInfo extends Component {
   };
 
   enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
+
+  editServiceAgents = values => {
+    values['destination_service_agent']['role'] = 'DESTINATION';
+    values['origin_service_agent']['role'] = 'ORIGIN';
+    this.props.handleServiceAgents(this.props.shipment.id, values);
+  };
 
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
@@ -384,9 +392,13 @@ class ShipmentInfo extends Component {
                 />
               )}
               {canAssignServiceAgents && (
-                <button className="usa-button-primary" onClick={this.toggleEditTspServiceAgent}>
-                  Assign servicing agents
-                </button>
+                <FormButton
+                  serviceAgents={this.props.serviceAgents}
+                  FormComponent={ServiceAgentForm}
+                  schema={this.props.serviceAgentSchema}
+                  onSubmit={this.editServiceAgents}
+                  buttonTitle="Assign servicing agents"
+                />
               )}
 
               {inTransit && (
@@ -480,6 +492,7 @@ const mapStateToProps = state => {
     gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
+    serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
@@ -493,6 +506,7 @@ const mapDispatchToProps = dispatch =>
       acceptShipment,
       generateGBL,
       rejectShipment,
+      handleServiceAgents,
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,

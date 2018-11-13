@@ -46,11 +46,11 @@ describe('TSP User enters and updates Service Agents', function() {
     tspUserAcceptsShipment();
   });
 
-  it('tsp user assigns origin and destination service agents', function() {
+  it('tsp user assigns origin and destination service agents using action button', function() {
     tspUserClicksAssignServiceAgent('ASSIGN');
     userInputsServiceAgent('Origin');
     userInputsServiceAgent('Destination');
-    userSavesServiceAgent('Origin');
+    userSavesServiceAgentsWizard();
     tspUserVerifiesServiceAgentAssigned();
   });
 });
@@ -170,4 +170,62 @@ function tspUserClicksAssignServiceAgent(locator) {
 
 function tspUserVerifiesServiceAgentAssigned() {
   cy.get('button').should('not.contain', 'Assign servicing agents');
+}
+
+function userSavesServiceAgentsWizard() {
+  const origin = getFixture('Origin');
+  const destination = getFixture('Destination');
+
+  cy
+    .get('button')
+    .contains('Done')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Done')
+    .click();
+
+  // Verify data has been saved in the UI
+  cy
+    .get('div.company')
+    .get('span')
+    .contains(origin.Company);
+  cy
+    .get('div.email')
+    .get('span')
+    .contains(origin.Email);
+  cy
+    .get('div.phone_number')
+    .get('span')
+    .contains(origin.Phone);
+
+  // Refresh browser and make sure changes persist
+  cy.reload();
+
+  cy
+    .get('div.company')
+    .get('span')
+    .contains(origin.Company);
+  cy
+    .get('div.email')
+    .get('span')
+    .contains(origin.Email);
+  cy
+    .get('div.phone_number')
+    .get('span')
+    .contains(origin.Phone);
+
+  cy
+    .get('div.company')
+    .get('span')
+    .contains(destination.Company);
+  cy
+    .get('div.email')
+    .get('span')
+    .contains(destination.Email);
+  cy
+    .get('div.phone_number')
+    .get('span')
+    .contains(destination.Phone);
 }
