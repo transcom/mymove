@@ -240,9 +240,6 @@ const pages = {
   },
 };
 
-// TODO currently an interim step for adding hhgPPM combo move pages
-const hhgPPMPages = ['/moves/:moveId/hhg-ppm-start', '/moves/:moveId/hhg-ppm-agreement'];
-
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
     // eslint-disable-next-line security/detect-object-injection
