@@ -106,7 +106,6 @@ const HHGTabContent = props => {
         />
       )}
       <TspContainer
-        setEditTspServiceAgent={no_op_action}
         title="TSP & Servicing Agents"
         shipment={props.officeShipment}
         serviceAgents={props.serviceAgents}

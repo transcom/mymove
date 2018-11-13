@@ -103,7 +103,6 @@ export function TspEditablePanelify(DisplayComponent, EditComponent, editEnabled
     cancel = () => {
       this.props.reset();
       this.setIsEditable(false);
-      this.props.setEditTspServiceAgent(false);
     };
 
     setIsEditable = isEditable => this.setState({ isEditable });

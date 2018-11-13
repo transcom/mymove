@@ -176,18 +176,6 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
 
-  // Access Service Agent Panels
-  setEditTspServiceAgent = editTspServiceAgent => this.setState({ editTspServiceAgent });
-
-  scrollToTspServiceAgentPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.assignTspServiceAgent.current);
-    domNode.scrollIntoView();
-  };
-  toggleEditTspServiceAgent = () => {
-    this.scrollToTspServiceAgentPanel();
-    this.setEditTspServiceAgent(true);
-  };
-
   render() {
     const {
       context,
@@ -424,9 +412,6 @@ class ShipmentInfo extends Component {
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <TspContainer
-                    ref={this.assignTspServiceAgent}
-                    editTspServiceAgent={this.state.editTspServiceAgent}
-                    setEditTspServiceAgent={this.setEditTspServiceAgent}
                     title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
