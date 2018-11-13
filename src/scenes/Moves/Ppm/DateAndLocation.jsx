@@ -71,9 +71,8 @@ export class DateAndLocation extends Component {
       initialValues,
       sitReimbursement,
       hasEstimateError,
-      selectedMoveType,
+      isHHGPPMComboMove,
     } = this.props;
-    const isHHGPPMComboMove = selectedMoveType === 'HHG_PPM';
 
     return (
       <DateAndLocationWizardForm
@@ -185,7 +184,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
-    selectedMoveType: state.moves.currentMove.selected_move_type,
+    isHHGPPMComboMove: state.moves.currentMove.selected_move_type === 'HHG_PPM',
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   props.initialValues = props.currentPpm

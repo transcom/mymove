@@ -231,6 +231,7 @@ const pages = {
   },
 };
 
+// TODO currently an interim step for adding hhgPPM combo move pages
 const hhgPPMPages = ['/moves/:moveId/hhg-ppm-start'];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
