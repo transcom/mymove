@@ -65,7 +65,6 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-import { no_op_action } from '../../shared/utils';
 
 const BasicsTabContent = props => {
   return (
