@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-// import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { reduxForm, FormSection } from 'redux-form';
+
 import { ServiceAgentEdit } from 'shared/TspPanel/ServiceAgentViews';
 
 let ServiceAgentForm = props => {
