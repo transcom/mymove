@@ -53,6 +53,7 @@ import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
@@ -411,6 +412,7 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
+                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} />
                   <TspContainer
                     ref={this.assignTspServiceAgent}
                     editTspServiceAgent={this.state.editTspServiceAgent}
