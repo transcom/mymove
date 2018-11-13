@@ -28,13 +28,10 @@ type HandlerContext interface {
 	SetNoSessionTimeout()
 	IWSRealTimeBrokerService() iws.RealTimeBrokerService
 	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
-<<<<<<< HEAD
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
-=======
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
->>>>>>> Sign cookie url params, pass everything in as env vars
 }
 
 // A single handlerContext is passed to each handler
