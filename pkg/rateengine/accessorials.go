@@ -119,12 +119,17 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	}
 
 	var rateCents unit.Cents
-	// Rates for SIT are stored  on the service area, else get the rate from the tariff400ng_item_rate table
 	if itemCode == "185A" {
+		// Rates for SIT are stored  on the service area
 		rateCents = serviceArea.SIT185ARateCents
 	} else if itemCode == "185B" {
 		rateCents = serviceArea.SIT185BRateCents
+	} else if itemCode == "226A" {
+		// 226A is Misc charge, which has a rate of $1 per unit of quantity entered
+		rateCents = unit.Cents(100)
 	} else {
+		// Most rates should be in the tariff400ngItemRates table though
+
 		// If code is priced using rate from separate code, use that
 		effectiveItemCode := itemCode
 		if mappedCode, ok := tariff400ngItemRateMap[effectiveItemCode]; ok {

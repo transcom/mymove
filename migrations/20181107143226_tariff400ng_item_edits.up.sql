@@ -14,6 +14,3 @@ WHERE code IN ('125C', '210D', '225B');
 UPDATE tariff400ng_item_rates
 SET rate_cents = rate_cents * 100
 WHERE code IN ('125A', '210A', '225A');
-
--- Misc charge, which is charged at a rate of $1 for every quantity (dollars)
-INSERT INTO tariff400ng_item_rates (id, created_at, updated_at, code, rate_cents, effective_date_lower, effective_date_upper) VALUES ('50d6bfbb-77a8-4697-b1b1-68005d0f6569', now(), now(), '226A', 100, '2018-05-15', '2019-05-15');
