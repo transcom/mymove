@@ -218,6 +218,7 @@ clean:
 	rm -rf ./node_modules
 	rm -rf ./vendor
 	rm -rf ./pkg/gen
+	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
