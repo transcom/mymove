@@ -7,7 +7,7 @@ describe('InvoicePanel tests', () => {
   describe('When no items exist', () => {
     let wrapper;
     const shipmentLineItems = [];
-    wrapper = mount(<InvoicePanel shipmentLineItems={shipmentLineItems} />);
+    wrapper = mount(<InvoicePanel unbilledShipmentLineItems={shipmentLineItems} lineItemsTotal={0} />);
 
     it('renders without crashing', () => {
       expect(wrapper.find('.empty-content').length).toEqual(1);
@@ -22,17 +22,17 @@ describe('InvoicePanel tests', () => {
         tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
         amount: 1,
         quantity_1: 1,
-        location: ['D'],
+        location: 'DESTINATION',
       },
       {
         id: 'sldsdff',
         tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
-        location: ['D'],
+        location: 'DESTINATION',
         amount: 1,
         quantity_1: 1,
       },
     ];
-    wrapper = mount(<InvoicePanel shipmentLineItems={shipmentLineItems} />);
+    wrapper = mount(<InvoicePanel unbilledShipmentLineItems={shipmentLineItems} lineItemsTotal={0} />);
     it('renders the table', () => {
       expect(wrapper.find('table').length).toEqual(1);
     });
