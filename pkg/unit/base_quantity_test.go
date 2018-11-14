@@ -53,3 +53,11 @@ func TestToUnitDollarString(t *testing.T) {
 		t.Errorf("wrong string of BaseQuantity: expected %s, got %s", expected, result)
 	}
 }
+
+func TestBaseQuantityFromInt(t *testing.T) {
+	result := BaseQuantityFromInt(123)
+	expected := BaseQuantity(1230000)
+	if result != expected {
+		t.Errorf("wrong BaseQuantity for int: expected %d, got %d", expected, result)
+	}
+}

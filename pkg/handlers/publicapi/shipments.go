@@ -2,6 +2,8 @@ package publicapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/unit"
 	"net/http"
 	"time"
 
@@ -325,17 +327,109 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	verrs, err := h.DB().ValidateAndUpdate(shipment)
+
+	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
+	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+
+	shipmentCost, err := engine.HandleRunOnShipment(*shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	var lineItems []models.ShipmentLineItem
+
+	bqNetWeight := unit.BaseQuantityFromInt(shipment.NetWeight.Int())
+	now := time.Now()
+
+	// Linehaul charges ("LHS")
+	linehaulItem, err := models.FetchTariff400ngItemByCode(h.DB(), "LHS")
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	linehaul := models.ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: linehaulItem.ID,
+		Tariff400ngItem:   linehaulItem,
+		Location:          models.ShipmentLineItemLocationNEITHER,
+		Quantity1:         bqNetWeight,
+		Quantity2:         unit.BaseQuantityFromInt(shipmentCost.Cost.LinehaulCostComputation.Mileage),
+		Status:            models.ShipmentLineItemStatusSUBMITTED,
+		AmountCents:       &shipmentCost.Cost.LinehaulCostComputation.LinehaulChargeTotal,
+		SubmittedDate:     now,
+	}
+	lineItems = append(lineItems, linehaul)
+
+	// Origin service fee ("135A")
+	originServiceFeeItem, err := models.FetchTariff400ngItemByCode(h.DB(), "135A")
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	originServiceFee := models.ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: originServiceFeeItem.ID,
+		Tariff400ngItem:   originServiceFeeItem,
+		Location:          models.ShipmentLineItemLocationORIGIN,
+		Quantity1:         bqNetWeight,
+		Status:            models.ShipmentLineItemStatusSUBMITTED,
+		AmountCents:       &shipmentCost.Cost.NonLinehaulCostComputation.OriginServiceFee,
+		SubmittedDate:     now,
+	}
+	lineItems = append(lineItems, originServiceFee)
+
+	// Destination service fee ("135B")
+	destinationServiceFeeItem, err := models.FetchTariff400ngItemByCode(h.DB(), "135B")
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	destinationServiceFee := models.ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: destinationServiceFeeItem.ID,
+		Tariff400ngItem:   destinationServiceFeeItem,
+		Location:          models.ShipmentLineItemLocationDESTINATION,
+		Quantity1:         bqNetWeight,
+		Status:            models.ShipmentLineItemStatusSUBMITTED,
+		AmountCents:       &shipmentCost.Cost.NonLinehaulCostComputation.DestinationServiceFee,
+		SubmittedDate:     now,
+	}
+	lineItems = append(lineItems, destinationServiceFee)
+
+	// TODO: Determine if we have a separate unpack fee as well.  See notes below.
+	//
+	// Pack fee ("105A")
+	//
+	// Note: For now, I'm adding pack and unpack fees together here and put under 105A.  We don't currently
+	// have a 105C (for unpack) in our tariff400ng_items table.  See this Pivotal for more details:
+	// https://www.pivotaltracker.com/story/show/161564001
+	fullPackItem, err := models.FetchTariff400ngItemByCode(h.DB(), "105A")
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	packAndUnpackFee := shipmentCost.Cost.NonLinehaulCostComputation.PackFee + shipmentCost.Cost.NonLinehaulCostComputation.UnpackFee
+	fullPack := models.ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: fullPackItem.ID,
+		Tariff400ngItem:   fullPackItem,
+		Location:          models.ShipmentLineItemLocationORIGIN,
+		Quantity1:         bqNetWeight,
+		Status:            models.ShipmentLineItemStatusSUBMITTED,
+		AmountCents:       &packAndUnpackFee,
+		SubmittedDate:     time.Now(),
+	}
+	lineItems = append(lineItems, fullPack)
+
+	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), lineItems)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
+
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
 
-	// Comparint against the zero time allows users to set dates to nil via PATCH
+	// Comparing against the zero time allows users to set dates to nil via PATCH
 	zeroTime := time.Time{}
 
 	// PM Survey fields may be updated individually in the Dates panel and so cannot be lumped into one update

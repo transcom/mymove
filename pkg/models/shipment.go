@@ -336,7 +336,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID 
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
-// Note: This doens't save the Shipment, so this should always be run as part of
+// Note: This doesn't save the Shipment, so this should always be run as part of
 // another transaction that saves the shipment after assigning a GBL number
 func (s *Shipment) AssignGBLNumber(db *pop.Connection) error {
 	if s.SourceGBLOC == nil {
@@ -503,13 +503,11 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
 		"Move.Orders.NewDutyStation.Address",
-		"Move.Orders.HasDependents",
-		"Move.Orders.SpouseHasProGear",
-		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
-		"PartialSITDeliveryAddress").
+		"PartialSITDeliveryAddress",
+		"ShipmentOffers.TransportationServiceProviderPerformance").
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
@@ -702,4 +700,69 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 	})
 
 	return responseVErrors, responseError
+}
+
+// SaveShipmentAndLineItems saves a shipment and a slice of line items in a single transaction.
+func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []ShipmentLineItem) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(tx *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		verrs, err := tx.ValidateAndSave(s)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving shipment")
+			return transactionError
+		}
+
+		for _, lineItem := range lineItems {
+			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error saving shipment line item")
+				return transactionError
+			}
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
+}
+
+// createUniqueShipmentLineItem will create the given shipment line item,
+func (s *Shipment) createUniqueShipmentLineItem(tx *pop.Connection, lineItem ShipmentLineItem) (*validate.Errors, error) {
+	existingLineItem, err := s.FetchShipmentLineItemByItemID(tx, lineItem.Tariff400ngItemID)
+	if err != nil {
+		return validate.NewErrors(), err
+	}
+
+	if existingLineItem != nil {
+		return validate.NewErrors(), errors.New("Line item already exists for code " + lineItem.Tariff400ngItem.Code)
+	}
+
+	return tx.ValidateAndCreate(&lineItem)
+}
+
+// FetchShipmentLineItemByItemID attempts to find a line item with a given code for this shipment.
+// If no line item exists yet, returns nil.
+func (s *Shipment) FetchShipmentLineItemByItemID(db *pop.Connection, tariff400ngItemID uuid.UUID) (*ShipmentLineItem, error) {
+	var lineItems []ShipmentLineItem
+
+	err := db.Q().
+		Where("shipment_id = ?", s.ID).
+		Where("tariff400ng_item_id = ?", tariff400ngItemID).
+		All(&lineItems)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(lineItems) == 0 {
+		return nil, nil
+	}
+
+	return &lineItems[0], nil
 }
