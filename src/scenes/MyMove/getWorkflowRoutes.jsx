@@ -207,9 +207,7 @@ const pages = {
   },
   '/moves/:moveId/hhg-ppm-weight': {
     isInFlow: hasHHGPPM,
-    isComplete: (sm, orders, move, ppm) => {
-      return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
-    },
+    isComplete: (sm, orders, move, ppm) => get(ppm, 'weight_estimate', null),
     render: (key, pages) => ({ match }) => <PpmWeight pages={hhgPPMPages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/ppm-start': {
