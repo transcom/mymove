@@ -80,6 +80,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	MakeHhgWithPpm(db, tspUser, logger)
 
 	/*
+	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 */
+	makeHhgReadyToInvoice(db, tspUser, logger, storer)
+
+	/*
 	 * Service member with uploaded orders and a new ppm
 	 */
 	email = "ppm@incomple.te"
@@ -1589,11 +1594,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	hhg28.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg28.Move)
-
-	/*
-	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
-	 */
-	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
