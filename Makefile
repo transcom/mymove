@@ -89,7 +89,7 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
 server_build: server_deps server_generate
-	go build -i -o bin/webserver ./cmd/webserver
+	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
@@ -218,6 +218,7 @@ clean:
 	rm -rf ./node_modules
 	rm -rf ./vendor
 	rm -rf ./pkg/gen
+	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
