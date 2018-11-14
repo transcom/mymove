@@ -198,14 +198,12 @@ const pages = {
     isComplete: (sm, orders, move, ppm) => {
       return every([ppm.planned_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
-    render: (key, hhgPPMPages) => ({ match }) => (
-      <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />
-    ),
+    render: key => ({ match }) => <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-ppm-agreement': {
     isInFlow: hasHHGPPM,
     isComplete: (sm, orders, move, ppm) => get(ppm, 'status', 'DRAFT') === 'SUBMITTED',
-    render: (key, hhgPPMPages) => ({ match }) => {
+    render: key => ({ match }) => {
       return <Agreement pages={hhgPPMPages} pageKey={key} match={match} />;
     },
   },
@@ -239,6 +237,9 @@ const pages = {
     },
   },
 };
+
+// TODO currently an interim step for adding hhgPPM combo move pages
+const hhgPPMPages = ['/moves/:moveId/hhg-ppm-start', '/moves/:moveId/hhg-ppm-agreement'];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
