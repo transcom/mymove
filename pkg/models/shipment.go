@@ -721,7 +721,8 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []Ship
 			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error saving shipment line item")
+				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
 				return transactionError
 			}
 		}
@@ -740,7 +741,13 @@ func (s *Shipment) createUniqueShipmentLineItem(tx *pop.Connection, lineItem Shi
 	}
 
 	if existingLineItem != nil {
-		return validate.NewErrors(), errors.New("Line item already exists for code " + lineItem.Tariff400ngItem.Code)
+		var whichCode string
+		if len(lineItem.Tariff400ngItem.Code) > 0 {
+			whichCode = lineItem.Tariff400ngItem.Code
+		} else {
+			whichCode = lineItem.Tariff400ngItemID.String()
+		}
+		return validate.NewErrors(), errors.New("Line item already exists for item " + whichCode)
 	}
 
 	return tx.ValidateAndCreate(&lineItem)
