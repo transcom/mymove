@@ -445,7 +445,7 @@ const getStatus = (moveStatus, moveType, ppm, shipment) => {
   return status;
 };
 
-export const MoveSummaryWithoutContext = props => {
+export const MoveSummary = withContext(props => {
   const {
     profile,
     move,
@@ -532,6 +532,4 @@ export const MoveSummaryWithoutContext = props => {
       </div>
     </Fragment>
   );
-};
-
-export const MoveSummary = withContext(MoveSummaryWithoutContext);
+});
