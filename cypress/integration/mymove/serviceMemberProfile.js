@@ -19,6 +19,12 @@ function serviceMemberProfile(reloadAfterEveryPage) {
     .contains('Welcome,')
     .should('not.exist');
 
+  // does not have a back button on first flow page
+  cy
+    .get('button')
+    .contains('Back')
+    .should('not.be.visible');
+
   cy.get('button.next').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
   cy.get('input[name="edipi"]').type('1234567890');

@@ -15,6 +15,8 @@ import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/M
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 
+import { updateMove } from 'scenes/Moves/ducks';
+
 export class Landing extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
@@ -89,6 +91,7 @@ export class Landing extends Component {
       ppm,
       currentShipment,
       requestPaymentSuccess,
+      updateMove,
     } = this.props;
     return (
       <div className="usa-grid">
@@ -128,6 +131,7 @@ export class Landing extends Component {
                   resumeMove={this.resumeMove}
                   reviewProfile={this.reviewProfile}
                   requestPaymentSuccess={requestPaymentSuccess}
+                  updateMove={updateMove}
                 />
               )}
           </Fragment>
@@ -166,7 +170,7 @@ const mapStateToProps = state => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, loadLoggedInUser }, dispatch);
+  return bindActionCreators({ push, createServiceMember, loadLoggedInUser, updateMove }, dispatch);
 }
 
 export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));
