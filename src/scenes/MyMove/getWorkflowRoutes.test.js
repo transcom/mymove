@@ -49,6 +49,7 @@ describe('when getting the routes for the current workflow', () => {
           '/moves/:moveId',
           '/moves/:moveId/hhg-ppm-start',
           '/moves/:moveId/hhg-ppm-size',
+          '/moves/:moveId/hhg-ppm-weight',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
