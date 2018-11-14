@@ -21,6 +21,12 @@ function serviceMemberAddsPPMToHHG() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-ppm-start/);
   });
+
+  // does not have a back button on first flow page
+  cy
+    .get('button')
+    .contains('Back')
+    .should('not.be.visible');
 }
 
 function serviceMemberCancelsAddPPMToHHG() {
