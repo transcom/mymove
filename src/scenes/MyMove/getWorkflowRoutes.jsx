@@ -254,6 +254,7 @@ const hhgPPMPages = [
   '/moves/:moveId/hhg-ppm-size',
   '/moves/:moveId/hhg-ppm-weight',
   '/moves/:moveId/hhg-ppm-agreement',
+  '/moves/:moveId/review',
 ];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
