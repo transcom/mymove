@@ -17,7 +17,6 @@ describe('MoveSummary', () => {
   const entitlementObj = { sum: '10000' };
   const serviceMember = { current_station: { name: 'Ft Carson' } };
   const ordersObj = {};
-  const context = { flags: {} };
   const getShallowRender = (
     entitlementObj,
     serviceMember,
@@ -38,7 +37,6 @@ describe('MoveSummary', () => {
         shipment={hhgObj}
         editMove={editMoveFn}
         resumeMove={resumeMoveFn}
-        context={context}
       />,
     );
     return shallow(componentWrapper.props().children());
