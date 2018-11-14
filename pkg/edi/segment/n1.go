@@ -25,11 +25,11 @@ func (s *N1) String(delimiter string) string {
 	return strings.Join(elements, delimiter)
 }
 
-// Parse parses an X12 string that's split into an array into the N1 struct
+// Parse parses an X12 string that's split into an array into the N1SF struct
 func (s *N1) Parse(parts []string) error {
 	numElements := len(parts)
 	if numElements != 2 && numElements != 4 {
-		return fmt.Errorf("N1: Wrong number of elements, expected 2 or 4, got %d", numElements)
+		return fmt.Errorf("N1SF: Wrong number of elements, expected 2 or 4, got %d", numElements)
 	}
 
 	s.EntityIdentifierCode = parts[0]
