@@ -242,7 +242,12 @@ const pages = {
 };
 
 // TODO currently an interim step for adding hhgPPM combo move pages
-const hhgPPMPages = ['/moves/:moveId/hhg-ppm-start', '/moves/:moveId/hhg-ppm-size', '/moves/:moveId/hhg-ppm-weight'];
+const hhgPPMPages = [
+  '/moves/:moveId/hhg-ppm-start',
+  '/moves/:moveId/hhg-ppm-size',
+  '/moves/:moveId/hhg-ppm-weight',
+  '/moves/:moveId/review',
+];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
