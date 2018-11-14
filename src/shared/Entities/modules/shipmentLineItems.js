@@ -38,8 +38,9 @@ export const selectSortedShipmentLineItems = createSelector([selectShipmentLineI
   orderBy(shipmentLineItems, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
 );
 
-export const selectSortedPreApprovalShipmentLineItems = createSelector([selectShipmentLineItems], shipmentLineItems =>
-  filter(shipmentLineItems, lineItem => lineItem.tariff400ng_item.requires_pre_approval),
+export const selectSortedPreApprovalShipmentLineItems = createSelector(
+  [selectSortedShipmentLineItems],
+  shipmentLineItems => filter(shipmentLineItems, lineItem => lineItem.tariff400ng_item.requires_pre_approval),
 );
 
 export const getShipmentLineItemsLabel = 'ShipmentLineItems.getAllShipmentLineItems';
