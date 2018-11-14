@@ -25,13 +25,3 @@ func MakeRequestedReimbursement(db *pop.Connection) (models.Reimbursement, error
 
 	return reimbursement, nil
 }
-
-// MakeReimbursementData creates 3 draft Reimbursements and 2 requested Reimbursements
-func MakeReimbursementData(db *pop.Connection) {
-	for i := 0; i < 3; i++ {
-		MakeDraftReimbursement(db)
-	}
-	for i := 0; i < 2; i++ {
-		MakeRequestedReimbursement(db)
-	}
-}
