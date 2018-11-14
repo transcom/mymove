@@ -30,7 +30,7 @@ func (suite *dpsAuthSuite) TestCookie() {
 	}
 
 	// Mimic cookie being passed back in an API call via query param
-	escaped := url.QueryEscape(cookie)
+	escaped := url.QueryEscape(cookie.Value)
 	userIDFromCookie, err := CookieToLoginGovID(escaped)
 	if err != nil {
 		t.Error("Error extracting user ID from cookie value", err)

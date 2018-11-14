@@ -16,7 +16,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := testdatagen.MakeDefaultServiceMember(suite.TestDB())
-	station := testdatagen.MakeDefaultDutyStation(suite.TestDB())
+	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.TestDB())
 
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateRequest(req, sm)

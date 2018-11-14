@@ -1,7 +1,7 @@
 import { userEntersDates, userEntersAndRemovesDates } from '../../support/datesPanel';
 
 /* global cy */
-describe('office user interacts with premove survey', function() {
+describe('office user interacts with dates panel', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });

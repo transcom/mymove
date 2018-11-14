@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Alert from 'shared/Alert';
+import Authorization from 'shared/User/Authorization';
 import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
@@ -33,6 +34,7 @@ import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
+import DPSAuthCookie from 'scenes/DPSAuthCookie';
 
 const NoMatch = ({ location }) => (
   <div className="usa-grid">
@@ -93,6 +95,7 @@ export class AppWrapper extends Component {
                     {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
+                    <PrivateRoute path="/dps_cookie" component={Authorization(DPSAuthCookie, 'dps')} />
                     <Route component={NoMatch} />
                   </Switch>
                 )}

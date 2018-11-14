@@ -29,6 +29,8 @@ import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
+
 import {
   getAllTariff400ngItems,
   selectTariff400ngItems,
@@ -63,7 +65,6 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-import { no_op_action } from '../../shared/utils';
 
 const BasicsTabContent = props => {
   return (
@@ -104,12 +105,12 @@ const HHGTabContent = props => {
         />
       )}
       <TspContainer
-        setEditTspServiceAgent={no_op_action}
         title="TSP & Servicing Agents"
         shipment={props.officeShipment}
         serviceAgents={props.serviceAgents}
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
+      {has(props, 'officeShipment.id') && <InvoicePanel shipmentId={props.officeShipment.id} />}
     </div>
   );
 };

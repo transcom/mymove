@@ -35,6 +35,7 @@ const (
 type ShipmentLineItem struct {
 	ID         uuid.UUID `json:"id" db:"id"`
 	ShipmentID uuid.UUID `json:"shipment_id" db:"shipment_id"`
+	Shipment   Shipment  `belongs_to:"shipments"`
 
 	Tariff400ngItemID uuid.UUID                `json:"tariff400ng_item_id" db:"tariff400ng_item_id"`
 	Tariff400ngItem   Tariff400ngItem          `belongs_to:"tariff400ng_items"`

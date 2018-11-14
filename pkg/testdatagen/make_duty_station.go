@@ -49,7 +49,12 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 	return station
 }
 
-// MakeDefaultDutyStation returns a duty station with default info
-func MakeDefaultDutyStation(db *pop.Connection) models.DutyStation {
-	return MakeDutyStation(db, Assertions{})
+// FetchOrMakeDefaultDutyStation returns a default duty station - Yuma AFB
+func FetchOrMakeDefaultDutyStation(db *pop.Connection) models.DutyStation {
+	// Check if Yuma Duty Station exists, if not, create it.
+	defaultStation, err := models.FetchDutyStationByName(db, "Yuma AFB")
+	if err != nil {
+		return MakeDutyStation(db, Assertions{})
+	}
+	return defaultStation
 }

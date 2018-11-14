@@ -1,8 +1,8 @@
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getPublicClient } from 'shared/Swagger/api';
-import { shipmentLineItems } from '../schema';
+import { shipmentLineItems as ShipmentLineItemsModel } from '../schema';
 import { denormalize } from 'normalizr';
-import { get, orderBy } from 'lodash';
+import { get, orderBy, filter, map } from 'lodash';
 import { createSelector } from 'reselect';
 
 export function createShipmentLineItem(label, shipmentId, payload) {
@@ -41,4 +41,29 @@ export const deleteShipmentLineItemLabel = 'ShipmentLineItems.deleteShipmentLine
 export const approveShipmentLineItemLabel = 'ShipmentLineItems.approveShipmentLineItem';
 export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLineItem';
 
-export const selectShipmentLineItem = (state, id) => denormalize([id], shipmentLineItems, state.entities)[0];
+export const selectShipmentLineItem = (state, id) => denormalize([id], ShipmentLineItemsModel, state.entities)[0];
+
+const getUnbilledShipmentLineItems = (state, shipmentId) => {
+  const items = filter(state.entities.shipmentLineItems, item => {
+    return item.shipment_id === shipmentId && !item.invoice_id;
+  });
+
+  //this denormalize step can be skipped because tariff400ng_item data is already available under items
+  //but this is the right way to hydrate the data structure so leaving it in
+  let denormItems = denormalize(map(items, 'id'), ShipmentLineItemsModel, state.entities);
+  return denormItems.filter(item => {
+    return !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED';
+  });
+};
+
+export const makeGetUnbilledShipmentLineItems = () => createSelector([getUnbilledShipmentLineItems], items => items);
+
+export const makeTotalFromUnbilledLineItems = () =>
+  createSelector([getUnbilledShipmentLineItems], items => {
+    if (items.length > 0) {
+      items.reduce((acm, item) => {
+        //Todo: get total from all line items
+        return 0;
+      });
+    }
+  });

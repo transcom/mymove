@@ -80,6 +80,7 @@ function getUserInfo() {
     userId: UserID,
     firstName: FirstName,
     isLoggedIn: true,
+    features: jwt.SessionValue.Features,
   };
 }
 
