@@ -14,7 +14,16 @@ import {
 export class InvoicePanel extends Component {
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      canApprove: false,
+      shipmentState: null,
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!this.state.shipmentState || prevProps.shipmentState !== this.props.shipmentState) {
+      this.setState({ shipmentState: this.props.shipmentState });
+    }
   }
 
   render() {
@@ -34,6 +43,7 @@ export class InvoicePanel extends Component {
 InvoicePanel.propTypes = {
   shipmentLineItems: PropTypes.array,
   shipmentId: PropTypes.string,
+  shipmentState: PropTypes.string,
   lineItemsTotal: PropTypes.number,
 };
 

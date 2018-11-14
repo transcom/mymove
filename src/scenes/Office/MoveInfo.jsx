@@ -112,7 +112,9 @@ const HHGTabContent = props => {
         serviceAgents={props.serviceAgents}
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
-      {has(props, 'officeShipment.id') && <InvoicePanel shipmentId={props.officeShipment.id} />}
+      {has(props, 'officeShipment.id') && (
+        <InvoicePanel shipmentId={props.officeShipment.id} shipmentState={props.officeShipment.status} />
+      )}
     </div>
   );
 };
