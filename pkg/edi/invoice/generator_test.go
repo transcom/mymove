@@ -2,7 +2,6 @@ package ediinvoice_test
 
 import (
 	"bytes"
-	"encoding/csv"
 	"log"
 	"regexp"
 	"testing"
@@ -11,6 +10,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -35,8 +35,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 	generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
 	var b bytes.Buffer
-	writer := csv.NewWriter(&b)
-	writer.Comma = '*'
+	writer := edi.NewWriter(&b)
 	writer.WriteAll(generatedTransactions)
 	suite.NoError(err, "generates error")
 	suite.NotEmpty(b.String(), "result is empty")

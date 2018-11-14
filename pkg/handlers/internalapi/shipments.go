@@ -1,15 +1,18 @@
 package internalapi
 
 import (
-	"fmt"
+	"bytes"
+	"os"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -492,15 +495,23 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	costsByShipments = append(costsByShipments, shipmentCost)
 
 	// pass value into generator --> edi string
-	edi, err := ediinvoice.Generate858C(costsByShipments, h.DB(), h.SendProductionInvoice())
+	invoice858C, err := ediinvoice.Generate858C(costsByShipments, h.DB(), h.SendProductionInvoice(), clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	fmt.Print(edi) // to use for demo visual
+	// to use for demo visual
+	// should this have a flag or be taken out?
+	ediWriter := edi.NewWriter(os.Stdout)
+	ediWriter.WriteAll(invoice858C)
 
 	// send edi through gex post api
 	transactionName := "placeholder"
-	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), edi, transactionName)
+	var b bytes.Buffer
+	ediWriter = edi.NewWriter(&b)
+	if err = ediWriter.WriteAll(invoice858C); err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), b.String(), transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
