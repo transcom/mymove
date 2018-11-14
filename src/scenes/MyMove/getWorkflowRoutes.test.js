@@ -47,11 +47,8 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId',
-          '/moves/:moveId/ppm-start',
-          '/moves/:moveId/ppm-size',
-          '/moves/:moveId/ppm-incentive',
-          '/moves/:moveId/hhg-ppm-size',
           '/moves/:moveId/hhg-ppm-start',
+          '/moves/:moveId/hhg-ppm-size',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
