@@ -61,7 +61,7 @@ function tspUserViewsHHGPPMHeaderInfo() {
   // Find a shipment and open it
   cy
     .get('div')
-    .contains('BACON1')
+    .contains('HHGPPM')
     .dblclick();
 
   cy.location().should(loc => {
@@ -82,11 +82,11 @@ function tspUserViewsHHGPPMHeaderInfo() {
     .get('ul')
     .contains('li', 'GBL# LKBM7000002')
     .parentsUntil('div')
-    .contains('li', 'Locator# BACON1')
+    .contains('li', 'Locator# HHGPPM')
     .parentsUntil('div')
     .contains('li', 'LKBM to LKBM')
     .parentsUntil('div')
-    .contains('li', 'DoD ID# 4444567890')
+    .contains('li', 'DoD ID# 4224567890')
     .parentsUntil('div')
     .contains('li', '555-555-5555');
 }
