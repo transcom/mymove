@@ -19,7 +19,7 @@ func (s *IEA) String(delimiter string) string {
 		strconv.Itoa(s.NumberOfIncludedFunctionalGroups),
 		fmt.Sprintf("%09d", s.InterchangeControlNumber),
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the IEA struct

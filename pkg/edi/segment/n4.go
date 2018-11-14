@@ -26,7 +26,7 @@ func (s *N4) String(delimiter string) string {
 		s.LocationQualifier,
 		s.LocationIdentifier,
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the N4 struct

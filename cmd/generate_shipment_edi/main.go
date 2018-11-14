@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/facebookgo/clock"
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"log"
@@ -70,7 +71,7 @@ func main() {
 		}
 		costsByShipments = append(costsByShipments, costByShipment)
 	}
-	edi, err := ediinvoice.Generate858C(costsByShipments, db, false)
+	edi, err := ediinvoice.Generate858C(costsByShipments, db, false, clock.New())
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -32,7 +32,7 @@ func (s *L7) String(delimiter string) string {
 		"",
 		strconv.Itoa(s.TariffDistance),
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the L7 struct

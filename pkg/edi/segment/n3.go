@@ -18,7 +18,7 @@ func (s *N3) String(delimiter string) string {
 		s.AddressInformation1,
 		s.AddressInformation2,
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the N3 struct

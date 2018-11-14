@@ -3,8 +3,9 @@ package ediinvoice
 import (
 	"errors"
 	"fmt"
-	"time"
+	"strings"
 
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/edi/segment"
@@ -21,9 +22,9 @@ const senderCode = "MYMOVE"
 const receiverCode = "8004171844" // Syncada
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool) (string, error) {
+func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) ([][]string, error) {
 	interchangeControlNumber := 1 //TODO: increment this
-	currentTime := time.Now()
+	currentTime := clock.Now()
 	var usageIndicator string
 
 	if sendProductionInvoice {
@@ -32,6 +33,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		usageIndicator = "T"
 	}
 
+	transaction := make([][]string, 0)
 	isa := edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          fmt.Sprintf("%010d", 0),
@@ -60,7 +62,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		ResponsibleAgencyCode: "X", // Accredited Standards Committee X12
 		Version:               "004010",
 	}
-	transaction := isa.String(delimiter) + gs.String(delimiter)
+	transaction = append(transaction, strings.Split(isa.String(delimiter), delimiter), strings.Split(gs.String(delimiter), delimiter))
 
 	var shipments []models.Shipment
 
@@ -69,9 +71,9 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 
 		shipment858c, err := generate858CShipment(shipmentWithCost, index+1)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		transaction += shipment858c
+		transaction = append(transaction, shipment858c...)
 		shipments = append(shipments, shipment)
 	}
 
@@ -84,12 +86,12 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		InterchangeControlNumber:         interchangeControlNumber,
 	}
 
-	transaction += (ge.String(delimiter) + iea.String(delimiter))
+	transaction = append(transaction, strings.Split(ge.String(delimiter), delimiter), strings.Split(iea.String(delimiter), delimiter))
 
 	return transaction, nil
 }
 
-func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNum int) (string, error) {
+func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([][]string, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -100,13 +102,13 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 
 	headingSegments, err := getHeadingSegments(shipmentWithCost, sequenceNum)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	segments = append(segments, headingSegments...)
 
 	lineItemSegments, err := getLineItemSegments(shipmentWithCost)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	segments = append(segments, lineItemSegments...)
 
@@ -118,9 +120,9 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 		},
 	)
 
-	transaction := ""
+	transaction := make([][]string, 0)
 	for _, seg := range segments {
-		transaction += seg.String(delimiter)
+		transaction = append(transaction, strings.Split(seg.String(delimiter), delimiter))
 	}
 
 	return transaction, nil

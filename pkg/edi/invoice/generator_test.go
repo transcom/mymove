@@ -1,16 +1,21 @@
 package ediinvoice_test
 
 import (
+	"bytes"
+	"encoding/csv"
+	"log"
+	"regexp"
+	"testing"
+
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"go.uber.org/zap"
-	"log"
-	"regexp"
-	"testing"
 )
 
 func (suite *InvoiceSuite) TestGenerate858C() {
@@ -28,15 +33,59 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	var costsByShipments []rateengine.CostByShipment
 	costsByShipments = append(costsByShipments, costByShipment)
 
-	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db, false)
+	generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+	var b bytes.Buffer
+	writer := csv.NewWriter(&b)
+	writer.Comma = '*'
+	writer.WriteAll(generatedTransactions)
 	suite.NoError(err, "generates error")
-	suite.NotEmpty(generatedResult, "result is empty")
+	suite.NotEmpty(b.String(), "result is empty")
 
 	re := regexp.MustCompile("\\*" + "T" + "\\*")
-	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to T."+
+	suite.True(re.MatchString(b.String()), "This fails if the EDI string does not have the environment flag set to T."+
 		" This is set by the if statement in Generate858C() that checks a boolean variable named sendProductionInvoice")
 
+	assert.Equal(suite.T(), expectedEDI, b.String())
 }
+
+const expectedEDI = `ISA*00*0000000000*00*0000000000*ZZ*MYMOVE         *12*8004171844     *691231*1600*U*00401*000000001*1*T*|
+GS*SI*MYMOVE*8004171844*19691231*1600*1*X*004010
+ST*858*0001
+BX*00*J*PP*KKFA7000001*MCCG**4
+N9*DY*SC**
+N9*CN*ABCD00001-1**
+N9*PQ*ABBV2708**
+N9*OQ*ORDER3*ARMY*20180315
+N1*SF*Spacemen**
+N3*123 Any Street*P.O. Box 12345
+N4*Beverly Hills*CA*90210*US**
+N1*RG*LKNQ*27*LKNQ
+N1*RH*MLNQ*27*MLNQ
+FA1*DZ
+FA2*TA*F8E1
+L10*108.200*B*L
+HL*303**SS
+L0*1*1.000*FR********
+L1*0*0.0000*RC*0********LHS
+HL*303**SS
+L0*1***108.200*B******L
+L1*0*65.7700*RC*0********105A
+HL*304**SS
+L0*1***108.200*B******L
+L1*0*65.7700*RC*0********105C
+HL*303**SS
+L0*1***108.200*B******L
+L1*0*4.0700*RC*0********135A
+HL*304**SS
+L0*1***108.200*B******L
+L1*0*4.0700*RC*0********135B
+HL*303**SS
+L0*1*1.000*FR********
+L1*0*0.0300*RC*22742********16A
+SE*33*0001
+GE*1*1
+IEA*1*000000001
+`
 
 type InvoiceSuite struct {
 	suite.Suite

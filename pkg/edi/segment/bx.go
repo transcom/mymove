@@ -28,7 +28,7 @@ func (s *BX) String(delimiter string) string {
 		s.WeightUnitCode,
 		s.ShipmentQualifier,
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the BX struct

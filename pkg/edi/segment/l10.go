@@ -21,7 +21,7 @@ func (s *L10) String(delimiter string) string {
 		s.WeightQualifier,
 		s.WeightUnitCode,
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the L10 struct

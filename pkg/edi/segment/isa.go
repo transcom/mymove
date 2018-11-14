@@ -47,7 +47,7 @@ func (s *ISA) String(delimiter string) string {
 		s.UsageIndicator,
 		s.ComponentElementSeparator,
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the ISA struct

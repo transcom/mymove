@@ -20,7 +20,7 @@ func (s *HL) String(delimiter string) string {
 		s.HierarchicalParentIDNumber,
 		s.HierarchicalLevelCode,
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the HL struct

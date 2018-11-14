@@ -19,7 +19,7 @@ func (s *GE) String(delimiter string) string {
 		strconv.Itoa(s.NumberOfTransactionSetsIncluded),
 		strconv.Itoa(s.GroupControlNumber),
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the GE struct
