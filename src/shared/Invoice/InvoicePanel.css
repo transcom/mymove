@@ -1,3 +1,26 @@
 .empty-content {
   font-size: 0.8em;
 }
+
+.invoice-panel {
+  border-width: 3px;
+  empty-cells: hide;
+  margin-bottom: 18px;
+}
+
+.invoice-panel table {
+  table-layout: fixed;
+  display: table;
+  width: 100%;
+  border-spacing: 2px;
+}
+
+.invoice-panel th,
+.invoice-panel td {
+  border: none;
+  text-align: left;
+}
+
+.invoice-panel .align-right {
+  text-align: right !important;
+}

@@ -111,7 +111,12 @@ const HHGTabContent = props => {
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
       {has(props, 'officeShipment.id') && (
-        <InvoicePanel shipmentId={props.officeShipment.id} shipmentState={props.officeShipment.status} />
+        <InvoicePanel
+          shipmentId={props.officeShipment.id}
+          shipmentState={props.officeShipment.status}
+          onApprovePayment={props.sendHHGInvoice}
+          canApprove={props.canApprovePaymentInvoice}
+        />
       )}
     </div>
   );
@@ -153,10 +158,6 @@ class MoveInfo extends Component {
 
   completeHHG = () => {
     this.props.completeHHG(this.props.officeShipment.id);
-  };
-
-  submitInvoice = () => {
-    this.props.sendHHGInvoice(this.props.officeShipment.id);
   };
 
   cancelMove = cancelReason => {
@@ -314,6 +315,14 @@ class MoveInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
+                    canApprovePaymentInvoice={
+                      !hhgCompleted ||
+                      !hhgApproved ||
+                      !moveApproved ||
+                      !ordersComplete ||
+                      invoiceSuccess ||
+                      currentTab !== 'hhg'
+                    }
                   />
                 </PrivateRoute>
               </Switch>
@@ -380,21 +389,6 @@ class MoveInfo extends Component {
                   {hhgCompleted && check}
                 </button>
               )}
-              <button
-                className={`${invoiceSuccess ? 'btn__approve--green' : ''}`}
-                onClick={this.submitInvoice}
-                disabled={
-                  !hhgCompleted ||
-                  !hhgApproved ||
-                  !moveApproved ||
-                  !ordersComplete ||
-                  invoiceSuccess ||
-                  currentTab !== 'hhg'
-                }
-              >
-                Submit HHG Invoice
-                {invoiceSuccess && check}
-              </button>
 
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
