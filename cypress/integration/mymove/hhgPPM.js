@@ -9,6 +9,7 @@ describe('service member adds a ppm to an hhg', function() {
     serviveMemberFillsInDatesAndLocations();
     serviceMemberSelectsWeightRange();
     serviceMemberCanCustomizeWeight();
+    serviceMemberCanReviewMoveSummary();
   });
 });
 
@@ -87,6 +88,26 @@ function serviceMemberCanCustomizeWeight() {
   cy.get('.rangeslider__handle').click();
 
   cy.get('.incentive').contains('$');
+
+  cy.nextPage();
+}
+
+function serviceMemberCanReviewMoveSummary() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+  });
+
+  cy.get('body').should($div => expect($div.text()).not.to.include('Government moves all of your stuff (HHG)'));
+  cy.get('.ppm-container').should($div => {
+    const text = $div.text();
+    expect(text).to.include('Shipment - You move your stuff (PPM)');
+    expect(text).to.include('Move Date: 09/02/2018');
+    expect(text).to.include('Pickup ZIP Code:  80913');
+    expect(text).to.include('Delivery ZIP Code:  76127');
+    expect(text).to.include('Storage: Not requested');
+    expect(text).to.include('Estimated Weight:  1,500 lbs');
+    expect(text).to.include('Estimated PPM Incentive:  $2,032.89 - 2,246.87');
+  });
 
   cy.nextPage();
 }
