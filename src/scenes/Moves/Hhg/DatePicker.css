@@ -19,9 +19,10 @@ th {
 }
 
 span.estimate {
-  color: gray;
+  color: #5b616b;
   margin-left: 0.5rem;
 }
+
 
 .DayPicker-Day:focus {
   outline: none;
@@ -33,7 +34,7 @@ span.estimate {
 }
 
 .DayPicker-Day--pickup {
-  background-color: #497abf;
+  background-color: #0071bc;
   border-radius: 0;
 }
 
@@ -54,6 +55,11 @@ span.estimate {
   background-color: #000000;
   border-radius: 0;
 }
+
+.DayPicker-Weekday {
+  color: #5b616b
+}
+
 
 .hhg-date-picker .instruction-heading {
   padding: 1rem 0 3rem;
