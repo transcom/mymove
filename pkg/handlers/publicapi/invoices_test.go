@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 	shipment := shipments[0]
 
 	authedTspUser := tspUsers[0]
-	unauthedTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+	unverifiedTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 	// Invoice tied to a shipment of authed tsp user
@@ -32,9 +32,9 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 			ShipmentID: shipment.ID,
 		},
 	})
-	// And: the context contains an unauthed tsp user
+	// And: the context contains an unverified tsp user
 	req := httptest.NewRequest("GET", "/accessorials", nil)
-	req = suite.AuthenticateTspRequest(req, unauthedTspUser)
+	req = suite.AuthenticateTspRequest(req, unverifiedTspUser)
 
 	params := accessorialop.GetInvoiceParams{
 		HTTPRequest: req,

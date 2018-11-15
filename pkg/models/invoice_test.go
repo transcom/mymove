@@ -31,7 +31,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	shipment := shipments[0]
 
 	authedTspUser := tspUsers[0]
-	unauthedTspUser := testdatagen.MakeDefaultTspUser(suite.db)
+	unverifiedTspUser := testdatagen.MakeDefaultTspUser(suite.db)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 	// Invoice tied to a shipment of authed tsp user
@@ -54,15 +54,15 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	if suite.NoError(err) {
 		suite.Equal(extantInvoice.ID, invoice.ID)
 	}
-	// When: Unauthed TSP tries to access
+	// When: Unverified TSP tries to access
 	session = &auth.Session{
 		ApplicationName: auth.TspApp,
-		UserID:          *unauthedTspUser.UserID,
-		TspUserID:       unauthedTspUser.ID,
+		UserID:          *unverifiedTspUser.UserID,
+		TspUserID:       unverifiedTspUser.ID,
 	}
-	// Then: User Unauthorized returned
+	// Then: fetch forbidden returned
 	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
-	suite.Equal("USER_UNAUTHORIZED", err.Error())
+	suite.Equal("FETCH_FORBIDDEN", err.Error())
 
 	// When: authed TSP tries to access
 	session = &auth.Session{
