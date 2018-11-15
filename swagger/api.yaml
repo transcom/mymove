@@ -2325,11 +2325,11 @@ paths:
         400:
           description: invalid request
         401:
-          description: not authorized to get invoice
+          description: User not authenticated to get invoice
         403:
-          description: not authorized to get invoice for this shipment
+          description: User not permitted to get invoice for this shipment
         404:
-          description: Shipment UUID not found in system
+          description: Invoice UUID not found in system
         500:
           description: server error
   /shipments/{shipmentId}/accessorials:

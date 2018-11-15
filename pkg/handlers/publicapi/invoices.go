@@ -48,14 +48,15 @@ func (h GetInvoiceHandler) Handle(params accessorialop.GetInvoiceParams) middlew
 			return handlers.ResponseForError(h.Logger(), err)
 		} else if err == models.ErrFetchForbidden {
 			h.Logger().Error("User not permitted to access invoice", zap.Error(err))
-			return accessorialop.NewGetInvoiceForbidden()
+			return handlers.ResponseForError(h.Logger(), err)
 		} else if err == models.ErrUserUnauthorized {
 			h.Logger().Error("User not authorized to access invoice", zap.Error(err))
-		} else {
-			h.Logger().Error("Error fetching invoice", zap.Error(err))
-			return accessorialop.NewGetInvoiceInternalServerError()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
+		h.Logger().Error("Error fetching invoice", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
 	}
+
 	payload := payloadForInvoiceModel(invoice)
 	return accessorialop.NewGetInvoiceOK().WithPayload(payload)
 }
