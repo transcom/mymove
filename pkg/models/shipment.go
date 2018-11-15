@@ -735,12 +735,12 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []Ship
 
 // createUniqueShipmentLineItem will create the given shipment line item,
 func (s *Shipment) createUniqueShipmentLineItem(tx *pop.Connection, lineItem ShipmentLineItem) (*validate.Errors, error) {
-	existingLineItem, err := s.FetchShipmentLineItemByItemID(tx, lineItem.Tariff400ngItemID)
+	existingLineItems, err := s.FetchShipmentLineItemsByItemID(tx, lineItem.Tariff400ngItemID)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
 
-	if existingLineItem != nil {
+	if len(existingLineItems) > 0 {
 		var whichCode string
 		if len(lineItem.Tariff400ngItem.Code) > 0 {
 			whichCode = lineItem.Tariff400ngItem.Code
@@ -753,9 +753,9 @@ func (s *Shipment) createUniqueShipmentLineItem(tx *pop.Connection, lineItem Shi
 	return tx.ValidateAndCreate(&lineItem)
 }
 
-// FetchShipmentLineItemByItemID attempts to find a line item with a given code for this shipment.
-// If no line item exists yet, returns nil.
-func (s *Shipment) FetchShipmentLineItemByItemID(db *pop.Connection, tariff400ngItemID uuid.UUID) (*ShipmentLineItem, error) {
+// FetchShipmentLineItemsByItemID attempts to find line items for this shipment that have a given line item code.
+// If no line items for this code exist yet, return an empty slice.
+func (s *Shipment) FetchShipmentLineItemsByItemID(db *pop.Connection, tariff400ngItemID uuid.UUID) ([]ShipmentLineItem, error) {
 	var lineItems []ShipmentLineItem
 
 	err := db.Q().
@@ -763,13 +763,5 @@ func (s *Shipment) FetchShipmentLineItemByItemID(db *pop.Connection, tariff400ng
 		Where("tariff400ng_item_id = ?", tariff400ngItemID).
 		All(&lineItems)
 
-	if err != nil {
-		return nil, err
-	}
-
-	if len(lineItems) == 0 {
-		return nil, nil
-	}
-
-	return &lineItems[0], nil
+	return lineItems, err
 }

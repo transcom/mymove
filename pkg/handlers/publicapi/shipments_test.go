@@ -3,7 +3,6 @@ package publicapi
 import (
 	"fmt"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/unit"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -732,128 +731,6 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
-	// Set additional shipment fields needed for rateengine.
-	netWeight := unit.Pound(2000)
-	shipment.NetWeight = &netWeight
-	actualPickupDate := time.Now().AddDate(0, 0, -(int(*shipment.EstimatedTransitDays)))
-	shipment.ActualPickupDate = &actualPickupDate
-	suite.MustSave(&shipment)
-
-	// Set up tables needed for rateengine.
-
-	beforePickupDate := actualPickupDate.AddDate(0, -6, 0)
-	afterPickupDate := actualPickupDate.AddDate(0, 6, 0)
-
-	// $4861 is the cost for a 2000 pound move traveling 1044 miles (90210 to 80011).
-	baseLinehaul := models.Tariff400ngLinehaulRate{
-		DistanceMilesLower: 1001,
-		DistanceMilesUpper: 1101,
-		WeightLbsLower:     2000,
-		WeightLbsUpper:     2100,
-		RateCents:          386400,
-		Type:               "ConusLinehaul",
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
-	}
-	suite.MustSave(&baseLinehaul)
-
-	// Create Service Area entries for Zip3s (which were already created)
-
-	// Create fees for service areas
-	sa1 := models.Tariff400ngServiceArea{
-		Name:               "Los Angeles, CA",
-		ServiceArea:        "56",
-		ServicesSchedule:   3,
-		LinehaulFactor:     unit.Cents(268),
-		ServiceChargeCents: unit.Cents(775),
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
-		SIT185ARateCents:   unit.Cents(1626),
-		SIT185BRateCents:   unit.Cents(60),
-		SITPDSchedule:      3,
-	}
-	suite.MustSave(&sa1)
-	sa2 := models.Tariff400ngServiceArea{
-		Name:               "Denver, CO Metro",
-		ServiceArea:        "145",
-		ServicesSchedule:   3,
-		LinehaulFactor:     unit.Cents(174),
-		ServiceChargeCents: unit.Cents(873),
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
-		SIT185ARateCents:   unit.Cents(1532),
-		SIT185BRateCents:   unit.Cents(60),
-		SITPDSchedule:      3,
-	}
-	suite.MustSave(&sa2)
-
-	fullPackRate := models.Tariff400ngFullPackRate{
-		Schedule:           sa1.ServicesSchedule,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
-		RateCents:          6714,
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
-	}
-	suite.MustSave(&fullPackRate)
-
-	fullUnpackRate := models.Tariff400ngFullUnpackRate{
-		Schedule:           sa2.ServicesSchedule,
-		RateMillicents:     704970,
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
-	}
-	suite.MustSave(&fullUnpackRate)
-
-	// Set up item codes
-	codeLHS := models.Tariff400ngItem{
-		Code:                "LHS",
-		Item:                "Linehaul Transportation",
-		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
-		AllowedLocation:     models.Tariff400ngItemAllowedLocationNEITHER,
-		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitFLATRATE,
-		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
-		RateRefCode:         models.Tariff400ngItemRateRefCodeTARIFFSECTION,
-		RequiresPreApproval: false,
-	}
-	suite.MustSave(&codeLHS)
-
-	code135A := models.Tariff400ngItem{
-		Code:                "135A",
-		Item:                "Origin Service Charge",
-		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
-		AllowedLocation:     models.Tariff400ngItemAllowedLocationORIGIN,
-		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
-		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
-		RateRefCode:         models.Tariff400ngItemRateRefCodePOINTSCHEDULE,
-		RequiresPreApproval: false,
-	}
-	suite.MustSave(&code135A)
-
-	code135B := models.Tariff400ngItem{
-		Code:                "135B",
-		Item:                "Destination Service Charge",
-		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
-		AllowedLocation:     models.Tariff400ngItemAllowedLocationDESTINATION,
-		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
-		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
-		RateRefCode:         models.Tariff400ngItemRateRefCodePOINTSCHEDULE,
-		RequiresPreApproval: false,
-	}
-	suite.MustSave(&code135B)
-
-	code105A := models.Tariff400ngItem{
-		Code:                "105A",
-		Item:                "Full Pack",
-		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
-		AllowedLocation:     models.Tariff400ngItemAllowedLocationORIGIN,
-		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
-		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
-		RateRefCode:         models.Tariff400ngItemRateRefCodeNONE,
-		RequiresPreApproval: false,
-	}
-	suite.MustSave(&code105A)
-
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
@@ -880,45 +757,8 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// Check for ShipmentLineItems
 	addedLineItems, _ := models.FetchLineItemsByShipmentID(suite.TestDB(), &shipment.ID)
+
+	// The details of the line items are tested in the rateengine package.  We just
+	// check the count here.
 	suite.Len(addedLineItems, 4)
-
-	itemLHS := suite.findLineItem(addedLineItems, "LHS")
-	if itemLHS != nil {
-		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationNEITHER, unit.Cents(260858))
-	}
-
-	item135A := suite.findLineItem(addedLineItems, "135A")
-	if item135A != nil {
-		suite.validateLineItemFields(*item135A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(10230))
-	}
-
-	item135B := suite.findLineItem(addedLineItems, "135B")
-	if item135B != nil {
-		suite.validateLineItemFields(*item135B, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(11524))
-	}
-
-	item105A := suite.findLineItem(addedLineItems, "105A")
-	if item105A != nil {
-		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(97930))
-	}
-}
-
-func (suite *HandlerSuite) findLineItem(lineItems []models.ShipmentLineItem, itemCode string) *models.ShipmentLineItem {
-	for _, lineItem := range lineItems {
-		if itemCode == lineItem.Tariff400ngItem.Code {
-			return &lineItem
-		}
-	}
-
-	suite.T().Errorf("Could not find shipment line item for %s", itemCode)
-	return nil
-}
-
-func (suite *HandlerSuite) validateLineItemFields(lineItem models.ShipmentLineItem, quantity1 unit.BaseQuantity, quantity2 unit.BaseQuantity, location models.ShipmentLineItemLocation, amountCents unit.Cents) {
-	suite.Equal(quantity1, lineItem.Quantity1)
-	suite.Equal(quantity2, lineItem.Quantity2)
-	suite.Equal(location, lineItem.Location)
-	suite.Equal(amountCents, *lineItem.AmountCents)
-
-	suite.Equal(models.ShipmentLineItemStatusSUBMITTED, lineItem.Status)
 }

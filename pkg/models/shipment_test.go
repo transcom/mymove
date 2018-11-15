@@ -255,13 +255,13 @@ func (suite *ModelSuite) TestFetchShipmentLineItemByItemID() {
 	})
 
 	// Search for good shipment line item.
-	returnedLineItem, err := shipment.FetchShipmentLineItemByItemID(suite.db, lineItem.Tariff400ngItemID)
+	returnedLineItems, err := shipment.FetchShipmentLineItemsByItemID(suite.db, lineItem.Tariff400ngItemID)
 
-	suite.NotNil(returnedLineItem)
 	suite.NoError(err)
-	suite.Equal(returnedLineItem.ID, lineItem.ID)
-	suite.Equal(returnedLineItem.ShipmentID, shipment.ID)
-	suite.Equal(returnedLineItem.Tariff400ngItemID, lineItem.Tariff400ngItemID)
+	suite.Len(returnedLineItems, 1)
+	suite.Equal(returnedLineItems[0].ID, lineItem.ID)
+	suite.Equal(returnedLineItems[0].ShipmentID, shipment.ID)
+	suite.Equal(returnedLineItems[0].Tariff400ngItemID, lineItem.Tariff400ngItemID)
 }
 
 // TestFetchShipmentLineItemByItemIDNil tests that a shipment line item that's bogus doesn't results in nil.
@@ -270,8 +270,8 @@ func (suite *ModelSuite) TestFetchShipmentLineItemByItemIDNil() {
 
 	// Search for bogus line item ID.
 	bogusID := uuid.Must(uuid.NewV4())
-	returnedLineItem, err := shipment.FetchShipmentLineItemByItemID(suite.db, bogusID)
+	returnedLineItems, err := shipment.FetchShipmentLineItemsByItemID(suite.db, bogusID)
 
-	suite.Nil(returnedLineItem)
 	suite.NoError(err)
+	suite.Len(returnedLineItems, 0)
 }
