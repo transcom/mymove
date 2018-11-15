@@ -122,6 +122,7 @@ The following commands will get mymove running on your machine for the first tim
 1. `./bin/prereqs`
 1. `make db_dev_migrate`
 1. `make server_run`
+1. `make client_build`
 1. `make client_run`
 
 ### Setup: Prerequisites
@@ -157,6 +158,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 ### Setup: Client
 
+1. `make client_build` (if setting up for first time)
 1. `make client_run`
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
@@ -170,7 +172,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 1. add the following line to /etc/hosts
     `127.0.0.1 officelocal`
 2. Ensure that you have a test account which can log into the office site...
-    * `make tools_build` to build the tools
+    * `make build_tools` to build the tools
     * run `bin/make-office-user -email <email>` to set up an office user associated with that email address
 3. `make office_client_run`
 4. Login with the email used above to access the office
@@ -180,7 +182,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 1. add the following line to /etc/hosts
     `127.0.0.1 tsplocal`
 2. Ensure that you have a test account which can log into the TSP site...
-    * `make tools_build` to build the tools
+    * `make build_tools` to build the tools
     * run `./bin/generate-test-data -scenario=7` to load test data
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
@@ -208,13 +210,13 @@ AWS credentials are managed via `aws-vault`. See the [the instructions in transc
 ### TSP Award Queue
 
 This background job is built as a separate binary which can be built using
-`make tools_build` and run using `make tsp_run`.
+`make build_tools` and run using `make tsp_run`.
 
 ### Test Data Generator
 
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
-* `make tools_build` will build the fake data generator binary
+* `make build_tools` will build the fake data generator binary
 * `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_populate_e2e` to reset your db and populate it with e2e user flow cases.
 * `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`. If you'd like to further specify how the data should look, you can specify the number of awards for each TSP performance by use the flag `rounds` with one of three arguments: 'none', 'half', and 'full'. This will create the TSP performance records with either no rounds of awards completed, half a round, or a full round. It will default to none if not specified. To specify how many TSPs should be created, use the flag `numTSP`. It will default to 15 if not specified. A sample command: `./bin/generate-test-data -rounds=half -numTSP=6`. You can use the `numTSP` and `rounds` in conjunction, but you cannot use them with the pre-packaged scenarios.
 

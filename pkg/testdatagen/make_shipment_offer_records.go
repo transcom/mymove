@@ -57,37 +57,6 @@ func MakeDefaultShipmentOffer(db *pop.Connection) models.ShipmentOffer {
 	return MakeShipmentOffer(db, Assertions{})
 }
 
-// MakeShipmentOfferData creates one offered shipment record
-func MakeShipmentOfferData(db *pop.Connection) {
-	// Get a shipment ID
-	shipmentList := []models.Shipment{}
-	err := db.All(&shipmentList)
-	if err != nil {
-		fmt.Println("Shipment ID import failed.")
-	}
-
-	// Get a TSP ID
-	tspList := []models.TransportationServiceProvider{}
-	err = db.All(&tspList)
-	if err != nil {
-		fmt.Println("TSP ID import failed.")
-	}
-
-	// Add one offered shipment record for each shipment and a random TSP IDs
-	for _, shipment := range shipmentList {
-		shipmentOfferAssertions := Assertions{
-			ShipmentOffer: models.ShipmentOffer{
-				ShipmentID:                      shipment.ID,
-				TransportationServiceProviderID: tspList[rand.Intn(len(tspList))].ID,
-				AdministrativeShipment:          false,
-				Accepted:                        nil, // See note about Tri-state above
-				RejectionReason:                 nil,
-			},
-		}
-		MakeShipmentOffer(db, shipmentOfferAssertions)
-	}
-}
-
 // CreateShipmentOfferData creates a list of TSP Users, Shipments, and Shipment Offers
 // Must pass in the number of tsp users to create and number of shipments.
 // The split of shipment offers should be the length of TSP users and the sum should equal the number of shipments
