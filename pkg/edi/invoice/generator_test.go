@@ -2,8 +2,10 @@ package ediinvoice_test
 
 import (
 	"bytes"
+	"flag"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -18,6 +20,9 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
 	shipments := make([]models.Shipment, 1)
@@ -41,11 +46,19 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	})
 
 	suite.T().Run("full EDI string", func(t *testing.T) {
+		const expecteEDI = "expected_invoice.edi.golden"
 		var b bytes.Buffer
 		writer := edi.NewWriter(&b)
 		writer.WriteAll(generatedTransactions.Records())
 		suite.NoError(err, "generates error")
-		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi"), b.String())
+		if *update {
+			goldenFile, err := os.Create(filepath.Join("testdata", expecteEDI))
+			suite.NoError(err, "Failed to open EDI file for update")
+			defer goldenFile.Close()
+			writer = edi.NewWriter(goldenFile)
+			writer.WriteAll(generatedTransactions.Records())
+		}
+		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), b.String())
 	})
 }
 
