@@ -316,12 +316,7 @@ class MoveInfo extends Component {
                     serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                     canApprovePaymentInvoice={
-                      !hhgCompleted ||
-                      !hhgApproved ||
-                      !moveApproved ||
-                      !ordersComplete ||
-                      invoiceSuccess ||
-                      currentTab !== 'hhg'
+                      !hhgDelivered || !hhgApproved || !moveApproved || invoiceSuccess || currentTab !== 'hhg'
                     }
                   />
                 </PrivateRoute>

@@ -46,9 +46,12 @@ export class InvoicePanel extends PureComponent {
           {isOfficeSite &&
             this.state.shipmentState === 'DELIVERED' && (
               <div className="usa-width-one-whole align-right">
-                <button className="button button-secondary" disabled={!this.canApprove} onClick={this.approvePayment}>
+                <button
+                  className="button button-secondary"
+                  disabled={true /*!this.canApprove*/}
+                  onClick={this.approvePayment}
+                >
                   Approve Payment
-                  {this.canApprove && this.shipmentState === 'DELIVERED'}
                 </button>
               </div>
             )}
