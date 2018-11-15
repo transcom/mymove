@@ -11,6 +11,7 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberCanCustomizeWeight();
     serviceMemberCanReviewMoveSummary();
     serviceMemberCanSignAgreement();
+    serviceMemberViewsUpdatedHomePage();
   });
 });
 
@@ -128,4 +129,10 @@ function serviceMemberCanSignAgreement() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
   cy.nextPage();
+}
+
+function serviceMemberViewsUpdatedHomePage() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.eq('/');
+  });
 }
