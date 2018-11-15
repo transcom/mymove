@@ -210,13 +210,6 @@ const pages = {
     isComplete: (sm, orders, move, ppm) => get(ppm, 'weight_estimate', null),
     render: (key, pages) => ({ match }) => <PpmWeight pages={hhgPPMPages} pageKey={key} match={match} />,
   },
-  '/moves/:moveId/hhg-ppm-agreement': {
-    isInFlow: hasHHGPPM,
-    isComplete: (sm, orders, move, ppm) => get(ppm, 'status', 'DRAFT') === 'SUBMITTED',
-    render: key => ({ match }) => {
-      return <Agreement pages={hhgPPMPages} pageKey={key} match={match} />;
-    },
-  },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
     isComplete: (sm, orders, move, ppm) => {
@@ -253,8 +246,8 @@ const hhgPPMPages = [
   '/moves/:moveId/hhg-ppm-start',
   '/moves/:moveId/hhg-ppm-size',
   '/moves/:moveId/hhg-ppm-weight',
-  '/moves/:moveId/hhg-ppm-agreement',
   '/moves/:moveId/review',
+  '/moves/:moveId/agreement',
 ];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
