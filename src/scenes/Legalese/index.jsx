@@ -12,26 +12,15 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import './index.css';
 
-import { loadCertificationText, loadLatestCertification, signAndSubmitForApproval } from './ducks';
+import { loadCertificationText, signAndSubmitForApproval } from './ducks';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
 
 export class SignedCertification extends Component {
   componentDidMount() {
-    this.props.loadLatestCertification(this.props.match.params.moveId);
-  }
-
-  componentDidUpdate() {
-    const {
-      getCertificationSuccess,
-      hasLoggedInUser,
-      certificationText,
-      has_advance,
-      has_sit,
-      selectedMoveType,
-    } = this.props;
-    if (hasLoggedInUser && getCertificationSuccess && !certificationText) {
+    const { hasLoggedInUser, certificationText, has_advance, has_sit, selectedMoveType } = this.props;
+    if (hasLoggedInUser && !certificationText) {
       this.props.loadCertificationText(has_sit, has_advance, selectedMoveType);
       return;
     }
@@ -123,7 +112,6 @@ export class SignedCertification extends Component {
 
 SignedCertification.propTypes = {
   signAndSubmitForApproval: PropTypes.func.isRequired,
-  loadLatestCertification: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func,
   hasSubmitError: PropTypes.bool.isRequired,
@@ -146,7 +134,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       loadCertificationText,
-      loadLatestCertification,
       signAndSubmitForApproval,
       push,
     },
