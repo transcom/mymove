@@ -8,6 +8,7 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberAddsPPMToHHG();
     serviveMemberFillsInDatesAndLocations();
     serviceMemberSelectsWeightRange();
+    serviceMemberCanCustomizeWeight();
   });
 });
 
@@ -74,6 +75,18 @@ function serviceMemberSelectsWeightRange() {
 
   //todo verify entitlement
   cy.contains('A trailer').click();
+
+  cy.nextPage();
+}
+
+function serviceMemberCanCustomizeWeight() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-ppm-weight/);
+  });
+
+  cy.get('.rangeslider__handle').click();
+
+  cy.get('.incentive').contains('$');
 
   cy.nextPage();
 }
