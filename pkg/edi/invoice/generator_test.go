@@ -2,7 +2,9 @@ package ediinvoice_test
 
 import (
 	"bytes"
+	"io/ioutil"
 	"log"
+	"path/filepath"
 	"testing"
 
 	"github.com/facebookgo/clock"
@@ -43,48 +45,16 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		writer := edi.NewWriter(&b)
 		writer.WriteAll(generatedTransactions.Records())
 		suite.NoError(err, "generates error")
-		suite.Equal(expectedEDI, b.String())
+		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi"), b.String())
 	})
 }
 
-const expectedEDI = `ISA*00*0000000000*00*0000000000*ZZ*MYMOVE         *12*8004171844     *691231*1600*U*00401*000000001*1*T*|
-GS*SI*MYMOVE*8004171844*19691231*1600*1*X*004010
-ST*858*0001
-BX*00*J*PP*KKFA7000001*MCCG**4
-N9*DY*SC**
-N9*CN*ABCD00001-1**
-N9*PQ*ABBV2708**
-N9*OQ*ORDER3*ARMY*20180315
-N1*SF*Spacemen**
-N3*123 Any Street*P.O. Box 12345
-N4*Beverly Hills*CA*90210*US**
-N1*RG*LKNQ*27*LKNQ
-N1*RH*MLNQ*27*MLNQ
-FA1*DZ
-FA2*TA*F8E1
-L10*108.200*B*L
-HL*303**SS
-L0*1*1.000*FR********
-L1*0*0.0000*RC*0********LHS
-HL*303**SS
-L0*1***108.200*B******L
-L1*0*65.7700*RC*0********105A
-HL*304**SS
-L0*1***108.200*B******L
-L1*0*65.7700*RC*0********105C
-HL*303**SS
-L0*1***108.200*B******L
-L1*0*4.0700*RC*0********135A
-HL*304**SS
-L0*1***108.200*B******L
-L1*0*4.0700*RC*0********135B
-HL*303**SS
-L0*1*1.000*FR********
-L1*0*0.0300*RC*22742********16A
-SE*33*0001
-GE*1*1
-IEA*1*000000001
-`
+func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
+	path := filepath.Join("testdata", name) // relative path
+	bytes, err := ioutil.ReadFile(path)
+	suite.NoError(err, "error loading expected EDI fixture")
+	return string(bytes)
+}
 
 type InvoiceSuite struct {
 	suite.Suite
