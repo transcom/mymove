@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import './InvoicePanel.css';
 
@@ -12,7 +12,7 @@ import {
   makeTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 
-export class InvoicePanel extends Component {
+export class InvoicePanel extends PureComponent {
   constructor() {
     super();
     this.state = {
@@ -35,11 +35,7 @@ export class InvoicePanel extends Component {
   };
 
   render() {
-    let invoicingContent = (
-      <tr className="empty-content">
-        <td>No line items</td>
-      </tr>
-    );
+    let invoicingContent = <div className="empty-content">No line items</div>;
     if (this.props.shipmentLineItems.length > 0) {
       //stand up a table
     }
@@ -56,9 +52,7 @@ export class InvoicePanel extends Component {
                 </button>
               </div>
             )}
-          <table cellSpacing={0}>
-            <tbody>{invoicingContent}</tbody>
-          </table>
+          {invoicingContent}
         </BasicPanel>
       </div>
     );
