@@ -4,6 +4,7 @@ import './InvoicePanel.css';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { isOfficeSite } from 'shared/constants.js';
 
 import BasicPanel from 'shared/BasicPanel';
 import {
@@ -46,7 +47,7 @@ export class InvoicePanel extends Component {
     return (
       <div className="invoice-panel">
         <BasicPanel title={'Invoicing'}>
-          {this.state.canApprove &&
+          {isOfficeSite &&
             this.state.shipmentState === 'DELIVERED' && (
               <div className="usa-width-one-whole align-right">
                 <button className="button button-secondary" disabled={!this.canApprove} onClick={this.approvePayment}>
