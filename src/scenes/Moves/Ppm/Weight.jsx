@@ -264,8 +264,8 @@ export class PpmWeight extends Component {
                 onChange={this.onWeightSelecting}
                 onChangeComplete={this.onWeightSelected}
                 labels={{
-                  [selectedWeightInfo.min]: selectedWeightInfo.min.toLocaleString(),
-                  [selectedWeightInfo.max]: selectedWeightInfo.max.toLocaleString(),
+                  [selectedWeightInfo.min]: `${selectedWeightInfo.min} lbs`,
+                  [selectedWeightInfo.max]: `${selectedWeightInfo.max} lbs`,
                 }}
               />
             </div>

@@ -22,6 +22,10 @@ table.numeric-info th {
   background-color: #0071bc;
 }
 
+.rangeslider__labels .rangeslider__label-item:first-child {
+  width: 60px;
+}
+
 @media only screen and (max-width: 481px) {
   span.incentive {
     margin-left: 0em;
@@ -33,14 +37,13 @@ table.numeric-info th {
 }
 
 .top-buffered {
-  margin-top:1em;
+  margin-top: 1em;
 }
 
 .ppmquestion {
   font-weight: bold;
   margin-top: 1em;
 }
-
 
 .ppmmuted {
   color: grey;
