@@ -14,7 +14,7 @@ type L7 struct {
 	TariffDistance       int
 }
 
-// String converts L7 to its X12 single line string representation
+// StringArray converts L7 to an array of strings
 func (s *L7) String(delimiter string) string {
 	elements := []string{
 		"L7",

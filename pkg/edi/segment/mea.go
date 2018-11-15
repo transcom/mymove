@@ -3,7 +3,6 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // MEA represents the MEA EDI segment
@@ -13,15 +12,14 @@ type MEA struct {
 	MeasurementValue           float64
 }
 
-// String converts MEA to its X12 single line string representation
-func (s *MEA) String(delimiter string) string {
-	elements := []string{
+// StringArray converts MEA to an array of strings
+func (s *MEA) StringArray() []string {
+	return []string{
 		"MEA",
 		s.MeasurementReferenceIDCode,
 		s.MeasurementQualifier,
 		strconv.FormatFloat(s.MeasurementValue, 'f', 3, 64),
 	}
-	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the MEA struct

@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // HL represents the HL EDI segment
@@ -12,15 +11,14 @@ type HL struct {
 	HierarchicalLevelCode      string
 }
 
-// String converts HL to its X12 single line string representation
-func (s *HL) String(delimiter string) string {
-	elements := []string{
+// StringArray converts HL to an array of strings
+func (s *HL) StringArray() []string {
+	return []string{
 		"HL",
 		s.HierarchicalIDNumber,
 		s.HierarchicalParentIDNumber,
 		s.HierarchicalLevelCode,
 	}
-	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the HL struct

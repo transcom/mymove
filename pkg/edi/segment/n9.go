@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // N9 represents the N9 EDI segment
@@ -13,16 +12,15 @@ type N9 struct {
 	Date                             string
 }
 
-// String converts N9 to its X12 single line string representation
-func (s *N9) String(delimiter string) string {
-	elements := []string{
+// StringArray converts N9 to an array of strings
+func (s *N9) StringArray() []string {
+	return []string{
 		"N9",
 		s.ReferenceIdentificationQualifier,
 		s.ReferenceIdentification,
 		s.FreeFormDescription,
 		s.Date,
 	}
-	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the N9 struct

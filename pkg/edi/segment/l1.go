@@ -3,7 +3,6 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // L1 represents the L1 EDI segment
@@ -15,9 +14,9 @@ type L1 struct {
 	SpecialChargeDescription string
 }
 
-// String converts L1 to its X12 single line string representation
-func (s *L1) String(delimiter string) string {
-	elements := []string{
+// StringArray converts L1 to an array of strings
+func (s *L1) StringArray() []string {
+	return []string{
 		"L1",
 		strconv.Itoa(s.LadingLineItemNumber),
 		strconv.FormatFloat(s.FreightRate, 'f', 4, 64),
@@ -32,7 +31,6 @@ func (s *L1) String(delimiter string) string {
 		"",
 		s.SpecialChargeDescription,
 	}
-	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the L1 struct

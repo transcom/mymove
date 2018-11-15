@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // ST represents the ST EDI segment
@@ -11,14 +10,13 @@ type ST struct {
 	TransactionSetControlNumber  string
 }
 
-// String converts ST to its X12 single line string representation
-func (s *ST) String(delimiter string) string {
-	elements := []string{
+// StringArray converts ST to an array of strings
+func (s *ST) StringArray() []string {
+	return []string{
 		"ST",
 		s.TransactionSetIdentifierCode,
 		s.TransactionSetControlNumber,
 	}
-	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the ST struct

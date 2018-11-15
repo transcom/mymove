@@ -3,7 +3,6 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // LX represents the LX EDI segment
@@ -11,9 +10,9 @@ type LX struct {
 	AssignedNumber int
 }
 
-// String converts LX to its X12 single line string representation
-func (s *LX) String(delimiter string) string {
-	return strings.Join([]string{"LX", strconv.Itoa(s.AssignedNumber)}, delimiter)
+// StringArray converts LX to an array of strings
+func (s *LX) StringArray() []string {
+	return []string{"LX", strconv.Itoa(s.AssignedNumber)}
 }
 
 // Parse parses an X12 string that's split into an array into the LX struct
