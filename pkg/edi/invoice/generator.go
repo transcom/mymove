@@ -1,12 +1,13 @@
 package ediinvoice
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -20,9 +21,16 @@ const senderCode = "MYMOVE"
 //const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
 const receiverCode = "8004171844" // Syncada
 
+// ICNSequenceName used to query Interchange Control Numbers from DB
+const ICNSequenceName = "interchange_control_number"
+
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool) (string, error) {
-	interchangeControlNumber := 1 //TODO: increment this
+	interchangeControlNumber, err := getNextICN(db)
+	if err != nil {
+		return "", errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
+	}
+
 	currentTime := time.Now()
 	var usageIndicator string
 
@@ -56,7 +64,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		ApplicationReceiversCode: receiverCode,
 		Date:                  currentTime.Format(dateFormat),
 		Time:                  currentTime.Format(timeFormat),
-		GroupControlNumber:    1,
+		GroupControlNumber:    interchangeControlNumber,
 		ResponsibleAgencyCode: "X", // Accredited Standards Committee X12
 		Version:               "004010",
 	}
@@ -77,7 +85,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 
 	ge := edisegment.GE{
 		NumberOfTransactionSetsIncluded: len(shipments),
-		GroupControlNumber:              1,
+		GroupControlNumber:              interchangeControlNumber,
 	}
 	iea := edisegment.IEA{
 		NumberOfIncludedFunctionalGroups: 1,
@@ -357,4 +365,13 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			SpecialChargeDescription: "16A", // Fuel surchage - linehaul
 		},
 	}, nil
+}
+
+// GetNextICN is a public wrapper around getNextICN for testing
+// See: https://www.pivotaltracker.com/n/projects/2136865/stories/161905170
+var GetNextICN = getNextICN
+
+// getNextICN returns the next Interchange Control Number in a PostgreSQL sequence
+func getNextICN(db *pop.Connection) (int64, error) {
+	return sequence.NextVal(db, ICNSequenceName)
 }

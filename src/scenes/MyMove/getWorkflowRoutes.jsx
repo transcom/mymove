@@ -200,6 +200,16 @@ const pages = {
     },
     render: key => ({ match }) => <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />,
   },
+  '/moves/:moveId/hhg-ppm-size': {
+    isInFlow: hasHHGPPM,
+    isComplete: (sm, orders, move, ppm) => !!ppm.size,
+    render: (key, pages) => ({ match }) => <PpmSize pages={hhgPPMPages} pageKey={key} match={match} />,
+  },
+  '/moves/:moveId/hhg-ppm-weight': {
+    isInFlow: hasHHGPPM,
+    isComplete: (sm, orders, move, ppm) => get(ppm, 'weight_estimate', null),
+    render: (key, pages) => ({ match }) => <PpmWeight pages={hhgPPMPages} pageKey={key} match={match} />,
+  },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
     isComplete: (sm, orders, move, ppm) => {
@@ -232,7 +242,12 @@ const pages = {
 };
 
 // TODO currently an interim step for adding hhgPPM combo move pages
-const hhgPPMPages = ['/moves/:moveId/hhg-ppm-start'];
+const hhgPPMPages = [
+  '/moves/:moveId/hhg-ppm-start',
+  '/moves/:moveId/hhg-ppm-size',
+  '/moves/:moveId/hhg-ppm-weight',
+  '/moves/:moveId/review',
+];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
