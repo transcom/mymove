@@ -11,6 +11,8 @@ import {
   makeTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 export class InvoicePanel extends Component {
   constructor() {
@@ -20,18 +22,29 @@ export class InvoicePanel extends Component {
 
   render() {
     let invoicingContent = <span className="empty-content">No line items</span>;
+    let title = 'Invoicing';
+
     if (this.props.unbilledShipmentLineItems.length > 0) {
       invoicingContent = (
-        <InvoiceTable
-          shipmentLineItems={this.props.unbilledShipmentLineItems}
-          totalAmount={this.props.lineItemsTotal}
-        />
+        <div>
+          <span className="invoice-panel--heading">Unbilled line items</span>
+          <InvoiceTable
+            shipmentLineItems={this.props.unbilledShipmentLineItems}
+            totalAmount={this.props.lineItemsTotal}
+          />
+        </div>
+      );
+      title = (
+        <span>
+          Invoicing{' '}
+          <FontAwesomeIcon className="icon invoice-panel-icon-gold invoice-panel-icon--title" icon={faClock} />
+        </span>
       );
     }
 
     return (
       <div className="invoice-panel">
-        <BasicPanel title={'Invoicing'}>{invoicingContent}</BasicPanel>
+        <BasicPanel title={title}>{invoicingContent}</BasicPanel>
       </div>
     );
   }

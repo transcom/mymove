@@ -44,3 +44,19 @@
   padding: 1rem 1rem 1rem 0rem;
 }
 
+.invoice-panel--heading {
+  font-weight: bold;
+  display: block;
+  padding-top: 2rem;
+  font-size: 1.1em;
+
+}
+
+.invoice-panel-icon-gold {
+  color: #fdb81e;
+}
+
+.invoice-panel-icon--title {
+  position: relative;
+  top: 2px;
+}
