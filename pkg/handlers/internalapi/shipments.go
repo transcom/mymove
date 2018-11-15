@@ -481,7 +481,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	if shipment.Status != models.ShipmentStatusDELIVERED {
+	if shipment.Status != models.ShipmentStatusDELIVERED && shipment.Status != models.ShipmentStatusCOMPLETED {
 		h.Logger().Error("Shipment status not in delivered state.")
 		return shipmentop.NewSendHHGInvoiceConflict()
 	}
