@@ -446,7 +446,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 
 	// A shipment line item with an item that requires pre-approval
-	acc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	lineItem := testdatagen.MakeCompleteShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
 			RequiresPreApproval: true,
 		},
@@ -458,7 +458,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 
 	params := accessorialop.ApproveShipmentLineItemParams{
 		HTTPRequest:        req,
-		ShipmentLineItemID: strfmt.UUID(acc1.ID.String()),
+		ShipmentLineItemID: strfmt.UUID(lineItem.ID.String()),
 	}
 
 	// And: get shipment is returned
@@ -470,8 +470,9 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 		okResponse := response.(*accessorialop.ApproveShipmentLineItemOK)
 
 		// And: Payload is equivalent to original shipment line item
-		suite.Equal(acc1.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(lineItem.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(apimessages.ShipmentLineItemStatusAPPROVED, okResponse.Payload.Status)
+		suite.NotNil(okResponse.Payload.AmountCents)
 	}
 }
 

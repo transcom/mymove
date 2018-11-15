@@ -104,8 +104,9 @@ var tariff400ngWeightBasedItems = map[string]bool{
 }
 
 // ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item
-func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem, shipment models.Shipment) (unit.Cents, error) {
+func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem) (unit.Cents, error) {
 	itemCode := shipmentLineItem.Tariff400ngItem.Code
+	shipment := shipmentLineItem.Shipment
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
 	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {

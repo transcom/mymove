@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakeShipment creates a single shipment record
@@ -141,4 +142,34 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 // MakeDefaultShipment makes a Shipment with default values
 func MakeDefaultShipment(db *pop.Connection) models.Shipment {
 	return MakeShipment(db, Assertions{})
+}
+
+// MakeShipmentForPricing makes a Shipment with all other depdendent models that would be expected in a real scenario
+func MakeShipmentForPricing(db *pop.Connection, assertions Assertions) (models.Shipment, error) {
+	var shipment models.Shipment
+
+	// Shipment must have a NetWeight
+	if assertions.Shipment.NetWeight == nil {
+		weight := unit.Pound(5000)
+		assertions.Shipment.NetWeight = &weight
+	}
+
+	shipment = MakeShipment(db, assertions)
+
+	// Zip3 records must exist for pickup and delivery addresses
+	addresses := []models.Address{
+		*shipment.PickupAddress,
+		shipment.Move.Orders.NewDutyStation.Address,
+	}
+	for _, a := range addresses {
+		newAssertions := assertions
+		newAssertions.Tariff400ngZip3.Zip3 = zip5ToZip3(a.PostalCode)
+		zip3 := FetchOrMakeTariff400ngZip3(db, newAssertions)
+
+		// Service area values must match between Zip3 and ServiceArea
+		newAssertions.Tariff400ngServiceArea.ServiceArea = zip3.ServiceArea
+		MakeTariff400ngServiceArea(db, newAssertions)
+	}
+
+	return shipment, nil
 }

@@ -13,6 +13,7 @@ import (
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -31,6 +32,12 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		return nil
 	}
 
+	var amt *int64
+	if s.AmountCents != nil {
+		int := s.AmountCents.Int64()
+		amt = &int
+	}
+
 	return &apimessages.ShipmentLineItem{
 		ID:                *handlers.FmtUUID(s.ID),
 		ShipmentID:        *handlers.FmtUUID(s.ShipmentID),
@@ -41,6 +48,7 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		Quantity1:         handlers.FmtInt64(int64(s.Quantity1)),
 		Quantity2:         handlers.FmtInt64(int64(s.Quantity2)),
 		Status:            apimessages.ShipmentLineItemStatus(s.Status),
+		AmountCents:       amt,
 		SubmittedDate:     *handlers.FmtDateTime(s.SubmittedDate),
 		ApprovedDate:      *handlers.FmtDateTime(s.ApprovedDate),
 	}
@@ -276,8 +284,9 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 
 	// Non-accessorial line items shouldn't require approval
 	// Only office users can approve a shipment line item
+	var shipment *models.Shipment
 	if shipmentLineItem.Tariff400ngItem.RequiresPreApproval && session.IsOfficeUser() {
-		_, err := models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
 			return handlers.ResponseForError(h.Logger(), err)
@@ -287,8 +296,12 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 		return accessorialop.NewApproveShipmentLineItemForbidden()
 	}
 
+	// The shipment we fetched has more nested associations attached, so use that
+	shipmentLineItem.Shipment = *shipment
+
 	// Approve and save the shipment line item
-	err = shipmentLineItem.Approve()
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	err = shipmentLineItem.Approve(engine)
 	if err != nil {
 		h.Logger().Error("Error approving shipment line item for shipment", zap.Error(err))
 		return accessorialop.NewApproveShipmentLineItemForbidden()

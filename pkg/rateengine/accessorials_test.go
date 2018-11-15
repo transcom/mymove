@@ -27,8 +27,8 @@ func (suite *RateEngineSuite) createShipmentWithServiceArea(assertions testdatag
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.Tariff400ngItemRateEffectiveDateLower,
-		EffectiveDateUpper: testdatagen.Tariff400ngItemRateEffectiveDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.NonPeakRateCycleEnd,
 		SIT185ARateCents:   unit.Cents(50),
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
@@ -44,7 +44,7 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 	netWeight := unit.Pound(1000)
 	shipment := suite.createShipmentWithServiceArea(testdatagen.Assertions{
 		Shipment: models.Shipment{
-			BookDate:  &testdatagen.Tariff400ngItemRateDefaultValidDate,
+			BookDate:  &testdatagen.DateInsidePeakRateCycle,
 			NetWeight: &netWeight,
 		},
 	})
@@ -69,7 +69,7 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 	})
 
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-	computedPrice, err := engine.ComputeShipmentLineItemCharge(item, item.Shipment)
+	computedPrice, err := engine.ComputeShipmentLineItemCharge(item)
 
 	if suite.NoError(err) {
 		suite.Equal(rateCents.Multiply(5), computedPrice)
@@ -82,7 +82,7 @@ func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 	netWeight := unit.Pound(1000)
 	shipment := suite.createShipmentWithServiceArea(testdatagen.Assertions{
 		Shipment: models.Shipment{
-			BookDate:  &testdatagen.Tariff400ngItemRateDefaultValidDate,
+			BookDate:  &testdatagen.DateInsidePeakRateCycle,
 			NetWeight: &netWeight,
 		},
 	})
@@ -114,7 +114,7 @@ func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 		})
 
 		engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-		_, err := engine.ComputeShipmentLineItemCharge(item, item.Shipment)
+		_, err := engine.ComputeShipmentLineItemCharge(item)
 
 		// Make sure we don't error
 		if !suite.NoError(err) {

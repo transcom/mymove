@@ -9,6 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+type lineItemPricer interface {
+	ComputeShipmentLineItemCharge(s ShipmentLineItem) (unit.Cents, error)
+}
+
 // ShipmentLineItemStatus represents the status of a line item's lifecycle
 type ShipmentLineItemStatus string
 
@@ -96,11 +100,19 @@ func FetchShipmentLineItemByID(dbConnection *pop.Connection, shipmentLineItemID 
 }
 
 // Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state.
-func (s *ShipmentLineItem) Approve() error {
+func (s *ShipmentLineItem) Approve(pricer lineItemPricer) error {
 	if s.Status != ShipmentLineItemStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
+
+	priceCents, err := pricer.ComputeShipmentLineItemCharge(*s)
+	if err != nil {
+		return errors.Wrap(err, "Error while pricing shipmentLineItem")
+	}
+
 	s.Status = ShipmentLineItemStatusAPPROVED
 	s.ApprovedDate = time.Now()
+	s.AmountCents = &priceCents
+
 	return nil
 }

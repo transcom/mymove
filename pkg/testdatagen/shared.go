@@ -37,6 +37,7 @@ type Assertions struct {
 	Shipment                                 models.Shipment
 	ShipmentLineItem                         models.ShipmentLineItem
 	ShipmentOffer                            models.ShipmentOffer
+	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
 	Tariff400ngZip3                          models.Tariff400ngZip3
@@ -90,6 +91,11 @@ func noErr(err error) {
 	if err != nil {
 		log.Panic(fmt.Errorf("Error encountered: %v", err))
 	}
+}
+
+// zip5ToZip3 takes a ZIP5 string and returns the ZIP3 representation of it.
+func zip5ToZip3(zip5 string) string {
+	return zip5[0:3]
 }
 
 // isZeroUUID determines whether a UUID is its zero value

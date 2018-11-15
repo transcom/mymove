@@ -119,8 +119,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	}
 
 	// Make the required Tariff 400 NG Zip3
-	MakeDefaultTariff400ngZip3(db)
-	MakeTariff400ngZip3(db, Assertions{
+	FetchOrMakeDefaultTariff400ngZip3(db)
+	FetchOrMakeTariff400ngZip3(db, Assertions{
 		Tariff400ngZip3: models.Tariff400ngZip3{
 			Zip3:          "800",
 			BasepointCity: "Denver",
