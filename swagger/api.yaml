@@ -2303,7 +2303,7 @@ paths:
           description: failed to meet data requirements for GBL form to be built
         500:
           description: server error
-  /shipments/{shipmentId}/accessorials/{invoiceId}:
+  /shipments/accessorials/{invoiceId}:
     get:
       summary: Get invoice for a shipment
       description: Get invoice for a shipment
@@ -2312,13 +2312,7 @@ paths:
         - accessorials
       parameters:
         - in: path
-          name: shipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - name: invoiceId
-          in: path
+          name: invoiceId
           type: string
           format: uuid
           required: true

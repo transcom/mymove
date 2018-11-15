@@ -1,7 +1,9 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestInvoiceValidations() {
@@ -15,4 +17,73 @@ func (suite *ModelSuite) TestInvoiceValidations() {
 	}
 
 	suite.verifyValidationErrors(invoice, expErrors)
+}
+
+func (suite *ModelSuite) TestFetchInvoice() {
+	// Data setup
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []ShipmentStatus{ShipmentStatusDELIVERED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	shipment := shipments[0]
+
+	authedTspUser := tspUsers[0]
+	unauthedTspUser := testdatagen.MakeDefaultTspUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+
+	// Invoice tied to a shipment of authed tsp user
+	invoice := testdatagen.MakeInvoice(suite.db, testdatagen.Assertions{
+		Invoice: Invoice{
+			ShipmentID: shipment.ID,
+		},
+	})
+
+	// When: office user tries to access
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *officeUser.UserID,
+		OfficeUserID:    officeUser.ID,
+	}
+
+	// Then: invoice is returned
+	extantInvoice, err := FetchInvoice(suite.db, session, invoice.ID)
+	suite.Nil(err)
+	if suite.NoError(err) {
+		suite.Equal(extantInvoice.ID, invoice.ID)
+	}
+	// When: Unauthed TSP tries to access
+	session = &auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *unauthedTspUser.UserID,
+		TspUserID:       unauthedTspUser.ID,
+	}
+	// Then: User Unauthorized returned
+	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
+	suite.Equal("USER_UNAUTHORIZED", err.Error())
+
+	// When: authed TSP tries to access
+	session = &auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *authedTspUser.UserID,
+		TspUserID:       authedTspUser.ID,
+	}
+	// Then: invoice is returned
+	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
+	suite.Nil(err)
+	if suite.NoError(err) {
+		suite.Equal(extantInvoice.ID, invoice.ID)
+	}
+	// When: Service Member tries to access
+	session = &auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          *authedTspUser.UserID,
+		ServiceMemberID: authedTspUser.ID,
+	}
+	// Then: Fetch Forbidden returned
+	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
+	suite.Equal("FETCH_FORBIDDEN", err.Error())
+
 }

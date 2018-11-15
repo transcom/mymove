@@ -38,14 +38,23 @@ func (h GetInvoiceHandler) Handle(params accessorialop.GetInvoiceParams) middlew
 	if session == nil {
 		return accessorialop.NewGetInvoiceUnauthorized()
 	}
-	invoiceID, _ := uuid.FromString(params.InvoiceID.String())
-	// TODO: check that if TSP app, user is authorized to view shipment
 
 	// Fetch invoice
+	invoiceID, _ := uuid.FromString(params.InvoiceID.String())
 	invoice, err := models.FetchInvoice(h.DB(), session, invoiceID)
 	if err != nil {
-		h.Logger().Error("Error fetching invoice", zap.Error(err))
-		return accessorialop.NewGetInvoiceInternalServerError()
+		if err == models.ErrFetchNotFound {
+			h.Logger().Warn("Invoice not found", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		} else if err == models.ErrFetchForbidden {
+			h.Logger().Error("User not permitted to access invoice", zap.Error(err))
+			return accessorialop.NewGetInvoiceForbidden()
+		} else if err == models.ErrUserUnauthorized {
+			h.Logger().Error("User not authorized to access invoice", zap.Error(err))
+		} else {
+			h.Logger().Error("Error fetching invoice", zap.Error(err))
+			return accessorialop.NewGetInvoiceInternalServerError()
+		}
 	}
 	payload := payloadForInvoiceModel(invoice)
 	return accessorialop.NewGetInvoiceOK().WithPayload(payload)

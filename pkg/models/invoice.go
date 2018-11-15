@@ -9,35 +9,52 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
+	// "github.com/transcom/mymove/pkg/models"
+)
+
+// InvoiceStatus represents the status of an invoice
+type InvoiceStatus string
+
+const (
+	// InvoiceStatusDRAFT captures enum value "DRAFT"
+	InvoiceStatusDRAFT InvoiceStatus = "DRAFT"
+	// InvoiceStatusINPROCESS captures enum value "IN_PROCESS"
+	InvoiceStatusINPROCESS InvoiceStatus = "IN_PROCESS"
+	// InvoiceStatusSUBMITTED captures enum value "SUBMITTED"
+	InvoiceStatusSUBMITTED InvoiceStatus = "SUBMITTED"
+	// InvoiceStatusSUBMISSIONFAILURE captures enum value "SUBMISSION_FAILURE"
+	InvoiceStatusSUBMISSIONFAILURE InvoiceStatus = "SUBMISSION_FAILURE"
 )
 
 // Invoice is a collection of line item charges to be sent for payment
 type Invoice struct {
-	ID            uuid.UUID `json:"id" db:"id"`
-	Status        string    `json:"status" db:"status"`
-	InvoiceNumber string    `json:"invoice_number" db:"invoice_number"`
-	InvoicedDate  time.Time `json:"invoiced_date" db:"invoiced_date"`
-	ShipmentID    uuid.UUID `json:"shipment_id" db:"shipment_id"`
-	CreatedAt     time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
+	ID            uuid.UUID     `json:"id" db:"id"`
+	Status        InvoiceStatus `json:"status" db:"status"`
+	InvoiceNumber string        `json:"invoice_number" db:"invoice_number"`
+	InvoicedDate  time.Time     `json:"invoiced_date" db:"invoiced_date"`
+	ShipmentID    uuid.UUID     `json:"shipment_id" db:"shipment_id"`
+	Shipment      Shipment      `belongs_to:"shipments"`
+	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (i *Invoice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: i.Status, Name: "Status"},
+		&validators.StringIsPresent{Field: string(i.Status), Name: "Status"},
 		&validators.StringIsPresent{Field: i.InvoiceNumber, Name: "InvoiceNumber"},
 		&validators.TimeIsPresent{Field: i.InvoicedDate, Name: "InvoicedDate"},
 		&validators.UUIDIsPresent{Field: i.ShipmentID, Name: "ShipmentID"},
 	), nil
 }
 
-// FetchInvoice Fetches and Validates an invoice model
+// FetchInvoice fetches and validates an invoice model
 func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Invoice, error) {
+
+	// Fetch invoice via invoice id
 	var invoice Invoice
 	err := db.Eager().Find(&invoice, id)
-
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -45,16 +62,16 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-	// TODO: Check that the TSP user is authorized to get this Invoice
-	// CHeck if office app, then...??
-	// Can SMs fetch an invoice?
-	// shipment, err := FetchShipmentForTSP(db, session, invoice.ShipmentID)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if session.IsTspApp() && shipment.ID != invoice.ID{
-	// 	return nil, ErrFetchForbidden
-	// }
+	// Check that the TSP user is authorized to get this Invoice
+	if session.IsTspUser() {
+		_, _, err := FetchShipmentForVerifiedTSPUser(db, session.TspUserID, invoice.ShipmentID)
+		if err != nil {
+			return nil, err
+		}
+	} else if !session.IsOfficeUser() {
+		// Allow office users to fetch invoices
+		return nil, ErrFetchForbidden
+	}
 
 	return &invoice, nil
 }
