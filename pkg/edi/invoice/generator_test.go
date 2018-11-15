@@ -3,19 +3,18 @@ package ediinvoice_test
 import (
 	"bytes"
 	"log"
-	"regexp"
 	"testing"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"go.uber.org/zap"
 )
 
 func (suite *InvoiceSuite) TestGenerate858C() {
@@ -34,17 +33,18 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	costsByShipments = append(costsByShipments, costByShipment)
 
 	generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
-	var b bytes.Buffer
-	writer := edi.NewWriter(&b)
-	writer.WriteAll(generatedTransactions.Records())
-	suite.NoError(err, "generates error")
-	suite.NotEmpty(b.String(), "result is empty")
 
-	re := regexp.MustCompile("\\*" + "T" + "\\*")
-	suite.True(re.MatchString(b.String()), "This fails if the EDI string does not have the environment flag set to T."+
-		" This is set by the if statement in Generate858C() that checks a boolean variable named sendProductionInvoice")
+	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
+		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
+	})
 
-	assert.Equal(suite.T(), expectedEDI, b.String())
+	suite.T().Run("full EDI string", func(t *testing.T) {
+		var b bytes.Buffer
+		writer := edi.NewWriter(&b)
+		writer.WriteAll(generatedTransactions.Records())
+		suite.NoError(err, "generates error")
+		suite.Equal(expectedEDI, b.String())
+	})
 }
 
 const expectedEDI = `ISA*00*0000000000*00*0000000000*ZZ*MYMOVE         *12*8004171844     *691231*1600*U*00401*000000001*1*T*|
