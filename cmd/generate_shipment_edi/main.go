@@ -86,14 +86,14 @@ func main() {
 		fmt.Println("Sending to GEX. . .")
 		var b bytes.Buffer
 		ediWriter := edi.NewWriter(&b)
-		if err = ediWriter.WriteAll(invoice858C.Records()); err != nil {
+		if err = ediWriter.WriteAll(invoice858C.Segments()); err != nil {
 			log.Fatal(err)
 		}
 		statusCode, err := gex.SendInvoiceToGex(logger, b.String(), *transactionName)
 		fmt.Printf("status code: %v, error: %v", statusCode, err)
 	} else {
 		ediWriter := edi.NewWriter(os.Stdout)
-		ediWriter.WriteAll(invoice858C.Records())
+		ediWriter.WriteAll(invoice858C.Segments())
 	}
 
 }

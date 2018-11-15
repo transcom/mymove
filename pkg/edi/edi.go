@@ -31,11 +31,11 @@ func NewWriter(w io.Writer) *Writer {
 }
 
 // Write is a wrapper for csv.Write
-func (w *Writer) Write(record []string) error {
-	return w.csv.Write(record)
+func (w *Writer) Write(segment []string) error {
+	return w.csv.Write(segment)
 }
 
 // WriteAll is a wrapper for csv.WriteAll
-func (w *Writer) WriteAll(records [][]string) error {
-	return w.csv.WriteAll(records)
+func (w *Writer) WriteAll(segments [][]string) error {
+	return w.csv.WriteAll(segments)
 }

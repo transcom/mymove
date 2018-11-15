@@ -3,6 +3,7 @@ package ediinvoice
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
@@ -28,9 +29,9 @@ type Invoice858C struct {
 	IEA       edisegment.IEA
 }
 
-// Records returns the invoice as an array of rows (string arrays)
-// to prepare it for writing
-func (invoice Invoice858C) Records() [][]string {
+// Segments returns the invoice as an array of rows (string arrays),
+// each containing a segment, to prepare it for writing
+func (invoice Invoice858C) Segments() [][]string {
 	records := make([][]string, 0)
 	records = append(records, invoice.ISA.StringArray())
 	records = append(records, invoice.GS.StringArray())
@@ -47,7 +48,11 @@ func (invoice Invoice858C) Records() [][]string {
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
 	interchangeControlNumber := 1 //TODO: increment this
-	currentTime := clock.Now()
+	loc, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		return Invoice858C{}, err
+	}
+	currentTime := clock.Now().In(loc)
 	var usageIndicator string
 
 	if sendProductionInvoice {

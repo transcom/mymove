@@ -49,14 +49,14 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		const expecteEDI = "expected_invoice.edi.golden"
 		var b bytes.Buffer
 		writer := edi.NewWriter(&b)
-		writer.WriteAll(generatedTransactions.Records())
+		writer.WriteAll(generatedTransactions.Segments())
 		suite.NoError(err, "generates error")
 		if *update {
 			goldenFile, err := os.Create(filepath.Join("testdata", expecteEDI))
 			suite.NoError(err, "Failed to open EDI file for update")
 			defer goldenFile.Close()
 			writer = edi.NewWriter(goldenFile)
-			writer.WriteAll(generatedTransactions.Records())
+			writer.WriteAll(generatedTransactions.Segments())
 		}
 		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), b.String())
 	})
