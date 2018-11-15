@@ -1,9 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/dates"
@@ -144,61 +141,4 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 // MakeDefaultShipment makes a Shipment with default values
 func MakeDefaultShipment(db *pop.Connection) models.Shipment {
 	return MakeShipment(db, Assertions{})
-}
-
-// MakeShipmentData creates three shipment records
-func MakeShipmentData(db *pop.Connection) {
-	// Grab three UUIDs for individual TDLs
-	// TODO: should this query be made in main, between creation functions,
-	// and then sourced from one central place?
-	tdlList := []models.TrafficDistributionList{}
-	err := db.All(&tdlList)
-	if err != nil {
-		fmt.Println("TDL ID import failed.")
-	}
-
-	// Add three shipment table records using UUIDs from TDLs
-	oneWeek := time.Hour * 168
-	now := time.Now()
-	nowPlusOne := now.Add(oneWeek)
-	nowPlusTwo := now.Add(oneWeek * 2)
-	market := "dHHG"
-	sourceGBLOC := "KKFA"
-	destinationGBLOC := "HAFC"
-
-	MakeShipment(db, Assertions{
-		Shipment: models.Shipment{
-			RequestedPickupDate:     &now,
-			ActualPickupDate:        &now,
-			ActualDeliveryDate:      &now,
-			TrafficDistributionList: &tdlList[0],
-			SourceGBLOC:             &sourceGBLOC,
-			DestinationGBLOC:        &destinationGBLOC,
-			Market:                  &market,
-		},
-	})
-
-	MakeShipment(db, Assertions{
-		Shipment: models.Shipment{
-			RequestedPickupDate:     &nowPlusOne,
-			ActualPickupDate:        &nowPlusOne,
-			ActualDeliveryDate:      &nowPlusOne,
-			TrafficDistributionList: &tdlList[1],
-			SourceGBLOC:             &sourceGBLOC,
-			DestinationGBLOC:        &destinationGBLOC,
-			Market:                  &market,
-		},
-	})
-
-	MakeShipment(db, Assertions{
-		Shipment: models.Shipment{
-			RequestedPickupDate:     &nowPlusTwo,
-			ActualPickupDate:        &nowPlusTwo,
-			ActualDeliveryDate:      &nowPlusTwo,
-			TrafficDistributionList: &tdlList[2],
-			SourceGBLOC:             &sourceGBLOC,
-			DestinationGBLOC:        &destinationGBLOC,
-			Market:                  &market,
-		},
-	})
 }
