@@ -77,7 +77,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	 * Service member with an approved shipment and submitted PPM
 	 */
-	MakeHhgWithPpm(db, tspUser, logger)
+	MakeHhgWithPpm(db, tspUser, loader)
 
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
@@ -1629,6 +1629,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		Shipment: models.Shipment{
 			Status:             models.ShipmentStatusAWARDED,
 			HasDeliveryAddress: true,
+			GBLNumber:          models.StringPointer("LKBM7123456"),
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1638,13 +1639,14 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 	nowTime := time.Now()
 	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID: smId,
+			ID: smID,
 		},
 		Move: models.Move{
-			ID: moveId,
+			ID: moveID,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &nowTime,
+			MoveID:          moveID,
 		},
 		Uploader: loader,
 	})
