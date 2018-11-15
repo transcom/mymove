@@ -7,6 +7,7 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberCancelsAddPPMToHHG();
     serviceMemberAddsPPMToHHG();
     serviveMemberFillsInDatesAndLocations();
+    serviceMemberSelectsWeightRange();
   });
 });
 
@@ -62,6 +63,17 @@ function serviveMemberFillsInDatesAndLocations() {
     .get('input[name="destination_postal_code"]')
     .clear()
     .type('76127');
+
+  cy.nextPage();
+}
+
+function serviceMemberSelectsWeightRange() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-ppm-size/);
+  });
+
+  //todo verify entitlement
+  cy.contains('A trailer').click();
 
   cy.nextPage();
 }
