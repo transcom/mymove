@@ -10,6 +10,7 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberSelectsWeightRange();
     serviceMemberCanCustomizeWeight();
     serviceMemberCanReviewMoveSummary();
+    serviceMemberCanSignAgreement();
   });
 });
 
@@ -109,5 +110,22 @@ function serviceMemberCanReviewMoveSummary() {
     expect(text).to.include('Estimated PPM Incentive:  $2,032.89 - 2,246.87');
   });
 
+  cy.nextPage();
+}
+
+function serviceMemberCanSignAgreement() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
+  });
+
+  cy
+    .get('body')
+    .should($div =>
+      expect($div.text()).to.include(
+        'Before officially booking your move, please carefully read and then sign the following.',
+      ),
+    );
+
+  cy.get('input[name="signature"]').type('Jane Doe');
   cy.nextPage();
 }
