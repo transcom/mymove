@@ -5,7 +5,7 @@
 .invoice-panel table {
   table-layout: fixed;
   display: table;
-  width: 100%;
+  width: 75%;
   border-spacing: 2px;
   text-align: left;
 }
@@ -17,7 +17,7 @@
 }
 /* Loc. */
 .invoice-panel table > tbody > tr > th:nth-child(3) {
-  width: 10%;
+  width: 15%;
 }
 /*Base Quantity*/
 .invoice-panel table > tbody > tr > th:nth-child(4) {
