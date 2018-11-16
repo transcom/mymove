@@ -80,8 +80,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// bytes.Buffer.String() feels a little awkward here
-
 	if *sendToGex == true {
 		fmt.Println("Sending to GEX. . .")
 		var b bytes.Buffer

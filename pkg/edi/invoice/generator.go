@@ -32,9 +32,10 @@ type Invoice858C struct {
 // Segments returns the invoice as an array of rows (string arrays),
 // each containing a segment, to prepare it for writing
 func (invoice Invoice858C) Segments() [][]string {
-	records := make([][]string, 0)
-	records = append(records, invoice.ISA.StringArray())
-	records = append(records, invoice.GS.StringArray())
+	records := [][]string{
+		invoice.ISA.StringArray(),
+		invoice.GS.StringArray(),
+	}
 	for _, shipment := range invoice.Shipments {
 		for _, line := range shipment {
 			records = append(records, line.StringArray())
@@ -99,7 +100,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 
 		shipmentSegments, err := generate858CShipment(shipmentWithCost, index+1)
 		if err != nil {
-			return Invoice858C{}, err
+			return invoice, err
 		}
 		invoice.Shipments = append(invoice.Shipments, shipmentSegments)
 		shipments = append(shipments, shipment)
@@ -132,11 +133,11 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 	}
 	segments = append(segments, headingSegments...)
 
-	lineItems, err := getLineItemSegments(shipmentWithCost)
+	lineItemSegments, err := getLineItemSegments(shipmentWithCost)
 	if err != nil {
 		return segments, err
 	}
-	segments = append(segments, lineItems...)
+	segments = append(segments, lineItemSegments...)
 
 	segments = append(segments, &edisegment.SE{
 		NumberOfIncludedSegments:    len(segments) + 1, // Include SE in count
@@ -148,6 +149,7 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 
 func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
 	shipment := shipmentWithCost.Shipment
+	segments := []edisegment.Segment{}
 	/* for bx
 	if shipment.TransportationServiceProviderID == nil {
 		return "", errors.New("Shipment is missing TSP ID")
@@ -164,7 +166,7 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 		name = *shipment.ServiceMember.LastName
 	}
 	if shipment.PickupAddress == nil {
-		return nil, errors.New("Shipment is missing pick up address")
+		return segments, errors.New("Shipment is missing pick up address")
 	}
 	street2 := ""
 	if shipment.PickupAddress.StreetAddress2 != nil {
@@ -178,19 +180,19 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	orders := shipment.Move.Orders
 	ordersNumber := orders.OrdersNumber
 	if ordersNumber == nil {
-		return nil, errors.New("Orders is missing orders number")
+		return segments, errors.New("Orders is missing orders number")
 	}
 	tac := orders.TAC
 	if tac == nil {
-		return nil, errors.New("Orders is missing TAC")
+		return segments, errors.New("Orders is missing TAC")
 	}
 	affiliation := shipment.ServiceMember.Affiliation
 	if shipment.ServiceMember.Affiliation == nil {
-		return nil, errors.New("Service member is missing affiliation")
+		return segments, errors.New("Service member is missing affiliation")
 	}
 	GBL := shipment.GBLNumber
 	if GBL == nil {
-		return nil, errors.New("GBL Number is missing for Shipment Identification Number (BX04)")
+		return segments, errors.New("GBL Number is missing for Shipment Identification Number (BX04)")
 	}
 
 	return []edisegment.Segment{

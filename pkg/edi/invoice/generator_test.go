@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+// Flag to update the test EDI
 // Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
 var update = flag.Bool("update", false, "update .golden files")
 
@@ -45,16 +46,16 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
 	})
 
-	suite.T().Run("full EDI string", func(t *testing.T) {
-		const expecteEDI = "expected_invoice.edi.golden"
+	suite.T().Run("full EDI string is expected", func(t *testing.T) {
+		const expectedEDI = "expected_invoice.edi.golden"
 		var b bytes.Buffer
 		writer := edi.NewWriter(&b)
 		writer.WriteAll(generatedTransactions.Segments())
 		suite.NoError(err, "generates error")
 		if *update {
-			goldenFile, err := os.Create(filepath.Join("testdata", expecteEDI))
-			suite.NoError(err, "Failed to open EDI file for update")
+			goldenFile, err := os.Create(filepath.Join("testdata", expectedEDI))
 			defer goldenFile.Close()
+			suite.NoError(err, "Failed to open EDI file for update")
 			writer = edi.NewWriter(goldenFile)
 			writer.WriteAll(generatedTransactions.Segments())
 		}
