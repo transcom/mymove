@@ -12,7 +12,7 @@ type GS struct {
 	ApplicationReceiversCode string
 	Date                     string
 	Time                     string
-	GroupControlNumber       int
+	GroupControlNumber       int64
 	ResponsibleAgencyCode    string
 	Version                  string
 }
@@ -26,7 +26,7 @@ func (s *GS) StringArray() []string {
 		s.ApplicationReceiversCode,
 		s.Date,
 		s.Time,
-		strconv.Itoa(s.GroupControlNumber),
+		strconv.FormatInt(s.GroupControlNumber, 10),
 		s.ResponsibleAgencyCode,
 		s.Version,
 	}
@@ -45,7 +45,7 @@ func (s *GS) Parse(elements []string) error {
 	s.ApplicationReceiversCode = elements[2]
 	s.Date = elements[3]
 	s.Time = elements[4]
-	s.GroupControlNumber, err = strconv.Atoi(elements[5])
+	s.GroupControlNumber, err = strconv.ParseInt(elements[5], 10, 64)
 	if err != nil {
 		return err
 	}

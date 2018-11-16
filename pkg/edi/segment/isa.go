@@ -19,7 +19,7 @@ type ISA struct {
 	InterchangeTime                   string
 	InterchangeControlStandards       string
 	InterchangeControlVersionNumber   string
-	InterchangeControlNumber          int
+	InterchangeControlNumber          int64
 	AcknowledgementRequested          int
 	UsageIndicator                    string
 	ComponentElementSeparator         string
@@ -68,7 +68,7 @@ func (s *ISA) Parse(elements []string) error {
 	s.InterchangeTime = elements[9]
 	s.InterchangeControlStandards = elements[10]
 	s.InterchangeControlVersionNumber = elements[11]
-	s.InterchangeControlNumber, err = strconv.Atoi(elements[12])
+	s.InterchangeControlNumber, err = strconv.ParseInt(elements[12], 10, 64)
 	if err != nil {
 		return err
 	}

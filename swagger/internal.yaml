@@ -1175,10 +1175,6 @@ definitions:
       - date
       - signature
       - certification_text
-  IndexSignedCertificationsPayload:
-    type: array
-    items:
-      $ref: '#/definitions/SignedCertificationPayload'
   DocumentPayload:
     type: object
     properties:
@@ -2742,39 +2738,6 @@ paths:
         500:
           description: internal server error
   /moves/{moveId}/signed_certifications:
-    get:
-      summary: Returns signed certifications for the given move
-      description: Returns signed certifications for the given move
-      operationId: indexSignedCertifications
-      tags:
-        - certification
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: query
-          name: limit
-          type: integer
-          required: false
-          description: Number of certifications to return
-      responses:
-        200:
-          description: the instance of the move
-          schema:
-            $ref: '#/definitions/IndexSignedCertificationsPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move is not found
-        500:
-          description: internal server error
     post:
       summary: Submits signed certification for the given move ID
       description: Create an instance of signed_certification tied to the move ID

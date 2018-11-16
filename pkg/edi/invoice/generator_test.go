@@ -3,6 +3,7 @@ package ediinvoice_test
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,9 +12,11 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -26,19 +29,15 @@ import (
 var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
-	shipments := make([]models.Shipment, 1)
-	shipments[0] = testdatagen.MakeDefaultShipment(suite.db)
+	shipments := [1]models.Shipment{testdatagen.MakeDefaultShipment(suite.db)}
 	err := shipments[0].AssignGBLNumber(suite.db)
 	suite.mustSave(&shipments[0])
 	suite.NoError(err, "could not assign GBLNumber")
 
-	var cost rateengine.CostComputation
-	costByShipment := rateengine.CostByShipment{
+	costsByShipments := []rateengine.CostByShipment{{
 		Shipment: shipments[0],
-		Cost:     cost,
-	}
-	var costsByShipments []rateengine.CostByShipment
-	costsByShipments = append(costsByShipments, costByShipment)
+		Cost:     rateengine.CostComputation{},
+	}}
 
 	generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
 
@@ -68,6 +67,29 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 	bytes, err := ioutil.ReadFile(path)
 	suite.NoError(err, "error loading expected EDI fixture")
 	return string(bytes)
+}
+
+func (suite *InvoiceSuite) TestGetNextICN() {
+	var testCases = []struct {
+		initial  int64
+		expected int64
+	}{
+		{1, 2},
+		{999999999, 1},
+	}
+
+	for _, testCase := range testCases {
+		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
+			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
+			suite.NoError(err, "error setting sequence value")
+
+			actualICN, err := ediinvoice.GetNextICN(suite.db)
+
+			if suite.NoError(err) {
+				assert.Equal(t, testCase.expected, actualICN)
+			}
+		})
+	}
 }
 
 type InvoiceSuite struct {

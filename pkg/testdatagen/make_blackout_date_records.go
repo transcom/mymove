@@ -57,20 +57,3 @@ func MakeBlackoutDate(db *pop.Connection, assertions Assertions) models.Blackout
 func MakeDefaultBlackoutDate(db *pop.Connection) models.BlackoutDate {
 	return MakeBlackoutDate(db, Assertions{})
 }
-
-// MakeBlackoutDateData creates three blackoutDate objects and commits them to the blackout_dates table.
-func MakeBlackoutDateData(db *pop.Connection) {
-	// Make a blackout date with market.
-	date1 := MakeDefaultBlackoutDate(db)
-	date1.SourceGBLOC = nil
-	mustSave(db, &date1)
-
-	// Make a blackout date with a channel.
-	date2 := MakeDefaultBlackoutDate(db)
-	date2.SourceGBLOC = nil
-	date2.Market = nil
-	mustSave(db, &date2)
-
-	// Make a blackout date with market and source gbloc.
-	MakeDefaultBlackoutDate(db)
-}
