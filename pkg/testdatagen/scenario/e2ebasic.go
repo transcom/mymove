@@ -29,6 +29,7 @@ var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 
 var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
 var selectedMoveTypePPM = models.SelectedMoveTypePPM
+var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
@@ -62,6 +63,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Email: email,
 		},
 	})
+
+	/*
+	 * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
+	 */
+	MakeHhgFromAwardedToAcceptedGBLReady(db, tspUser)
+
+	/*
+	 * Service member with uploaded orders and an approved shipment to be accepted & GBL generated
+	 */
+	MakeHhgWithGBL(db, tspUser, logger, storer)
+
+	/*
+	 * Service member with an approved shipment and submitted PPM
+	 */
+	MakeHhgWithPpm(db, tspUser, loader)
+
+	/*
+	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 */
+	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 
 	/*
 	 * Service member with uploaded orders and a new ppm
@@ -925,16 +946,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg12.Move)
 
 	/*
-	 * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
-	 */
-	MakeHhgFromAwardedToAcceptedGBLReady(db, tspUser)
-
-	/*
-	 * Service member with uploaded orders and an approved shipment to be accepted & GBL generated
-	 */
-	MakeHhgWithGBL(db, tspUser, logger, storer)
-
-	/*
 	 * Service member with uploaded orders and an approved shipment
 	 */
 	email = "hhg@premo.ve"
@@ -1583,11 +1594,64 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	hhg28.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg28.Move)
+}
 
-	/*
-	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
-	 */
-	makeHhgReadyToInvoice(db, tspUser, logger, storer)
+// MakeHhgWithPpm creates an HHG user who has added a PPM
+func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader.Uploader) {
+	email := "hhg@with.ppm"
+	userID := uuid.Must(uuid.FromString("4440f0cf-63e3-4722-b5aa-ba46f8f7ac64"))
+	smID := uuid.FromStringOrNil("8232beef-1cdf-4117-9db2-aad548f54430")
+	moveID := uuid.FromStringOrNil("5555ef45-8145-487b-9b59-0e30d0d465fa")
+
+	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userID,
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            smID,
+			FirstName:     models.StringPointer("HHGPPM"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4224567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               moveID,
+			Locator:          "HHGPPM",
+			SelectedMoveType: &selectedMoveTypeHHGPPM,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("73335a23-2830-4de0-bb6a-7698a25865cb"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			HasDeliveryAddress: true,
+			GBLNumber:          models.StringPointer("LKBM7123456"),
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	nowTime := time.Now()
+	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: smID,
+		},
+		Move: models.Move{
+			ID: moveID,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+			MoveID:          moveID,
+		},
+		Uploader: loader,
+	})
+	ppm.Move.Submit()
+	models.SaveMoveDependencies(db, &ppm.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
