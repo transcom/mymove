@@ -24,7 +24,7 @@ export class InvoicePanel extends Component {
     let invoicingContent = <span className="empty-content">No line items</span>;
     let title = 'Invoicing';
 
-    if (this.props.unbilledShipmentLineItems.length > 0) {
+    if (this.props.unbilledShipmentLineItems.length > 0 && this.props.shipmentStatus.toUpperCase() === 'DELIVERED') {
       invoicingContent = (
         <div>
           <InvoiceTable
@@ -52,6 +52,7 @@ export class InvoicePanel extends Component {
 InvoicePanel.propTypes = {
   unbilledShipmentLineItems: PropTypes.array,
   shipmentId: PropTypes.string,
+  shipmentStatus: PropTypes.string,
   lineItemsTotal: PropTypes.number,
 };
 
