@@ -27,7 +27,6 @@ export class InvoicePanel extends Component {
     if (this.props.unbilledShipmentLineItems.length > 0) {
       invoicingContent = (
         <div>
-          <span className="invoice-panel--heading">Unbilled line items</span>
           <InvoiceTable
             shipmentLineItems={this.props.unbilledShipmentLineItems}
             totalAmount={this.props.lineItemsTotal}
