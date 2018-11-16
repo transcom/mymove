@@ -28,8 +28,7 @@ echo "Code goes here"
 * Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:
   * [ ] Communicated to @willowbl00
   * [ ] Added to the list of [network dependencies](https://github.com/transcom/mymove#client-network-dependencies)
-* For infra changes
-  * [ ] Has this been tested in the `experimental` environment
+* [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
 * [ ] Request review from a member of a different team.
 * [ ] Have the Pivotal acceptance criteria been met for this change?
 
