@@ -72,12 +72,12 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	indexMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(indexMoveDocParams)
-	suite.CheckResponseUnauthorized(badUserResponse)
+	suite.CheckResponseForbidden(badUserResponse)
 
 	// Now try a bad shipment
 	indexMoveDocParams.ShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(indexMoveDocParams)
-	suite.CheckResponseUnauthorized(badMoveResponse)
+	suite.CheckResponseForbidden(badMoveResponse)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
@@ -152,10 +152,10 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	updateMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(updateMoveDocParams)
-	suite.CheckResponseUnauthorized(badUserResponse)
+	suite.CheckResponseForbidden(badUserResponse)
 
 	// Now try a bad shipment
 	updateMoveDocParams.ShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(updateMoveDocParams)
-	suite.CheckResponseUnauthorized(badMoveResponse)
+	suite.CheckResponseForbidden(badMoveResponse)
 }
