@@ -13,9 +13,9 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
-	"github.com/transcom/mymove/pkg/db/sequence"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -55,10 +55,10 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 			suite.NoError(err)
 			if suite.NoError(err) {
-				suite.Equal(t, testCase.expected, generatedTransactions.ISA.InterchangeControlNumber)
-				suite.Equal(t, testCase.expected, generatedTransactions.IEA.InterchangeControlNumber)
-				suite.Equal(t, testCase.expected, generatedTransactions.GS.GroupControlNumber)
-				suite.Equal(t, testCase.expected, generatedTransactions.GE.GroupControlNumber)
+				suite.Equal(testCase.expected, generatedTransactions.ISA.InterchangeControlNumber)
+				suite.Equal(testCase.expected, generatedTransactions.IEA.InterchangeControlNumber)
+				suite.Equal(testCase.expected, generatedTransactions.GS.GroupControlNumber)
+				suite.Equal(testCase.expected, generatedTransactions.GE.GroupControlNumber)
 			}
 		})
 	}
@@ -71,6 +71,9 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	})
 
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
+		err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, 1)
+		suite.NoError(err, "error setting sequence value")
+
 		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
 
 		const expectedEDI = "expected_invoice.edi.golden"
@@ -85,6 +88,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 			writer = edi.NewWriter(goldenFile)
 			writer.WriteAll(generatedTransactions.Segments())
 		}
+
 		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), b.String())
 	})
 }
