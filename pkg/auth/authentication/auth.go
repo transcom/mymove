@@ -333,6 +333,14 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+
+	session.Features, err = getAllowedFeatures(h.db, session)
+	if err != nil {
+		h.logger.Error("Error setting roles", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
 	h.logger.Info("logged in", zap.Any("session", session))
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
@@ -379,4 +387,17 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		IDToken:     parsedResponse.IDToken,
 	}
 	return &session, err
+}
+
+func getAllowedFeatures(db *pop.Connection, session *auth.Session) ([]string, error) {
+	features := []string{}
+	isDPSUser, err := models.IsDPSUser(db, session.Email)
+	if err != nil {
+		return features, err
+	}
+
+	if isDPSUser {
+		features = append(features, "dps")
+	}
+	return features, nil
 }

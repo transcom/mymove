@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/route"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -293,7 +294,7 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code
-	suite.CheckResponseUnauthorized(response)
+	suite.CheckResponseForbidden(response)
 }
 
 // TestIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
@@ -732,6 +733,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler.SetPlanner(route.NewTestingPlanner(1044))
 
 	// Test query with first user
 	path := fmt.Sprintf("/shipments/%s/deliver", shipment.ID.String())
@@ -752,4 +754,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
 	suite.Equal(actualDeliveryDate, time.Time(*okResponse.Payload.ActualDeliveryDate))
+
+	// Check for ShipmentLineItems
+	addedLineItems, _ := models.FetchLineItemsByShipmentID(suite.TestDB(), &shipment.ID)
+
+	// The details of the line items are tested in the rateengine package.  We just
+	// check the count here.
+	suite.Len(addedLineItems, 4)
 }

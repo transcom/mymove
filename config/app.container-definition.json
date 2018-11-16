@@ -137,6 +137,30 @@
     {
       "name": "IWS_RBS_HOST",
       "value": "{{ .IWS_RBS_HOST }}"
+    },
+    {
+      "name": "HTTP_SDDC_SERVER_NAME",
+      "value": "{{ .HTTP_SDDC_SERVER_NAME }}"
+    },
+    {
+      "name": "HTTP_SDDC_PROTOCOL",
+      "value": "https"
+    },
+    {
+      "name": "HTTP_SDDC_PORT",
+      "value": ""
+    },
+    {
+      "name": "DPS_REDIRECT_URL",
+      "value": "{{ .DPS_REDIRECT_URL }}"
+    },
+    {
+      "name": "DPS_COOKIE_NAME",
+      "value": "{{ .DPS_COOKIE_NAME }}"
+    },
+    {
+      "name": "DPS_COOKIE_DOMAIN",
+      "value": ".sddc.army.mil"
     }
   ],
   "logConfiguration": {

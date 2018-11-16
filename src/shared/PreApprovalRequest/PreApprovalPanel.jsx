@@ -19,8 +19,8 @@ import {
   updateShipmentLineItem,
   updateShipmentLineItemLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
-import { selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+import { selectSortedPreApprovalShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import { selectSortedPreApprovalTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 
 export class PreApprovalPanel extends Component {
   constructor() {
@@ -82,8 +82,8 @@ PreApprovalPanel.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    shipmentLineItems: selectSortedShipmentLineItems(state),
-    tariff400ngItems: selectTariff400ngItems(state),
+    shipmentLineItems: selectSortedPreApprovalShipmentLineItems(state),
+    tariff400ngItems: selectSortedPreApprovalTariff400ngItems(state),
   };
 }
 

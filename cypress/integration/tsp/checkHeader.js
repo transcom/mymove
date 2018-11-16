@@ -5,12 +5,15 @@ describe('TSP User Checks Shipment Info Header', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
-  it('tsp user sees header info', function() {
-    tspUserViewsHeaderInfo();
+  it('tsp user sees header info for HHG move', function() {
+    tspUserViewsHHGHeaderInfo();
+  });
+  it('tsp user sees header info for HHG_PPM move', function() {
+    tspUserViewsHHGPPMHeaderInfo();
   });
 });
 
-function tspUserViewsHeaderInfo() {
+function tspUserViewsHHGHeaderInfo() {
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -19,7 +22,7 @@ function tspUserViewsHeaderInfo() {
   // Find a shipment and open it
   cy
     .get('div')
-    .contains('BACON1')
+    .contains('HHGPPM')
     .dblclick();
 
   cy.location().should(loc => {
@@ -27,7 +30,46 @@ function tspUserViewsHeaderInfo() {
   });
 
   // Check the move type and code
-  cy.contains('MOVE INFO — HHG CODE D');
+  cy.contains('MOVE INFO — HHG_PPM CODE D');
+
+  // Check the name is correct
+  cy.get('div').contains('Submitted, HHGPPM');
+
+  // Check the status
+  tspUserVerifiesShipmentStatus('Shipment awarded');
+
+  // Check the info bar
+  cy
+    .get('ul')
+    .contains('li', 'GBL# LKBM7123456')
+    .parentsUntil('div')
+    .contains('li', 'Locator# HHGPPM')
+    .parentsUntil('div')
+    .contains('li', 'KKFA to HAFC')
+    .parentsUntil('div')
+    .contains('li', 'DoD ID# 4224567890')
+    .parentsUntil('div')
+    .contains('li', '555-555-5555');
+}
+
+function tspUserViewsHHGPPMHeaderInfo() {
+  // Open new shipments queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // Find a shipment and open it
+  cy
+    .get('div')
+    .contains('HHGPPM')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  // Check the move type and code
+  cy.contains('MOVE INFO — HHG_PPM CODE D');
 
   // Check the name is correct
   cy.get('div').contains('Submitted, HHG');
@@ -38,13 +80,13 @@ function tspUserViewsHeaderInfo() {
   // Check the info bar
   cy
     .get('ul')
-    .contains('li', 'GBL# LKBM7000002')
+    .contains('li', 'GBL# LKBM7123456')
     .parentsUntil('div')
-    .contains('li', 'Locator# BACON1')
+    .contains('li', 'Locator# HHGPPM')
     .parentsUntil('div')
-    .contains('li', 'LKBM to LKBM')
+    .contains('li', 'KKFA to HAFC')
     .parentsUntil('div')
-    .contains('li', 'DoD ID# 4444567890')
+    .contains('li', 'DoD ID# 4224567890')
     .parentsUntil('div')
     .contains('li', '555-555-5555');
 }

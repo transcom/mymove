@@ -3,8 +3,8 @@ import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
 import { reduxForm, FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
-import Alert from 'shared/Alert';
 
+import Alert from 'shared/Alert';
 import { ServiceAgentDisplay, ServiceAgentEdit } from './ServiceAgentViews';
 
 // TODO: Refactor when we switch to using a wizard
@@ -85,7 +85,7 @@ export function TspEditablePanelify(DisplayComponent, EditComponent, editEnabled
       isEditable: false,
     };
 
-    componentDidUpdate = (prevProps, prevState) => {
+    componentDidUpdate = prevProps => {
       if (!prevProps.editTspServiceAgent && this.props.editTspServiceAgent) {
         this.setIsEditable(true);
       }
@@ -103,7 +103,6 @@ export function TspEditablePanelify(DisplayComponent, EditComponent, editEnabled
     cancel = () => {
       this.props.reset();
       this.setIsEditable(false);
-      this.props.setEditTspServiceAgent(false);
     };
 
     setIsEditable = isEditable => this.setState({ isEditable });

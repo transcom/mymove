@@ -210,6 +210,7 @@ export class PpmWeight extends Component {
       ppmAdvanceSchema,
       advanceFormValues,
       selectedWeightInfo,
+      isHHGPPMComboMove,
     } = this.props;
     const hasRequestedAdvance = get(advanceFormValues, 'has_requested_advance', false);
     let advanceInitialValues = null;
@@ -263,8 +264,8 @@ export class PpmWeight extends Component {
                 onChange={this.onWeightSelecting}
                 onChangeComplete={this.onWeightSelected}
                 labels={{
-                  [selectedWeightInfo.min]: selectedWeightInfo.min.toLocaleString(),
-                  [selectedWeightInfo.max]: selectedWeightInfo.max.toLocaleString(),
+                  [selectedWeightInfo.min]: `${selectedWeightInfo.min} lbs`,
+                  [selectedWeightInfo.max]: `${selectedWeightInfo.max} lbs`,
                 }}
               />
             </div>
@@ -280,10 +281,12 @@ export class PpmWeight extends Component {
             )}
             <table className="numeric-info">
               <tbody>
-                <tr>
-                  <th>Your PPM Weight Estimate:</th>
-                  <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
-                </tr>
+                {!isHHGPPMComboMove && (
+                  <tr>
+                    <th>Your PPM Weight Estimate:</th>
+                    <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
+                  </tr>
+                )}
                 <tr>
                   <th>Your PPM Incentive:</th>
                   <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
@@ -291,12 +294,14 @@ export class PpmWeight extends Component {
               </tbody>
             </table>
 
-            <RequestAdvanceForm
-              ppmAdvanceSchema={ppmAdvanceSchema}
-              hasRequestedAdvance={hasRequestedAdvance}
-              maxAdvance={maxAdvance}
-              initialValues={advanceInitialValues}
-            />
+            {!isHHGPPMComboMove && (
+              <RequestAdvanceForm
+                ppmAdvanceSchema={ppmAdvanceSchema}
+                hasRequestedAdvance={hasRequestedAdvance}
+                maxAdvance={maxAdvance}
+                initialValues={advanceInitialValues}
+              />
+            )}
 
             <div className="info">
               <h3> How is my PPM Incentive calculated?</h3>
@@ -350,6 +355,7 @@ function mapStateToProps(state) {
     schema: schema,
     ppmAdvanceSchema: ppmAdvanceSchema,
     advanceFormValues: getFormValues(requestAdvanceFormName)(state),
+    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
   };
 
   return props;
