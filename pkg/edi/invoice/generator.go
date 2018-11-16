@@ -58,7 +58,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 	}
 	currentTime := clock.Now().In(loc)
 
-	interchangeControlNumber, err := getNextICN(db)
+	interchangeControlNumber, err := sequence.NextVal(db, ICNSequenceName)
 	if err != nil {
 		return Invoice858C{}, errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
 	}
@@ -385,13 +385,4 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			SpecialChargeDescription: "16A", // Fuel surchage - linehaul
 		},
 	}, nil
-}
-
-// GetNextICN is a public wrapper around getNextICN for testing
-// See: https://www.pivotaltracker.com/n/projects/2136865/stories/161905170
-var GetNextICN = getNextICN
-
-// getNextICN returns the next Interchange Control Number in a PostgreSQL sequence
-func getNextICN(db *pop.Connection) (int64, error) {
-	return sequence.NextVal(db, ICNSequenceName)
 }

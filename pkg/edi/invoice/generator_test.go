@@ -12,11 +12,10 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -39,13 +38,41 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		Cost:     rateengine.CostComputation{},
 	}}
 
-	generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+	var icnTestCases = []struct {
+		initial  int64
+		expected int64
+	}{
+		{1, 2},
+		{999999999, 1},
+	}
+
+	for _, testCase := range icnTestCases {
+		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
+			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
+			suite.NoError(err, "error setting sequence value")
+
+			generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+
+			suite.NoError(err)
+			if suite.NoError(err) {
+				suite.Equal(t, testCase.expected, generatedTransactions.ISA.InterchangeControlNumber)
+				suite.Equal(t, testCase.expected, generatedTransactions.IEA.InterchangeControlNumber)
+				suite.Equal(t, testCase.expected, generatedTransactions.GS.GroupControlNumber)
+				suite.Equal(t, testCase.expected, generatedTransactions.GE.GroupControlNumber)
+			}
+		})
+	}
 
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
+		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+
+		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
 	})
 
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
+		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+
 		const expectedEDI = "expected_invoice.edi.golden"
 		var b bytes.Buffer
 		writer := edi.NewWriter(&b)
@@ -70,26 +97,6 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 }
 
 func (suite *InvoiceSuite) TestGetNextICN() {
-	var testCases = []struct {
-		initial  int64
-		expected int64
-	}{
-		{1, 2},
-		{999999999, 1},
-	}
-
-	for _, testCase := range testCases {
-		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
-			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
-			suite.NoError(err, "error setting sequence value")
-
-			actualICN, err := ediinvoice.GetNextICN(suite.db)
-
-			if suite.NoError(err) {
-				assert.Equal(t, testCase.expected, actualICN)
-			}
-		})
-	}
 }
 
 type InvoiceSuite struct {
