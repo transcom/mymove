@@ -531,12 +531,12 @@ func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, sh
 	var tspUser *TspUser
 	tspUser, err := FetchTspUserByID(db, tspUserID)
 	if err != nil {
-		return tspUser, shipment, ErrFetchForbidden
+		return tspUser, shipment, ErrUserUnauthorized
 	}
 	// Verify that TSP is associated to shipment
 	shipment, err = FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
-		return tspUser, shipment, ErrUserUnauthorized
+		return tspUser, shipment, ErrFetchForbidden
 	}
 	return tspUser, shipment, nil
 
