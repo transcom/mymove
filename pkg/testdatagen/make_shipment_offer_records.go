@@ -132,7 +132,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		},
 	})
 
-	shouldCreateTariffData := false
+	var tariffDataShipment *models.Shipment
 	for i := 1; i <= numShipments; i++ {
 		// Service Member Details
 		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
@@ -209,7 +209,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 			shipment.NetWeight = shipment.WeightEstimate
 
-			shouldCreateTariffData = true
+			tariffDataShipment = &shipment
 		}
 
 		if shipmentStatus == models.ShipmentStatusDELIVERED {
@@ -287,8 +287,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		}
 	}
 
-	if shouldCreateTariffData {
-		createTariffDataForRateEngine(db, shipmentList[0])
+	if tariffDataShipment != nil {
+		createTariffDataForRateEngine(db, *tariffDataShipment)
 	}
 
 	return tspUserList, shipmentList, shipmentOfferList, nil
