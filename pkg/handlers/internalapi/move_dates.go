@@ -29,6 +29,10 @@ func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveI
 	if move.Orders.NewDutyStation.Address == (models.Address{}) {
 		return summary, errors.New("NewDutyStation must have an address")
 	}
+	//TODO: fix test TestCreateShipmentHandlerAllValues() so that duty stations differ so that this error check does not cause the test to fail
+	//if move.Orders.NewDutyStation.Address.PostalCode[0:5] == move.Orders.ServiceMember.DutyStation.Address.PostalCode[0:5] {
+	//	return summary, errors.New("NewDutyStation must not have the same zip code as the original DutyStation")
+	//}
 
 	var source = move.Orders.ServiceMember.DutyStation.Address
 	var destination = move.Orders.NewDutyStation.Address
@@ -38,9 +42,12 @@ func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveI
 		return summary, err
 	}
 
-	entitlementWeight := unit.Pound(models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
-		move.Orders.SpouseHasProGear))
-
+	entitlement, err := models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
+		move.Orders.SpouseHasProGear)
+	if err != nil {
+		return summary, err
+	}
+	entitlementWeight := unit.Pound(entitlement)
 	estimatedPackDays := models.PackDays(entitlementWeight)
 	estimatedTransitDays, err := models.TransitDays(entitlementWeight, transitDistance)
 	if err != nil {

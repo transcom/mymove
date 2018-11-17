@@ -2,6 +2,7 @@ package gex
 
 import (
 	"crypto/tls"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -53,11 +54,11 @@ func GetTLSConfig() (*tls.Config, error) {
 	clientCert := os.Getenv("MOVE_MIL_DOD_TLS_CERT")
 	clientKey := os.Getenv("MOVE_MIL_DOD_TLS_KEY")
 	// At this time, GEX does not already trust the intermediate CA that signed our certs; so include it with our cert
-	clientCertPlusCA := strings.Join([]string{clientCert, clientCA}, "")
+	clientCertPlusCA := strings.Join([]string{clientCert, clientCA}, "\n")
 
 	certificate, err := tls.X509KeyPair([]byte(clientCertPlusCA), []byte(clientKey))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error creating key pair")
 	}
 
 	// Load DOD CA certs so that we can validate GEX's server cert

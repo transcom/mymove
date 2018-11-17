@@ -20,9 +20,9 @@ import (
 func (suite *HandlerSuite) TestCreatePPMHandler() {
 	user1 := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 	orders := testdatagen.MakeDefaultOrder(suite.TestDB())
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
-	move, verrs, locErr := orders.CreateNewMove(suite.TestDB(), &selectedType)
+	move, verrs, locErr := orders.CreateNewMove(suite.TestDB(), &selectedMoveType)
 	suite.False(verrs.HasAny(), "failed to create new move")
 	suite.Nil(locErr)
 
@@ -340,14 +340,14 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	orders := testdatagen.MakeDefaultOrder(suite.TestDB())
 	orders1 := testdatagen.MakeDefaultOrder(suite.TestDB())
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.TestDB(), &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.TestDB(), &selectedMoveType)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	move2, verrs, err := orders1.CreateNewMove(suite.TestDB(), &selectedType)
+	move2, verrs, err := orders1.CreateNewMove(suite.TestDB(), &selectedMoveType)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move2.Orders = orders1

@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/gen/apimessages"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/storage"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
@@ -27,6 +26,9 @@ type e2eBasicScenario NamedScenario
 
 // E2eBasicScenario Is the thing
 var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
+
+var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
+var selectedMoveTypePPM = models.SelectedMoveTypePPM
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
@@ -282,24 +284,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	dutyStationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "Fort Gordon",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30813",
-			Country:        swag.String("United States"),
-		},
-	})
-
-	dutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			Name:        "Fort Sam Houston",
-			Affiliation: internalmessages.AffiliationARMY,
-			AddressID:   dutyStationAddress.ID,
-			Address:     dutyStationAddress,
-		},
-	})
+	// Check if Fort Gordon exists, if not, create
+	// Move date picker for this test case only works with an address of street name "Fort Gordon"
+	fortGordon, err := models.FetchDutyStationByName(db, "Fort Gordon")
+	if err != nil {
+		fortGordonAssertions := testdatagen.Assertions{
+			Address: models.Address{
+				City:       "Augusta",
+				State:      "GA",
+				PostalCode: "30813",
+			},
+			DutyStation: models.DutyStation{
+				Name: "Fort Gordon",
+			},
+		}
+		fortGordon = testdatagen.MakeDutyStation(db, fortGordonAssertions)
+	}
 
 	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -309,8 +309,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson"),
 			Edipi:         models.StringPointer("6833908163"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &dutyStation.ID,
-			DutyStation:   dutyStation,
+			DutyStationID: &fortGordon.ID,
+			DutyStation:   fortGordon,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
@@ -339,8 +339,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson2"),
 			Edipi:         models.StringPointer("6833908164"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &dutyStation.ID,
-			DutyStation:   dutyStation,
+			DutyStationID: &fortGordon.ID,
+			DutyStation:   fortGordon,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
@@ -368,7 +368,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("2ed0b5a2-26d9-49a3-a775-5220055e8ffe"),
 			Locator:          "RLKBEM",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("0dfdbdda-c57e-4b29-994a-09fb8641fc75"),
@@ -401,7 +401,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("56b8ef45-8145-487b-9b59-0e30d0d465fa"),
 			Locator:          "BACON1",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("776b5a23-2830-4de0-bb6a-7698a25865cb"),
@@ -460,7 +460,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("849a7880-4a82-4f76-acb4-63cf481e786b"),
 			Locator:          "BACON2",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("5f86c201-1abf-4f9d-8dcb-d039cb1c6bfc"),
@@ -484,7 +484,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	_, err := testdatagen.MakeTSPPerformanceDeprecated(db,
+	_, err = testdatagen.MakeTSPPerformanceDeprecated(db,
 		tspUser.TransportationServiceProvider,
 		*offer2.Shipment.TrafficDistributionList,
 		models.IntPointer(3),
@@ -520,7 +520,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("4752270d-4a6f-44ea-82f6-ae3cf3277c5d"),
 			Locator:          "BACON3",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("e09f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
@@ -529,7 +529,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusACCEPTED,
+			Status:             models.ShipmentStatusACCEPTED,
+			HasDeliveryAddress: true,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -561,7 +562,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("94739ee0-664c-47c5-afe9-0f5067a2e151"),
 			Locator:          "BACON4",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("9ebc891b-f629-4ea1-9ebf-eef1971d69a3"),
@@ -602,7 +603,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("7fca3fd0-08a6-480a-8a9c-16a65a100db9"),
 			Locator:          "REJECT",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("1731c3e6-b510-43d0-be46-13e5a2032bad"),
@@ -642,7 +643,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("3452270d-4a6f-44ea-82f6-ae3cf3277c5d"),
 			Locator:          "NINOPK",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("459f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
@@ -683,7 +684,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("616560f2-7e35-4504-b7e6-69038fb0c015"),
 			Locator:          "APPRVD",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("5fe59be4-45d0-47c7-b426-cf4db9882af7"),
@@ -724,7 +725,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("29cd6b2f-9ef2-48be-b4ee-1c1e0a1456ef"),
 			Locator:          "BACON5",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("54321"),
@@ -770,7 +771,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("1a3eb5a2-26d9-49a3-a775-5220055e8ffe"),
 			Locator:          "LRKREK",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("873dbdda-c57e-4b29-994a-09fb8641fc75"),
@@ -813,7 +814,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("3442270d-4a6f-44ea-82f6-ae3cf3277c5d"),
 			Locator:          "SCHNOO",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("466f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
@@ -854,7 +855,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("9992270d-4a6f-44ea-82f6-ae3cf3277c5d"),
 			Locator:          "NOCHKA",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("777f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
@@ -895,7 +896,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("abcd6b2f-9ef2-48be-b4ee-1c1e0a1456ef"),
 			Locator:          "SSETZN",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 			Status:           models.MoveStatusAPPROVED,
 		},
 		Order: models.Order{
@@ -953,7 +954,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("01d85649-18c2-44ad-854d-da8884579f42"),
 			Locator:          "PREMVE",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("fd76c4fc-a2fb-45b6-a3a6-7c35357ab79a"),
@@ -993,7 +994,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("11185649-18c2-44ad-854d-da8884579f42"),
 			Locator:          "DATESP",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("feeec4fc-a2fb-45b6-a3a6-7c35357ab79a"),
@@ -1033,7 +1034,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("ccd45bd4-660c-4ddd-b6c6-062da0a647f9"),
 			Locator:          "DOCVWR",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("7ad595da-9b34-4914-aeaa-9a540d13872f"),
@@ -1073,7 +1074,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("761743d9-2259-4bee-b144-3bda29311446"),
 			Locator:          "DTYSTN",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("a36a58b4-51ab-4d39-bcdc-b3ca3a59a4a1"),
@@ -1114,7 +1115,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("787c0921-7696-400e-86f5-c1bcb8bb88a3"),
 			Locator:          "DOCUPL",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("ad3ee670-6978-46e1-bcfc-686cdd4ffa87"),
@@ -1156,7 +1157,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("57e9275b-b433-474c-99f2-ac64966b3c9b"),
 			Locator:          "BACON6",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("54321"),
@@ -1202,7 +1203,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("533d176f-0bab-4c51-88cd-c899f6855b9d"),
 			Locator:          "BACON7",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("60e65f0c-aa21-4d95-a825-9d323a3dc4f1"),
@@ -1243,7 +1244,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("da9af941-253a-45e0-b012-8ee0385e28f8"),
 			Locator:          "DATESZ",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("9728e6a1-0469-4718-9ba1-5d7baace1191"),
@@ -1283,7 +1284,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("60098ff1-8dc9-4318-a2e8-47bc8aac11a4"),
 			Locator:          "GOTDOC",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("7ad595da-9b34-4914-aeaa-9a540d13872f"),
@@ -1337,7 +1338,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("42d85649-18c2-44ad-854d-da8884579f42"),
 			Locator:          "ENTPMS",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("f426c4fc-a2fb-45b6-a3a6-7c35357ab79a"),
@@ -1383,7 +1384,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("33686dbe-cd64-4786-8aaa-a93dda278683"),
 			Locator:          "ASSIGN",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("d40edb7e-24c9-4a21-8e4b-2e473471263e"),
@@ -1422,7 +1423,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("135af727-f570-4c7e-bf5b-878d717ef83c"),
 			Locator:          "ENTDEL",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("ebfac7dc-acfa-4a88-bbbf-a2dd1a7f2657"),
@@ -1463,7 +1464,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("da6bf1f4-a810-486d-befe-ddf8e9a4e2ef"),
 			Locator:          "HHGCAN",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("d89dba9c-5ee9-40ee-8430-2e3eb13eedeb"),
@@ -1498,7 +1499,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("2be4f6a3-82f5-4919-a257-39a24859058f"),
 			Locator:          "WTSPNL",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("d2c24faf-3439-451f-b020-fc1492f6b4bf"),
@@ -1538,7 +1539,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("47e9c534-a93c-4986-ae8f-41fddefaa618"),
 			Locator:          "ODATES",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("51004395-ecbf-4ab2-9edc-ec5041bbe390"),
@@ -1571,7 +1572,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("762f2ec2-f362-4c14-b601-d7178c4862fe"),
 			Locator:          "ODATE0",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("12e17ea7-9c94-4b61-a28d-5a81744a355c"),
@@ -1582,6 +1583,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	hhg28.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg28.Move)
+
+	/*
+	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 */
+	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
@@ -1625,7 +1631,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("05a58b2e-07da-4b41-b4f8-d18ab68dddd5"),
 			Locator:          "GBLGBL",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("b15fdc2b-52cd-4b3e-91ba-a36d6ab94a16"),
@@ -1715,7 +1721,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("6eee3663-1973-40c5-b49e-e70e9325b895"),
 			Locator:          "CONGBL",
-			SelectedMoveType: models.StringPointer("HHG"),
+			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("87fcebf6-63b8-40cb-bc40-b553f5b91b9c"),
@@ -1791,7 +1797,140 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 		models.MoveDocumentTypeGOVBILLOFLADING,
 		string("Government Bill Of Lading"),
 		swag.String(""),
-		string(apimessages.SelectedMoveTypeHHG),
+		models.SelectedMoveTypeHHG,
+	)
+
+	return offer.Shipment
+}
+
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Filesystem) models.Shipment {
+	/*
+	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 */
+	email := "hhg@ready_to.invoice"
+	netWeight := unit.Pound(3000)
+	packDate := time.Date(2018, 11, 5, 0, 0, 0, 0, time.UTC)
+	pickupDate := time.Date(2018, 11, 8, 0, 0, 0, 0, time.UTC)
+	deliveryDate := time.Date(2018, 11, 19, 0, 0, 0, 0, time.UTC)
+	weightEstimate := unit.Pound(5000)
+	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ABCD",
+		},
+	})
+	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "QRED",
+		},
+	})
+	GBLNumber := destOffice.Gbloc + "001234"
+
+	offer := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("c396388a-de1a-11e8-9f32-f2801f1b9fd1")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("dc281350-de1a-11e8-9f32-f2801f1b9fd1"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyToInvoice"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("17"),
+			TAC:                 models.StringPointer("NTA4"),
+			SAC:                 models.StringPointer("1234567890 9876543210"),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("fb4105cf-f5a5-43be-845e-d59fdb34f31c"),
+			Locator:          "DOOB",
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("5a60e1f7-63ae-45b1-b574-5aa53b70c9d6"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
+			Status:                      models.ShipmentStatusDELIVERED,
+			PmSurveyConductedDate:       &packDate,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &packDate,
+			PmSurveyPlannedPickupDate:   &pickupDate,
+			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			NetWeight:                   &netWeight,
+			ActualPickupDate:            &pickupDate,
+			OriginalDeliveryDate:        &deliveryDate,
+			ActualDeliveryDate:          &deliveryDate,
+			PmSurveyWeightEstimate:      &weightEstimate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+			GBLNumber:                   &GBLNumber,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{TransportationServiceProvider: tspUser.TransportationServiceProvider,
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			TrafficDistributionListID:       *offer.Shipment.TrafficDistributionListID,
+			QualityBand:                     models.IntPointer(3),
+			BestValueScore:                  0.40,
+			OfferCount:                      5,
+			LinehaulRate:                    unit.DiscountRate(0.50),
+			SITRate:                         unit.DiscountRate(0.55),
+		},
+	})
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer.Shipment,
+			ShipmentID: offer.ShipmentID,
+		},
+	})
+
+	hhg := offer.Shipment
+	hhgID := offer.ShipmentID
+	hhg.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg.Move)
+
+	// Create PDF for GBL
+	gbl, _ := models.FetchGovBillOfLadingExtractor(db, hhgID)
+	formLayout := paperwork.Form1203Layout
+
+	// Read in bytes from Asset pkg
+	data, _ := assets.Asset(formLayout.TemplateImagePath)
+	f, _ := storer.FileSystem().Create("something.png")
+	f.Write(data)
+	f.Seek(0, 0)
+
+	form, _ := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+
+	// Populate form fields with GBL data
+	form.DrawData(gbl)
+	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
+	form.Output(aFile)
+
+	uploader := uploaderpkg.NewUploader(db, logger, storer)
+	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	uploads := []models.Upload{*upload}
+
+	// Create GBL move document associated to the shipment
+	hhg.Move.CreateMoveDocument(db,
+		uploads,
+		&hhgID,
+		models.MoveDocumentTypeGOVBILLOFLADING,
+		string("Government Bill Of Lading"),
+		swag.String(""),
+		selectedMoveTypeHHG,
 	)
 
 	return offer.Shipment

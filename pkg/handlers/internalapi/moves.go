@@ -74,7 +74,8 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	move, verrs, err := orders.CreateNewMove(h.DB(), params.CreateMovePayload.SelectedMoveType)
+	selectedMoveType := models.SelectedMoveType(*params.CreateMovePayload.SelectedMoveType)
+	move, verrs, err := orders.CreateNewMove(h.DB(), &selectedMoveType)
 	if verrs.HasAny() || err != nil {
 		if err == models.ErrCreateViolatesUniqueConstraint {
 			h.Logger().Error("Failed to create Unique Record Locator")
@@ -143,9 +144,8 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	newSelectedMoveType := payload.SelectedMoveType
 
 	if newSelectedMoveType != nil {
-		stringSelectedMoveType := ""
 		if newSelectedMoveType != nil {
-			stringSelectedMoveType = string(*newSelectedMoveType)
+			stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
 			move.SelectedMoveType = &stringSelectedMoveType
 		}
 	}

@@ -1,10 +1,11 @@
 package rateengine
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
-	"time"
 
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
@@ -257,6 +258,14 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 
 	if shipment.NetWeight == nil {
 		return CostByShipment{}, errors.New("NetWeight is nil")
+	}
+
+	if shipment.ActualPickupDate == nil {
+		return CostByShipment{}, errors.New("ActualPickupDate is nil")
+	}
+
+	if shipment.PickupAddress.PostalCode[0:5] == shipment.Move.Orders.NewDutyStation.Address.PostalCode[0:5] {
+		return CostByShipment{}, errors.New("PickupAddress cannot have the same PostalCode as the NewDutyStation PostalCode")
 	}
 
 	// All required relationships should exist at this point.

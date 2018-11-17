@@ -31,7 +31,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -107,7 +107,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -153,7 +153,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 func (suite *ModelSuite) TestOrderStateMachine() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -198,7 +198,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -210,7 +210,6 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
-	selectedType := internalmessages.SelectedMoveTypeCOMBO
 	suite.mustSave(&uploadedOrder)
 	orders := Order{
 		ServiceMemberID:     serviceMember1.ID,
@@ -230,7 +229,8 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	}
 	suite.mustSave(&orders)
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	selectedMoveType := SelectedMoveTypeHHGPPM
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders

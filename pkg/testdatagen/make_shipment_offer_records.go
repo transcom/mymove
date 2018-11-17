@@ -137,7 +137,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
 	destinationGBLOC := "HAFC"
-	selectedMoveType := "HHG"
+	selectedMoveType := models.SelectedMoveTypeHHG
 	if len(statuses) == 0 {
 		// Statuses for shipments attached to a shipment offer should not be DRAFT or SUBMITTED
 		// because this should be after the award queue has run and SUBMITTED shipments have been awarded
@@ -170,17 +170,21 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		shipmentStatus := statuses[rand.Intn(len(statuses))]
 
 		// New Duty Station
-		newDutyStationAssertions := Assertions{
-			Address: models.Address{
-				City:       "Aurora",
-				State:      "CO",
-				PostalCode: "80011",
-			},
-			DutyStation: models.DutyStation{
-				Name: "Buckley AFB",
-			},
+		// Check if Buckley Duty Station exists, if not, create
+		newDutyStation, err := models.FetchDutyStationByName(db, "Buckley AFB")
+		if err != nil {
+			newDutyStationAssertions := Assertions{
+				Address: models.Address{
+					City:       "Aurora",
+					State:      "CO",
+					PostalCode: "80011",
+				},
+				DutyStation: models.DutyStation{
+					Name: "Buckley AFB",
+				},
+			}
+			newDutyStation = MakeDutyStation(db, newDutyStationAssertions)
 		}
-		newDutyStation := MakeDutyStation(db, newDutyStationAssertions)
 
 		// Move and Order Details
 		moveStatus := models.MoveStatusSUBMITTED

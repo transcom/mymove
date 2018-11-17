@@ -69,6 +69,11 @@ describe('completing the ppm flow', function() {
     cy.get('input[name="signature"]').type('Jane Doe');
 
     cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\//);
+    });
+
     cy.contains('Success');
     cy.contains('Next Step: Awaiting approval');
     cy.contains('Advance Requested: $1,333.91');

@@ -1,16 +1,21 @@
 package main
 
 import (
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"os"
+	"strings"
+
+	"go.uber.org/dig"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/authentication"
+	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/dig"
-	"os"
-	"strings"
 )
 
 func initFlags(flag *pflag.FlagSet) {
@@ -32,6 +37,15 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
+
+	// SDDC + DPS Auth config
+	flag.String("http-sddc-server-name", "sddclocal", "Hostname according to envrionment.")
+	flag.String("http-sddc-protocol", "https", "Protocol for sddc")
+	flag.String("http-sddc-port", "", "The port for sddc")
+	flag.String("dps-auth-secret-key", "", "DPS auth JWT secret key")
+	flag.String("dps-redirect-url", "", "DPS url to redirect to")
+	flag.String("dps-cookie-name", "", "Name of the DPS cookie")
+	flag.String("dps-cookie-domain", "sddclocal", "Domain of the DPS cookie")
 
 	flag.Bool("debug-logging", false, "log messages at the debug level.")
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
@@ -84,6 +98,13 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// IWS
 	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
+
+	// DB Config
+	flag.String("db-name", "dev_db", "Database Name")
+	flag.String("db-host", "localhost", "Database Hostname")
+	flag.Int("db-port", 5432, "Database Port")
+	flag.String("db-user", "postgres", "Database Username")
+	flag.String("db-password", "", "Database Password")
 }
 
 func parseConfig() *viper.Viper {
@@ -143,6 +164,8 @@ type WebServerConfig struct {
 	NewRelicConfig *NewRelicConfig
 	LoginGovConfig *authentication.LoginGovConfig
 	TLSConfig      *ListenerConfig
+	DPSAuthParams  *dpsauth.Params
+	handlers.SendProdInvoice
 }
 
 /*
@@ -223,5 +246,14 @@ func serverConfig(cfg *viper.Viper) WebServerConfig {
 			DoDTLSKey:        cfg.GetString("move-mil-dod-tls-key"),
 			DoDCACertPackage: cfg.GetString("dod-ca-package"),
 		},
+		DPSAuthParams: &dpsauth.Params{
+			SDDCProtocol:   cfg.GetString("http-sddc-protocol"),
+			SDDCHostname:   cfg.GetString("http-sddc-server-name"),
+			SDDCPort:       cfg.GetString("http-sddc-port"),
+			SecretKey:      cfg.GetString("dps-auth-secret-key"),
+			DPSRedirectURL: cfg.GetString("dps-redirect-url"),
+			CookieName:     cfg.GetString("dps-cookie-name"),
+		},
+		SendProdInvoice: handlers.SendProdInvoice(cfg.GetBool("send-prod-invoice")),
 	}
 }

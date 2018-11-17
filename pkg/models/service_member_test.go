@@ -38,7 +38,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	email := "bobsally@gmail.com"
 	fakeAddress := testdatagen.MakeDefaultAddress(suite.db)
 	fakeBackupAddress := testdatagen.MakeDefaultAddress(suite.db)
-	station := testdatagen.MakeDefaultDutyStation(suite.db)
+	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
 
 	serviceMember := ServiceMember{
 		UserID:                 user1.ID,

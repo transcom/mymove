@@ -60,6 +60,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
       params,
       start: new Date(),
       isLoading: true,
+      label,
     };
     dispatch({
       type: `@@swagger/${operationPath}/START`,

@@ -2,6 +2,7 @@ package dpsauth
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -16,25 +17,27 @@ var secretKey = initKey()
 
 const prefix = "mymove-"
 
-// LoginGovIDToCookie takes the Login.gov UUID of the current user and returns the cookie value.
-func LoginGovIDToCookie(userID string) (string, error) {
+// LoginGovIDToCookie takes the Login.gov UUID of the current user and returns the cookie.
+func LoginGovIDToCookie(userID string) (*http.Cookie, error) {
 	expiration, err := strconv.Atoi(cookieExpiresInMinutes)
 	if err != nil {
-		return "", errors.Wrap(err, "Converting DPS_COOKIE_EXPIRES_IN_MINUTES to int")
+		return nil, errors.Wrap(err, "Converting DPS_COOKIE_EXPIRES_IN_MINUTES to int")
 	}
-	expirationTime := time.Now().Add(time.Minute * time.Duration(expiration)).Unix()
+	expirationTime := time.Now().Add(time.Minute * time.Duration(expiration))
 
 	claims := &jwt.StandardClaims{
 		Subject:   userID,
-		ExpiresAt: expirationTime,
+		ExpiresAt: expirationTime.Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	jwt, err := token.SignedString(secretKey)
 	if err != nil {
-		return "", errors.Wrap(err, "Signing JWT")
+		return nil, errors.Wrap(err, "Signing JWT")
 	}
-	return prefix + jwt, nil
+
+	cookie := http.Cookie{Value: prefix + jwt, Expires: expirationTime}
+	return &cookie, nil
 }
 
 // CookieToLoginGovID takes a cookie value and returns the Login.gov UUID only if it's a

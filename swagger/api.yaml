@@ -216,6 +216,9 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      requires_pre_approval:
+        type: boolean
+        title: Requires pre-approval
   ShipmentLineItems:
     type: array
     items:
@@ -313,8 +316,8 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: 'United States'
-        default: United States
+        example: 'USA'
+        default: USA
     required:
       - street_address_1
       - state
@@ -622,12 +625,18 @@ definitions:
     enum:
       - HHG
       - PPM
-      - COMBO
+      - UB
+      - POV
+      - NTS
+      - HHG_PPM
     x-nullable: true
     x-display-value:
       HHG: Household Goods Move
       PPM: Personal Procured Move
-      COMBO: Both HHG and PPM
+      UB: Unaccompanied Baggage
+      POV: Privately-Owned Vehicle
+      NTS: Non-Temporary Storage
+      HHG_PPM: Both HHG and PPM
   ServiceAgentRole:
     type: string
     title: Service Agent Role

@@ -104,6 +104,6 @@ func NewInternalAPIHandler(p HandlerParams) (Handler, error) {
 	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{p.HandlerContext}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{p.HandlerContext}
-
+	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{p.HandlerContext}
 	return internalAPI.Serve(nil), nil
 }

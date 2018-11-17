@@ -107,8 +107,8 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Orders has service member with transportation office and phone nums
 	orders := testdatagen.MakeDefaultOrder(suite.TestDB())
 
-	var selectedType = internalmessages.SelectedMoveTypePPM
-	move, verrs, err := orders.CreateNewMove(suite.TestDB(), &selectedType)
+	selectedMoveType := models.SelectedMoveTypePPM
+	move, verrs, err := orders.CreateNewMove(suite.TestDB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())

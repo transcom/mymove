@@ -3,11 +3,13 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
@@ -21,6 +23,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/authentication"
 	"github.com/transcom/mymove/pkg/di"
+	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
@@ -88,11 +91,64 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
-func newDatabase(v *viper.Viper) (*pop.Connection, error) {
-	if err := pop.AddLookupPaths(v.GetString("config-dir")); err != nil {
+func newDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
+
+	env := v.GetString("env")
+	dbName := v.GetString("db-name")
+	dbHost := v.GetString("db-host")
+	dbPort := strconv.Itoa(v.GetInt("db-port"))
+	dbUser := v.GetString("db-user")
+	dbPassword := v.GetString("db-password")
+
+	// Modify DB options by environment
+	dbOptions := map[string]string{"sslmode": "disable"}
+	if env == "test" {
+		// Leave the test database name hardcoded, since we run tests in the same
+		// environment as development, and it's extra confusing to have to swap env
+		// variables before running tests.
+		dbName = "test_db"
+	} else if env == "container" {
+		// Require sslmode for containers
+		dbOptions["sslmode"] = "require"
+	}
+
+	// Construct a safe URL and log it
+	s := "postgres://%s:%s@%s:%s/%s?sslmode=%s"
+	dbURL := fmt.Sprintf(s, dbUser, "*****", dbHost, dbPort, dbName, dbOptions["sslmode"])
+	logger.Debug("Connecting to the database", zap.String("url", dbURL))
+
+	// Configure DB connection details
+	dbConnectionDetails := pop.ConnectionDetails{
+		Dialect:  "postgres",
+		Database: dbName,
+		Host:     dbHost,
+		Port:     dbPort,
+		User:     dbUser,
+		Password: dbPassword,
+		Options:  dbOptions,
+	}
+	err := dbConnectionDetails.Finalize()
+	if err != nil {
+		logger.Error("Failed to finalize DB connection details", zap.Error(err))
 		return nil, err
 	}
-	return pop.Connect(v.GetString("env"))
+
+	// Set up the connection
+	connection, err := pop.NewConnection(&dbConnectionDetails)
+	if err != nil {
+		logger.Error("Failed create DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Open the connection
+	err = connection.Open()
+	if err != nil {
+		logger.Error("Failed to open DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Return the open connection
+	return connection, nil
 }
 
 // HoneycombEnabled is a type alias for dependency injection. Indicated if honeycomb is enabled for the site
@@ -148,6 +204,8 @@ type PopulateHandlerContextParams struct {
 	storage.FileStorer
 	Cookie                *server.SessionCookieConfig
 	RealTimeBrokerService *iws.RealTimeBrokerService
+	handlers.SendProdInvoice
+	DPSAuthParams *dpsauth.Params
 }
 
 // FOR NOW - Once handlers are implemented like handlers.internalapi.ShowLoggedInUserHandler and have explicit
@@ -166,6 +224,10 @@ func populateHandlerContext(ctxt handlers.HandlerContext, p PopulateHandlerConte
 	ctxt.SetFetchDocument(p.FetchDocument)
 	ctxt.SetFetchUpload(p.FetchUpload)
 	ctxt.SetIWSRealTimeBrokerService(*p.RealTimeBrokerService)
+	// Set SendProductionInvoice for ediinvoice
+	ctxt.SetSendProductionInvoice(p.SendProdInvoice)
+	ctxt.SetDPSAuthParams(p.DPSAuthParams)
+
 }
 
 // fileHandler serves up a single file
@@ -228,6 +290,7 @@ type BuildSiteParams struct {
 	PublicAPIHandler      publicapi.Handler
 	InternalAPIHandler    internalapi.Handler
 	DPSAPIHandler         dpsapi.Handler
+	DPSSetCookieHandler   dpsauth.SetCookieHandler
 	AuthContext           *authentication.Context
 	AuthCallbackHandler   *authentication.CallbackHandler
 	AuthLogoutHandler     *authentication.LogoutHandler
@@ -235,6 +298,7 @@ type BuildSiteParams struct {
 	AuthAssignUserHandler *authentication.AssignUserHandler
 	AuthCreateUserHandler *authentication.CreateUserHandler
 	HoneycombEnabled
+	DPSAuthParams *dpsauth.Params
 }
 
 // SiteHandler is the DI marker for the main site http.Handler
@@ -284,6 +348,13 @@ func buildSite(p BuildSiteParams, l *zap.Logger) (SiteHandler, error) {
 	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(p.Env.SiteDir, "swagger-ui", "dps.html")))
 	dpsMux.Handle(pat.New("/*"), p.DPSAPIHandler)
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
+
+	sddcDPSMux := goji.SubMux()
+	sddcDetectionMiddleware := server.HostnameDetectorMiddleware(l, p.DPSAuthParams.SDDCHostname)
+	sddcDPSMux.Use(sddcDetectionMiddleware)
+	sddcDPSMux.Use(noCacheMiddleware)
+	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
+	sddcDPSMux.Handle(pat.Get("/set_cookie"), p.DPSSetCookieHandler)
 
 	root := goji.NewMux()
 	root.Use(p.SessionCookieMiddleware)

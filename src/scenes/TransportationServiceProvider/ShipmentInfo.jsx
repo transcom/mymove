@@ -1,4 +1,3 @@
-import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -20,6 +19,7 @@ import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
   getShipmentDocumentsLabel,
+  generateGBL,
 } from 'shared/Entities/modules/shipmentDocuments';
 import {
   getAllTariff400ngItems,
@@ -41,22 +41,26 @@ import {
   loadShipmentDependencies,
   patchShipment,
   acceptShipment,
-  generateGBL,
   rejectShipment,
   transportShipment,
   deliverShipment,
+  handleServiceAgents,
 } from './ducks';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
-import LocationsContainer from './LocationsContainer';
+import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
+import ServiceAgentForm from './ServiceAgentForm';
+import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
 
 import './tsp.css';
+
+const generateGblLabel = 'Shipments.createGovBillOfLading';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',
@@ -150,7 +154,7 @@ class ShipmentInfo extends Component {
   };
 
   generateGBL = () => {
-    return this.props.generateGBL(this.props.shipment.id);
+    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
   };
 
   rejectShipment = reason => {
@@ -161,21 +165,15 @@ class ShipmentInfo extends Component {
 
   enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
 
+  editServiceAgents = values => {
+    values['destination_service_agent']['role'] = 'DESTINATION';
+    values['origin_service_agent']['role'] = 'ORIGIN';
+    this.props.handleServiceAgents(this.props.shipment.id, values);
+  };
+
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
   deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
-
-  // Access Service Agent Panels
-  setEditTspServiceAgent = editTspServiceAgent => this.setState({ editTspServiceAgent });
-
-  scrollToTspServiceAgentPanel = () => {
-    const domNode = ReactDOM.findDOMNode(this.assignTspServiceAgent.current);
-    domNode.scrollIntoView();
-  };
-  toggleEditTspServiceAgent = () => {
-    this.scrollToTspServiceAgentPanel();
-    this.setEditTspServiceAgent(true);
-  };
 
   render() {
     const {
@@ -317,10 +315,12 @@ class ShipmentInfo extends Component {
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
-                  <FontAwesomeIcon className="icon" icon={faPhone} flip="horizontal" />
+                  <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.text_message_is_preferred && <FontAwesomeIcon className="icon" icon={faComments} />}
-                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon" icon={faEmail} />}
+                {serviceMember.text_message_is_preferred && (
+                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
+                )}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;
               </li>
             </ul>
@@ -379,9 +379,13 @@ class ShipmentInfo extends Component {
                 />
               )}
               {canAssignServiceAgents && (
-                <button className="usa-button-primary" onClick={this.toggleEditTspServiceAgent}>
-                  Assign servicing agents
-                </button>
+                <FormButton
+                  serviceAgents={this.props.serviceAgents}
+                  FormComponent={ServiceAgentForm}
+                  schema={this.props.serviceAgentSchema}
+                  onSubmit={this.editServiceAgents}
+                  buttonTitle="Assign servicing agents"
+                />
               )}
 
               {inTransit && (
@@ -407,9 +411,6 @@ class ShipmentInfo extends Component {
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   <TspContainer
-                    ref={this.assignTspServiceAgent}
-                    editTspServiceAgent={this.state.editTspServiceAgent}
-                    setEditTspServiceAgent={this.setEditTspServiceAgent}
                     title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
@@ -455,10 +456,7 @@ const mapStateToProps = state => {
   const shipment = get(state, 'tsp.shipment', {});
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
   const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
-
-  // When we create the GBL, we store the success, but don't add it to the docs in the entities reducer
-  // We should fix that, but for now here's a bandaid
-  const gblGenerated = state.tsp.generateGBLSuccess || gbl;
+  const gblGenerated = !!gbl;
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
@@ -473,11 +471,12 @@ const mapStateToProps = state => {
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
-    generateGBLSuccess: get(state, 'tsp.generateGBLSuccess'),
-    generateGBLInProgress: get(state, 'tsp.generateGBLInProgress'),
-    gblDocUrl: get(state, 'tsp.gblDocUrl'),
+    generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
+    generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
+    gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
+    serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
   };
@@ -491,6 +490,7 @@ const mapDispatchToProps = dispatch =>
       acceptShipment,
       generateGBL,
       rejectShipment,
+      handleServiceAgents,
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,

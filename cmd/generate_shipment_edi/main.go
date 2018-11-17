@@ -28,7 +28,7 @@ func main() {
 	flag.Parse()
 
 	if *moveIDString == "" {
-		log.Fatal("Usage: cmd/generate_shipment_edi/main.go --moveID <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+		log.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --moveID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --gex false")
 	}
 
 	db, err := pop.Connect(*env)
@@ -70,16 +70,15 @@ func main() {
 		}
 		costsByShipments = append(costsByShipments, costByShipment)
 	}
-	edi, err := ediinvoice.Generate858C(costsByShipments, db)
+	edi, err := ediinvoice.Generate858C(costsByShipments, db, false)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(edi)
-	fmt.Println("Sending to GEX. . .")
 
 	if *sendToGex == true {
+		fmt.Println("Sending to GEX. . .")
 		statusCode, err := gex.SendInvoiceToGex(logger, edi, *transactionName)
-
 		fmt.Printf("status code: %v, error: %v", statusCode, err)
 	}
 
