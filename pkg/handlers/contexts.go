@@ -39,9 +39,9 @@ type HandlerContext interface {
 	IWSRealTimeBrokerService() iws.RealTimeBrokerService
 	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
 	SendProductionInvoice() bool
-	SetSendProductionInvoice(sendProductionInvoice bool)
-	DPSAuthParams() dpsauth.Params
-	SetDPSAuthParams(params dpsauth.Params)
+	SetSendProductionInvoice(send SendProdInvoice)
+	DPSAuthParams() *dpsauth.Params
+	SetDPSAuthParams(params *dpsauth.Params)
 }
 
 // A single handlerContext is passed to each handler
@@ -58,7 +58,7 @@ type handlerContext struct {
 	fetchUpload              services.FetchUpload
 	iwsRealTimeBrokerService iws.RealTimeBrokerService
 	sendProductionInvoice    bool
-	dpsAuthParams            dpsauth.Params
+	dpsAuthParams            *dpsauth.Params
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -178,14 +178,14 @@ func (context *handlerContext) SendProductionInvoice() bool {
 }
 
 // Set UsageIndicator flag for use in EDI invoicing (ediinvoice pkg)
-func (context *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
-	context.sendProductionInvoice = sendProductionInvoice
+func (context *handlerContext) SetSendProductionInvoice(send SendProdInvoice) {
+	context.sendProductionInvoice = bool(send)
 }
 
-func (context *handlerContext) DPSAuthParams() dpsauth.Params {
+func (context *handlerContext) DPSAuthParams() *dpsauth.Params {
 	return context.dpsAuthParams
 }
 
-func (context *handlerContext) SetDPSAuthParams(params dpsauth.Params) {
+func (context *handlerContext) SetDPSAuthParams(params *dpsauth.Params) {
 	context.dpsAuthParams = params
 }

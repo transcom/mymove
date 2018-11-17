@@ -505,6 +505,7 @@ func dependencies(config *viper.Viper) *di.Container {
 	route.AddProviders(c)
 	notifications.AddProviders(c)
 	storage.AddProviders(c)
+	dpsauth.AddProviders(c)
 	c.MustProvide(indexHandler)
 	c.MustProvide(initRealTimeBrokerService)
 	return c

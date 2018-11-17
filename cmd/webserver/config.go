@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"os"
 	"strings"
 
