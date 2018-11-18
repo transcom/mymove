@@ -29,6 +29,7 @@ var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 
 var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
 var selectedMoveTypePPM = models.SelectedMoveTypePPM
+var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
@@ -62,6 +63,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Email: email,
 		},
 	})
+
+	/*
+	 * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
+	 */
+	MakeHhgFromAwardedToAcceptedGBLReady(db, tspUser)
+
+	/*
+	 * Service member with uploaded orders and an approved shipment to be accepted & GBL generated
+	 */
+	MakeHhgWithGBL(db, tspUser, logger, storer)
+
+	/*
+	 * Service member with an approved shipment and submitted PPM
+	 */
+	MakeHhgWithPpm(db, tspUser, loader)
+
+	/*
+	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 */
+	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 
 	/*
 	 * Service member with uploaded orders and a new ppm
@@ -925,16 +946,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg12.Move)
 
 	/*
-	 * Service member with uploaded orders and an approved shipment to be accepted & able to generate GBL
-	 */
-	MakeHhgFromAwardedToAcceptedGBLReady(db, tspUser)
-
-	/*
-	 * Service member with uploaded orders and an approved shipment to be accepted & GBL generated
-	 */
-	MakeHhgWithGBL(db, tspUser, logger, storer)
-
-	/*
 	 * Service member with uploaded orders and an approved shipment
 	 */
 	email = "hhg@premo.ve"
@@ -1408,6 +1419,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email = "enter@delivery.date"
 
+	netWeight := unit.Pound(2000)
+	actualPickupDate := time.Now()
 	offer24 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("1af7ca19-8511-4c6e-a93b-144811c0fa7c")),
@@ -1432,7 +1445,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusINTRANSIT,
+			Status:           models.ShipmentStatusINTRANSIT,
+			NetWeight:        &netWeight,
+			ActualPickupDate: &actualPickupDate,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1585,9 +1600,103 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg28.Move)
 
 	/*
-	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 * Service member with uploaded orders and an approved shipment for adding a ppm
 	 */
-	makeHhgReadyToInvoice(db, tspUser, logger, storer)
+	email = "hhgforppm@award.ed"
+
+	offer29 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("f83bc69f-10aa-48b7-b9fe-425b393d49b8")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("234960a6-2ccb-4914-8092-db58fc5d1d89"),
+			FirstName:     models.StringPointer("HHG Ready"),
+			LastName:      models.StringPointer("For PPM"),
+			Edipi:         models.StringPointer("7777567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("3a98bf2e-fcca-4832-953b-022d4dd3814d"),
+			Locator:          "COMBO1",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("115f14f2-c982-4a54-a293-78935b61305d"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			HasDeliveryAddress: true,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	hhg29 := offer29.Shipment
+	hhg29.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg29.Move)
+}
+
+// MakeHhgWithPpm creates an HHG user who has added a PPM
+func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader.Uploader) {
+	email := "hhg@with.ppm"
+	userID := uuid.Must(uuid.FromString("4440f0cf-63e3-4722-b5aa-ba46f8f7ac64"))
+	smID := uuid.FromStringOrNil("8232beef-1cdf-4117-9db2-aad548f54430")
+	moveID := uuid.FromStringOrNil("5555ef45-8145-487b-9b59-0e30d0d465fa")
+
+	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userID,
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            smID,
+			FirstName:     models.StringPointer("HHGPPM"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("4224567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               moveID,
+			Locator:          "HHGPPM",
+			SelectedMoveType: &selectedMoveTypeHHGPPM,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("73335a23-2830-4de0-bb6a-7698a25865cb"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			HasDeliveryAddress: true,
+			GBLNumber:          models.StringPointer("LKBM7123456"),
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	nowTime := time.Now()
+	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: smID,
+		},
+		Move: models.Move{
+			ID: moveID,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+			MoveID:          moveID,
+		},
+		Uploader: loader,
+	})
+	ppm.Move.Submit()
+	models.SaveMoveDependencies(db, &ppm.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation

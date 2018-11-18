@@ -100,7 +100,7 @@ type ServiceMember struct {
 	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
 	BackupMailingAddress   *Address                  `belongs_to:"address"`
 	SocialSecurityNumberID *uuid.UUID                `json:"social_security_number_id" db:"social_security_number_id"`
-	SocialSecurityNumber   *SocialSecurityNumber     `belongs_to:"address"`
+	SocialSecurityNumber   *SocialSecurityNumber     `belongs_to:"social_security_numbers"`
 	Orders                 Orders                    `has_many:"orders" order_by:"created_at desc"`
 	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`

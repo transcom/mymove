@@ -14,7 +14,7 @@ import (
 )
 
 /*
-   This file contains the implementaion details of the ServiceMember model. It should be pushed down into the users_impl package
+   This file contains the implementation details of the ServiceMember model. It should be pushed down into the users_impl package
 */
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

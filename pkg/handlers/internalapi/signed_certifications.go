@@ -53,30 +53,3 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 type IndexSignedCertificationsHandler struct {
 	handlers.HandlerContext
 }
-
-// Handle returns a SignedCertification for a given moveID
-func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationsParams) middleware.Responder {
-	session := server.SessionFromRequestContext(params.HTTPRequest)
-	// #nosec Format of UUID is checked by swagger
-	moveID, _ := uuid.FromString(params.MoveID.String())
-
-	move, err := models.FetchMove(h.DB(), session, moveID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	certs := move.SignedCertifications
-
-	limit := len(certs)
-	if params.Limit != nil && limit > int(*params.Limit) {
-		limit = int(*params.Limit)
-	}
-
-	payload := make(internalmessages.IndexSignedCertificationsPayload, limit)
-	for i := 0; i < limit; i++ {
-		cert := certs[i]
-		payload[i] = payloadForSignedCertificationModel(cert)
-	}
-
-	return certop.NewIndexSignedCertificationsOK().WithPayload(payload)
-}

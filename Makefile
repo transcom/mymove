@@ -157,14 +157,14 @@ db_populate_e2e: db_dev_reset db_dev_migrate build_tools
 db_dev_run:
 	# The version of the postgres container should match production as closely
 	# as possible.
-	# https://github.com/transcom/ppp-infra/blob/1578df6e6bc6bb45d43fdc7762228afdd17a4144/modules/aws-app-environment/database/main.tf#L87
+	# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
 	docker start $(DB_DOCKER_CONTAINER) || \
 		(docker run --name $(DB_DOCKER_CONTAINER) \
 			-e \
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p 5432:5432 \
-			postgres:10.1 && \
+			postgres:10.5 && \
 		DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
 db_dev_reset:

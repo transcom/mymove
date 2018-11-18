@@ -81,10 +81,10 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	newMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newMoveDocParams)
-	suite.CheckResponseUnauthorized(badUserResponse)
+	suite.CheckResponseForbidden(badUserResponse)
 
 	// Now try a bad shipment
 	newMoveDocParams.ShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMoveDocParams)
-	suite.CheckResponseUnauthorized(badMoveResponse)
+	suite.CheckResponseForbidden(badMoveResponse)
 }

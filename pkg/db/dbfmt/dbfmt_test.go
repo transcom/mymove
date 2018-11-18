@@ -35,7 +35,7 @@ func (suite *DBFmtSuite) mustSave(model interface{}) {
 }
 
 func TestDBFmtSuite(t *testing.T) {
-	configLocation := "../../config"
+	configLocation := "../../../config"
 	pop.AddLookupPaths(configLocation)
 	db, err := pop.Connect("test")
 	if err != nil {

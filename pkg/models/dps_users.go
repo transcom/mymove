@@ -2,12 +2,13 @@ package models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 )
 
 // DpsUser are users who have permission to access MyMove - DPS integration resources
@@ -55,7 +56,7 @@ func (d *DpsUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 
 // IsDPSUser checks if a user is a DPS user given email
 func IsDPSUser(db *pop.Connection, email string) (bool, error) {
-	count, err := db.Q().Where("login_gov_email = ?", email).Count(DpsUser{})
+	count, err := db.Q().Where("LOWER(login_gov_email) = ?", strings.ToLower(email)).Count(DpsUser{})
 	if err != nil {
 		return false, err
 	}

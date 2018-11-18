@@ -37,7 +37,6 @@ func NewInternalAPIHandler(p HandlerParams) (Handler, error) {
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{p.HandlerContext}
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{p.HandlerContext}
-	internalAPI.CertificationIndexSignedCertificationsHandler = IndexSignedCertificationsHandler{p.HandlerContext}
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{p.HandlerContext}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{p.HandlerContext}

@@ -788,7 +788,10 @@
 [[projects]]
   digest = "1:961dc3b1d11f969370533390fdf203813162980c858e1dabe827b60940c909a5"
   name = "github.com/magiconair/properties"
-  packages = ["."]
+  packages = [
+    ".",
+    "assert",
+  ]
   pruneopts = ""
   revision = "c2353362d570a7bfa228149c62842019201cfb71"
   version = "v1.8.0"
@@ -1396,6 +1399,7 @@
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
     "github.com/jung-kurt/gofpdf",
+    "github.com/magiconair/properties/assert",
     "github.com/markbates/goth",
     "github.com/markbates/goth/providers/openidConnect",
     "github.com/namsral/flag",
@@ -1406,6 +1410,7 @@
     "github.com/spf13/afero",
     "github.com/spf13/pflag",
     "github.com/spf13/viper",
+    "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/suite",
     "github.com/tealeg/xlsx",
     "github.com/trussworks/pdfcpu/pkg/api",

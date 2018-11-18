@@ -335,7 +335,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID 
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
-// Note: This doens't save the Shipment, so this should always be run as part of
+// Note: This doesn't save the Shipment, so this should always be run as part of
 // another transaction that saves the shipment after assigning a GBL number
 func (s *Shipment) AssignGBLNumber(db *pop.Connection) error {
 	if s.SourceGBLOC == nil {
@@ -502,13 +502,11 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
 		"Move.Orders.NewDutyStation.Address",
-		"Move.Orders.HasDependents",
-		"Move.Orders.SpouseHasProGear",
-		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
-		"PartialSITDeliveryAddress").
+		"PartialSITDeliveryAddress",
+		"ShipmentOffers.TransportationServiceProviderPerformance").
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
@@ -532,12 +530,12 @@ func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, sh
 	var tspUser *TspUser
 	tspUser, err := FetchTspUserByID(db, tspUserID)
 	if err != nil {
-		return tspUser, shipment, ErrFetchForbidden
+		return tspUser, shipment, ErrUserUnauthorized
 	}
 	// Verify that TSP is associated to shipment
 	shipment, err = FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
-		return tspUser, shipment, ErrUserUnauthorized
+		return tspUser, shipment, ErrFetchForbidden
 	}
 	return tspUser, shipment, nil
 
@@ -701,4 +699,68 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 	})
 
 	return responseVErrors, responseError
+}
+
+// SaveShipmentAndLineItems saves a shipment and a slice of line items in a single transaction.
+func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []ShipmentLineItem) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(tx *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		verrs, err := tx.ValidateAndSave(s)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving shipment")
+			return transactionError
+		}
+
+		for _, lineItem := range lineItems {
+			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
+				return transactionError
+			}
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
+}
+
+// createUniqueShipmentLineItem will create the given shipment line item,
+func (s *Shipment) createUniqueShipmentLineItem(tx *pop.Connection, lineItem ShipmentLineItem) (*validate.Errors, error) {
+	existingLineItems, err := s.FetchShipmentLineItemsByItemID(tx, lineItem.Tariff400ngItemID)
+	if err != nil {
+		return validate.NewErrors(), err
+	}
+
+	if len(existingLineItems) > 0 {
+		var whichCode string
+		if len(lineItem.Tariff400ngItem.Code) > 0 {
+			whichCode = lineItem.Tariff400ngItem.Code
+		} else {
+			whichCode = lineItem.Tariff400ngItemID.String()
+		}
+		return validate.NewErrors(), errors.New("Line item already exists for item " + whichCode)
+	}
+
+	return tx.ValidateAndCreate(&lineItem)
+}
+
+// FetchShipmentLineItemsByItemID attempts to find line items for this shipment that have a given line item code.
+// If no line items for this code exist yet, return an empty slice.
+func (s *Shipment) FetchShipmentLineItemsByItemID(db *pop.Connection, tariff400ngItemID uuid.UUID) ([]ShipmentLineItem, error) {
+	var lineItems []ShipmentLineItem
+
+	err := db.Q().
+		Where("shipment_id = ?", s.ID).
+		Where("tariff400ng_item_id = ?", tariff400ngItemID).
+		All(&lineItems)
+
+	return lineItems, err
 }

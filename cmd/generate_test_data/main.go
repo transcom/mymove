@@ -19,8 +19,6 @@ import (
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-	rounds := flag.String("rounds", "none", "If not using premade scenarios: Specify none (no awards), full (1 full round of awards), or half (partial round of awards)")
-	numTSP := flag.Int("numTSP", 15, "If not using premade scenarios: Specify the number of TSPs you'd like to create")
 	scenario := flag.Int("scenario", 0, "Specify which scenario you'd like to run. Current options: 1, 2, 3, 4, 5, 6, 7.")
 	namedScenario := flag.String("named-scenario", "", "It's like a scenario, but more descriptive.")
 	flag.Parse()
@@ -86,19 +84,7 @@ func main() {
 		tdgs.E2eBasicScenario.Run(db, loader, logger, storer)
 		log.Print("Success! Created e2e test data.")
 	} else {
-		// Can this be less repetitive without being overly clever?
-		testdatagen.MakeDefaultServiceMember(db)
-		testdatagen.MakeDefaultOfficeUser(db)
-		testdatagen.MakeDefaultTspUser(db)
-		testdatagen.MakeTDLData(db)
-		testdatagen.MakeTSPs(db, *numTSP)
-		testdatagen.MakeShipmentData(db)
-		testdatagen.MakeShipmentOfferData(db)
-		testdatagen.MakeTSPPerformanceDataDeprecated(db, *rounds)
-		testdatagen.MakeBlackoutDateData(db)
-		testdatagen.MakePPMData(db)
-		testdatagen.MakeReimbursementData(db)
-		testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
+		flag.PrintDefaults()
 	}
 	if err != nil {
 		log.Panic(err)
