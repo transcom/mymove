@@ -1,6 +1,6 @@
-import { GetCertifications, GetCertificationText, CreateCertification } from './api.js';
+import { GetCertificationText, CreateCertification } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { get, pick } from 'lodash';
+import { pick } from 'lodash';
 import { SubmitForApproval } from '../Moves/ducks.js';
 import { normalize } from 'normalizr';
 import { move } from 'shared/Entities/schema';
@@ -49,23 +49,11 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
   };
 };
 
-export function loadLatestCertification(moveId) {
-  const action = ReduxHelpers.generateAsyncActions('GET_LATEST_CERT');
-  return function(dispatch, getState) {
-    dispatch(action.start);
-    return GetCertifications(moveId, 1)
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.error(error)));
-  };
-}
-
 // Reducer
 const initialState = {
   hasSubmitError: false,
   hasSubmitSuccess: false,
   confirmationText: '',
-  getCertificationSuccess: false,
-  getCertificationError: false,
   latestSignedCertification: null,
   certificationText: null,
   error: null,
@@ -92,25 +80,6 @@ export function signedCertificationReducer(state = initialState, action) {
         hasSubmitSuccess: false,
         hasSubmitError: true,
         confirmationText: 'Submission error.',
-      });
-    case GET_LATEST_CERT.start:
-      return Object.assign({}, state, {
-        getCertificationSuccess: false,
-      });
-    case GET_LATEST_CERT.success:
-      return Object.assign({}, state, {
-        getCertificationSuccess: true,
-        getCertificationError: false,
-        latestSignedCertification: get(action, 'payload.0', null),
-        certificationText: get(action, 'payload.0.certification_text', null),
-      });
-    case GET_LATEST_CERT.failure:
-      return Object.assign({}, state, {
-        getCertificationSuccess: false,
-        getCertificationError: true,
-        latestSignedCertification: null,
-        certificationText: null,
-        error: get(action, 'error', null),
       });
     case SIGN_AND_SUBMIT_FOR_APPROVAL.success:
       return { ...state, moveSubmitSuccess: true };

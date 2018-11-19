@@ -15,12 +15,12 @@ executors:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
-  # `mymove_and_postgres` adds a secondary `postgres:10.1` container and is used during testing.
+  # `mymove_and_postgres` adds a secondary postgres container to be used during testing.
   mymove_and_postgres:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
-      - image: postgres:10.1
+      - image: postgres:10.5
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -219,6 +219,7 @@ jobs:
           name: Install postgres client
           command: |
             sudo apt-get -qq update
+            # Debian stretch only supports 9.6 client
             sudo apt-get -qq -y install postgresql-client-9.6
       - run:
           name: Cypress deps
@@ -295,6 +296,7 @@ jobs:
           name: Install postgres client
           command: |
             sudo apt-get -qq update
+            # Debian stretch only supports 9.6 client
             sudo apt-get -qq -y install postgresql-client-9.6
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
