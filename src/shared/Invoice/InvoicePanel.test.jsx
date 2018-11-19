@@ -24,9 +24,7 @@ describe('InvoicePanel tests', () => {
   describe('Approve Payment button shows on delivered state and office app', () => {
     it('renders disabled "Approve Payment" button', () => {
       expect(isOfficeSite).toBe(true);
-
-      wrapper.setState({ shipmentState: 'DELIVERED' });
-      expect(wrapper.state().shipmentState).toBe('DELIVERED');
+      expect(wrapper.props().shipmentState).toBe('DELIVERED');
 
       wrapper.update();
       expect(

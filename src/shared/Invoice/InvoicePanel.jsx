@@ -17,14 +17,10 @@ export class InvoicePanel extends PureComponent {
     super();
     this.state = {
       canApprove: null,
-      shipmentState: null,
     };
   }
 
   componentDidUpdate(prevProps) {
-    if (!this.state.shipmentState || prevProps.shipmentState !== this.props.shipmentState) {
-      this.setState({ shipmentState: this.props.shipmentState });
-    }
     if (!this.state.canApprove || prevProps.canApprove !== this.props.canApprove) {
       this.setState({ canApprove: this.props.canApprove });
     }
@@ -44,7 +40,7 @@ export class InvoicePanel extends PureComponent {
       <div className="invoice-panel">
         <BasicPanel title={'Invoicing'}>
           {isOfficeSite &&
-            this.state.shipmentState === 'DELIVERED' && (
+            this.props.shipmentState === 'DELIVERED' && (
               <div className="usa-width-one-whole align-right">
                 <button
                   className="button button-secondary"
