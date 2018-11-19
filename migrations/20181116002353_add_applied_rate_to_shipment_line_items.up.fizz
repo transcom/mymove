@@ -1,0 +1,1 @@
+add_column("shipment_line_items", "applied_rate", "integer", {"default": 0})
