@@ -315,9 +315,7 @@ class MoveInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
-                    canApprovePaymentInvoice={
-                      !hhgDelivered || !hhgApproved || !moveApproved || invoiceSuccess || currentTab !== 'hhg'
-                    }
+                    canApprovePaymentInvoice={!hhgDelivered}
                   />
                 </PrivateRoute>
               </Switch>
