@@ -61,19 +61,15 @@ function serviveMemberFillsInDatesAndLocations() {
 
   cy
     .get('input[name="planned_move_date"]')
+    .should('have.value', '3/15/2018')
+    .clear()
     .first()
     .type('9/2/2018{enter}')
     .blur();
 
-  cy
-    .get('input[name="pickup_postal_code"]')
-    .clear()
-    .type('80913');
+  cy.get('input[name="pickup_postal_code"]').should('have.value', '80913');
 
-  cy
-    .get('input[name="destination_postal_code"]')
-    .clear()
-    .type('76127');
+  cy.get('input[name="destination_postal_code"]').should('have.value', '50309');
 
   cy.nextPage();
 }

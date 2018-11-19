@@ -10,7 +10,8 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
-
+import { selectShipment } from 'shared/Entities/modules/shipments';
+import { getCurrentShipmentID } from 'shared/UI/ducks';
 import './DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
@@ -187,6 +188,8 @@ function mapStateToProps(state) {
     isHHGPPMComboMove: state.moves.currentMove.selected_move_type === 'HHG_PPM',
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
+  const currentOrders = state.orders.currentOrders;
+
   props.initialValues = props.currentPpm
     ? props.currentPpm
     : defaultPickupZip
@@ -194,6 +197,20 @@ function mapStateToProps(state) {
           pickup_postal_code: defaultPickupZip,
         }
       : null;
+
+  const currentShipment = selectShipment(state, getCurrentShipmentID(state));
+  props.isHHGPPMComboMove
+    ? (props.initialValues = {
+        ...props.initialValues,
+        planned_move_date: currentOrders.issue_date,
+        // defaults to SM's destination address, if none, uses destination duty station zip
+        destination_postal_code:
+          currentShipment.has_delivery_address && state.entities.addresses
+            ? state.entities.addresses[currentShipment.delivery_address].postal_code
+            : currentOrders.new_duty_station.address.postal_code,
+      })
+    : null;
+
   return props;
 }
 function mapDispatchToProps(dispatch) {
