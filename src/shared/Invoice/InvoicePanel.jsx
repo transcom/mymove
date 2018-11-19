@@ -24,7 +24,7 @@ export class InvoicePanel extends Component {
     let invoicingContent = <span className="empty-content">No line items</span>;
     let title = 'Invoicing';
 
-    if (this.props.unbilledShipmentLineItems.length > 0 && this.props.shipmentStatus.toUpperCase() === 'DELIVERED') {
+    if (this.props.unbilledShipmentLineItems.length > 0) {
       invoicingContent = (
         <div>
           <InvoiceTable
@@ -62,9 +62,10 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state, ownProps) => {
     const getLineItems = makeGetUnbilledShipmentLineItems();
     const getLineItemSum = makeTotalFromUnbilledLineItems();
+    const isShipmentDelivered = ownProps.shipmentStatus.toUpperCase() === 'DELIVERED';
     return {
-      unbilledShipmentLineItems: getLineItems(state, ownProps.shipmentId),
-      lineItemsTotal: getLineItemSum(state, ownProps.shipmentId),
+      unbilledShipmentLineItems: isShipmentDelivered ? getLineItems(state, ownProps.shipmentId) : [],
+      lineItemsTotal: isShipmentDelivered ? getLineItemSum(state, ownProps.shipmentId) : 0,
     };
   };
   return mapStateToProps;
