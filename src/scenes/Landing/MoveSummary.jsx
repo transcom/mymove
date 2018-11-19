@@ -422,27 +422,24 @@ const hhgSummaryStatusComponents = {
   CANCELED: CanceledMoveSummary,
 };
 
-const getStatus = (moveStatus, moveType, ppm, shipment) => {
-  let status = 'DRAFT';
-  if (moveType === 'PPM') {
-    // PPM status determination
-    const ppmStatus = get(ppm, 'status', 'DRAFT');
-    status =
-      moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
-  } else if (moveType === 'HHG') {
-    // HHG status determination
-    if (moveStatus === 'CANCELED') {
-      // Shipment does not have a canceled status, but move does.
-      return moveStatus;
-    }
-    const shipmentStatus = get(shipment, 'status', 'DRAFT');
-    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
-      shipmentStatus,
-    )
-      ? shipmentStatus
-      : 'DRAFT';
+const getPPMStatus = (moveStatus, ppm) => {
+  // PPM status determination
+  const ppmStatus = get(ppm, 'status', 'DRAFT');
+  return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
+};
+
+const getHHGStatus = (moveStatus, shipment) => {
+  // HHG status determination
+  if (moveStatus === 'CANCELED') {
+    // Shipment does not have a canceled status, but move does.
+    return moveStatus;
   }
-  return status;
+  const shipmentStatus = get(shipment, 'status', 'DRAFT');
+  return ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
+    shipmentStatus,
+  )
+    ? shipmentStatus
+    : 'DRAFT';
 };
 
 export const MoveSummary = withContext(props => {
@@ -461,19 +458,21 @@ export const MoveSummary = withContext(props => {
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
 
-  const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
-  const StatusComponent =
-    move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
+  const showHHG = move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM';
+  const showPPM = move.selected_move_type === 'PPM' || move.selected_move_type === 'HHG_PPM';
+  const hhgStatus = getHHGStatus(moveStatus, shipment);
+  const HHGComponent = hhgSummaryStatusComponents[hhgStatus];
+  const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm)];
   const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
-    (move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM') &&
-    ['SUBMITTED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
+    move.selected_move_type === 'HHG' &&
+    ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
   const showTsp =
     move.selected_move_type !== 'PPM' &&
-    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(status);
+    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(hhgStatus);
   return (
     <Fragment>
-      {status === 'CANCELED' && (
+      {move.status === 'CANCELED' && (
         <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
           locator ID {get(move, 'locator')} was canceled.
@@ -481,25 +480,43 @@ export const MoveSummary = withContext(props => {
       )}
 
       <div className="whole_box">
-        <StatusComponent
-          className="status-component"
-          ppm={ppm}
-          shipment={shipment}
-          orders={orders}
-          profile={profile}
-          move={move}
-          entitlement={entitlement}
-          resumeMove={resumeMove}
-          reviewProfile={reviewProfile}
-          requestPaymentSuccess={requestPaymentSuccess}
-        />
+        <span>
+          {showHHG && (
+            <HHGComponent
+              className="status-component"
+              ppm={ppm}
+              shipment={shipment}
+              orders={orders}
+              profile={profile}
+              move={move}
+              entitlement={entitlement}
+              resumeMove={resumeMove}
+              reviewProfile={reviewProfile}
+              requestPaymentSuccess={requestPaymentSuccess}
+            />
+          )}
+          {showPPM && (
+            <PPMComponent
+              className="status-component"
+              ppm={ppm}
+              shipment={shipment}
+              orders={orders}
+              profile={profile}
+              move={move}
+              entitlement={entitlement}
+              resumeMove={resumeMove}
+              reviewProfile={reviewProfile}
+              requestPaymentSuccess={requestPaymentSuccess}
+            />
+          )}
+        </span>
 
         <div className="sidebar usa-width-one-fourth">
           <div>
             <button
               className="usa-button-secondary"
               onClick={() => editMove(move)}
-              disabled={includes(['DRAFT', 'CANCELED'], status)}
+              disabled={includes(['DRAFT', 'CANCELED'], move.status)}
             >
               Edit Move
             </button>
@@ -520,7 +537,9 @@ export const MoveSummary = withContext(props => {
           <div className="contact_block">
             <div className="title">Contacts</div>
             <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
-            {status !== 'CANCELED' && <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />}
+            {hhgStatus !== 'CANCELED' && (
+              <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
+            )}
             {showTsp && (
               <div className="titled_block">
                 <strong>TSP name</strong>

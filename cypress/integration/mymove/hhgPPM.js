@@ -135,4 +135,8 @@ function serviceMemberViewsUpdatedHomePage() {
   cy.location().should(loc => {
     expect(loc.pathname).to.eq('/');
   });
+
+  cy.get('body').should($div => expect($div.text()).to.include('Government Movers and Packers (HHG)'));
+
+  cy.get('body').should($div => expect($div.text()).to.include('Move your own stuff (PPM)'));
 }
