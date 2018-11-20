@@ -2,13 +2,30 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { formatFromBaseQuantity, formatCents } from 'shared/formatters';
+import { isOfficeSite, isDevelopment } from 'shared/constants.js';
 import './InvoicePanel.css';
 
 class InvoiceTable extends PureComponent {
   render() {
     return (
       <div>
-        <h5>Unbilled line items</h5>
+        <div className="usa-grid">
+          <div className="usa-width-one-half">
+            <h5>Unbilled line items</h5>
+          </div>
+          <div className="usa-width-one-half align-right">
+            {isOfficeSite &&
+              this.props.shipmentStatus.toUpperCase() === 'DELIVERED' && (
+                <button
+                  className="button button-secondary"
+                  disabled={!this.props.canApprove || !isDevelopment}
+                  onClick={this.props.approvePayment}
+                >
+                  Approve Payment
+                </button>
+              )}
+          </div>
+        </div>
         <table cellSpacing={0}>
           <tbody>
             <tr>
@@ -45,7 +62,10 @@ class InvoiceTable extends PureComponent {
 
 InvoiceTable.propTypes = {
   shipmentLineItems: PropTypes.array,
+  shipmentStatus: PropTypes.string,
   totalAmount: PropTypes.number,
+  approvePayment: PropTypes.func,
+  canApprove: PropTypes.bool,
 };
 
 export default InvoiceTable;

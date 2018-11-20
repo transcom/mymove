@@ -52,3 +52,7 @@
   position: relative;
   top: 2px;
 }
+
+.invoice-panel .align-right {
+  text-align: right !important;
+}

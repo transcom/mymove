@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import './InvoicePanel.css';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import BasicPanel from 'shared/BasicPanel';
 import {
   makeGetUnbilledShipmentLineItems,
@@ -14,11 +13,11 @@ import InvoiceTable from 'shared/Invoice/InvoiceTable';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
-export class InvoicePanel extends Component {
-  constructor() {
-    super();
-    this.state = {};
-  }
+export class InvoicePanel extends PureComponent {
+  approvePayment = () => {
+    //this.props.onApprovePayment(this.props.shipmentId);
+    console.log('Approve Payment button clicked!');
+  };
 
   render() {
     let invoicingContent = <span className="empty-content">No line items</span>;
@@ -29,7 +28,10 @@ export class InvoicePanel extends Component {
         <div>
           <InvoiceTable
             shipmentLineItems={this.props.unbilledShipmentLineItems}
+            shipmentStatus={this.props.shipmentStatus}
             totalAmount={this.props.lineItemsTotal}
+            approvePayment={this.approvePayment}
+            canApprove={this.props.canApprove}
           />
         </div>
       );
@@ -54,6 +56,8 @@ InvoicePanel.propTypes = {
   shipmentId: PropTypes.string,
   shipmentStatus: PropTypes.string,
   lineItemsTotal: PropTypes.number,
+  onApprovePayment: PropTypes.func,
+  canApprove: PropTypes.bool,
 };
 
 //https://github.com/reduxjs/reselect#sharing-selectors-with-props-across-multiple-component-instances
