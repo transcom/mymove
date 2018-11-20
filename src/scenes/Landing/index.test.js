@@ -45,7 +45,6 @@ describe('HomePage tests', () => {
             />
           </Provider>,
         );
-
         const resumeMoveFn = jest.spyOn(wrapper.children().instance(), 'resumeMove');
         wrapper.setProps({ createdServiceMemberIsLoading: true });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
@@ -95,6 +94,7 @@ describe('HomePage tests', () => {
             .props()
             .children(),
         );
+
         expect(
           moveSummary
             .find('.status-component')

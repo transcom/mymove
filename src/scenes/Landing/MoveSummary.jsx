@@ -30,7 +30,7 @@ export const CanceledMoveSummary = props => {
     <Fragment>
       <h2>New move</h2>
       <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={truck} alt="ppm-car" />
@@ -60,12 +60,10 @@ export const CanceledMoveSummary = props => {
 };
 
 export const DraftMoveSummary = props => {
-  const { orders, profile, move, entitlement, resumeMove } = props;
+  const { profile, resumeMove } = props;
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={truck} alt="ppm-car" />
@@ -108,12 +106,10 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm, orders, profile, move, entitlement } = props;
+  const { ppm, profile } = props;
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
@@ -210,13 +206,11 @@ const showHhgLandingPageText = shipment => {
 };
 
 export const SubmittedHhgMoveSummary = props => {
-  const { shipment, orders, profile, move, entitlement } = props;
+  const { shipment } = props;
   let today = moment();
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={truck} alt="hhg-truck" />
@@ -265,14 +259,12 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 export const ApprovedMoveSummary = props => {
-  const { ppm, orders, profile, move, entitlement, requestPaymentSuccess } = props;
+  const { ppm, move, requestPaymentSuccess } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.planned_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
@@ -461,7 +453,7 @@ export const MoveSummary = withContext(props => {
   const showHHG = move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM';
   const showPPM = move.selected_move_type === 'PPM' || move.selected_move_type === 'HHG_PPM';
   const hhgStatus = getHHGStatus(moveStatus, shipment);
-  const HHGComponent = hhgSummaryStatusComponents[hhgStatus];
+  const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
   const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm)];
   const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
@@ -480,8 +472,14 @@ export const MoveSummary = withContext(props => {
       )}
 
       <div className="whole_box">
-        <span>
-          {showHHG && (
+        {move.status !== 'CANCELED' && (
+          <div>
+            <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
+            <br />
+          </div>
+        )}
+        <div className="usa-width-three-fourths">
+          {(showHHG || (!showHHG && !showPPM)) && (
             <HHGComponent
               className="status-component"
               ppm={ppm}
@@ -509,7 +507,7 @@ export const MoveSummary = withContext(props => {
               requestPaymentSuccess={requestPaymentSuccess}
             />
           )}
-        </span>
+        </div>
 
         <div className="sidebar usa-width-one-fourth">
           <div>
