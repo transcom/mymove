@@ -199,17 +199,19 @@ function mapStateToProps(state) {
       : null;
 
   const currentShipment = selectShipment(state, getCurrentShipmentID(state));
-  props.isHHGPPMComboMove
-    ? (props.initialValues = {
-        ...props.initialValues,
-        planned_move_date: currentOrders.issue_date,
-        // defaults to SM's destination address, if none, uses destination duty station zip
-        destination_postal_code:
-          currentShipment.has_delivery_address && state.entities.addresses
-            ? state.entities.addresses[currentShipment.delivery_address].postal_code
-            : currentOrders.new_duty_station.address.postal_code,
-      })
-    : null;
+  const addresses = state.entities.addresses;
+
+  if (props.isHHGPPMComboMove) {
+    props.initialValues = {
+      ...props.initialValues,
+      planned_move_date: currentOrders.issue_date,
+      // defaults to SM's destination address, if none, uses destination duty station zip
+      destination_postal_code:
+        currentShipment.has_delivery_address && addresses
+          ? addresses[currentShipment.delivery_address].postal_code
+          : currentOrders.new_duty_station.address.postal_code,
+    };
+  }
 
   return props;
 }

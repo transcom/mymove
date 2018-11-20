@@ -67,7 +67,7 @@ function serviveMemberFillsInDatesAndLocations() {
     .type('9/2/2018{enter}')
     .blur();
 
-  cy.get('input[name="pickup_postal_code"]').should('have.value', '80913');
+  cy.get('input[name="pickup_postal_code"]').should('have.value', '90210');
 
   cy.get('input[name="destination_postal_code"]').should('have.value', '50309');
 
@@ -107,9 +107,9 @@ function serviceMemberCanReviewMoveSummary() {
     const text = $div.text();
     expect(text).to.include('Shipment - You move your stuff (PPM)');
     expect(text).to.include('Move Date: 09/02/2018');
-    expect(text).to.include('Pickup ZIP Code:  80913');
-    expect(text).to.include('Delivery ZIP Code:  76127');
-    expect(text).not.to.include('Storage: Not requested');
+    expect(text).to.include('Pickup ZIP Code:  90210');
+    expect(text).to.include('Delivery ZIP Code:  50309');
+    expect(text).to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
     expect(text).to.include('Estimated PPM Incentive:  $2,032.89 - 2,246.87');
   });
