@@ -262,6 +262,10 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 
 	lineItems := shipmentWithCost.Shipment.ShipmentLineItems
 
+	// TODO: For the moment, we are explicitly grabbing the line items for linehaul, pack, etc.
+	// TODO: We ultimately need to process all line items and hopefully abstract out their processing.
+	// TODO: See https://www.pivotaltracker.com/story/show/162065870
+
 	var segments []edisegment.Segment
 
 	linehaulSegments, err := generateLinehaulSegments(lineItems)
@@ -324,7 +328,7 @@ func generateLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0,
+			FreightRate:        0,    // TODO: placeholder for now
 			RateValueQualifier: "RC", // Rate
 			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "LHS", // Linehaul
@@ -346,13 +350,13 @@ func generateFullPackSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77,
-			RateValueQualifier: "RC", // Rate
+			FreightRate:        65.77, // TODO: placeholder for now
+			RateValueQualifier: "RC",  // Rate
 			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "105A", // Full pack
 		},
@@ -373,13 +377,13 @@ func generateFullUnpackSegments(lineItems []models.ShipmentLineItem) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77,
-			RateValueQualifier: "RC", // Rate
+			FreightRate:        65.77, // TODO: placeholder for now
+			RateValueQualifier: "RC",  // Rate
 			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "105C", // unpack TODO: verify that GEX can recognize 105C (unpack used to be included with pack above)
 		},
@@ -400,12 +404,12 @@ func generateOriginServiceSegments(lineItems []models.ShipmentLineItem) ([]edise
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07,
+			FreightRate:        4.07, // TODO: placeholder for now
 			RateValueQualifier: "RC", // Rate
 			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "135A", // Origin service charge
@@ -427,12 +431,12 @@ func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem) ([]
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07,
+			FreightRate:        4.07, // TODO: placeholder for now
 			RateValueQualifier: "RC", // Rate
 			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "135B", // TODO: check if correct for Destination service charge
@@ -459,7 +463,7 @@ func generateFuelLinehaulSegments(lineItems []models.ShipmentLineItem) ([]ediseg
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0.03,
+			FreightRate:        0.03,   // TODO: placeholder for now
 			RateValueQualifier: "RC",   // Rate
 			Charge:             227.42, // TODO: add a calculation of this value to rate engine
 			SpecialChargeDescription: "16A", // Fuel surchage - linehaul

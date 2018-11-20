@@ -2,6 +2,7 @@ package ediinvoice_test
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/unit"
 	"log"
 	"regexp"
 	"testing"
@@ -19,13 +20,35 @@ import (
 )
 
 func (suite *InvoiceSuite) TestGenerate858C() {
-	shipments := [1]models.Shipment{testdatagen.MakeDefaultShipment(suite.db)}
-	err := shipments[0].AssignGBLNumber(suite.db)
-	suite.mustSave(&shipments[0])
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	err := shipment.AssignGBLNumber(suite.db)
+	suite.mustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
 
+	// Create some shipment line items.
+	var lineItems []models.ShipmentLineItem
+	codes := []string{"LHS", "135A", "135B", "105A"}
+	amountCents := unit.Cents(12325)
+	for _, code := range codes {
+		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
+			Tariff400ngItem: models.Tariff400ngItem{
+				Code: code,
+			},
+		})
+		lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				ShipmentID:        shipment.ID,
+				Tariff400ngItemID: item.ID,
+				Tariff400ngItem:   item,
+				AmountCents:       &amountCents,
+			},
+		})
+		lineItems = append(lineItems, lineItem)
+	}
+	shipment.ShipmentLineItems = lineItems
+
 	costsByShipments := []rateengine.CostByShipment{{
-		Shipment: shipments[0],
+		Shipment: shipment,
 		Cost:     rateengine.CostComputation{},
 	}}
 
