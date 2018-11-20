@@ -150,7 +150,7 @@ function serviceMemberViewsUpdatedHomePage() {
     expect(text).to.include('Weight (est.): 2000 lbs');
     // PPM information and details
     expect(text).to.include('Next Step: Awaiting approval');
-    expect(text).to.include('Weight (est.): 1500');
+    expect(text).to.include('Weight (est.): 150');
     expect(text).to.include('Incentive (est.): $2,032.89 - 2,246.87');
   });
 }
