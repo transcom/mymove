@@ -4,7 +4,7 @@ import './InvoicePanel.css';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { isOfficeSite } from 'shared/constants.js';
+import { isOfficeSite, isDevelopment } from 'shared/constants.js';
 
 import BasicPanel from 'shared/BasicPanel';
 import {
@@ -13,21 +13,9 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 
 export class InvoicePanel extends PureComponent {
-  constructor() {
-    super();
-    this.state = {
-      canApprove: null,
-    };
-  }
-
-  componentDidUpdate(prevProps) {
-    if (!this.state.canApprove || prevProps.canApprove !== this.props.canApprove) {
-      this.setState({ canApprove: this.props.canApprove });
-    }
-  }
-
   approvePayment = () => {
-    this.props.onApprovePayment(this.props.shipmentId);
+    //this.props.onApprovePayment(this.props.shipmentId);
+    console.log('Approve Payment button clicked!');
   };
 
   render() {
@@ -44,7 +32,7 @@ export class InvoicePanel extends PureComponent {
               <div className="usa-width-one-whole align-right">
                 <button
                   className="button button-secondary"
-                  disabled={true /*!this.canApprove*/}
+                  disabled={!this.props.canApprove && !isDevelopment}
                   onClick={this.approvePayment}
                 >
                   Approve Payment

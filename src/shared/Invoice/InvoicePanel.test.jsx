@@ -22,7 +22,7 @@ describe('InvoicePanel tests', () => {
   });
 
   describe('Approve Payment button shows on delivered state and office app', () => {
-    it('renders disabled "Approve Payment" button', () => {
+    it('renders enabled "Approve Payment" button', () => {
       expect(isOfficeSite).toBe(true);
       expect(wrapper.props().shipmentState).toBe('DELIVERED');
 
@@ -32,6 +32,14 @@ describe('InvoicePanel tests', () => {
           .children()
           .containsMatchingElement(<button className="button button-secondary">Approve Payment</button>),
       ).toBeTruthy();
+    });
+
+    it('renders disabled "Approve Payment" button', () => {
+      expect(isOfficeSite).toBe(true);
+      expect(wrapper.props().shipmentState).toBe('DELIVERED');
+
+      wrapper.update();
+      expect(wrapper.find('button').prop('disabled')).toBeTruthy();
     });
   });
 });
