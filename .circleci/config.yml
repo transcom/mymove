@@ -234,7 +234,7 @@ jobs:
             echo 127.0.0.1 officelocal | sudo tee -a /etc/hosts
             echo 127.0.0.1 tsplocal | sudo tee -a /etc/hosts
       - run:
-          name: make e2e_test_ci
+          name: make e2e_test_docker_ci
           command: |
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
@@ -245,7 +245,7 @@ jobs:
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
             source $BASH_ENV
-            make e2e_test_ci
+            make e2e_test_docker_ci
           environment:
               # Env vars needed by the `bin/apply-secure-migrations.sh` script
               DB_PASSWORD: mysecretpassword
@@ -253,7 +253,7 @@ jobs:
               DB_HOST: localhost
               DB_PORT: 5432
               DB_NAME: test_db
-              # Env vars needed for the webserver to run
+              # Env vars needed for the webserver to run inside docker
               SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
               SECURE_MIGRATION_SOURCE: local
               LOGIN_GOV_CALLBACK_PROTOCOL: http://

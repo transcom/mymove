@@ -155,6 +155,9 @@ e2e_test_ci: server_deps server_generate server_build client_build db_e2e_init
 e2e_test_docker:
 	$(AWS_VAULT) ./bin/run-e2e-test-docker
 
+e2e_test_docker_ci:
+	$(AWS_VAULT) ./bin/run-e2e-test-docker-ci
+
 db_populate_e2e: db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic"
 
@@ -228,5 +231,5 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
 .PHONY: db_dev_run db_dev_reset db_dev_migrate db_test_reset
-.PHONY: db_populate_e2e db_e2e_init db_e2e_reset e2e_test e2e_test_ci e2e_test_docker
+.PHONY: db_populate_e2e db_e2e_init db_e2e_reset e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci
 .PHONY: clean pretty
