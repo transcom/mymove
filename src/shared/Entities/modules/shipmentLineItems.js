@@ -68,10 +68,7 @@ export const makeGetUnbilledShipmentLineItems = () => createSelector([getUnbille
 
 export const makeTotalFromUnbilledLineItems = () =>
   createSelector([getUnbilledShipmentLineItems], items => {
-    if (items.length > 0) {
-      items.reduce((acm, item) => {
-        //Todo: get total from all line items
-        return 0;
-      });
-    }
+    items.reduce((acm, item) => {
+      return (acm = acm + item.amount);
+    }, 0);
   });

@@ -1,24 +1,56 @@
-.empty-content {
-  font-size: 0.8em;
-}
-
 .invoice-panel {
-  border-width: 3px;
-  empty-cells: hide;
-  margin-bottom: 18px;
+  font-size: 0.8em;
 }
 
 .invoice-panel table {
   table-layout: fixed;
   display: table;
-  width: 100%;
+  width: 75%;
   border-spacing: 2px;
+  text-align: left;
 }
 
-.invoice-panel th,
-.invoice-panel td {
+/* Custom widths for columns in the invoice panel table */
+/* Code */
+.invoice-panel table > tbody > tr > th:nth-child(1) {
+  width: 10%;
+}
+/* Loc. */
+.invoice-panel table > tbody > tr > th:nth-child(3) {
+  width: 15%;
+}
+/*Base Quantity*/
+.invoice-panel table > tbody > tr > th:nth-child(4) {
+  width: 15%;
+}
+/*Invoice Amount*/
+.invoice-panel table > tbody > tr > th:nth-child(5) {
+  width: 15%;
+}
+
+.invoice-panel table th,
+.invoice-panel table td {
   border: none;
-  text-align: left;
+}
+
+.invoice-panel table th {
+  font-weight: bold;
+  border-bottom: solid 1px #a2a2a2;
+  padding: 0rem 2rem 1rem 0rem;
+}
+
+.invoice-panel table > tbody > tr > td {
+  border-bottom: 1px solid #f1f1f1;
+  padding: 1rem 1rem 1rem 0rem;
+}
+
+.invoice-panel-icon-gold {
+  color: #fdb81e;
+}
+
+.invoice-panel-icon--title {
+  position: relative;
+  top: 2px;
 }
 
 .invoice-panel .align-right {

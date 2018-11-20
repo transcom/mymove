@@ -4,13 +4,14 @@ import './InvoicePanel.css';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { isOfficeSite, isDevelopment } from 'shared/constants.js';
-
 import BasicPanel from 'shared/BasicPanel';
 import {
   makeGetUnbilledShipmentLineItems,
   makeTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
+import InvoiceTable from 'shared/Invoice/InvoiceTable';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 export class InvoicePanel extends PureComponent {
   approvePayment = () => {
@@ -19,37 +20,41 @@ export class InvoicePanel extends PureComponent {
   };
 
   render() {
-    let invoicingContent = <div className="empty-content">No line items</div>;
-    if (this.props.shipmentLineItems.length > 0) {
-      //stand up a table
+    let invoicingContent = <span className="empty-content">No line items</span>;
+    let title = 'Invoicing';
+
+    if (this.props.unbilledShipmentLineItems.length > 0) {
+      invoicingContent = (
+        <div>
+          <InvoiceTable
+            shipmentLineItems={this.props.unbilledShipmentLineItems}
+            shipmentStatus={this.props.shipmentStatus}
+            totalAmount={this.props.lineItemsTotal}
+            approvePayment={this.approvePayment}
+            canApprove={this.props.canApprove}
+          />
+        </div>
+      );
+      title = (
+        <span>
+          Invoicing{' '}
+          <FontAwesomeIcon className="icon invoice-panel-icon-gold invoice-panel-icon--title" icon={faClock} />
+        </span>
+      );
     }
 
     return (
       <div className="invoice-panel">
-        <BasicPanel title={'Invoicing'}>
-          {isOfficeSite &&
-            this.props.shipmentState === 'DELIVERED' && (
-              <div className="usa-width-one-whole align-right">
-                <button
-                  className="button button-secondary"
-                  disabled={!this.props.canApprove || !isDevelopment}
-                  onClick={this.approvePayment}
-                >
-                  Approve Payment
-                </button>
-              </div>
-            )}
-          {invoicingContent}
-        </BasicPanel>
+        <BasicPanel title={title}>{invoicingContent}</BasicPanel>
       </div>
     );
   }
 }
 
 InvoicePanel.propTypes = {
-  shipmentLineItems: PropTypes.array,
+  unbilledShipmentLineItems: PropTypes.array,
   shipmentId: PropTypes.string,
-  shipmentState: PropTypes.string,
+  shipmentStatus: PropTypes.string,
   lineItemsTotal: PropTypes.number,
   onApprovePayment: PropTypes.func,
   canApprove: PropTypes.bool,
@@ -61,9 +66,10 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state, ownProps) => {
     const getLineItems = makeGetUnbilledShipmentLineItems();
     const getLineItemSum = makeTotalFromUnbilledLineItems();
+    const isShipmentDelivered = ownProps.shipmentStatus.toUpperCase() === 'DELIVERED';
     return {
-      shipmentLineItems: getLineItems(state, ownProps.shipmentId),
-      lineItemsTotal: getLineItemSum(state, ownProps.shipmentId),
+      unbilledShipmentLineItems: isShipmentDelivered ? getLineItems(state, ownProps.shipmentId) : [],
+      lineItemsTotal: isShipmentDelivered ? getLineItemSum(state, ownProps.shipmentId) : 0,
     };
   };
   return mapStateToProps;

@@ -90,6 +90,11 @@ const PPMTabContent = props => {
 };
 
 const HHGTabContent = props => {
+  let shipmentStatus = '';
+  let shipment = props.officeMove.shipments.find(x => x.id === props.officeShipment.id);
+  if (shipment) {
+    shipmentStatus = shipment.status;
+  }
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
@@ -113,7 +118,7 @@ const HHGTabContent = props => {
       {has(props, 'officeShipment.id') && (
         <InvoicePanel
           shipmentId={props.officeShipment.id}
-          shipmentState={props.officeShipment.status}
+          shipmentStatus={shipmentStatus}
           onApprovePayment={props.sendHHGInvoice}
           canApprove={props.canApprovePaymentInvoice}
         />
@@ -315,6 +320,7 @@ class MoveInfo extends Component {
                     serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                     canApprovePaymentInvoice={hhgDelivered}
+                    officeMove={this.props.officeMove}
                   />
                 </PrivateRoute>
               </Switch>
