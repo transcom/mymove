@@ -24,9 +24,10 @@ describe('office user finds the shipment', function() {
   it('office user with approved move completes delivered HHG shipment', function() {
     officeUserCompletesHHG();
   });
-  it('office user with completed move approve payment for invoice (sends invoice)', function() {
-    officeUserApprovePaymentInvoice();
-  });
+  // Commenting this out for now since unbilled invoice line items are still in development
+  // it('office user with completed move approve payment for invoice (sends invoice)', function() {
+  //   officeUserApprovePaymentInvoice();
+  // });
 });
 
 function officeUserViewsMoves() {
