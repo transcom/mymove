@@ -289,6 +289,9 @@ definitions:
         description: 2nd Tariff400ngItem base quantity
         minimum: 0
         example: 10000
+      applied_rate:
+        type: integer
+        minimum: 0
       location:
         $ref: '#/definitions/ShipmentLineItemLocation'
       notes:
