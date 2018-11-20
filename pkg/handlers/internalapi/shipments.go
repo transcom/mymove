@@ -91,6 +91,8 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
+		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
