@@ -106,9 +106,6 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 	return string(bytes)
 }
 
-func (suite *InvoiceSuite) TestGetNextICN() {
-}
-
 type InvoiceSuite struct {
 	suite.Suite
 	db     *pop.Connection
