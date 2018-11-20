@@ -36,6 +36,7 @@ span.estimate {
 .DayPicker-Day--pickup {
   background-color: #0071bc;
   border-radius: 0;
+  color: white;
 }
 
 .DayPicker-Day--transit {
