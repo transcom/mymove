@@ -4,8 +4,7 @@ set -eu -o pipefail
 
 # Setting GOOS to darwin allows us to build some tools we need to run locally
 export GOOS=darwin
-# Setting NODE_ENV to develompent enables the "Local Sign In" button
-
+# Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
 make server_deps server_generate client_build db_e2e_init
@@ -17,7 +16,7 @@ make server_build
 # Build the docker container
 docker build --tag e2e:latest .
 
-export PORT=4000
+export HTTP_PORT=4000
 
 # Ensure this container doesn't exist
 CONTAINER=e2e_test
@@ -45,7 +44,7 @@ docker run \
   -e HERE_MAPS_GEOCODE_ENDPOINT="$HERE_MAPS_GEOCODE_ENDPOINT" \
   -e HERE_MAPS_ROUTING_ENDPOINT="$HERE_MAPS_ROUTING_ENDPOINT" \
   -e IWS_RBS_HOST="$IWS_RBS_HOST" \
-  -e LOGIN_GOV_CALLBACK_PORT="$PORT" \
+  -e LOGIN_GOV_CALLBACK_PORT="$HTTP_PORT" \
   -e LOGIN_GOV_CALLBACK_PROTOCOL="$LOGIN_GOV_CALLBACK_PROTOCOL" \
   -e LOGIN_GOV_HOSTNAME="$LOGIN_GOV_HOSTNAME" \
   -e LOGIN_GOV_MY_CLIENT_ID="$LOGIN_GOV_MY_CLIENT_ID" \
@@ -55,11 +54,11 @@ docker run \
   -e MOVE_MIL_DOD_CA_CERT="$MOVE_MIL_DOD_CA_CERT" \
   -e MOVE_MIL_DOD_TLS_CERT="$MOVE_MIL_DOD_TLS_CERT" \
   -e MOVE_MIL_DOD_TLS_KEY="$MOVE_MIL_DOD_TLS_KEY" \
-  -e NO_TLS_PORT="$PORT" \
-  -e PORT="$PORT" \
+  -e NO_TLS_PORT="$HTTP_PORT" \
+  -e PORT="$HTTP_PORT" \
   -e SECURE_MIGRATION_DIR="$SECURE_MIGRATION_DIR" \
   -e SECURE_MIGRATION_SOURCE="$SECURE_MIGRATION_SOURCE" \
-  -p "$PORT":"$PORT" \
+  -p "$HTTP_PORT":"$HTTP_PORT" \
   --link=db-dev:database \
   --name=e2e_test \
   e2e:latest & p1=$!
