@@ -1,7 +1,6 @@
 package ediinvoice_test
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -28,15 +27,7 @@ import (
 var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
-	shipments := [1]models.Shipment{testdatagen.MakeDefaultShipment(suite.db)}
-	err := shipments[0].AssignGBLNumber(suite.db)
-	suite.mustSave(&shipments[0])
-	suite.NoError(err, "could not assign GBLNumber")
-
-	costsByShipments := []rateengine.CostByShipment{{
-		Shipment: shipments[0],
-		Cost:     rateengine.CostComputation{},
-	}}
+	costsByShipments := helperCostsByShipment(suite)
 
 	var icnTestCases = []struct {
 		initial  int64
@@ -69,28 +60,43 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
 	})
+}
 
+func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
 		err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, 1)
 		suite.NoError(err, "error setting sequence value")
+		costsByShipments := helperCostsByShipment(suite)
 
 		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		suite.NoError(err, "Failed to generate 858C invoice")
+		actualEDIString, err := generatedTransactions.EDIString()
+		suite.NoError(err, "Failed to get invoice 858C as EDI string")
 
 		const expectedEDI = "expected_invoice.edi.golden"
-		var b bytes.Buffer
-		writer := edi.NewWriter(&b)
-		writer.WriteAll(generatedTransactions.Segments())
 		suite.NoError(err, "generates error")
 		if *update {
 			goldenFile, err := os.Create(filepath.Join("testdata", expectedEDI))
 			defer goldenFile.Close()
 			suite.NoError(err, "Failed to open EDI file for update")
-			writer = edi.NewWriter(goldenFile)
+			writer := edi.NewWriter(goldenFile)
 			writer.WriteAll(generatedTransactions.Segments())
 		}
 
-		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), b.String())
+		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), actualEDIString)
 	})
+}
+
+func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
+	shipments := [1]models.Shipment{testdatagen.MakeDefaultShipment(suite.db)}
+	err := shipments[0].AssignGBLNumber(suite.db)
+	suite.mustSave(&shipments[0])
+	suite.NoError(err, "could not assign GBLNumber")
+	costsByShipments := []rateengine.CostByShipment{{
+		Shipment: shipments[0],
+		Cost:     rateengine.CostComputation{},
+	}}
+	return costsByShipments
 }
 
 func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {

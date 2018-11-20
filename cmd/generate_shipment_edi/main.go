@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -82,12 +81,11 @@ func main() {
 
 	if *sendToGex == true {
 		fmt.Println("Sending to GEX. . .")
-		var b bytes.Buffer
-		ediWriter := edi.NewWriter(&b)
-		if err = ediWriter.WriteAll(invoice858C.Segments()); err != nil {
+		invoice858CString, err := invoice858C.EDIString()
+		if err != nil {
 			log.Fatal(err)
 		}
-		statusCode, err := gex.SendInvoiceToGex(logger, b.String(), *transactionName)
+		statusCode, err := gex.SendInvoiceToGex(logger, invoice858CString, *transactionName)
 		fmt.Printf("status code: %v, error: %v", statusCode, err)
 	} else {
 		ediWriter := edi.NewWriter(os.Stdout)

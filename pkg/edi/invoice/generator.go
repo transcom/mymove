@@ -1,6 +1,7 @@
 package ediinvoice
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
+	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -48,6 +50,17 @@ func (invoice Invoice858C) Segments() [][]string {
 	records = append(records, invoice.GE.StringArray())
 	records = append(records, invoice.IEA.StringArray())
 	return records
+}
+
+// EDIString returns the EDI representation of an 858C
+func (invoice Invoice858C) EDIString() (string, error) {
+	var b bytes.Buffer
+	ediWriter := edi.NewWriter(&b)
+	err := ediWriter.WriteAll(invoice.Segments())
+	if err != nil {
+		return "", err
+	}
+	return b.String(), err
 }
 
 // Generate858C generates an EDI X12 858C transaction set

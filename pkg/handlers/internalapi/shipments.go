@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"bytes"
 	"os"
 	"time"
 
@@ -506,12 +505,11 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 
 	// send edi through gex post api
 	transactionName := "placeholder"
-	var b bytes.Buffer
-	ediWriter = edi.NewWriter(&b)
-	if err = ediWriter.WriteAll(invoice858C.Segments()); err != nil {
+	invoice858CString, err := invoice858C.EDIString()
+	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), b.String(), transactionName)
+	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
