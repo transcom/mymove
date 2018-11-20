@@ -2,8 +2,9 @@ package auth
 
 import (
 	"context"
-	"github.com/gofrs/uuid"
 	"net/http"
+
+	"github.com/gofrs/uuid"
 )
 
 type authSessionKey string
@@ -23,6 +24,7 @@ type Session struct {
 	ServiceMemberID uuid.UUID
 	OfficeUserID    uuid.UUID
 	TspUserID       uuid.UUID
+	Features        []string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

@@ -35,6 +35,7 @@ const (
 type ShipmentLineItem struct {
 	ID         uuid.UUID `json:"id" db:"id"`
 	ShipmentID uuid.UUID `json:"shipment_id" db:"shipment_id"`
+	Shipment   Shipment  `belongs_to:"shipments"`
 
 	Tariff400ngItemID uuid.UUID                `json:"tariff400ng_item_id" db:"tariff400ng_item_id"`
 	Tariff400ngItem   Tariff400ngItem          `belongs_to:"tariff400ng_items"`
@@ -50,6 +51,7 @@ type ShipmentLineItem struct {
 	Status        ShipmentLineItemStatus `json:"status" db:"status"`
 	InvoiceID     *uuid.UUID             `json:"invoice_id" db:"invoice_id"`
 	AmountCents   *unit.Cents            `json:"amount_cents" db:"amount_cents"`
+	AppliedRate   *unit.Cents            `json:"applied_rate" db:"applied_rate"`
 	SubmittedDate time.Time              `json:"submitted_date" db:"submitted_date"`
 	ApprovedDate  time.Time              `json:"approved_date" db:"approved_date"`
 	CreatedAt     time.Time              `json:"created_at" db:"created_at"`

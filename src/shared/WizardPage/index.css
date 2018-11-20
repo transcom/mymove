@@ -38,6 +38,10 @@
 	float: right;
 }
 
+.hide-btn {
+  display: none;
+}
+
 @media only screen and (max-width: 481px) {
 	.prev-next {
 		color: red;

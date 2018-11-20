@@ -67,6 +67,7 @@ export class WizardFormPage extends Component {
     const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
     const canMoveForward = valid;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
+    const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
       <div className="usa-grid">
         {serverError && (
@@ -90,7 +91,11 @@ export class WizardFormPage extends Component {
             </div>
           )}
           <div className="prev-next">
-            <button className="usa-button-secondary prev" onClick={this.previousPage} disabled={!canMoveBackward}>
+            <button
+              className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
+              onClick={this.previousPage}
+              disabled={!canMoveBackward}
+            >
               Back
             </button>
             {!isLastPage(pageList, pageKey) && (

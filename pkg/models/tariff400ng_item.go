@@ -118,3 +118,11 @@ func FetchTariff400ngItem(dbConnection *pop.Connection, id uuid.UUID) (Tariff400
 
 	return item, err
 }
+
+// FetchTariff400ngItemByCode returns a Tariff400ngItem for the given code
+func FetchTariff400ngItemByCode(dbConnection *pop.Connection, code string) (Tariff400ngItem, error) {
+	var item Tariff400ngItem
+	err := dbConnection.Where("code = ?", code).First(&item)
+
+	return item, err
+}

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import { setPendingPpmSize, getRawWeightInfo } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import EntitlementBar from 'scenes/EntitlementBar';
@@ -87,7 +88,7 @@ export class PpmSize extends Component {
     this.props.setPendingPpmSize(value);
   };
   render() {
-    const { pendingPpmSize, currentPpm, entitlement, weightInfo } = this.props;
+    const { pendingPpmSize, currentPpm, entitlement, weightInfo, isHHGPPMComboMove } = this.props;
     const selectedOption = pendingPpmSize || (currentPpm && currentPpm.size);
     return (
       <div className="usa-grid-full ppm-size-content">
@@ -95,7 +96,7 @@ export class PpmSize extends Component {
           <Fragment>
             <h3>How much will you move?</h3>
 
-            <EntitlementBar entitlement={entitlement} />
+            {!isHHGPPMComboMove && <EntitlementBar entitlement={entitlement} />}
 
             <BigButtonGroup selectedOption={selectedOption} onClick={this.onMoveTypeSelected} weightInfo={weightInfo} />
           </Fragment>
@@ -118,6 +119,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     weightInfo: getRawWeightInfo(state),
     entitlement: loadEntitlementsFromState(state),
+    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
   };
 }
 

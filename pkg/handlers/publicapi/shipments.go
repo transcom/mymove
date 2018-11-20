@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"net/http"
 	"time"
 
@@ -325,17 +326,33 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	verrs, err := h.DB().ValidateAndUpdate(shipment)
+
+	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
+	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+
+	shipmentCost, err := engine.HandleRunOnShipment(*shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	lineItems, err := rateengine.CreateBaseShipmentLineItems(h.DB(), shipmentCost)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), lineItems)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
+
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
 
-	// Comparint against the zero time allows users to set dates to nil via PATCH
+	// Comparing against the zero time allows users to set dates to nil via PATCH
 	zeroTime := time.Time{}
 
 	// PM Survey fields may be updated individually in the Dates panel and so cannot be lumped into one update

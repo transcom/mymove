@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, includes, reject } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import Select, { createFilter } from 'react-select';
 import { connect } from 'react-redux';
@@ -13,6 +13,7 @@ const getOptionValue = option => (option ? option.id : null);
 const getOptionLabel = option => (option ? option.code + ' ' + option.item : '');
 const stringify = option => option.label;
 const filterOption = createFilter({ ignoreCase: true, stringify });
+const sitCodes = ['17A', '17B', '17C', '17D', '17E', '17F', '17G', '185A', '185B', '210D', '210E'];
 
 export class Tariff400ngItemSearch extends Component {
   constructor(props) {
@@ -30,11 +31,16 @@ export class Tariff400ngItemSearch extends Component {
     }
   }
   render() {
+    // Filtering out SIT-related codes until SIT support is fully implemented
+    // Remove this when SIT is completely supported
+    let filteredOptions = reject(this.props.tariff400ngItems, item => {
+      return includes(sitCodes, item.code);
+    });
     return (
       <Fragment>
         <label className="usa-input-label">{this.props.title}</label>
         <Select
-          options={this.props.tariff400ngItems}
+          options={filteredOptions}
           getOptionLabel={getOptionLabel}
           getOptionValue={getOptionValue}
           value={this.props.input.value || null}

@@ -47,6 +47,7 @@ export class Summary extends Component {
       moveIsApproved,
       serviceMember,
       entitlement,
+      isHHGPPMComboMove,
     } = this.props;
 
     const currentStation = get(serviceMember, 'current_station');
@@ -76,27 +77,35 @@ export class Summary extends Component {
             </Alert>
           )}
 
-        <ServiceMemberSummary
-          orders={currentOrders}
-          backupContacts={currentBackupContacts}
-          serviceMember={serviceMember}
-          schemaRank={schemaRank}
-          schemaAffiliation={schemaAffiliation}
-          schemaOrdersType={schemaOrdersType}
-          moveIsApproved={moveIsApproved}
-          editOrdersPath={editOrdersPath}
-        />
+        {!isHHGPPMComboMove && (
+          <ServiceMemberSummary
+            orders={currentOrders}
+            backupContacts={currentBackupContacts}
+            serviceMember={serviceMember}
+            schemaRank={schemaRank}
+            schemaAffiliation={schemaAffiliation}
+            schemaOrdersType={schemaOrdersType}
+            moveIsApproved={moveIsApproved}
+            editOrdersPath={editOrdersPath}
+          />
+        )}
 
         {currentPpm && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
-        {currentShipment && (
-          <HHGShipmentSummary shipment={currentShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
-        )}
-        {moveIsApproved && (
-          <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-            {stationPhone ? ` at ${stationPhone}` : ''}.
-          </div>
-        )}
+        {currentShipment &&
+          !isHHGPPMComboMove && (
+            <HHGShipmentSummary
+              shipment={currentShipment}
+              movePath={rootAddressWithMoveId}
+              entitlements={entitlement}
+            />
+          )}
+        {moveIsApproved &&
+          !isHHGPPMComboMove && (
+            <div className="approved-edit-warning">
+              *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+              {stationPhone ? ` at ${stationPhone}` : ''}.
+            </div>
+          )}
       </Fragment>
     );
   }
@@ -113,6 +122,7 @@ Summary.propTypes = {
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
+  isHHGPPMComboMove: PropTypes.bool,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -130,6 +140,7 @@ function mapStateToProps(state, ownProps) {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
+    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {
