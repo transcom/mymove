@@ -33,6 +33,7 @@ __snapshots__
 /bin/iws
 /bin/health_checker
 
+/bin/chamber
 /bin/soda
 /bin/golint
 /bin/swagger
