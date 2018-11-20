@@ -1568,6 +1568,20 @@ definitions:
         type: boolean
         default: false
         title: 'Do you know the delivery address at destination yet?'
+      gross_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Gross Weight
+        x-nullable: true
+        x-formatting: weight
+      tare_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Tare Weight
+        x-nullable: true
+        x-formatting: weight
       weight_estimate:
         type: integer
         minimum: 0
