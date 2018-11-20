@@ -203,7 +203,6 @@ class MoveInfo extends Component {
     const isPPM = !isEmpty(this.props.officePPM);
     const isHHG = !isEmpty(this.props.officeHHG);
     const pathnames = this.props.location.pathname.split('/');
-    const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
@@ -315,7 +314,7 @@ class MoveInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
-                    canApprovePaymentInvoice={!hhgDelivered}
+                    canApprovePaymentInvoice={hhgDelivered}
                   />
                 </PrivateRoute>
               </Switch>
