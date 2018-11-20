@@ -398,7 +398,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	// assert we got back the OK response
+	// assert we got back the conflict response
 	response := handler.Handle(params)
 	suite.Equal(shipmentop.NewSendHHGInvoiceConflict(), response)
 }
