@@ -20,8 +20,8 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 		address = MakeAddress3(db, assertions)
 
 		// Make the required Tariff 400 NG Zip3 to correspond with the duty station address
-		MakeDefaultTariff400ngZip3(db)
-		MakeTariff400ngZip3(db, Assertions{
+		FetchOrMakeDefaultTariff400ngZip3(db)
+		FetchOrMakeTariff400ngZip3(db, Assertions{
 			Tariff400ngZip3: models.Tariff400ngZip3{
 				Zip3:          "503",
 				BasepointCity: "Des Moines",

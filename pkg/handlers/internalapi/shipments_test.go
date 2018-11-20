@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	sm := move.Orders.ServiceMember
 
 	// Make associated lookup table records.
-	testdatagen.MakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
 		Tariff400ngZip3: models.Tariff400ngZip3{
 			Zip3:          "012",
 			BasepointCity: "Pittsfield",
@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	req = suite.AuthenticateRequest(req, sm)
 
 	// Make associated lookup table records.
-	testdatagen.MakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
 		Tariff400ngZip3: models.Tariff400ngZip3{
 			Zip3:          "321",
 			BasepointCity: "Crescent City",

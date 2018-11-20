@@ -730,6 +730,18 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
+	// Add a line item that's ready to be priced
+	item := testdatagen.MakeCompleteShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+			Status:     models.ShipmentLineItemStatusAPPROVED,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 
@@ -752,4 +764,9 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
 	suite.Equal(actualDeliveryDate, time.Time(*okResponse.Payload.ActualDeliveryDate))
+
+	updatedItem, err := models.FetchShipmentLineItemByID(suite.TestDB(), &item.ID)
+	if suite.NoError(err) {
+		suite.NotNil(updatedItem.AmountCents)
+	}
 }

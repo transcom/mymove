@@ -473,7 +473,8 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 		"Move.Orders.NewDutyStation.Address",
 		"PickupAddress",
 		"SecondaryPickupAddress",
-		"DeliveryAddress").Find(&shipment, id)
+		"DeliveryAddress",
+		"ShipmentOffers").Find(&shipment, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -509,7 +510,8 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
-		"PartialSITDeliveryAddress").
+		"PartialSITDeliveryAddress",
+		"ShipmentOffers").
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
@@ -690,6 +692,34 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 				return transactionError
 			}
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
+		}
+
+		if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving shipment")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
+}
+
+// SaveShipmentAndLineItems saves a Shipment and a collection of ShipmentLineItems atomically.
+func SaveShipmentAndLineItems(db *pop.Connection, shipment *Shipment, lineItems []*ShipmentLineItem) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		for _, item := range lineItems {
+			if verrs, err := db.ValidateAndSave(item); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error saving shipment line item")
+				return transactionError
+			}
 		}
 
 		if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {

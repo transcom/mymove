@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/transcom/mymove/pkg/rateengine"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -325,7 +327,15 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	verrs, err := h.DB().ValidateAndUpdate(shipment)
+
+	// When the shipment is delivered we should also price existing approved pre-approval requests
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	preApprovals, err := engine.PricePreapprovalRequestsForShipment(*shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	verrs, err := models.SaveShipmentAndLineItems(h.DB(), shipment, preApprovals)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

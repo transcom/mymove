@@ -1,6 +1,8 @@
 package rateengine
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -104,8 +106,14 @@ var tariff400ngWeightBasedItems = map[string]bool{
 }
 
 // ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item
-func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem, shipment models.Shipment) (unit.Cents, error) {
+func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem) (unit.Cents, error) {
 	itemCode := shipmentLineItem.Tariff400ngItem.Code
+	shipment := shipmentLineItem.Shipment
+
+	if shipment.NetWeight == nil {
+		return unit.Cents(0), errors.New("Can't price a shipment line item for a shipment without NetWeight")
+	}
+
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
 	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {
@@ -136,6 +144,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			effectiveItemCode = mappedCode
 		}
 
+		fmt.Println(effectiveItemCode, serviceArea.ServicesSchedule, *shipment.NetWeight, *shipDate)
 		rate, err := models.FetchTariff400ngItemRate(re.db,
 			effectiveItemCode,
 			serviceArea.ServicesSchedule,
@@ -169,4 +178,28 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	}
 
 	return unit.Cents(0), errors.New("Could not find pricing function for given code")
+}
+
+// PricePreapprovalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field on those models
+func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipment) ([]*models.ShipmentLineItem, error) {
+	items, err := models.FetchApprovedPreapprovalRequestsByShipment(re.db, shipment)
+	if err != nil {
+		return []*models.ShipmentLineItem{}, err
+	}
+
+	results := make([]*models.ShipmentLineItem, len(items))
+
+	for i, item := range items {
+		// Need to make a local variable because pointers
+		localItem := item
+		localItem.Shipment = shipment
+		price, err := re.ComputeShipmentLineItemCharge(localItem)
+		if err != nil {
+			return []*models.ShipmentLineItem{}, err
+		}
+		localItem.AmountCents = &price
+		results[i] = &localItem
+	}
+
+	return results, nil
 }

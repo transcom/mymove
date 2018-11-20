@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakeShipment creates a single shipment record
@@ -141,4 +142,29 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 // MakeDefaultShipment makes a Shipment with default values
 func MakeDefaultShipment(db *pop.Connection) models.Shipment {
 	return MakeShipment(db, Assertions{})
+}
+
+// MakeShipmentForPricing makes a Shipment with necessary depdendent models for calculating an invoice
+func MakeShipmentForPricing(db *pop.Connection, assertions Assertions) (models.Shipment, error) {
+	var shipment models.Shipment
+
+	// Shipment must have a NetWeight
+	if assertions.Shipment.NetWeight == nil {
+		weight := unit.Pound(5000)
+		assertions.Shipment.NetWeight = &weight
+	}
+
+	shipment = MakeShipment(db, assertions)
+
+	MakeTariff400ngGeoModelsForShipment(db, shipment)
+
+	// Shipments should have had a shipment offer too
+	MakeShipmentOffer(db, Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+		},
+	})
+
+	return shipment, nil
 }
