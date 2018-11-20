@@ -121,7 +121,7 @@ export const SubmittedPpmMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
-                  <div className="title">Next Step: Awaiting approval</div>
+                  <div className="title">Next Step: Wait for approval</div>
                   <div
                   >{`Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
                     profile.current_station.name

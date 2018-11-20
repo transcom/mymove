@@ -75,7 +75,7 @@ describe('completing the ppm flow', function() {
     });
 
     cy.contains('Success');
-    cy.contains('Next Step: Awaiting approval');
+    cy.contains('Next Step: Wait for approval');
     cy.contains('Advance Requested: $1,333.91');
   });
 });
