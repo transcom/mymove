@@ -137,9 +137,20 @@ function serviceMemberViewsUpdatedHomePage() {
     expect(loc.pathname).to.eq('/');
   });
 
-  cy.get('body').should($div => expect($div.text()).to.include('Government Movers and Packers (HHG)'));
+  cy.get('body').should($div => {
+    expect($div.text()).to.include('Government Movers and Packers (HHG)');
+    expect($div.text()).to.include('Move your own stuff (PPM)');
+    expect($div.text()).to.not.include('Add PPM Shipment');
+  });
 
-  cy.get('body').should($div => expect($div.text()).to.include('Move your own stuff (PPM)'));
-
-  cy.get('body').should($div => expect($div.text()).to.not.include('Add PPM Shipment'));
+  cy.get('.usa-width-three-fourths').should($div => {
+    const text = $div.text();
+    // HHG information and details
+    expect(text).to.include('Next Step: Prepare for move');
+    expect(text).to.include('Weight (est.): 2000 lbs');
+    // PPM information and details
+    expect(text).to.include('Next Step: Awaiting approval');
+    expect(text).to.include('Weight (est.): 1500');
+    expect(text).to.include('Incentive (est.): $2,032.89 - 2,246.87');
+  });
 }
