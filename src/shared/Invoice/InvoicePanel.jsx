@@ -32,7 +32,7 @@ export class InvoicePanel extends PureComponent {
               <div className="usa-width-one-whole align-right">
                 <button
                   className="button button-secondary"
-                  disabled={!this.props.canApprove && !isDevelopment}
+                  disabled={!this.props.canApprove || !isDevelopment}
                   onClick={this.approvePayment}
                 >
                   Approve Payment
