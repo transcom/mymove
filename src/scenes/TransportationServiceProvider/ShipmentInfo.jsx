@@ -53,6 +53,7 @@ import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
@@ -235,7 +236,6 @@ class ShipmentInfo extends Component {
     if (!loadTspDependenciesHasSuccess) {
       return <LoadingPlaceholder />;
     }
-
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -410,6 +410,8 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
+                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
+
                   <TspContainer
                     title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
