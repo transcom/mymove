@@ -42,7 +42,7 @@ class InvoiceTable extends PureComponent {
                   <td>{item.tariff400ng_item.item}</td>
                   <td>{item.location[0] + item.location.substring(1).toLowerCase()}</td>
                   <td>{formatFromBaseQuantity(item.quantity_1)}</td>
-                  <td>${formatCents(item.amount)}</td>
+                  <td>${formatCents(item.amount_cents)}</td>
                 </tr>
               );
             })}
