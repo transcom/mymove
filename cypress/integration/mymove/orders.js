@@ -47,7 +47,7 @@ describe('orders entry', function() {
 
     cy.visit('/');
     cy.contains('NAS Fort Worth (from Ft Carson)');
-    cy.get('.whole_box > :nth-child(3) > span').contains('7,000 lbs');
+    cy.get('.whole_box > div > :nth-child(3) > span').contains('7,000 lbs');
     cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {
       expect(loc.pathname).to.eq('/orders/upload');
