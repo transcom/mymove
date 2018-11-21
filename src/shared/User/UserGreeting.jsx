@@ -10,9 +10,9 @@ const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   );
 
 UserGreeting.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
-  firstName: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
+  firstName: PropTypes.string,
+  isLoggedIn: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = ({ user }) => ({
