@@ -104,7 +104,7 @@ var tariff400ngWeightBasedItems = map[string]bool{
 }
 
 // ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item
-func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem, shipment models.Shipment) (unit.Cents, error) {
+func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem, shipment models.Shipment) (unit.Cents, unit.Cents, error) {
 	itemCode := shipmentLineItem.Tariff400ngItem.Code
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
 	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
@@ -115,7 +115,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip, *shipDate)
 	if err != nil {
-		return unit.Cents(0), errors.Wrap(err, "Fetching 400ng service area from db")
+		return unit.Cents(0), unit.Cents(0), errors.Wrap(err, "Fetching 400ng service area from db")
 	}
 
 	var rateCents unit.Cents
@@ -143,7 +143,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			*shipDate,
 		)
 		if err != nil {
-			return unit.Cents(0), errors.Wrap(err, "Fetching 400ng item rate from db")
+			return unit.Cents(0), unit.Cents(0), errors.Wrap(err, "Fetching 400ng item rate from db")
 		}
 		rateCents = rate.RateCents
 	}
@@ -159,14 +159,14 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	appliedQuantity := shipmentLineItem.Quantity1
 	if _, ok := tariff400ngWeightBasedItems[itemCode]; ok {
 		if shipment.NetWeight == nil {
-			return unit.Cents(0), errors.New("Can't price a weight-based accessorial without shipment net weight")
+			return unit.Cents(0), unit.Cents(0), errors.New("Can't price a weight-based accessorial without shipment net weight")
 		}
 		appliedQuantity = unit.BaseQuantityFromInt(shipment.NetWeight.Int())
 	}
 
 	if itemPricer, ok := tariff400ngItemPricing[itemCode]; ok {
-		return itemPricer.price(rateCents, appliedQuantity, discountRate), nil
+		return itemPricer.price(rateCents, appliedQuantity, discountRate), discountRate.Apply(rateCents), nil
 	}
 
-	return unit.Cents(0), errors.New("Could not find pricing function for given code")
+	return unit.Cents(0), unit.Cents(0), errors.New("Could not find pricing function for given code")
 }

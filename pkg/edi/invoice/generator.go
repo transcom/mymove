@@ -294,7 +294,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		&edisegment.L1{
 			FreightRate:        65.77,
 			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.PackFee.ToDollarFloat(),
+			Charge:             cost.NonLinehaulCostComputation.Pack.Fee.ToDollarFloat(),
 			SpecialChargeDescription: "105A", // Full pack
 		},
 		// Full unpack
@@ -311,7 +311,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		&edisegment.L1{
 			FreightRate:        65.77,
 			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.UnpackFee.ToDollarFloat(),
+			Charge:             cost.NonLinehaulCostComputation.Unpack.Fee.ToDollarFloat(),
 			SpecialChargeDescription: "105C", // unpack TODO: verify that GEX can recognize 105C (unpack used to be included with pack above)
 		},
 		// Origin service charge
@@ -328,7 +328,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		&edisegment.L1{
 			FreightRate:        4.07,
 			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.OriginServiceFee.ToDollarFloat(),
+			Charge:             cost.NonLinehaulCostComputation.OriginService.Fee.ToDollarFloat(),
 			SpecialChargeDescription: "135A", // Origin service charge
 		},
 		// Destination service charge
@@ -345,7 +345,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		&edisegment.L1{
 			FreightRate:        4.07,
 			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.DestinationServiceFee.ToDollarFloat(),
+			Charge:             cost.NonLinehaulCostComputation.DestinationService.Fee.ToDollarFloat(),
 			SpecialChargeDescription: "135B", // TODO: check if correct for Destination service charge
 		},
 		// Fuel surcharge - linehaul
