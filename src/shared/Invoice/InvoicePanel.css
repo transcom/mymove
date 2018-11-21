@@ -5,9 +5,13 @@
 .invoice-panel table {
   table-layout: fixed;
   display: table;
-  width: 75%;
+  width: 100%;
   border-spacing: 2px;
   text-align: left;
+}
+
+.invoice-panel-table-cont {
+  width: 75%;
 }
 
 /* Custom widths for columns in the invoice panel table */

@@ -8,8 +8,8 @@ import './InvoicePanel.css';
 class InvoiceTable extends PureComponent {
   render() {
     return (
-      <div>
-        <div className="usa-grid">
+      <div className="invoice-panel-table-cont">
+        <div className="usa-grid-full ">
           <div className="usa-width-one-half">
             <h5>Unbilled line items</h5>
           </div>
