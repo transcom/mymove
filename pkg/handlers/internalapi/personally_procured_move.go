@@ -255,40 +255,6 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
 }
 
-// SubmitPersonallyProcuredMoveHandler Submits a PPM
-type SubmitPersonallyProcuredMoveHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle is the handler
-func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonallyProcuredMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	// #nosec UUID is pattern matched by swagger and will be ok
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
-
-	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
-
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	err = ppm.Submit()
-
-	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-
-	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
-
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
-}
-
 // ppmNeedsEstimatesRecalculated determines whether the fields that comprise
 // the PPM incentive and SIT estimate calculations have changed, necessitating a recalculation
 func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *models.PersonallyProcuredMove, patch *internalmessages.PatchPersonallyProcuredMovePayload) bool {
@@ -323,6 +289,40 @@ func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *m
 	}
 
 	return needsUpdate
+}
+
+// SubmitPersonallyProcuredMoveHandler Submits a PPM
+type SubmitPersonallyProcuredMoveHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle Submits a PPM to change its status to SUBMITTED
+func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonallyProcuredMoveParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	err = ppm.Submit()
+
+	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
+
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
 }
 
 func stringForComparison(previousValue, newValue *string) (value string, valueChanged bool, canCompare bool) {
