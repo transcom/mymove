@@ -122,3 +122,31 @@ func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 		}
 	}
 }
+
+func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
+	codes := []string{"105B", "120A", "130A"}
+	var shipment models.Shipment
+	for _, code := range codes {
+		item := testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Status: models.ShipmentLineItemStatusAPPROVED,
+			},
+			Tariff400ngItem: models.Tariff400ngItem{
+				Code:                code,
+				RequiresPreApproval: true,
+			},
+		})
+		shipment = item.Shipment
+	}
+
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	pricedItems, err := engine.PricePreapprovalRequestsForShipment(shipment)
+
+	// There should be no error
+	if suite.NoError(err) {
+		// All items should have a populated amount
+		for _, pricedItem := range pricedItems {
+			suite.NotNil(pricedItem.AmountCents)
+		}
+	}
+}
