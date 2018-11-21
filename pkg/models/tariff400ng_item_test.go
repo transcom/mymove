@@ -16,3 +16,13 @@ func (suite *ModelSuite) TestFetchTariff400ngItems() {
 	suite.Equal(1, len(accs))
 	suite.Equal(tariff400ngItem.ID, accs[0].ID)
 }
+
+func (suite *ModelSuite) TestFetchTariff400ngItemByCode() {
+	tariff400ngItem := testdatagen.MakeDefaultTariff400ngItem(suite.db)
+
+	fetchedItem, err := models.FetchTariff400ngItemByCode(suite.db, tariff400ngItem.Code)
+
+	//Test
+	suite.NoError(err)
+	suite.Equal(tariff400ngItem.ID, fetchedItem.ID)
+}

@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/transcom/mymove/pkg/rateengine"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/awardqueue"
@@ -19,8 +19,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
-	"go.uber.org/zap"
 )
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
@@ -328,24 +328,38 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	// When the shipment is delivered we should also price existing approved pre-approval requests
+	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
+	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+
+	shipmentCost, err := engine.HandleRunOnShipment(*shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	lineItems, err := rateengine.CreateBaseShipmentLineItems(h.DB(), shipmentCost)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// When the shipment is delivered we should also price existing approved pre-approval requests
 	preApprovals, err := engine.PricePreapprovalRequestsForShipment(*shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	verrs, err := models.SaveShipmentAndLineItems(h.DB(), shipment, preApprovals)
+	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), append(lineItems, preApprovals...))
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
+
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
 
-	// Comparint against the zero time allows users to set dates to nil via PATCH
+	// Comparing against the zero time allows users to set dates to nil via PATCH
 	zeroTime := time.Time{}
 
 	// PM Survey fields may be updated individually in the Dates panel and so cannot be lumped into one update

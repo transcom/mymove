@@ -132,6 +132,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		},
 	})
 
+	var tariffDataShipment *models.Shipment
 	for i := 1; i <= numShipments; i++ {
 		// Service Member Details
 		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
@@ -208,8 +209,10 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			// For sortability, we need varying pickup dates
 			pickupDate := Now.Add(OneDay * durIndex)
 			shipment.ActualPickupDate = &pickupDate
-			weight := unit.Pound(5000)
-			shipment.NetWeight = &weight
+
+			shipment.NetWeight = shipment.WeightEstimate
+
+			tariffDataShipment = &shipment
 		}
 
 		if shipmentStatus == models.ShipmentStatusDELIVERED {
@@ -288,5 +291,124 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		}
 	}
 
+	if tariffDataShipment != nil {
+		createTariffDataForRateEngine(db, *tariffDataShipment)
+	}
+
 	return tspUserList, shipmentList, shipmentOfferList, nil
+}
+
+func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment) {
+	beforePickupDate := shipment.ActualPickupDate.AddDate(0, -6, 0)
+	afterPickupDate := shipment.ActualPickupDate.AddDate(0, 6, 0)
+
+	// $4861 is the cost for a 2000 pound move traveling 1044 miles (90210 to 80011).
+	baseLinehaul := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 1001,
+		DistanceMilesUpper: 1101,
+		WeightLbsLower:     2000,
+		WeightLbsUpper:     2100,
+		RateCents:          386400,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: beforePickupDate,
+		EffectiveDateUpper: afterPickupDate,
+	}
+	mustSave(db, &baseLinehaul)
+
+	// Create Service Area entries for Zip3s (which were already created)
+
+	// Create fees for service areas
+	sa1 := models.Tariff400ngServiceArea{
+		Name:               "Los Angeles, CA",
+		ServiceArea:        "56",
+		ServicesSchedule:   3,
+		LinehaulFactor:     unit.Cents(268),
+		ServiceChargeCents: unit.Cents(775),
+		EffectiveDateLower: beforePickupDate,
+		EffectiveDateUpper: afterPickupDate,
+		SIT185ARateCents:   unit.Cents(1626),
+		SIT185BRateCents:   unit.Cents(60),
+		SITPDSchedule:      3,
+	}
+	mustSave(db, &sa1)
+	sa2 := models.Tariff400ngServiceArea{
+		Name:               "Denver, CO Metro",
+		ServiceArea:        "145",
+		ServicesSchedule:   3,
+		LinehaulFactor:     unit.Cents(174),
+		ServiceChargeCents: unit.Cents(873),
+		EffectiveDateLower: beforePickupDate,
+		EffectiveDateUpper: afterPickupDate,
+		SIT185ARateCents:   unit.Cents(1532),
+		SIT185BRateCents:   unit.Cents(60),
+		SITPDSchedule:      3,
+	}
+	mustSave(db, &sa2)
+
+	fullPackRate := models.Tariff400ngFullPackRate{
+		Schedule:           sa1.ServicesSchedule,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     16001,
+		RateCents:          6714,
+		EffectiveDateLower: beforePickupDate,
+		EffectiveDateUpper: afterPickupDate,
+	}
+	mustSave(db, &fullPackRate)
+
+	fullUnpackRate := models.Tariff400ngFullUnpackRate{
+		Schedule:           sa2.ServicesSchedule,
+		RateMillicents:     704970,
+		EffectiveDateLower: beforePickupDate,
+		EffectiveDateUpper: afterPickupDate,
+	}
+	mustSave(db, &fullUnpackRate)
+
+	// Set up item codes
+	codeLHS := models.Tariff400ngItem{
+		Code:                "LHS",
+		Item:                "Linehaul Transportation",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationNEITHER,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitFLATRATE,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeTARIFFSECTION,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &codeLHS)
+
+	code135A := models.Tariff400ngItem{
+		Code:                "135A",
+		Item:                "Origin Service Charge",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationORIGIN,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodePOINTSCHEDULE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code135A)
+
+	code135B := models.Tariff400ngItem{
+		Code:                "135B",
+		Item:                "Destination Service Charge",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationDESTINATION,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodePOINTSCHEDULE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code135B)
+
+	code105A := models.Tariff400ngItem{
+		Code:                "105A",
+		Item:                "Full Pack",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationORIGIN,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeNONE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code105A)
 }

@@ -336,7 +336,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID 
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
-// Note: This doens't save the Shipment, so this should always be run as part of
+// Note: This doesn't save the Shipment, so this should always be run as part of
 // another transaction that saves the shipment after assigning a GBL number
 func (s *Shipment) AssignGBLNumber(db *pop.Connection) error {
 	if s.SourceGBLOC == nil {
@@ -504,14 +504,11 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
 		"Move.Orders.NewDutyStation.Address",
-		"Move.Orders.HasDependents",
-		"Move.Orders.SpouseHasProGear",
-		"Move.Orders.ServiceMemberID",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
 		"PartialSITDeliveryAddress",
-		"ShipmentOffers").
+		"ShipmentOffers.TransportationServiceProviderPerformance").
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
@@ -535,12 +532,12 @@ func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, sh
 	var tspUser *TspUser
 	tspUser, err := FetchTspUserByID(db, tspUserID)
 	if err != nil {
-		return tspUser, shipment, ErrFetchForbidden
+		return tspUser, shipment, ErrUserUnauthorized
 	}
 	// Verify that TSP is associated to shipment
 	shipment, err = FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
-		return tspUser, shipment, ErrUserUnauthorized
+		return tspUser, shipment, ErrFetchForbidden
 	}
 	return tspUser, shipment, nil
 
@@ -706,26 +703,28 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 	return responseVErrors, responseError
 }
 
-// SaveShipmentAndLineItems saves a Shipment and a collection of ShipmentLineItems atomically.
-func SaveShipmentAndLineItems(db *pop.Connection, shipment *Shipment, lineItems []*ShipmentLineItem) (*validate.Errors, error) {
+// SaveShipmentAndLineItems saves a shipment and a slice of line items in a single transaction.
+func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []ShipmentLineItem) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(db *pop.Connection) error {
+	db.Transaction(func(tx *pop.Connection) error {
 		transactionError := errors.New("rollback")
 
-		for _, item := range lineItems {
-			if verrs, err := db.ValidateAndSave(item); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error saving shipment line item")
-				return transactionError
-			}
-		}
-
-		if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
+		verrs, err := tx.ValidateAndSave(s)
+		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error saving shipment")
 			return transactionError
+		}
+
+		for _, lineItem := range lineItems {
+			if verrs, err := tx.ValidateAndSave(&lineItem); err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
+				return transactionError
+			}
 		}
 
 		return nil

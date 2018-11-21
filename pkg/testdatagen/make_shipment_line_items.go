@@ -20,7 +20,8 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 	if isZeroUUID(tariff400ngItem.ID) {
 		tariff400ngItem = MakeTariff400ngItem(db, assertions)
 	}
-
+	var rate unit.Cents
+	rate = 2354
 	//filled in dummy data
 	shipmentLineItem := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
@@ -30,6 +31,7 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 		Location:          models.ShipmentLineItemLocationDESTINATION,
 		Notes:             "Mounted deer head measures 23\" x 34\" x 27\"; crate will be 16.7 cu ft",
 		Quantity1:         unit.BaseQuantity(1670),
+		AppliedRate:       &rate,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		SubmittedDate:     time.Now(),
 		ApprovedDate:      time.Now(),

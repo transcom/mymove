@@ -173,6 +173,7 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Honeycomb Config
 	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
+	flag.String("honeycomb-api-host", "https://api.honeycomb.io/", "API Host for Honeycomb")
 	flag.String("honeycomb-api-key", "", "API Key for Honeycomb")
 	flag.String("honeycomb-dataset", "", "Dataset for Honeycomb")
 	flag.Bool("honeycomb-debug", false, "Debug honeycomb using stdout.")
@@ -226,13 +227,17 @@ func initRoutePlanner(v *viper.Viper, logger *zap.Logger) route.Planner {
 
 func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
 
+	honeycombAPIHost := v.GetString("honeycomb-api-host")
 	honeycombAPIKey := v.GetString("honeycomb-api-key")
 	honeycombDataset := v.GetString("honeycomb-dataset")
 	honeycombServiceName := v.GetString("service-name")
 
 	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 {
-		logger.Debug("Honeycomb Integration enabled", zap.String("honeycomb-dataset", honeycombDataset))
+		logger.Debug("Honeycomb Integration enabled",
+			zap.String("honeycomb-api-host", honeycombAPIHost),
+			zap.String("honeycomb-dataset", honeycombDataset))
 		beeline.Init(beeline.Config{
+			APIHost:     honeycombAPIHost,
 			WriteKey:    honeycombAPIKey,
 			Dataset:     honeycombDataset,
 			Debug:       v.GetBool("honeycomb-debug"),

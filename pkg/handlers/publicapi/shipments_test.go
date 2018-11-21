@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -293,7 +295,7 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code
-	suite.CheckResponseUnauthorized(response)
+	suite.CheckResponseForbidden(response)
 }
 
 // TestIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
@@ -731,7 +733,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	shipment := shipments[0]
 
 	// Add a line item that's ready to be priced
-	item := testdatagen.MakeCompleteShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	preApproval := testdatagen.MakeCompleteShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Shipment:   shipment,
 			ShipmentID: shipment.ID,
@@ -744,6 +746,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler.SetPlanner(route.NewTestingPlanner(1044))
 
 	// Test query with first user
 	path := fmt.Sprintf("/shipments/%s/deliver", shipment.ID.String())
@@ -765,8 +768,15 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
 	suite.Equal(actualDeliveryDate, time.Time(*okResponse.Payload.ActualDeliveryDate))
 
-	updatedItem, err := models.FetchShipmentLineItemByID(suite.TestDB(), &item.ID)
+	// Check for ShipmentLineItems
+	addedLineItems, _ := models.FetchLineItemsByShipmentID(suite.TestDB(), &shipment.ID)
+
+	// The details of the line items are tested in the rateengine package.  We just
+	// check the count here.
+	suite.Len(addedLineItems, 5)
+
+	updatedPreApproval, err := models.FetchShipmentLineItemByID(suite.TestDB(), &preApproval.ID)
 	if suite.NoError(err) {
-		suite.NotNil(updatedItem.AmountCents)
+		suite.NotNil(updatedPreApproval.AmountCents)
 	}
 }

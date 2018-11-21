@@ -217,3 +217,29 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 		suite.Equal(acc.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 	}
 }
+
+// TestSaveShipmentAndLineItems tests that a shipment and line items can be saved
+func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+
+	var lineItems []ShipmentLineItem
+	codes := []string{"LHS", "135A", "135B", "105A"}
+	for _, code := range codes {
+		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
+			Tariff400ngItem: Tariff400ngItem{
+				Code: code,
+			},
+		})
+		lineItem := ShipmentLineItem{
+			ShipmentID:        shipment.ID,
+			Tariff400ngItemID: item.ID,
+			Tariff400ngItem:   item,
+		}
+		lineItems = append(lineItems, lineItem)
+	}
+
+	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems)
+
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+}

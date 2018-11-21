@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181116191945_nov16_dps_users.sql")

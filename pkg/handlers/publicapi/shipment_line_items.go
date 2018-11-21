@@ -53,12 +53,12 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 	}
 }
 
-// GetShipmentLineItemsHandler returns a particular shipment
+// GetShipmentLineItemsHandler returns a particular shipment line item
 type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle returns a specified shipment
+// Handle returns a specified shipment line item
 func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLineItemsParams) middleware.Responder {
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)

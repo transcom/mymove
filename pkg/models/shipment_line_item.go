@@ -51,6 +51,7 @@ type ShipmentLineItem struct {
 	Status        ShipmentLineItemStatus `json:"status" db:"status"`
 	InvoiceID     *uuid.UUID             `json:"invoice_id" db:"invoice_id"`
 	AmountCents   *unit.Cents            `json:"amount_cents" db:"amount_cents"`
+	AppliedRate   *unit.Cents            `json:"applied_rate" db:"applied_rate"`
 	SubmittedDate time.Time              `json:"submitted_date" db:"submitted_date"`
 	ApprovedDate  time.Time              `json:"approved_date" db:"approved_date"`
 	CreatedAt     time.Time              `json:"created_at" db:"created_at"`
@@ -91,8 +92,8 @@ func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, sh
 	err := query.All(&items)
 
 	// Add the shipment model
-	for _, item := range items {
-		item.Shipment = shipment
+	for i := 0; i < len(items); i++ {
+		items[i].Shipment = shipment
 	}
 
 	return items, err

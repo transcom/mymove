@@ -181,25 +181,19 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 }
 
 // PricePreapprovalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field on those models
-func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipment) ([]*models.ShipmentLineItem, error) {
+func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipment) ([]models.ShipmentLineItem, error) {
 	items, err := models.FetchApprovedPreapprovalRequestsByShipment(re.db, shipment)
 	if err != nil {
-		return []*models.ShipmentLineItem{}, err
+		return []models.ShipmentLineItem{}, err
 	}
 
-	results := make([]*models.ShipmentLineItem, len(items))
-
-	for i, item := range items {
-		// Need to make a local variable because pointers
-		localItem := item
-		localItem.Shipment = shipment
-		price, err := re.ComputeShipmentLineItemCharge(localItem)
+	for i := 0; i < len(items); i++ {
+		price, err := re.ComputeShipmentLineItemCharge(items[i])
 		if err != nil {
-			return []*models.ShipmentLineItem{}, err
+			return []models.ShipmentLineItem{}, err
 		}
-		localItem.AmountCents = &price
-		results[i] = &localItem
+		items[i].AmountCents = &price
 	}
 
-	return results, nil
+	return items, nil
 }
