@@ -2,10 +2,11 @@ package publicapi
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/route"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -731,6 +732,18 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
+	// Add a line item that's ready to be priced
+	preApproval := testdatagen.MakeCompleteShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+			Status:     models.ShipmentLineItemStatusAPPROVED,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
@@ -760,5 +773,10 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// The details of the line items are tested in the rateengine package.  We just
 	// check the count here.
-	suite.Len(addedLineItems, 4)
+	suite.Len(addedLineItems, 5)
+
+	updatedPreApproval, err := models.FetchShipmentLineItemByID(suite.TestDB(), &preApproval.ID)
+	if suite.NoError(err) {
+		suite.NotNil(updatedPreApproval.AmountCents)
+	}
 }

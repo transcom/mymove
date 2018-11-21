@@ -104,8 +104,14 @@ var tariff400ngWeightBasedItems = map[string]bool{
 }
 
 // ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item
-func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem, shipment models.Shipment) (unit.Cents, unit.Cents, error) {
+func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem) (unit.Cents, unit.Cents, error) {
 	itemCode := shipmentLineItem.Tariff400ngItem.Code
+	shipment := shipmentLineItem.Shipment
+
+	if shipment.NetWeight == nil {
+		return unit.Cents(0), errors.New("Can't price a shipment line item for a shipment without NetWeight")
+	}
+
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
 	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {
@@ -176,4 +182,22 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	}
 
 	return unit.Cents(0), unit.Cents(0), errors.New("Could not find pricing function for given code")
+}
+
+// PricePreapprovalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field on those models
+func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipment) ([]models.ShipmentLineItem, error) {
+	items, err := models.FetchApprovedPreapprovalRequestsByShipment(re.db, shipment)
+	if err != nil {
+		return []models.ShipmentLineItem{}, err
+	}
+
+	for i := 0; i < len(items); i++ {
+		price, err := re.ComputeShipmentLineItemCharge(items[i])
+		if err != nil {
+			return []models.ShipmentLineItem{}, err
+		}
+		items[i].AmountCents = &price
+	}
+
+	return items, nil
 }
