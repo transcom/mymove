@@ -5,13 +5,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, getPpmSitEstimate } from './ducks';
+import { createOrUpdatePpm, getDestinationPostalCode, getPpmSitEstimate } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
-import { selectShipment } from 'shared/Entities/modules/shipments';
-import { getCurrentShipmentID } from 'shared/UI/ducks';
 import './DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
@@ -198,23 +196,18 @@ function mapStateToProps(state) {
         }
       : null;
 
-  const currentShipment = selectShipment(state, getCurrentShipmentID(state));
-  const addresses = state.entities.addresses;
-
   if (props.isHHGPPMComboMove) {
     props.initialValues = {
       ...props.initialValues,
       planned_move_date: currentOrders.issue_date,
       // defaults to SM's destination address, if none, uses destination duty station zip
-      destination_postal_code:
-        currentShipment.has_delivery_address && addresses
-          ? addresses[currentShipment.delivery_address].postal_code
-          : currentOrders.new_duty_station.address.postal_code,
+      destination_postal_code: getDestinationPostalCode(state),
     };
   }
 
   return props;
 }
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate }, dispatch);
 }

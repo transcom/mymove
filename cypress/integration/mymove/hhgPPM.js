@@ -6,7 +6,7 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberAddsPPMToHHG();
     serviceMemberCancelsAddPPMToHHG();
     serviceMemberContinuesPPMSetup();
-    serviveMemberFillsInDatesAndLocations();
+    serviceMemberFillsInDatesAndLocations();
     serviceMemberSelectsWeightRange();
     serviceMemberCanCustomizeWeight();
     serviceMemberCanReviewMoveSummary();
@@ -54,7 +54,7 @@ function serviceMemberContinuesPPMSetup() {
     .click();
 }
 
-function serviveMemberFillsInDatesAndLocations() {
+function serviceMemberFillsInDatesAndLocations() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-ppm-start/);
   });
@@ -109,14 +109,13 @@ function serviceMemberCanReviewMoveSummary() {
     expect(text).to.include('Move Date: 09/02/2018');
     expect(text).to.include('Pickup ZIP Code:  90210');
     expect(text).to.include('Delivery ZIP Code:  50309');
-    expect(text).to.include('Storage: Not requested');
+    expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
     expect(text).to.include('Estimated PPM Incentive:  $2,032.89 - 2,246.87');
   });
 
   cy.nextPage();
 }
-
 function serviceMemberCanSignAgreement() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-ppm-agreement/);
