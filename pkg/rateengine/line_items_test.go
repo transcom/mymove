@@ -30,22 +30,22 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	itemLHS := suite.findLineItem(lineItems, "LHS")
 	if itemLHS != nil {
-		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationNEITHER, unit.Cents(260858), unit.Cents(1))
+		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationNEITHER, unit.Cents(260858), unit.Cents(0))
 	}
 
 	item135A := suite.findLineItem(lineItems, "135A")
 	if item135A != nil {
-		suite.validateLineItemFields(*item135A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(10230), unit.Cents(0))
+		suite.validateLineItemFields(*item135A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(10230), unit.Cents(511))
 	}
 
 	item135B := suite.findLineItem(lineItems, "135B")
 	if item135B != nil {
-		suite.validateLineItemFields(*item135B, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(11524), unit.Cents(0))
+		suite.validateLineItemFields(*item135B, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(11524), unit.Cents(576))
 	}
 
 	item105A := suite.findLineItem(lineItems, "105A")
 	if item105A != nil {
-		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(97930), unit.Cents(1))
+		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(97930), unit.Cents(4431))
 	}
 }
 

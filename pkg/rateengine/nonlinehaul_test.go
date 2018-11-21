@@ -83,14 +83,14 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	}
 	suite.mustSave(&fullPackRate)
 
-	fee, err := engine.fullPackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
+	feeAndRate, err := engine.fullPackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
 
 	expected := unit.Cents(271450)
-	if fee != expected {
-		t.Errorf("wrong full pack fee: expected %d, got %d", expected, fee)
+	if feeAndRate.Fee != expected {
+		t.Errorf("wrong full pack fee: expected %d, got %d", expected, feeAndRate.Fee)
 	}
 }
 
@@ -140,14 +140,14 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
+	feeAndRate, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
 
 	expected := unit.Cents(27145)
-	if fee != expected {
-		t.Errorf("wrong full unpack fee: expected %d, got %d", expected, fee)
+	if feeAndRate.Fee != expected {
+		t.Errorf("wrong full unpack fee: expected %d, got %d", expected, feeAndRate.Fee)
 	}
 }
 
@@ -289,7 +289,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	// pack fee:          108580
 	// unpack fee:         10858
 	expected := unit.Cents(139698)
-	totalFee := cost.OriginService.Fee + cost.DestinationService.Fee + cost.PackFee + cost.UnpackFee
+	totalFee := cost.OriginService.Fee + cost.DestinationService.Fee + cost.Pack.Fee + cost.Unpack.Fee
 	if totalFee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, totalFee)
 	}

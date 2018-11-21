@@ -54,8 +54,8 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 	encoder.AddInt("OriginServiceFee", c.OriginService.Fee.Int())
 	encoder.AddInt("DestinationServiceFee", c.DestinationService.Fee.Int())
-	encoder.AddInt("PackFee", c.PackFee.Int())
-	encoder.AddInt("UnpackFee", c.UnpackFee.Int())
+	encoder.AddInt("PackFee", c.Pack.Fee.Int())
+	encoder.AddInt("UnpackFee", c.Unpack.Fee.Int())
 	encoder.AddInt("SITMax", c.SITMax.Int())
 	encoder.AddInt("SITFee", c.SITFee.Int())
 
@@ -104,8 +104,8 @@ func (re *RateEngine) ComputePPM(
 	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
 	nonLinehaulCostComputation.OriginService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.OriginService.Fee)
 	nonLinehaulCostComputation.DestinationService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationService.Fee)
-	nonLinehaulCostComputation.PackFee = lhDiscount.Apply(nonLinehaulCostComputation.PackFee)
-	nonLinehaulCostComputation.UnpackFee = lhDiscount.Apply(nonLinehaulCostComputation.UnpackFee)
+	nonLinehaulCostComputation.Pack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Fee)
+	nonLinehaulCostComputation.Unpack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Fee)
 
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
@@ -130,8 +130,8 @@ func (re *RateEngine) ComputePPM(
 	gcc := linehaulCostComputation.LinehaulChargeTotal +
 		nonLinehaulCostComputation.OriginService.Fee +
 		nonLinehaulCostComputation.DestinationService.Fee +
-		nonLinehaulCostComputation.PackFee +
-		nonLinehaulCostComputation.UnpackFee
+		nonLinehaulCostComputation.Pack.Fee +
+		nonLinehaulCostComputation.Unpack.Fee
 
 	cost = CostComputation{
 		LinehaulCostComputation:    linehaulCostComputation,
@@ -184,12 +184,15 @@ func (re *RateEngine) ComputeShipment(
 	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
 	nonLinehaulCostComputation.OriginService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.OriginService.Fee)
 	nonLinehaulCostComputation.DestinationService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationService.Fee)
-	nonLinehaulCostComputation.PackFee = lhDiscount.Apply(nonLinehaulCostComputation.PackFee)
-	nonLinehaulCostComputation.UnpackFee = lhDiscount.Apply(nonLinehaulCostComputation.UnpackFee)
+	nonLinehaulCostComputation.Pack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Fee)
+	nonLinehaulCostComputation.Unpack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Fee)
 
 	//Apply linehaul discount to rate:
 	nonLinehaulCostComputation.OriginService.Rate = lhDiscount.Apply(nonLinehaulCostComputation.OriginService.Rate)
 	nonLinehaulCostComputation.DestinationService.Rate = lhDiscount.Apply(nonLinehaulCostComputation.DestinationService.Rate)
+	nonLinehaulCostComputation.Pack.Rate = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Rate)
+	nonLinehaulCostComputation.Unpack.Rate = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Rate)
+
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
 	destinationZip3 := Zip5ToZip3(destinationZip5)
@@ -213,8 +216,8 @@ func (re *RateEngine) ComputeShipment(
 	gcc := linehaulCostComputation.LinehaulChargeTotal +
 		nonLinehaulCostComputation.OriginService.Fee +
 		nonLinehaulCostComputation.DestinationService.Fee +
-		nonLinehaulCostComputation.PackFee +
-		nonLinehaulCostComputation.UnpackFee
+		nonLinehaulCostComputation.Pack.Fee +
+		nonLinehaulCostComputation.Unpack.Fee
 
 	cost = CostComputation{
 		LinehaulCostComputation:    linehaulCostComputation,

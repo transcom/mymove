@@ -21,16 +21,16 @@ type FeeAndRate struct {
 type NonLinehaulCostComputation struct {
 	OriginService      FeeAndRate
 	DestinationService FeeAndRate
-	PackFee            unit.Cents
-	UnpackFee          unit.Cents
+	Pack               FeeAndRate
+	Unpack             FeeAndRate
 }
 
 // Scale scales a cost computation by a multiplicative factor
 func (c *NonLinehaulCostComputation) Scale(factor float64) {
 	c.OriginService.Fee = c.OriginService.Fee.MultiplyFloat64(factor)
 	c.DestinationService.Fee = c.DestinationService.Fee.MultiplyFloat64(factor)
-	c.PackFee = c.PackFee.MultiplyFloat64(factor)
-	c.UnpackFee = c.UnpackFee.MultiplyFloat64(factor)
+	c.Pack.Fee = c.Pack.Fee.MultiplyFloat64(factor)
+	c.Unpack.Fee = c.Unpack.Fee.MultiplyFloat64(factor)
 }
 
 func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
@@ -43,32 +43,32 @@ func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time)
 	return FeeAndRate{Fee: feeCents, Rate: rateCents}, nil
 }
 
-func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
+func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
-		return 0, err
+		return FeeAndRate{}, err
 	}
 
 	fullPackRate, err := models.FetchTariff400ngFullPackRateCents(re.db, cwt.ToPounds(), serviceArea.ServicesSchedule, date)
 	if err != nil {
-		return 0, err
+		return FeeAndRate{}, err
 	}
 
-	return fullPackRate.Multiply(cwt.Int()), nil
+	return FeeAndRate{Fee: fullPackRate.Multiply(cwt.Int()), Rate: fullPackRate}, nil
 }
 
-func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
+func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
-		return 0, err
+		return FeeAndRate{}, err
 	}
 
 	fullUnpackRate, err := models.FetchTariff400ngFullUnpackRateMillicents(re.db, serviceArea.ServicesSchedule, date)
 	if err != nil {
-		return 0, err
+		return FeeAndRate{}, err
 	}
 
-	return unit.Cents(math.Round(float64(cwt.Int()*fullUnpackRate) / 1000.0)), nil
+	return FeeAndRate{Fee: unit.Cents(math.Round(float64(cwt.Int()*fullUnpackRate) / 1000.0)), Rate: unit.Cents(fullUnpackRate)}, nil
 }
 
 // SitCharge calculates the SIT charge based on various factors.
@@ -119,11 +119,11 @@ func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine destination service fee")
 	}
-	cost.PackFee, err = re.fullPackCents(cwt, originZip3, date)
+	cost.Pack, err = re.fullPackCents(cwt, originZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine full pack cost")
 	}
-	cost.UnpackFee, err = re.fullUnpackCents(cwt, destinationZip3, date)
+	cost.Unpack, err = re.fullUnpackCents(cwt, destinationZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine full unpack cost")
 	}
@@ -131,8 +131,8 @@ func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5
 	re.logger.Info("Non-Linehaul charge total calculated",
 		zap.Int("origin service fee", cost.OriginService.Fee.Int()),
 		zap.Int("destination service fee", cost.DestinationService.Fee.Int()),
-		zap.Int("pack fee", cost.PackFee.Int()),
-		zap.Int("unpack fee", cost.UnpackFee.Int()))
+		zap.Int("pack fee", cost.Pack.Fee.Int()),
+		zap.Int("unpack fee", cost.Unpack.Fee.Int()))
 
 	return cost, nil
 }
