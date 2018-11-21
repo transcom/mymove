@@ -45,6 +45,7 @@ docker run \
   -e SECURE_MIGRATION_DIR="$SECURE_MIGRATION_DIR" \
   -e SECURE_MIGRATION_SOURCE="$SECURE_MIGRATION_SOURCE" \
   -p "$HTTP_PORT":"$HTTP_PORT" \
+  --expose="$HTTP_PORT" \
   --link=db-dev:database \
   --name="$CONTAINER" \
   --detach \
@@ -55,11 +56,8 @@ docker ps -a
 echo
 cat /etc/hosts
 echo
-curl -IX GET http://localhost:4000 || true
-curl -IX GET http://0.0.0.0:4000 || true
-curl -IX GET http://127.0.0.1:4000 || true
-curl -IX GET http://172.23.0.3:4000 || true
 ifconfig
+echo
 
 npx cypress run & p2=$!
 

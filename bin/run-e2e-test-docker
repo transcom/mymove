@@ -59,6 +59,7 @@ docker run \
   -e SECURE_MIGRATION_DIR="$SECURE_MIGRATION_DIR" \
   -e SECURE_MIGRATION_SOURCE="$SECURE_MIGRATION_SOURCE" \
   -p "$HTTP_PORT":"$HTTP_PORT" \
+  --expose="$HTTP_PORT" \
   --link=db-dev:database \
   --name="$CONTAINER" \
   --detach \
