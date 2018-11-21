@@ -58,6 +58,9 @@ type ShipmentLineItem struct {
 	UpdatedAt     time.Time              `json:"updated_at" db:"updated_at"`
 }
 
+// ShipmentLineItems is not required by pop and may be deleted
+type ShipmentLineItems []ShipmentLineItem
+
 // FetchLineItemsByShipmentID returns a list of line items by shipment_id
 func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.UUID) ([]ShipmentLineItem, error) {
 	var err error
