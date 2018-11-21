@@ -58,5 +58,11 @@
 }
 
 .invoice-panel .align-right {
-  text-align: right !important;
+  text-align: right;
+}
+
+.invoice-panel-header-cont {
+  margin-top: 2em;
+  display: flex;
+  align-items: center;
 }

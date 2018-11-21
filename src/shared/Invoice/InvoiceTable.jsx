@@ -9,7 +9,7 @@ class InvoiceTable extends PureComponent {
   render() {
     return (
       <div className="invoice-panel-table-cont">
-        <div className="usa-grid-full ">
+        <div className="usa-grid-full invoice-panel-header-cont">
           <div className="usa-width-one-half">
             <h5>Unbilled line items</h5>
           </div>
