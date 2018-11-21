@@ -41,22 +41,25 @@ docker run \
   -e MOVE_MIL_DOD_TLS_CERT="$MOVE_MIL_DOD_TLS_CERT" \
   -e MOVE_MIL_DOD_TLS_KEY="$MOVE_MIL_DOD_TLS_KEY" \
   -e NO_TLS_PORT="$HTTP_PORT" \
-  -e PORT="$HTTP_PORT" \
   -e SECURE_MIGRATION_DIR="$SECURE_MIGRATION_DIR" \
   -e SECURE_MIGRATION_SOURCE="$SECURE_MIGRATION_SOURCE" \
   -p "$HTTP_PORT":"$HTTP_PORT" \
   --expose="$HTTP_PORT" \
-  --link=db-dev:database \
   --name="$CONTAINER" \
   --detach \
+  --rm \
   e2e:latest
 
 # Debug output
 docker ps -a
 echo
-cat /etc/hosts
+ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' CONTAINER)
+echo "$ip"
 echo
-ifconfig
+nmap -p"$HTTP_PORT,9443,8443,5432" -Pn -oG - "$ip"
+echo
+curl -IXGET "http://$ip:4000"
+curl -IXGET http://172.17.0.1:4000
 echo
 
 npx cypress run & p2=$!
