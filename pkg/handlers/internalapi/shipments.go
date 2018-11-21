@@ -478,6 +478,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		"Move.Orders.NewDutyStation.Address",
 		"ServiceMember",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
+		"ShipmentLineItems.Tariff400ngItem",
 	).Find(&shipment, shipmentID)
 
 	if err != nil {
