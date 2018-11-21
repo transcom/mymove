@@ -8,6 +8,7 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberContinuesPPMSetup();
     serviveMemberFillsInDatesAndLocations();
     serviceMemberSelectsWeightRange();
+    cy.wait(500);
     serviceMemberCanCustomizeWeight();
     serviceMemberCanReviewMoveSummary();
     serviceMemberCanSignAgreement();
