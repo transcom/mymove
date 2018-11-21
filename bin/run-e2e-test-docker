@@ -61,9 +61,8 @@ docker run \
   -p "$HTTP_PORT":"$HTTP_PORT" \
   --link=db-dev:database \
   --name=e2e_test \
-  e2e:latest & p1=$!
-
-echo "Running docker process $p1"
+  --detach \
+  e2e:latest
 
 npx cypress open || true
 
