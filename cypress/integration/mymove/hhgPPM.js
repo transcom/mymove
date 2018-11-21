@@ -22,7 +22,7 @@ function serviceMemberSignsIn(uuid) {
 
 function serviceMemberAddsPPMToHHG() {
   cy
-    .get('.sidebar > div > a')
+    .get('.sidebar > div > button')
     .contains('Add PPM Shipment')
     .click();
 

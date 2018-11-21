@@ -463,7 +463,7 @@ export const MoveSummary = withContext(props => {
     move.selected_move_type !== 'PPM' &&
     ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(hhgStatus);
   return (
-    <Fragment>
+    <div className="move-summary">
       {move.status === 'CANCELED' && (
         <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
@@ -522,7 +522,7 @@ export const MoveSummary = withContext(props => {
           <div>
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <button onClick={() => props.addPPMShipment(moveId)}>
+                <button className="link" onClick={() => props.addPPMShipment(moveId)}>
                   <FontAwesomeIcon icon={faPlus} />
                   <span> Add PPM Shipment</span>
                 </button>
@@ -543,6 +543,6 @@ export const MoveSummary = withContext(props => {
           </div>
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 });
