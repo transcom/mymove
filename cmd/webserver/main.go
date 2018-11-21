@@ -21,6 +21,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -306,6 +307,14 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 	err = connection.Open()
 	if err != nil {
 		logger.Error("Failed to open DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Check the connection
+	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	err = db.Ping()
+	if err != nil {
+		logger.Error("Failed to ping DB connection", zap.Error(err))
 		return nil, err
 	}
 
