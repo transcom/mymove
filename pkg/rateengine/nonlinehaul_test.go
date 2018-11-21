@@ -33,14 +33,14 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	}
 	suite.mustSave(&serviceArea)
 
-	fee, err := engine.serviceFeeCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
+	feeAndRate, err := engine.serviceFeeCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
 
 	expected := unit.Cents(17500)
-	if fee != expected {
-		t.Errorf("wrong service fee: expected %d, got %d", expected, fee)
+	if feeAndRate.Fee != expected {
+		t.Errorf("wrong service fee: expected %d, got %d", expected, feeAndRate.Fee)
 	}
 }
 
@@ -289,7 +289,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	// pack fee:          108580
 	// unpack fee:         10858
 	expected := unit.Cents(139698)
-	totalFee := cost.OriginServiceFee + cost.DestinationServiceFee + cost.PackFee + cost.UnpackFee
+	totalFee := cost.OriginService.Fee + cost.DestinationService.Fee + cost.PackFee + cost.UnpackFee
 	if totalFee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, totalFee)
 	}

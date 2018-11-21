@@ -10,6 +10,7 @@ import (
 // CreateBaseShipmentLineItems will create and return the models for the base shipment line items that every
 // shipment should contain
 func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipment) ([]models.ShipmentLineItem, error) {
+	// TODO: add AppliedRate to each nonLinehaul item from cost
 	shipment := costByShipment.Shipment
 	cost := costByShipment.Cost
 
@@ -41,17 +42,18 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	if err != nil {
 		return nil, err
 	}
-	originServiceFee := models.ShipmentLineItem{
+	originService := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: originServiceFeeItem.ID,
 		Tariff400ngItem:   originServiceFeeItem,
 		Location:          models.ShipmentLineItemLocationORIGIN,
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		AmountCents:       &cost.NonLinehaulCostComputation.OriginServiceFee,
+		AmountCents:       &cost.NonLinehaulCostComputation.OriginService.Fee,
+		AppliedRate:       &cost.NonLinehaulCostComputation.OriginService.Rate,
 		SubmittedDate:     now,
 	}
-	lineItems = append(lineItems, originServiceFee)
+	lineItems = append(lineItems, originService)
 
 	// Destination service fee ("135B")
 	destinationServiceFeeItem, err := models.FetchTariff400ngItemByCode(db, "135B")
@@ -65,8 +67,10 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		Location:          models.ShipmentLineItemLocationDESTINATION,
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		AmountCents:       &cost.NonLinehaulCostComputation.DestinationServiceFee,
-		SubmittedDate:     now,
+		AmountCents:       &cost.NonLinehaulCostComputation.DestinationService.Fee,
+		AppliedRate:       &cost.NonLinehaulCostComputation.DestinationService.Rate,
+
+		SubmittedDate: now,
 	}
 	lineItems = append(lineItems, destinationServiceFee)
 

@@ -11,28 +11,36 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// FeeAndRate holds the rate lookup and calculated fee (non-discounted)
+type FeeAndRate struct {
+	Fee  unit.Cents
+	Rate unit.Cents
+}
+
 // NonLinehaulCostComputation represents the results of a computation.
 type NonLinehaulCostComputation struct {
-	OriginServiceFee      unit.Cents
-	DestinationServiceFee unit.Cents
-	PackFee               unit.Cents
-	UnpackFee             unit.Cents
+	OriginService      FeeAndRate
+	DestinationService FeeAndRate
+	PackFee            unit.Cents
+	UnpackFee          unit.Cents
 }
 
 // Scale scales a cost computation by a multiplicative factor
 func (c *NonLinehaulCostComputation) Scale(factor float64) {
-	c.OriginServiceFee = c.OriginServiceFee.MultiplyFloat64(factor)
-	c.DestinationServiceFee = c.DestinationServiceFee.MultiplyFloat64(factor)
+	c.OriginService.Fee = c.OriginService.Fee.MultiplyFloat64(factor)
+	c.DestinationService.Fee = c.DestinationService.Fee.MultiplyFloat64(factor)
 	c.PackFee = c.PackFee.MultiplyFloat64(factor)
 	c.UnpackFee = c.UnpackFee.MultiplyFloat64(factor)
 }
 
-func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
+func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
-		return 0, err
+		return FeeAndRate{}, err
 	}
-	return serviceArea.ServiceChargeCents.Multiply(cwt.Int()), nil
+	rateCents := serviceArea.ServiceChargeCents
+	feeCents := rateCents.Multiply(cwt.Int())
+	return FeeAndRate{Fee: feeCents, Rate: rateCents}, nil
 }
 
 func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
@@ -103,11 +111,11 @@ func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5
 	cwt := weight.ToCWT()
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
-	cost.OriginServiceFee, err = re.serviceFeeCents(cwt, originZip3, date)
+	cost.OriginService, err = re.serviceFeeCents(cwt, originZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine origin service fee")
 	}
-	cost.DestinationServiceFee, err = re.serviceFeeCents(cwt, destinationZip3, date)
+	cost.DestinationService, err = re.serviceFeeCents(cwt, destinationZip3, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to  determine destination service fee")
 	}
@@ -121,8 +129,8 @@ func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5
 	}
 
 	re.logger.Info("Non-Linehaul charge total calculated",
-		zap.Int("origin service fee", cost.OriginServiceFee.Int()),
-		zap.Int("destination service fee", cost.DestinationServiceFee.Int()),
+		zap.Int("origin service fee", cost.OriginService.Fee.Int()),
+		zap.Int("destination service fee", cost.DestinationService.Fee.Int()),
 		zap.Int("pack fee", cost.PackFee.Int()),
 		zap.Int("unpack fee", cost.UnpackFee.Int()))
 
