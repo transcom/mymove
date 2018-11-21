@@ -58,7 +58,11 @@ docker run \
   --detach \
   e2e:latest
 
+# Debug output
 docker ps -a
+echo /etc/hosts
+
+sleep 5
 
 npx cypress run & p2=$!
 
