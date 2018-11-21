@@ -2,7 +2,6 @@ package testdatagen
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/unit"
 	"math/rand"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakeShipmentOffer creates a single shipment offer record
@@ -18,7 +18,7 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 
 	// Test for Shipment first before creating a new Shipment
 	shipment := assertions.ShipmentOffer.Shipment
-	if isZeroUUID(assertions.ShipmentOffer.ShipmentID) {
+	if isZeroUUID(shipment.ID) {
 		shipment = MakeShipment(db, assertions)
 	}
 
@@ -120,8 +120,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	}
 
 	// Make the required Tariff 400 NG Zip3
-	MakeDefaultTariff400ngZip3(db)
-	MakeTariff400ngZip3(db, Assertions{
+	FetchOrMakeDefaultTariff400ngZip3(db)
+	FetchOrMakeTariff400ngZip3(db, Assertions{
 		Tariff400ngZip3: models.Tariff400ngZip3{
 			Zip3:          "800",
 			BasepointCity: "Denver",
@@ -193,6 +193,9 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
+
+		// Makes zip3 and service area models for origin and destination addresses
+		MakeTariff400ngGeoModelsForShipment(db, shipment)
 
 		durIndex := time.Duration(i + 1)
 
@@ -278,6 +281,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			shipmentOfferAssertions := Assertions{
 				ShipmentOffer: models.ShipmentOffer{
 					ShipmentID:                      shipment.ID,
+					Shipment:                        shipment,
 					TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 					Accepted:                        offerState,
 				},
