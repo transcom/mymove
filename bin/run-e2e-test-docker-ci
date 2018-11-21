@@ -15,14 +15,6 @@ export HTTP_PORT=4000
 # Ensure this container doesn't exist
 CONTAINER=e2e_test
 
-function kill_container() {
-  echo "Stopping container $CONTAINER"
-  docker stop $CONTAINER || true
-  echo "Removing container $CONTAINER"
-  docker rm $CONTAINER || true
-}
-kill_container
-
 # Run the image with the ports changed
 docker run \
   -e CLIENT_AUTH_SECRET_KEY="$CLIENT_AUTH_SECRET_KEY" \
@@ -54,25 +46,24 @@ docker run \
   -e SECURE_MIGRATION_SOURCE="$SECURE_MIGRATION_SOURCE" \
   -p "$HTTP_PORT":"$HTTP_PORT" \
   --link=db-dev:database \
-  --name=e2e_test \
+  --name="$CONTAINER" \
   --detach \
   e2e:latest
 
 # Debug output
 docker ps -a
+echo
 cat /etc/hosts
-
+echo
 curl -IX GET http://localhost:4000 || true
 curl -IX GET http://0.0.0.0:4000 || true
 curl -IX GET http://127.0.0.1:4000 || true
+curl -IX GET http://172.23.0.3:4000 || true
+ifconfig
 
 npx cypress run & p2=$!
 
 wait $p2
 test_exit=$?
 echo "Test exited with code $test_exit"
-
-# Kill the docker container you built
-kill_container
-
 exit $test_exit

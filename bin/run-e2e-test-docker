@@ -60,7 +60,7 @@ docker run \
   -e SECURE_MIGRATION_SOURCE="$SECURE_MIGRATION_SOURCE" \
   -p "$HTTP_PORT":"$HTTP_PORT" \
   --link=db-dev:database \
-  --name=e2e_test \
+  --name="$CONTAINER" \
   --detach \
   e2e:latest
 
