@@ -164,8 +164,15 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		appliedQuantity = unit.BaseQuantityFromInt(shipment.NetWeight.Int())
 	}
 
+	var appliedRate unit.Cents
+	if discountRate != nil {
+		appliedRate = discountRate.Apply(rateCents)
+	} else {
+		appliedRate = rateCents
+	}
+
 	if itemPricer, ok := tariff400ngItemPricing[itemCode]; ok {
-		return itemPricer.price(rateCents, appliedQuantity, discountRate), discountRate.Apply(rateCents), nil
+		return itemPricer.price(rateCents, appliedQuantity, discountRate), appliedRate, nil
 	}
 
 	return unit.Cents(0), unit.Cents(0), errors.New("Could not find pricing function for given code")
