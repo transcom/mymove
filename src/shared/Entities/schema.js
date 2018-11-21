@@ -77,7 +77,7 @@ export const tariff400ngItems = new schema.Array(tariff400ngItem);
 
 // ShipmentLineItem
 export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
-  tariff400ngItem: tariff400ngItem,
+  tariff400ng_item: tariff400ngItem,
 });
 export const shipmentLineItems = new schema.Array(shipmentLineItem);
 

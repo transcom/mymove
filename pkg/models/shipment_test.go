@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/gofrs/uuid"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -243,35 +242,4 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
-}
-
-// TestFetchShipmentLineItemByItemID tests that a shipment line item is fetched correctly by item ID
-func (suite *ModelSuite) TestFetchShipmentLineItemByItemID() {
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
-	lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
-		ShipmentLineItem: ShipmentLineItem{
-			ShipmentID: shipment.ID,
-		},
-	})
-
-	// Search for good shipment line item.
-	returnedLineItems, err := shipment.FetchShipmentLineItemsByItemID(suite.db, lineItem.Tariff400ngItemID)
-
-	suite.NoError(err)
-	suite.Len(returnedLineItems, 1)
-	suite.Equal(returnedLineItems[0].ID, lineItem.ID)
-	suite.Equal(returnedLineItems[0].ShipmentID, shipment.ID)
-	suite.Equal(returnedLineItems[0].Tariff400ngItemID, lineItem.Tariff400ngItemID)
-}
-
-// TestFetchShipmentLineItemByItemIDNil tests that a shipment line item that's bogus doesn't results in nil.
-func (suite *ModelSuite) TestFetchShipmentLineItemByItemIDNil() {
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
-
-	// Search for bogus line item ID.
-	bogusID := uuid.Must(uuid.NewV4())
-	returnedLineItems, err := shipment.FetchShipmentLineItemsByItemID(suite.db, bogusID)
-
-	suite.NoError(err)
-	suite.Len(returnedLineItems, 0)
 }

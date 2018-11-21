@@ -107,7 +107,7 @@ function serviceMemberCanReviewMoveSummary() {
     expect(text).to.include('Move Date: 09/02/2018');
     expect(text).to.include('Pickup ZIP Code:  80913');
     expect(text).to.include('Delivery ZIP Code:  76127');
-    expect(text).to.include('Storage: Not requested');
+    expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
     expect(text).to.include('Estimated PPM Incentive:  $2,032.89 - 2,246.87');
   });
