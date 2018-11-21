@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -46,7 +44,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		document.Uploads = append(document.Uploads, u)
 	}
 
-	ordersNumber := "ORDER" + strconv.Itoa(rand.Intn(100))
+	ordersNumber := "ORDER3"
 	TAC := "F8E1"
 	SAC := "SAC"
 	departmentIndicator := "AIR_FORCE"
