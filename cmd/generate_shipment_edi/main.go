@@ -2,17 +2,21 @@ package main
 
 import (
 	"fmt"
-	"github.com/namsral/flag"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"log"
+	"os"
 
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/namsral/flag"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/edi"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	"go.uber.org/zap"
 )
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go -moveID <UUID>
@@ -71,16 +75,22 @@ func main() {
 		}
 		costsByShipments = append(costsByShipments, costByShipment)
 	}
-	edi, err := ediinvoice.Generate858C(costsByShipments, db, false)
+	invoice858C, err := ediinvoice.Generate858C(costsByShipments, db, false, clock.New())
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(edi)
 
 	if *sendToGex == true {
 		fmt.Println("Sending to GEX. . .")
-		statusCode, err := gex.SendInvoiceToGex(logger, edi, *transactionName)
+		invoice858CString, err := invoice858C.EDIString()
+		if err != nil {
+			log.Fatal(err)
+		}
+		statusCode, err := gex.SendInvoiceToGex(logger, invoice858CString, *transactionName)
 		fmt.Printf("status code: %v, error: %v", statusCode, err)
+	} else {
+		ediWriter := edi.NewWriter(os.Stdout)
+		ediWriter.WriteAll(invoice858C.Segments())
 	}
 
 }

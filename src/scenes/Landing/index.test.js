@@ -45,7 +45,6 @@ describe('HomePage tests', () => {
             />
           </Provider>,
         );
-
         const resumeMoveFn = jest.spyOn(wrapper.children().instance(), 'resumeMove');
         wrapper.setProps({ createdServiceMemberIsLoading: true });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
@@ -68,7 +67,7 @@ describe('HomePage tests', () => {
       });
     });
     describe('When the user profile is complete but orders have not been entered', () => {
-      const moveObj = { id: 'foo' };
+      const moveObj = { id: 'foo', selected_move_type: 'PPM' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
@@ -95,6 +94,7 @@ describe('HomePage tests', () => {
             .props()
             .children(),
         );
+
         expect(
           moveSummary
             .find('.status-component')
@@ -107,7 +107,7 @@ describe('HomePage tests', () => {
       });
     });
     describe('When orders have been entered but the move is not complete', () => {
-      const moveObj = { id: 'foo' };
+      const moveObj = { id: 'foo', selected_move_type: 'PPM', status: 'DRAFT' };
       const futureFortNight = moment().add(14, 'day');
       const orders = {
         orders_type: 'foo',

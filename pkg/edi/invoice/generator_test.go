@@ -1,25 +1,94 @@
 package ediinvoice_test
 
 import (
+	"flag"
 	"fmt"
-	"github.com/transcom/mymove/pkg/unit"
+	"io/ioutil"
 	"log"
-	"regexp"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
+	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
+// Flag to update the test EDI
+// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+var update = flag.Bool("update", false, "update .golden files")
+
 func (suite *InvoiceSuite) TestGenerate858C() {
+	costsByShipments := helperCostsByShipment(suite)
+
+	var icnTestCases = []struct {
+		initial  int64
+		expected int64
+	}{
+		{1, 2},
+		{999999999, 1},
+	}
+
+	for _, testCase := range icnTestCases {
+		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
+			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
+			suite.NoError(err, "error setting sequence value")
+
+			generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+
+			suite.NoError(err)
+			if suite.NoError(err) {
+				suite.Equal(testCase.expected, generatedTransactions.ISA.InterchangeControlNumber)
+				suite.Equal(testCase.expected, generatedTransactions.IEA.InterchangeControlNumber)
+				suite.Equal(testCase.expected, generatedTransactions.GS.GroupControlNumber)
+				suite.Equal(testCase.expected, generatedTransactions.GE.GroupControlNumber)
+			}
+		})
+	}
+
+	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
+		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+
+		suite.NoError(err)
+		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
+	})
+}
+
+func (suite *InvoiceSuite) TestEDIString() {
+	suite.T().Run("full EDI string is expected", func(t *testing.T) {
+		err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, 1)
+		suite.NoError(err, "error setting sequence value")
+		costsByShipments := helperCostsByShipment(suite)
+
+		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		suite.NoError(err, "Failed to generate 858C invoice")
+		actualEDIString, err := generatedTransactions.EDIString()
+		suite.NoError(err, "Failed to get invoice 858C as EDI string")
+
+		const expectedEDI = "expected_invoice.edi.golden"
+		suite.NoError(err, "generates error")
+		if *update {
+			goldenFile, err := os.Create(filepath.Join("testdata", expectedEDI))
+			defer goldenFile.Close()
+			suite.NoError(err, "Failed to open EDI file for update")
+			writer := edi.NewWriter(goldenFile)
+			writer.WriteAll(generatedTransactions.Segments())
+		}
+
+		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), actualEDIString)
+	})
+}
+
+func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
 	err := shipment.AssignGBLNumber(suite.db)
 	suite.mustSave(&shipment)
@@ -40,6 +109,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 				ShipmentID:        shipment.ID,
 				Tariff400ngItemID: item.ID,
 				Tariff400ngItem:   item,
+				Quantity1:         unit.BaseQuantityFromInt(2000),
 				AmountCents:       &amountCents,
 			},
 		})
@@ -51,38 +121,14 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		Shipment: shipment,
 		Cost:     rateengine.CostComputation{},
 	}}
-
-	generatedResult, err := ediinvoice.Generate858C(costsByShipments, suite.db, false)
-	suite.NoError(err, "generates error")
-	suite.NotEmpty(generatedResult, "result is empty")
-
-	re := regexp.MustCompile("\\*" + "T" + "\\*")
-	suite.True(re.MatchString(generatedResult), "This fails if the EDI string does not have the environment flag set to T."+
-		" This is set by the if statement in Generate858C() that checks a boolean variable named sendProductionInvoice")
-
+	return costsByShipments
 }
 
-func (suite *InvoiceSuite) TestGetNextICN() {
-	var testCases = []struct {
-		initial  int64
-		expected int64
-	}{
-		{1, 2},
-		{999999999, 1},
-	}
-
-	for _, testCase := range testCases {
-		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
-			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
-			suite.NoError(err, "error setting sequence value")
-
-			actualICN, err := ediinvoice.GetNextICN(suite.db)
-
-			if suite.NoError(err) {
-				assert.Equal(t, testCase.expected, actualICN)
-			}
-		})
-	}
+func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
+	path := filepath.Join("testdata", name) // relative path
+	bytes, err := ioutil.ReadFile(path)
+	suite.NoError(err, "error loading expected EDI fixture")
+	return string(bytes)
 }
 
 type InvoiceSuite struct {

@@ -7,7 +7,7 @@ import (
 
 // Segment represents an EDI segment
 type Segment interface {
-	String(delimeter string) string
+	StringArray() []string
 	Parse(parts []string) error
 }
 

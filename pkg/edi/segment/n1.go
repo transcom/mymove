@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // N1 represents the N1 EDI segment
@@ -13,16 +12,15 @@ type N1 struct {
 	IdentificationCode          string
 }
 
-// String converts N1 to its X12 single line string representation
-func (s *N1) String(delimiter string) string {
-	elements := []string{
+// StringArray converts N1 to an array of strings
+func (s *N1) StringArray() []string {
+	return []string{
 		"N1",
 		s.EntityIdentifierCode,
 		s.Name,
 		s.IdentificationCodeQualifier,
 		s.IdentificationCode,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the N1 struct
