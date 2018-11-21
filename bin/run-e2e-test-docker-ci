@@ -10,7 +10,7 @@ make server_deps server_generate client_build db_e2e_init server_build
 # Build the docker container
 docker build --tag e2e:latest .
 
-export HTTP_PORT=4000
+HTTP_PORT=4000
 
 # Ensure this container doesn't exist
 CONTAINER=e2e_test
@@ -59,7 +59,16 @@ echo
 nmap -p"$HTTP_PORT,9443,8443,5432" -Pn -oG - "$ip"
 echo
 curl -IXGET "http://$ip:4000"
-curl -IXGET http://172.17.0.1:4000
+curl -IXGET http://172.17.0.3:4000
+curl -IXGET http://127.0.0.1:4000
+curl -IXGET http://127.0.0.1:4000
+curl -IXGET http://127.0.0.1:4000
+curl -IXGET http://localhost:4000
+curl -IXGET http://localhost:4000
+curl -IXGET http://localhost:4000
+curl -IXGET http://0.0.0.0:4000
+curl -IXGET http://0.0.0.0:4000
+curl -IXGET http://0.0.0.0:4000
 echo
 
 npx cypress run & p2=$!

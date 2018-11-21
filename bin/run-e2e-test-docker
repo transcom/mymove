@@ -16,7 +16,7 @@ make server_build
 # Build the docker container
 docker build --tag e2e:latest .
 
-export HTTP_PORT=4000
+HTTP_PORT=4000
 
 # Ensure this container doesn't exist
 CONTAINER=e2e_test
@@ -55,14 +55,13 @@ docker run \
   -e MOVE_MIL_DOD_TLS_CERT="$MOVE_MIL_DOD_TLS_CERT" \
   -e MOVE_MIL_DOD_TLS_KEY="$MOVE_MIL_DOD_TLS_KEY" \
   -e NO_TLS_PORT="$HTTP_PORT" \
-  -e PORT="$HTTP_PORT" \
   -e SECURE_MIGRATION_DIR="$SECURE_MIGRATION_DIR" \
   -e SECURE_MIGRATION_SOURCE="$SECURE_MIGRATION_SOURCE" \
   -p "$HTTP_PORT":"$HTTP_PORT" \
   --expose="$HTTP_PORT" \
-  --link=db-dev:database \
   --name="$CONTAINER" \
   --detach \
+  --rm \
   e2e:latest
 
 npx cypress open || true

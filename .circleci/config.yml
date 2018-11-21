@@ -231,9 +231,8 @@ jobs:
       - run:
           name: Setup hostnames
           command: |
-            echo 172.17.0.1 localhost | sudo tee -a /etc/hosts
-            echo 172.17.0.1 officelocal | sudo tee -a /etc/hosts
-            echo 172.17.0.1 tsplocal | sudo tee -a /etc/hosts
+            echo 127.0.0.1 officelocal | sudo tee -a /etc/hosts
+            echo 127.0.0.1 tsplocal | sudo tee -a /etc/hosts
       - run:
           name: make e2e_test_docker_ci
           command: |
