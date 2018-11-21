@@ -78,7 +78,10 @@ export class SignedCertification extends Component {
 
               <div className="signature-box">
                 <h3>SIGNATURE</h3>
-                <p>I agree that I have read and understand the above notifications.</p>
+                <p>
+                  In consideration of said household goods or mobile homes being shipped at Government expense,{' '}
+                  <strong>I hereby agree to the certifications stated above.</strong>
+                </p>
                 <div className="signature-fields">
                   <SwaggerField
                     className="signature"

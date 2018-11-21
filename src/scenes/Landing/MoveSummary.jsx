@@ -30,7 +30,7 @@ export const CanceledMoveSummary = props => {
     <Fragment>
       <h2>New move</h2>
       <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={truck} alt="ppm-car" />
@@ -60,12 +60,10 @@ export const CanceledMoveSummary = props => {
 };
 
 export const DraftMoveSummary = props => {
-  const { orders, profile, move, entitlement, resumeMove } = props;
+  const { profile, resumeMove } = props;
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={truck} alt="ppm-car" />
@@ -108,12 +106,10 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm, orders, profile, move, entitlement } = props;
+  const { ppm, profile } = props;
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
@@ -125,7 +121,7 @@ export const SubmittedPpmMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
-                  <div className="title">Next Step: Awaiting approval</div>
+                  <div className="title">Next Step: Wait for approval</div>
                   <div
                   >{`Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
                     profile.current_station.name
@@ -210,13 +206,11 @@ const showHhgLandingPageText = shipment => {
 };
 
 export const SubmittedHhgMoveSummary = props => {
-  const { shipment, orders, profile, move, entitlement } = props;
+  const { shipment } = props;
   let today = moment();
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={truck} alt="hhg-truck" />
@@ -265,14 +259,12 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 export const ApprovedMoveSummary = props => {
-  const { ppm, orders, profile, move, entitlement, requestPaymentSuccess } = props;
+  const { ppm, move, requestPaymentSuccess } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.planned_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (
     <Fragment>
-      <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
-      <br />
-      <div className="usa-width-three-fourths">
+      <div>
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
@@ -422,27 +414,24 @@ const hhgSummaryStatusComponents = {
   CANCELED: CanceledMoveSummary,
 };
 
-const getStatus = (moveStatus, moveType, ppm, shipment) => {
-  let status = 'DRAFT';
-  if (moveType === 'PPM') {
-    // PPM status determination
-    const ppmStatus = get(ppm, 'status', 'DRAFT');
-    status =
-      moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
-  } else if (moveType === 'HHG') {
-    // HHG status determination
-    if (moveStatus === 'CANCELED') {
-      // Shipment does not have a canceled status, but move does.
-      return moveStatus;
-    }
-    const shipmentStatus = get(shipment, 'status', 'DRAFT');
-    status = ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
-      shipmentStatus,
-    )
-      ? shipmentStatus
-      : 'DRAFT';
+const getPPMStatus = (moveStatus, ppm) => {
+  // PPM status determination
+  const ppmStatus = get(ppm, 'status', 'DRAFT');
+  return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
+};
+
+const getHHGStatus = (moveStatus, shipment) => {
+  // HHG status determination
+  if (moveStatus === 'CANCELED') {
+    // Shipment does not have a canceled status, but move does.
+    return moveStatus;
   }
-  return status;
+  const shipmentStatus = get(shipment, 'status', 'DRAFT');
+  return ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
+    shipmentStatus,
+  )
+    ? shipmentStatus
+    : 'DRAFT';
 };
 
 export const MoveSummary = withContext(props => {
@@ -461,19 +450,21 @@ export const MoveSummary = withContext(props => {
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
 
-  const status = getStatus(moveStatus, move.selected_move_type, ppm, shipment);
-  const StatusComponent =
-    move.selected_move_type === 'PPM' ? ppmSummaryStatusComponents[status] : hhgSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
+  const showHHG = move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM';
+  const showPPM = move.selected_move_type === 'PPM' || move.selected_move_type === 'HHG_PPM';
+  const hhgStatus = getHHGStatus(moveStatus, shipment);
+  const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
+  const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm)];
   const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
-    (move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM') &&
-    ['SUBMITTED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
+    move.selected_move_type === 'HHG' &&
+    ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
   const showTsp =
     move.selected_move_type !== 'PPM' &&
-    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(status);
+    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(hhgStatus);
   return (
     <Fragment>
-      {status === 'CANCELED' && (
+      {move.status === 'CANCELED' && (
         <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
           locator ID {get(move, 'locator')} was canceled.
@@ -481,25 +472,49 @@ export const MoveSummary = withContext(props => {
       )}
 
       <div className="whole_box">
-        <StatusComponent
-          className="status-component"
-          ppm={ppm}
-          shipment={shipment}
-          orders={orders}
-          profile={profile}
-          move={move}
-          entitlement={entitlement}
-          resumeMove={resumeMove}
-          reviewProfile={reviewProfile}
-          requestPaymentSuccess={requestPaymentSuccess}
-        />
+        {move.status !== 'CANCELED' && (
+          <div>
+            <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
+            <br />
+          </div>
+        )}
+        <div className="usa-width-three-fourths">
+          {(showHHG || (!showHHG && !showPPM)) && (
+            <HHGComponent
+              className="status-component"
+              ppm={ppm}
+              shipment={shipment}
+              orders={orders}
+              profile={profile}
+              move={move}
+              entitlement={entitlement}
+              resumeMove={resumeMove}
+              reviewProfile={reviewProfile}
+              requestPaymentSuccess={requestPaymentSuccess}
+            />
+          )}
+          {showPPM && (
+            <PPMComponent
+              className="status-component"
+              ppm={ppm}
+              shipment={shipment}
+              orders={orders}
+              profile={profile}
+              move={move}
+              entitlement={entitlement}
+              resumeMove={resumeMove}
+              reviewProfile={reviewProfile}
+              requestPaymentSuccess={requestPaymentSuccess}
+            />
+          )}
+        </div>
 
         <div className="sidebar usa-width-one-fourth">
           <div>
             <button
               className="usa-button-secondary"
               onClick={() => editMove(move)}
-              disabled={includes(['DRAFT', 'CANCELED'], status)}
+              disabled={includes(['DRAFT', 'CANCELED'], move.status)}
             >
               Edit Move
             </button>
@@ -520,7 +535,9 @@ export const MoveSummary = withContext(props => {
           <div className="contact_block">
             <div className="title">Contacts</div>
             <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
-            {status !== 'CANCELED' && <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />}
+            {hhgStatus !== 'CANCELED' && (
+              <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
+            )}
             {showTsp && (
               <div className="titled_block">
                 <strong>TSP name</strong>
