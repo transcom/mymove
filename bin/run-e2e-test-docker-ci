@@ -60,9 +60,7 @@ docker run \
 
 # Debug output
 docker ps -a
-echo /etc/hosts
-
-sleep 5
+cat /etc/hosts
 
 npx cypress run & p2=$!
 
