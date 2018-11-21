@@ -58,6 +58,7 @@ docker run \
   e2e:latest & p1=$!
 
 echo "Running docker process $p1"
+docker ps -a
 
 npx cypress run & p2=$!
 
