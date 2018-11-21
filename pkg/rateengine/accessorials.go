@@ -1,8 +1,6 @@
 package rateengine
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -144,7 +142,6 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			effectiveItemCode = mappedCode
 		}
 
-		fmt.Println(effectiveItemCode, serviceArea.ServicesSchedule, *shipment.NetWeight, *shipDate)
 		rate, err := models.FetchTariff400ngItemRate(re.db,
 			effectiveItemCode,
 			serviceArea.ServicesSchedule,
