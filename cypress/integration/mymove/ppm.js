@@ -12,7 +12,7 @@ describe('completing the ppm flow', function() {
   //delete from personally_procured_moves
   it('progresses thru forms', function() {
     cy.contains('Yuma AFB (from Yuma AFB)');
-    cy.get('.whole_box > :nth-child(3) > span').contains('10,500 lbs');
+    cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should(loc => {
@@ -75,7 +75,7 @@ describe('completing the ppm flow', function() {
     });
 
     cy.contains('Success');
-    cy.contains('Next Step: Awaiting approval');
+    cy.contains('Next Step: Wait for approval');
     cy.contains('Advance Requested: $1,333.91');
   });
 });

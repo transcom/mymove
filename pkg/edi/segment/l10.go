@@ -3,7 +3,6 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // L10 represents the B3 EDI segment
@@ -13,15 +12,14 @@ type L10 struct {
 	WeightUnitCode  string
 }
 
-// String converts L10 to its X12 single line string representation
-func (s *L10) String(delimiter string) string {
-	elements := []string{
+// StringArray converts L10 to an array of strings
+func (s *L10) StringArray() []string {
+	return []string{
 		"L10",
 		strconv.FormatFloat(s.Weight, 'f', 3, 64),
 		s.WeightQualifier,
 		s.WeightUnitCode,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the L10 struct
