@@ -62,6 +62,90 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 
 }
 
+func (suite *HandlerSuite) TestSubmitPPMHandler() {
+	scenario.RunRateEngineScenario1(suite.TestDB())
+
+	initialSize := internalmessages.TShirtSize("S")
+	newSize := internalmessages.TShirtSize("L")
+
+	initialWeight := swag.Int64(4100)
+	newWeight := swag.Int64(4105)
+
+	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
+	newMoveDate := time.Now()
+
+	hasAdditionalPostalCode := swag.Bool(true)
+	newHasAdditionalPostalCode := swag.Bool(false)
+	additionalPickupPostalCode := swag.String("90210")
+
+	hasSit := swag.Bool(true)
+	newHasSit := swag.Bool(false)
+	daysInStorage := swag.Int64(3)
+	newPickupPostalCode := swag.String("32168")
+	newDestinationPostalCode := swag.String("29401")
+
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
+
+	newAdvanceWorksheet := models.Document{
+		ServiceMember:   move.Orders.ServiceMember,
+		ServiceMemberID: move.Orders.ServiceMemberID,
+	}
+	suite.MustSave(&newAdvanceWorksheet)
+
+	ppm1 := models.PersonallyProcuredMove{
+		MoveID:                     move.ID,
+		Move:                       move,
+		Size:                       &initialSize,
+		WeightEstimate:             initialWeight,
+		PlannedMoveDate:            &initialMoveDate,
+		HasAdditionalPostalCode:    hasAdditionalPostalCode,
+		AdditionalPickupPostalCode: additionalPickupPostalCode,
+		HasSit:           hasSit,
+		DaysInStorage:    daysInStorage,
+		Status:           models.PPMStatusDRAFT,
+		AdvanceWorksheet: newAdvanceWorksheet,
+	}
+	suite.MustSave(&ppm1)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	payload := internalmessages.PatchPersonallyProcuredMovePayload{
+		Size:                    &newSize,
+		WeightEstimate:          newWeight,
+		PlannedMoveDate:         handlers.FmtDatePtr(&newMoveDate),
+		HasAdditionalPostalCode: newHasAdditionalPostalCode,
+		PickupPostalCode:        newPickupPostalCode,
+		DestinationPostalCode:   newDestinationPostalCode,
+		HasSit:                  newHasSit,
+	}
+
+	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		PatchPersonallyProcuredMovePayload: &payload,
+	}
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler.SetPlanner(route.NewTestingPlanner(900))
+	response := handler.Handle(patchPPMParams)
+
+	// assert we got back the 201 response
+	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
+	patchPPMPayload := okResponse.Payload
+
+	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
+	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
+
+	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
+	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
+	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
+	suite.Equal(*(*time.Time)(patchPPMPayload.PlannedMoveDate), newMoveDate, "MoveDate should have been updated.")
+	suite.Nil(patchPPMPayload.DaysInStorage, "AdditionalPostalCode should have been updated to nil.")
+	suite.Equal(*patchPPMPayload.Mileage, int64(900), "Mileage should have been set to 900")
+}
+
 func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	t := suite.T()
