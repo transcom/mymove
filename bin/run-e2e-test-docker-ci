@@ -62,6 +62,10 @@ docker run \
 docker ps -a
 cat /etc/hosts
 
+curl -IX GET http://localhost:4000 || true
+curl -IX GET http://0.0.0.0:4000 || true
+curl -IX GET http://127.0.0.1:4000 || true
+
 npx cypress run & p2=$!
 
 wait $p2
