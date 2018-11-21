@@ -46,6 +46,7 @@ docker run \
   -p "$HTTP_PORT":"$HTTP_PORT" \
   --expose="$HTTP_PORT" \
   --name="$CONTAINER" \
+  --link="db-dev:database" \
   --detach \
   --rm \
   e2e:latest
@@ -57,18 +58,6 @@ ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' CONTAINER)
 echo "$ip"
 echo
 nmap -p"$HTTP_PORT,9443,8443,5432" -Pn -oG - "$ip"
-echo
-curl -IXGET "http://$ip:4000"
-curl -IXGET http://172.17.0.3:4000
-curl -IXGET http://127.0.0.1:4000
-curl -IXGET http://127.0.0.1:4000
-curl -IXGET http://127.0.0.1:4000
-curl -IXGET http://localhost:4000
-curl -IXGET http://localhost:4000
-curl -IXGET http://localhost:4000
-curl -IXGET http://0.0.0.0:4000
-curl -IXGET http://0.0.0.0:4000
-curl -IXGET http://0.0.0.0:4000
 echo
 
 npx cypress run & p2=$!

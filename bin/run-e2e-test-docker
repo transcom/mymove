@@ -22,10 +22,9 @@ HTTP_PORT=4000
 CONTAINER=e2e_test
 
 function kill_container() {
+  # Stopping will also remove the container because we specified the --rm flag
   echo "Stopping container $CONTAINER"
   docker stop $CONTAINER || true
-  echo "Removing container $CONTAINER"
-  docker rm $CONTAINER || true
 }
 kill_container
 
@@ -60,6 +59,7 @@ docker run \
   -p "$HTTP_PORT":"$HTTP_PORT" \
   --expose="$HTTP_PORT" \
   --name="$CONTAINER" \
+  --link="db-dev:database" \
   --detach \
   --rm \
   e2e:latest
