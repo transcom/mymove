@@ -147,6 +147,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 		// All items should have a populated amount
 		for _, pricedItem := range pricedItems {
 			suite.NotNil(pricedItem.AmountCents)
+			suite.NotNil(pricedItem.AppliedRate)
 		}
 	}
 }

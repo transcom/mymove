@@ -109,7 +109,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	shipment := shipmentLineItem.Shipment
 
 	if shipment.NetWeight == nil {
-		return unit.Cents(0), errors.New("Can't price a shipment line item for a shipment without NetWeight")
+		return unit.Cents(0), unit.Cents(0), errors.New("Can't price a shipment line item for a shipment without NetWeight")
 	}
 
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
@@ -192,11 +192,12 @@ func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipme
 	}
 
 	for i := 0; i < len(items); i++ {
-		price, err := re.ComputeShipmentLineItemCharge(items[i])
+		price, rate, err := re.ComputeShipmentLineItemCharge(items[i])
 		if err != nil {
 			return []models.ShipmentLineItem{}, err
 		}
 		items[i].AmountCents = &price
+		items[i].AppliedRate = &rate
 	}
 
 	return items, nil
