@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-const UserGreeting = ({ isLoggedIn, firstName, email }) =>
+export const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   isLoggedIn && (
     <span>
       <strong>{firstName ? `Welcome, ${firstName}` : email}</strong>
