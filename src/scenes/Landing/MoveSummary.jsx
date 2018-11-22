@@ -414,9 +414,13 @@ const hhgSummaryStatusComponents = {
   CANCELED: CanceledMoveSummary,
 };
 
-const getPPMStatus = (moveStatus, ppm) => {
+const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
   // PPM status determination
   const ppmStatus = get(ppm, 'status', 'DRAFT');
+  // If an HHG_PPM move, move type will be past draft, even if PPM is still in draft status.
+  if (selectedMoveType === 'HHG_PPM') {
+    return ppmStatus;
+  }
   return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
 };
 
@@ -449,15 +453,16 @@ export const MoveSummary = withContext(props => {
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
+  const selectedMoveType = get(move, 'selected_move_type');
 
-  const showHHG = move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM';
-  const showPPM = move.selected_move_type === 'PPM' || move.selected_move_type === 'HHG_PPM';
+  const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
+  const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
   const hhgStatus = getHHGStatus(moveStatus, shipment);
   const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
-  const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm)];
+  const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm, selectedMoveType)];
   const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
-    move.selected_move_type === 'HHG' &&
+    selectedMoveType === 'HHG' &&
     ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
   const showTsp =
     move.selected_move_type !== 'PPM' &&
