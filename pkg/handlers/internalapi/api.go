@@ -37,10 +37,10 @@ func NewInternalAPIHandler(p HandlerParams) (Handler, error) {
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{p.HandlerContext}
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{p.HandlerContext}
-
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{p.HandlerContext}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{p.HandlerContext}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{p.HandlerContext}
+	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{p.HandlerContext}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{p.HandlerContext}
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{p.HandlerContext}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{p.HandlerContext}
@@ -72,11 +72,6 @@ func NewInternalAPIHandler(p HandlerParams) (Handler, error) {
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{p.HandlerContext}
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{p.HandlerContext}
 	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler{p.HandlerContext}
-
-	internalAPI.BackupContactsIndexServiceMemberBackupContactsHandler = IndexBackupContactsHandler{p.HandlerContext}
-	internalAPI.BackupContactsCreateServiceMemberBackupContactHandler = CreateBackupContactHandler{p.HandlerContext}
-	internalAPI.BackupContactsUpdateServiceMemberBackupContactHandler = UpdateBackupContactHandler{p.HandlerContext}
-	internalAPI.BackupContactsShowServiceMemberBackupContactHandler = ShowBackupContactHandler{p.HandlerContext}
 
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler{p.HandlerContext}
 	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler{p.HandlerContext}

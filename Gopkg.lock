@@ -1373,6 +1373,7 @@
     "github.com/dgrijalva/jwt-go",
     "github.com/docker/go-units",
     "github.com/dustin/go-humanize",
+    "github.com/facebookgo/clock",
     "github.com/felixge/httpsnoop",
     "github.com/fullsailor/pkcs7",
     "github.com/go-gomail/gomail",

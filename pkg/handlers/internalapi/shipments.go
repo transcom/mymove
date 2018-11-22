@@ -1,22 +1,24 @@
 package internalapi
 
 import (
-	"fmt"
-	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/server"
+	"os"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/edi"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/server"
 )
 
 func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
@@ -476,6 +478,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		"Move.Orders.NewDutyStation.Address",
 		"ServiceMember",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
+		"ShipmentLineItems.Tariff400ngItem",
 	).Find(&shipment, shipmentID)
 
 	if err != nil {
@@ -492,15 +495,22 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	costsByShipments = append(costsByShipments, shipmentCost)
 
 	// pass value into generator --> edi string
-	edi, err := ediinvoice.Generate858C(costsByShipments, h.DB(), h.SendProductionInvoice())
+	invoice858C, err := ediinvoice.Generate858C(costsByShipments, h.DB(), h.SendProductionInvoice(), clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	fmt.Print(edi) // to use for demo visual
+	// to use for demo visual
+	// should this have a flag or be taken out?
+	ediWriter := edi.NewWriter(os.Stdout)
+	ediWriter.WriteAll(invoice858C.Segments())
 
 	// send edi through gex post api
 	transactionName := "placeholder"
-	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), edi, transactionName)
+	invoice858CString, err := invoice858C.EDIString()
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

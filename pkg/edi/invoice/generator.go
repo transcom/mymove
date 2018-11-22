@@ -1,19 +1,21 @@
 package ediinvoice
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
+	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
-const delimiter = "*"
 const dateFormat = "20060102"
 const timeFormat = "1504"
 const senderCode = "MYMOVE"
@@ -24,23 +26,65 @@ const receiverCode = "8004171844" // Syncada
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
 
-// Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool) (string, error) {
-	interchangeControlNumber, err := getNextICN(db)
+// Invoice858C holds all the segments that are generated
+type Invoice858C struct {
+	ISA       edisegment.ISA
+	GS        edisegment.GS
+	Shipments [][]edisegment.Segment
+	GE        edisegment.GE
+	IEA       edisegment.IEA
+}
+
+// Segments returns the invoice as an array of rows (string arrays),
+// each containing a segment, to prepare it for writing
+func (invoice Invoice858C) Segments() [][]string {
+	records := [][]string{
+		invoice.ISA.StringArray(),
+		invoice.GS.StringArray(),
+	}
+	for _, shipment := range invoice.Shipments {
+		for _, line := range shipment {
+			records = append(records, line.StringArray())
+		}
+	}
+	records = append(records, invoice.GE.StringArray())
+	records = append(records, invoice.IEA.StringArray())
+	return records
+}
+
+// EDIString returns the EDI representation of an 858C
+func (invoice Invoice858C) EDIString() (string, error) {
+	var b bytes.Buffer
+	ediWriter := edi.NewWriter(&b)
+	err := ediWriter.WriteAll(invoice.Segments())
 	if err != nil {
-		return "", errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
+		return "", err
+	}
+	return b.String(), err
+}
+
+// Generate858C generates an EDI X12 858C transaction set
+func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+	loc, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		return Invoice858C{}, err
+	}
+	currentTime := clock.Now().In(loc)
+
+	interchangeControlNumber, err := sequence.NextVal(db, ICNSequenceName)
+	if err != nil {
+		return Invoice858C{}, errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
 	}
 
-	currentTime := time.Now()
 	var usageIndicator string
-
 	if sendProductionInvoice {
 		usageIndicator = "P"
 	} else {
 		usageIndicator = "T"
 	}
 
-	isa := edisegment.ISA{
+	invoice := Invoice858C{}
+	invoice.ISA = edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          fmt.Sprintf("%010d", 0),
 		SecurityInformationQualifier:      "00", // No security information
@@ -58,7 +102,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		UsageIndicator:                    usageIndicator, // T for test, P for production
 		ComponentElementSeparator:         "|",
 	}
-	gs := edisegment.GS{
+	invoice.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI", // Shipment Information (858)
 		ApplicationSendersCode:   senderCode,
 		ApplicationReceiversCode: receiverCode,
@@ -68,36 +112,34 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		ResponsibleAgencyCode: "X", // Accredited Standards Committee X12
 		Version:               "004010",
 	}
-	transaction := isa.String(delimiter) + gs.String(delimiter)
 
 	var shipments []models.Shipment
 
+	invoice.Shipments = make([][]edisegment.Segment, 0)
 	for index, shipmentWithCost := range shipmentsAndCosts {
 		shipment := shipmentWithCost.Shipment
 
-		shipment858c, err := generate858CShipment(shipmentWithCost, index+1)
+		shipmentSegments, err := generate858CShipment(shipmentWithCost, index+1)
 		if err != nil {
-			return "", err
+			return invoice, err
 		}
-		transaction += shipment858c
+		invoice.Shipments = append(invoice.Shipments, shipmentSegments)
 		shipments = append(shipments, shipment)
 	}
 
-	ge := edisegment.GE{
+	invoice.GE = edisegment.GE{
 		NumberOfTransactionSetsIncluded: len(shipments),
 		GroupControlNumber:              interchangeControlNumber,
 	}
-	iea := edisegment.IEA{
+	invoice.IEA = edisegment.IEA{
 		NumberOfIncludedFunctionalGroups: 1,
 		InterchangeControlNumber:         interchangeControlNumber,
 	}
 
-	transaction += (ge.String(delimiter) + iea.String(delimiter))
-
-	return transaction, nil
+	return invoice, nil
 }
 
-func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNum int) (string, error) {
+func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -108,30 +150,22 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 
 	headingSegments, err := getHeadingSegments(shipmentWithCost, sequenceNum)
 	if err != nil {
-		return "", err
+		return segments, err
 	}
 	segments = append(segments, headingSegments...)
 
 	lineItemSegments, err := getLineItemSegments(shipmentWithCost)
 	if err != nil {
-		return "", err
+		return segments, err
 	}
 	segments = append(segments, lineItemSegments...)
 
-	segments = append(
-		segments,
-		&edisegment.SE{
-			NumberOfIncludedSegments:    len(segments) + 1, // Include SE in count
-			TransactionSetControlNumber: transactionNumber,
-		},
-	)
+	segments = append(segments, &edisegment.SE{
+		NumberOfIncludedSegments:    len(segments) + 1, // Include SE in count
+		TransactionSetControlNumber: transactionNumber,
+	})
 
-	transaction := ""
-	for _, seg := range segments {
-		transaction += seg.String(delimiter)
-	}
-
-	return transaction, nil
+	return segments, nil
 }
 
 func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
@@ -259,9 +293,62 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	// HL segment: p. 51
 	// L0 segment: p. 77
 	// L1 segment: p. 82
-	// TODO: These are sample line items, need to pull actual line items from shipment
-	// that are ready to be invoiced
-	cost := shipmentWithCost.Cost
+
+	lineItems := shipmentWithCost.Shipment.ShipmentLineItems
+
+	// TODO: For the moment, we are explicitly grabbing the line items for linehaul, pack, etc.
+	// TODO: We ultimately need to process all line items and hopefully abstract out their processing.
+	// TODO: See https://www.pivotaltracker.com/story/show/162065870
+
+	var segments []edisegment.Segment
+
+	linehaulSegments, err := generateLinehaulSegments(lineItems)
+	if err != nil {
+		return nil, err
+	}
+	segments = append(segments, linehaulSegments...)
+
+	fullPackSegments, err := generateFullPackSegments(lineItems)
+	if err != nil {
+		return nil, err
+	}
+	segments = append(segments, fullPackSegments...)
+
+	// TODO: We are missing full unpack (no "105C" currently in our tariff400ng_items table)
+	// TODO: Currently, the pack shipment line item covers the charge for both pack/unpack.
+	// fullUnpackSegments, err := generateFullUnpackSegments(lineItems)
+	// if err != nil {
+	//     return nil, err
+	// }
+	// segments = append(segments, fullUnpackSegments...)
+
+	originServiceSegments, err := generateOriginServiceSegments(lineItems)
+	if err != nil {
+		return nil, err
+	}
+	segments = append(segments, originServiceSegments...)
+
+	destinationServiceSegments, err := generateDestinationServiceSegments(lineItems)
+	if err != nil {
+		return nil, err
+	}
+	segments = append(segments, destinationServiceSegments...)
+
+	// TODO: We haven't migrated fuel surcharge yet ("16A") to use shipment line items.
+	fuelLinehaulSegments, err := generateFuelLinehaulSegments(lineItems)
+	if err != nil {
+		return nil, err
+	}
+	segments = append(segments, fuelLinehaulSegments...)
+
+	return segments, nil
+}
+
+func generateLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+	lineItem, err := findLineItemByCode(lineItems, "LHS")
+	if err != nil {
+		return nil, err
+	}
 
 	return []edisegment.Segment{
 		// Linehaul. Not sure why this uses the 303 code, but that's what I saw from DPS
@@ -275,11 +362,21 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0,
+			FreightRate:        0,    // TODO: placeholder for now
 			RateValueQualifier: "RC", // Rate
-			Charge:             cost.LinehaulCostComputation.LinehaulChargeTotal.ToDollarFloat(),
+			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "LHS", // Linehaul
 		},
+	}, nil
+}
+
+func generateFullPackSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+	lineItem, err := findLineItemByCode(lineItems, "105A")
+	if err != nil {
+		return nil, err
+	}
+
+	return []edisegment.Segment{
 		// Full pack
 		&edisegment.HL{
 			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
@@ -287,16 +384,26 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77,
-			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.PackFee.ToDollarFloat(),
+			FreightRate:        65.77, // TODO: placeholder for now
+			RateValueQualifier: "RC",  // Rate
+			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "105A", // Full pack
 		},
+	}, nil
+}
+
+func generateFullUnpackSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+	lineItem, err := findLineItemByCode(lineItems, "105C")
+	if err != nil {
+		return nil, err
+	}
+
+	return []edisegment.Segment{
 		// Full unpack
 		&edisegment.HL{
 			HierarchicalIDNumber:  "304", // Accessorial services performed at destination
@@ -304,16 +411,26 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77,
-			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.UnpackFee.ToDollarFloat(),
+			FreightRate:        65.77, // TODO: placeholder for now
+			RateValueQualifier: "RC",  // Rate
+			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "105C", // unpack TODO: verify that GEX can recognize 105C (unpack used to be included with pack above)
 		},
+	}, nil
+}
+
+func generateOriginServiceSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+	lineItem, err := findLineItemByCode(lineItems, "135A")
+	if err != nil {
+		return nil, err
+	}
+
+	return []edisegment.Segment{
 		// Origin service charge
 		&edisegment.HL{
 			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
@@ -321,16 +438,26 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07,
+			FreightRate:        4.07, // TODO: placeholder for now
 			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.OriginServiceFee.ToDollarFloat(),
+			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "135A", // Origin service charge
 		},
+	}, nil
+}
+
+func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+	lineItem, err := findLineItemByCode(lineItems, "135B")
+	if err != nil {
+		return nil, err
+	}
+
+	return []edisegment.Segment{
 		// Destination service charge
 		&edisegment.HL{
 			HierarchicalIDNumber:  "304", // Accessorial services performed at destination
@@ -338,16 +465,27 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               108.2,
+			Weight:               lineItem.Quantity1.ToUnitFloat(),
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07,
+			FreightRate:        4.07, // TODO: placeholder for now
 			RateValueQualifier: "RC", // Rate
-			Charge:             cost.NonLinehaulCostComputation.DestinationServiceFee.ToDollarFloat(),
+			Charge:             lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "135B", // TODO: check if correct for Destination service charge
 		},
+	}, nil
+}
+
+func generateFuelLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+	// TODO: We haven't migrated fuel surcharge yet ("16A") to use shipment line items.
+	// lineItem, err := findLineItemByCode(lineItems, "16A")
+	// if err != nil {
+	//     return nil, err
+	// }
+
+	return []edisegment.Segment{
 		// Fuel surcharge - linehaul
 		&edisegment.HL{
 			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
@@ -359,7 +497,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0.03,
+			FreightRate:        0.03,   // TODO: placeholder for now
 			RateValueQualifier: "RC",   // Rate
 			Charge:             227.42, // TODO: add a calculation of this value to rate engine
 			SpecialChargeDescription: "16A", // Fuel surchage - linehaul
@@ -367,11 +505,12 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	}, nil
 }
 
-// GetNextICN is a public wrapper around getNextICN for testing
-// See: https://www.pivotaltracker.com/n/projects/2136865/stories/161905170
-var GetNextICN = getNextICN
+func findLineItemByCode(lineItems []models.ShipmentLineItem, code string) (models.ShipmentLineItem, error) {
+	for i := range lineItems {
+		if lineItems[i].Tariff400ngItem.Code == code {
+			return lineItems[i], nil
+		}
+	}
 
-// getNextICN returns the next Interchange Control Number in a PostgreSQL sequence
-func getNextICN(db *pop.Connection) (int64, error) {
-	return sequence.NextVal(db, ICNSequenceName)
+	return models.ShipmentLineItem{}, errors.Errorf("Could not find shipment line item with code %s", code)
 }

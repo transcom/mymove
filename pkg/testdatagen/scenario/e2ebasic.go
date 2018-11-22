@@ -374,7 +374,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email = "hhg@incomple.te"
 
-	hhg0 := testdatagen.MakeShipment(db, testdatagen.Assertions{
+	hhg0, err := testdatagen.MakeShipmentForPricing(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("ebc176e0-bb34-47d4-ba37-ff13e2dd40b9")),
 			LoginGovEmail: email,
@@ -398,6 +398,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	hhg0.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg0.Move)

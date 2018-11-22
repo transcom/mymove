@@ -62,6 +62,40 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 
 }
 
+func (suite *HandlerSuite) TestSubmitPPMHandler() {
+	t := suite.T()
+
+	// create a ppm
+	move1 := testdatagen.MakeDefaultMove(suite.TestDB())
+	ppm := models.PersonallyProcuredMove{
+		MoveID:         move1.ID,
+		Move:           move1,
+		WeightEstimate: swag.Int64(1),
+		Status:         models.PPMStatusDRAFT,
+	}
+
+	verrs, err := suite.TestDB().ValidateAndCreate(&ppm)
+	if verrs.HasAny() || err != nil {
+		t.Error(verrs, err)
+	}
+
+	req := httptest.NewRequest("POST", "/fake/path", nil)
+	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
+
+	submitPPMParams := ppmop.SubmitPersonallyProcuredMoveParams{
+		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		HTTPRequest:              req,
+	}
+
+	// submit the PPM
+	handler := SubmitPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(submitPPMParams)
+	okResponse := response.(*ppmop.SubmitPersonallyProcuredMoveOK)
+	submitPPMPayload := okResponse.Payload
+
+	suite.Require().Equal(submitPPMPayload.Status, internalmessages.PPMStatusSUBMITTED, "PPM should have been submitted")
+}
+
 func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	t := suite.T()
@@ -132,7 +166,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 func (suite *HandlerSuite) TestPatchPPMHandler() {
 	scenario.RunRateEngineScenario1(suite.TestDB())
-
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 

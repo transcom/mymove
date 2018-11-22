@@ -2,7 +2,6 @@ package publicapi
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"net/http"
 	"time"
 
@@ -10,6 +9,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/assets"
 
 	"github.com/transcom/mymove/pkg/awardqueue"
@@ -18,9 +19,9 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/server"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
-	"go.uber.org/zap"
 )
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
@@ -342,7 +343,13 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), lineItems)
+	// When the shipment is delivered we should also price existing approved pre-approval requests
+	preApprovals, err := engine.PricePreapprovalRequestsForShipment(*shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), append(lineItems, preApprovals...))
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

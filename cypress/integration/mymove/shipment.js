@@ -52,7 +52,7 @@ describe('completing the hhg flow', function() {
           .get('[class=DayPicker-Day]')
           .first()
           .click()
-          .should('have.class', 'DayPicker-Day--selected');
+          .should('have.class', 'DayPicker-Day--pickup');
       });
 
     // Check for calendar move dates summary and color-coding of calendar.
@@ -205,7 +205,7 @@ describe('completing the hhg flow', function() {
       .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
       .first()
       .click()
-      .should('have.class', 'DayPicker-Day--selected')
+      .should('have.class', 'DayPicker-Day--pickup')
       .invoke('attr', 'aria-label')
       .as('dateLabel');
 
