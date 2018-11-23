@@ -89,7 +89,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http://", callbackPort)
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
 	handler := LogoutHandler{authContext, "fake key", false}
 	wrappedHandler := auth.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, tspMoveMil)(handler)
 
