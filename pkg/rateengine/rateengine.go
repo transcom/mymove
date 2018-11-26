@@ -136,9 +136,9 @@ func (re *RateEngine) ComputePPM(
 	cost = CostComputation{
 		LinehaulCostComputation:    linehaulCostComputation,
 		NonLinehaulCostComputation: nonLinehaulCostComputation,
-		SITFee: sitFee,
-		SITMax: maxSITFee,
-		GCC:    gcc,
+		SITFee:                     sitFee,
+		SITMax:                     maxSITFee,
+		GCC:                        gcc,
 	}
 
 	// Finally, scale by prorate factor
@@ -216,9 +216,9 @@ func (re *RateEngine) ComputeShipment(
 	cost = CostComputation{
 		LinehaulCostComputation:    linehaulCostComputation,
 		NonLinehaulCostComputation: nonLinehaulCostComputation,
-		SITFee: sitFee,
-		SITMax: maxSITFee,
-		GCC:    gcc,
+		SITFee:                     sitFee,
+		SITMax:                     maxSITFee,
+		GCC:                        gcc,
 	}
 
 	// Finally, scale by prorate factor
