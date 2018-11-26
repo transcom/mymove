@@ -5,7 +5,7 @@ import (
 )
 
 // TestYear is the default year for testing.
-var TestYear = 2019
+var TestYear = 2018
 
 // DefaultZip3 is the default zip3 for testing
 var DefaultZip3 = "902"
