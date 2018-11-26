@@ -184,9 +184,13 @@ db_dev_migrate: server_deps db_dev_run
 	cd bin && \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
-db_e2e_init: build_tools db_dev_run db_test_reset
+db_e2e_up:
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
+
+db_e2e_init: build_tools db_dev_run db_test_reset db_e2e_up
+
+db_e2e_init_circleci: build_tools db_test_reset db_e2e_up
 
 db_e2e_reset: db_dev_run
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
@@ -226,5 +230,5 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
 .PHONY: db_dev_run db_dev_reset db_dev_migrate db_test_reset
-.PHONY: db_populate_e2e db_e2e_init db_e2e_reset e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci
+.PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_init_circleci db_e2e_reset e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci
 .PHONY: clean pretty
