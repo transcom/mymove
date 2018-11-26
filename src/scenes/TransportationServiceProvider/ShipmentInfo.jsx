@@ -174,7 +174,11 @@ class ShipmentInfo extends Component {
 
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
-  deliverShipment = values => this.props.deliverShipment(this.props.shipment.id, values);
+  deliverShipment = values => {
+    this.props.deliverShipment(this.props.shipment.id, values).then(() => {
+      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
+    });
+  };
 
   render() {
     const {
