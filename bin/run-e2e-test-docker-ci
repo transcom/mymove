@@ -54,11 +54,6 @@ docker ps -a
 echo
 docker logs $CONTAINER
 echo
-ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER)
-echo "$ip"
-echo
-nmap -p"$HTTP_PORT,9443,8443,5432" -Pn -oG - "$ip"
-echo
 
 npx cypress run & p2=$!
 
