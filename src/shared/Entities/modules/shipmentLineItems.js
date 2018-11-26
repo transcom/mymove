@@ -51,7 +51,7 @@ export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLine
 
 export const selectShipmentLineItem = (state, id) => denormalize([id], ShipmentLineItemsModel, state.entities)[0];
 
-const getUnbilledShipmentLineItems = (state, shipmentId) => {
+const selectUnbilledShipmentLineItems = (state, shipmentId) => {
   const items = filter(state.entities.shipmentLineItems, item => {
     return item.shipment_id === shipmentId && !item.invoice_id;
   });
@@ -64,10 +64,10 @@ const getUnbilledShipmentLineItems = (state, shipmentId) => {
   });
 };
 
-export const makeGetUnbilledShipmentLineItems = () => createSelector([getUnbilledShipmentLineItems], items => items);
+export const makeGetUnbilledShipmentLineItems = () => createSelector([selectUnbilledShipmentLineItems], items => items);
 
 export const makeTotalFromUnbilledLineItems = () =>
-  createSelector([getUnbilledShipmentLineItems], items => {
+  createSelector([selectUnbilledShipmentLineItems], items => {
     return items.reduce((acm, item) => {
       return acm + item.amount_cents;
     }, 0);
