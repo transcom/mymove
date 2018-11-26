@@ -38,9 +38,14 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
 
-	expected := unit.Cents(17500)
-	if feeAndRate.Fee != expected {
-		t.Errorf("wrong service fee: expected %d, got %d", expected, feeAndRate.Fee)
+	expectedFee := unit.Cents(17500)
+	if feeAndRate.Fee != expectedFee {
+		t.Errorf("wrong service fee: expected %d, got %d", expectedFee, feeAndRate.Fee)
+	}
+
+	expectedRate := unit.Cents(350)
+	if feeAndRate.Rate != expectedRate {
+		t.Errorf("wrong service rate: expected %d, got %d", expectedRate, feeAndRate.Rate)
 	}
 }
 
@@ -88,9 +93,13 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
 
-	expected := unit.Cents(271450)
-	if feeAndRate.Fee != expected {
-		t.Errorf("wrong full pack fee: expected %d, got %d", expected, feeAndRate.Fee)
+	expectedFee := unit.Cents(271450)
+	if feeAndRate.Fee != expectedFee {
+		t.Errorf("wrong full pack fee: expected %d, got %d", expectedFee, feeAndRate.Fee)
+	}
+	expectedRate := unit.Cents(5429)
+	if feeAndRate.Rate != expectedRate {
+		t.Errorf("wrong full pack rate: expected %d, got %d", expectedRate, feeAndRate.Rate)
 	}
 }
 
@@ -148,6 +157,11 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	expected := unit.Cents(27145)
 	if feeAndRate.Fee != expected {
 		t.Errorf("wrong full unpack fee: expected %d, got %d", expected, feeAndRate.Fee)
+	}
+
+	expectedRate := unit.Cents(542900)
+	if feeAndRate.Rate != expectedRate {
+		t.Errorf("wrong full unpack rate: expected %d, got %d", expectedRate, feeAndRate.Rate)
 	}
 }
 

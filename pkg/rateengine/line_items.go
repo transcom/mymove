@@ -10,7 +10,6 @@ import (
 // CreateBaseShipmentLineItems will create and return the models for the base shipment line items that every
 // shipment should contain
 func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipment) ([]models.ShipmentLineItem, error) {
-	// TODO: add AppliedRate to each nonLinehaul item from cost
 	shipment := costByShipment.Shipment
 	cost := costByShipment.Cost
 
@@ -63,7 +62,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	if err != nil {
 		return nil, err
 	}
-	destinationServiceFee := models.ShipmentLineItem{
+	destinationService := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: destinationServiceFeeItem.ID,
 		Tariff400ngItem:   destinationServiceFeeItem,
@@ -72,10 +71,9 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &cost.NonLinehaulCostComputation.DestinationService.Fee,
 		AppliedRate:       &cost.NonLinehaulCostComputation.DestinationService.Rate,
-
-		SubmittedDate: now,
+		SubmittedDate:     now,
 	}
-	lineItems = append(lineItems, destinationServiceFee)
+	lineItems = append(lineItems, destinationService)
 
 	// TODO: Determine if we have a separate unpack fee as well.  See notes below.
 	//
@@ -90,7 +88,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	}
 	packAndUnpackFee := cost.NonLinehaulCostComputation.Pack.Fee + cost.NonLinehaulCostComputation.Unpack.Fee
 	packRate := cost.NonLinehaulCostComputation.Pack.Rate
-	fullPack := models.ShipmentLineItem{
+	fullPackAndUnpack := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: fullPackItem.ID,
 		Tariff400ngItem:   fullPackItem,
@@ -101,7 +99,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		AppliedRate:       &packRate,
 		SubmittedDate:     time.Now(),
 	}
-	lineItems = append(lineItems, fullPack)
+	lineItems = append(lineItems, fullPackAndUnpack)
 
 	return lineItems, nil
 }
