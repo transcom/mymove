@@ -86,7 +86,7 @@ export const DraftMoveSummary = props => {
                 <div className="usa-width-one-third">
                   <div className="titled_block">
                     <div className="title">Details</div>
-                    <div>No detail</div>
+                    <div>No details</div>
                   </div>
                   <div className="titled_block">
                     <div className="title">Documents</div>
