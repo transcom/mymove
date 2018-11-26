@@ -99,24 +99,23 @@ export class PpmSize extends Component {
       isHHGPPMComboMove,
     } = this.props;
     const selectedOption = pendingPpmSize || (currentPpm && currentPpm.size);
-    console.log(' actual = ', estimatedRemainingWeight);
 
     const weightRemainingEntitlementMsg = () => {
       if (isHHGPPMComboMove) {
-        // if (actualRemainingWeight < entitlement.sum) {
-        //   return `${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining (${entitlement.sum} lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`
-        // } else {
-        //   return `You have no entitlement remaining (Estimated ${entitlement.sum} lbs. estimated HHG weight).`
-        // }
+        if (actualRemainingWeight < entitlement.sum) {
+          return `${entitlement.sum - actualRemainingWeight} lbs. entitlement remaining
+            (${entitlement.sum} lbs. - ${actualRemainingWeight} lbs. estimated HHG weight).`;
+        } else {
+          return `You have no entitlement remaining
+            (Estimated ${entitlement.sum} lbs. estimated HHG weight).`;
+        }
 
         if (estimatedRemainingWeight < entitlement.sum) {
-          return `Estimated ${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining (${
-            entitlement.sum
-          } lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`;
+          return `Estimated ${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining
+            (${entitlement.sum} lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`;
         } else {
-          return `We estimate you have no entitlement remaining (Estimated ${
-            entitlement.sum
-          } lbs. estimated HHG weight).`;
+          return `We estimate you have no entitlement remaining
+            (Estimated ${entitlement.sum} lbs. estimated HHG weight).`;
         }
       }
     };
@@ -152,6 +151,7 @@ export class PpmSize extends Component {
 *  SM-entered weight
 * `weight_estimate`,
 * `progear_weight_estimate`,
+* `spouse_progear_weight_estimate`
 *
 *
 *

@@ -190,6 +190,8 @@ export function getActualRemainingWeight(state) {
   const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
 
   if (gross_weight && tare_weight) {
+    // will there ever be an instance if tare weight is greater than gross weight?
+    // if so, logic should be updated - are there any restraints on these weights?
     return _getEstimatedRemainingWeight(sum, gross_weight - tare_weight);
   }
 }
