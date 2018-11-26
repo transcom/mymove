@@ -5,6 +5,8 @@ import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
+import { selectShipment } from 'shared/Entities/modules/shipments';
+import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
@@ -149,6 +151,47 @@ export function getSelectedWeightInfo(state) {
 
   const size = ppm ? ppm.size : 'L';
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
+}
+
+const _getEstimatedRemainingWeight = (sum, weight) => {
+  if (sum >= weight) {
+    return sum - weight;
+  } else {
+    return sum;
+  }
+};
+
+export function getEstimatedRemainingWeight(state) {
+  const { sum } = loadEntitlementsFromState(state);
+  const {
+    pm_survey_weight_estimate,
+    weight_estimate,
+    progear_weight_estimate,
+    spouse_progear_weight_estimate,
+  } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (pm_survey_weight_estimate) {
+    return _getEstimatedRemainingWeight(sum, pm_survey_weight_estimate);
+  }
+
+  if (weight_estimate) {
+    const totalEstimatedWeight = [
+      weight_estimate,
+      progear_weight_estimate || 0,
+      spouse_progear_weight_estimate || 0,
+    ].reduce((a, b) => a + b);
+
+    return _getEstimatedRemainingWeight(sum, totalEstimatedWeight);
+  }
+}
+
+export function getActualRemainingWeight(state) {
+  const { sum } = loadEntitlementsFromState(state);
+  const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (gross_weight && tare_weight) {
+    return _getEstimatedRemainingWeight(sum, gross_weight - tare_weight);
+  }
 }
 
 // Reducer

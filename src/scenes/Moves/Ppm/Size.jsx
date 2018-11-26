@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { setPendingPpmSize, getRawWeightInfo } from './ducks';
+import { setPendingPpmSize, getRawWeightInfo, getActualRemainingWeight, getEstimatedRemainingWeight } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import EntitlementBar from 'scenes/EntitlementBar';
 import BigButton from 'shared/BigButton';
@@ -87,16 +87,47 @@ export class PpmSize extends Component {
   onMoveTypeSelected = value => {
     this.props.setPendingPpmSize(value);
   };
+
   render() {
-    const { pendingPpmSize, currentPpm, entitlement, weightInfo, isHHGPPMComboMove } = this.props;
+    const {
+      pendingPpmSize,
+      currentPpm,
+      entitlement,
+      actualRemainingWeight,
+      estimatedRemainingWeight,
+      weightInfo,
+      isHHGPPMComboMove,
+    } = this.props;
     const selectedOption = pendingPpmSize || (currentPpm && currentPpm.size);
+    console.log(' actual = ', estimatedRemainingWeight);
+
+    const weightRemainingEntitlementMsg = () => {
+      if (isHHGPPMComboMove) {
+        // if (actualRemainingWeight < entitlement.sum) {
+        //   return `${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining (${entitlement.sum} lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`
+        // } else {
+        //   return `You have no entitlement remaining (Estimated ${entitlement.sum} lbs. estimated HHG weight).`
+        // }
+
+        if (estimatedRemainingWeight < entitlement.sum) {
+          return `Estimated ${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining (${
+            entitlement.sum
+          } lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`;
+        } else {
+          return `We estimate you have no entitlement remaining (Estimated ${
+            entitlement.sum
+          } lbs. estimated HHG weight).`;
+        }
+      }
+    };
+
     return (
       <div className="usa-grid-full ppm-size-content">
         {weightInfo && (
           <Fragment>
             <h3>How much will you move?</h3>
 
-            {!isHHGPPMComboMove && <EntitlementBar entitlement={entitlement} />}
+            {<EntitlementBar hhgPPMEntitlementMessage={weightRemainingEntitlementMsg()} entitlement={entitlement} />}
 
             <BigButtonGroup selectedOption={selectedOption} onClick={this.onMoveTypeSelected} weightInfo={weightInfo} />
           </Fragment>
@@ -106,12 +137,34 @@ export class PpmSize extends Component {
   }
 }
 
+/*
+*
+*  1st
+*  Actual
+*  `tare_weight`
+*  `gross_weight`
+*
+*  2nd
+*  Pre-Move Survey values.
+* `pm_survey_weight_estimate
+*
+*  3rd
+*  SM-entered weight
+* `weight_estimate`,
+* `progear_weight_estimate`,
+*
+*
+*
+*
+* */
+
 PpmSize.propTypes = {
   pendingPpmSize: PropTypes.string,
   weightInfo: PropTypes.object,
   currentPpm: PropTypes.shape({ id: PropTypes.string, size: PropTypes.string }),
   setPendingPpmSize: PropTypes.func.isRequired,
   entitlement: PropTypes.object,
+  estimatedRemainingWeight: PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -120,6 +173,8 @@ function mapStateToProps(state) {
     weightInfo: getRawWeightInfo(state),
     entitlement: loadEntitlementsFromState(state),
     isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
+    estimatedRemainingWeight: getEstimatedRemainingWeight(state),
+    actualRemainingWeight: getActualRemainingWeight(state),
   };
 }
 

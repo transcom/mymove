@@ -5,7 +5,7 @@ import './index.css';
 
 const EntitlementBar = props => {
   const entitlementText = mapValues(props.entitlement, i => i.toLocaleString());
-  const summaryHtml = () => {
+  const ppmSummaryHtml = () => {
     if (!props.entitlement) return <p />;
     if (props.entitlement.pro_gear_spouse > 0)
       return (
@@ -21,12 +21,17 @@ const EntitlementBar = props => {
       </p>
     );
   };
+
+  const hhgPPMSummaryHtml = () => {
+    return <p>{props.hhgPPMEntitlementMessage}</p>;
+  };
+
   return (
     <div className="entitlement-container">
       <p>
         <strong>How much are you entitled to move?</strong>
       </p>
-      {summaryHtml()}
+      {!props.hhgPPMEntitlementMessage ? ppmSummaryHtml() : hhgPPMSummaryHtml()}
     </div>
   );
 };
@@ -37,5 +42,6 @@ EntitlementBar.propTypes = {
     pro_gear_spouse: PropTypes.number.isRequired,
     sum: PropTypes.number.isRequired,
   }),
+  hhgPPMEntitlementMessage: PropTypes.string,
 };
 export default EntitlementBar;
