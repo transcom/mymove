@@ -197,8 +197,13 @@ db_e2e_reset: db_dev_run
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations reset
 
 db_test_reset:
+	# Initialize a test database if we're not in a CircleCI environment.
+ifndef CIRCLECI
 	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
 	createdb -p 5432 -h localhost -U postgres test_db
+else
+	echo "Relying on CircleCI's test database setup."
+endif
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
