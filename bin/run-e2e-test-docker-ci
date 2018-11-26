@@ -18,8 +18,8 @@ CONTAINER=e2e_test
 # Run the image with the ports changed
 docker run \
   -e CLIENT_AUTH_SECRET_KEY="$CLIENT_AUTH_SECRET_KEY" \
-  -e DB_HOST="database" \
-  -e DB_NAME="test_db" \
+  -e DB_HOST="$DB_HOST" \
+  -e DB_NAME="$DB_NAME" \
   -e DB_PASSWORD="$DB_PASSWORD" \
   -e DB_PORT="$DB_PORT" \
   -e DB_USER="$DB_USER" \
