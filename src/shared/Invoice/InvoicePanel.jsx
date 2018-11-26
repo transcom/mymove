@@ -6,8 +6,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import BasicPanel from 'shared/BasicPanel';
 import {
-  makeGetUnbilledShipmentLineItems,
-  makeTotalFromUnbilledLineItems,
+  selectUnbilledShipmentLineItems,
+  selectTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -60,22 +60,15 @@ InvoicePanel.propTypes = {
   canApprove: PropTypes.bool,
 };
 
-//https://github.com/reduxjs/reselect#sharing-selectors-with-props-across-multiple-component-instances
-const makeMapStateToProps = () => {
-  //using a memoized selector
-  const mapStateToProps = (state, ownProps) => {
-    const getLineItems = makeGetUnbilledShipmentLineItems();
-    const getLineItemSum = makeTotalFromUnbilledLineItems();
-    const isShipmentDelivered = ownProps.shipmentStatus.toUpperCase() === 'DELIVERED';
-    return {
-      unbilledShipmentLineItems: isShipmentDelivered ? getLineItems(state, ownProps.shipmentId) : [],
-      lineItemsTotal: isShipmentDelivered ? getLineItemSum(state, ownProps.shipmentId) : 0,
-    };
+const mapStateToProps = (state, ownProps) => {
+  const isShipmentDelivered = ownProps.shipmentStatus.toUpperCase() === 'DELIVERED';
+  return {
+    unbilledShipmentLineItems: isShipmentDelivered ? selectUnbilledShipmentLineItems(state, ownProps.shipmentId) : [],
+    lineItemsTotal: isShipmentDelivered ? selectTotalFromUnbilledLineItems(state, ownProps.shipmentId) : 0,
   };
-  return mapStateToProps;
 };
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
-export default connect(makeMapStateToProps, mapDispatchToProps)(InvoicePanel);
+export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);

@@ -51,7 +51,7 @@ export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLine
 
 export const selectShipmentLineItem = (state, id) => denormalize([id], ShipmentLineItemsModel, state.entities)[0];
 
-const selectUnbilledShipmentLineItems = (state, shipmentId) => {
+const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
   const items = filter(state.entities.shipmentLineItems, item => {
     return item.shipment_id === shipmentId && !item.invoice_id;
   });
@@ -64,11 +64,12 @@ const selectUnbilledShipmentLineItems = (state, shipmentId) => {
   });
 };
 
-export const makeGetUnbilledShipmentLineItems = () => createSelector([selectUnbilledShipmentLineItems], items => items);
+export const selectUnbilledShipmentLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items =>
+  orderBy(items, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
+);
 
-export const makeTotalFromUnbilledLineItems = () =>
-  createSelector([selectUnbilledShipmentLineItems], items => {
-    return items.reduce((acm, item) => {
-      return acm + item.amount_cents;
-    }, 0);
-  });
+export const selectTotalFromUnbilledLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items => {
+  return items.reduce((acm, item) => {
+    return acm + item.amount_cents;
+  }, 0);
+});
