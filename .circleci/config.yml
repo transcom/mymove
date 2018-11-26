@@ -193,7 +193,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    executor: mymove_and_postgres
+    executor: mymove
     steps:
       - checkout
       - setup_remote_docker:
