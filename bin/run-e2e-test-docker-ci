@@ -52,6 +52,8 @@ docker run \
 # Debug output
 docker ps -a
 echo
+docker logs $CONTAINER
+echo
 ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER)
 echo "$ip"
 echo
