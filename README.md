@@ -43,6 +43,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
+    * [Development Machine Timezone Issues](#development-machine-timezone-issues)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -369,3 +370,16 @@ Migrator: problem creating schema migrations: couldn't start a new transaction: 
 ```
 
 You can check this by typing `ps aux | grep postgres` or `brew services list` and looking for existing processes. In the case of homebrew you can run `brew services stop postgresql` to stop the service and prevent it from running at startup.
+
+#### Development Machine Timezone Issues
+
+If you are experiencing problems like redux forms that are 'dirty' when they shouldn't be on your local environment, it may be due to a mismatch
+of your local dev machine's timezone and the assumption of UTC made by the local database. A detailed example of this sort of issue can be found in
+[this story](https://www.pivotaltracker.com/n/projects/2136865/stories/160975609). A workaround for this is to set the TZ environment variable
+in Mac OS for the context of your running app. This can be done by adding the following to `.envrc.local`:
+
+```bash
+export TZ="UTC"
+```
+
+Doing so will set the timezone environment variable to UTC utilizing the same localized context as your other `.envrc.local` settings.
