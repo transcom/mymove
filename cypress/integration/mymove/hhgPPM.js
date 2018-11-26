@@ -78,7 +78,7 @@ function serviceMemberSelectsWeightRange() {
 
   cy.get('.entitlement-container p:nth-child(2)').should($div => {
     const text = $div.text();
-    expect(text).to.include('You have no entitlement remaining (Estimated 10500 lbs. estimated HHG weight).');
+    expect(text).to.include('Estimated 2537 lbs. entitlement remaining (10500 lbs. - 7963 lbs. estimated HHG weight).');
   });
   //todo verify entitlement
   cy.contains('A trailer').click();

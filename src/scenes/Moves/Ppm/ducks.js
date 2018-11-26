@@ -162,7 +162,14 @@ const _getEstimatedRemainingWeight = (sum, weight) => {
 };
 
 export function getEstimatedRemainingWeight(state) {
-  const { sum } = loadEntitlementsFromState(state);
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
+
   const {
     pm_survey_weight_estimate,
     weight_estimate,
@@ -174,7 +181,7 @@ export function getEstimatedRemainingWeight(state) {
     return _getEstimatedRemainingWeight(sum, pm_survey_weight_estimate);
   }
 
-  if (weight_estimate) {
+  if (sum && weight_estimate) {
     const totalEstimatedWeight = [
       weight_estimate,
       progear_weight_estimate || 0,
@@ -186,10 +193,16 @@ export function getEstimatedRemainingWeight(state) {
 }
 
 export function getActualRemainingWeight(state) {
-  const { sum } = loadEntitlementsFromState(state);
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
   const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
 
-  if (gross_weight && tare_weight) {
+  if (sum && gross_weight && tare_weight) {
     // will there ever be an instance if tare weight is greater than gross weight?
     // if so, logic should be updated - are there any restraints on these weights?
     return _getEstimatedRemainingWeight(sum, gross_weight - tare_weight);

@@ -101,21 +101,24 @@ export class PpmSize extends Component {
     const selectedOption = pendingPpmSize || (currentPpm && currentPpm.size);
 
     const weightRemainingEntitlementMsg = () => {
-      if (isHHGPPMComboMove) {
-        if (actualRemainingWeight < entitlement.sum) {
-          return `${entitlement.sum - actualRemainingWeight} lbs. entitlement remaining
-            (${entitlement.sum} lbs. - ${actualRemainingWeight} lbs. estimated HHG weight).`;
-        } else {
-          return `You have no entitlement remaining (Estimated ${entitlement.sum} lbs. estimated HHG weight).`;
-        }
+      if (!isHHGPPMComboMove) {
+        return null;
+      }
 
-        if (estimatedRemainingWeight < entitlement.sum) {
-          return `Estimated ${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining
-            (${entitlement.sum} lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`;
-        } else {
-          return `We estimate you have no entitlement remaining
-            (Estimated ${entitlement.sum} lbs. estimated HHG weight).`;
-        }
+      if (actualRemainingWeight < entitlement.sum) {
+        return `${entitlement.sum - actualRemainingWeight} lbs. entitlement remaining (${
+          entitlement.sum
+        } lbs. - ${actualRemainingWeight} lbs. estimated HHG weight).`;
+      } else if (actualRemainingWeight >= entitlement.sum) {
+        return `You have no entitlement remaining (Estimated ${entitlement.sum} lbs. estimated HHG weight).`;
+      } else if (estimatedRemainingWeight < entitlement.sum) {
+        return `Estimated ${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining (${
+          entitlement.sum
+        } lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`;
+      } else if (estimatedRemainingWeight >= entitlement.sum) {
+        return `We estimate you have no entitlement remaining (Estimated ${
+          entitlement.sum
+        } lbs. estimated HHG weight).`;
       }
     };
 
@@ -124,9 +127,7 @@ export class PpmSize extends Component {
         {weightInfo && (
           <Fragment>
             <h3>How much will you move?</h3>
-
             {<EntitlementBar hhgPPMEntitlementMessage={weightRemainingEntitlementMsg()} entitlement={entitlement} />}
-
             <BigButtonGroup selectedOption={selectedOption} onClick={this.onMoveTypeSelected} weightInfo={weightInfo} />
           </Fragment>
         )}
