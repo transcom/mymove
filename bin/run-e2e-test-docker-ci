@@ -47,7 +47,6 @@ docker run \
   --expose="$HTTP_PORT" \
   --name="$CONTAINER" \
   --detach \
-  --rm \
   e2e:latest
 
 # Debug output
