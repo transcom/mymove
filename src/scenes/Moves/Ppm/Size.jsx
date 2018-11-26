@@ -106,8 +106,7 @@ export class PpmSize extends Component {
           return `${entitlement.sum - actualRemainingWeight} lbs. entitlement remaining
             (${entitlement.sum} lbs. - ${actualRemainingWeight} lbs. estimated HHG weight).`;
         } else {
-          return `You have no entitlement remaining
-            (Estimated ${entitlement.sum} lbs. estimated HHG weight).`;
+          return `You have no entitlement remaining (Estimated ${entitlement.sum} lbs. estimated HHG weight).`;
         }
 
         if (estimatedRemainingWeight < entitlement.sum) {
