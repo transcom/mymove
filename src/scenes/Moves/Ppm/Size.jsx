@@ -135,35 +135,14 @@ export class PpmSize extends Component {
   }
 }
 
-/*
-*
-*  1st
-*  Actual
-*  `tare_weight`
-*  `gross_weight`
-*
-*  2nd
-*  Pre-Move Survey values.
-* `pm_survey_weight_estimate
-*
-*  3rd
-*  SM-entered weight
-* `weight_estimate`,
-* `progear_weight_estimate`,
-* `spouse_progear_weight_estimate`
-*
-*
-*
-*
-* */
-
 PpmSize.propTypes = {
   pendingPpmSize: PropTypes.string,
   weightInfo: PropTypes.object,
   currentPpm: PropTypes.shape({ id: PropTypes.string, size: PropTypes.string }),
   setPendingPpmSize: PropTypes.func.isRequired,
   entitlement: PropTypes.object,
-  estimatedRemainingWeight: PropTypes.number.isRequired,
+  estimatedRemainingWeight: PropTypes.number,
+  actualRemainingWeight: PropTypes.number,
 };
 
 function mapStateToProps(state) {
