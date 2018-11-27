@@ -1,22 +1,22 @@
 import React, { Fragment } from 'react';
-
+import { Link } from 'react-router-dom';
 import { get, includes } from 'lodash';
 import moment from 'moment';
 import fedHolidays from '@18f/us-federal-holidays';
 
+import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
+import Alert from 'shared/Alert';
+import { formatCents, formatCentsRange } from 'shared/formatters';
+import { withContext } from 'shared/AppContext';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
+import truck from 'shared/icon/truck-gray.svg';
+
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import truck from 'shared/icon/truck-gray.svg';
 import ppmDraft from './images/ppm-draft.png';
 import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
-import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
-import Alert from 'shared/Alert';
-import { formatCents, formatCentsRange } from 'shared/formatters';
-import { Link } from 'react-router-dom';
-import { withContext } from 'shared/AppContext';
 import StatusTimelineContainer from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -468,7 +468,7 @@ export const MoveSummary = withContext(props => {
     move.selected_move_type !== 'PPM' &&
     ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(hhgStatus);
   return (
-    <Fragment>
+    <div className="move-summary">
       {move.status === 'CANCELED' && (
         <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
@@ -527,14 +527,10 @@ export const MoveSummary = withContext(props => {
           <div>
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <Link
-                  className="remain-unvisited"
-                  onClick={() => props.updateMove(moveId, 'HHG_PPM')}
-                  to={`/moves/${moveId}/hhg-ppm-start`}
-                >
+                <button className="link" onClick={() => props.addPPMShipment(moveId)}>
                   <FontAwesomeIcon icon={faPlus} />
                   <span> Add PPM Shipment</span>
-                </Link>
+                </button>
               )}
           </div>
           <div className="contact_block">
@@ -552,6 +548,6 @@ export const MoveSummary = withContext(props => {
           </div>
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 });
