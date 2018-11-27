@@ -8,7 +8,7 @@ describe('orders entry', function() {
   it('will accept orders information', function() {
     createServiceMember().then(() => cy.visit('/'));
     cy.contains('New move (from Ft Carson)');
-    cy.contains('No detail');
+    cy.contains('No details');
     cy.contains('No documents');
     cy.contains('Continue Move Setup').click();
 

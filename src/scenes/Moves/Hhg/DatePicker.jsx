@@ -115,7 +115,6 @@ export class HHGDatePicker extends Component {
                 <DayPicker
                   onDayClick={this.handleDayClick}
                   month={parsedSelectedDay || (availableMoveDates && availableMoveDates.minDate)}
-                  selectedDays={parsedSelectedDay}
                   disabledDays={this.isDayDisabled}
                   modifiers={this.props.modifiers}
                   showOutsideDays
