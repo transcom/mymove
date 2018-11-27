@@ -127,17 +127,17 @@ tsp_run: build_tools db_dev_run
 
 build: server_build build_tools client_build
 
-server_test: server_deps server_generate db_dev_run db_test_reset
+server_test: server_deps server_generate db_test_run db_test_reset
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_all: server_deps server_generate db_dev_run db_test_reset
+server_test_all: server_deps server_generate db_test_run db_test_reset
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_dev_run db_test_reset
+server_test_coverage: server_deps server_generate db_test_run db_test_reset
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -174,11 +174,27 @@ db_dev_run:
 			postgres:10.5 && \
 		DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
+
+db_test_run:
+	# The version of the postgres container should match production as closely
+	# as possible.
+	# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
+	docker start $(DB_DOCKER_CONTAINER) || \
+		(docker run --name $(DB_DOCKER_CONTAINER) \
+			-e \
+			POSTGRES_PASSWORD=$(PGPASSWORD) \
+			-d \
+			-p 5432:5432 \
+			postgres:10.5 && \
+		DB_NAME=postgres bin/wait-for-db-docker && \
+		docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db)
+
 db_dev_reset:
 	echo "Attempting to reset local dev database..."
 	docker kill $(DB_DOCKER_CONTAINER) &&	\
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
+
 db_dev_migrate: server_deps db_dev_run
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
@@ -188,24 +204,18 @@ db_e2e_up:
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
 
-db_e2e_init: build_tools db_dev_run db_test_reset db_e2e_up
+db_e2e_init: build_tools db_test_run db_test_reset db_e2e_up
 
 db_e2e_init_circleci: build_tools db_test_reset db_e2e_up
 
-db_e2e_reset: db_dev_run
+db_e2e_reset: db_test_run
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations reset
 
 db_test_reset:
-	# Initialize a test database if we're not in a CircleCI environment.
-ifndef CIRCLECI
-	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
-	createdb -p 5432 -h localhost -U postgres test_db
-else
-	echo "Relying on CircleCI's test database setup."
-endif
-	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
-		bin/wait-for-db
+	docker exec $(DB_DOCKER_CONTAINER) dropdb -p 5432 -h localhost -U postgres --if-exists test_db
+	docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db
+	DB_NAME=test_db bin/wait-for-db-docker
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
 		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
@@ -234,6 +244,6 @@ clean:
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
-.PHONY: db_dev_run db_dev_reset db_dev_migrate db_test_reset
+.PHONY: db_dev_run db_dev_reset db_dev_migrate db_test_run db_test_reset
 .PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_init_circleci db_e2e_reset e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci
 .PHONY: clean pretty

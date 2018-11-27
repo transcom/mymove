@@ -1,0 +1,31 @@
+#!/bin/bash
+# This script waits for an available database connection, or until a timeout is
+# reached. Useful to test database connectivity, or wait for local Docker
+# instances to spin up.
+
+set -eu -o pipefail
+
+container="${DB_DOCKER_CONTAINER:-db-dev}"
+db_password="${DB_PASSWORD:-mysecretpassword}"
+db_host="${DB_HOST:-localhost}"
+db_user="${DB_USER:-postgres}"
+db_name="${DB_NAME:-postgres}"
+db_port="${DB_PORT:-5432}"
+retries=0
+timeout=10
+db_check_command="docker exec ${container} psql postgres://${db_user}:${db_password}@${db_host}:${db_port}/${db_name} -c 'select 1;' > /dev/null 2>&1"
+
+echo "> ${db_check_command}"
+echo -n "Checking for database connectivity.."
+
+while ! bash -c "$db_check_command"; do
+  retries=$(( retries + 1 ))
+  echo -n "."
+  if [[ $retries -eq $timeout ]]; then
+    echo "failed!"
+    exit 1
+  fi
+  sleep 1
+done
+
+echo "success!"
