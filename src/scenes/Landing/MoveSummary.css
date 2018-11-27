@@ -62,10 +62,6 @@ a {
   text-decoration: none;
 }
 
-.remain-unvisited:visited {
-  color: #0071bc;
-}
-
 .contact_block {
   margin-top: 2em;
 }
