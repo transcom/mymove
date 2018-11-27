@@ -123,7 +123,7 @@ function serviceMemberCanReviewMoveSummary() {
 
 function serviceMemberCanSignAgreement() {
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-ppm-agreement/);
   });
 
   cy
