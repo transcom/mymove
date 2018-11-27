@@ -1,0 +1,8 @@
+add_foreign_key("signed_certifications", "move_id", {"moves": ["id"]}, {})
+
+add_foreign_key("moving_expense_documents", "move_document_id", {"move_documents": ["id"]}, {})
+
+sql("UPDATE duty_stations SET transportation_office_id='fab58a38-ee1f-4adf-929a-2dd246fc5e67' WHERE transportation_office_id='f4b95759-0f4c-475a-95a6-34e6c119e39d';")
+sql("UPDATE duty_stations SET transportation_office_id='cc107598-3d72-4679-a4aa-c28d1fd2a016' WHERE transportation_office_id='a468eb8d-79c5-4c01-93d7-9c0f557b7b9f';")
+
+add_foreign_key("duty_stations", "transportation_office_id", {"transportation_offices": ["id"]}, {})
