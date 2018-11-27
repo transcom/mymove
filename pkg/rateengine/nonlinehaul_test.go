@@ -159,7 +159,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		t.Errorf("wrong full unpack fee: expected %d, got %d", expected, feeAndRate.Fee)
 	}
 
-	expectedRate := unit.Cents(542900).ToMillicents()
+	expectedRate := unit.Millicents(542900)
 	if feeAndRate.Rate != expectedRate {
 		t.Errorf("wrong full unpack rate: expected %d, got %d", expectedRate, feeAndRate.Rate)
 	}

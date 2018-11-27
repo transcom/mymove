@@ -68,3 +68,10 @@ func (c Millicents) Int() int {
 func (c Millicents) MultiplyFloat64(f float64) Millicents {
 	return Millicents(math.Round(float64(c.Int()) * f))
 }
+
+// ToDollarString returns a dollar string representation of this value
+func (c Millicents) ToDollarString() string {
+	d := float64(c) / 100000.0
+	s := fmt.Sprintf("$%.2f", d)
+	return s
+}

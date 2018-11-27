@@ -68,7 +68,7 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time)
 		return FeeAndRate{}, err
 	}
 
-	return FeeAndRate{Fee: unit.Cents(math.Round(float64(cwt.Int()*fullUnpackRate) / 1000.0)), Rate: unit.Cents(fullUnpackRate).ToMillicents()}, nil
+	return FeeAndRate{Fee: unit.Cents(math.Round(float64(cwt.Int()*fullUnpackRate) / 1000.0)), Rate: unit.Millicents(fullUnpackRate)}, nil
 }
 
 // SitCharge calculates the SIT charge based on various factors.

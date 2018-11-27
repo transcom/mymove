@@ -131,5 +131,43 @@ func main() {
 		fmt.Printf("%-30s%s\n", "Full Unpack rate:", cost.Unpack.Rate.ToDollarString())
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
+	} else if *scenarioNumber == 3 {
+		fmt.Println("Running scenario 2")
+		fmt.Println("Origin: Hayward, CA, 94540")
+		fmt.Println("Destination: Georgetown, TX, 78626")
+		fmt.Println("")
+
+		if err := scenario.RunRateEngineScenario2(db); err != nil {
+			log.Fatalf("failed to run scenario 2.")
+		}
+
+		planner := route.NewTestingPlanner(1693)
+		engine := rateengine.NewRateEngine(db, logger, planner)
+
+		weight := unit.Pound(7500)
+		originZip5 := "94540"
+		destinationZip5 := "78626"
+		date := time.Date(2018, time.December, 5, 0, 0, 0, 0, time.UTC)
+		lhDiscount := unit.DiscountRate(0.67)
+
+		cost, err := engine.ComputeShipment(weight, originZip5, destinationZip5, date, 0, lhDiscount, 0)
+		if err != nil {
+			log.Fatalf("could not compute PPM: %+v", errors.Cause(err))
+		}
+		fmt.Printf("%-30s%s\n", "Base linehaul (non-disc'd):", cost.BaseLinehaul.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Origin linehaul factor:", cost.OriginLinehaulFactor.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Destination linehaul factor:", cost.DestinationLinehaulFactor.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Shorthaul charge:", cost.ShorthaulCharge.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Linehaul total (trans. cost):", cost.LinehaulChargeTotal.ToDollarString())
+		fmt.Println("")
+		fmt.Printf("%-30s%s\n", "Origin service fee:", cost.OriginService.Fee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Origin service rate:", cost.OriginService.Rate.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationService.Fee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Destination service rate:", cost.DestinationService.Rate.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Pack fee:", cost.Pack.Fee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Pack rate:", cost.Pack.Rate.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Unpack rate:", cost.Unpack.Rate.ToDollarString())
+		fmt.Println("")
+		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
 	}
 }
