@@ -170,12 +170,10 @@ const showHhgLandingPageText = shipment => {
   if (shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') {
     return (
       <div className="step">
-        <div className="title">Next Step: Complete your customer satisfaction survey</div>
+        <div className="title">Next Step: Survey</div>
         <div>
-          Tell us about your move experience. You have up to one year to complete your{' '}
-          <a href="placeholder" target="_blank" rel="noopener noreferrer" className="Todo-phase2">
-            satisfaction survey
-          </a>. We use this information to decide which movers we allow to work with you.
+          You will be asked to participate in a satisfaction survey. We will use this information to decide which movers
+          we allow to work with you.
         </div>
       </div>
     );
@@ -228,6 +226,8 @@ export const SubmittedHhgMoveSummary = props => {
                 {showHhgLandingPageText(shipment)}
                 {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
                   <div className="step">
+                    {/* TODO: redo text once we have the proper text to place here.
+                        reference: https://www.pivotaltracker.com/story/show/161939484
                     <div className="title">File a Claim</div>
                     <div>
                       If you have household goods damaged or lost during the move, contact{' '}
@@ -236,6 +236,7 @@ export const SubmittedHhgMoveSummary = props => {
                       do not feel that you are receiving adequate compensation, contact the Military Claims Office for
                       help.
                     </div>
+                    */}
                   </div>
                 )}
               </div>

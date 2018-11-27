@@ -421,7 +421,7 @@ describe('MoveSummary', () => {
           .find('div.title')
           .first()
           .html(),
-      ).toEqual('<div class="title">Next Step: Complete your customer satisfaction survey</div>');
+      ).toEqual('<div class="title">Next Step: Survey</div>');
     });
   });
   describe('when an hhg is in completed state', () => {
@@ -447,7 +447,7 @@ describe('MoveSummary', () => {
           .find('div.title')
           .first()
           .html(),
-      ).toEqual('<div class="title">Next Step: Complete your customer satisfaction survey</div>');
+      ).toEqual('<div class="title">Next Step: Survey</div>');
     });
   });
 });
