@@ -157,7 +157,7 @@ export function isHHGPPMComboMove(state) {
   return get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM';
 }
 
-const _getEstimatedRemainingWeight = (sum, weight) => {
+const estimatedRemainingWeight = (sum, weight) => {
   if (sum >= weight) {
     return sum - weight;
   } else {
@@ -182,7 +182,7 @@ export function getEstimatedRemainingWeight(state) {
   } = selectShipment(state, getCurrentShipmentID(state));
 
   if (pm_survey_weight_estimate) {
-    return _getEstimatedRemainingWeight(sum, pm_survey_weight_estimate);
+    return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
   }
 
   if (sum && weight_estimate) {
@@ -192,7 +192,7 @@ export function getEstimatedRemainingWeight(state) {
       spouse_progear_weight_estimate || 0,
     ].reduce((a, b) => a + b);
 
-    return _getEstimatedRemainingWeight(sum, totalEstimatedWeight);
+    return estimatedRemainingWeight(sum, totalEstimatedWeight);
   }
 }
 
@@ -209,7 +209,7 @@ export function getActualRemainingWeight(state) {
   if (sum && gross_weight && tare_weight) {
     // will there ever be an instance if tare weight is greater than gross weight?
     // if so, logic should be updated - are there any restraints on these weights?
-    return _getEstimatedRemainingWeight(sum, gross_weight - tare_weight);
+    return estimatedRemainingWeight(sum, gross_weight - tare_weight);
   }
 }
 

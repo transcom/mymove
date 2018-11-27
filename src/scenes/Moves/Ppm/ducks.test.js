@@ -258,6 +258,11 @@ describe('Ppm Reducer', () => {
     describe('when there is an estimated remaining weight from a pre move survey', () => {
       it('should return the proper estimated remaining weight based on the pre move survey', () => {
         const state = {
+          moves: {
+            currentMove: {
+              selected_move_type: 'HHG_PPM',
+            },
+          },
           orders: {
             currentOrders: {
               id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
@@ -297,6 +302,11 @@ describe('Ppm Reducer', () => {
     describe('when there is an estimated remaining weight from a service member entered weight', () => {
       it('should return the proper estimated remaining weight based on the entered values', () => {
         const state = {
+          moves: {
+            currentMove: {
+              selected_move_type: 'HHG_PPM',
+            },
+          },
           orders: {
             currentOrders: {
               id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
@@ -336,6 +346,11 @@ describe('Ppm Reducer', () => {
       describe('when there is an actual weight', () => {
         it('should return the proper actual weight', () => {
           const state = {
+            moves: {
+              currentMove: {
+                selected_move_type: 'HHG_PPM',
+              },
+            },
             orders: {
               currentOrders: {
                 id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
