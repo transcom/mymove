@@ -1100,6 +1100,11 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Tare
+      pm_survey_completed_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        x-nullable: true
       pm_survey_conducted_date:
         type: string
         format: date
@@ -1162,6 +1167,16 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
+  CompletePmSurvey:
+    type: object
+    properties:
+      pm_survey_completed_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        x-nullable: true
+    required:
+    - pm_survey_completed_date
   TransportationServiceProvider:
     type: object
     properties:
@@ -2127,6 +2142,38 @@ paths:
           description: not authorized to access the associated service agent
         404:
           description: no service agent found with that UUID
+        500:
+          description: server error
+  /shipment/{shipmentId}/completePmSurvey:
+    post:
+      summary: Completes a pre-move survey on a shipment
+      description: Sets the pre-move survey as completed. Date will be recorded on shipment.
+      operationId: completePmSurvey
+      tags:
+      - shipments
+      parameters:
+      - name: shipmentId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the move
+      - in: body
+        name: CompletePmSurvey
+        required: true
+        schema:
+          $ref: '#/definitions/CompletePmSurvey'
+      responses:
+        200:
+          description: returns updated shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to complete this pre-move survey
         500:
           description: server error
   /shipments/{shipmentId}/accept:

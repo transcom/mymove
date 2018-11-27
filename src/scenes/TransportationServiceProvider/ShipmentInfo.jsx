@@ -39,6 +39,7 @@ import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import {
   loadShipmentDependencies,
+  completePmSurvey,
   patchShipment,
   acceptShipment,
   rejectShipment,
@@ -164,7 +165,13 @@ class ShipmentInfo extends Component {
     });
   };
 
-  enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
+  enterPreMoveSurvey = values => {
+    this.props.patchShipment(this.props.shipment.id, values).then(() => {
+      if (this.props.shipment.pm_survey_completed_date) {
+        this.props.completePmSurvey(this.props.shipment.id, Date.now());
+      }
+    });
+  };
 
   editServiceAgents = values => {
     values['destination_service_agent']['role'] = 'DESTINATION';
@@ -203,17 +210,9 @@ class ShipmentInfo extends Component {
     const inTransit = shipment.status === 'IN_TRANSIT';
     const delivered = shipment.status === 'DELIVERED';
     const completed = shipment.status === 'COMPLETED';
-    const pmSurveyComplete = Boolean(
-      shipment.pm_survey_conducted_date &&
-        shipment.pm_survey_method &&
-        shipment.pm_survey_planned_pack_date &&
-        shipment.pm_survey_planned_pickup_date &&
-        shipment.pm_survey_planned_delivery_date &&
-        shipment.pm_survey_weight_estimate,
-    );
-    const canAssignServiceAgents = (accepted || approved) && !hasOriginServiceAgent(serviceAgents);
-    const canEnterPreMoveSurvey =
-      (accepted || approved) && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
+    const pmSurveyComplete = Boolean(shipment.pm_survey_completed_date);
+    const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
+    const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
 
     // Some statuses are directly related to the shipment status and some to combo states
@@ -493,6 +492,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadShipmentDependencies,
+      completePmSurvey,
       patchShipment,
       acceptShipment,
       generateGBL,

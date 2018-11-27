@@ -71,6 +71,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
+		PmSurveyCompletedDate:               handlers.FmtDatePtr(s.PmSurveyCompletedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -355,6 +356,45 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
+}
+
+// CompletePmSurveyHandler completes a pre-move survey for a particular shipment
+type CompletePmSurveyHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle completes a pre-moves survey - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h CompletePmSurveyHandler) Handle(params shipmentop.CompletePmSurveyParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewCompletePmSurveyForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewCompletePmSurveyBadRequest()
+	}
+
+	pmSurveyCompletedDate := (time.Time)(*params.CompletePmSurvey.PmSurveyCompletedDate)
+
+	shipment.PmSurveyCompletedDate = &pmSurveyCompletedDate
+	verrs, err := models.SaveShipment(h.DB(), shipment)
+
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewCompletePmSurveyOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {
