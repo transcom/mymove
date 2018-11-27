@@ -1,7 +1,7 @@
 #!/bin/bash
 # Executes an SQL file from S3 against the environment's database.
 #
-# If `ENVIRONMENT=devlocal` then we look for a similarly named file in the
+# If `SECURE_MIGRATION_SOURCE=local` then we look for a similarly named file in the
 # local repository, instead of pulling from S3.
 
 if [ -z "${SECURE_MIGRATION_SOURCE:-}" ]; then
