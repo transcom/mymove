@@ -90,6 +90,11 @@ const PPMTabContent = props => {
 };
 
 const HHGTabContent = props => {
+  let shipmentStatus = '';
+  let shipment = props.officeMove.shipments.find(x => x.id === props.officeShipment.id);
+  if (shipment) {
+    shipmentStatus = shipment.status;
+  }
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
@@ -110,7 +115,14 @@ const HHGTabContent = props => {
         serviceAgents={props.serviceAgents}
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
-      {has(props, 'officeShipment.id') && <InvoicePanel shipmentId={props.officeShipment.id} />}
+      {has(props, 'officeShipment.id') && (
+        <InvoicePanel
+          shipmentId={props.officeShipment.id}
+          shipmentStatus={shipmentStatus}
+          onApprovePayment={props.sendHHGInvoice}
+          canApprove={props.canApprovePaymentInvoice}
+        />
+      )}
     </div>
   );
 };
@@ -151,10 +163,6 @@ class MoveInfo extends Component {
 
   completeHHG = () => {
     this.props.completeHHG(this.props.officeShipment.id);
-  };
-
-  submitInvoice = () => {
-    this.props.sendHHGInvoice(this.props.officeShipment.id);
   };
 
   cancelMove = cancelReason => {
@@ -200,7 +208,6 @@ class MoveInfo extends Component {
     const isPPM = !isEmpty(this.props.officePPM);
     const isHHG = !isEmpty(this.props.officeHHG);
     const pathnames = this.props.location.pathname.split('/');
-    const invoiceSuccess = this.props.hhgInvoiceHasSendSuccess;
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
@@ -312,6 +319,8 @@ class MoveInfo extends Component {
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
+                    canApprovePaymentInvoice={hhgDelivered}
+                    officeMove={this.props.officeMove}
                   />
                 </PrivateRoute>
               </Switch>
@@ -378,21 +387,6 @@ class MoveInfo extends Component {
                   {hhgCompleted && check}
                 </button>
               )}
-              <button
-                className={`${invoiceSuccess ? 'btn__approve--green' : ''}`}
-                onClick={this.submitInvoice}
-                disabled={
-                  !hhgCompleted ||
-                  !hhgApproved ||
-                  !moveApproved ||
-                  !ordersComplete ||
-                  invoiceSuccess ||
-                  currentTab !== 'hhg'
-                }
-              >
-                Submit HHG Invoice
-                {invoiceSuccess && check}
-              </button>
 
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"

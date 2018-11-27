@@ -2948,6 +2948,35 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /personally_procured_move/{personallyProcuredMoveId}/submit:
+    post:
+      summary: Submits a PPM for approval
+      description: Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED
+      operationId: submitPersonallyProcuredMove
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being submitted
+      responses:
+        200:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: ppm is not found
+        500:
+          description: internal server error
   /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
     get:
       summary: Returns an expense summary organized by expense type
@@ -3542,6 +3571,7 @@ paths:
           description: no files to be processed into attachments PDF
         500:
           description: server error
+
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM

@@ -90,7 +90,9 @@ export class Summary extends Component {
           />
         )}
 
-        {currentPpm && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
+        {currentPpm && (
+          <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
+        )}
         {currentShipment &&
           !isHHGPPMComboMove && (
             <HHGShipmentSummary

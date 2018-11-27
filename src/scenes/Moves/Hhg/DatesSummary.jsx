@@ -4,6 +4,7 @@ import { get, isNil } from 'lodash';
 
 import { displayDateRange } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import 'scenes/Moves/Hhg/DatesSummary.css';
 
 export class DatesSummary extends Component {
   render() {

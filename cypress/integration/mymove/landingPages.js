@@ -87,7 +87,7 @@ function draftMove(userId) {
 function ppmSubmitted(userId) {
   cy.signInAsUser(userId);
   cy.contains('Move your own stuff (PPM)');
-  cy.contains('Next Step: Awaiting approval');
+  cy.contains('Next Step: Wait for approval');
   cy.should('not.contain', 'Add PPM Shipment');
   cy.logout();
 }

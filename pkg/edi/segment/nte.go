@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // NTE represents the NTE EDI segment
@@ -11,9 +10,9 @@ type NTE struct {
 	Description       string
 }
 
-// String converts NTE to its X12 single line string representation
-func (s *NTE) String(delimiter string) string {
-	return strings.Join([]string{"NTE", s.NoteReferenceCode, s.Description}, delimiter) + "\n"
+// StringArray converts NTE to an array of strings
+func (s *NTE) StringArray() []string {
+	return []string{"NTE", s.NoteReferenceCode, s.Description}
 }
 
 // Parse parses an X12 string that's split into an array into the NTE struct

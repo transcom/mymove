@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // N3 represents the N3 EDI segment
@@ -11,14 +10,13 @@ type N3 struct {
 	AddressInformation2 string
 }
 
-// String converts N3 to its X12 single line string representation
-func (s *N3) String(delimiter string) string {
-	elements := []string{
+// StringArray converts N3 to an array of strings
+func (s *N3) StringArray() []string {
+	return []string{
 		"N3",
 		s.AddressInformation1,
 		s.AddressInformation2,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the N3 struct

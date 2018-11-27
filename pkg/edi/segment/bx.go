@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // BX represents the BX EDI segment
@@ -16,9 +15,9 @@ type BX struct {
 	ShipmentQualifier            string
 }
 
-// String converts BX to its X12 single line string representation
-func (s *BX) String(delimiter string) string {
-	elements := []string{
+// StringArray converts BX to an array of strings
+func (s *BX) StringArray() []string {
+	return []string{
 		"BX",
 		s.TransactionSetPurposeCode,
 		s.TransactionMethodTypeCode,
@@ -28,7 +27,6 @@ func (s *BX) String(delimiter string) string {
 		s.WeightUnitCode,
 		s.ShipmentQualifier,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the BX struct

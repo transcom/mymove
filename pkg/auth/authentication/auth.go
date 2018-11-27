@@ -73,7 +73,7 @@ func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callb
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
-		callbackTemplate: fmt.Sprintf("%s%%s:%d/", callbackProtocol, callbackPort),
+		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
 	}
 	return context
 }

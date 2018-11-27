@@ -24,9 +24,10 @@ describe('office user finds the shipment', function() {
   it('office user with approved move completes delivered HHG shipment', function() {
     officeUserCompletesHHG();
   });
-  it('office user with completed move sends invoice', function() {
-    officeUserSendsShipmentInvoice();
-  });
+  // Commenting this out for now since unbilled invoice line items are still in development
+  // it('office user with completed move approve payment for invoice (sends invoice)', function() {
+  //   officeUserApprovePaymentInvoice();
+  // });
 });
 
 function officeUserViewsMoves() {
@@ -310,17 +311,17 @@ function officeUserCompletesHHG() {
   cy.get('.status').contains('Completed');
 }
 
-function officeUserSendsShipmentInvoice() {
+function officeUserApprovePaymentInvoice() {
   // Open completed hhg queue
-  cy.visit('/queues/hhg_completed');
+  cy.visit('/queues/hhg_delivered');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
 
   // Find move and open it
   cy
     .get('div')
-    .contains('SSETZN')
+    .contains('DOOB')
     .dblclick();
 
   cy.location().should(loc => {
@@ -341,13 +342,11 @@ function officeUserSendsShipmentInvoice() {
   });
 
   // Submit Invoice for HHG
-  cy.get('.status').contains('Completed');
+  cy.get('.status').contains('Delivered');
 
-  cy.get('button').contains('Submit HHG Invoice');
+  cy
+    .get('.invoice-panel button')
+    .contains('Approve Payment')
+    .should('be.disabled');
   // .click();  TODO: figure out how not to make call to GEX
-
-  // cy
-  //   .get('button')
-  //   .contains('Complete Shipment')
-  //   .should('be.disabled');
 }
