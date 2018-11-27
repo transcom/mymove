@@ -2,8 +2,13 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
-import { setPendingPpmSize, getRawWeightInfo, getActualRemainingWeight, getEstimatedRemainingWeight } from './ducks';
+import {
+  setPendingPpmSize,
+  getRawWeightInfo,
+  getActualRemainingWeight,
+  getEstimatedRemainingWeight,
+  isHHGPPMComboMove,
+} from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import EntitlementBar from 'scenes/EntitlementBar';
 import BigButton from 'shared/BigButton';
@@ -151,7 +156,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     weightInfo: getRawWeightInfo(state),
     entitlement: loadEntitlementsFromState(state),
-    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
     estimatedRemainingWeight: getEstimatedRemainingWeight(state),
     actualRemainingWeight: getActualRemainingWeight(state),
   };
