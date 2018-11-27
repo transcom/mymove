@@ -24,7 +24,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		return nil, err
 	}
 
-	lhAppliedRate := unit.Cents(0) // total linehaul does not have a rate, and value should be 0
+	lhAppliedRate := unit.Millicents(0) // total linehaul does not have a rate, and value should be 0
 	linehaul := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: linehaulItem.ID,

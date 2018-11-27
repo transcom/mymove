@@ -30,22 +30,22 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	itemLHS := suite.findLineItem(lineItems, "LHS")
 	if itemLHS != nil {
-		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationNEITHER, unit.Cents(260858), unit.Cents(0))
+		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationNEITHER, unit.Cents(260858), unit.Millicents(0))
 	}
 
 	item135A := suite.findLineItem(lineItems, "135A")
 	if item135A != nil {
-		suite.validateLineItemFields(*item135A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(10230), unit.Cents(511))
+		suite.validateLineItemFields(*item135A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(10230), unit.Millicents(511000))
 	}
 
 	item135B := suite.findLineItem(lineItems, "135B")
 	if item135B != nil {
-		suite.validateLineItemFields(*item135B, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(11524), unit.Cents(576))
+		suite.validateLineItemFields(*item135B, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(11524), unit.Millicents(576000))
 	}
 
 	item105A := suite.findLineItem(lineItems, "105A")
 	if item105A != nil {
-		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(97930), unit.Cents(4431))
+		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(97930), unit.Millicents(4431000))
 	}
 }
 
@@ -60,7 +60,7 @@ func (suite *RateEngineSuite) findLineItem(lineItems []models.ShipmentLineItem, 
 	return nil
 }
 
-func (suite *RateEngineSuite) validateLineItemFields(lineItem models.ShipmentLineItem, quantity1 unit.BaseQuantity, quantity2 unit.BaseQuantity, location models.ShipmentLineItemLocation, amountCents unit.Cents, appliedRate unit.Cents) {
+func (suite *RateEngineSuite) validateLineItemFields(lineItem models.ShipmentLineItem, quantity1 unit.BaseQuantity, quantity2 unit.BaseQuantity, location models.ShipmentLineItemLocation, amountCents unit.Cents, appliedRate unit.Millicents) {
 	suite.Equal(quantity1, lineItem.Quantity1)
 	suite.Equal(quantity2, lineItem.Quantity2)
 	suite.Equal(location, lineItem.Location)

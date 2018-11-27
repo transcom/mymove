@@ -187,11 +187,12 @@ func (re *RateEngine) ComputeShipment(
 	nonLinehaulCostComputation.Pack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Fee)
 	nonLinehaulCostComputation.Unpack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Fee)
 
-	//Apply linehaul discount to rate:
-	nonLinehaulCostComputation.OriginService.Rate = lhDiscount.Apply(nonLinehaulCostComputation.OriginService.Rate)
-	nonLinehaulCostComputation.DestinationService.Rate = lhDiscount.Apply(nonLinehaulCostComputation.DestinationService.Rate)
-	nonLinehaulCostComputation.Pack.Rate = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Rate)
-	nonLinehaulCostComputation.Unpack.Rate = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Rate)
+	// Apply linehaul discount to rate
+	// For rates with retrieved tariff rates in cents, must use ApplyToMillicents by dividing by 1000 to maintain cent level accuracy (and avoid millicent accuracy)
+	nonLinehaulCostComputation.OriginService.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.OriginService.Rate/1000) * 1000
+	nonLinehaulCostComputation.DestinationService.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.DestinationService.Rate/1000) * 1000
+	nonLinehaulCostComputation.Pack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Pack.Rate/1000) * 1000
+	nonLinehaulCostComputation.Unpack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Unpack.Rate)
 
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
