@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-const UserGreeting = ({ isLoggedIn, firstName, email }) =>
+export const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   isLoggedIn && (
     <span>
       <strong>{firstName ? `Welcome, ${firstName}` : email}</strong>
@@ -10,9 +10,9 @@ const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   );
 
 UserGreeting.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
-  firstName: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
+  firstName: PropTypes.string,
+  isLoggedIn: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = ({ user }) => ({

@@ -7,6 +7,9 @@ import (
 // TestYear is the default year for testing.
 var TestYear = 2019
 
+// DefaultZip3 is the default zip3 for testing
+var DefaultZip3 = "902"
+
 // DefaultSrcGBLOC is the default GBLOC for testing.
 var DefaultSrcGBLOC = "KKFA"
 

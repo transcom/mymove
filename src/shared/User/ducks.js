@@ -66,7 +66,7 @@ export const loggedInUserReducer = (state = {}, action) => {
 
 const loggedOutUser = {
   isLoggedIn: false,
-  email: null,
+  email: '',
   userId: null,
 };
 

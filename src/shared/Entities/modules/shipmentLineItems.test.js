@@ -1,6 +1,6 @@
 import {
-  makeGetUnbilledShipmentLineItems,
-  makeTotalFromUnbilledLineItems,
+  selectUnbilledShipmentLineItems,
+  selectTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 
 describe('shipment line items tests', () => {
@@ -11,8 +11,7 @@ describe('shipment line items tests', () => {
           shipmentLineItems: [],
         },
       };
-      const getunbilledItems = makeGetUnbilledShipmentLineItems();
-      expect(getunbilledItems(state, 'aaabbbccc').length).toEqual(0);
+      expect(selectUnbilledShipmentLineItems(state, 'aaabbbccc').length).toEqual(0);
     });
   });
   describe('When a state with un-billed line items is passed', () => {
@@ -624,8 +623,7 @@ describe('shipment line items tests', () => {
           },
         },
       };
-      const getunbilledItems = makeGetUnbilledShipmentLineItems();
-      expect(getunbilledItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6d2').length).toEqual(1);
+      expect(selectUnbilledShipmentLineItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6d2').length).toEqual(1);
     });
   });
 });

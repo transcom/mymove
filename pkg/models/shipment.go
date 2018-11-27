@@ -474,7 +474,8 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 		"Move.Orders.NewDutyStation.Address",
 		"PickupAddress",
 		"SecondaryPickupAddress",
-		"DeliveryAddress").Find(&shipment, id)
+		"DeliveryAddress",
+		"ShipmentOffers").Find(&shipment, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -719,8 +720,7 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []Ship
 		}
 
 		for _, lineItem := range lineItems {
-			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
-			if err != nil || verrs.HasAny() {
+			if verrs, err := tx.ValidateAndSave(&lineItem); err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
 					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
@@ -732,37 +732,4 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []Ship
 	})
 
 	return responseVErrors, responseError
-}
-
-// createUniqueShipmentLineItem will create the given shipment line item,
-func (s *Shipment) createUniqueShipmentLineItem(tx *pop.Connection, lineItem ShipmentLineItem) (*validate.Errors, error) {
-	existingLineItems, err := s.FetchShipmentLineItemsByItemID(tx, lineItem.Tariff400ngItemID)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
-
-	if len(existingLineItems) > 0 {
-		var whichCode string
-		if len(lineItem.Tariff400ngItem.Code) > 0 {
-			whichCode = lineItem.Tariff400ngItem.Code
-		} else {
-			whichCode = lineItem.Tariff400ngItemID.String()
-		}
-		return validate.NewErrors(), errors.New("Line item already exists for item " + whichCode)
-	}
-
-	return tx.ValidateAndCreate(&lineItem)
-}
-
-// FetchShipmentLineItemsByItemID attempts to find line items for this shipment that have a given line item code.
-// If no line items for this code exist yet, return an empty slice.
-func (s *Shipment) FetchShipmentLineItemsByItemID(db *pop.Connection, tariff400ngItemID uuid.UUID) ([]ShipmentLineItem, error) {
-	var lineItems []ShipmentLineItem
-
-	err := db.Q().
-		Where("shipment_id = ?", s.ID).
-		Where("tariff400ng_item_id = ?", tariff400ngItemID).
-		All(&lineItems)
-
-	return lineItems, err
 }

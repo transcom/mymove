@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -32,7 +30,7 @@ func (suite *ModelSuite) TestFetchTariff400ngItemRateBySchedule() {
 		},
 	})
 
-	rate, err := models.FetchTariff400ngItemRate(suite.db, rate2.Code, *rate2.Schedule, 1000, time.Date(2018, time.August, 15, 0, 0, 0, 0, time.UTC))
+	rate, err := models.FetchTariff400ngItemRate(suite.db, rate2.Code, *rate2.Schedule, 1000, testdatagen.DateInsidePeakRateCycle)
 
 	// Ensure we get back rate2's rate and not one for a different schedule
 	if suite.NoError(err) {
@@ -48,7 +46,7 @@ func (suite *ModelSuite) TestFetchTariff400ngItemRateNullSchedule() {
 		},
 	})
 
-	rate, err := models.FetchTariff400ngItemRate(suite.db, rate1.Code, 3, 1000, time.Date(2018, time.August, 15, 0, 0, 0, 0, time.UTC))
+	rate, err := models.FetchTariff400ngItemRate(suite.db, rate1.Code, 3, 1000, testdatagen.DateInsidePeakRateCycle)
 
 	// Ensure we get back rate1's rate
 	if suite.NoError(err) {
@@ -87,7 +85,7 @@ func (suite *ModelSuite) TestFetchTariff400ngItemRateByWeight() {
 		},
 	})
 
-	rate, err := models.FetchTariff400ngItemRate(suite.db, rate2.Code, 2, 1150, time.Date(2018, time.August, 15, 0, 0, 0, 0, time.UTC))
+	rate, err := models.FetchTariff400ngItemRate(suite.db, rate2.Code, 2, 1150, testdatagen.DateInsidePeakRateCycle)
 
 	// Ensure we get back rate2's rate and not one for a different weight range
 	if suite.NoError(err) {
