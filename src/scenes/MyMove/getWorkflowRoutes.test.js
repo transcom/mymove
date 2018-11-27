@@ -51,7 +51,7 @@ describe('when getting the routes for the current workflow', () => {
           '/moves/:moveId/hhg-ppm-size',
           '/moves/:moveId/hhg-ppm-weight',
           '/moves/:moveId/review',
-          '/moves/:moveId/agreement',
+          '/moves/:moveId/hhg-ppm-agreement',
         ]);
       });
     });
