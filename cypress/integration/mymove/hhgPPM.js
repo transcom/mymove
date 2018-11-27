@@ -4,9 +4,8 @@ describe('service member adds a ppm to an hhg', function() {
   it('service member clicks on Add PPM Shipment', function() {
     serviceMemberSignsIn('f83bc69f-10aa-48b7-b9fe-425b393d49b8');
     serviceMemberAddsPPMToHHG();
-    // This currently doesn't work right now. Leaving in for when it does work.
-    // serviceMemberCancelsAddPPMToHHG();
-    // serviceMemberAddsPPMToHHG();
+    serviceMemberCancelsAddPPMToHHG();
+    serviceMemberContinuesPPMSetup();
     serviveMemberFillsInDatesAndLocations();
     serviceMemberSelectsWeightRange();
     serviceMemberCanCustomizeWeight();
@@ -46,6 +45,13 @@ function serviceMemberCancelsAddPPMToHHG() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\//);
   });
+}
+
+function serviceMemberContinuesPPMSetup() {
+  cy
+    .get('button')
+    .contains('Continue Move Setup')
+    .click();
 }
 
 function serviveMemberFillsInDatesAndLocations() {
@@ -139,7 +145,10 @@ function serviceMemberViewsUpdatedHomePage() {
 
   cy.get('body').should($div => {
     expect($div.text()).to.include('Government Movers and Packers (HHG)');
-    expect($div.text()).to.include('Move your own stuff (PPM)');
+    // TODO We should uncomment next line and delete this
+    // and the line following the commented line once ppms can be submitted
+    // expect($div.text()).to.include('Move your own stuff (PPM)');
+    expect($div.text()).to.include('Move to be scheduled');
     expect($div.text()).to.not.include('Add PPM Shipment');
   });
 
@@ -148,9 +157,10 @@ function serviceMemberViewsUpdatedHomePage() {
     // HHG information and details
     expect(text).to.include('Next Step: Prepare for move');
     expect(text).to.include('Weight (est.): 2000 lbs');
-    // PPM information and details
-    expect(text).to.include('Next Step: Wait for approval');
-    expect(text).to.include('Weight (est.): 150');
-    expect(text).to.include('Incentive (est.): $2,032.89 - 2,246.87');
+    // TODO Once PPM can be submitted, the following 4 lines should be uncommented and this removed.
+    // // PPM information and details
+    // expect(text).to.include('Next Step: Wait for approval');
+    // expect(text).to.include('Weight (est.): 150');
+    // expect(text).to.include('Incentive (est.): $2,032.89 - 2,246.87');
   });
 }
