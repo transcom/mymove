@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, getDestinationPostalCode, getPpmSitEstimate } from './ducks';
+import { createOrUpdatePpm, getDestinationPostalCode, getPpmSitEstimate, setInitialFormValues } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -18,6 +18,13 @@ const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
   state = { showInfo: false };
+
+  componentDidMount() {
+    if (!this.props.currentPpm) {
+      const { plannedMoveDate, pickupPostalCode, destinationPostalCode } = this.props.defaultValues;
+      this.props.setInitialFormValues(plannedMoveDate, pickupPostalCode, destinationPostalCode);
+    }
+  }
 
   openInfo = () => {
     this.setState({ showInfo: true });
@@ -197,11 +204,11 @@ function mapStateToProps(state) {
       : null;
 
   if (props.isHHGPPMComboMove) {
-    props.initialValues = {
-      ...props.initialValues,
-      planned_move_date: currentOrders.issue_date,
+    props.defaultValues = {
+      pickupPostalCode: defaultPickupZip,
+      plannedMoveDate: currentOrders.issue_date,
       // defaults to SM's destination address, if none, uses destination duty station zip
-      destination_postal_code: getDestinationPostalCode(state),
+      destinationPostalCode: getDestinationPostalCode(state),
     };
   }
 
@@ -209,7 +216,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate }, dispatch);
+  return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);

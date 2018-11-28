@@ -7,6 +7,7 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
+import { change } from 'redux-form';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
@@ -69,6 +70,14 @@ export function createOrUpdatePpm(moveId, ppm) {
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
     }
+  };
+}
+
+export function setInitialFormValues(plannedMoveDate, pickupPostalCode, destinationPostalCode) {
+  return function(dispatch) {
+    dispatch(change('ppp_date_and_location', 'planned_move_date', plannedMoveDate));
+    dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
+    dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
   };
 }
 
