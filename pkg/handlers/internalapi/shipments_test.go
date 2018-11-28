@@ -347,10 +347,9 @@ func (suite *HandlerSuite) TestCreateInvoicesCall() {
 		suite.TestDB(),
 		[]models.Shipment{shipmentLineItem.Shipment},
 	}
-	suite.NoError(createInvoices.Call(clock.NewMock()))
+	invoices, err := createInvoices.Call(clock.NewMock())
+	suite.NoError(err)
 
-	var invoices []models.Invoice
-	suite.TestDB().Eager("ShipmentLineItems").All(&invoices)
 	suite.Equal(1, len(invoices))
 	suite.Equal(models.InvoiceStatusINPROCESS, invoices[0].Status)
 	suite.Equal(1, len(invoices[0].ShipmentLineItems))
@@ -378,4 +377,10 @@ func (suite *HandlerSuite) TestCreateInvoicesCall() {
 //	// assert we got back the OK response
 //	response := handler.Handle(params)
 //	suite.Equal(shipmentop.NewSendHHGInvoiceOK(), response)
+//var invoices []models.Invoice
+//suite.NoError(suite.TestDB().All(&invoices))
+//suite.NotEmpty(invoices)
+//for _, invoice := range invoices {
+//suite.Equal(models.InvoiceStatusSUBMITTED, invoice.Status)
+//}
 //}

@@ -506,7 +506,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	ediWriter.WriteAll(invoice858C.Segments())
 
 	// before sending to GEX, save the invoice records
-	err = CreateInvoices{h.DB(), []models.Shipment{shipment}}.Call(clock.New())
+	invoices, err := CreateInvoices{h.DB(), []models.Shipment{shipment}}.Call(clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -525,6 +525,24 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	// get response from gex --> use status as status for this invoice call
 	if responseStatus != 200 {
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
+		for index := range invoices {
+			invoices[index].Status = models.InvoiceStatusSUBMISSIONFAILURE
+		}
+		// Update invoice records as failed
+		verrs, err := h.DB().ValidateAndSave(&invoices)
+		if err != nil || verrs.HasAny() {
+			h.Logger().Error("Failed to update invoice records", zap.Error(err))
+		}
+		return shipmentop.NewSendHHGInvoiceInternalServerError()
+	}
+
+	// Update invoice records as submitted
+	for index := range invoices {
+		invoices[index].Status = models.InvoiceStatusSUBMITTED
+	}
+	verrs, err := h.DB().ValidateAndSave(&invoices)
+	if err != nil || verrs.HasAny() {
+		h.Logger().Error("Failed to update invoice records", zap.Error(err))
 		return shipmentop.NewSendHHGInvoiceInternalServerError()
 	}
 
@@ -537,12 +555,11 @@ type CreateInvoices struct {
 	shipments []models.Shipment
 }
 
-// Call creates an invoice and updates its associations
-func (c CreateInvoices) Call(clock clock.Clock) error {
+// Call creates Invoices and updates their ShipmentLineItem associations
+func (c CreateInvoices) Call(clock clock.Clock) ([]models.Invoice, error) {
 	currentTime := clock.Now()
 	invoices := make(models.Invoices, 0)
-	shipmentLineItems := make(models.ShipmentLineItems, 0)
-	return c.db.Transaction(func(connection *pop.Connection) error {
+	err := c.db.Transaction(func(connection *pop.Connection) error {
 		for _, shipment := range c.shipments {
 			invoice := models.Invoice{
 				Status:            models.InvoiceStatusINPROCESS,
@@ -552,23 +569,23 @@ func (c CreateInvoices) Call(clock clock.Clock) error {
 				Shipment:          shipment,
 				ShipmentLineItems: shipment.ShipmentLineItems,
 			}
-			invoices = append(invoices, invoice)
 			// Sample code of what eager creation should like
 			// Currently it is attempting to recreate shipment line items
 			// and violating pk unique constraints (the docs say it shouldn't)
 			// https://gobuffalo.io/en/docs/db/relations#eager-creation
 			// verrs, err := c.db.Eager().ValidateAndCreate(&invoices)
 			c.db.ValidateAndCreate(&invoice)
-			for _, lineItem := range shipment.ShipmentLineItems {
-				lineItem.InvoiceID = &invoice.ID
-				lineItem.Invoice = invoice
-				shipmentLineItems = append(shipmentLineItems, lineItem)
+			invoices = append(invoices, invoice)
+			for index := range shipment.ShipmentLineItems {
+				shipment.ShipmentLineItems[index].InvoiceID = &invoice.ID
+				shipment.ShipmentLineItems[index].Invoice = invoice
 			}
-			verrs, err := c.db.ValidateAndSave(&shipmentLineItems)
+			verrs, err := c.db.ValidateAndSave(&shipment.ShipmentLineItems)
 			if err != nil || verrs.HasAny() {
 				return err
 			}
 		}
 		return nil
 	})
+	return invoices, err
 }
