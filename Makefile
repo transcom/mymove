@@ -15,6 +15,11 @@ ifeq ($(USE_AWS),true)
   AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
 endif
 
+ifndef CIRCLECI
+	LDFLAGS=""
+else
+	LDFLAGS="-linkmode external -extldflags -static"
+endif
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
@@ -74,11 +79,11 @@ server_deps: go_version .server_deps.stamp
 	dep ensure -vendor-only
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-	go build -i -o bin/chamber ./vendor/github.com/segmentio/chamber
-	go build -i -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
-	go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
-	go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
-	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+	go build -i -ldflags $(LDFLAGS) -o bin/chamber ./vendor/github.com/segmentio/chamber
+	go build -i -ldflags $(LDFLAGS) -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
+	go build -i -ldflags $(LDFLAGS) -o bin/gin ./vendor/github.com/codegangsta/gin
+	go build -i -ldflags $(LDFLAGS) -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
+	go build -i -ldflags $(LDFLAGS) -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_generate: server_deps server_go_bindata .server_generate.stamp
 .server_generate.stamp: $(shell find swagger -type f -name *.yaml)
@@ -90,7 +95,7 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
 server_build: server_deps server_generate
-	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -o bin/webserver ./cmd/webserver
+	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
@@ -111,16 +116,16 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
 build_tools: server_deps server_generate
-	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
-	go build -i -o bin/generate-test-data ./cmd/generate_test_data
-	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
-	go build -i -o bin/make-office-user ./cmd/make_office_user
-	go build -i -o bin/load-office-data ./cmd/load_office_data
-	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
-	go build -i -o bin/load-user-gen ./cmd/load_user_gen
-	go build -i -o bin/paperwork ./cmd/paperwork
-	go build -i -o bin/iws ./cmd/demo/iws.go
-	go build -i -o bin/health_checker ./cmd/health_checker
+	go build -i -ldflags $(LDFLAGS) -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -i -ldflags $(LDFLAGS) -o bin/generate-test-data ./cmd/generate_test_data
+	go build -i -ldflags $(LDFLAGS) -o bin/rateengine ./cmd/demo/rateengine.go
+	go build -i -ldflags $(LDFLAGS) -o bin/make-office-user ./cmd/make_office_user
+	go build -i -ldflags $(LDFLAGS) -o bin/load-office-data ./cmd/load_office_data
+	go build -i -ldflags $(LDFLAGS) -o bin/make-tsp-user ./cmd/make_tsp_user
+	go build -i -ldflags $(LDFLAGS) -o bin/load-user-gen ./cmd/load_user_gen
+	go build -i -ldflags $(LDFLAGS) -o bin/paperwork ./cmd/paperwork
+	go build -i -ldflags $(LDFLAGS) -o bin/iws ./cmd/demo/iws.go
+	go build -i -ldflags $(LDFLAGS) -o bin/health_checker ./cmd/health_checker
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
