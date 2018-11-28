@@ -7,6 +7,12 @@ export GOOS=darwin
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
+# Set the container default name
+CONTAINER=e2e
+
+# Change the port for tests
+HTTP_PORT=4000
+
 make server_deps server_generate client_build db_e2e_init
 
 # Setting GOOS to linux allows this binary to be copied to the docker container and run
@@ -15,18 +21,6 @@ make server_build
 
 # Build the docker container
 docker build --tag e2e:latest .
-
-HTTP_PORT=4000
-
-# Ensure this container doesn't exist
-CONTAINER=e2e_test
-
-function kill_container() {
-  # Stopping will also remove the container because we specified the --rm flag
-  echo "Stopping container $CONTAINER"
-  docker stop $CONTAINER || true
-}
-kill_container
 
 # Run the image with the ports changed
 docker run \
@@ -43,7 +37,7 @@ docker run \
   -e HERE_MAPS_GEOCODE_ENDPOINT \
   -e HERE_MAPS_ROUTING_ENDPOINT \
   -e IWS_RBS_HOST \
-  -e LOGIN_GOV_CALLBACK_PORT="$HTTP_PORT" \
+  -e LOGIN_GOV_CALLBACK_PORT="${HTTP_PORT}" \
   -e LOGIN_GOV_CALLBACK_PROTOCOL \
   -e LOGIN_GOV_HOSTNAME \
   -e LOGIN_GOV_MY_CLIENT_ID \
@@ -53,12 +47,12 @@ docker run \
   -e MOVE_MIL_DOD_CA_CERT \
   -e MOVE_MIL_DOD_TLS_CERT \
   -e MOVE_MIL_DOD_TLS_KEY \
-  -e NO_TLS_PORT="$HTTP_PORT" \
+  -e NO_TLS_PORT="${HTTP_PORT}" \
   -e SECURE_MIGRATION_DIR \
   -e SECURE_MIGRATION_SOURCE \
-  -p "$HTTP_PORT" \
-  --expose="$HTTP_PORT" \
-  --name="$CONTAINER" \
+  -p "${HTTP_PORT}" \
+  --expose="${HTTP_PORT}" \
+  --name="${CONTAINER}" \
   --link="db-dev:database" \
   --detach \
   --rm \
@@ -67,4 +61,5 @@ docker run \
 npx cypress open || true
 
 # Kill the docker container you built
-kill_container
+echo "Stopping container $CONTAINER"
+docker stop $CONTAINER || true

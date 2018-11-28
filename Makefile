@@ -200,46 +200,55 @@ db_test_run:
 db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp:
 	rm -f .server_deps.stamp
-	GOOS=linux make server_deps
-	docker build -f Dockerfile.migrations --tag e2e_migrations:latest .
+	GOOS=linux make build_tools
+	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 	# Remove these linux binaries so the Makefile will redo them for darwin with the next make command
 	rm -f .server_deps.stamp
 	touch .db_test_migrations_build.stamp
 
 db_test_migrate: db_test_migrations_build
 	DB_NAME=test_db bin/wait-for-db-docker
-	docker start e2e_migrations || \
-		(docker run \
-				-e GO_ENV=test \
-				-e SECURE_MIGRATION_SOURCE=local \
-				-e SECURE_MIGRATION_DIR=/migrate/local \
-				-e DB_NAME=test_db \
-				-e DB_HOST=database \
-				-e DB_PORT=5432 \
-				-e DB_USER=postgres \
-				-e DB_PASSWORD=$(PGPASSWORD) \
-				--name="e2e_migrations" \
-				--link="db-dev:database" \
-				--detach \
-				e2e_migrations:latest)
-	docker logs -f e2e_migrations
+	docker run \
+		-e DB_NAME=test_db \
+		-e DB_HOST=database \
+		-e DB_PORT=5432 \
+		-e DB_USER=postgres \
+		-e DB_PASSWORD=$(PGPASSWORD) \
+		--link="$(DB_DOCKER_CONTAINER):database" \
+		--rm \
+		--entrypoint soda \
+		e2e_migrations:latest \
+		migrate -c /migrate/database.yml -p /migrate/migrations up
 
 db_test_reset:
 	docker exec $(DB_DOCKER_CONTAINER) dropdb -p 5432 -h localhost -U postgres --if-exists test_db
 	docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db
 
 db_e2e_up:
-	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
-		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
+	docker run \
+		--link="$(DB_DOCKER_CONTAINER):database" \
+		--rm \
+		--entrypoint psql \
+		e2e_migrations:latest \
+		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable 'TRUNCATE users CASCADE;'
+	docker run \
+		-e DB_NAME=test_db \
+		-e DB_HOST=database \
+		-e DB_PORT=5432 \
+		-e DB_USER=postgres \
+		-e DB_PASSWORD=$(PGPASSWORD) \
+		--link="$(DB_DOCKER_CONTAINER):database" \
+		--rm \
+		--entrypoint generate-test-data \
+		e2e_migrations:latest \
+		-config-dir /migrate -named-scenario e2e_basic
 
 db_e2e_init: build_tools db_test_run db_test_reset db_test_migrate db_e2e_up
 
+db_e2e_reset: db_test_run db_test_reset db_test_migrate db_e2e_up
+
 db_e2e_populate: db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic"
-
-db_e2e_reset: db_test_run
-	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
-		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations reset
 
 1203_form:
 	find ./cmd/generate_1203_form -type f -name "main.go" | entr -c -r go run ./cmd/generate_1203_form/main.go

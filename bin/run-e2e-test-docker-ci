@@ -17,7 +17,7 @@ make server_deps server_generate client_build db_e2e_init server_build
 docker build --tag e2e:latest .
 
 # Build the migration docker container
-docker build -f Dockerfile.migrations --build-arg environment=test --tag e2e_migrations:latest .
+docker build -f Dockerfile.migrations --tag e2e_migrations:latest .
 
 # Run the migrations before starting the container
 docker run \

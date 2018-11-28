@@ -5,7 +5,6 @@ COPY bin/chamber /bin/chamber
 COPY bin/apply-secure-migration.sh /bin
 
 COPY migrations /migrate/migrations
-COPY local_migrations /migrate/local
 COPY config/database.yml /migrate
 
 RUN mkdir /migrate/secure
