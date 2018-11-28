@@ -200,7 +200,7 @@ db_test_run:
 db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp:
 	rm -f .server_deps.stamp
-	GOOS=linux make build_tools
+	GOOS=linux GOARCH=amd64 $(MAKE) -e build_tools
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 	# Remove these linux binaries so the Makefile will redo them for darwin with the next make command
 	rm -f .server_deps.stamp
