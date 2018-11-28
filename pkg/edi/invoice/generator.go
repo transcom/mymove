@@ -263,14 +263,14 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			EntityIdentifierCode:        "RG",   // Issuing office name qualifier
 			Name:                        "LKNQ", // TODO: pull from TransportationOffice
 			IdentificationCodeQualifier: "27",   // GBLOC
-			IdentificationCode:          "LKNQ",
+			IdentificationCode:          *shipment.SourceGBLOC,
 		},
 		// Destination installation information
 		&edisegment.N1{
 			EntityIdentifierCode:        "RH",   // Destination name qualifier
 			Name:                        "MLNQ", // TODO: pull from TransportationOffice
 			IdentificationCodeQualifier: "27",   // GBLOC
-			IdentificationCode:          "MLNQ",
+			IdentificationCode:          *shipment.DestinationGBLOC,
 		},
 		// Accounting info
 		&edisegment.FA1{
