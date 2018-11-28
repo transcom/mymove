@@ -28,12 +28,12 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 	office := CreateTestShippingOffice(suite)
 
 	user := OfficeUser{
-		LastName:  "Tester",
-		FirstName: "Sally",
-		Email:     "sally.work@government.gov",
-		Telephone: "(907) 555-1212",
-		UserID:    &sally.ID,
-		User:      sally,
+		LastName:               "Tester",
+		FirstName:              "Sally",
+		Email:                  "sally.work@government.gov",
+		Telephone:              "(907) 555-1212",
+		UserID:                 &sally.ID,
+		User:                   sally,
 		TransportationOfficeID: office.ID,
 	}
 	suite.mustSave(&user)
