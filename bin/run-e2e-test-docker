@@ -58,8 +58,15 @@ docker run \
   --rm \
   e2e:latest
 
+# Always kill the container on exit
+function kill_container() {
+  echo "Stopping container ${CONTAINER}"
+  docker stop ${CONTAINER} || true
+}
+trap kill_container SIGINT SIGTERM EXIT
+
 npx cypress open || true
 
-# Kill the docker container you built
-echo "Stopping container ${CONTAINER}"
-docker stop ${CONTAINER} || true
+kill_container
+
+docker ps -a
