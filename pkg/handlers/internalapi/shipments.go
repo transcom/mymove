@@ -7,8 +7,8 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/service/invoice"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -506,7 +506,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	ediWriter.WriteAll(invoice858C.Segments())
 
 	// before sending to GEX, save the invoice records
-	invoices, err := CreateInvoices{h.DB(), []models.Shipment{shipment}}.Call(clock.New())
+	invoices, err := invoice.CreateInvoices{DB: h.DB(), Shipments: []models.Shipment{shipment}}.Call(clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -547,45 +547,4 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 
 	return shipmentop.NewSendHHGInvoiceOK()
-}
-
-// CreateInvoices is a service object to create new invoices from Shipments
-type CreateInvoices struct {
-	db        *pop.Connection
-	shipments []models.Shipment
-}
-
-// Call creates Invoices and updates their ShipmentLineItem associations
-func (c CreateInvoices) Call(clock clock.Clock) ([]models.Invoice, error) {
-	currentTime := clock.Now()
-	invoices := make(models.Invoices, 0)
-	err := c.db.Transaction(func(connection *pop.Connection) error {
-		for _, shipment := range c.shipments {
-			invoice := models.Invoice{
-				Status:            models.InvoiceStatusINPROCESS,
-				InvoiceNumber:     "1", // placeholder
-				InvoicedDate:      currentTime,
-				ShipmentID:        shipment.ID,
-				Shipment:          shipment,
-				ShipmentLineItems: shipment.ShipmentLineItems,
-			}
-			// Sample code of what eager creation should like
-			// Currently it is attempting to recreate shipment line items
-			// and violating pk unique constraints (the docs say it shouldn't)
-			// https://gobuffalo.io/en/docs/db/relations#eager-creation
-			// verrs, err := c.db.Eager().ValidateAndCreate(&invoices)
-			c.db.ValidateAndCreate(&invoice)
-			invoices = append(invoices, invoice)
-			for index := range shipment.ShipmentLineItems {
-				shipment.ShipmentLineItems[index].InvoiceID = &invoice.ID
-				shipment.ShipmentLineItems[index].Invoice = invoice
-			}
-			verrs, err := c.db.ValidateAndSave(&shipment.ShipmentLineItems)
-			if err != nil || verrs.HasAny() {
-				return err
-			}
-		}
-		return nil
-	})
-	return invoices, err
 }
