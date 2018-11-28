@@ -124,7 +124,7 @@ const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFor
 
 // Action Buttons Conditions
 const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
-const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_planned_pack_date;
+const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_completed_date;
 
 class ShipmentInfo extends Component {
   constructor(props) {
@@ -167,7 +167,7 @@ class ShipmentInfo extends Component {
 
   enterPreMoveSurvey = values => {
     this.props.patchShipment(this.props.shipment.id, values).then(() => {
-      if (this.props.shipment.pm_survey_completed_date) {
+      if (this.props.shipment.pm_survey_completed_date === undefined) {
         this.props.completePmSurvey(this.props.shipment.id, Date.now());
       }
     });
