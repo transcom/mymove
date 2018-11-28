@@ -185,7 +185,7 @@ export function getEstimatedRemainingWeight(state) {
     return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
   }
 
-  if (sum && weight_estimate) {
+  if (sum && weight_estimate >= 0) {
     const totalEstimatedWeight = [
       weight_estimate,
       progear_weight_estimate || 0,

@@ -93,6 +93,10 @@ export class PpmSize extends Component {
     this.props.setPendingPpmSize(value);
   };
 
+  addCommaToWeight(weight) {
+    return weight.toLocaleString('en');
+  }
+
   render() {
     const {
       pendingPpmSize,
@@ -111,19 +115,23 @@ export class PpmSize extends Component {
       }
 
       if (actualRemainingWeight < entitlement.sum) {
-        return `${entitlement.sum - actualRemainingWeight} lbs. entitlement remaining (${
-          entitlement.sum
-        } lbs. - ${actualRemainingWeight} lbs. HHG weight).`;
+        return `${this.addCommaToWeight(
+          entitlement.sum - actualRemainingWeight,
+        )} lbs entitlement remaining (${this.addCommaToWeight(entitlement.sum)} lbs - ${this.addCommaToWeight(
+          actualRemainingWeight,
+        )} lbs HHG weight).`;
       } else if (actualRemainingWeight >= entitlement.sum) {
-        return `You have no entitlement remaining (${entitlement.sum} lbs. HHG weight).`;
+        return `You have no entitlement remaining (${this.addCommaToWeight(entitlement.sum)} lbs HHG weight).`;
+      } else if (entitlement.sum - estimatedRemainingWeight >= entitlement.sum) {
+        return `We estimate you have no entitlement remaining (Estimated ${this.addCommaToWeight(
+          entitlement.sum,
+        )} lbs estimated HHG weight).`;
       } else if (estimatedRemainingWeight < entitlement.sum) {
-        return `Estimated ${entitlement.sum - estimatedRemainingWeight} lbs. entitlement remaining (${
-          entitlement.sum
-        } lbs. - ${estimatedRemainingWeight} lbs. estimated HHG weight).`;
-      } else if (estimatedRemainingWeight >= entitlement.sum) {
-        return `We estimate you have no entitlement remaining (Estimated ${
-          entitlement.sum
-        } lbs. estimated HHG weight).`;
+        return `Estimated ${this.addCommaToWeight(
+          entitlement.sum - estimatedRemainingWeight,
+        )} lbs entitlement remaining (${this.addCommaToWeight(entitlement.sum)} lbs - ${this.addCommaToWeight(
+          estimatedRemainingWeight,
+        )} lbs estimated HHG weight).`;
       }
     };
 

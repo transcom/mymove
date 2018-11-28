@@ -49,7 +49,7 @@ class EntitlementBar extends Component {
       <div>
         <div className="entitlement-container">
           <p>
-            <strong>How much are you entitled to move?</strong>
+            <strong>How much weight are you entitled to move?</strong>
           </p>
           {!props.hhgPPMEntitlementMessage ? ppmSummaryHtml() : hhgPPMSummaryHtml()}
         </div>
