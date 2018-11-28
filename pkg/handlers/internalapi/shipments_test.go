@@ -4,9 +4,9 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -337,6 +337,24 @@ func (suite *HandlerSuite) TestCompleteHHGHandler() {
 	suite.Assertions.IsType(&shipmentop.CompleteHHGOK{}, response)
 	okResponse := response.(*shipmentop.CompleteHHGOK)
 	suite.Equal("COMPLETED", string(okResponse.Payload.Status))
+}
+
+func (suite *HandlerSuite) TestCreateInvoicesCall() {
+	shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	suite.TestDB().Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
+
+	createInvoices := CreateInvoices{
+		suite.TestDB(),
+		[]models.Shipment{shipmentLineItem.Shipment},
+	}
+	suite.NoError(createInvoices.Call(clock.NewMock()))
+
+	var invoices []models.Invoice
+	suite.TestDB().Eager("ShipmentLineItems").All(&invoices)
+	suite.Equal(1, len(invoices))
+	suite.Equal(models.InvoiceStatusINPROCESS, invoices[0].Status)
+	suite.Equal(1, len(invoices[0].ShipmentLineItems))
+	suite.Equal(invoices[0].ID, *invoices[0].ShipmentLineItems[0].InvoiceID)
 }
 
 //func (suite *HandlerSuite) TestShipmentInvoiceHandler() {

@@ -7,6 +7,7 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -504,6 +505,12 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	ediWriter := edi.NewWriter(os.Stdout)
 	ediWriter.WriteAll(invoice858C.Segments())
 
+	// before sending to GEX, save the invoice records
+	err = CreateInvoices{h.DB(), []models.Shipment{shipment}}.Call(clock.New())
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	// send edi through gex post api
 	transactionName := "placeholder"
 	invoice858CString, err := invoice858C.EDIString()
@@ -516,11 +523,52 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 
 	// get response from gex --> use status as status for this invoice call
-	switch responseStatus {
-	case 200:
-		return shipmentop.NewSendHHGInvoiceOK()
-	default:
+	if responseStatus != 200 {
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
 		return shipmentop.NewSendHHGInvoiceInternalServerError()
 	}
+
+	return shipmentop.NewSendHHGInvoiceOK()
+}
+
+// CreateInvoices is a service object to create new invoices from Shipments
+type CreateInvoices struct {
+	db        *pop.Connection
+	shipments []models.Shipment
+}
+
+// Call creates an invoice and updates its associations
+func (c CreateInvoices) Call(clock clock.Clock) error {
+	currentTime := clock.Now()
+	invoices := make(models.Invoices, 0)
+	shipmentLineItems := make(models.ShipmentLineItems, 0)
+	return c.db.Transaction(func(connection *pop.Connection) error {
+		for _, shipment := range c.shipments {
+			invoice := models.Invoice{
+				Status:            models.InvoiceStatusINPROCESS,
+				InvoiceNumber:     "1", // placeholder
+				InvoicedDate:      currentTime,
+				ShipmentID:        shipment.ID,
+				Shipment:          shipment,
+				ShipmentLineItems: shipment.ShipmentLineItems,
+			}
+			invoices = append(invoices, invoice)
+			// Sample code of what eager creation should like
+			// Currently it is attempting to recreate shipment line items
+			// and violating pk unique constraints (the docs say it shouldn't)
+			// https://gobuffalo.io/en/docs/db/relations#eager-creation
+			// verrs, err := c.db.Eager().ValidateAndCreate(&invoices)
+			c.db.ValidateAndCreate(&invoice)
+			for _, lineItem := range shipment.ShipmentLineItems {
+				lineItem.InvoiceID = &invoice.ID
+				lineItem.Invoice = invoice
+				shipmentLineItems = append(shipmentLineItems, lineItem)
+			}
+			verrs, err := c.db.ValidateAndSave(&shipmentLineItems)
+			if err != nil || verrs.HasAny() {
+				return err
+			}
+		}
+		return nil
+	})
 }
