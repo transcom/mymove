@@ -291,10 +291,10 @@ definitions:
         example: 10000
       applied_rate:
         type: integer
-        format: cents
+        format: millicents
         minimum: 0
         x-nullable: true
-        description: unit is cents
+        description: unit is millicents
       location:
         $ref: '#/definitions/ShipmentLineItemLocation'
       notes:
