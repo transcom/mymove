@@ -206,8 +206,9 @@ class ShipmentInfo extends Component {
         shipment.pm_survey_planned_delivery_date &&
         shipment.pm_survey_weight_estimate,
     );
-    const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
-    const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
+    const canAssignServiceAgents = (accepted || approved) && !hasOriginServiceAgent(serviceAgents);
+    const canEnterPreMoveSurvey =
+      (accepted || approved) && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
 
     // Some statuses are directly related to the shipment status and some to combo states
