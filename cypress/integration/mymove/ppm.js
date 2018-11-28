@@ -12,7 +12,7 @@ describe('completing the ppm flow', function() {
   //delete from personally_procured_moves
   it('progresses thru forms', function() {
     cy.contains('Yuma AFB (from Yuma AFB)');
-    cy.get('.whole_box > :nth-child(3) > span').contains('10,500 lbs');
+    cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should(loc => {
@@ -59,6 +59,7 @@ describe('completing the ppm flow', function() {
 
     // //todo: should probably have test suite for review and edit screens
     cy.contains('$1,333.91'); // Verify that the advance matches what was input
+    cy.contains('Storage: Not requested'); // Verify SIT on the ppm review page since it's optional on HHG_PPM
 
     cy.nextPage();
 
@@ -75,7 +76,7 @@ describe('completing the ppm flow', function() {
     });
 
     cy.contains('Success');
-    cy.contains('Next Step: Awaiting approval');
+    cy.contains('Next Step: Wait for approval');
     cy.contains('Advance Requested: $1,333.91');
   });
 });

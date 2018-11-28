@@ -58,6 +58,9 @@ type ShipmentLineItem struct {
 	UpdatedAt     time.Time              `json:"updated_at" db:"updated_at"`
 }
 
+// ShipmentLineItems is not required by pop and may be deleted
+type ShipmentLineItems []ShipmentLineItem
+
 // FetchLineItemsByShipmentID returns a list of line items by shipment_id
 func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.UUID) ([]ShipmentLineItem, error) {
 	var err error
@@ -76,6 +79,27 @@ func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.U
 	}
 
 	return shipmentLineItems, err
+}
+
+// FetchApprovedPreapprovalRequestsByShipment fetches approved pre-approval requests for a shipment
+func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, shipment Shipment) ([]ShipmentLineItem, error) {
+	var items []ShipmentLineItem
+
+	query := dbConnection.Q().
+		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
+		Where("shipment_id = ?", shipment.ID).
+		Where("status = ?", ShipmentLineItemStatusAPPROVED).
+		Where("tariff400ng_items.requires_pre_approval = true").
+		Eager("Tariff400ngItem")
+
+	err := query.All(&items)
+
+	// Add the shipment model
+	for i := 0; i < len(items); i++ {
+		items[i].Shipment = shipment
+	}
+
+	return items, err
 }
 
 // FetchShipmentLineItemByID returns a shipment line item by id

@@ -256,7 +256,7 @@ jobs:
               # Env vars needed for the webserver to run inside docker
               SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
               SECURE_MIGRATION_SOURCE: local
-              LOGIN_GOV_CALLBACK_PROTOCOL: http://
+              LOGIN_GOV_CALLBACK_PROTOCOL: http
               LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
               LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
               LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
@@ -545,21 +545,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: healthchecker_flush
+              only: placeholder
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: healthchecker_flush
+              only: placeholder
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: healthchecker_flush
+              only: placeholder
 
       - deploy_staging_migrations:
           requires:
