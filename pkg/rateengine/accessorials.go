@@ -103,13 +103,13 @@ var tariff400ngWeightBasedItems = map[string]bool{
 	"185A": true,
 }
 
-// ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item
-func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem) (unit.Cents, unit.Millicents, error) {
+// ComputeShipmentLineItemCharge calculates the total charge for a supplied shipment line item and returns it and the DISCOUNTED rate
+func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.ShipmentLineItem) (FeeAndRate, error) {
 	itemCode := shipmentLineItem.Tariff400ngItem.Code
 	shipment := shipmentLineItem.Shipment
 
 	if shipment.NetWeight == nil {
-		return unit.Cents(0), unit.Millicents(0), errors.New("Can't price a shipment line item for a shipment without NetWeight")
+		return FeeAndRate{}, errors.New("Can't price a shipment line item for a shipment without NetWeight")
 	}
 
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
@@ -121,7 +121,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip, *shipDate)
 	if err != nil {
-		return unit.Cents(0), unit.Millicents(0), errors.Wrap(err, "Fetching 400ng service area from db")
+		return FeeAndRate{}, errors.Wrap(err, "Fetching 400ng service area from db")
 	}
 
 	var rateCents unit.Cents
@@ -149,7 +149,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			*shipDate,
 		)
 		if err != nil {
-			return unit.Cents(0), unit.Millicents(0), errors.Wrap(err, "Fetching 400ng item rate from db")
+			return FeeAndRate{}, errors.Wrap(err, "Fetching 400ng item rate from db")
 		}
 		rateCents = rate.RateCents
 	}
@@ -165,23 +165,21 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	appliedQuantity := shipmentLineItem.Quantity1
 	if _, ok := tariff400ngWeightBasedItems[itemCode]; ok {
 		if shipment.NetWeight == nil {
-			return unit.Cents(0), unit.Millicents(0), errors.New("Can't price a weight-based accessorial without shipment net weight")
+			return FeeAndRate{}, errors.New("Can't price a weight-based accessorial without shipment net weight")
 		}
 		appliedQuantity = unit.BaseQuantityFromInt(shipment.NetWeight.Int())
 	}
 
-	var appliedRate unit.Cents
+	appliedRate := rateCents
 	if discountRate != nil {
 		appliedRate = discountRate.Apply(rateCents)
-	} else {
-		appliedRate = rateCents
 	}
 
 	if itemPricer, ok := tariff400ngItemPricing[itemCode]; ok {
-		return itemPricer.price(rateCents, appliedQuantity, discountRate), appliedRate.ToMillicents(), nil
+		return FeeAndRate{Fee: itemPricer.price(rateCents, appliedQuantity, discountRate), Rate: appliedRate.ToMillicents()}, nil
 	}
 
-	return unit.Cents(0), unit.Millicents(0), errors.New("Could not find pricing function for given code")
+	return FeeAndRate{}, errors.New("Could not find pricing function for given code")
 }
 
 // PricePreapprovalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field and applied_rate on those models
@@ -192,12 +190,12 @@ func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipme
 	}
 
 	for i := 0; i < len(items); i++ {
-		price, rate, err := re.ComputeShipmentLineItemCharge(items[i])
+		feeAndRate, err := re.ComputeShipmentLineItemCharge(items[i])
 		if err != nil {
 			return []models.ShipmentLineItem{}, err
 		}
-		items[i].AmountCents = &price
-		items[i].AppliedRate = &rate
+		items[i].AmountCents = &feeAndRate.Fee
+		items[i].AppliedRate = &feeAndRate.Rate
 	}
 
 	return items, nil

@@ -69,10 +69,10 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 	})
 
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-	computedPrice, _, err := engine.ComputeShipmentLineItemCharge(item)
+	computedPriceAndRate, err := engine.ComputeShipmentLineItemCharge(item)
 
 	if suite.NoError(err) {
-		suite.Equal(rateCents.Multiply(5), computedPrice)
+		suite.Equal(rateCents.Multiply(5), computedPriceAndRate.Fee)
 	}
 }
 
@@ -114,7 +114,7 @@ func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 		})
 
 		engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-		_, _, err := engine.ComputeShipmentLineItemCharge(item)
+		_, err := engine.ComputeShipmentLineItemCharge(item)
 
 		// Make sure we don't error
 		if !suite.NoError(err) {

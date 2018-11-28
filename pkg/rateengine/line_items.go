@@ -97,7 +97,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &packAndUnpackFee,
 		AppliedRate:       &packRate,
-		SubmittedDate:     time.Now(),
+		SubmittedDate:     now,
 	}
 	lineItems = append(lineItems, fullPackAndUnpack)
 

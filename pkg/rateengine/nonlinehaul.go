@@ -33,6 +33,7 @@ func (c *NonLinehaulCostComputation) Scale(factor float64) {
 	c.Unpack.Fee = c.Unpack.Fee.MultiplyFloat64(factor)
 }
 
+// serviceFeeCents returns the NON-DISCOUNTED rate in millicents with the fee
 func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
@@ -43,6 +44,7 @@ func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time)
 	return FeeAndRate{Fee: feeCents, Rate: rateCents.ToMillicents()}, nil
 }
 
+// fullPackCents Returns the NON-DISCOUNTED rate in millicents with the fee
 func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
@@ -57,6 +59,7 @@ func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (
 	return FeeAndRate{Fee: fullPackRate.Multiply(cwt.Int()), Rate: fullPackRate.ToMillicents()}, nil
 }
 
+// fullUnpackCents Returns the NON-DISCOUNTED rate in millicents with the fee
 func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
