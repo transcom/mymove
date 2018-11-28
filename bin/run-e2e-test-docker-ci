@@ -16,22 +16,6 @@ make server_deps server_generate client_build db_e2e_init server_build
 # Build the docker container
 docker build --tag e2e:latest .
 
-# Build the migration docker container
-docker build -f Dockerfile.migrations --tag e2e_migrations:latest .
-
-# Run the migrations before starting the container
-docker run \
-  --name="${CONTAINER}_migrations" \
-  --link="db-dev:database" \
-  --detach \
-  e2e_migrations:latest
-
-# Debug output
-docker ps -a
-echo
-docker logs ${CONTAINER}_migrations
-echo
-
 # Run the image with the ports changed
 docker run \
   -e CLIENT_AUTH_SECRET_KEY \
