@@ -1663,6 +1663,9 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			Edipi:         models.StringPointer("4224567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		Order: models.Order{
+			IssueDate: time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+		},
 		Move: models.Move{
 			ID:               moveID,
 			Locator:          "HHGPPM",

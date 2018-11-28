@@ -61,7 +61,7 @@ function serviceMemberFillsInDatesAndLocations() {
 
   cy
     .get('input[name="planned_move_date"]')
-    .should('have.value', '3/15/2018')
+    .should('have.value', '5/20/2018')
     .clear()
     .first()
     .type('9/2/2018{enter}')
