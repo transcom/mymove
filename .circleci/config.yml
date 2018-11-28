@@ -219,7 +219,6 @@ jobs:
           name: Install postgres client
           command: |
             sudo apt-get -qq update
-            sudo apt-get -qq -y install apt-transport-https lsb-release
             # Debian stretch only supports 9.6 client
             sudo apt-get -qq -y install postgresql-client-9.6
       - run:
@@ -297,7 +296,6 @@ jobs:
           name: Install postgres client
           command: |
             sudo apt-get -qq update
-            sudo apt-get -qq -y install apt-transport-https lsb-release
             # Debian stretch only supports 9.6 client
             sudo apt-get -qq -y install postgresql-client-9.6
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
