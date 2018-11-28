@@ -9,6 +9,9 @@ import (
 // Cents represents a value in hundreths of US dollars (aka cents).
 type Cents int
 
+// Millicents represents hundredthousandths of US dollars (1000 millicents/ cent)
+type Millicents int
+
 // Multiply returns the value of self multiplied by multiplier
 func (c Cents) Multiply(i int) Cents {
 	return Cents(i * c.Int())

@@ -69,10 +69,10 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 	})
 
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-	computedPrice, err := engine.ComputeShipmentLineItemCharge(item)
+	computedPriceAndRate, err := engine.ComputeShipmentLineItemCharge(item)
 
 	if suite.NoError(err) {
-		suite.Equal(rateCents.Multiply(5), computedPrice)
+		suite.Equal(rateCents.Multiply(5), computedPriceAndRate.Fee)
 	}
 }
 
@@ -147,6 +147,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 		// All items should have a populated amount
 		for _, pricedItem := range pricedItems {
 			suite.NotNil(pricedItem.AmountCents)
+			suite.NotNil(pricedItem.AppliedRate)
 		}
 	}
 }

@@ -30,8 +30,8 @@ func (suite *RateEngineSuite) Test_Scenario1() {
 	suite.Assertions.Nil(err, "could not compute PPM")
 
 	suite.Equal(unit.Cents(163434), cost.LinehaulChargeTotal)
-	suite.Equal(unit.Cents(4765), cost.OriginServiceFee)
-	suite.Equal(unit.Cents(5689), cost.DestinationServiceFee)
+	suite.Equal(unit.Cents(4765), cost.OriginService.Fee)
+	suite.Equal(unit.Cents(5689), cost.DestinationService.Fee)
 	suite.Equal(unit.Cents(263300), cost.GCC)
 }
 
@@ -56,7 +56,7 @@ func (suite *RateEngineSuite) Test_Scenario2() {
 	suite.Assertions.Nil(err, "could not compute PPM")
 
 	suite.Equal(unit.Cents(430147), cost.LinehaulChargeTotal)
-	suite.Equal(unit.Cents(12103), cost.OriginServiceFee)
-	suite.Equal(unit.Cents(11187), cost.DestinationServiceFee)
+	suite.Equal(unit.Cents(12103), cost.OriginService.Fee)
+	suite.Equal(unit.Cents(11187), cost.DestinationService.Fee)
 	suite.Equal(unit.Cents(637056), cost.GCC)
 }
