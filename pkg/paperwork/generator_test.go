@@ -72,6 +72,10 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	images := []inputFile{
 		{Path: "testdata/orders1.jpg", ContentType: "image/jpeg"},
 		{Path: "testdata/orders2.jpg", ContentType: "image/jpeg"},
+		// The below image isn't getting extracted by pdfcpu for some reason.
+		// We're adding it because gofpdf can't process 16-bit PNG images, so we
+		// just care that PDFFromImages doesn't error
+		{Path: "testdata/16bitpng.png", ContentType: "image/png"},
 	}
 	for _, image := range images {
 		_, err := suite.openLocalFile(image.Path, generator.fs)
@@ -79,14 +83,14 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	}
 
 	generatedPath, err := generator.PDFFromImages(images)
-	suite.Nil(err, "failed to generate pdf")
+	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 
 	// verify that the images are in the pdf by extracting them and checking their checksums
 	tmpdir, err := afero.TempDir(generator.fs, "", "extracted_images")
 	suite.Nil(err, "could not create temp dir")
 
-	api.ExtractImages(generatedPath, tmpdir, []string{"-2"}, generator.pdfConfig)
+	api.ExtractImages(generatedPath, tmpdir, []string{"-3"}, generator.pdfConfig)
 
 	checksums := make([]string, 2)
 	files, err := afero.ReadDir(generator.fs, tmpdir)
