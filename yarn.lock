@@ -2743,7 +2743,7 @@ currently-unhandled@^0.4.1:
   dependencies:
     array-find-index "^1.0.1"
 
-cypress@^3.1.0:
+cypress@~3.1.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/cypress/-/cypress-3.1.2.tgz#d1adbb48afecad54a84adf25f30536b400aa0f18"
   integrity sha512-anII950IRqmpQcxlo9te3vTcrl4keuGJaWlBQ5hbAb77D2YrcDv7Iux1FvX1vy/ZzzTdMaiiOts5sa8h63iP0g==
