@@ -50,7 +50,7 @@ docker run \
   -e NO_TLS_PORT="${HTTP_PORT}" \
   -e SECURE_MIGRATION_DIR \
   -e SECURE_MIGRATION_SOURCE \
-  -p "${HTTP_PORT}" \
+  -p "${HTTP_PORT}:${HTTP_PORT}" \
   --expose="${HTTP_PORT}" \
   --name="${CONTAINER}" \
   --link="db-dev:database" \
@@ -61,5 +61,5 @@ docker run \
 npx cypress open || true
 
 # Kill the docker container you built
-echo "Stopping container $CONTAINER"
-docker stop $CONTAINER || true
+echo "Stopping container ${CONTAINER}"
+docker stop ${CONTAINER} || true
