@@ -72,10 +72,6 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	images := []inputFile{
 		{Path: "testdata/orders1.jpg", ContentType: "image/jpeg"},
 		{Path: "testdata/orders2.jpg", ContentType: "image/jpeg"},
-		// The below image isn't getting extracted by pdfcpu for some reason.
-		// We're adding it because gofpdf can't process 16-bit PNG images, so we
-		// just care that PDFFromImages doesn't error
-		{Path: "testdata/16bitpng.png", ContentType: "image/png"},
 	}
 	for _, image := range images {
 		_, err := suite.openLocalFile(image.Path, generator.fs)
@@ -88,13 +84,13 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 
 	// verify that the images are in the pdf by extracting them and checking their checksums
 	tmpdir, err := afero.TempDir(generator.fs, "", "extracted_images")
-	suite.Nil(err, "could not create temp dir")
+	suite.FatalNil(err, "could not create temp dir")
 
-	api.ExtractImages(generatedPath, tmpdir, []string{"-3"}, generator.pdfConfig)
+	api.ExtractImages(generatedPath, tmpdir, []string{"-2"}, generator.pdfConfig)
 
 	checksums := make([]string, 2)
 	files, err := afero.ReadDir(generator.fs, tmpdir)
-	suite.Nil(err)
+	suite.FatalNil(err)
 
 	suite.Equal(2, len(files), "did not find 2 images")
 
@@ -114,6 +110,24 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
 	suite.Nil(err, "error calculating hash")
 	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
+}
+
+func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
+	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
+	images := []inputFile{
+		// The below image isn't getting extracted by pdfcpu for some reason.
+		// We're adding it because gofpdf can't process 16-bit PNG images, so we
+		// just care that PDFFromImages doesn't error
+		{Path: "testdata/16bitpng.png", ContentType: "image/png"},
+	}
+	_, err = suite.openLocalFile(images[0].Path, generator.fs)
+	suite.FatalNil(err)
+
+	generatedPath, err := generator.PDFFromImages(images)
+	suite.FatalNil(err, "failed to generate pdf")
+	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 }
 
 func (suite *PaperworkSuite) TestGenerateUploadsPDF() {

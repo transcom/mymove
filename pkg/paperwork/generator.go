@@ -56,7 +56,10 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 		}
 	}
 
-	png.Encode(out, imgSet)
+	err = png.Encode(out, imgSet)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
