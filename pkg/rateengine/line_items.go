@@ -23,6 +23,8 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	if err != nil {
 		return nil, err
 	}
+
+	lhAppliedRate := unit.Millicents(0) // total linehaul does not have a rate, and value should be 0
 	linehaul := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: linehaulItem.ID,
@@ -32,6 +34,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		Quantity2:         unit.BaseQuantityFromInt(cost.LinehaulCostComputation.Mileage),
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &cost.LinehaulCostComputation.LinehaulChargeTotal,
+		AppliedRate:       &lhAppliedRate,
 		SubmittedDate:     now,
 	}
 	lineItems = append(lineItems, linehaul)
@@ -41,34 +44,36 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	if err != nil {
 		return nil, err
 	}
-	originServiceFee := models.ShipmentLineItem{
+	originService := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: originServiceFeeItem.ID,
 		Tariff400ngItem:   originServiceFeeItem,
 		Location:          models.ShipmentLineItemLocationORIGIN,
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		AmountCents:       &cost.NonLinehaulCostComputation.OriginServiceFee,
+		AmountCents:       &cost.NonLinehaulCostComputation.OriginService.Fee,
+		AppliedRate:       &cost.NonLinehaulCostComputation.OriginService.Rate,
 		SubmittedDate:     now,
 	}
-	lineItems = append(lineItems, originServiceFee)
+	lineItems = append(lineItems, originService)
 
 	// Destination service fee ("135B")
 	destinationServiceFeeItem, err := models.FetchTariff400ngItemByCode(db, "135B")
 	if err != nil {
 		return nil, err
 	}
-	destinationServiceFee := models.ShipmentLineItem{
+	destinationService := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: destinationServiceFeeItem.ID,
 		Tariff400ngItem:   destinationServiceFeeItem,
 		Location:          models.ShipmentLineItemLocationDESTINATION,
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		AmountCents:       &cost.NonLinehaulCostComputation.DestinationServiceFee,
+		AmountCents:       &cost.NonLinehaulCostComputation.DestinationService.Fee,
+		AppliedRate:       &cost.NonLinehaulCostComputation.DestinationService.Rate,
 		SubmittedDate:     now,
 	}
-	lineItems = append(lineItems, destinationServiceFee)
+	lineItems = append(lineItems, destinationService)
 
 	// TODO: Determine if we have a separate unpack fee as well.  See notes below.
 	//
@@ -81,8 +86,9 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	if err != nil {
 		return nil, err
 	}
-	packAndUnpackFee := cost.NonLinehaulCostComputation.PackFee + cost.NonLinehaulCostComputation.UnpackFee
-	fullPack := models.ShipmentLineItem{
+	packAndUnpackFee := cost.NonLinehaulCostComputation.Pack.Fee + cost.NonLinehaulCostComputation.Unpack.Fee
+	packRate := cost.NonLinehaulCostComputation.Pack.Rate
+	fullPackAndUnpack := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: fullPackItem.ID,
 		Tariff400ngItem:   fullPackItem,
@@ -90,9 +96,10 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &packAndUnpackFee,
-		SubmittedDate:     time.Now(),
+		AppliedRate:       &packRate,
+		SubmittedDate:     now,
 	}
-	lineItems = append(lineItems, fullPack)
+	lineItems = append(lineItems, fullPackAndUnpack)
 
 	return lineItems, nil
 }

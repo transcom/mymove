@@ -93,6 +93,8 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
+		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
@@ -171,7 +173,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: hasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
-		Market: &market,
+		Market:                       &market,
 	}
 	if err = updateShipmentDatesWithPayload(h, &newShipment, params.Shipment); err != nil {
 		return handlers.ResponseForError(h.Logger(), err)

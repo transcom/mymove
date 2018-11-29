@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="go1.10"
+VERSION="go1.11"
 
 if [[ $(go version) = *$VERSION* ]]; then
   echo "$VERSION installed"
