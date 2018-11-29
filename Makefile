@@ -127,7 +127,7 @@ build_tools: server_deps server_generate
 	go build -i -ldflags $(LDFLAGS) -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags $(LDFLAGS) -o bin/health_checker ./cmd/health_checker
 
-tsp_run: build_tools db_run db_dev_create db_dev_migrate
+tsp_run: build_tools db_run db_dev_create
 	./bin/tsp-award-queue
 
 build: server_build build_tools client_build
