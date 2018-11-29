@@ -143,23 +143,16 @@ function serviceMemberViewsUpdatedHomePage() {
   });
 
   cy.get('body').should($div => {
-    expect($div.text()).to.include('Government Movers and Packers (HHG)');
-    // TODO We should uncomment next line and delete this
-    // and the line following the commented line once ppms can be submitted
-    // expect($div.text()).to.include('Move your own stuff (PPM)');
-    expect($div.text()).to.include('Move to be scheduled');
+    expect($div.text()).to.include('Government Movers and Packers');
+    expect($div.text()).to.include('Move your own stuff');
     expect($div.text()).to.not.include('Add PPM Shipment');
   });
 
   cy.get('.usa-width-three-fourths').should($div => {
     const text = $div.text();
-    // HHG information and details
-    expect(text).to.include('Next Step: Prepare for move');
-    expect(text).to.include('Weight (est.): 2000 lbs');
-    // TODO Once PPM can be submitted, the following 4 lines should be uncommented and this removed.
-    // // PPM information and details
-    // expect(text).to.include('Next Step: Wait for approval');
-    // expect(text).to.include('Weight (est.): 150');
-    // expect(text).to.include('Incentive (est.): $2,032.89 - 2,246.87');
+    // PPM information and details
+    expect(text).to.include('Next Step: Wait for approval');
+    expect(text).to.include('Weight (est.): 150');
+    expect(text).to.include('Incentive (est.): $4,255.80 - 4,703.78');
   });
 }
