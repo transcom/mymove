@@ -29,11 +29,10 @@ export function loadEntitlementsFromState(state) {
 }
 
 /*
- * These entitlements are pulled from the move.mil source code
- * Source: https://github.com/deptofdefense/move.mil/blob/master/lib/data/entitlements.yml
+ * These entitlements are found in Appendix K-1 of the Defense Transportation Regulations
  */
 const entitlements = {
-  ACADEMY_CADET_MIDSHIPMAN: {
+  ACADEMY_CADET: {
     total_weight_self: 350,
     total_weight_self_plus_dependents: 350,
     pro_gear_weight: 0,
@@ -99,31 +98,37 @@ const entitlements = {
     pro_gear_weight: 2000,
     pro_gear_weight_spouse: 500,
   },
-  O_1_W_1_ACADEMY_GRADUATE: {
+  MIDSHIPMAN: {
+    total_weight_self: 350,
+    total_weight_self_plus_dependents: 350,
+    pro_gear_weight: 0,
+    pro_gear_weight_spouse: 0,
+  },
+  O_1_ACADEMY_GRADUATE: {
     total_weight_self: 10000,
     total_weight_self_plus_dependents: 12000,
     pro_gear_weight: 2000,
     pro_gear_weight_spouse: 500,
   },
-  O_2_W_2: {
+  O_2: {
     total_weight_self: 12500,
     total_weight_self_plus_dependents: 13500,
     pro_gear_weight: 2000,
     pro_gear_weight_spouse: 500,
   },
-  O_3_W_3: {
+  O_3: {
     total_weight_self: 13000,
     total_weight_self_plus_dependents: 14500,
     pro_gear_weight: 2000,
     pro_gear_weight_spouse: 500,
   },
-  O_4_W_4: {
+  O_4: {
     total_weight_self: 14000,
     total_weight_self_plus_dependents: 17000,
     pro_gear_weight: 2000,
     pro_gear_weight_spouse: 500,
   },
-  O_5_W_5: {
+  O_5: {
     total_weight_self: 16000,
     total_weight_self_plus_dependents: 17500,
     pro_gear_weight: 2000,
@@ -156,6 +161,36 @@ const entitlements = {
   O_10: {
     total_weight_self: 18000,
     total_weight_self_plus_dependents: 18000,
+    pro_gear_weight: 2000,
+    pro_gear_weight_spouse: 500,
+  },
+  W_1: {
+    total_weight_self: 10000,
+    total_weight_self_plus_dependents: 12000,
+    pro_gear_weight: 2000,
+    pro_gear_weight_spouse: 500,
+  },
+  W_2: {
+    total_weight_self: 12500,
+    total_weight_self_plus_dependents: 13500,
+    pro_gear_weight: 2000,
+    pro_gear_weight_spouse: 500,
+  },
+  W_3: {
+    total_weight_self: 13000,
+    total_weight_self_plus_dependents: 14500,
+    pro_gear_weight: 2000,
+    pro_gear_weight_spouse: 500,
+  },
+  W_4: {
+    total_weight_self: 14000,
+    total_weight_self_plus_dependents: 17000,
+    pro_gear_weight: 2000,
+    pro_gear_weight_spouse: 500,
+  },
+  W_5: {
+    total_weight_self: 16000,
+    total_weight_self_plus_dependents: 17500,
     pro_gear_weight: 2000,
     pro_gear_weight_spouse: 500,
   },

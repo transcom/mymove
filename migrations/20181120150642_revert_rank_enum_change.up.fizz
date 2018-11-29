@@ -1,0 +1,11 @@
+// separate warrant officer paygrades from lower commissioned officer paygrades
+// The only reason they were combined before is that current entitlements are
+// identical between them. The services and the members consider these paygrades
+// to be distinct, and the electronic orders do as well.
+
+sql("UPDATE service_members SET rank='O_1_ACADEMY_GRADUATE' WHERE rank IN ('O_1_W_1_ACADEMY_GRADUATE');")
+sql("UPDATE service_members SET rank='O_2' WHERE rank IN ('O_2_W_2');")
+sql("UPDATE service_members SET rank='O_3' WHERE rank IN ('O_3_W_3');")
+sql("UPDATE service_members SET rank='O_4' WHERE rank IN ('O_4_W_4');")
+sql("UPDATE service_members SET rank='O_5' WHERE rank IN ('O_5_W_5');")
+sql("UPDATE service_members SET rank='ACADEMY_CADET' WHERE rank IN ('ACADEMY_CADET_MIDSHIPMAN');")
