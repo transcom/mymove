@@ -97,13 +97,13 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 server_build: server_deps server_generate
 	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
-server_run_standalone: client_build server_build db_dev_run
+server_run_standalone: client_build server_build db_run db_dev_create
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
-server_run_default: server_deps server_generate db_dev_run
+server_run_default: server_deps server_generate db_run  db_dev_create
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin --build ./cmd/webserver \
 		--bin /bin/webserver \
@@ -127,22 +127,22 @@ build_tools: server_deps server_generate
 	go build -i -ldflags $(LDFLAGS) -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags $(LDFLAGS) -o bin/health_checker ./cmd/health_checker
 
-tsp_run: build_tools db_dev_run
+tsp_run: build_tools db_dev_create
 	./bin/tsp-award-queue
 
 build: server_build build_tools client_build
 
-server_test: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test: server_deps server_generate db_run db_test_create db_test_reset db_test_migrate
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_all: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_all: server_deps server_generate db_run db_dev_create db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_coverage: server_deps server_generate db_run db_dev_create db_dev_reset db_dev_migrate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -172,32 +172,31 @@ e2e_clean:
 	docker rm -f e2e || true
 	docker rm -f e2e_migrations || true
 
-db_dev_run:
+db_run:
+	@echo "Starting the local dev database..."
 	# The version of the postgres container should match production as closely
 	# as possible.
 	# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
 	docker start $(DB_DOCKER_CONTAINER) || \
-		(docker run --name $(DB_DOCKER_CONTAINER) \
+		docker run --name $(DB_DOCKER_CONTAINER) \
 			-e \
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p 5432:5432 \
-			postgres:10.5 && \
-		DB_NAME=postgres bin/wait-for-db && \
-		createdb -p 5432 -h localhost -U postgres dev_db)
-
-db_dev_reset:
-ifndef CIRCLECI
-	dropdb -p 5432 -h localhost -U postgres --if-exists dev_db
-	createdb -p 5432 -h localhost -U postgres dev_db
-else
-	@echo "Relying on CircleCI's test database setup."
-endif
+			postgres:10.5
 
 db_destroy:
-	@echo "Attempting to reset local dev database..."
+	@echo "Destroying the local dev database..."
 	docker rm -f $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
+
+db_dev_create:
+	DB_NAME=postgres bin/wait-for-db && \
+		createdb -p 5432 -h localhost -U postgres dev_db || true
+
+db_dev_reset:
+	dropdb -p 5432 -h localhost -U postgres --if-exists dev_db
+	createdb -p 5432 -h localhost -U postgres dev_db
 
 db_dev_migrate: server_deps
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
@@ -205,18 +204,12 @@ db_dev_migrate: server_deps
 		DB_HOST=localhost DB_PORT=5432 DB_NAME=dev_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
-db_test_run:
-	# The version of the postgres container should match production as closely
-	# as possible.
-	# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-	docker start $(DB_DOCKER_CONTAINER) || \
-		(docker run --name $(DB_DOCKER_CONTAINER) \
-			-e \
-			POSTGRES_PASSWORD=$(PGPASSWORD) \
-			-d \
-			-p 5432:5432 \
-			postgres:10.5 && \
-		DB_NAME=postgres bin/wait-for-db-docker && \
+db_test_create:
+	DB_NAME=postgres bin/wait-for-db && \
+		createdb -p 5432 -h localhost -U postgres test_db || true
+
+db_test_create_docker:
+	DB_NAME=postgres bin/wait-for-db-docker && \
 		docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db)
 
 db_test_migrations_build: .db_test_migrations_build.stamp
@@ -228,7 +221,13 @@ db_test_migrations_build: .db_test_migrations_build.stamp
 	rm -f .server_deps.stamp
 	touch .db_test_migrations_build.stamp
 
-db_test_migrate: db_test_migrations_build
+db_test_migrate: server_deps
+	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd bin && \
+		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		./soda -c ../config/database.yml -p ../migrations migrate up
+
+db_test_migrate_docker: db_test_migrations_build
 	DB_NAME=test_db bin/wait-for-db-docker
 	docker run \
 		-t \
@@ -244,6 +243,14 @@ db_test_migrate: db_test_migrations_build
 		migrate -c /migrate/database.yml -p /migrate/migrations up
 
 db_test_reset:
+ifndef CIRCLECI
+	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
+	createdb -p 5432 -h localhost -U postgres test_db
+else
+	@echo "Relying on CircleCI's test database setup."
+endif
+
+db_test_reset_docker:
 	docker exec $(DB_DOCKER_CONTAINER) dropdb -p 5432 -h localhost -U postgres --if-exists test_db
 	docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db
 
@@ -267,14 +274,14 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: build_tools db_test_run db_test_reset db_test_migrate db_e2e_up
+db_e2e_init: build_tools db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
 
-db_e2e_reset: db_test_run db_test_reset db_test_migrate db_e2e_up
+db_e2e_reset: db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
 
-db_dev_e2e_populate: db_dev_run db_dev_reset db_dev_migrate build_tools
+db_dev_e2e_populate: db_dev_create db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
 
-db_test_e2e_populate: db_test_run db_test_reset db_test_migrate build_tools
+db_test_e2e_populate: db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
 
 # Backwards compatibility
@@ -304,8 +311,10 @@ clean:
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
-.PHONY: db_destroy db_dev_run db_dev_reset db_dev_migrate db_dev_e2e_populate
-.PHONY: db_test_run db_test_reset db_test_migrations_build db_test_migrate db_test_e2e_populate
+.PHONY: db_run db_destroy
+.PHONY: db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
+.PHONY: db_test_create db_test_reset db_test_migrate db_test_e2e_populate
+.PHONY: db_test_create_docker db_test_reset_docker db_test_migrations_build db_test_migrate_docker
 .PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_reset
 .PHONY: e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci e2e_clean
 .PHONY: clean pretty
