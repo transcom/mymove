@@ -174,25 +174,14 @@ export function getEstimatedRemainingWeight(state) {
 
   const { sum } = entitlements;
 
-  const {
-    pm_survey_weight_estimate,
-    weight_estimate,
-    progear_weight_estimate,
-    spouse_progear_weight_estimate,
-  } = selectShipment(state, getCurrentShipmentID(state));
+  const { pm_survey_weight_estimate, weight_estimate } = selectShipment(state, getCurrentShipmentID(state));
 
   if (pm_survey_weight_estimate) {
     return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
   }
 
   if (sum && weight_estimate >= 0) {
-    const totalEstimatedWeight = [
-      weight_estimate,
-      progear_weight_estimate || 0,
-      spouse_progear_weight_estimate || 0,
-    ].reduce((a, b) => a + b);
-
-    return estimatedRemainingWeight(sum, totalEstimatedWeight);
+    return estimatedRemainingWeight(sum, weight_estimate);
   }
 }
 
@@ -207,8 +196,6 @@ export function getActualRemainingWeight(state) {
   const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
 
   if (sum && gross_weight && tare_weight) {
-    // will there ever be an instance if tare weight is greater than gross weight?
-    // if so, logic should be updated - are there any restraints on these weights?
     return estimatedRemainingWeight(sum, gross_weight - tare_weight);
   }
 }

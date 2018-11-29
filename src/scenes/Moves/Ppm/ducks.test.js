@@ -338,7 +338,7 @@ describe('Ppm Reducer', () => {
             },
           },
         };
-        expect(getEstimatedRemainingWeight(state)).toEqual(7963);
+        expect(getEstimatedRemainingWeight(state)).toEqual(8500);
       });
     });
 
