@@ -30,6 +30,7 @@ docker run \
   -e HERE_MAPS_APP_ID \
   -e HERE_MAPS_GEOCODE_ENDPOINT \
   -e HERE_MAPS_ROUTING_ENDPOINT \
+  -e HTTP_MY_SERVER_NAME="mylocal" \
   -e IWS_RBS_HOST \
   -e LOGIN_GOV_CALLBACK_PORT="${HTTP_PORT}" \
   -e LOGIN_GOV_CALLBACK_PROTOCOL \
@@ -56,10 +57,27 @@ docker ps -a
 echo
 docker logs ${CONTAINER}
 echo
+E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' e2e)
 
-npx cypress run & p2=$!
+# Run the cypress tests
+docker build -f Dockerfile.cypress --tag cypress:latest .
+docker run \
+  -e CYPRESS_baseUrl=https://mylocal:4000 \
+  --add-host mylocal:"${E2E_IP}" \
+  --add-host officelocal:"${E2E_IP}" \
+  --add-host tsplocal:"${E2E_IP}" \
+  --name="cypress" \
+  --link="${CONTAINER}" \
+  --detach \
+  cypress:latest
 
-wait $p2
-test_exit=$?
-echo "Test exited with code $test_exit"
-exit $test_exit
+docker logs -f cypress
+
+# Copy out the results
+docker copy cypress:/cypress/videos cypress/videos
+docker copy cypress:/cypress/screenshots cypress/screenshots
+docker copy cypress:/cypress/results cypress/results
+
+# Grab the exit code
+EXIT_STATUS=$(docker inspect cypress --format='{{.State.ExitCode}}')
+exit "${EXIT_STATUS}"
