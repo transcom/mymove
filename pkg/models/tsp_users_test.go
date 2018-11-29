@@ -8,10 +8,10 @@ import (
 func (suite *ModelSuite) Test_TspUserInstantiation() {
 	user := &TspUser{}
 	expErrors := map[string][]string{
-		"first_name": {"FirstName can not be blank."},
-		"last_name":  {"LastName can not be blank."},
-		"telephone":  {"Telephone can not be blank."},
-		"email":      {"Email can not be blank."},
+		"first_name":                         {"FirstName can not be blank."},
+		"last_name":                          {"LastName can not be blank."},
+		"telephone":                          {"Telephone can not be blank."},
+		"email":                              {"Email can not be blank."},
 		"transportation_service_provider_id": {"TransportationServiceProviderID can not be blank."},
 	}
 	suite.verifyValidationErrors(user, expErrors)
@@ -28,12 +28,12 @@ func (suite *ModelSuite) Test_BasicTspUser() {
 	tsp := CreateTestTsp(suite)
 
 	user := TspUser{
-		LastName:  "Tester",
-		FirstName: "Sally",
-		Email:     "sally.work@government.gov",
-		Telephone: "(907) 555-1212",
-		UserID:    &sally.ID,
-		User:      sally,
+		LastName:                        "Tester",
+		FirstName:                       "Sally",
+		Email:                           "sally.work@government.gov",
+		Telephone:                       "(907) 555-1212",
+		UserID:                          &sally.ID,
+		User:                            sally,
 		TransportationServiceProviderID: tsp.ID,
 	}
 	suite.mustSave(&user)

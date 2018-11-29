@@ -62,14 +62,20 @@ a {
   text-decoration: none;
 }
 
-.remain-unvisited:visited {
-  color: #0071bc;
-}
-
 .contact_block {
   margin-top: 2em;
 }
 
 .contact_block .title {
   font-size: 2.2rem;
+}
+
+.move-summary button.link {
+  color: #0071bc;
+  background: transparent;
+  padding: 0;
+}
+
+.move-summary button.link:hover {
+  color: #205493;
 }

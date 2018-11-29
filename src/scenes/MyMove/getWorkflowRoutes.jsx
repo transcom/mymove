@@ -31,6 +31,7 @@ import Locations from 'scenes/Moves/Hhg/Locations';
 import WeightEstimate from 'scenes/Moves/Hhg/WeightEstimate';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
+import PpmAgreement from 'scenes/Legalese/SubmitPpm';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -238,8 +239,15 @@ const pages = {
     isComplete: (sm, orders, move, ppm) => isCurrentMoveSubmitted(move, ppm),
     render: (key, pages) => ({ match }) => <Review pages={pages} pageKey={key} match={match} />,
   },
+  '/moves/:moveId/hhg-ppm-agreement': {
+    isInFlow: hasHHGPPM,
+    isComplete: (sm, orders, move, ppm) => get(move, 'status', 'DRAFT') === 'SUBMITTED',
+    render: (key, pages, description, props) => ({ match }) => {
+      return <PpmAgreement pages={hhgPPMPages} pageKey={key} match={match} />;
+    },
+  },
   '/moves/:moveId/agreement': {
-    isInFlow: always,
+    isInFlow: ({ selectedMoveType }) => !hasHHGPPM({ selectedMoveType }),
     isComplete: (sm, orders, move, ppm) => isCurrentMoveSubmitted(move, ppm),
     render: (key, pages, description, props) => ({ match }) => {
       return <Agreement pages={pages} pageKey={key} match={match} />;
@@ -253,7 +261,7 @@ const hhgPPMPages = [
   '/moves/:moveId/hhg-ppm-size',
   '/moves/:moveId/hhg-ppm-weight',
   '/moves/:moveId/review',
-  '/moves/:moveId/agreement',
+  '/moves/:moveId/hhg-ppm-agreement',
 ];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
