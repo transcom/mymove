@@ -74,9 +74,9 @@ docker run \
 docker logs -f cypress
 
 # Copy out the results
-docker copy cypress:/cypress/videos cypress/videos
-docker copy cypress:/cypress/screenshots cypress/screenshots
-docker copy cypress:/cypress/results cypress/results
+docker cp cypress:/cypress/videos cypress/
+docker cp cypress:/cypress/screenshots cypress/
+docker cp cypress:/cypress/results cypress/
 
 # Grab the exit code
 EXIT_STATUS=$(docker inspect cypress --format='{{.State.ExitCode}}')
