@@ -48,7 +48,7 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 
 	b := img.Bounds()
 	imgSet := image.NewRGBA(b)
-	// Converts each pixel to a 24-bit RGBA pixel
+	// Converts each pixel to a 32-bit RGBA pixel
 	for y := 0; y < b.Max.Y; y++ {
 		for x := 0; x < b.Max.X; x++ {
 			newPixel := color.RGBAModel.Convert(img.At(x, y))
