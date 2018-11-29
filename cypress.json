@@ -3,5 +3,6 @@
   "reporter": "junit",
   "reporterOptions": {
     "mochaFile": "cypress/results/test-report-junit.[hash].xml"
-  }
+  },
+  "videoUploadOnPasses": false
 }
