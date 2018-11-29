@@ -56,13 +56,9 @@ docker run \
   --name="${CONTAINER}" \
   --link="db-dev:database" \
   --detach \
+  --rm \
   e2e:latest
 
-# Debug output
-docker ps -a
-echo
-docker logs ${CONTAINER}
-echo
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' e2e)
 
 # Run the cypress tests
