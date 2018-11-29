@@ -514,7 +514,7 @@ definitions:
           ## Marine Corps
           The last four characters of the SDN should be same as the TAC.
 
-          At the time of this writing, the Marines have separate SDNs for each category of moving expenses (HHG, POV Storage, NTS, etc.), but only one of them is unique to a specific Marine - the Commercial Travel (CT) SDN. The CT SDN **is** the Orders # for the Marines. In the future, the Marines would like to include the first 15 characters of the CT SDN in any transactions with the Third Party Payment System, and for the TPPS to include this unique value with every expense in the resulting report.
+          At the time of this writing, the Marines have separate SDNs for each category of moving expenses (HHG, POV Storage, NTS, etc.), but only one of them is unique to a specific Marine - the Commercial Travel (CT) SDN. The CT SDN **is** the Orders number for the Marines. In the future, the Marines would like to include the first 15 characters of the CT SDN in any transactions with the Third Party Payment System, and for the TPPS to include this unique value with every expense in the resulting report.
       loa:
         type: string
         description: The full Line Of Accounting. LOA is required if there is no TAC.
