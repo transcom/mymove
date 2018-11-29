@@ -187,8 +187,12 @@ db_dev_run:
 		createdb -p 5432 -h localhost -U postgres dev_db)
 
 db_dev_reset:
+ifndef CIRCLECI
 	dropdb -p 5432 -h localhost -U postgres --if-exists dev_db
 	createdb -p 5432 -h localhost -U postgres dev_db
+else
+	@echo "Relying on CircleCI's test database setup."
+endif
 
 db_destroy:
 	@echo "Attempting to reset local dev database..."
