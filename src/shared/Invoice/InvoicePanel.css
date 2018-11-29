@@ -66,3 +66,8 @@
   display: flex;
   align-items: center;
 }
+
+.warning--header {
+  font-size: 1.2em;
+  display: block;
+}
