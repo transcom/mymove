@@ -1,4 +1,3 @@
-// electronic orders will provide UICs, not duty stations
 create_table("units") {
   t.Column("id", "uuid", {"primary": true})
   t.Column("uic", "string", {null: true})
@@ -39,6 +38,5 @@ add_column("orders", "gaining_unit_id", "uuid", {})
 add_foreign_key("orders", "gaining_unit_id", {"units": ["id"]}, {})
 add_column("orders", "comments", "text", {})
 
-// Add title to service member table
 add_column("service_members", "title", "string", {})
 add_column("service_members", "date_of_birth", "date", {})
