@@ -114,7 +114,7 @@ class InvoiceTable extends PureComponent {
               </Alert>
               <div className="usa-grid-full invoice-panel-header-cont">
                 <div className="usa-width-one-half">
-                  <h5>Unbilled line items</h5>
+                  <h5>Invoice S-142341 Approved: 12-Jun-2018 15:03 CST by Janelle Simpson</h5>
                 </div>
               </div>
             </div>
