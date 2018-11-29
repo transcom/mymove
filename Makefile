@@ -241,7 +241,6 @@ db_test_reset:
 
 db_e2e_up:
 	docker run \
-		-t \
 		--link="$(DB_DOCKER_CONTAINER):database" \
 		--rm \
 		--entrypoint psql \
