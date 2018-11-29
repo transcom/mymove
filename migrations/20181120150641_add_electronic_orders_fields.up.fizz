@@ -12,7 +12,6 @@ create_table("units") {
 
 add_column("orders", "sharedId", "uuid", {null: true})
 add_column("orders", "isElectronic", "bool", {"default": false})
-add_column("orders", "status", "uuid", {"default": "authorized"})
 add_column("orders", "seqNum", "integer", {"default": 0})
 add_column("orders", "noCostMove", "bool", {"default": false})
 add_column("orders", "tdyEnRoute", "bool", {"default": false})
