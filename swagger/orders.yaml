@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for move.mil.
-  version: '0.1.0'
-  title: MyMove Orders Gateway
+  version: '0.1.1'
+  title: move.mil Orders Gateway
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md
@@ -223,7 +223,7 @@ definitions:
 
           # Civilian
           Corresponds to the Travel Authorization Number.
-        example: "030-00362 (Army), 0302018 9876543210 (Navy, after transformation), M7000213CTB28DZ (Marines), AJ-063322 (Air Force), 1214G85PRAAGK000 (Coast Guard), PS8D000025 (Civilian)"
+        example: "030-00362 (Army), N0001234ABC5XYZ (Navy), M7000213CTB28DZ (Marines), AJ-063322 (Air Force), 1214G85PRAAGK000 (Coast Guard), PS8D000025 (Civilian)"
       edipi:
         type: string
         description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
@@ -328,7 +328,7 @@ definitions:
     x-display-value:
       air-force: Air Force
       army: Army
-      civilian: Civilian Agency
+      civilian-agency: Civilian Agency
       coast-guard: Coast Guard
       marine-corps: Marine Corps
       navy: Navy
@@ -356,7 +356,7 @@ definitions:
         description: |
           If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.
 
-          If omitted, MyMove will show the member the default name for the provided rank and affiliation.
+          If omitted, my.move.mil will show the member the default name for the provided rank and affiliation.
       dateOfBirth:
         type: string
         description: |
@@ -460,7 +460,7 @@ definitions:
       - w-5
     x-display-value:
       aviation-cadet: Aviation Cadet
-      cadet: Cadet
+      cadet: Service Academy Cadet
       civilian: Civilian
       e-1: E-1
       e-2: E-2
@@ -483,10 +483,10 @@ definitions:
       o-9: O-9
       o-10: O-10
       w-1: W-1
-      w-2: W-2
-      w-3: W-3
-      w-4: W-4
-      w-5: W-5
+      w-2: CW-2
+      w-3: CW-3
+      w-4: CW-4
+      w-5: CW-5
   Accounting:
     type: object
     properties:
