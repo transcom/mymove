@@ -19,7 +19,7 @@ TSPHOST=tsplocal
 # Change the port for tests
 HTTP_PORT=4000
 
-make server_deps server_generate client_build db_e2e_init
+make e2e_clean client_build db_e2e_init
 
 # Setting GOOS to linux allows this binary to be copied to the docker container and run
 export GOOS=linux

@@ -274,7 +274,7 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: build_tools db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_init: db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
 
 db_e2e_reset: db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
 
