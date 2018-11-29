@@ -1,0 +1,8 @@
+FROM cypress/base:10
+RUN yarn add cypress
+
+COPY cypress/ /cypress
+COPY cypress.json /cypress.json
+
+ENTRYPOINT ["/node_modules/.bin/cypress"]
+CMD ["run"]
