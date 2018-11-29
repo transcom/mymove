@@ -300,48 +300,128 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	// TODO: We ultimately need to process all line items and hopefully abstract out their processing.
 	// TODO: See https://www.pivotaltracker.com/story/show/162065870
 
+	//Initialize empty collection of segments
 	var segments []edisegment.Segment
 
-	linehaulSegments, err := generateLinehaulSegments(lineItems)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, linehaulSegments...)
+	// Iterate over lineitems
+	for _, lineItem := range lineItems {
+		// Some hardcoded values that are being used
+		const rateValueQualifier = "RC"    // Rate
+		const hierarchicalLevelCode = "SS" // Services
+		const weightQualifier = "B"        // Billed Weight
+		const weightUnitCode = "L"         // Pounds
 
-	fullPackSegments, err := generateFullPackSegments(lineItems)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, fullPackSegments...)
+		// Place holders that currently exist //TODO: Replace these with real values
+		const ladingLineItemNumber = 1
+		const freightRate = 4.07
+		const billedRatedAsQuantity = 1
 
-	// TODO: We are missing full unpack (no "105C" currently in our tariff400ng_items table)
-	// TODO: Currently, the pack shipment line item covers the charge for both pack/unpack.
-	// fullUnpackSegments, err := generateFullUnpackSegments(lineItems)
-	// if err != nil {
-	//     return nil, err
-	// }
-	// segments = append(segments, fullUnpackSegments...)
+		// Initialize empty edisegment
+		var segment []edisegment.Segment
 
-	originServiceSegments, err := generateOriginServiceSegments(lineItems)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, originServiceSegments...)
+		// Initialize hierarchicalLevelCode
+		var hierarchicalLevelID string
 
-	destinationServiceSegments, err := generateDestinationServiceSegments(lineItems)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, destinationServiceSegments...)
+		// Determine HierarchicalLevelCode
+		switch lineItem.Location {
 
-	// TODO: We haven't migrated fuel surcharge yet ("16A") to use shipment line items.
-	fuelLinehaulSegments, err := generateFuelLinehaulSegments(lineItems)
-	if err != nil {
-		return nil, err
+		case models.ShipmentLineItemLocationORIGIN:
+			hierarchicalLevelID = "304"
+
+		case models.ShipmentLineItemLocationDESTINATION:
+			hierarchicalLevelID = "303"
+
+		}
+
+		// Use unit of measure to determine proper segment building path
+		switch lineItem.Tariff400ngItem.MeasurementUnit1 {
+		case models.Tariff400ngItemMeasurementUnitFLATRATE:
+			segment = []edisegment.Segment{
+				&edisegment.HL{
+					HierarchicalIDNumber:  hierarchicalLevelID,
+					HierarchicalLevelCode: hierarchicalLevelCode,
+				},
+				&edisegment.L0{
+					LadingLineItemNumber:   ladingLineItemNumber,
+					BilledRatedAsQuantity:  billedRatedAsQuantity,
+					BilledRatedAsQualifier: string(lineItem.Tariff400ngItem.MeasurementUnit1),
+				},
+				&edisegment.L1{
+					FreightRate:              freightRate,
+					RateValueQualifier:       rateValueQualifier, // Rate
+					Charge:                   lineItem.AmountCents.ToDollarFloat(),
+					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
+				},
+			}
+
+		case models.Tariff400ngItemMeasurementUnitWEIGHT:
+			segment = []edisegment.Segment{
+				&edisegment.HL{
+					HierarchicalIDNumber:  hierarchicalLevelID,
+					HierarchicalLevelCode: hierarchicalLevelCode,
+				},
+				&edisegment.L0{
+					LadingLineItemNumber: ladingLineItemNumber,
+					Weight:               lineItem.Quantity1.ToUnitFloat(),
+					WeightQualifier:      weightQualifier,
+					WeightUnitCode:       weightUnitCode,
+				},
+				&edisegment.L1{
+					FreightRate:              4.07,
+					RateValueQualifier:       rateValueQualifier,
+					Charge:                   lineItem.AmountCents.ToDollarFloat(),
+					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
+				},
+			}
+
+		}
+
+		segments = append(segments, segment...)
+
 	}
-	segments = append(segments, fuelLinehaulSegments...)
 
 	return segments, nil
+
+	//linehaulSegments, err := generateLinehaulSegments(lineItems)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//segments = append(segments, linehaulSegments...)
+	//
+	//fullPackSegments, err := generateFullPackSegments(lineItems)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//segments = append(segments, fullPackSegments...)
+	//
+	//// TODO: We are missing full unpack (no "105C" currently in our tariff400ng_items table)
+	//// TODO: Currently, the pack shipment line item covers the charge for both pack/unpack.
+	//// fullUnpackSegments, err := generateFullUnpackSegments(lineItems)
+	//// if err != nil {
+	////     return nil, err
+	//// }
+	//// segments = append(segments, fullUnpackSegments...)
+	//
+	//originServiceSegments, err := generateOriginServiceSegments(lineItems)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//segments = append(segments, originServiceSegments...)
+	//
+	//destinationServiceSegments, err := generateDestinationServiceSegments(lineItems)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//segments = append(segments, destinationServiceSegments...)
+	//
+	//// TODO: We haven't migrated fuel surcharge yet ("16A") to use shipment line items.
+	//fuelLinehaulSegments, err := generateFuelLinehaulSegments(lineItems)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//segments = append(segments, fuelLinehaulSegments...)
+	//
+	//return segments, nil
 }
 
 func generateLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
