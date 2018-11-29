@@ -279,7 +279,8 @@ db_e2e_up:
 
 db_e2e_init: db_test_run_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
 
-db_e2e_reset: db_test_run_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_reset: db_e2e_init
+	@echo "\033[0;31mUse 'make db_e2e_init' instead please\033[0m"
 
 db_dev_e2e_populate: db_dev_create db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
