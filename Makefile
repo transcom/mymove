@@ -223,6 +223,7 @@ db_test_migrations_build: .db_test_migrations_build.stamp
 db_test_migrate: db_test_migrations_build
 	DB_NAME=test_db bin/wait-for-db-docker
 	docker run \
+		-t \
 		-e DB_NAME=test_db \
 		-e DB_HOST=database \
 		-e DB_PORT=5432 \
@@ -240,12 +241,14 @@ db_test_reset:
 
 db_e2e_up:
 	docker run \
+		-t \
 		--link="$(DB_DOCKER_CONTAINER):database" \
 		--rm \
 		--entrypoint psql \
 		e2e_migrations:latest \
 		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable 'TRUNCATE users CASCADE;'
 	docker run \
+		-t \
 		-e DB_NAME=test_db \
 		-e DB_HOST=database \
 		-e DB_PORT=5432 \
