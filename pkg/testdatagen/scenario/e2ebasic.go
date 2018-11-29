@@ -1624,6 +1624,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator:          "COMBO1",
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
+		Order: models.Order{
+			IssueDate: time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("115f14f2-c982-4a54-a293-78935b61305d"),
 			SourceRateArea:    "US62",

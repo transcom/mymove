@@ -20,7 +20,7 @@ export class DateAndLocation extends Component {
   state = { showInfo: false };
 
   componentDidMount() {
-    if (!this.props.currentPpm) {
+    if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
       const { plannedMoveDate, pickupPostalCode, destinationPostalCode } = this.props.defaultValues;
       this.props.setInitialFormValues(plannedMoveDate, pickupPostalCode, destinationPostalCode);
     }
