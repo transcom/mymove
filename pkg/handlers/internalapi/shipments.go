@@ -530,7 +530,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 
 	// Reload shipment to get the invoices that were associated with it
 	var invoices models.Invoices
-	err = h.DB().Eager("ShipmentLineItems.Invoices").Reload(&shipment)
+	err = h.DB().Eager("ShipmentLineItems.Invoice").Reload(&shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
