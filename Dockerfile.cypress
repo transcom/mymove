@@ -1,5 +1,5 @@
 FROM cypress/base:10
-RUN yarn add cypress
+RUN yarn add cypress@~3.1.0
 
 COPY cypress/ /cypress
 COPY cypress.json /cypress.json
