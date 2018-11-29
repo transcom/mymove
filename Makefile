@@ -132,17 +132,17 @@ tsp_run: build_tools db_dev_run
 
 build: server_build build_tools client_build
 
-server_test: server_deps server_generate db_test_run db_test_reset db_test_migrate
+server_test: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_all: server_deps server_generate db_test_run db_test_reset db_test_migrate
+server_test_all: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_test_run db_test_reset db_test_migrate
+server_test_coverage: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -187,14 +187,18 @@ db_dev_run:
 		createdb -p 5432 -h localhost -U postgres dev_db)
 
 db_dev_reset:
-	echo "Attempting to reset local dev database..."
-	docker kill $(DB_DOCKER_CONTAINER) &&	\
-		docker rm $(DB_DOCKER_CONTAINER) || \
+	dropdb -p 5432 -h localhost -U postgres --if-exists dev_db
+	createdb -p 5432 -h localhost -U postgres dev_db
+
+db_destroy:
+	@echo "Attempting to reset local dev database..."
+	docker rm -f $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 
-db_dev_migrate: server_deps db_dev_run
+db_dev_migrate: server_deps
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
+		DB_HOST=localhost DB_PORT=5432 DB_NAME=dev_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_run:
@@ -263,8 +267,15 @@ db_e2e_init: build_tools db_test_run db_test_reset db_test_migrate db_e2e_up
 
 db_e2e_reset: db_test_run db_test_reset db_test_migrate db_e2e_up
 
-db_e2e_populate: db_dev_reset db_dev_migrate build_tools
-	bin/generate-test-data -named-scenario="e2e_basic"
+db_dev_e2e_populate: db_dev_run db_dev_reset db_dev_migrate build_tools
+	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
+
+db_test_e2e_populate: db_test_run db_test_reset db_test_migrate build_tools
+	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
+
+# Backwards compatibility
+db_populate_e2e: db_dev_e2e_populate
+	@echo "\033[0;31mUse 'make db_dev_e2e_populate' instead please\033[0m"
 
 1203_form:
 	find ./cmd/generate_1203_form -type f -name "main.go" | entr -c -r go run ./cmd/generate_1203_form/main.go
@@ -289,8 +300,8 @@ clean:
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
-.PHONY: db_dev_run db_dev_reset db_dev_migrate
-.PHONY: db_test_run db_test_reset db_test_migrations_build db_test_migrate
-.PHONY: db_e2e_populate db_e2e_up db_e2e_init db_e2e_reset
+.PHONY: db_destroy db_dev_run db_dev_reset db_dev_migrate db_dev_e2e_populate
+.PHONY: db_test_run db_test_reset db_test_migrations_build db_test_migrate db_test_e2e_populate
+.PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_reset
 .PHONY: e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci e2e_clean
 .PHONY: clean pretty
