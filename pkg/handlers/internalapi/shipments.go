@@ -507,11 +507,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 
 	// before sending to GEX, save the invoice records
 	verrs, err := invoice.CreateInvoices{DB: h.DB(), Shipments: []models.Shipment{shipment}}.Call(clock.New())
-	if verrs.HasAny() {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	// send edi through gex post api
@@ -543,8 +540,11 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		}
 		// Update invoice records as failed
 		verrs, err := h.DB().ValidateAndSave(&invoices)
-		if err != nil || verrs.HasAny() {
-			h.Logger().Error("Failed to update invoice records", zap.Error(err))
+		if verrs.HasAny() {
+			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
+		}
+		if err != nil {
+			h.Logger().Error("Failed to update invoice records to failed state", zap.Error(err))
 		}
 		return shipmentop.NewSendHHGInvoiceInternalServerError()
 	}
@@ -555,8 +555,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 	verrs, err = h.DB().ValidateAndSave(&invoices)
 	if err != nil || verrs.HasAny() {
-		h.Logger().Error("Failed to update invoice records", zap.Error(err))
-		return shipmentop.NewSendHHGInvoiceInternalServerError()
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	return shipmentop.NewSendHHGInvoiceOK()
