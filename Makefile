@@ -97,7 +97,7 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 server_build: server_deps server_generate
 	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
-server_run_standalone: client_build server_build db_run db_dev_create
+server_run_standalone: client_build server_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
@@ -127,22 +127,22 @@ build_tools: server_deps server_generate
 	go build -i -ldflags $(LDFLAGS) -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags $(LDFLAGS) -o bin/health_checker ./cmd/health_checker
 
-tsp_run: build_tools db_run db_dev_create
+tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
 
 build: server_build build_tools client_build
 
-server_test: server_deps server_generate db_run db_test_create db_test_reset db_test_migrate
+server_test: server_deps server_generate db_test_run db_test_reset db_test_migrate
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_all: server_deps server_generate db_run db_dev_create db_dev_reset db_dev_migrate
+server_test_all: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_run db_dev_create db_dev_reset db_dev_migrate
+server_test_coverage: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -154,14 +154,11 @@ server_test_coverage: server_deps server_generate db_run db_dev_create db_dev_re
 e2e_test: server_deps server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./bin/run-e2e-test
 
-e2e_test_ci: server_deps server_generate server_build client_build db_e2e_init
-	$(AWS_VAULT) ./bin/run-e2e-test-ci
+e2e_test_ci:
+	$(AWS_VAULT) ./bin/run-e2e-test-docker-ci
 
 e2e_test_docker:
 	$(AWS_VAULT) ./bin/run-e2e-test-docker
-
-e2e_test_docker_ci:
-	$(AWS_VAULT) ./bin/run-e2e-test-docker-ci
 
 e2e_clean:
 	rm -f .db_test_migrations_build.stamp
@@ -194,6 +191,8 @@ db_dev_create:
 	DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db || true
 
+db_dev_run: db_run db_dev_create
+
 db_dev_reset:
 	dropdb -p 5432 -h localhost -U postgres --if-exists dev_db
 	createdb -p 5432 -h localhost -U postgres dev_db
@@ -208,9 +207,13 @@ db_test_create:
 	DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres test_db || true
 
+db_test_run: db_run db_test_create
+
 db_test_create_docker:
 	DB_NAME=postgres bin/wait-for-db-docker && \
 		docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db || true
+
+db_test_run_docker: db_run db_test_create_docker
 
 db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp:
@@ -274,14 +277,14 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_init: db_test_run_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
 
-db_e2e_reset: db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_reset: db_test_run_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
 
 db_dev_e2e_populate: db_dev_create db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
 
-db_test_e2e_populate: db_run db_test_create_docker db_test_reset_docker db_test_migrate_docker build_tools
+db_test_e2e_populate: db_test_run_docker db_test_reset_docker db_test_migrate_docker build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
 
 # Backwards compatibility
@@ -312,9 +315,9 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
 .PHONY: db_run db_destroy
-.PHONY: db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
-.PHONY: db_test_create db_test_reset db_test_migrate db_test_e2e_populate
-.PHONY: db_test_create_docker db_test_reset_docker db_test_migrations_build db_test_migrate_docker
+.PHONY: db_dev_run db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
+.PHONY: db_test_run db_test_create db_test_reset db_test_migrate db_test_e2e_populate
+.PHONY: db_test_run_docker db_test_create_docker db_test_reset_docker db_test_migrations_build db_test_migrate_docker
 .PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_reset
 .PHONY: e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci e2e_clean
 .PHONY: clean pretty
