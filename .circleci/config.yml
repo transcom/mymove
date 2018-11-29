@@ -209,30 +209,7 @@ jobs:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-cache-cypress-3.1.0
-      - restore_cache:
-          keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run:
-          # This is needed to use `psql` to test DB connectivity, until the app
-          # itself starts making database connections.
-          name: Install postgres client
-          command: |
-            sudo apt-get -qq update
-            # Debian stretch only supports 9.6 client
-            sudo apt-get -qq -y install postgresql-client-9.6
-      - run:
-          name: Cypress deps
-          command: |
-            sudo apt-get -qq -y install xvfb libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
-      - run:
-          name: Install cypress
-          command: yarn add cypress@~3.1.0
-      - run:
-          name: Setup hostnames
-          command: |
-            echo 127.0.0.1 officelocal | sudo tee -a /etc/hosts
-            echo 127.0.0.1 tsplocal | sudo tee -a /etc/hosts
       - run:
           name: make e2e_test_docker_ci
           command: |
@@ -271,10 +248,6 @@ jobs:
       - store_test_results:
           path: cypress/results
       # `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
-      - save_cache:
-          key: v1-cache-cypress-3.1.0
-          paths:
-            - ~/.cache/Cypress/3.1.0
       - announce_failure
 
   # `server_test` runs the server side Go tests
