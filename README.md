@@ -158,6 +158,8 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 ### Setup: Client
 
+1. add the following line to /etc/hosts
+    `127.0.0.1 mymovelocal`
 1. `make client_build` (if setting up for first time)
 1. `make client_run`
 

@@ -127,7 +127,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 
-	flag.String("http-my-server-name", "localhost", "Hostname according to environment.")
+	flag.String("http-my-server-name", "mymovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")

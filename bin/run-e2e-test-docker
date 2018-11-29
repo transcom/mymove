@@ -9,6 +9,12 @@ export REACT_APP_NODE_ENV=development
 
 # Set the container default name
 CONTAINER=e2e
+CONTAINER_CYPRESS=cypress
+
+# Set hostnames
+MYMOVEHOST=mymovelocal
+OFFICEHOST=officelocal
+TSPHOST=tsplocal
 
 # Change the port for tests
 HTTP_PORT=4000
@@ -36,7 +42,7 @@ docker run \
   -e HERE_MAPS_APP_ID \
   -e HERE_MAPS_GEOCODE_ENDPOINT \
   -e HERE_MAPS_ROUTING_ENDPOINT \
-  -e HTTP_MY_SERVER_NAME="mylocal" \
+  -e HTTP_MY_SERVER_NAME="${MYMOVEHOST}" \
   -e IWS_RBS_HOST \
   -e LOGIN_GOV_CALLBACK_PORT="${HTTP_PORT}" \
   -e LOGIN_GOV_CALLBACK_PROTOCOL \
@@ -75,24 +81,25 @@ docker run \
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' e2e)
 
 # Run the cypress tests
-docker build -f Dockerfile.cypress --tag cypress:latest .
+docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
 docker run \
-  -e CYPRESS_baseUrl=https://mylocal:4000 \
-  --add-host mylocal:"${E2E_IP}" \
-  --add-host officelocal:"${E2E_IP}" \
-  --add-host tsplocal:"${E2E_IP}" \
-  --name="cypress" \
+  -t \
+  -e CYPRESS_baseUrl=http://${MYMOVEHOST}:4000 \
+  --add-host ${MYMOVEHOST}:"${E2E_IP}" \
+  --add-host ${OFFICEHOST}:"${E2E_IP}" \
+  --add-host ${TSPHOST}:"${E2E_IP}" \
+  --name="${CONTAINER_CYPRESS}" \
   --link="${CONTAINER}" \
   --detach \
-  cypress:latest
+  ${CONTAINER_CYPRESS}:latest
 
-docker logs -f cypress
+docker logs -f ${CONTAINER_CYPRESS}
 
 # Copy out the results
-docker cp cypress:/cypress/videos cypress/
-docker cp cypress:/cypress/screenshots cypress/
-docker cp cypress:/cypress/results cypress/
+docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ || true
+docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ || true
+docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ || true
 
 # Grab the exit code
-EXIT_STATUS=$(docker inspect cypress --format='{{.State.ExitCode}}')
+EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
 exit "${EXIT_STATUS}"

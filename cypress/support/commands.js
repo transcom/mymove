@@ -34,7 +34,7 @@ Cypress.Commands.add('signInAsNewUser', () => {
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  Cypress.config('baseUrl', 'http://localhost:4000');
+  Cypress.config('baseUrl', 'http://mymovelocal:4000');
   cy.signInAsUser(userId);
 });
 Cypress.Commands.add('signIntoOffice', () => {

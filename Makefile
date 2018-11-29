@@ -163,6 +163,15 @@ e2e_test_docker:
 e2e_test_docker_ci:
 	$(AWS_VAULT) ./bin/run-e2e-test-docker-ci
 
+e2e_clean:
+	rm -f .db_test_migrations_build.stamp
+	rm -rf cypress/results
+	rm -rf cypress/screenshots
+	rm -rf cypress/videos
+	docker rm -f cypress || true
+	docker rm -f e2e || true
+	docker rm -f e2e_migrations || true
+
 db_dev_run:
 	# The version of the postgres container should match production as closely
 	# as possible.
@@ -281,5 +290,5 @@ clean:
 .PHONY: db_dev_run db_dev_reset db_dev_migrate
 .PHONY: db_test_run db_test_reset db_test_migrations_build db_test_migrate
 .PHONY: db_e2e_populate db_e2e_up db_e2e_init db_e2e_reset
-.PHONY: e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci
+.PHONY: e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci e2e_clean
 .PHONY: clean pretty
