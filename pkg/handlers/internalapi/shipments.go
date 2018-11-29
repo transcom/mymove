@@ -506,7 +506,10 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	ediWriter.WriteAll(invoice858C.Segments())
 
 	// before sending to GEX, save the invoice records
-	invoices, err := invoice.CreateInvoices{DB: h.DB(), Shipments: []models.Shipment{shipment}}.Call(clock.New())
+	verrs, err := invoice.CreateInvoices{DB: h.DB(), Shipments: []models.Shipment{shipment}}.Call(clock.New())
+	if verrs.HasAny() {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -520,6 +523,16 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// Reload shipment to get the invoices that were associated with it
+	var invoices models.Invoices
+	err = h.DB().Eager("ShipmentLineItems.Invoices").Reload(&shipment)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	for _, lineItem := range shipment.ShipmentLineItems {
+		invoices = append(invoices, lineItem.Invoice)
 	}
 
 	// get response from gex --> use status as status for this invoice call
@@ -540,7 +553,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	for index := range invoices {
 		invoices[index].Status = models.InvoiceStatusSUBMITTED
 	}
-	verrs, err := h.DB().ValidateAndSave(&invoices)
+	verrs, err = h.DB().ValidateAndSave(&invoices)
 	if err != nil || verrs.HasAny() {
 		h.Logger().Error("Failed to update invoice records", zap.Error(err))
 		return shipmentop.NewSendHHGInvoiceInternalServerError()

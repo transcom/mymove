@@ -20,9 +20,12 @@ func (suite *InvoiceSuite) TestCreateInvoicesCall() {
 		suite.db,
 		[]models.Shipment{shipmentLineItem.Shipment},
 	}
-	invoices, err := createInvoices.Call(clock.NewMock())
+	verrs, err := createInvoices.Call(clock.NewMock())
+	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 
+	var invoices models.Invoices
+	suite.db.Eager("ShipmentLineItems").All(&invoices)
 	suite.Equal(1, len(invoices))
 	suite.Equal(models.InvoiceStatusINPROCESS, invoices[0].Status)
 	suite.Equal(1, len(invoices[0].ShipmentLineItems))

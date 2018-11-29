@@ -1,8 +1,11 @@
 package invoice
 
 import (
+	"errors"
+
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,11 +16,13 @@ type CreateInvoices struct {
 }
 
 // Call creates Invoices and updates their ShipmentLineItem associations
-func (c CreateInvoices) Call(clock clock.Clock) ([]models.Invoice, error) {
+func (c CreateInvoices) Call(clock clock.Clock) (*validate.Errors, error) {
 	currentTime := clock.Now()
-	invoices := make(models.Invoices, 0)
-	err := c.db.Transaction(func(connection *pop.Connection) error {
-		for _, shipment := range c.shipments {
+	var invoices models.Invoices
+	verrs := validate.NewErrors()
+	var err error
+	transactionErr := c.DB.Transaction(func(connection *pop.Connection) error {
+		for _, shipment := range c.Shipments {
 			invoice := models.Invoice{
 				Status:            models.InvoiceStatusINPROCESS,
 				InvoiceNumber:     "1", // placeholder
@@ -31,18 +36,24 @@ func (c CreateInvoices) Call(clock clock.Clock) ([]models.Invoice, error) {
 			// and violating pk unique constraints (the docs say it shouldn't)
 			// https://gobuffalo.io/en/docs/db/relations#eager-creation
 			// verrs, err := c.db.Eager().ValidateAndCreate(&invoices)
-			c.db.ValidateAndCreate(&invoice)
+			verrs, err := c.DB.ValidateAndCreate(&invoice)
+			if err != nil || verrs.HasAny() {
+				return errors.New("error saving invoice")
+			}
 			invoices = append(invoices, invoice)
 			for index := range shipment.ShipmentLineItems {
 				shipment.ShipmentLineItems[index].InvoiceID = &invoice.ID
 				shipment.ShipmentLineItems[index].Invoice = invoice
 			}
-			verrs, err := c.db.ValidateAndSave(&shipment.ShipmentLineItems)
+			verrs, err = c.DB.ValidateAndSave(&shipment.ShipmentLineItems)
 			if err != nil || verrs.HasAny() {
-				return err
+				return errors.New("error saving shipment line items")
 			}
 		}
 		return nil
 	})
-	return invoices, err
+	if transactionErr != nil {
+		return verrs, err
+	}
+	return verrs, nil
 }
