@@ -151,6 +151,7 @@ export function getMaxAdvance(state) {
   // and we don't want to block the user from requesting an advance if the rate engine fails
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
 }
+
 export function getSelectedWeightInfo(state) {
   const weightInfo = getRawWeightInfo(state);
   const ppm = get(state, 'ppm.currentPpm', null);
@@ -160,6 +161,53 @@ export function getSelectedWeightInfo(state) {
 
   const size = ppm ? ppm.size : 'L';
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
+}
+
+export function isHHGPPMComboMove(state) {
+  return get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM';
+}
+
+const estimatedRemainingWeight = (sum, weight) => {
+  if (sum >= weight) {
+    return sum - weight;
+  } else {
+    return sum;
+  }
+};
+
+export function getEstimatedRemainingWeight(state) {
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
+
+  const { pm_survey_weight_estimate, weight_estimate } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (pm_survey_weight_estimate) {
+    return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
+  }
+
+  if (sum && weight_estimate >= 0) {
+    return estimatedRemainingWeight(sum, weight_estimate);
+  }
+}
+
+export function getActualRemainingWeight(state) {
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
+  const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (sum && gross_weight && tare_weight) {
+    return estimatedRemainingWeight(sum, gross_weight - tare_weight);
+  }
 }
 
 export function getDestinationPostalCode(state) {

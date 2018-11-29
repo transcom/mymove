@@ -79,6 +79,10 @@ function serviceMemberSelectsWeightRange() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-ppm-size/);
   });
 
+  cy.get('.entitlement-container p:nth-child(2)').should($div => {
+    const text = $div.text();
+    expect(text).to.include('Estimated 2,000 lbs entitlement remaining (10,500 lbs - 8,500 lbs estimated HHG weight).');
+  });
   //todo verify entitlement
   cy.contains('A trailer').click();
 
