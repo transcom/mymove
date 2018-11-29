@@ -308,7 +308,6 @@
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
-    "flagext",
     "logger",
     "middleware",
     "middleware/denco",
@@ -1221,7 +1220,6 @@
     "html",
     "html/atom",
     "idna",
-    "netutil",
   ]
   pruneopts = ""
   revision = "c44066c5c816ec500d459a2a324a753f78531ae0"
@@ -1365,16 +1363,11 @@
     "github.com/felixge/httpsnoop",
     "github.com/fullsailor/pkcs7",
     "github.com/go-gomail/gomail",
-    "github.com/go-openapi/errors",
     "github.com/go-openapi/loads",
     "github.com/go-openapi/runtime",
-    "github.com/go-openapi/runtime/flagext",
     "github.com/go-openapi/runtime/middleware",
-    "github.com/go-openapi/runtime/security",
-    "github.com/go-openapi/spec",
     "github.com/go-openapi/strfmt",
     "github.com/go-openapi/swag",
-    "github.com/go-openapi/validate",
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/gobuffalo/pop",
     "github.com/gobuffalo/pop/soda",
@@ -1385,7 +1378,6 @@
     "github.com/honeycombio/beeline-go",
     "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
-    "github.com/jessevdk/go-flags",
     "github.com/jung-kurt/gofpdf",
     "github.com/magiconair/properties/assert",
     "github.com/markbates/goth",
@@ -1407,7 +1399,6 @@
     "goji.io",
     "goji.io/pat",
     "golang.org/x/crypto/bcrypt",
-    "golang.org/x/net/netutil",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
