@@ -18,7 +18,6 @@ type CreateInvoices struct {
 // Call creates Invoices and updates their ShipmentLineItem associations
 func (c CreateInvoices) Call(clock clock.Clock) (*validate.Errors, error) {
 	currentTime := clock.Now()
-	var invoices models.Invoices
 	verrs := validate.NewErrors()
 	var err error
 	transactionErr := c.DB.Transaction(func(connection *pop.Connection) error {
@@ -40,7 +39,6 @@ func (c CreateInvoices) Call(clock clock.Clock) (*validate.Errors, error) {
 			if err != nil || verrs.HasAny() {
 				return errors.New("error saving invoice")
 			}
-			invoices = append(invoices, invoice)
 			for index := range shipment.ShipmentLineItems {
 				shipment.ShipmentLineItems[index].InvoiceID = &invoice.ID
 				shipment.ShipmentLineItems[index].Invoice = invoice
