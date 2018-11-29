@@ -4,7 +4,7 @@ import { LastLocationProvider } from 'react-router-last-location';
 
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Route, Switch } from 'react-router-dom';
-import { ConnectedRouter, push } from 'react-router-redux';
+import { ConnectedRouter, push, goBack } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -36,13 +36,6 @@ import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 
-const NoMatch = ({ location }) => (
-  <div className="usa-grid">
-    <h3>
-      No match for <code>{location.pathname}</code>
-    </h3>
-  </div>
-);
 export class AppWrapper extends Component {
   state = { hasError: false };
   componentDidMount() {
@@ -55,6 +48,15 @@ export class AppWrapper extends Component {
       hasError: true,
     });
   }
+
+  noMatch = () => (
+    <div className="usa-grid">
+      <h2>Page not found</h2>
+      <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
+      <button onClick={this.props.goBack}>Go Back</button>
+    </div>
+  );
+
   render() {
     const props = this.props;
     return (
@@ -96,7 +98,7 @@ export class AppWrapper extends Component {
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                     <PrivateRoute path="/dps_cookie" component={Authorization(DPSAuthCookie, 'dps')} />
-                    <Route component={NoMatch} />
+                    <Route component={this.noMatch} />
                   </Switch>
                 )}
             </main>
@@ -122,6 +124,7 @@ const mapStateToProps = state => {
     latestMove: get(state, 'moves.latestMove'),
   };
 };
-const mapDispatchToProps = dispatch => bindActionCreators({ push, loadInternalSchema, loadLoggedInUser }, dispatch);
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ goBack, push, loadInternalSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

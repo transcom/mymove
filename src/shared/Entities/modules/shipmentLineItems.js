@@ -30,8 +30,19 @@ export function getAllShipmentLineItems(label, shipmentId) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
 }
 
-const selectShipmentLineItems = state => {
-  return denormalize(keys(get(state, 'entities.shipmentLineItems', {})), ShipmentLineItemsModel, state.entities);
+const selectShipmentLineItems = (state, shipmentId) => {
+  let filteredItems = denormalize(
+    keys(get(state, 'entities.shipmentLineItems', {})),
+    ShipmentLineItemsModel,
+    state.entities,
+  );
+  //only filter by shipmentId if it is explicitly passed
+  if (!shipmentId) {
+    return filteredItems;
+  }
+  return filter(filteredItems, item => {
+    return item.shipment_id === shipmentId;
+  });
 };
 
 export const selectSortedShipmentLineItems = createSelector([selectShipmentLineItems], shipmentLineItems =>
@@ -51,7 +62,7 @@ export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLine
 
 export const selectShipmentLineItem = (state, id) => denormalize([id], ShipmentLineItemsModel, state.entities)[0];
 
-const getUnbilledShipmentLineItems = (state, shipmentId) => {
+const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
   const items = filter(state.entities.shipmentLineItems, item => {
     return item.shipment_id === shipmentId && !item.invoice_id;
   });
@@ -64,14 +75,12 @@ const getUnbilledShipmentLineItems = (state, shipmentId) => {
   });
 };
 
-export const makeGetUnbilledShipmentLineItems = () => createSelector([getUnbilledShipmentLineItems], items => items);
+export const selectUnbilledShipmentLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items =>
+  orderBy(items, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
+);
 
-export const makeTotalFromUnbilledLineItems = () =>
-  createSelector([getUnbilledShipmentLineItems], items => {
-    if (items.length > 0) {
-      items.reduce((acm, item) => {
-        //Todo: get total from all line items
-        return 0;
-      });
-    }
-  });
+export const selectTotalFromUnbilledLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items => {
+  return items.reduce((acm, item) => {
+    return acm + item.amount_cents;
+  }, 0);
+});

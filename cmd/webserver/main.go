@@ -46,6 +46,30 @@ import (
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
 
+type errInvalidProtocol struct {
+	Protocol string
+}
+
+func (e *errInvalidProtocol) Error() string {
+	return fmt.Sprintf("invalid protocol %s, must be http or https", e.Protocol)
+}
+
+type errInvalidPort struct {
+	Port int
+}
+
+func (e *errInvalidPort) Error() string {
+	return fmt.Sprintf("invalid port %d, must be > 0 and <= 65535", e.Port)
+}
+
+type errInvalidHost struct {
+	Host string
+}
+
+func (e *errInvalidHost) Error() string {
+	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
+}
+
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
 	zap.L().Debug("limitBodySizeMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +162,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Int("no-tls-port", 8080, "the `port` for the listener not requiring any TLS.")
 
 	// Login.Gov config
-	flag.String("login-gov-callback-protocol", "https://", "Protocol for non local environments.")
+	flag.String("login-gov-callback-protocol", "https", "Protocol for non local environments.")
 	flag.Int("login-gov-callback-port", 443, "The port for callback urls.")
 	flag.String("login-gov-secret-key", "", "Login.gov auth secret JWT key.")
 	flag.String("login-gov-my-client-id", "", "Client ID registered with login gov.")
@@ -318,6 +342,57 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 	return connection, nil
 }
 
+func checkConfig(v *viper.Viper) error {
+
+	protocolVars := []string{
+		"login-gov-callback-protocol",
+		"http-sddc-protocol",
+	}
+
+	for _, c := range protocolVars {
+		if p := v.GetString(c); p != "http" && p != "https" {
+			return errors.Wrap(&errInvalidProtocol{Protocol: p}, fmt.Sprintf("%s is invalid", c))
+		}
+	}
+
+	invalidChars := ":/\\ \t\n\v\f\r"
+
+	hostVars := []string{
+		"http-my-server-name",
+		"http-office-server-name",
+		"http-tsp-server-name",
+		"http-orders-server-name",
+		"http-dps-server-name",
+		"http-sddc-server-name",
+		"dps-cookie-domain",
+		"login-gov-hostname",
+		"iws-rbs-host",
+		"db-host",
+	}
+
+	for _, c := range hostVars {
+		if h := v.GetString(c); len(h) == 0 || strings.ContainsAny(h, invalidChars) {
+			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", c))
+		}
+	}
+
+	portVars := []string{
+		"mutual-tls-port",
+		"tls-port",
+		"no-tls-port",
+		"login-gov-callback-port",
+		"db-port",
+	}
+
+	for _, c := range portVars {
+		if p := v.GetInt(c); p <= 0 || p > 65535 {
+			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
+		}
+	}
+
+	return nil
+}
+
 func main() {
 
 	flag := pflag.CommandLine
@@ -336,6 +411,11 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
+
+	err = checkConfig(v)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
 
 	// Honeycomb
 	useHoneycomb := initHoneycomb(v, logger)

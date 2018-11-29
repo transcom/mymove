@@ -106,11 +106,11 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		FunctionalIdentifierCode: "SI", // Shipment Information (858)
 		ApplicationSendersCode:   senderCode,
 		ApplicationReceiversCode: receiverCode,
-		Date:                  currentTime.Format(dateFormat),
-		Time:                  currentTime.Format(timeFormat),
-		GroupControlNumber:    interchangeControlNumber,
-		ResponsibleAgencyCode: "X", // Accredited Standards Committee X12
-		Version:               "004010",
+		Date:                     currentTime.Format(dateFormat),
+		Time:                     currentTime.Format(timeFormat),
+		GroupControlNumber:       interchangeControlNumber,
+		ResponsibleAgencyCode:    "X", // Accredited Standards Committee X12
+		Version:                  "004010",
 	}
 
 	var shipments []models.Shipment
@@ -260,17 +260,17 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 		},
 		// Origin installation information
 		&edisegment.N1{
-			EntityIdentifierCode: "RG",   // Issuing office name qualifier
-			Name:                 "LKNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27", // GBLOC
-			IdentificationCode:          "LKNQ",
+			EntityIdentifierCode:        "RG",   // Issuing office name qualifier
+			Name:                        "LKNQ", // TODO: pull from TransportationOffice
+			IdentificationCodeQualifier: "27",   // GBLOC
+			IdentificationCode:          *shipment.SourceGBLOC,
 		},
 		// Destination installation information
 		&edisegment.N1{
-			EntityIdentifierCode: "RH",   // Destination name qualifier
-			Name:                 "MLNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27", // GBLOC
-			IdentificationCode:          "MLNQ",
+			EntityIdentifierCode:        "RH",   // Destination name qualifier
+			Name:                        "MLNQ", // TODO: pull from TransportationOffice
+			IdentificationCodeQualifier: "27",   // GBLOC
+			IdentificationCode:          *shipment.DestinationGBLOC,
 		},
 		// Accounting info
 		&edisegment.FA1{
@@ -362,9 +362,9 @@ func generateLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0,    // TODO: placeholder for now
-			RateValueQualifier: "RC", // Rate
-			Charge:             lineItem.AmountCents.ToDollarFloat(),
+			FreightRate:              0,    // TODO: placeholder for now
+			RateValueQualifier:       "RC", // Rate
+			Charge:                   lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "LHS", // Linehaul
 		},
 	}, nil
@@ -389,9 +389,9 @@ func generateFullPackSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77, // TODO: placeholder for now
-			RateValueQualifier: "RC",  // Rate
-			Charge:             lineItem.AmountCents.ToDollarFloat(),
+			FreightRate:              65.77, // TODO: placeholder for now
+			RateValueQualifier:       "RC",  // Rate
+			Charge:                   lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "105A", // Full pack
 		},
 	}, nil
@@ -416,9 +416,9 @@ func generateFullUnpackSegments(lineItems []models.ShipmentLineItem) ([]edisegme
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        65.77, // TODO: placeholder for now
-			RateValueQualifier: "RC",  // Rate
-			Charge:             lineItem.AmountCents.ToDollarFloat(),
+			FreightRate:              65.77, // TODO: placeholder for now
+			RateValueQualifier:       "RC",  // Rate
+			Charge:                   lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "105C", // unpack TODO: verify that GEX can recognize 105C (unpack used to be included with pack above)
 		},
 	}, nil
@@ -443,9 +443,9 @@ func generateOriginServiceSegments(lineItems []models.ShipmentLineItem) ([]edise
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07, // TODO: placeholder for now
-			RateValueQualifier: "RC", // Rate
-			Charge:             lineItem.AmountCents.ToDollarFloat(),
+			FreightRate:              4.07, // TODO: placeholder for now
+			RateValueQualifier:       "RC", // Rate
+			Charge:                   lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "135A", // Origin service charge
 		},
 	}, nil
@@ -470,9 +470,9 @@ func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem) ([]
 			WeightUnitCode:       "L", // Pounds
 		},
 		&edisegment.L1{
-			FreightRate:        4.07, // TODO: placeholder for now
-			RateValueQualifier: "RC", // Rate
-			Charge:             lineItem.AmountCents.ToDollarFloat(),
+			FreightRate:              4.07, // TODO: placeholder for now
+			RateValueQualifier:       "RC", // Rate
+			Charge:                   lineItem.AmountCents.ToDollarFloat(),
 			SpecialChargeDescription: "135B", // TODO: check if correct for Destination service charge
 		},
 	}, nil
@@ -497,10 +497,10 @@ func generateFuelLinehaulSegments(lineItems []models.ShipmentLineItem) ([]ediseg
 			BilledRatedAsQualifier: "FR", // Flat rate
 		},
 		&edisegment.L1{
-			FreightRate:        0.03,   // TODO: placeholder for now
-			RateValueQualifier: "RC",   // Rate
-			Charge:             227.42, // TODO: add a calculation of this value to rate engine
-			SpecialChargeDescription: "16A", // Fuel surchage - linehaul
+			FreightRate:              0.03,   // TODO: placeholder for now
+			RateValueQualifier:       "RC",   // Rate
+			Charge:                   227.42, // TODO: add a calculation of this value to rate engine
+			SpecialChargeDescription: "16A",  // Fuel surchage - linehaul
 		},
 	}, nil
 }

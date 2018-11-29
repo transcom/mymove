@@ -5,6 +5,9 @@ import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
+import { selectShipment } from 'shared/Entities/modules/shipments';
+import { getCurrentShipmentID } from 'shared/UI/ducks';
+import { change } from 'redux-form';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
@@ -67,6 +70,14 @@ export function createOrUpdatePpm(moveId, ppm) {
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
     }
+  };
+}
+
+export function setInitialFormValues(plannedMoveDate, pickupPostalCode, destinationPostalCode) {
+  return function(dispatch) {
+    dispatch(change('ppp_date_and_location', 'planned_move_date', plannedMoveDate));
+    dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
+    dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
   };
 }
 
@@ -140,6 +151,7 @@ export function getMaxAdvance(state) {
   // and we don't want to block the user from requesting an advance if the rate engine fails
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
 }
+
 export function getSelectedWeightInfo(state) {
   const weightInfo = getRawWeightInfo(state);
   const ppm = get(state, 'ppm.currentPpm', null);
@@ -149,6 +161,63 @@ export function getSelectedWeightInfo(state) {
 
   const size = ppm ? ppm.size : 'L';
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
+}
+
+export function isHHGPPMComboMove(state) {
+  return get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM';
+}
+
+const estimatedRemainingWeight = (sum, weight) => {
+  if (sum >= weight) {
+    return sum - weight;
+  } else {
+    return sum;
+  }
+};
+
+export function getEstimatedRemainingWeight(state) {
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
+
+  const { pm_survey_weight_estimate, weight_estimate } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (pm_survey_weight_estimate) {
+    return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
+  }
+
+  if (sum && weight_estimate >= 0) {
+    return estimatedRemainingWeight(sum, weight_estimate);
+  }
+}
+
+export function getActualRemainingWeight(state) {
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
+  const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (sum && gross_weight && tare_weight) {
+    return estimatedRemainingWeight(sum, gross_weight - tare_weight);
+  }
+}
+
+export function getDestinationPostalCode(state) {
+  const currentShipment = selectShipment(state, getCurrentShipmentID(state));
+  const addresses = state.entities.addresses;
+  const currentOrders = state.orders.currentOrders;
+
+  return currentShipment.has_delivery_address && addresses
+    ? addresses[currentShipment.delivery_address].postal_code
+    : currentOrders.new_duty_station.address.postal_code;
 }
 
 // Reducer

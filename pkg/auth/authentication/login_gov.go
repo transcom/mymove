@@ -55,7 +55,7 @@ func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, ca
 	return openidConnect.New(
 		clientID,
 		p.secretKey,
-		fmt.Sprintf("%s%s:%d/auth/login-gov/callback", callbackProtocol, hostname, callbackPort),
+		fmt.Sprintf("%s://%s:%d/auth/login-gov/callback", callbackProtocol, hostname, callbackPort),
 		fmt.Sprintf("https://%s/.well-known/openid-configuration", p.hostname),
 	)
 }

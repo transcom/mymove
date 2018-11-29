@@ -1,22 +1,22 @@
 import React, { Fragment } from 'react';
-
+import { Link } from 'react-router-dom';
 import { get, includes } from 'lodash';
 import moment from 'moment';
 import fedHolidays from '@18f/us-federal-holidays';
 
+import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
+import Alert from 'shared/Alert';
+import { formatCents, formatCentsRange } from 'shared/formatters';
+import { withContext } from 'shared/AppContext';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
+import truck from 'shared/icon/truck-gray.svg';
+
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import truck from 'shared/icon/truck-gray.svg';
 import ppmDraft from './images/ppm-draft.png';
 import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
-import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
-import Alert from 'shared/Alert';
-import { formatCents, formatCentsRange } from 'shared/formatters';
-import { Link } from 'react-router-dom';
-import { withContext } from 'shared/AppContext';
 import StatusTimelineContainer from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -86,7 +86,7 @@ export const DraftMoveSummary = props => {
                 <div className="usa-width-one-third">
                   <div className="titled_block">
                     <div className="title">Details</div>
-                    <div>No detail</div>
+                    <div>No details</div>
                   </div>
                   <div className="titled_block">
                     <div className="title">Documents</div>
@@ -414,9 +414,13 @@ const hhgSummaryStatusComponents = {
   CANCELED: CanceledMoveSummary,
 };
 
-const getPPMStatus = (moveStatus, ppm) => {
+const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
   // PPM status determination
   const ppmStatus = get(ppm, 'status', 'DRAFT');
+  // If an HHG_PPM move, move type will be past draft, even if PPM is still in draft status.
+  if (selectedMoveType === 'HHG_PPM') {
+    return ppmStatus;
+  }
   return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
 };
 
@@ -449,21 +453,22 @@ export const MoveSummary = withContext(props => {
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
+  const selectedMoveType = get(move, 'selected_move_type');
 
-  const showHHG = move.selected_move_type === 'HHG' || move.selected_move_type === 'HHG_PPM';
-  const showPPM = move.selected_move_type === 'PPM' || move.selected_move_type === 'HHG_PPM';
+  const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
+  const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
   const hhgStatus = getHHGStatus(moveStatus, shipment);
   const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
-  const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm)];
+  const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm, selectedMoveType)];
   const hhgAndPpmEnabled = get(props, 'context.flags.hhgAndPpm', false);
   const showAddShipmentLink =
-    move.selected_move_type === 'HHG' &&
+    selectedMoveType === 'HHG' &&
     ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
   const showTsp =
     move.selected_move_type !== 'PPM' &&
     ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(hhgStatus);
   return (
-    <Fragment>
+    <div className="move-summary">
       {move.status === 'CANCELED' && (
         <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
@@ -522,14 +527,10 @@ export const MoveSummary = withContext(props => {
           <div>
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <Link
-                  className="remain-unvisited"
-                  onClick={() => props.updateMove(moveId, 'HHG_PPM')}
-                  to={`/moves/${moveId}/hhg-ppm-start`}
-                >
+                <button className="link" onClick={() => props.addPPMShipment(moveId)}>
                   <FontAwesomeIcon icon={faPlus} />
                   <span> Add PPM Shipment</span>
-                </Link>
+                </button>
               )}
           </div>
           <div className="contact_block">
@@ -547,6 +548,6 @@ export const MoveSummary = withContext(props => {
           </div>
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 });

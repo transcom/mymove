@@ -361,12 +361,53 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
 	response := handler.Handle(params)
 	suite.Equal(shipmentop.NewSendHHGInvoiceOK(), response)
 
-	// check that invoices were saved and have submitted status
+    // check that invoices were saved and have submitted status
 	var invoices []models.Invoice
-	suite.NoError(suite.TestDB().All(&invoices))
-	suite.NotEmpty(invoices)
-	for _, invoice := range invoices {
+		suite.NoError(suite.TestDB().All(&invoices)) // needs to filter on ID that was saved
+		suite.NotEmpty(invoices)
+		for _, invoice := range invoices {
 		suite.Equal(models.InvoiceStatusSUBMITTED, invoice.Status)
 	}
 }
 */
+
+func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
+	// Given: an office User
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status:                       "DRAFT",
+			EstimatedPackDays:            swag.Int64(2),
+			EstimatedTransitDays:         swag.Int64(5),
+			HasSecondaryPickupAddress:    true,
+			HasDeliveryAddress:           false,
+			HasPartialSITDeliveryAddress: true,
+			WeightEstimate:               handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
+			ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(swag.Int64(325)),
+			SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(swag.Int64(120)),
+		},
+	})
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.TestDB(), testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			ShipmentID: shipment.ID,
+		},
+	})
+	suite.MustSave(&shipment)
+	suite.MustSave(&shipmentOffer)
+
+	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := "/shipments/shipment_id/invoice"
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := shipmentop.SendHHGInvoiceParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	// assert we got back the conflict response
+	response := handler.Handle(params)
+	suite.Equal(shipmentop.NewSendHHGInvoiceConflict(), response)
+}

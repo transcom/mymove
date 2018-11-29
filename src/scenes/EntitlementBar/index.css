@@ -7,3 +7,8 @@
 .entitlement-container > p {
   margin: 0;
 }
+
+.top-bottom-buffered {
+  margin-top: -1em;
+  margin-bottom: 1em;
+}

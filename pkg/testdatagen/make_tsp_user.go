@@ -25,8 +25,8 @@ func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 	tsp := MakeDefaultTSP(db)
 
 	tspUser := models.TspUser{
-		UserID: &user.ID,
-		User:   user,
+		UserID:                          &user.ID,
+		User:                            user,
 		TransportationServiceProvider:   tsp,
 		TransportationServiceProviderID: tsp.ID,
 		FirstName:                       "Leo",

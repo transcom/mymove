@@ -36,9 +36,10 @@ export class SignedCertification extends Component {
 
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
+      const { certificationText, ppmId } = this.props;
 
       return this.props
-        .signAndSubmitForApproval(moveId, this.props.certificationText, pendingValues.signature, pendingValues.date)
+        .signAndSubmitForApproval(moveId, certificationText, pendingValues.signature, pendingValues.date, ppmId)
         .then(() => this.props.push('/'));
     }
   };
@@ -119,6 +120,7 @@ SignedCertification.propTypes = {
   handleSubmit: PropTypes.func,
   hasSubmitError: PropTypes.bool.isRequired,
   hasSubmitSuccess: PropTypes.bool.isRequired,
+  ppmId: PropTypes.string,
 };
 
 function mapStateToProps(state) {

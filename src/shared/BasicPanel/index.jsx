@@ -17,7 +17,7 @@ class BasicPanel extends Component {
 }
 
 BasicPanel.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.oneOfType([PropTypes.string.isRequired, PropTypes.object.isRequired]),
   children: PropTypes.node,
   className: PropTypes.string,
 };

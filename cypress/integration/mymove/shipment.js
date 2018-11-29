@@ -20,8 +20,8 @@ describe('completing the hhg flow', function() {
 
     // Calendar move date
 
-    // Try to get today, which should be disabled even after clicked.  We may have to go back a month
-    // to find today since the calendar scrolls to the month with the first available move date.
+    // Try to get today, which should be disabled.  We may have to go back a month to find
+    // today since the calendar scrolls to the month with the first available move date.
     cy
       .get('.DayPicker-Body')
       .then($body => {
@@ -33,7 +33,6 @@ describe('completing the hhg flow', function() {
         cy
           .get('.DayPicker-Day--today')
           .first()
-          .click()
           .should('have.class', 'DayPicker-Day--disabled');
       });
 
@@ -52,7 +51,7 @@ describe('completing the hhg flow', function() {
           .get('[class=DayPicker-Day]')
           .first()
           .click()
-          .should('have.class', 'DayPicker-Day--selected');
+          .should('have.class', 'DayPicker-Day--pickup');
       });
 
     // Check for calendar move dates summary and color-coding of calendar.
@@ -205,7 +204,7 @@ describe('completing the hhg flow', function() {
       .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
       .first()
       .click()
-      .should('have.class', 'DayPicker-Day--selected')
+      .should('have.class', 'DayPicker-Day--pickup')
       .invoke('attr', 'aria-label')
       .as('dateLabel');
 
