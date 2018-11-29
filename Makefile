@@ -210,7 +210,7 @@ db_test_create:
 
 db_test_create_docker:
 	DB_NAME=postgres bin/wait-for-db-docker && \
-		docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db)
+		docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db || true
 
 db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp:
