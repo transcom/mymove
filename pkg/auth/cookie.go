@@ -1,16 +1,21 @@
 package auth
 
 import (
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"net/http"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gofrs/uuid"
+	"github.com/gorilla/csrf"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 // UserSessionCookieName is the key at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
+
+// MaskGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
+const MaskGorillaCSRFToken = "masked_gorilla_csrf"
 
 // SessionExpiryInMinutes is the number of minutes before a fallow session is harvested
 const SessionExpiryInMinutes = 15
@@ -77,6 +82,46 @@ func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request
 		return
 	}
 	return claims, ok
+}
+
+// WriteCsrfCookie update the cookie for the session
+func WriteCsrfCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger) {
+
+	// New cookie
+	cookie := http.Cookie{
+		Name:    MaskGorillaCSRFToken,
+		Value:   "blank",
+		Path:    "/",
+		Expires: time.Unix(0, 0),
+		MaxAge:  -1,
+	}
+
+	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
+	maxAge := sessionExpiryInSeconds
+	// Never expire token if in development
+	if noSessionTimeout {
+		expiry = likeForever
+		maxAge = likeForeverInSeconds
+	}
+
+	logger.Info("Cookie", zap.Int("Size", len(csrfToken)))
+	cookie.Value = csrfToken
+	cookie.Expires = expiry
+	cookie.MaxAge = maxAge
+
+	// http.SetCookie calls Header().Add() instead of .Set(), which can result in duplicate cookies
+	w.Header().Set("Set-Cookie", cookie.String())
+}
+
+// CsrfCookieMiddleware handle serializing and de-serializing the CSRF Token of the user_session cookie
+func CsrfCookieMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			WriteCsrfCookie(w, csrf.Token(r), noSessionTimeout, logger)
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
 }
 
 // WriteSessionCookie update the cookie for the session

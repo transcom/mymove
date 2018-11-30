@@ -19,6 +19,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
+	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/pkg/errors"
@@ -405,6 +406,10 @@ func main() {
 	v.AutomaticEnv()
 
 	env := v.GetString("env")
+	isDevOrTest := false
+	if env == "development" || env == "test" {
+		isDevOrTest = true
+	}
 
 	logger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
@@ -467,6 +472,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout)
+	csrfCookieMiddleware := auth.CsrfCookieMiddleware(logger, noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
@@ -600,6 +606,12 @@ func main() {
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	root.Use(logging.LogRequestMiddleware)
+	// PS: Don't forget to pass csrf.Secure(false) if you're developing locally
+	// over plain HTTP (just don't leave it on in production).
+	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
+	// ToDo: Need to generate a real auth key and somehow rotate the key
+	root.Use(csrf.Protect([]byte("511927246155170812911214413150111458588711218413210252143172561396280124219236164"), csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(csrfCookieMiddleware)
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
@@ -632,7 +644,7 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
-	if env == "development" || env == "test" {
+	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
