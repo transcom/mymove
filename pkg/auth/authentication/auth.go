@@ -389,15 +389,15 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 	return &session, err
 }
 
-func getAllowedFeatures(db *pop.Connection, session *auth.Session) ([]string, error) {
-	features := []string{}
+func getAllowedFeatures(db *pop.Connection, session *auth.Session) ([]auth.Feature, error) {
+	features := []auth.Feature{}
 	isDPSUser, err := models.IsDPSUser(db, session.Email)
 	if err != nil {
 		return features, err
 	}
 
 	if isDPSUser {
-		features = append(features, "dps")
+		features = append(features, auth.FeatureDPS)
 	}
 	return features, nil
 }

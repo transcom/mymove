@@ -4183,5 +4183,7 @@ paths:
             $ref: '#/definitions/DPSAuthCookieURLPayload'
         400:
           description: invalid request
+        403:
+          description: user is not authorized
         500:
           description: internal server error
