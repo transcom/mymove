@@ -89,7 +89,7 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
 server_build: server_deps server_generate
-	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -o bin/webserver ./cmd/webserver
+	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -ldflags "-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)" -i -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
@@ -103,7 +103,7 @@ server_run_default: server_deps server_generate db_dev_run
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
 		--excludeDir vendor --excludeDir node_modules \
-		-i --buildArgs "-i"
+		-i --buildArgs "-i -ldflags=\"-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)\""
 
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
