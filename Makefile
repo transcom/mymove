@@ -116,6 +116,7 @@ build_tools: server_deps server_generate
 	go build -i -o bin/make-office-user ./cmd/make_office_user
 	go build -i -o bin/load-office-data ./cmd/load_office_data
 	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
+	go build -i -o bin/make-dps-user ./cmd/make_dps_user
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
 	go build -i -o bin/iws ./cmd/demo/iws.go
