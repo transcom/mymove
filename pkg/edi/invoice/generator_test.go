@@ -83,9 +83,6 @@ func (suite *InvoiceSuite) TestEDIString() {
 			writer := edi.NewWriter(goldenFile)
 			writer.WriteAll(generatedTransactions.Segments())
 		}
-		fmt.Println("----")
-		fmt.Println(actualEDIString)
-		fmt.Println("----")
 		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), actualEDIString)
 	})
 }
