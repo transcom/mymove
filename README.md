@@ -27,6 +27,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Client](#setup-client)
   * [Setup: Office/admin client](#setup-officeadmin-client)
   * [Setup: TSP/admin client](#setup-tspadmin-client)
+  * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
@@ -187,6 +188,12 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
+
+### Setup: DPS user
+
+1. Ensure that you have a login.gov test account
+    * `make build_tools` to build the tools
+    * run `bin/make-dps-user -email <email>` to set up a DPS user associated with that email address
 
 ### Setup: Orders Gateway
 
