@@ -2,11 +2,12 @@ package internalapi
 
 import (
 	"fmt"
+	"net/http/httptest"
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
-	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -17,33 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
-	// Given: a set of orders, user and servicemember
-	orders := testdatagen.MakeDefaultOrder(suite.TestDB())
-
-	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
-	req = suite.AuthenticateRequest(req, orders.ServiceMember)
-
-	// When: a new Move is posted
-	var selectedType = internalmessages.SelectedMoveTypePPM
-	newMovePayload := &internalmessages.CreateMovePayload{
-		SelectedMoveType: &selectedType,
-	}
-	params := moveop.CreateMoveParams{
-		OrdersID:          strfmt.UUID(orders.ID.String()),
-		CreateMovePayload: newMovePayload,
-		HTTPRequest:       req,
-	}
-	// Then: we expect a move to have been created based on orders
-	handler := CreateMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
-	okResponse := response.(*moveop.CreateMoveCreated)
-
-	suite.Assertions.Equal(orders.ID.String(), okResponse.Payload.OrdersID.String())
-}
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember

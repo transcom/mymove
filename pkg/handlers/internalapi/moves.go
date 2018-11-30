@@ -58,37 +58,6 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	return movePayload, nil
 }
 
-// CreateMoveHandler creates a new move via POST /move
-type CreateMoveHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle ... creates a new Move from a request payload
-func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
-	ordersID, _ := uuid.FromString(params.OrdersID.String())
-
-	orders, err := models.FetchOrderForUser(h.DB(), session, ordersID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	selectedMoveType := models.SelectedMoveType(*params.CreateMovePayload.SelectedMoveType)
-	move, verrs, err := orders.CreateNewMove(h.DB(), &selectedMoveType)
-	if verrs.HasAny() || err != nil {
-		if err == models.ErrCreateViolatesUniqueConstraint {
-			h.Logger().Error("Failed to create Unique Record Locator")
-		}
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	return moveop.NewCreateMoveCreated().WithPayload(movePayload)
-}
-
 // ShowMoveHandler returns a move for a user and move ID
 type ShowMoveHandler struct {
 	handlers.HandlerContext
