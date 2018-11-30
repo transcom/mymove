@@ -43,6 +43,11 @@ import (
 	"goji.io/pat"
 )
 
+// GitCommit is empty unless set as a build flag
+// See https://blog.alexellis.io/inject-build-time-vars-golang/
+var gitBranch string
+var gitCommit string
+
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
 
@@ -412,6 +417,10 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
+	logger.Debug("Build Variables",
+		zap.String("git.branch", gitBranch),
+		zap.String("git.commit", gitCommit))
+
 	err = checkConfig(v)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
@@ -599,7 +608,20 @@ func main() {
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
-	root.Use(logging.LogRequestMiddleware)
+	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+
+	// Sends build variables to honeycomb
+	if len(gitBranch) > 0 && len(gitCommit) > 0 {
+		root.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				_, span := beeline.StartSpan(r.Context(), "BuildVariablesMiddleware")
+				span.AddField("git.branch", gitBranch)
+				span.AddField("git.commit", gitCommit)
+				span.Send()
+				next.ServeHTTP(w, r)
+			})
+		})
+	}
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
