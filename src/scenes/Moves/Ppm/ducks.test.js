@@ -1,4 +1,13 @@
-import { CREATE_OR_UPDATE_PPM, GET_PPM, GET_SIT_ESTIMATE, GET_PPM_ESTIMATE, ppmReducer, getMaxAdvance } from './ducks';
+import {
+  CREATE_OR_UPDATE_PPM,
+  GET_PPM,
+  GET_SIT_ESTIMATE,
+  GET_PPM_ESTIMATE,
+  ppmReducer,
+  getMaxAdvance,
+  getEstimatedRemainingWeight,
+  getActualRemainingWeight,
+} from './ducks';
 import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
 describe('Ppm Reducer', () => {
   const samplePpm = { id: 'UUID', name: 'foo' };
@@ -242,6 +251,141 @@ describe('Ppm Reducer', () => {
     const state = {};
     it('should return 60% of max estimated incentive', () => {
       expect(getMaxAdvance(state)).toEqual(20000000);
+    });
+  });
+
+  describe('getEstimatedRemainingWeight', () => {
+    describe('when there is an estimated remaining weight from a pre move survey', () => {
+      it('should return the proper estimated remaining weight based on the pre move survey', () => {
+        const state = {
+          moves: {
+            currentMove: {
+              selected_move_type: 'HHG_PPM',
+            },
+          },
+          orders: {
+            currentOrders: {
+              id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
+              has_dependents: true,
+              spouse_has_pro_gear: true,
+            },
+          },
+          serviceMember: {
+            currentServiceMember: {
+              rank: 'E_1',
+            },
+          },
+          ui: {
+            currentShipmentID: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+          },
+          entities: {
+            shipments: {
+              '0194fb44-3762-4d1c-b58a-f6daf984813b': {
+                gross_weight: 5000,
+                id: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+                market: 'dHHG',
+                move_id: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
+                pm_survey_weight_estimate: 5000,
+                progear_weight_estimate: 225,
+                spouse_progear_weight_estimate: 312,
+                status: 'AWARDED',
+                tare_weight: 1500,
+                weight_estimate: 2000,
+              },
+            },
+          },
+        };
+        expect(getEstimatedRemainingWeight(state)).toEqual(5500);
+      });
+    });
+
+    describe('when there is an estimated remaining weight from a service member entered weight', () => {
+      it('should return the proper estimated remaining weight based on the entered values', () => {
+        const state = {
+          moves: {
+            currentMove: {
+              selected_move_type: 'HHG_PPM',
+            },
+          },
+          orders: {
+            currentOrders: {
+              id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
+              has_dependents: true,
+              spouse_has_pro_gear: true,
+            },
+          },
+          serviceMember: {
+            currentServiceMember: {
+              rank: 'E_1',
+            },
+          },
+          ui: {
+            currentShipmentID: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+          },
+          entities: {
+            shipments: {
+              '0194fb44-3762-4d1c-b58a-f6daf984813b': {
+                gross_weight: 5000,
+                id: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+                market: 'dHHG',
+                move_id: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
+                progear_weight_estimate: 225,
+                spouse_progear_weight_estimate: 312,
+                status: 'AWARDED',
+                tare_weight: 1500,
+                weight_estimate: 2000,
+              },
+            },
+          },
+        };
+        expect(getEstimatedRemainingWeight(state)).toEqual(8500);
+      });
+    });
+
+    describe('getActualRemainingWeight', () => {
+      describe('when there is an actual weight', () => {
+        it('should return the proper actual weight', () => {
+          const state = {
+            moves: {
+              currentMove: {
+                selected_move_type: 'HHG_PPM',
+              },
+            },
+            orders: {
+              currentOrders: {
+                id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
+                has_dependents: true,
+                spouse_has_pro_gear: true,
+              },
+            },
+            serviceMember: {
+              currentServiceMember: {
+                rank: 'E_1',
+              },
+            },
+            ui: {
+              currentShipmentID: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+            },
+            entities: {
+              shipments: {
+                '0194fb44-3762-4d1c-b58a-f6daf984813b': {
+                  gross_weight: 5000,
+                  id: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+                  market: 'dHHG',
+                  move_id: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
+                  pm_survey_weight_estimate: 5000,
+                  progear_weight_estimate: 225,
+                  spouse_progear_weight_estimate: 312,
+                  status: 'AWARDED',
+                  tare_weight: 1500,
+                  weight_estimate: 2000,
+                },
+              },
+            },
+          };
+          expect(getActualRemainingWeight(state)).toEqual(7000);
+        });
+      });
     });
   });
 });
