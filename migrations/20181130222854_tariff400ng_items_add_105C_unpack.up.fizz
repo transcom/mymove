@@ -1,0 +1,1 @@
+sql("INSERT INTO public.tariff400ng_items (id, code, discount_type, allowed_location, item, measurement_unit_1, measurement_unit_2, rate_ref_code, created_at, updated_at, requires_pre_approval) VALUES ('6c7a49bc-5925-49de-a8e3-0c3838438d97', '105C', 'HHG', 'DESTINATION', 'Full Unpack', 'BW', 'NONE', 'NONE', '2018-11-28 16:47:04.947000', '2018-11-28 16:47:04.947000', false);")
