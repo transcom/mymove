@@ -103,7 +103,7 @@ server_run_default: server_deps server_generate db_dev_run
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
 		--excludeDir vendor --excludeDir node_modules \
-		-i --buildArgs "-i"
+		-i --buildArgs "-i -ldflags=\"-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)\""
 
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
