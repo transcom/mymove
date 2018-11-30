@@ -83,7 +83,9 @@ func (suite *InvoiceSuite) TestEDIString() {
 			writer := edi.NewWriter(goldenFile)
 			writer.WriteAll(generatedTransactions.Segments())
 		}
-
+		fmt.Println("----")
+		fmt.Println(actualEDIString)
+		fmt.Println("----")
 		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), actualEDIString)
 	})
 }
@@ -96,16 +98,18 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A"}
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "501C"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
 		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
 		var location models.ShipmentLineItemLocation
 
-		if code == "LHS" || code == "16A" {
+		switch code {
+		case "LHS":
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
-
-		} else {
+		case "16A":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		default:
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
 		}
 
@@ -133,7 +137,6 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 				Location:          location,
 			},
 		})
-		fmt.Println(lineItem.Location)
 		lineItems = append(lineItems, lineItem)
 	}
 	shipment.ShipmentLineItems = lineItems
