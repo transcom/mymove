@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/gorilla/csrf"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -65,6 +66,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		{{range .}}
 			<form method="post" action="/devlocal-auth/login">
 				<p id="{{.ID}}">
+					<input type="hidden" name="gorilla.csrf.Token" value="` + csrf.Token(r) + `">
 					{{.Email}}
 					({{if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}mymove{{end}})
 					<button name="id" value="{{.ID}}" data-hook="existing-user-login">Login</button>
@@ -77,6 +79,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		<h1>Create a new user</h1>
 		<form method="post" action="/devlocal-auth/new">
 			<p>
+				<input type="hidden" name="gorilla.csrf.Token" value="` + csrf.Token(r) + `">
 				<button type="submit" data-hook="new-user-login">Login as New User</button>
 			</p>
 		</form>
