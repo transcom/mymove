@@ -26,12 +26,12 @@ E.g, Query for the `tariff400ng_items.code`
     -- Example adding 105C into the table while copying from 105A
     INSERT INTO tariff400ng_items
         (code, discount_type, allowed_location, item, measurement_unit_1, created_at, updated_at)
-    SELECT '105C', discount_type, 'DESTINATION', 'Full Unpack TRASH', measurement_unit_1, NOW(), NOW()
+    SELECT '105C', discount_type, 'DESTINATION', 'Full Unpack', measurement_unit_1, NOW(), NOW()
     FROM tariff400ng_items
     WHERE code = '105A';
    ```
 
-This basically is overkill (in this scenario) since there was only 1 column was copied into the new record.
+This basically is overkill (in this scenario) since there was only 1 column copied into the new record.
 
 * (optional) Or copy and paste row inside your Postgres editor of choice, changing the necessary rows
 
@@ -39,5 +39,5 @@ This basically is overkill (in this scenario) since there was only 1 column was 
 
 ## Source code
 
-* For an HHG (Household Goods) move the function that computes and creates shipment line items is [`ComputeShipment`](https://github.com/transcom/mymove/blob/master/pkg/rateengine/rateengine.go#L153)
-* For a PPM (Personally Procured Move) move the function that computes and creates shipment line items is [`ComputePPM`](https://github.com/transcom/mymove/blob/master/pkg/rateengine/rateengine.go#L73)
+* For an HHG (Household Goods) move, the function that computes and creates shipment line items is [`ComputeShipment`](https://github.com/transcom/mymove/blob/master/pkg/rateengine/rateengine.go#L153)
+* For a PPM (Personally Procured Move) move, the function that computes and creates shipment line items is [`ComputePPM`](https://github.com/transcom/mymove/blob/master/pkg/rateengine/rateengine.go#L73)
