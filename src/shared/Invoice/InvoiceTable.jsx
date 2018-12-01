@@ -11,6 +11,7 @@ const PAYMENT_PENDING = 'IN_PENDING_FLOW';
 const PAYMENT_IN_CONFIRMATION = 'IN_CONFIRMATION_FLOW';
 const PAYMENT_IN_PROCESSING = 'IN_PROCESSING_FLOW';
 const PAYMENT_APPROVED = 'IN_APPROVED_FLOW';
+const PAYMENT_FAILED = 'IN_FAILURE_FLOW';
 
 class InvoiceTable extends PureComponent {
   state = {
@@ -33,11 +34,15 @@ class InvoiceTable extends PureComponent {
     //dispatch action to submit invoice to GEX
     //this.props.approvePayment();
     this.setState({ paymentStatus: PAYMENT_IN_PROCESSING });
-    setTimeout(this.invoiceSuccess, 5000);
+    setTimeout(this.invoiceFail, 5000);
   };
 
   invoiceSuccess = () => {
     this.setState({ paymentStatus: PAYMENT_APPROVED });
+  };
+
+  invoiceFail = () => {
+    this.setState({ paymentStatus: PAYMENT_FAILED });
   };
 
   render() {
@@ -46,6 +51,9 @@ class InvoiceTable extends PureComponent {
 
     //calculate what payment status view to display
     switch (this.state.paymentStatus) {
+      default:
+        paymentContainer = null;
+        break;
       case PAYMENT_PENDING:
         if (isOfficeSite && isDelivered) {
           paymentContainer = (
@@ -93,7 +101,7 @@ class InvoiceTable extends PureComponent {
         if (isOfficeSite && isDelivered) {
           paymentContainer = (
             <div>
-              <Alert type="info" heading="Creating invoice">
+              <Alert type="loading" heading="Creating invoice">
                 <span className="warning--header">Sending information to USBank/Syncada.</span>
               </Alert>
               <div className="usa-grid-full invoice-panel-header-cont">
@@ -115,6 +123,33 @@ class InvoiceTable extends PureComponent {
               <div className="usa-grid-full invoice-panel-header-cont">
                 <div className="usa-width-one-half">
                   <h5>Invoice S-142341 Approved: 12-Jun-2018 15:03 CST by Janelle Simpson</h5>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        break;
+      case PAYMENT_FAILED:
+        if (isOfficeSite && isDelivered) {
+          paymentContainer = (
+            <div>
+              <Alert type="error" heading="Oops, something went wrong!">
+                <span className="warning--header">
+                  Please try again. If you continue to have trouble, contact ____________.
+                </span>
+              </Alert>
+              <div className="usa-grid-full invoice-panel-header-cont">
+                <div className="usa-width-one-half">
+                  <h5>Unbilled line items</h5>
+                </div>
+                <div className="usa-width-one-half align-right">
+                  <button
+                    className="button button-secondary"
+                    disabled={!this.props.canApprove || !isDevelopment}
+                    onClick={this.approvePayment}
+                  >
+                    Approve Payment
+                  </button>
                 </div>
               </div>
             </div>
