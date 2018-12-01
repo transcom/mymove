@@ -12,33 +12,30 @@ import (
 	"go.uber.org/zap"
 )
 
-func (suite *InvoiceSuite) TestCreateInvoicesCall() {
-	shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
-	suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
-
+func (suite *CreateInvoicesSuite) TestCreateInvoicesCall() {
+	shipments := models.Shipments{testdatagen.MakeDefaultShipment(suite.db)}
 	createInvoices := CreateInvoices{
-		suite.db,
-		[]models.Shipment{shipmentLineItem.Shipment},
+		DB:    suite.db,
+		Clock: clock.NewMock(),
 	}
-	verrs, err := createInvoices.Call(clock.NewMock())
+	var invoices models.Invoices
+
+	verrs, err := createInvoices.Call(&invoices, shipments)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 
-	var invoices models.Invoices
-	suite.db.Eager("ShipmentLineItems").All(&invoices)
 	suite.Equal(1, len(invoices))
 	suite.Equal(models.InvoiceStatusINPROCESS, invoices[0].Status)
-	suite.Equal(1, len(invoices[0].ShipmentLineItems))
-	suite.Equal(invoices[0].ID, *invoices[0].ShipmentLineItems[0].InvoiceID)
+	suite.NotEqual(models.Invoice{}.ID, invoices[0].ID)
 }
 
-type InvoiceSuite struct {
+type CreateInvoicesSuite struct {
 	suite.Suite
 	db     *pop.Connection
 	logger *zap.Logger
 }
 
-func (suite *InvoiceSuite) SetupTest() {
+func (suite *CreateInvoicesSuite) SetupTest() {
 	suite.db.TruncateAll()
 }
 func TestInvoiceSuite(t *testing.T) {
@@ -52,6 +49,6 @@ func TestInvoiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
-	hs := &InvoiceSuite{db: db, logger: logger}
+	hs := &CreateInvoicesSuite{db: db, logger: logger}
 	suite.Run(t, hs)
 }
