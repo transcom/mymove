@@ -41,7 +41,3 @@ This basically is overkill (in this scenario) since there was only 1 column copi
 
 * For an HHG (Household Goods) move, the function that computes and creates shipment line items is [`ComputeShipment`](https://github.com/transcom/mymove/blob/master/pkg/rateengine/rateengine.go#L153)
 * For a PPM (Personally Procured Move) move, the function that computes and creates shipment line items is [`ComputePPM`](https://github.com/transcom/mymove/blob/master/pkg/rateengine/rateengine.go#L73)
-
-## Test
-
-* If you are making any changes to `func CreateBaseShipmentLineItems()` you will have to update the `server_test` `line_items_test.go`
