@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/go-openapi/swag"
@@ -67,14 +68,16 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	suite.T().Run("invoice number", func(t *testing.T) {
 		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
 		newClock := clock.NewMock()
-		year := newClock.Now().Year()
+		loc, err := time.LoadLocation("America/Los_Angeles")
+		suite.NoError(err)
+		year := newClock.Now().In(loc).Year()
 
 		var expectedInvoiceNumbers []string
 		for i := 1; i <= 3; i++ {
 			expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s%d%04d", scac, year%100, i))
 		}
 
-		err := models.ResetInvoiceNumber(suite.db, scac, year)
+		err = models.ResetInvoiceNumber(suite.db, scac, year)
 		suite.NoError(err)
 
 		for _, expected := range expectedInvoiceNumbers {
@@ -105,7 +108,9 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
 		newClock := clock.NewMock()
-		year := newClock.Now().Year()
+		loc, err := time.LoadLocation("America/Los_Angeles")
+		suite.NoError(err)
+		year := newClock.Now().In(loc).Year()
 		err = models.ResetInvoiceNumber(suite.db, scac, year)
 		suite.NoError(err)
 
