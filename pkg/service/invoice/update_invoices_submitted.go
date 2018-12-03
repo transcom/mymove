@@ -29,9 +29,9 @@ func (u UpdateInvoicesSubmitted) Call(invoices models.Invoices, shipmentLineItem
 			if err != nil || verrs.HasAny() {
 				return errors.New("error saving invoice")
 			}
-			for index := range shipmentLineItems {
-				(shipmentLineItems)[index].InvoiceID = &invoices[index].ID
-				(shipmentLineItems)[index].Invoice = invoices[index]
+			for liIndex := range shipmentLineItems {
+				shipmentLineItems[liIndex].InvoiceID = &invoices[index].ID
+				shipmentLineItems[liIndex].Invoice = invoices[index]
 			}
 			verrs, err = u.DB.ValidateAndSave(&shipmentLineItems)
 			if err != nil || verrs.HasAny() {
