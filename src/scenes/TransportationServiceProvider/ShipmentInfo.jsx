@@ -168,7 +168,7 @@ class ShipmentInfo extends Component {
   enterPreMoveSurvey = values => {
     this.props.patchShipment(this.props.shipment.id, values).then(() => {
       if (this.props.shipment.pm_survey_completed_date === undefined) {
-        this.props.completePmSurvey(this.props.shipment.id, Date.now());
+        this.props.completePmSurvey(this.props.shipment.id, new Date());
       }
     });
   };

@@ -1176,7 +1176,7 @@ definitions:
         example: '2018-04-26'
         x-nullable: true
     required:
-    - pm_survey_completed_date
+      - pm_survey_completed_date
   TransportationServiceProvider:
     type: object
     properties:
@@ -2147,7 +2147,7 @@ paths:
   /shipment/{shipmentId}/completePmSurvey:
     post:
       summary: Completes a pre-move survey on a shipment
-      description: Sets the pre-move survey as completed. Date will be recorded on shipment.
+      description: Sets the pre-move survey as completed. Completion date will be recorded on shipment.
       operationId: completePmSurvey
       tags:
       - shipments
@@ -2274,7 +2274,7 @@ paths:
         403:
           description: not authorized to accept this shipment
         409:
-          description: the shipment is not in a state to be accepted
+          description: the shipment is not in a state to be delivered
           schema:
             $ref: '#/definitions/Shipment'
         500:
