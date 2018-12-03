@@ -361,7 +361,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:62fb0922ec222bb8852cd8d2490ef989bbdea81eca0c49a07d4ff17f45048e9b"
+  digest = "1:4abaf06658c53eb7696450ccf9af5b84ea6e3dd2364032278f1cf4bec2dc65cc"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     "cmd/swagger",
@@ -372,18 +372,18 @@
     "scan",
   ]
   pruneopts = ""
-  revision = "8b824ddda2a250d37fc5e16b751f9558728fe673"
+  revision = "c30a20b656dad674033d8934d3d499f7976bc1ba"
 
 [[projects]]
-  digest = "1:b78423f3ad30814030ff17f5e6e327548f6a75ab4581ca70114bd286bfe956b7"
+  digest = "1:37629fd5f90f5d5813f7a80a3f0f638f040ffed3e931282d515981a7dd4f84d5"
   name = "github.com/gobuffalo/buffalo-plugins"
   packages = [
     "plugins",
     "plugins/plugdeps",
   ]
   pruneopts = ""
-  revision = "bc39d68df10a169179a1d10e542ae100cabd273b"
-  version = "v1.8.1"
+  revision = "3cf68aa0fcc18317bc6f4a6c9d87c9b8602856d6"
+  version = "v1.8.2"
 
 [[projects]]
   digest = "1:bec1bf398d0662e34700baca2d8661ec91089ec0b9419bbf5c71288e62b62613"
@@ -425,7 +425,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5ba0d038bc5a79bff8302bac896394609826d67ae132837b547581d42886e651"
+  digest = "1:08b6f4bbef3c5d8be655dc2905cbb8dc7964df044616c12228a8a46fa7fa0814"
   name = "github.com/gobuffalo/genny"
   packages = [
     ".",
@@ -434,7 +434,7 @@
     "movinglater/gotools/gomods",
   ]
   pruneopts = ""
-  revision = "77e34f71ba2ad9b0020daeba22574f8b87218347"
+  revision = "849d2c9534eab3ab52e2a8e5992cb6521fd7505c"
 
 [[projects]]
   digest = "1:949389a861618f7ffd0c0ab92cc32631fc52487934272e2c5b57cc4d6d159689"
@@ -507,7 +507,7 @@
   version = "v1.21.5"
 
 [[projects]]
-  digest = "1:b65a6fdb0216c4c15639411a3a622f5bd281dbb513399675442d91b55ca75f2f"
+  digest = "1:3a633119795d14da1030bf12654809ba29b75d086198d9b99de6c9b13f047222"
   name = "github.com/gobuffalo/plush"
   packages = [
     ".",
@@ -517,8 +517,8 @@
     "token",
   ]
   pruneopts = ""
-  revision = "aac09e54e447996be946bad4ede35498df156ac1"
-  version = "v3.7.23"
+  revision = "93e09288a980392cb61d2413ab0e00b924d678ca"
+  version = "v3.7.30"
 
 [[projects]]
   digest = "1:883670998100c64e59a4f95bc3fb9e9ac127f6903adec171f80b17056272b85f"
@@ -864,11 +864,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f08b8660572da2de6423395e08fe0ed8baf2b5d141f49696f45b0e2a6afce8ec"
+  digest = "1:ff3d3a7e367bf58b25e3c9203b7e82a02b2bfa220eacb2b362c0dbc3fcffa15b"
   name = "github.com/markbates/oncer"
   packages = ["."]
   pruneopts = ""
-  revision = "05fccaae8fc423476d98fd4c3e4699ba0fbbde48"
+  revision = "bf2de49a0be218916e69a11d22866e6cd0a560f2"
 
 [[projects]]
   digest = "1:3f2db5df3a9970a9f0ecab2cbce60f845894ed14f4c6b13859d8d2add7919302"
@@ -1281,14 +1281,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a00f221e88ad70a590024a29e3237595de80e2fd154b1c0822c871c9e02a6d14"
+  digest = "1:ea010cdb976f9de0c763728a76278f9109fca3299abd0dc3e8f2ccb9ff347268"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
     "internal",
   ]
   pruneopts = ""
-  revision = "28207608b83849a028d4f12e46533a6b6894ecaf"
+  revision = "d668ce993890a79bda886613ee587a69dd5da7a6"
 
 [[projects]]
   branch = "master"
@@ -1335,7 +1335,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4cd780b2ee42c8eac9c02bfb6e6b52dcbaef770774458c8938f5cbfb73a7b6d3"
+  digest = "1:4029d9340ef096d11dd4ae8d67c5a43522322d0c4d97c55c290d780060a159e7"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -1350,7 +1350,7 @@
     "internal/gopathwalk",
   ]
   pruneopts = ""
-  revision = "d0ca3933b724e6be513276cc2edb34e10d667438"
+  revision = "e5f3ab76ea4b26ebea349e4994ee72d38250c9b0"
 
 [[projects]]
   digest = "1:77d3cff3a451d50be4b52db9c7766c0d8570ba47593f0c9dc72173adb208e788"
