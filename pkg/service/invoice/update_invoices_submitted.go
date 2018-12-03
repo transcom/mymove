@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// UpdateInvoicesSubmitted is a service object to create new invoices from Shipments
+// UpdateInvoicesSubmitted is a service object to invoices into the Submitted state
 type UpdateInvoicesSubmitted struct {
 	DB *pop.Connection
 }
