@@ -1,6 +1,7 @@
 package notifications
 
 import (
+	"context"
 	"go.uber.org/zap"
 )
 
@@ -15,8 +16,8 @@ func NewStubNotificationSender(logger *zap.Logger) StubNotificationSender {
 }
 
 // SendNotification returns a dummy ID
-func (m StubNotificationSender) SendNotification(notification notification) error {
-	emails, err := notification.emails()
+func (m StubNotificationSender) SendNotification(ctx context.Context, notification notification) error {
+	emails, err := notification.emails(ctx)
 	if err != nil {
 		return err
 	}
