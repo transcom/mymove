@@ -74,8 +74,26 @@ a {
   color: #0071bc;
   background: transparent;
   padding: 0;
+  font-weight: 400;
 }
 
 .move-summary button.link:hover {
   color: #205493;
+}
+
+.ppm-panel button {
+  background-color: #0071bc;
+  color: #ffffff;
+}
+
+.ppm-panel .shipment_box {
+  padding-bottom: 0;
+}
+
+.ppm-panel .shipment_type {
+  background-color: #E1F2F8;
+}
+
+.ppm-panel .shipment_box_contents {
+  background-color: #F5FBFD;
 }

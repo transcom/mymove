@@ -14,6 +14,7 @@ describe('MoveSummary', () => {
   let wrapper, div;
   const editMoveFn = jest.fn();
   const resumeMoveFn = jest.fn();
+  const addPPMShipmentFn = jest.fn();
   const entitlementObj = { sum: '10000' };
   const serviceMember = { current_station: { name: 'Ft Carson' } };
   const ordersObj = {};
@@ -26,6 +27,7 @@ describe('MoveSummary', () => {
     hhgObj,
     editMoveFn,
     resumeMoveFn,
+    addPPMShipmentFn,
   ) => {
     const componentWrapper = shallow(
       <MoveSummary
@@ -37,6 +39,7 @@ describe('MoveSummary', () => {
         shipment={hhgObj}
         editMove={editMoveFn}
         resumeMove={resumeMoveFn}
+        addPPMShipment={addPPMShipmentFn}
       />,
     );
     return shallow(componentWrapper.props().children());
@@ -254,6 +257,7 @@ describe('MoveSummary', () => {
         editMoveFn,
         resumeMoveFn,
       ).find(SubmittedHhgMoveSummary);
+
       expect(subComponent.find(SubmittedHhgMoveSummary).length).toBe(1);
       expect(
         subComponent
@@ -281,6 +285,7 @@ describe('MoveSummary', () => {
         hhgObj,
         editMoveFn,
         resumeMoveFn,
+        addPPMShipmentFn,
       ).find(SubmittedHhgMoveSummary);
       expect(subComponent.find(SubmittedHhgMoveSummary).length).toBe(1);
       expect(
