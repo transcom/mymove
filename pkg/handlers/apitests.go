@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 )
@@ -142,7 +143,14 @@ func (suite *BaseTestSuite) AuthenticateRequest(req *http.Request, serviceMember
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
+		Email:           serviceMember.User.LoginGovEmail,
 	}
+	features, err := authentication.GetAllowedFeatures(suite.TestDB(), session)
+	if err != nil {
+		suite.logger.Fatal("Error determining features user has access to", zap.Error(err))
+	}
+	session.Features = features
+
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }

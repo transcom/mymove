@@ -334,7 +334,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session.Features, err = getAllowedFeatures(h.db, session)
+	session.Features, err = GetAllowedFeatures(h.db, *session)
 	if err != nil {
 		h.logger.Error("Error setting roles", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -389,7 +389,8 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 	return &session, err
 }
 
-func getAllowedFeatures(db *pop.Connection, session *auth.Session) ([]auth.Feature, error) {
+// GetAllowedFeatures returns a list of features the user has access to
+func GetAllowedFeatures(db *pop.Connection, session auth.Session) ([]auth.Feature, error) {
 	features := []auth.Feature{}
 	isDPSUser, err := models.IsDPSUser(db, session.Email)
 	if err != nil {
