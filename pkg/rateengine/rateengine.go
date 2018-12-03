@@ -255,11 +255,14 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 
 	if shipment.ShipmentOffers == nil {
 		return CostByShipment{}, errors.New("ShipmentOffers is nil")
-	} else if len(shipment.ShipmentOffers) == 0 {
-		return CostByShipment{}, errors.New("ShipmentOffers fetched, but none found")
 	}
 
-	if shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.ID == uuid.Nil {
+	shipmentOffer := models.GetAcceptedShipmentOffer(shipment.ShipmentOffers)
+	if shipmentOffer == nil {
+		return CostByShipment{}, errors.New("ShipmentOffers fetched, but no accepted offer found")
+	}
+
+	if shipmentOffer.TransportationServiceProviderPerformance.ID == uuid.Nil {
 		return CostByShipment{}, errors.New("TransportationServiceProviderPerformance is nil")
 	}
 
@@ -280,8 +283,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 	var sitDiscount unit.DiscountRate
 	sitDiscount = 0.0
 
-	// Assume the most recent matching shipment offer is the right one.
-	lhDiscount := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
+	lhDiscount := shipmentOffer.TransportationServiceProviderPerformance.LinehaulRate
 
 	// Apply rate engine to shipment
 	var shipmentCost CostByShipment

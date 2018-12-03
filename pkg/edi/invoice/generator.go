@@ -7,6 +7,7 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -119,7 +120,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 	for index, shipmentWithCost := range shipmentsAndCosts {
 		shipment := shipmentWithCost.Shipment
 
-		shipmentSegments, err := generate858CShipment(shipmentWithCost, index+1)
+		shipmentSegments, err := generate858CShipment(db, shipmentWithCost, index+1, clock)
 		if err != nil {
 			return invoice, err
 		}
@@ -139,7 +140,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 	return invoice, nil
 }
 
-func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
+func generate858CShipment(db *pop.Connection, shipmentWithCost rateengine.CostByShipment, sequenceNum int, clock clock.Clock) ([]edisegment.Segment, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -148,7 +149,7 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 		},
 	}
 
-	headingSegments, err := getHeadingSegments(shipmentWithCost, sequenceNum)
+	headingSegments, err := getHeadingSegments(db, shipmentWithCost, sequenceNum, clock)
 	if err != nil {
 		return segments, err
 	}
@@ -168,7 +169,7 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 	return segments, nil
 }
 
-func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
+func getHeadingSegments(db *pop.Connection, shipmentWithCost rateengine.CostByShipment, sequenceNum int, clock clock.Clock) ([]edisegment.Segment, error) {
 	shipment := shipmentWithCost.Shipment
 	segments := []edisegment.Segment{}
 	/* for bx
@@ -223,6 +224,10 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	if destinationTransportationOfficeName == "" {
 		return segments, errors.New("Transportation Office Name is missing (for N102)")
 	}
+	invoiceNumber, err := createInvoiceNumber(db, shipment, clock)
+	if err != nil {
+		return segments, errors.Wrap(err, "Could not create invoice number")
+	}
 
 	return []edisegment.Segment{
 		&edisegment.BX{
@@ -238,8 +243,8 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			ReferenceIdentification:          "SC", // Shipment & cost information
 		},
 		&edisegment.N9{
-			ReferenceIdentificationQualifier: "CN",          // Invoice number
-			ReferenceIdentification:          "ABCD00001-1", // TODO: real invoice number
+			ReferenceIdentificationQualifier: "CN", // Invoice number
+			ReferenceIdentification:          invoiceNumber,
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "PQ",       // Payee code
@@ -521,4 +526,29 @@ func findLineItemByCode(lineItems []models.ShipmentLineItem, code string) (model
 	}
 
 	return models.ShipmentLineItem{}, errors.Errorf("Could not find shipment line item with code %s", code)
+}
+
+func createInvoiceNumber(db *pop.Connection, shipment models.Shipment, clock clock.Clock) (string, error) {
+	if shipment.ShipmentOffers == nil {
+		return "", errors.New("ShipmentOffers is nil")
+	}
+
+	shipmentOffer := models.GetAcceptedShipmentOffer(shipment.ShipmentOffers)
+	if shipmentOffer == nil {
+		return "", errors.New("ShipmentOffers fetched, but no accepted offer found")
+	}
+
+	if shipmentOffer.TransportationServiceProvider.ID == uuid.Nil {
+		return "", errors.New("TransportationServiceProvider is nil")
+	}
+
+	scac := shipmentOffer.TransportationServiceProvider.StandardCarrierAlphaCode
+	year := clock.Now().Year()
+
+	invoiceNumber, err := models.GenerateInvoiceNumber(db, scac, year)
+	if err != nil {
+		return "", errors.Wrap(err, "Could not generate invoice number")
+	}
+
+	return invoiceNumber, nil
 }

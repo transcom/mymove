@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/facebookgo/clock"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -17,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -61,15 +63,53 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
 	})
+
+	suite.T().Run("invoice number", func(t *testing.T) {
+		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
+		newClock := clock.NewMock()
+		year := newClock.Now().Year()
+
+		var expectedInvoiceNumbers []string
+		for i := 1; i <= 3; i++ {
+			expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s%d%04d", scac, year%100, i))
+		}
+
+		err := models.ResetInvoiceNumber(suite.db, scac, year)
+		suite.NoError(err)
+
+		for _, expected := range expectedInvoiceNumbers {
+			generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, newClock)
+			suite.NoError(err)
+
+			// Find the N9 segment we're interested in.
+			foundIt := false
+			for _, segment := range generatedTransactions.Shipments[0] {
+				n9, ok := segment.(*edisegment.N9)
+				if ok && n9.ReferenceIdentificationQualifier == "CN" {
+					suite.Equal(expected, n9.ReferenceIdentification)
+					foundIt = true
+					break
+				}
+			}
+			suite.True(foundIt, "Could not find N9 segment for invoice number")
+		}
+	})
 }
 
 func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
 		err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, 1)
 		suite.NoError(err, "error setting sequence value")
+
 		costsByShipments := helperCostsByShipment(suite)
 
-		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
+		newClock := clock.NewMock()
+		year := newClock.Now().Year()
+		err = models.ResetInvoiceNumber(suite.db, scac, year)
+		suite.NoError(err)
+
+		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, newClock)
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
@@ -93,6 +133,18 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 	err := shipment.AssignGBLNumber(suite.db)
 	suite.mustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
+
+	// Create an accepted shipment offer and the associated TSP.
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			ShipmentID: shipment.ID,
+			Accepted:   swag.Bool(true),
+		},
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: "ABCD",
+		},
+	})
+	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
