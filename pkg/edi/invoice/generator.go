@@ -27,6 +27,9 @@ const receiverCode = "8004171844" // Syncada
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
 
+// InvoiceTimeZone is the time zone we are using for invoice-related dates/times.
+const InvoiceTimeZone = "America/Los_Angeles"
+
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
 	ISA       edisegment.ISA
@@ -66,7 +69,7 @@ func (invoice Invoice858C) EDIString() (string, error) {
 
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
-	loc, err := time.LoadLocation("America/Los_Angeles")
+	loc, err := time.LoadLocation(InvoiceTimeZone)
 	if err != nil {
 		return Invoice858C{}, err
 	}
@@ -543,7 +546,11 @@ func createInvoiceNumber(db *pop.Connection, shipment models.Shipment, clock clo
 	}
 
 	scac := shipmentOffer.TransportationServiceProvider.StandardCarrierAlphaCode
-	year := clock.Now().Year()
+	loc, err := time.LoadLocation(InvoiceTimeZone)
+	if err != nil {
+		return "", err
+	}
+	year := clock.Now().In(loc).Year()
 
 	invoiceNumber, err := models.GenerateInvoiceNumber(db, scac, year)
 	if err != nil {

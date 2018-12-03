@@ -68,7 +68,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	suite.T().Run("invoice number", func(t *testing.T) {
 		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
 		newClock := clock.NewMock()
-		loc, err := time.LoadLocation("America/Los_Angeles")
+		loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
 		suite.NoError(err)
 		year := newClock.Now().In(loc).Year()
 
@@ -108,7 +108,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
 		newClock := clock.NewMock()
-		loc, err := time.LoadLocation("America/Los_Angeles")
+		loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
 		suite.NoError(err)
 		year := newClock.Now().In(loc).Year()
 		err = models.ResetInvoiceNumber(suite.db, scac, year)
