@@ -215,6 +215,14 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	if GBL == nil {
 		return segments, errors.New("GBL Number is missing for Shipment Identification Number (BX04)")
 	}
+	originTransportationOfficeName := shipment.ServiceMember.DutyStation.TransportationOffice.Name
+	if originTransportationOfficeName == "" {
+		return segments, errors.New("Transportation Office Name is missing (for N102)")
+	}
+	destinationTransportationOfficeName := shipment.Move.Orders.NewDutyStation.TransportationOffice.Name
+	if destinationTransportationOfficeName == "" {
+		return segments, errors.New("Transportation Office Name is missing (for N102)")
+	}
 
 	return []edisegment.Segment{
 		&edisegment.BX{
@@ -260,16 +268,16 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 		},
 		// Origin installation information
 		&edisegment.N1{
-			EntityIdentifierCode:        "RG",   // Issuing office name qualifier
-			Name:                        "LKNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27",   // GBLOC
+			EntityIdentifierCode:        "RG", // Issuing office name qualifier
+			Name:                        originTransportationOfficeName,
+			IdentificationCodeQualifier: "27", // GBLOC
 			IdentificationCode:          *shipment.SourceGBLOC,
 		},
 		// Destination installation information
 		&edisegment.N1{
-			EntityIdentifierCode:        "RH",   // Destination name qualifier
-			Name:                        "MLNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27",   // GBLOC
+			EntityIdentifierCode:        "RH", // Destination name qualifier
+			Name:                        destinationTransportationOfficeName,
+			IdentificationCodeQualifier: "27", // GBLOC
 			IdentificationCode:          *shipment.DestinationGBLOC,
 		},
 		// Accounting info

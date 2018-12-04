@@ -1,6 +1,9 @@
 package paperwork
 
 import (
+	"image"
+	"image/color"
+	"image/png"
 	"io"
 	"path/filepath"
 	"strings"
@@ -34,6 +37,31 @@ type Generator struct {
 	uploader  *uploader.Uploader
 	pdfConfig *pdfcpu.Configuration
 	workDir   string
+}
+
+// Converts an image of any type to a PNG with 8-bit color depth
+func convertTo8BitPNG(in io.Reader, out io.Writer) error {
+	img, _, err := image.Decode(in)
+	if err != nil {
+		return err
+	}
+
+	b := img.Bounds()
+	imgSet := image.NewRGBA(b)
+	// Converts each pixel to a 32-bit RGBA pixel
+	for y := 0; y < b.Max.Y; y++ {
+		for x := 0; x < b.Max.X; x++ {
+			newPixel := color.RGBAModel.Convert(img.At(x, y))
+			imgSet.Set(x, y, newPixel)
+		}
+	}
+
+	err = png.Encode(out, imgSet)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // NewGenerator creates a new Generator.
@@ -186,6 +214,20 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	for _, image := range images {
 		pdf.AddPage()
 		file, _ := g.fs.Open(image.Path)
+		if image.ContentType == "image/png" {
+			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
+			newFile, err := g.newTempFile()
+			if err != nil {
+				return "", errors.Wrap(err, "Creating temp file for png conversion")
+			}
+			err = convertTo8BitPNG(file, newFile)
+			if err != nil {
+				return "", errors.Wrap(err, "Converting to 8-bit png")
+			}
+			defer file.Close()
+			file = newFile
+			file.Seek(0, io.SeekStart)
+		}
 		// Need to register the image using an afero reader, else it uses default filesystem
 		pdf.RegisterImageReader(image.Path, contentTypeToImageType[image.ContentType], file)
 		opt.ImageType = contentTypeToImageType[image.ContentType]

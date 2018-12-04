@@ -251,7 +251,7 @@ Some errors are predictable, such as those from the database that Pop returns to
 
 ```golang
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
- func FetchServiceMemberForUser(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
   var serviceMember ServiceMember
   err := db.Eager().Find(&serviceMember, id)
   if err != nil {

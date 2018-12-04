@@ -1,6 +1,7 @@
 package notifications
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gobuffalo/pop"
@@ -33,7 +34,7 @@ func NewMoveSubmitted(db *pop.Connection,
 	}
 }
 
-func (m MoveSubmitted) emails() ([]emailContent, error) {
+func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 	var emails []emailContent
 
 	move, err := models.FetchMove(m.db, m.session, m.moveID)
@@ -46,7 +47,7 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, m.db, m.session, orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}
@@ -64,7 +65,7 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 		if err != nil {
 			return emails, err
 		}
-		destinationDutyStation, err := models.FetchDutyStation(m.db, orders.NewDutyStationID)
+		destinationDutyStation, err := models.FetchDutyStation(context.Background(), m.db, orders.NewDutyStationID)
 		if err != nil {
 			return emails, err
 		}

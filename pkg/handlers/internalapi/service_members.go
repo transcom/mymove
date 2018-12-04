@@ -1,16 +1,20 @@
 package internalapi
 
 import (
+	"context"
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
-
+	"github.com/honeycombio/beeline-go"
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
+	"go.uber.org/zap"
 )
 
 func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
@@ -64,6 +68,10 @@ type CreateServiceMemberHandler struct {
 
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
@@ -72,9 +80,9 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	verrs := validate.NewErrors()
 	if ssnString != nil {
 		var err error
-		ssn, verrs, err = models.BuildSocialSecurityNumber(ssnString.String())
+		ssn, verrs, err = models.BuildSocialSecurityNumber(ctx, ssnString.String())
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "invalid social security number")
 		}
 		// if there are any validation errors, they will get rolled up with the rest of them.
 	}
@@ -84,11 +92,11 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	if params.CreateServiceMemberPayload.CurrentStationID != nil {
 		id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentStationID.String())
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "invalid current station id", zap.String("duty-station-id", id.String()), zap.Error(err))
 		}
-		s, err := models.FetchDutyStation(h.DB(), id)
+		s, err := models.FetchDutyStation(ctx, h.DB(), id)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching duty station", zap.String("duty-station-id", id.String()))
 		}
 		stationID = &id
 		station = s
@@ -119,13 +127,17 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		DutyStation:            station,
 		DutyStationID:          stationID,
 	}
-	smVerrs, err := models.SaveServiceMember(h.DB(), &newServiceMember)
+	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
 	verrs.Append(smVerrs)
 	if verrs.HasAny() || err != nil {
+		h.HoneyZapLogger().TraceInfo(ctx, "error when creating new service member")
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 	// Update session info
 	session.ServiceMemberID = newServiceMember.ID
+
+	span.AddField("service_member_id", newServiceMember.ID.String())
+
 	if newServiceMember.FirstName != nil {
 		session.FirstName = *(newServiceMember.FirstName)
 	}
@@ -148,12 +160,19 @@ type ShowServiceMemberHandler struct {
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+
+	span.AddField("service_member_id", serviceMemberID.String())
+
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
@@ -167,19 +186,28 @@ type PatchServiceMemberHandler struct {
 
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+
+	span.AddField("service_member_id", serviceMemberID.String())
+
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", params.ServiceMemberID.String()))
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	if verrs, err := h.patchServiceMemberWithPayload(ctx, &serviceMember, payload); verrs.HasAny() || err != nil {
+		return h.RespondAndTraceError(ctx, err, "error patching service member", zap.String("service_member_id", serviceMember.ID.String()))
 	}
-	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+	if verrs, err := models.SaveServiceMember(ctx, h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+		h.HoneyZapLogger().TraceError(ctx, "error saving service member",
+			zap.String("service_member_id", serviceMember.ID.String()))
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
@@ -187,7 +215,11 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Context, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+
+	ctx, span := beeline.StartSpan(ctx, "patchServiceMemberWithPayload")
+	defer span.Send()
+
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
@@ -233,7 +265,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 			return validate.NewErrors(), err
 		}
 		// Fetch the model partially as a validation on the ID
-		station, err := models.FetchDutyStation(h.DB(), stationID)
+		station, err := models.FetchDutyStation(ctx, h.DB(), stationID)
 		if err != nil {
 			return validate.NewErrors(), err
 		}
@@ -246,7 +278,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 			serviceMember.SocialSecurityNumber = &newSsn
 		}
 
-		if verrs, err := serviceMember.SocialSecurityNumber.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
+		if verrs, err := serviceMember.SocialSecurityNumber.SetEncryptedHash(ctx, payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
 			return verrs, err
 		}
 	}
@@ -275,17 +307,21 @@ type ShowServiceMemberOrdersHandler struct {
 
 // Handle retrieves orders for a service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", params.ServiceMemberID.String()))
 	}
 
-	order, err := serviceMember.FetchLatestOrder(h.DB())
+	order, err := serviceMember.FetchLatestOrder(ctx, h.DB())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching latest order", zap.String("service_member_id", params.ServiceMemberID.String()))
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)

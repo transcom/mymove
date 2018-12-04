@@ -16,9 +16,9 @@ ifeq ($(USE_AWS),true)
 endif
 
 ifndef CIRCLECI
-	LDFLAGS=""
+	LDFLAGS="-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)"
 else
-	LDFLAGS="-linkmode external -extldflags -static"
+	LDFLAGS="-linkmode external -extldflags -static -X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)"
 endif
 
 # This target ensures that the pre-commit hook is installed and kept up to date
@@ -109,7 +109,7 @@ server_run_default: server_deps server_generate db_run  db_dev_create
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
 		--excludeDir vendor --excludeDir node_modules \
-		-i --buildArgs "-i"
+		-i --buildArgs "-i -ldflags=\"-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)\""
 
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
@@ -122,6 +122,7 @@ build_tools: server_deps server_generate
 	go build -i -ldflags $(LDFLAGS) -o bin/make-office-user ./cmd/make_office_user
 	go build -i -ldflags $(LDFLAGS) -o bin/load-office-data ./cmd/load_office_data
 	go build -i -ldflags $(LDFLAGS) -o bin/make-tsp-user ./cmd/make_tsp_user
+	go build -i -ldflags $(LDFLAGS) -o bin/make-dps-user ./cmd/make_dps_user
 	go build -i -ldflags $(LDFLAGS) -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -ldflags $(LDFLAGS) -o bin/paperwork ./cmd/paperwork
 	go build -i -ldflags $(LDFLAGS) -o bin/iws ./cmd/demo/iws.go
