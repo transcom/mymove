@@ -19,14 +19,14 @@ export class PreApprovalTable extends PureComponent {
   render() {
     const { shipmentLineItems, isActionable, onEdit, onApproval, onDelete } = this.props;
     return (
-      <div>
+      <div className="pre-approval-panel-table-cont">
         <table cellSpacing={0}>
           <tbody>
             <tr>
               <th>Code</th>
               <th>Item</th>
               <th>Loc.</th>
-              <th>Base Quantity</th>
+              <th>Base quantity</th>
               <th>Notes</th>
               <th>Submitted</th>
               <th>Status</th>

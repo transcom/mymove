@@ -62,7 +62,7 @@ class InvoiceTable extends PureComponent {
               <th>Code</th>
               <th>Item</th>
               <th>Loc.</th>
-              <th>Base Quantity</th>
+              <th>Base quantity</th>
               <th>Inv. amt.</th>
             </tr>
             {this.props.shipmentLineItems.map(item => {
@@ -70,7 +70,7 @@ class InvoiceTable extends PureComponent {
                 <tr key={item.id}>
                   <td>{item.tariff400ng_item.code}</td>
                   <td>{item.tariff400ng_item.item}</td>
-                  <td>{item.location[0] + item.location.substring(1).toLowerCase()}</td>
+                  <td>{item.location[0]}</td>
                   <td>{formatFromBaseQuantity(item.quantity_1)}</td>
                   <td>${formatCents(item.amount_cents)}</td>
                 </tr>
