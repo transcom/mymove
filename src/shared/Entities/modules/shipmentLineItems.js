@@ -30,8 +30,19 @@ export function getAllShipmentLineItems(label, shipmentId) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
 }
 
-const selectShipmentLineItems = state => {
-  return denormalize(keys(get(state, 'entities.shipmentLineItems', {})), ShipmentLineItemsModel, state.entities);
+const selectShipmentLineItems = (state, shipmentId) => {
+  let filteredItems = denormalize(
+    keys(get(state, 'entities.shipmentLineItems', {})),
+    ShipmentLineItemsModel,
+    state.entities,
+  );
+  //only filter by shipmentId if it is explicitly passed
+  if (!shipmentId) {
+    return filteredItems;
+  }
+  return filter(filteredItems, item => {
+    return item.shipment_id === shipmentId;
+  });
 };
 
 export const selectSortedShipmentLineItems = createSelector([selectShipmentLineItems], shipmentLineItems =>

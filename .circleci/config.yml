@@ -14,12 +14,12 @@ executors:
   mymove:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
   # `mymove_and_postgres` adds a secondary postgres container to be used during testing.
   mymove_and_postgres:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:15ee0da2d70c5cdae5a7922bbc87ed6b9a9e3bd6
+      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
       - image: postgres:10.5
         environment:
           - POSTGRES_PASSWORD: mysecretpassword

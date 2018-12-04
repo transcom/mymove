@@ -27,6 +27,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Client](#setup-client)
   * [Setup: Office/admin client](#setup-officeadmin-client)
   * [Setup: TSP/admin client](#setup-tspadmin-client)
+  * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
@@ -43,6 +44,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
+    * [Development Machine Timezone Issues](#development-machine-timezone-issues)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -127,9 +129,9 @@ The following commands will get mymove running on your machine for the first tim
 
 ### Setup: Prerequisites
 
-* Install Go version 1.10 with Homebrew. Make sure you do not have other installations.
-  * `brew install go@1.10`
-  * Brew will warn you that "go@1.10 is keg-only, which means it was not symlinked". Add the following to your bash config: `export PATH="/usr/local/opt/go@1.10/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
+* Install Go version 1.11 with Homebrew. Make sure you do not have other installations.
+  * `brew install go@1.11`
+  * If a later Go version exists, Brew will warn you that "go@1.11 is keg-only, which means it was not symlinked". If that happens, add the following to your bash config: `export PATH="/usr/local/opt/go@1.11/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
@@ -187,6 +189,12 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
+
+### Setup: DPS user
+
+1. Ensure that you have a login.gov test account
+    * `make build_tools` to build the tools
+    * run `bin/make-dps-user -email <email>` to set up a DPS user associated with that email address
 
 ### Setup: Orders Gateway
 
@@ -369,3 +377,16 @@ Migrator: problem creating schema migrations: couldn't start a new transaction: 
 ```
 
 You can check this by typing `ps aux | grep postgres` or `brew services list` and looking for existing processes. In the case of homebrew you can run `brew services stop postgresql` to stop the service and prevent it from running at startup.
+
+#### Development Machine Timezone Issues
+
+If you are experiencing problems like redux forms that are 'dirty' when they shouldn't be on your local environment, it may be due to a mismatch
+of your local dev machine's timezone and the assumption of UTC made by the local database. A detailed example of this sort of issue can be found in
+[this story](https://www.pivotaltracker.com/n/projects/2136865/stories/160975609). A workaround for this is to set the TZ environment variable
+in Mac OS for the context of your running app. This can be done by adding the following to `.envrc.local`:
+
+```bash
+export TZ="UTC"
+```
+
+Doing so will set the timezone environment variable to UTC utilizing the same localized context as your other `.envrc.local` settings.

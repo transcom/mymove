@@ -16,8 +16,8 @@ func (suite *ModelSuite) Test_BasicOfficeEmail() {
 
 	infoEmail := OfficeEmail{
 		TransportationOfficeID: office.ID,
-		Email: "info@ak_jppso.government.gov",
-		Label: StringPointer("Information Only"),
+		Email:                  "info@ak_jppso.government.gov",
+		Label:                  StringPointer("Information Only"),
 	}
 
 	suite.mustSave(&infoEmail)
@@ -25,7 +25,7 @@ func (suite *ModelSuite) Test_BasicOfficeEmail() {
 
 	appointmentsEmail := OfficeEmail{
 		TransportationOfficeID: office.ID,
-		Email: "appointments@ak_jppso.government.gov",
+		Email:                  "appointments@ak_jppso.government.gov",
 	}
 
 	suite.mustSave(&appointmentsEmail)

@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -117,6 +118,8 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 }
 
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
+	ctx := context.Background()
+
 	// Given: A logged-in user
 	user := testdatagen.MakeDefaultUser(suite.TestDB())
 	session := &auth.Session{
@@ -158,7 +161,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
 
 	session.ServiceMemberID = serviceMemberID
-	serviceMember, err := models.FetchServiceMemberForUser(suite.TestDB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, suite.TestDB(), session, serviceMemberID)
 	suite.Assertions.NoError(err)
 
 	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))
@@ -183,17 +186,17 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
-		Edipi:                &newEdipi,
-		BackupMailingAddress: backupAddress,
-		ResidentialAddress:   resAddress,
-		Affiliation:          &affiliation,
-		EmailIsPreferred:     swag.Bool(true),
-		FirstName:            swag.String("Firstname"),
-		LastName:             swag.String("Lastname"),
-		MiddleName:           swag.String("Middlename"),
-		PersonalEmail:        swag.String("name@domain.com"),
-		PhoneIsPreferred:     swag.Bool(true),
-		Rank:                 &rank,
+		Edipi:                  &newEdipi,
+		BackupMailingAddress:   backupAddress,
+		ResidentialAddress:     resAddress,
+		Affiliation:            &affiliation,
+		EmailIsPreferred:       swag.Bool(true),
+		FirstName:              swag.String("Firstname"),
+		LastName:               swag.String("Lastname"),
+		MiddleName:             swag.String("Middlename"),
+		PersonalEmail:          swag.String("name@domain.com"),
+		PhoneIsPreferred:       swag.Bool(true),
+		Rank:                   &rank,
 		TextMessageIsPreferred: swag.Bool(true),
 		SecondaryTelephone:     swag.String("555555555"),
 		SocialSecurityNumber:   ssn,

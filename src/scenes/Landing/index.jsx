@@ -16,6 +16,7 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 
 import { updateMove } from 'scenes/Moves/ducks';
+import { getPPM } from 'scenes/Moves/Ppm/ducks';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -60,6 +61,12 @@ export class Landing extends Component {
 
   reviewProfile = () => {
     this.props.push('profile-review');
+  };
+
+  addPPMShipment = moveID => {
+    this.props.updateMove(moveID, 'HHG_PPM').then(() => {
+      this.props.push(`/moves/${moveID}/hhg-ppm-start`);
+    });
   };
 
   getNextIncompletePage = () => {
@@ -132,6 +139,7 @@ export class Landing extends Component {
                   reviewProfile={this.reviewProfile}
                   requestPaymentSuccess={requestPaymentSuccess}
                   updateMove={updateMove}
+                  addPPMShipment={this.addPPMShipment}
                 />
               )}
           </Fragment>
@@ -152,7 +160,7 @@ const mapStateToProps = state => {
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
     move: state.moves.currentMove || state.moves.latestMove || {},
-    ppm: state.ppm.currentPpm || {},
+    ppm: getPPM(state),
     currentShipment: shipment || {},
     loggedInUser: state.loggedInUser.loggedInUser,
     loggedInUserIsLoading: state.loggedInUser.isLoading,

@@ -67,7 +67,7 @@ func main() {
 		LastName:               *lastName,
 		Telephone:              *number,
 		TransportationOfficeID: office.ID,
-		Email: *email,
+		Email:                  *email,
 	}
 	if user.ID != uuid.Nil {
 		newUser.UserID = &user.ID

@@ -80,9 +80,9 @@ PreApprovalPanel.propTypes = {
   shipmentId: PropTypes.string,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   return {
-    shipmentLineItems: selectSortedPreApprovalShipmentLineItems(state),
+    shipmentLineItems: selectSortedPreApprovalShipmentLineItems(state, ownProps.shipmentId),
     tariff400ngItems: selectSortedPreApprovalTariff400ngItems(state),
   };
 }
