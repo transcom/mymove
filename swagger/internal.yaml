@@ -1604,8 +1604,7 @@ definitions:
         x-formatting: weight
       pm_survey_completed_date:
         type: string
-        format: date
-        example: '2018-04-26'
+        format: date-time
         x-nullable: true
       pm_survey_conducted_date:
         type: string

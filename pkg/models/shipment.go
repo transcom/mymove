@@ -547,11 +547,12 @@ func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, sh
 
 // SaveShipment validates and saves the Shipment
 func SaveShipment(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
-	if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
+	verrs, err := db.ValidateAndSave(shipment)
+	if verrs.HasAny() || err != nil {
 		saveError := errors.Wrap(err, "Error saving shipment")
 		return verrs, saveError
 	}
-	return nil, nil
+	return verrs, nil
 }
 
 // saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer
