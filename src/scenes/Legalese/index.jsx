@@ -11,6 +11,7 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import WizardHeader from 'scenes/Moves/WizardHeader';
+import reviewGray from 'shared/icon/review-gray.svg';
 import './index.css';
 
 import { loadCertificationText, signAndSubmitForApproval } from './ducks';
@@ -56,7 +57,9 @@ export class SignedCertification extends Component {
     };
     return (
       <div>
-        {selectedMoveType === 'HHG_PPM' && <WizardHeader title="Review" right={<p>status tracker goes here</p>} />}
+        {selectedMoveType === 'HHG_PPM' && (
+          <WizardHeader icon={reviewGray} title="Review" right={<p>status tracker goes here</p>} />
+        )}
         <div className="legalese">
           {this.props.certificationText && (
             <SignatureWizardForm
