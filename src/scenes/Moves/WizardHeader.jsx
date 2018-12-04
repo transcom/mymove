@@ -19,8 +19,12 @@ const WizardHeader = ({ right, title }) => (
   </div>
 );
 
+WizardHeader.defaultProps = {
+  title: <span>&nbsp;</span>,
+};
+
 WizardHeader.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   right: PropTypes.element,
 };
 
