@@ -389,7 +389,7 @@ func generateLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 	}, nil
 }
 
-func generateFullPackSegments(lineItems []models.ShipmentLineItem, weight float64) ([]edisegment.Segment, error) {
+func generateFullPackSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "105A")
 	if err != nil {
 		return nil, err
@@ -403,7 +403,7 @@ func generateFullPackSegments(lineItems []models.ShipmentLineItem, weight float6
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               weight,
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
@@ -416,7 +416,7 @@ func generateFullPackSegments(lineItems []models.ShipmentLineItem, weight float6
 	}, nil
 }
 
-func generateFullUnpackSegments(lineItems []models.ShipmentLineItem, weight float64) ([]edisegment.Segment, error) {
+func generateFullUnpackSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "105C")
 	if err != nil {
 		return nil, err
@@ -430,7 +430,7 @@ func generateFullUnpackSegments(lineItems []models.ShipmentLineItem, weight floa
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               weight,
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
@@ -443,7 +443,7 @@ func generateFullUnpackSegments(lineItems []models.ShipmentLineItem, weight floa
 	}, nil
 }
 
-func generateOriginServiceSegments(lineItems []models.ShipmentLineItem, weight float64) ([]edisegment.Segment, error) {
+func generateOriginServiceSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "135A")
 	if err != nil {
 		return nil, err
@@ -457,7 +457,7 @@ func generateOriginServiceSegments(lineItems []models.ShipmentLineItem, weight f
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               weight,
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
@@ -470,7 +470,7 @@ func generateOriginServiceSegments(lineItems []models.ShipmentLineItem, weight f
 	}, nil
 }
 
-func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem, weight float64) ([]edisegment.Segment, error) {
+func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "135B")
 	if err != nil {
 		return nil, err
@@ -484,7 +484,7 @@ func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem, wei
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               weight,
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
