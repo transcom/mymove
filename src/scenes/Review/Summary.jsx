@@ -48,14 +48,20 @@ export class Summary extends Component {
       serviceMember,
       entitlement,
       isHHGPPMComboMove,
+      match,
     } = this.props;
 
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
     const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
+    // isReviewPage being false is the same thing as being in the /edit route
+    const isReviewPage = rootAddressWithMoveId === match.url;
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
     const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
+
+    const showPPMShipmentSummary =
+      (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
 
     return (
       <Fragment>
@@ -88,7 +94,7 @@ export class Summary extends Component {
           editOrdersPath={editOrdersPath}
         />
 
-        {currentPpm && (
+        {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
         )}
         {currentShipment &&
