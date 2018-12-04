@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -572,7 +573,20 @@ func main() {
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
-	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
+		err := dbConnection.RawQuery("SELECT 1;").Exec()
+		if err != nil {
+			logger.Error("Failed database health check", zap.Error(err))
+		}
+		err = json.NewEncoder(w).Encode(map[string]interface{}{
+			"gitBranch": gitBranch,
+			"gitCommit": gitCommit,
+			"database":  err == nil,
+		})
+		if err != nil {
+			logger.Error("Failed encoding health check response", zap.Error(err))
+		}
+	})
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.Get("/static/*"), clientHandler)
