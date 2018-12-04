@@ -614,11 +614,11 @@ func main() {
 	if len(gitBranch) > 0 && len(gitCommit) > 0 {
 		root.Use(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, span := beeline.StartSpan(r.Context(), "BuildVariablesMiddleware")
-				span.AddField("git.branch", gitBranch)
-				span.AddField("git.commit", gitCommit)
-				span.Send()
-				next.ServeHTTP(w, r)
+				ctx, span := beeline.StartSpan(r.Context(), "BuildVariablesMiddleware")
+				defer span.Send()
+				span.AddTraceField("git.branch", gitBranch)
+				span.AddTraceField("git.commit", gitCommit)
+				next.ServeHTTP(w, r.WithContext(ctx))
 			})
 		})
 	}
