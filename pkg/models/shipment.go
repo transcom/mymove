@@ -734,10 +734,12 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []Ship
 			} else {
 				verrs, err = tx.ValidateAndSave(&lineItem)
 			}
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
-				lineItem.ShipmentID, lineItem.Tariff400ngItemID)
-			return transactionError
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
+				return transactionError
+			}
 		}
 
 		return nil
