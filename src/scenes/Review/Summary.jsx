@@ -77,18 +77,16 @@ export class Summary extends Component {
             </Alert>
           )}
 
-        {!isHHGPPMComboMove && (
-          <ServiceMemberSummary
-            orders={currentOrders}
-            backupContacts={currentBackupContacts}
-            serviceMember={serviceMember}
-            schemaRank={schemaRank}
-            schemaAffiliation={schemaAffiliation}
-            schemaOrdersType={schemaOrdersType}
-            moveIsApproved={moveIsApproved}
-            editOrdersPath={editOrdersPath}
-          />
-        )}
+        <ServiceMemberSummary
+          orders={currentOrders}
+          backupContacts={currentBackupContacts}
+          serviceMember={serviceMember}
+          schemaRank={schemaRank}
+          schemaAffiliation={schemaAffiliation}
+          schemaOrdersType={schemaOrdersType}
+          moveIsApproved={moveIsApproved}
+          editOrdersPath={editOrdersPath}
+        />
 
         {currentPpm && (
           <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
