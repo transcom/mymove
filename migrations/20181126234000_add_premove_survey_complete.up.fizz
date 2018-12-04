@@ -1,1 +1,1 @@
-add_column("shipments", "pm_survey_completed_date", "date", {"null": true})
+add_column("shipments", "pm_survey_completed_date", "datetime", {"null": true})

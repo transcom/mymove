@@ -1102,8 +1102,7 @@ definitions:
         title: Tare
       pm_survey_completed_date:
         type: string
-        format: date
-        example: '2018-04-26'
+        format: date-time
         x-nullable: true
       pm_survey_conducted_date:
         type: string
@@ -1172,8 +1171,8 @@ definitions:
     properties:
       pm_survey_completed_date:
         type: string
-        format: date
-        example: '2018-04-26'
+        format: date-time
+        example: '2017-07-21T17:32:28Z'
         x-nullable: true
     required:
       - pm_survey_completed_date
@@ -2152,14 +2151,14 @@ paths:
       tags:
       - shipments
       parameters:
-      - name: shipmentId
-        in: path
+      - in: path
+        name: shipmentId
         type: string
         format: uuid
         required: true
         description: UUID of the move
       - in: body
-        name: CompletePmSurvey
+        name: completePmSurvey
         required: true
         schema:
           $ref: '#/definitions/CompletePmSurvey'

@@ -71,7 +71,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
-		PmSurveyCompletedDate:               handlers.FmtDatePtr(s.PmSurveyCompletedDate),
+		PmSurveyCompletedDate:               handlers.FmtDateTimePtr(s.PmSurveyCompletedDate),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
