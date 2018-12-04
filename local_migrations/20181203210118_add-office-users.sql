@@ -7,9 +7,9 @@ INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima
 INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot3@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
 INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot4@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
 INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot5@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
-INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot6@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
-INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot7@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
-INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot8@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
+INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot6@test.test', 'N/A', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
+INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot7@test.test', 'N/A', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
+INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot8@test.test', 'N/A', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
 INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot9@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
 INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot10@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
 INSERT INTO public.office_users VALUES (uuid_generate_v4(), NULL, 'Person', 'Ima', NULL, 'ot11@test.test', '415-555-5555', 'c2c440ae-5394-4483-84fb-f872e32126bb', now(), now());
