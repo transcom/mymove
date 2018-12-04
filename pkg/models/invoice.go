@@ -109,17 +109,3 @@ func GenerateInvoiceNumber(db *pop.Connection, scac string, year int) (string, e
 
 	return fmt.Sprintf("%s%d%04d", scac, year%100, sequenceNumber), nil
 }
-
-// ResetInvoiceNumber resets the invoice number for a given SCAC/year.  Typically only used in testing.
-func ResetInvoiceNumber(db *pop.Connection, scac string, year int) error {
-	if len(scac) == 0 {
-		return errors.New("SCAC cannot be nil or empty string")
-	}
-
-	if year <= 0 {
-		return errors.Errorf("Year (%d) must be non-negative", year)
-	}
-
-	sql := `DELETE FROM invoice_number_trackers WHERE standard_carrier_alpha_code = $1 AND year = $2`
-	return db.RawQuery(sql, scac, year).Exec()
-}

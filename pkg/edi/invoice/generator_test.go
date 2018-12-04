@@ -3,6 +3,7 @@ package ediinvoice_test
 import (
 	"flag"
 	"fmt"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -77,7 +78,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 			expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s%d%04d", scac, year%100, i))
 		}
 
-		err = models.ResetInvoiceNumber(suite.db, scac, year)
+		err = helperResetInvoiceNumber(suite, scac, year)
 		suite.NoError(err)
 
 		for _, expected := range expectedInvoiceNumbers {
@@ -111,7 +112,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
 		suite.NoError(err)
 		year := newClock.Now().In(loc).Year()
-		err = models.ResetInvoiceNumber(suite.db, scac, year)
+		err = helperResetInvoiceNumber(suite, scac, year)
 		suite.NoError(err)
 
 		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, newClock)
@@ -186,6 +187,20 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 	bytes, err := ioutil.ReadFile(path)
 	suite.NoError(err, "error loading expected EDI fixture")
 	return string(bytes)
+}
+
+// helperResetInvoiceNumber resets the invoice number for a given SCAC/year.
+func helperResetInvoiceNumber(suite *InvoiceSuite, scac string, year int) error {
+	if len(scac) == 0 {
+		return errors.New("SCAC cannot be nil or empty string")
+	}
+
+	if year <= 0 {
+		return errors.Errorf("Year (%d) must be non-negative", year)
+	}
+
+	sql := `DELETE FROM invoice_number_trackers WHERE standard_carrier_alpha_code = $1 AND year = $2`
+	return suite.db.RawQuery(sql, scac, year).Exec()
 }
 
 type InvoiceSuite struct {
