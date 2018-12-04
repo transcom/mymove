@@ -86,6 +86,11 @@ a {
   color: #ffffff;
 }
 
+.ppm-panel button:hover {
+  background-color: #205493;
+  color: #ffffff;
+}
+
 .ppm-panel .shipment_box {
   padding-bottom: 0;
 }
