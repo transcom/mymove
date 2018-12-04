@@ -19,7 +19,7 @@ func (c CreateInvoices) Call(invoices *models.Invoices, shipments models.Shipmen
 		*invoices = append(*invoices, models.Invoice{
 			Status:        models.InvoiceStatusINPROCESS,
 			InvoiceNumber: "1", // placeholder
-			InvoicedDate:  c.Clock.Now(),
+			InvoicedDate:  c.Clock.Now().UTC(),
 			ShipmentID:    shipment.ID,
 			Shipment:      shipment,
 		})
