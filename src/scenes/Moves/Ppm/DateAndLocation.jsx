@@ -11,6 +11,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import WizardHeader from '../WizardHeader';
+import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
@@ -83,7 +84,9 @@ export class DateAndLocation extends Component {
 
     return (
       <div>
-        {isHHGPPMComboMove && <WizardHeader title="Move Setup" right={<p>status tracker goes here</p>} />}
+        {isHHGPPMComboMove && (
+          <WizardHeader icon={ppmBlack} title="Move Setup" right={<p>status tracker goes here</p>} />
+        )}
         <DateAndLocationWizardForm
           handleSubmit={this.handleSubmit}
           pageList={pages}

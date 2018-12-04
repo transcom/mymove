@@ -15,6 +15,7 @@ import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
 import { convertDollarsToCents } from 'shared/utils';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo, getMaxAdvance } from './ducks';
 import WizardHeader from '../WizardHeader';
+import ppmBlack from 'shared/icon/ppm-black.svg';
 
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
@@ -234,7 +235,9 @@ export class PpmWeight extends Component {
 
     return (
       <div>
-        {isHHGPPMComboMove && <WizardHeader title="Move Setup" right={<p>status tracker goes here</p>} />}
+        {isHHGPPMComboMove && (
+          <WizardHeader icon={ppmBlack} title="Move Setup" right={<p>status tracker goes here</p>} />
+        )}
         <WeightWizardForm
           handleSubmit={this.handleSubmit}
           pageList={pages}
