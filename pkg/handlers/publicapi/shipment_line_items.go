@@ -13,6 +13,7 @@ import (
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -271,6 +272,7 @@ type ApproveShipmentLineItemHandler struct {
 
 // Handle returns a specified shipment
 func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipmentLineItemParams) middleware.Responder {
+	var shipment *models.Shipment
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentLineItemID := uuid.Must(uuid.FromString(params.ShipmentLineItemID.String()))
@@ -284,7 +286,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	// Non-accessorial line items shouldn't require approval
 	// Only office users can approve a shipment line item
 	if shipmentLineItem.Tariff400ngItem.RequiresPreApproval && session.IsOfficeUser() {
-		_, err := models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
 			return handlers.ResponseForError(h.Logger(), err)
@@ -292,6 +294,16 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	} else {
 		h.Logger().Error("Error does not require pre-approval for shipment")
 		return accessorialop.NewApproveShipmentLineItemForbidden()
+	}
+
+	// If shipment is delivered, price single shipment line item
+	if shipmentLineItem.Shipment.Status == "DELIVERED" {
+		shipmentLineItem.Shipment = *shipment
+		engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+		shipmentLineItem, err = engine.PricePreapprovalRequest(shipmentLineItem)
+		if err != nil {
+			return handlers.ResponseForError(h.Logger(), err)
+		}
 	}
 
 	// Approve and save the shipment line item
