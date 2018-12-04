@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { createOrUpdatePpm, getRawWeightInfo } from './ducks';
+import { createOrUpdatePpm, getRawWeightInfo, isHHGPPMComboMove } from './ducks';
+import WizardHeader from '../WizardHeader';
 import WizardPage from 'shared/WizardPage';
 import PpmSize from './Size';
 
@@ -28,19 +29,22 @@ export class PpmSizeWizardPage extends Component {
     }
   };
   render() {
-    const { pages, pageKey, pendingPpmSize, currentPpm, error } = this.props;
+    const { pages, pageKey, pendingPpmSize, currentPpm, error, isHHGPPMComboMove } = this.props;
     const ppmSize = pendingPpmSize || (currentPpm && currentPpm.size);
     return (
-      <WizardPage
-        handleSubmit={this.handleSubmit}
-        pageList={pages}
-        pageKey={pageKey}
-        pageIsValid={Boolean(ppmSize)}
-        dirty={Boolean(pendingPpmSize)}
-        error={error}
-      >
-        <PpmSize />
-      </WizardPage>
+      <div>
+        {isHHGPPMComboMove && <WizardHeader title="Move Setup" right={<p>status tracker goes here</p>} />}
+        <WizardPage
+          handleSubmit={this.handleSubmit}
+          pageList={pages}
+          pageKey={pageKey}
+          pageIsValid={Boolean(ppmSize)}
+          dirty={Boolean(pendingPpmSize)}
+          error={error}
+        >
+          <PpmSize />
+        </WizardPage>
+      </div>
     );
   }
 }
@@ -58,6 +62,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     ...state.ppm,
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
     move: state.moves,
     weightInfo: getRawWeightInfo(state),
   };
