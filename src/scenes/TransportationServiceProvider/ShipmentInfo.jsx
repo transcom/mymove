@@ -212,7 +212,8 @@ class ShipmentInfo extends Component {
     const completed = shipment.status === 'COMPLETED';
     const pmSurveyComplete = Boolean(shipment.pm_survey_completed_date);
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
-    const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
+    const canEnterPreMoveSurvey =
+      (accepted || approved) && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
 
     // Some statuses are directly related to the shipment status and some to combo states

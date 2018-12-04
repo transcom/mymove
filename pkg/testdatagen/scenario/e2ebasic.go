@@ -1737,6 +1737,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:                      models.ShipmentStatusAPPROVED,
 			HasDeliveryAddress:          true,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyCompletedDate:       &packDate,
 			PmSurveyMethod:              "PHONE",
 			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
@@ -1752,6 +1753,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg31 := offer31.Shipment
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			ShipmentID: hhg31.ID,
+		},
+	})
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			ShipmentID: hhg31.ID,
+			Role:       models.RoleDESTINATION,
+		},
+	})
 	hhg31.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg31.Move)
 }
