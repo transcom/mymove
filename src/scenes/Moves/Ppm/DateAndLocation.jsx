@@ -97,9 +97,8 @@ export class DateAndLocation extends Component {
             title="Move Setup"
             right={
               <ProgressTimeline>
-                <ProgressTimelineStep name="Move Setup" completed />
-                <ProgressTimelineStep name="Review" current />
-                <ProgressTimelineStep name="Agreement" />
+                <ProgressTimelineStep name="Move Setup" current />
+                <ProgressTimelineStep name="Review" />
               </ProgressTimeline>
             }
           />
