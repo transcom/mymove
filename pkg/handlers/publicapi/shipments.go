@@ -384,7 +384,7 @@ func (h CompletePmSurveyHandler) Handle(params shipmentop.CompletePmSurveyParams
 		return shipmentop.NewCompletePmSurveyBadRequest()
 	}
 
-	pmSurveyCompletedDate := (time.Time)(*params.CompletePmSurvey.PmSurveyCompletedDate)
+	pmSurveyCompletedDate := time.Now()
 
 	shipment.PmSurveyCompletedDate = &pmSurveyCompletedDate
 	verrs, err := models.SaveShipment(h.DB(), shipment)

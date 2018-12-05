@@ -1166,16 +1166,6 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
-  CompletePmSurvey:
-    type: object
-    properties:
-      pm_survey_completed_date:
-        type: string
-        format: date-time
-        example: '2017-07-21T17:32:28Z'
-        x-nullable: true
-    required:
-      - pm_survey_completed_date
   TransportationServiceProvider:
     type: object
     properties:
@@ -2151,17 +2141,12 @@ paths:
       tags:
       - shipments
       parameters:
-      - in: path
-        name: shipmentId
+      - name: shipmentId
+        in: path
         type: string
         format: uuid
         required: true
         description: UUID of the move
-      - in: body
-        name: completePmSurvey
-        required: true
-        schema:
-          $ref: '#/definitions/CompletePmSurvey'
       responses:
         200:
           description: returns updated shipment object

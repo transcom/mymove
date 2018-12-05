@@ -88,13 +88,10 @@ export async function PatchShipment(shipmentId, shipment) {
   return response.body;
 }
 
-export async function CompletePmSurvey(shipmentId, completedDate) {
+export async function CompletePmSurvey(shipmentId) {
   const client = await getPublicClient();
   const response = await client.apis.shipments.completePmSurvey({
     shipmentId,
-    completePmSurvey: {
-      pm_survey_completed_date: completedDate,
-    },
   });
   checkResponse(response, 'failed to complete pre-move survey due to server error');
   return response.body;

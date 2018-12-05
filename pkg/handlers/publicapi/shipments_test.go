@@ -800,14 +800,10 @@ func (suite *HandlerSuite) TestCompletePmSurveyHandler() {
 	path := fmt.Sprintf("/shipments/%s/completePmSurvey", shipment.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	pmSurveyCompletedDate := time.Now()
-	body := apimessages.CompletePmSurvey{
-		PmSurveyCompletedDate: handlers.FmtDateTimePtr(&pmSurveyCompletedDate),
-	}
+
 	params := shipmentop.CompletePmSurveyParams{
-		HTTPRequest:      req,
-		ShipmentID:       *handlers.FmtUUID(shipment.ID),
-		CompletePmSurvey: &body,
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
 	}
 
 	response := handler.Handle(params)
