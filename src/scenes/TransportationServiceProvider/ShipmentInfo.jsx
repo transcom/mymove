@@ -39,6 +39,7 @@ import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import {
   loadShipmentDependencies,
+  completePmSurvey,
   patchShipment,
   acceptShipment,
   rejectShipment,
@@ -123,7 +124,7 @@ const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFor
 
 // Action Buttons Conditions
 const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
-const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_planned_pack_date;
+const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_completed_at;
 
 class ShipmentInfo extends Component {
   constructor(props) {
@@ -164,7 +165,13 @@ class ShipmentInfo extends Component {
     });
   };
 
-  enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
+  enterPreMoveSurvey = values => {
+    this.props.patchShipment(this.props.shipment.id, values).then(() => {
+      if (this.props.shipment.pm_survey_completed_at === undefined) {
+        this.props.completePmSurvey(this.props.shipment.id);
+      }
+    });
+  };
 
   editServiceAgents = values => {
     values['destination_service_agent']['role'] = 'DESTINATION';
@@ -203,15 +210,8 @@ class ShipmentInfo extends Component {
     const inTransit = shipment.status === 'IN_TRANSIT';
     const delivered = shipment.status === 'DELIVERED';
     const completed = shipment.status === 'COMPLETED';
-    const pmSurveyComplete = Boolean(
-      shipment.pm_survey_conducted_date &&
-        shipment.pm_survey_method &&
-        shipment.pm_survey_planned_pack_date &&
-        shipment.pm_survey_planned_pickup_date &&
-        shipment.pm_survey_planned_delivery_date &&
-        shipment.pm_survey_weight_estimate,
-    );
-    const canAssignServiceAgents = (accepted || approved) && !hasOriginServiceAgent(serviceAgents);
+    const pmSurveyComplete = Boolean(shipment.pm_survey_completed_at);
+    const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
     const canEnterPreMoveSurvey =
       (accepted || approved) && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
@@ -493,6 +493,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadShipmentDependencies,
+      completePmSurvey,
       patchShipment,
       acceptShipment,
       generateGBL,

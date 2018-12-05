@@ -99,6 +99,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
+		PmSurveyCompletedAt:                 handlers.FmtDateTimePtr(s.PmSurveyCompletedAt),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),

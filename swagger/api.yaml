@@ -1100,6 +1100,10 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Tare
+      pm_survey_completed_at:
+        type: string
+        format: date-time
+        x-nullable: true
       pm_survey_conducted_date:
         type: string
         format: date
@@ -2129,6 +2133,33 @@ paths:
           description: no service agent found with that UUID
         500:
           description: server error
+  /shipment/{shipmentId}/completePmSurvey:
+    post:
+      summary: Completes a pre-move survey on a shipment
+      description: Sets the pre-move survey as completed. Completion date will be recorded on shipment.
+      operationId: completePmSurvey
+      tags:
+      - shipments
+      parameters:
+      - name: shipmentId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the move
+      responses:
+        200:
+          description: returns updated shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to complete this pre-move survey
+        500:
+          description: server error
   /shipments/{shipmentId}/accept:
     post:
       summary: Accepts an awarded shipment
@@ -2227,7 +2258,7 @@ paths:
         403:
           description: not authorized to accept this shipment
         409:
-          description: the shipment is not in a state to be accepted
+          description: the shipment is not in a state to be delivered
           schema:
             $ref: '#/definitions/Shipment'
         500:
