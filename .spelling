@@ -377,6 +377,7 @@ TraceFatal
 SubmitMoveHandler
 auth.office_user_id
 span.AddField
+span.AddTraceField
 zap.Object
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.

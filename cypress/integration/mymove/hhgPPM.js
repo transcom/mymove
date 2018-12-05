@@ -1,7 +1,7 @@
 /* global cy */
 
 describe('service member adds a ppm to an hhg', function() {
-  it('service member clicks on Add PPM Shipment', function() {
+  it('service member clicks on Add PPM (DITY) Move', function() {
     serviceMemberSignsIn('f83bc69f-10aa-48b7-b9fe-425b393d49b8');
     serviceMemberAddsPPMToHHG();
     serviceMemberCancelsAddPPMToHHG();
@@ -22,7 +22,7 @@ function serviceMemberSignsIn(uuid) {
 function serviceMemberAddsPPMToHHG() {
   cy
     .get('.sidebar > div > button')
-    .contains('Add PPM Shipment')
+    .contains('Add PPM (DITY) Move')
     .click();
 
   cy.location().should(loc => {
@@ -145,7 +145,7 @@ function serviceMemberViewsUpdatedHomePage() {
   cy.get('body').should($div => {
     expect($div.text()).to.include('Government Movers and Packers');
     expect($div.text()).to.include('Move your own stuff');
-    expect($div.text()).to.not.include('Add PPM Shipment');
+    expect($div.text()).to.not.include('Add PPM (DITY) Move');
   });
 
   cy.get('.usa-width-three-fourths').should($div => {
