@@ -170,12 +170,10 @@ const showHhgLandingPageText = shipment => {
   if (shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') {
     return (
       <div className="step">
-        <div className="title">Next Step: Complete your customer satisfaction survey</div>
+        <div className="title">Next Step: Survey</div>
         <div>
-          Tell us about your move experience. You have up to one year to complete your{' '}
-          <a href="placeholder" target="_blank" rel="noopener noreferrer" className="Todo-phase2">
-            satisfaction survey
-          </a>. We use this information to decide which movers we allow to work with you.
+          You will be asked to participate in a satisfaction survey. We will use this information to decide which movers
+          we allow to work with you.
         </div>
       </div>
     );
@@ -206,8 +204,15 @@ const showHhgLandingPageText = shipment => {
 };
 
 export const SubmittedHhgMoveSummary = props => {
-  const { shipment } = props;
+  const { shipment, move, addPPMShipment, hhgAndPpmEnabled } = props;
+  const selectedMoveType = get(move, 'selected_move_type');
+  const moveId = get(move, 'id');
+  const showAddShipmentLink =
+    selectedMoveType === 'HHG' &&
+    ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
+
   let today = moment();
+
   return (
     <Fragment>
       <div>
@@ -228,6 +233,8 @@ export const SubmittedHhgMoveSummary = props => {
                 {showHhgLandingPageText(shipment)}
                 {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
                   <div className="step">
+                    {/* TODO: redo text once we have the proper text to place here.
+                        reference: https://www.pivotaltracker.com/story/show/161939484
                     <div className="title">File a Claim</div>
                     <div>
                       If you have household goods damaged or lost during the move, contact{' '}
@@ -236,6 +243,7 @@ export const SubmittedHhgMoveSummary = props => {
                       do not feel that you are receiving adequate compensation, contact the Military Claims Office for
                       help.
                     </div>
+                    */}
                   </div>
                 )}
               </div>
@@ -254,6 +262,32 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
         </div>
       </div>
+      {showAddShipmentLink &&
+        hhgAndPpmEnabled && (
+          <div className="ppm-panel">
+            <div className="shipment_box">
+              <div className="shipment_type">
+                <img className="move_sm" src={ppmCar} alt="ppm-car" />
+                Move your own stuff (PPM)
+              </div>
+              <div className="shipment_box_contents">
+                <div className="step-contents">
+                  <div className="status_box">
+                    <div className="step">
+                      <div className="title">Are you moving any items yourself or hiring your own mover?</div>
+                      <div>Tell us about your move to see if you're eligible for additional payment.</div>
+                    </div>
+                    <div className="step">
+                      <button className="usa-button-secondary" onClick={() => addPPMShipment(moveId)}>
+                        <FontAwesomeIcon icon={faPlus} /> Add PPM (DITY) Move
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
     </Fragment>
   );
 };
@@ -450,6 +484,7 @@ export const MoveSummary = withContext(props => {
     resumeMove,
     reviewProfile,
     requestPaymentSuccess,
+    addPPMShipment,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
@@ -496,6 +531,8 @@ export const MoveSummary = withContext(props => {
               resumeMove={resumeMove}
               reviewProfile={reviewProfile}
               requestPaymentSuccess={requestPaymentSuccess}
+              addPPMShipment={addPPMShipment}
+              hhgAndPpmEnabled={hhgAndPpmEnabled}
             />
           )}
           {showPPM && (
@@ -527,9 +564,9 @@ export const MoveSummary = withContext(props => {
           <div>
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <button className="link" onClick={() => props.addPPMShipment(moveId)}>
+                <button className="link" onClick={() => addPPMShipment(moveId)}>
                   <FontAwesomeIcon icon={faPlus} />
-                  <span> Add PPM Shipment</span>
+                  <span> Add PPM (DITY) Move</span>
                 </button>
               )}
           </div>

@@ -312,6 +312,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
@@ -473,11 +477,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
-  CreateMovePayload:
-    type: object
-    properties:
-      selected_move_type:
-        $ref: '#/definitions/SelectedMoveType'
   MovePayload:
     type: object
     properties:
@@ -2641,36 +2640,6 @@ paths:
           description: move not found
         500:
           description: internal server error
-  /orders/{ordersId}/moves:
-    post:
-      summary: Creates a move tied to service member orders
-      description: Creates an instance of a move tied to a service member's orders
-      operationId: createMove
-      tags:
-        - moves
-      parameters:
-        - in: path
-          name: ordersId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the order
-        - in: body
-          name: createMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateMovePayload'
-      responses:
-        201:
-          description: created instance of move
-          schema:
-            $ref: '#/definitions/MovePayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized to sign for this move
   /moves:
     get:
       summary: List all moves for a set of orders

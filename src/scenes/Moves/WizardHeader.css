@@ -1,0 +1,9 @@
+.wizard-header .icon {
+  margin: 0;
+  margin-right: 1rem;
+  max-width: 75px;
+}
+
+.wizard-header p {
+  display: inline;
+}

@@ -89,7 +89,13 @@ func (suite *InvoiceSuite) TestEDIString() {
 }
 
 func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	var weight unit.Pound
+	weight = 2000
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{
+			NetWeight: &weight,
+		},
+	})
 	err := shipment.AssignGBLNumber(suite.db)
 	suite.mustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
