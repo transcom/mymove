@@ -3,6 +3,7 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
+	"go.uber.org/zap"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -25,6 +26,8 @@ const receiverCode = "8004171844" // Syncada
 
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
+
+var logger *zap.Logger
 
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
@@ -315,50 +318,86 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	}
 	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
 
-	// TODO: For the moment, we are explicitly grabbing the line items for linehaul, pack, etc.
-	// TODO: We ultimately need to process all line items and hopefully abstract out their processing.
-	// TODO: See https://www.pivotaltracker.com/story/show/162065870
-
+	//Initialize empty collection of segments
 	var segments []edisegment.Segment
 
-	linehaulSegments, err := generateLinehaulSegments(lineItems)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, linehaulSegments...)
+	// Iterate over lineitems
+	for _, lineItem := range lineItems {
+		// Some hardcoded values that are being used
+		const rateValueQualifier = "RC"    // Rate
+		const hierarchicalLevelCode = "SS" // Services
+		const weightQualifier = "B"        // Billed Weight
+		const weightUnitCode = "L"         // Pounds
+		const ladingLineItemNumber = 1
+		const billedRatedAsQuantity = 1
 
-	fullPackSegments, err := generateFullPackSegments(lineItems, netCentiWeight)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, fullPackSegments...)
+		// Place holders that currently exist TODO: Replace this constants with real value
+		const freightRate = 4.07
 
-	// TODO: We are missing full unpack (no "105C" currently in our tariff400ng_items table)
-	// TODO: Currently, the pack shipment line item covers the charge for both pack/unpack.
-	// fullUnpackSegments, err := generateFullUnpackSegments(lineItems, netWeight)
-	// if err != nil {
-	//     return nil, err
-	// }
-	// segments = append(segments, fullUnpackSegments...)
+		// Initialize empty edisegment
+		var segment []edisegment.Segment
 
-	originServiceSegments, err := generateOriginServiceSegments(lineItems, netCentiWeight)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, originServiceSegments...)
+		// Initialize hierarchicalLevelCode
+		var hierarchicalLevelID string
 
-	destinationServiceSegments, err := generateDestinationServiceSegments(lineItems, netCentiWeight)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, destinationServiceSegments...)
+		// Determine HierarchicalLevelCode
+		switch lineItem.Location {
 
-	// TODO: We haven't migrated fuel surcharge yet ("16A") to use shipment line items.
-	fuelLinehaulSegments, err := generateFuelLinehaulSegments(lineItems)
-	if err != nil {
-		return nil, err
+		case models.ShipmentLineItemLocationORIGIN:
+			hierarchicalLevelID = "304"
+
+		case models.ShipmentLineItemLocationDESTINATION:
+			hierarchicalLevelID = "303"
+
+		}
+
+		// Use unit of measure to determine proper segment building path
+		switch lineItem.Tariff400ngItem.MeasurementUnit1 {
+		case models.Tariff400ngItemMeasurementUnitFLATRATE:
+			segment = []edisegment.Segment{
+				&edisegment.HL{
+					HierarchicalIDNumber:  hierarchicalLevelID,
+					HierarchicalLevelCode: hierarchicalLevelCode,
+				},
+				&edisegment.L0{
+					LadingLineItemNumber:   ladingLineItemNumber,
+					BilledRatedAsQuantity:  billedRatedAsQuantity,
+					BilledRatedAsQualifier: string(lineItem.Tariff400ngItem.MeasurementUnit1),
+				},
+				&edisegment.L1{
+					FreightRate:              freightRate,
+					RateValueQualifier:       rateValueQualifier,
+					Charge:                   lineItem.AmountCents.ToDollarFloat(),
+					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
+				},
+			}
+
+		case models.Tariff400ngItemMeasurementUnitWEIGHT:
+			segment = []edisegment.Segment{
+				&edisegment.HL{
+					HierarchicalIDNumber:  hierarchicalLevelID,
+					HierarchicalLevelCode: hierarchicalLevelCode,
+				},
+				&edisegment.L0{
+					LadingLineItemNumber: ladingLineItemNumber,
+					Weight:               netCentiWeight,
+					WeightQualifier:      weightQualifier,
+					WeightUnitCode:       weightUnitCode,
+				},
+				&edisegment.L1{
+					FreightRate:              freightRate,
+					RateValueQualifier:       rateValueQualifier,
+					Charge:                   lineItem.AmountCents.ToDollarFloat(),
+					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
+				},
+			}
+		default:
+			logger.Error(string(lineItem.Tariff400ngItem.MeasurementUnit1) + "Used with " + lineItem.ID.String() + " is an EDI meaasurement unit we're not prepared for.")
+		}
+
+		segments = append(segments, segment...)
+
 	}
-	segments = append(segments, fuelLinehaulSegments...)
 
 	return segments, nil
 }

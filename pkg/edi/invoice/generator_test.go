@@ -102,12 +102,33 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A"}
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "501C"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
+
+		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
+		var location models.ShipmentLineItemLocation
+
+		switch code {
+		case "LHS":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		case "16A":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		default:
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
+		}
+
+		if code == "135A" {
+			location = models.ShipmentLineItemLocationORIGIN
+		}
+		if code == "135B" {
+			location = models.ShipmentLineItemLocationDESTINATION
+		}
+
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
 			Tariff400ngItem: models.Tariff400ngItem{
-				Code: code,
+				Code:             code,
+				MeasurementUnit1: measurementUnit1,
 			},
 		})
 		lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
@@ -117,6 +138,7 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 				Tariff400ngItem:   item,
 				Quantity1:         unit.BaseQuantityFromInt(2000),
 				AmountCents:       &amountCents,
+				Location:          location,
 			},
 		})
 		lineItems = append(lineItems, lineItem)
