@@ -1,10 +1,13 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/honeycombio/beeline-go"
 	"github.com/transcom/mymove/pkg/auth"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -19,6 +22,10 @@ type ShowLoggedInUserHandler struct {
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsServiceMember() {
@@ -28,7 +35,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 	}
 	// Load Servicemember and first level associations
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, session.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
 	if err != nil {
 		h.Logger().Error("Error retrieving service_member", zap.Error(err))
 		return userop.NewShowLoggedInUserUnauthorized()
@@ -37,7 +44,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	// Load duty station and transportation office association
 	if serviceMember.DutyStationID != nil {
 		// Fetch associations on duty station
-		dutyStation, err := models.FetchDutyStation(h.DB(), *serviceMember.DutyStationID)
+		dutyStation, err := models.FetchDutyStation(ctx, h.DB(), *serviceMember.DutyStationID)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}
