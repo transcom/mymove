@@ -18,13 +18,13 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	// Refetching shipments from database to get all needed eagerly fetched relationships.
 	dbShipment, err := models.FetchShipmentByTSP(suite.db, tspUser.TransportationServiceProviderID, shipment.ID)
-	suite.NoError(err)
+	suite.FatalNoError(err)
 
 	shipmentCost, err := engine.HandleRunOnShipment(*dbShipment)
-	suite.NoError(err)
+	suite.FatalNoError(err)
 
 	lineItems, err := CreateBaseShipmentLineItems(suite.db, shipmentCost)
-	suite.NoError(err)
+	suite.FatalNoError(err)
 
 	suite.Len(lineItems, 4)
 

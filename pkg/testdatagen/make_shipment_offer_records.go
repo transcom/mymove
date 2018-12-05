@@ -194,20 +194,19 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
 
-		// Makes zip3 and service area models for origin and destination addresses
-		MakeTariff400ngGeoModelsForShipment(db, shipment)
-
 		durIndex := time.Duration(i + 1)
 
 		// Set dates based on status
 		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
-			shipment.PmSurveyConductedDate = &Now
-			shipment.PmSurveyPlannedPackDate = &NowPlusOneWeek
-			shipment.PmSurveyPlannedPickupDate = &NowPlusOneWeek
-			shipment.PmSurveyPlannedDeliveryDate = &NowPlusTwoWeeks
-			shipment.ActualPackDate = &Now
+			plusOneWeek := shipment.BookDate.Add(OneWeek)
+			plusTwoWeeks := shipment.BookDate.Add(OneWeek * 2)
+			shipment.PmSurveyConductedDate = shipment.BookDate
+			shipment.PmSurveyPlannedPackDate = &plusOneWeek
+			shipment.PmSurveyPlannedPickupDate = &plusOneWeek
+			shipment.PmSurveyPlannedDeliveryDate = &plusTwoWeeks
+			shipment.ActualPackDate = shipment.BookDate
 			// For sortability, we need varying pickup dates
-			pickupDate := Now.Add(OneDay * durIndex)
+			pickupDate := shipment.BookDate.Add(OneDay * durIndex)
 			shipment.ActualPickupDate = &pickupDate
 
 			shipment.NetWeight = shipment.WeightEstimate
@@ -217,7 +216,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 		if shipmentStatus == models.ShipmentStatusDELIVERED {
 			// For sortability, we need varying delivery dates
-			deliveryDate := Now.Add(OneWeek * durIndex)
+			deliveryDate := shipment.BookDate.Add(OneWeek * durIndex)
 			shipment.ActualDeliveryDate = &deliveryDate
 		}
 
@@ -299,9 +298,6 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 }
 
 func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment) {
-	beforePickupDate := shipment.ActualPickupDate.AddDate(0, -6, 0)
-	afterPickupDate := shipment.ActualPickupDate.AddDate(0, 6, 0)
-
 	// $4861 is the cost for a 2000 pound move traveling 1044 miles (90210 to 80011).
 	baseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1001,
@@ -310,8 +306,8 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		WeightLbsUpper:     2100,
 		RateCents:          386400,
 		Type:               "ConusLinehaul",
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
 	}
 	mustSave(db, &baseLinehaul)
 
@@ -324,8 +320,8 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(268),
 		ServiceChargeCents: unit.Cents(775),
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
 		SIT185ARateCents:   unit.Cents(1626),
 		SIT185BRateCents:   unit.Cents(60),
 		SITPDSchedule:      3,
@@ -337,8 +333,8 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(174),
 		ServiceChargeCents: unit.Cents(873),
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
 		SIT185ARateCents:   unit.Cents(1532),
 		SIT185BRateCents:   unit.Cents(60),
 		SITPDSchedule:      3,
@@ -350,16 +346,16 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		WeightLbsLower:     0,
 		WeightLbsUpper:     16001,
 		RateCents:          6714,
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
 	}
 	mustSave(db, &fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           sa2.ServicesSchedule,
 		RateMillicents:     704970,
-		EffectiveDateLower: beforePickupDate,
-		EffectiveDateUpper: afterPickupDate,
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
 	}
 	mustSave(db, &fullUnpackRate)
 
