@@ -195,8 +195,16 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user, an office user, or a tsp user
+	_, err := models.FetchMove(h.DB(), session, moveID)
+	if !session.IsOfficeUser() && !session.IsTspUser() && err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {
