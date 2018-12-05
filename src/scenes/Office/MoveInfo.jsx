@@ -6,7 +6,6 @@ import { get, capitalize, has, isEmpty, includes } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
-import { isDevelopment } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
@@ -163,10 +162,6 @@ class MoveInfo extends Component {
 
   completeHHG = () => {
     this.props.completeHHG(this.props.officeShipment.id);
-  };
-
-  submitInvoice = () => {
-    this.props.sendHHGInvoice(this.props.officeShipment.id);
   };
 
   cancelMove = cancelReason => {
@@ -391,7 +386,6 @@ class MoveInfo extends Component {
                   {hhgCompleted && check}
                 </button>
               )}
-              {isDevelopment && <button onClick={this.submitInvoice}>Submit HHG Invoice</button>}
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
                 reasonPrompt="Why is the move being canceled?"
