@@ -102,7 +102,7 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A"}
+	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
