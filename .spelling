@@ -377,6 +377,7 @@ TraceFatal
 SubmitMoveHandler
 auth.office_user_id
 span.AddField
+span.AddTraceField
 zap.Object
 400ng
 dp3-ask-the-govies

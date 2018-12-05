@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -42,6 +43,11 @@ import (
 	"goji.io"
 	"goji.io/pat"
 )
+
+// GitCommit is empty unless set as a build flag
+// See https://blog.alexellis.io/inject-build-time-vars-golang/
+var gitBranch string
+var gitCommit string
 
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
@@ -412,6 +418,10 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
+	logger.Debug("Build Variables",
+		zap.String("git.branch", gitBranch),
+		zap.String("git.commit", gitCommit))
+
 	err = checkConfig(v)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
@@ -563,7 +573,20 @@ func main() {
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
-	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
+		err := dbConnection.RawQuery("SELECT 1;").Exec()
+		if err != nil {
+			logger.Error("Failed database health check", zap.Error(err))
+		}
+		err = json.NewEncoder(w).Encode(map[string]interface{}{
+			"gitBranch": gitBranch,
+			"gitCommit": gitCommit,
+			"database":  err == nil,
+		})
+		if err != nil {
+			logger.Error("Failed encoding health check response", zap.Error(err))
+		}
+	})
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.Get("/static/*"), clientHandler)
@@ -599,7 +622,20 @@ func main() {
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
-	root.Use(logging.LogRequestMiddleware)
+	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+
+	// Sends build variables to honeycomb
+	if len(gitBranch) > 0 && len(gitCommit) > 0 {
+		root.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				ctx, span := beeline.StartSpan(r.Context(), "BuildVariablesMiddleware")
+				defer span.Send()
+				span.AddTraceField("git.branch", gitBranch)
+				span.AddTraceField("git.commit", gitCommit)
+				next.ServeHTTP(w, r.WithContext(ctx))
+			})
+		})
+	}
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()

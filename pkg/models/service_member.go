@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -87,7 +89,11 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+
+	ctx, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
+	defer span.Send()
+
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
@@ -153,7 +159,11 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 }
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+
+	ctx, span := beeline.StartSpan(ctx, "SaveServiceMember")
+	defer span.Send()
+
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -333,7 +343,10 @@ func (s *ServiceMember) IsProfileComplete() bool {
 }
 
 // FetchLatestOrder gets the latest order for a service member
-func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
+func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
+	ctx, span := beeline.StartSpan(ctx, "FetchLatestOrder")
+	defer span.Send()
+
 	var order Order
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.Eager("ServiceMember.User",

@@ -14,20 +14,35 @@ The standard HTTP fields are a good start, but Honeycomb is more useful when we 
 
 Honeycomb tracing is a powerful tool for breaking down an API request into individual segments/spans. Each new span will include a name (usually the calling function name), a duration specifying how much time was spent in the span, and a series of unique identifiers that act as breadcrumbs to drill down into a particular request. [Beeline-go](https://docs.honeycomb.io/getting-data-in/beelines/go-beeline/) has some simple methods for instrumenting traces into the MyMove codebase.
 
-An example of instrumenting SubmitMoveHandler, would be to to call `beeline.StartSpan(ctx, "SubmitMoveHandler")` in the beginning of the handler and immediately add a `defer span.Send()` to defer sending the span to honeycomb until after the handler completes.
+An example of instrumenting SubmitMoveHandler, would be to to call `beeline.StartSpan(ctx, reflect.TypeOf(h).Name())` in the beginning of the handler and immediately add a `defer span.Send()` to defer sending the span to honeycomb until after the handler completes.
 
 ```golang
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-    ctx := params.HTTPRequest.Context()
-    ctx, span := beeline.StartSpan(ctx, "SubmitMoveHandler")
+    ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
     defer span.Send()
 ```
 
-Useful fields can be added to the span that would help with debugging. To do this you can use [span.AddField](https://github.com/honeycombio/beeline-go/blob/master/trace/trace.go#L173)
+To instrument subordinate functions, add `ctx context.Context` as the first parameter and pass the function name as the span name.
+
+```golang
+func (s *SocialSecurityNumber) SetEncryptedHash(ctx context.Context, unencryptedSSN string) (*validate.Errors, error) {
+    ctx, span := beeline.StartSpan(ctx, "SetEncryptedHash")
+    defer span.Send()
+```
+
+Be sure to pass the derived context from `beeline.StartSpan(...)` rather than the original context when passing context deeper into the function stack.  Reuse the variable name `ctx` when possible rather than allocating a new variable.
+
+Useful fields can be added to the span that would help with debugging. To do this you can use [span.AddField](https://github.com/honeycombio/beeline-go/blob/master/trace/trace.go#L173).
 
 ```golang
     err = move.Submit()
     span.AddField("move-status", string(move.Status))
+```
+
+You can add fields that apply to the entire function stack using [span.AddTraceField](https://github.com/honeycombio/beeline-go/blob/master/trace/trace.go#L206).  For example, the application name should be traced down through all the function calls.
+
+```golang
+    span.AddTraceField("auth.application_name", session.ApplicationName)
 ```
 
 ## Adding Zap Logs
