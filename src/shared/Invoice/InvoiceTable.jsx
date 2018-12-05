@@ -88,7 +88,7 @@ class InvoiceTable extends PureComponent {
                   Approve
                 </button>
               </Alert>
-              <div className="usa-grid-full invoice-panel-header-cont">
+              <div className="invoice-panel-header-cont">
                 <div className="usa-width-one-half">
                   <h5>Unbilled line items</h5>
                 </div>
@@ -104,7 +104,7 @@ class InvoiceTable extends PureComponent {
               <Alert type="loading" heading="Creating invoice">
                 <span className="warning--header">Sending information to USBank/Syncada.</span>
               </Alert>
-              <div className="usa-grid-full invoice-panel-header-cont">
+              <div className="invoice-panel-header-cont">
                 <div className="usa-width-one-half">
                   <h5>Unbilled line items</h5>
                 </div>
