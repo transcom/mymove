@@ -1338,6 +1338,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email = "hhg@enter.premove"
 
+	// Setting a weight estimate shows that even if PM survey is partially filled out,
+	// the PM Survey Action Button still appears so long as there's no pm_survey_completed_date.
+	weightEstimate := unit.Pound(5000)
+
 	offer22 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("426b87f1-20ad-4c50-a855-ab66e222c7c3")),
@@ -1362,7 +1366,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAPPROVED,
+			Status:                 models.ShipmentStatusAPPROVED,
+			PmSurveyWeightEstimate: &weightEstimate,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1708,7 +1713,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email = "hhgalready@approv.ed"
 
-	weightEstimate := unit.Pound(5000)
+	weightEstimate = unit.Pound(5000)
 
 	offer31 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
