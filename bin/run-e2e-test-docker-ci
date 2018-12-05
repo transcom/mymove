@@ -17,7 +17,7 @@ TSPHOST=tsplocal
 # Change the port for tests
 HTTP_PORT=4000
 
-make e2e_clean client_build db_e2e_init server_build
+make e2e_clean client_build db_e2e_init server_build_linux
 
 # Build the docker container
 docker build --tag e2e:latest .
