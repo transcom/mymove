@@ -478,7 +478,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	err := h.DB().Eager(
 		"PickupAddress",
 		"Move.Orders.NewDutyStation.Address",
-		"ServiceMember",
+		"Move.Orders.NewDutyStation.TransportationOffice",
+		"ServiceMember.DutyStation.TransportationOffice",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
 		"ShipmentLineItems.Tariff400ngItem",
 	).Find(&shipment, shipmentID)

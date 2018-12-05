@@ -205,6 +205,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		DaysInStorage:              daysInStorage,
 		Status:                     models.PPMStatusDRAFT,
 		AdvanceWorksheet:           newAdvanceWorksheet,
+		AdvanceWorksheetID:         &newAdvanceWorksheet.ID,
 	}
 	suite.MustSave(&ppm1)
 

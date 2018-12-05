@@ -204,8 +204,15 @@ const showHhgLandingPageText = shipment => {
 };
 
 export const SubmittedHhgMoveSummary = props => {
-  const { shipment } = props;
+  const { shipment, move, addPPMShipment, hhgAndPpmEnabled } = props;
+  const selectedMoveType = get(move, 'selected_move_type');
+  const moveId = get(move, 'id');
+  const showAddShipmentLink =
+    selectedMoveType === 'HHG' &&
+    ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
+
   let today = moment();
+
   return (
     <Fragment>
       <div>
@@ -255,6 +262,32 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
         </div>
       </div>
+      {showAddShipmentLink &&
+        hhgAndPpmEnabled && (
+          <div className="ppm-panel">
+            <div className="shipment_box">
+              <div className="shipment_type">
+                <img className="move_sm" src={ppmCar} alt="ppm-car" />
+                Move your own stuff (PPM)
+              </div>
+              <div className="shipment_box_contents">
+                <div className="step-contents">
+                  <div className="status_box">
+                    <div className="step">
+                      <div className="title">Are you moving any items yourself or hiring your own mover?</div>
+                      <div>Tell us about your move to see if you're eligible for additional payment.</div>
+                    </div>
+                    <div className="step">
+                      <button className="usa-button-secondary" onClick={() => addPPMShipment(moveId)}>
+                        <FontAwesomeIcon icon={faPlus} /> Add PPM (DITY) Move
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
     </Fragment>
   );
 };
@@ -451,6 +484,7 @@ export const MoveSummary = withContext(props => {
     resumeMove,
     reviewProfile,
     requestPaymentSuccess,
+    addPPMShipment,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
@@ -497,6 +531,8 @@ export const MoveSummary = withContext(props => {
               resumeMove={resumeMove}
               reviewProfile={reviewProfile}
               requestPaymentSuccess={requestPaymentSuccess}
+              addPPMShipment={addPPMShipment}
+              hhgAndPpmEnabled={hhgAndPpmEnabled}
             />
           )}
           {showPPM && (
@@ -528,9 +564,9 @@ export const MoveSummary = withContext(props => {
           <div>
             {showAddShipmentLink &&
               hhgAndPpmEnabled && (
-                <button className="link" onClick={() => props.addPPMShipment(moveId)}>
+                <button className="link" onClick={() => addPPMShipment(moveId)}>
                   <FontAwesomeIcon icon={faPlus} />
-                  <span> Add PPM Shipment</span>
+                  <span> Add PPM (DITY) Move</span>
                 </button>
               )}
           </div>

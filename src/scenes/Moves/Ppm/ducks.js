@@ -220,6 +220,17 @@ export function getDestinationPostalCode(state) {
     : currentOrders.new_duty_station.address.postal_code;
 }
 
+export function getPPM(state) {
+  const move = state.moves.currentMove || state.moves.latestMove || {};
+  const moveId = move.id;
+  const ppmsFromEntities = state.entities.personallyProcuredMove;
+  if (moveId && ppmsFromEntities) {
+    return Object.values(state.entities.personallyProcuredMove).find(ppm => ppm.move_id === moveId);
+  } else {
+    return state.ppm.currentPpm || {};
+  }
+}
+
 // Reducer
 const initialState = {
   pendingPpmSize: null,

@@ -5,7 +5,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, getDestinationPostalCode, getPpmSitEstimate, setInitialFormValues } from './ducks';
+import {
+  createOrUpdatePpm,
+  getDestinationPostalCode,
+  getPpmSitEstimate,
+  isHHGPPMComboMove,
+  setInitialFormValues,
+} from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -190,7 +196,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
-    isHHGPPMComboMove: state.moves.currentMove.selected_move_type === 'HHG_PPM',
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   const currentOrders = state.orders.currentOrders;
