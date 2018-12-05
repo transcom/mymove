@@ -332,8 +332,8 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		return nil, err
 	}
 	segments = append(segments, fullPackSegments...)
-  
-	fullUnpackSegments, err := generateFullUnpackSegments(lineItems)
+
+	fullUnpackSegments, err := generateFullUnpackSegments(lineItems, netCentiWeight)
 	if err != nil {
 		return nil, err
 	}
