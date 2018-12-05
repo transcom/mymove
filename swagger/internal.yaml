@@ -1602,7 +1602,7 @@ definitions:
         title: Spouse's Pro-Gear
         x-nullable: true
         x-formatting: weight
-      pm_survey_completed_date:
+      pm_survey_completed_at:
         type: string
         format: date-time
         x-nullable: true

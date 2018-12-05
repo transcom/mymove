@@ -71,7 +71,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
-		PmSurveyCompletedDate:               handlers.FmtDateTimePtr(s.PmSurveyCompletedDate),
+		PmSurveyCompletedAt:                 handlers.FmtDateTimePtr(s.PmSurveyCompletedAt),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -384,9 +384,9 @@ func (h CompletePmSurveyHandler) Handle(params shipmentop.CompletePmSurveyParams
 		return shipmentop.NewCompletePmSurveyBadRequest()
 	}
 
-	pmSurveyCompletedDate := time.Now()
+	pmSurveyCompletedAt := time.Now()
 
-	shipment.PmSurveyCompletedDate = &pmSurveyCompletedDate
+	shipment.PmSurveyCompletedAt = &pmSurveyCompletedAt
 	verrs, err := models.SaveShipment(h.DB(), shipment)
 
 	if err != nil || verrs.HasAny() {

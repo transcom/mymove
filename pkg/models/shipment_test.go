@@ -247,7 +247,7 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 // TestSaveShipment tests that a shipment can be saved
 func (suite *ModelSuite) TestSaveShipment() {
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
-	shipment.PmSurveyCompletedDate = &testdatagen.Now
+	shipment.PmSurveyCompletedAt = &testdatagen.Now
 
 	verrs, err := SaveShipment(suite.db, &shipment)
 

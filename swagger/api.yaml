@@ -1100,7 +1100,7 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Tare
-      pm_survey_completed_date:
+      pm_survey_completed_at:
         type: string
         format: date-time
         x-nullable: true
