@@ -96,7 +96,7 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 
 server_build: server_deps server_generate
 	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
-server_build_linux:
+server_build_linux: server_go_bindata
 	bin/check_gopath.sh
 	dep ensure -vendor-only
 	go build -i -ldflags $(LDFLAGS) -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
@@ -227,7 +227,7 @@ db_test_create_docker:
 db_test_run_docker: db_run db_test_create_docker
 
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp:
+.db_test_migrations_build.stamp: server_go_bindata
 	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin_linux/soda ./vendor/github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin_linux/generate-test-data ./cmd/generate_test_data
