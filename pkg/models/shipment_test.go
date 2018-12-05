@@ -223,7 +223,7 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
 
 	var lineItems []ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A"}
+	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
 	for _, code := range codes {
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
 			Tariff400ngItem: Tariff400ngItem{

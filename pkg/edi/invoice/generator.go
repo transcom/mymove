@@ -314,13 +314,11 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	}
 	segments = append(segments, fullPackSegments...)
 
-	// TODO: We are missing full unpack (no "105C" currently in our tariff400ng_items table)
-	// TODO: Currently, the pack shipment line item covers the charge for both pack/unpack.
-	// fullUnpackSegments, err := generateFullUnpackSegments(lineItems)
-	// if err != nil {
-	//     return nil, err
-	// }
-	// segments = append(segments, fullUnpackSegments...)
+	fullUnpackSegments, err := generateFullUnpackSegments(lineItems)
+	if err != nil {
+		return nil, err
+	}
+	segments = append(segments, fullUnpackSegments...)
 
 	originServiceSegments, err := generateOriginServiceSegments(lineItems)
 	if err != nil {
@@ -419,7 +417,7 @@ func generateFullUnpackSegments(lineItems []models.ShipmentLineItem) ([]edisegme
 			FreightRate:              65.77, // TODO: placeholder for now
 			RateValueQualifier:       "RC",  // Rate
 			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: "105C", // unpack TODO: verify that GEX can recognize 105C (unpack used to be included with pack above)
+			SpecialChargeDescription: "105C", // unpack
 		},
 	}, nil
 }
