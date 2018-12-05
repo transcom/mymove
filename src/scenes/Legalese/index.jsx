@@ -49,7 +49,7 @@ export class SignedCertification extends Component {
     window.print();
   }
   render() {
-    const { hasSubmitError, pages, pageKey, latestSignedCertification, selectedMoveType } = this.props;
+    const { hasSubmitError, pages, pageKey, latestSignedCertification, isHHGPPMComboMove } = this.props;
     const today = formatSwaggerDate(new Date());
     const initialValues = {
       date: get(latestSignedCertification, 'date', today),
@@ -57,9 +57,7 @@ export class SignedCertification extends Component {
     };
     return (
       <div>
-        {selectedMoveType === 'HHG_PPM' && (
-          <WizardHeader icon={reviewGray} title="Review" right={<p>status tracker goes here</p>} />
-        )}
+        {isHHGPPMComboMove && <WizardHeader icon={reviewGray} title="Review" right={<p>status tracker goes here</p>} />}
         <div className="legalese">
           {this.props.certificationText && (
             <SignatureWizardForm
