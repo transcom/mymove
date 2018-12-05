@@ -1,8 +1,8 @@
 FROM alpine:3.7
 
-COPY bin/soda /bin/soda
+COPY bin_linux/soda /bin/soda
 COPY bin/apply-secure-migration.sh /bin
-COPY bin/generate-test-data /bin/generate-test-data
+COPY bin_linux/generate-test-data /bin/generate-test-data
 
 COPY migrations /migrate/migrations
 COPY local_migrations /migrate/local

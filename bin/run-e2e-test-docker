@@ -2,8 +2,6 @@
 
 set -eu -o pipefail
 
-# Setting GOOS to darwin allows us to build some tools we need to run locally
-export GOOS=darwin
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
@@ -19,11 +17,7 @@ TSPHOST=tsplocal
 # Change the port for tests
 HTTP_PORT=4000
 
-make e2e_clean client_build db_e2e_init
-
-# Setting GOOS to linux allows this binary to be copied to the docker container and run
-export GOOS=linux
-make server_build
+make e2e_clean client_build db_e2e_init server_build_linux
 
 # Build the docker container
 docker build --tag e2e:latest .

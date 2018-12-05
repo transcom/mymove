@@ -41,6 +41,9 @@ __snapshots__
 /bin/gin
 /bin/gosec
 
+# Special bin folder for e2e test binaries
+/bin_linux/
+
 # pdf artifacts
 /cmd/generate_1203_form/*.pdf
 

@@ -96,6 +96,15 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 
 server_build: server_deps server_generate
 	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
+server_build_linux:
+	bin/check_gopath.sh
+	dep ensure -vendor-only
+	go build -i -ldflags $(LDFLAGS) -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+	bin/gen_server.sh
+	# These don't need to go in bin_linux/ because local devs don't use them
+	# Additionally it would not work with the default Dockerfile
+	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin/chamber ./vendor/github.com/segmentio/chamber
+	GOOS=linux GOARCH=amd64 go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
@@ -166,6 +175,7 @@ e2e_clean:
 	rm -rf cypress/results
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
+	rm -rf bin_linux/
 	docker rm -f cypress || true
 	docker rm -f e2e || true
 	docker rm -f e2e_migrations || true
@@ -218,12 +228,10 @@ db_test_run_docker: db_run db_test_create_docker
 
 db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp:
-	rm -f .server_deps.stamp
-	GOOS=linux GOARCH=amd64 $(MAKE) -e build_tools
+	mkdir -p bin_linux/
+	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin_linux/soda ./vendor/github.com/gobuffalo/pop/soda
+	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin_linux/generate-test-data ./cmd/generate_test_data
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
-	# Remove these linux binaries so the Makefile will redo them for darwin with the next make command
-	rm -f .server_deps.stamp
-	touch .db_test_migrations_build.stamp
 
 db_test_migrate: server_deps
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
@@ -315,7 +323,7 @@ clean:
 	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
-.PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_run_standalone server_run server_run_default server_test
+.PHONY: server_deps_update server_generate server_go_bindata server_deps server_build server_build_linux server_run_standalone server_run server_run_default server_test
 .PHONY: db_run db_destroy
 .PHONY: db_dev_run db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
 .PHONY: db_test_run db_test_create db_test_reset db_test_migrate db_test_e2e_populate
