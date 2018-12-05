@@ -32,9 +32,9 @@ class InvoiceTable extends PureComponent {
 
   submitPayment = () => {
     //dispatch action to submit invoice to GEX
-    //this.props.approvePayment();
+    this.props.approvePayment();
     this.setState({ paymentStatus: PAYMENT_IN_PROCESSING });
-    setTimeout(this.invoiceFail, 5000);
+    setTimeout(this.invoiceSuccess, 5000);
   };
 
   invoiceSuccess = () => {
@@ -57,7 +57,7 @@ class InvoiceTable extends PureComponent {
       case PAYMENT_PENDING:
         if (isOfficeSite && isDelivered) {
           paymentContainer = (
-            <div className="usa-grid-full invoice-panel-header-cont">
+            <div className="invoice-panel-header-cont">
               <div className="usa-width-one-half">
                 <h5>Unbilled line items</h5>
               </div>
@@ -120,11 +120,6 @@ class InvoiceTable extends PureComponent {
               <Alert type="success" heading="Success!">
                 <span className="warning--header">The invoice has been created and will be paid soon.</span>
               </Alert>
-              <div className="usa-grid-full invoice-panel-header-cont">
-                <div className="usa-width-one-half">
-                  <h5>Invoice S-142341 Approved: 12-Jun-2018 15:03 CST by Janelle Simpson</h5>
-                </div>
-              </div>
             </div>
           );
         }
@@ -134,11 +129,9 @@ class InvoiceTable extends PureComponent {
           paymentContainer = (
             <div>
               <Alert type="error" heading="Oops, something went wrong!">
-                <span className="warning--header">
-                  Please try again. If you continue to have trouble, contact ____________.
-                </span>
+                <span className="warning--header">Please try again.</span>
               </Alert>
-              <div className="usa-grid-full invoice-panel-header-cont">
+              <div className="invoice-panel-header-cont">
                 <div className="usa-width-one-half">
                   <h5>Unbilled line items</h5>
                 </div>

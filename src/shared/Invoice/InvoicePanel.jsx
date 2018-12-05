@@ -9,12 +9,12 @@ import {
   selectUnbilledShipmentLineItems,
   selectTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { sendHHGInvoice } from 'scenes/Office/ducks';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
 
 export class InvoicePanel extends PureComponent {
   approvePayment = () => {
-    //this.props.onApprovePayment(this.props.shipmentId);
-    console.log('Approve Payment button clicked!');
+    this.props.sendHHGInvoice(this.props.shipmentId);
   };
 
   render() {
@@ -62,6 +62,6 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators({ sendHHGInvoice }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);
