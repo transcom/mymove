@@ -229,14 +229,19 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	}
 	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
 
+	shipmentOffer := models.GetAcceptedShipmentOffer(shipment.ShipmentOffers)
+	if shipmentOffer == nil {
+		return nil, errors.New("No accepted shipment offer found")
+	}
+
 	return []edisegment.Segment{
 		&edisegment.BX{
 			TransactionSetPurposeCode:    "00", // Original
 			TransactionMethodTypeCode:    "J",  // Motor
 			ShipmentMethodOfPayment:      "PP", // Prepaid by seller
 			ShipmentIdentificationNumber: *GBL,
-			StandardCarrierAlphaCode:     "MCCG", // TODO: real SCAC
-			ShipmentQualifier:            "4",    // HHG Government Bill of Lading
+			StandardCarrierAlphaCode:     shipmentOffer.TransportationServiceProvider.StandardCarrierAlphaCode,
+			ShipmentQualifier:            "4", // HHG Government Bill of Lading
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "DY", // DoD transportation service code #
