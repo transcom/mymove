@@ -85,10 +85,20 @@ server_deps: go_version .server_deps.stamp
 	go build -i -ldflags $(LDFLAGS) -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -ldflags $(LDFLAGS) -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
+server_deps_linux: go_version .server_deps_linux.stamp
+.server_deps_linux.stamp: Gopkg.lock
+	bin/check_gopath.sh
+	dep ensure -vendor-only
+	go build -i -ldflags $(LDFLAGS) -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+
 server_generate: server_deps server_go_bindata .server_generate.stamp
 .server_generate.stamp: $(shell find swagger -type f -name *.yaml)
 	bin/gen_server.sh
 	touch .server_generate.stamp
+server_generate_linux: server_deps_linux server_go_bindata .server_generate_linux.stamp
+.server_generate_linux.stamp: $(shell find swagger -type f -name *.yaml)
+	bin/gen_server.sh
+	touch .server_generate_linux.stamp
 
 server_go_bindata: pkg/assets/assets.go
 pkg/assets/assets.go: pkg/paperwork/formtemplates/*
@@ -96,15 +106,12 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 
 server_build: server_deps server_generate
 	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
-server_build_linux: server_go_bindata
-	bin/check_gopath.sh
-	dep ensure -vendor-only
-	go build -i -ldflags $(LDFLAGS) -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
-	bin/gen_server.sh
+server_build_linux: server_deps_linux server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin/chamber ./vendor/github.com/segmentio/chamber
 	GOOS=linux GOARCH=amd64 go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags $(LDFLAGS) -o bin/webserver ./cmd/webserver
+
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
@@ -227,7 +234,7 @@ db_test_create_docker:
 db_test_run_docker: db_run db_test_create_docker
 
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: server_go_bindata
+.db_test_migrations_build.stamp: server_deps_linux server_generate_linux
 	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin_linux/soda ./vendor/github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags $(LDFLAGS) -o bin_linux/generate-test-data ./cmd/generate_test_data
