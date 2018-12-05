@@ -127,7 +127,7 @@ server_run_default: server_deps server_generate db_run  db_dev_create
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
 		--excludeDir vendor --excludeDir node_modules \
-		-i --buildArgs "-i -ldflags=$(WEBSERVER_LDFLAGS)"
+		-i --buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\""
 
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
