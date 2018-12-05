@@ -100,7 +100,7 @@ export class PreApprovalRequest extends Component {
           <tr key={row.id} className={deleteActiveClass}>
             <td align="left">{row.tariff400ng_item.code}</td>
             <td align="left">{row.tariff400ng_item.item}</td>
-            <td align="left"> {row.location[0].toUpperCase() + row.location.substring(1).toLowerCase()} </td>
+            <td align="left"> {row.location[0]} </td>
             <td align="left">{formatFromBaseQuantity(row.quantity_1)}</td>
             <td align="left">{row.notes} </td>
             <td align="left">{formatDate(row.submitted_date)}</td>

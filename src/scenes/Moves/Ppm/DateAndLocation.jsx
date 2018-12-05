@@ -5,11 +5,19 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, getDestinationPostalCode, getPpmSitEstimate, setInitialFormValues } from './ducks';
+import {
+  createOrUpdatePpm,
+  getDestinationPostalCode,
+  getPpmSitEstimate,
+  isHHGPPMComboMove,
+  setInitialFormValues,
+} from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
+import WizardHeader from '../WizardHeader';
+import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
@@ -81,97 +89,102 @@ export class DateAndLocation extends Component {
     } = this.props;
 
     return (
-      <DateAndLocationWizardForm
-        handleSubmit={this.handleSubmit}
-        pageList={pages}
-        pageKey={pageKey}
-        serverError={error}
-        initialValues={initialValues}
-        enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
-      >
-        <h2 className="sm-heading">PPM Dates & Locations</h2>
-        {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
-        <h3> Move Date </h3>
-        <SwaggerField
-          fieldName="planned_move_date"
-          onChange={this.getDebouncedSitEstimate}
-          swagger={this.props.schema}
-          required
-        />
-        <h3>Pickup Location</h3>
-        <SwaggerField
-          fieldName="pickup_postal_code"
-          onChange={this.getDebouncedSitEstimate}
-          swagger={this.props.schema}
-          required
-        />
-        {!isHHGPPMComboMove && (
-          <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
+      <div>
+        {isHHGPPMComboMove && (
+          <WizardHeader icon={ppmBlack} title="Move Setup" right={<p>status tracker goes here</p>} />
         )}
-        {get(this.props, 'formValues.has_additional_postal_code', false) && (
-          <Fragment>
-            <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
-            <span className="grey">
-              Making additional stops may decrease your PPM incentive. <a onClick={this.openInfo}>Why</a>
-            </span>
-            {this.state.showInfo && (
-              <Alert type="info" heading="">
-                Your PPM incentive is based primarily off two factors -- the weight of your household goods and the base
-                rate it would cost the government to transport your household goods between your destination and origin.
-                When you add additional stops, your overall PPM incentive will change to account for any deviations from
-                the standard route and to account for the fact that not 100% of your household goods travelled the
-                entire way from origin to destination. <a onClick={this.closeInfo}>Close</a>
-              </Alert>
-            )}
-          </Fragment>
-        )}
-        <h3>Destination Location</h3>
-        {!isHHGPPMComboMove && (
-          <p>
-            Enter the ZIP for your new home if you know it, or for{' '}
-            {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
-          </p>
-        )}
-        <SwaggerField
-          fieldName="destination_postal_code"
-          swagger={this.props.schema}
-          onChange={this.getDebouncedSitEstimate}
-          required
-        />
-        <span className="grey">
-          The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-          {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
-        </span>
-        {!isHHGPPMComboMove && (
-          <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
-        )}
-        {get(this.props, 'formValues.has_sit', false) && (
-          <Fragment>
-            <SwaggerField
-              className="days-in-storage"
-              fieldName="days_in_storage"
-              swagger={this.props.schema}
-              onChange={this.getDebouncedSitEstimate}
-              required
-            />{' '}
-            <span className="grey">You can choose up to 90 days.</span>
-            {sitReimbursement && (
-              <div className="storage-estimate">
-                You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your PPM
-                paperwork.
-              </div>
-            )}
-            {hasEstimateError && (
-              <div className="usa-width-one-whole error-message">
-                <Alert type="warning" heading="Could not retrieve estimate">
-                  There was an issue retrieving an estimate for how much you could be reimbursed for private storage.
-                  You still qualify but may need to talk with your local PPPO.
+        <DateAndLocationWizardForm
+          handleSubmit={this.handleSubmit}
+          pageList={pages}
+          pageKey={pageKey}
+          serverError={error}
+          initialValues={initialValues}
+          enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
+        >
+          <h2 className="sm-heading">PPM Dates & Locations</h2>
+          {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
+          <h3> Move Date </h3>
+          <SwaggerField
+            fieldName="planned_move_date"
+            onChange={this.getDebouncedSitEstimate}
+            swagger={this.props.schema}
+            required
+          />
+          <h3>Pickup Location</h3>
+          <SwaggerField
+            fieldName="pickup_postal_code"
+            onChange={this.getDebouncedSitEstimate}
+            swagger={this.props.schema}
+            required
+          />
+          {!isHHGPPMComboMove && (
+            <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
+          )}
+          {get(this.props, 'formValues.has_additional_postal_code', false) && (
+            <Fragment>
+              <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
+              <span className="grey">
+                Making additional stops may decrease your PPM incentive. <a onClick={this.openInfo}>Why</a>
+              </span>
+              {this.state.showInfo && (
+                <Alert type="info" heading="">
+                  Your PPM incentive is based primarily off two factors -- the weight of your household goods and the
+                  base rate it would cost the government to transport your household goods between your destination and
+                  origin. When you add additional stops, your overall PPM incentive will change to account for any
+                  deviations from the standard route and to account for the fact that not 100% of your household goods
+                  travelled the entire way from origin to destination. <a onClick={this.closeInfo}>Close</a>
                 </Alert>
-              </div>
-            )}
-          </Fragment>
-        )}
-      </DateAndLocationWizardForm>
+              )}
+            </Fragment>
+          )}
+          <h3>Destination Location</h3>
+          {!isHHGPPMComboMove && (
+            <p>
+              Enter the ZIP for your new home if you know it, or for{' '}
+              {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
+            </p>
+          )}
+          <SwaggerField
+            fieldName="destination_postal_code"
+            swagger={this.props.schema}
+            onChange={this.getDebouncedSitEstimate}
+            required
+          />
+          <span className="grey">
+            The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
+            {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+          </span>
+          {!isHHGPPMComboMove && (
+            <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
+          )}
+          {get(this.props, 'formValues.has_sit', false) && (
+            <Fragment>
+              <SwaggerField
+                className="days-in-storage"
+                fieldName="days_in_storage"
+                swagger={this.props.schema}
+                onChange={this.getDebouncedSitEstimate}
+                required
+              />{' '}
+              <span className="grey">You can choose up to 90 days.</span>
+              {sitReimbursement && (
+                <div className="storage-estimate">
+                  You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your PPM
+                  paperwork.
+                </div>
+              )}
+              {hasEstimateError && (
+                <div className="usa-width-one-whole error-message">
+                  <Alert type="warning" heading="Could not retrieve estimate">
+                    There was an issue retrieving an estimate for how much you could be reimbursed for private storage.
+                    You still qualify but may need to talk with your local PPPO.
+                  </Alert>
+                </div>
+              )}
+            </Fragment>
+          )}
+        </DateAndLocationWizardForm>
+      </div>
     );
   }
 }
@@ -190,7 +203,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
-    isHHGPPMComboMove: state.moves.currentMove.selected_move_type === 'HHG_PPM',
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   const currentOrders = state.orders.currentOrders;
