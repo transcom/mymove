@@ -175,9 +175,6 @@ server_test_coverage: server_deps server_generate db_dev_run db_dev_reset db_dev
 e2e_test: server_deps server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./bin/run-e2e-test
 
-e2e_test_ci:
-	$(AWS_VAULT) ./bin/run-e2e-test-docker-ci
-
 e2e_test_docker:
 	$(AWS_VAULT) ./bin/run-e2e-test-docker
 

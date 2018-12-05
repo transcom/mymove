@@ -211,7 +211,7 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
-          name: make e2e_test_ci
+          name: make e2e_test_docker
           command: |
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
@@ -222,7 +222,7 @@ jobs:
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
             source $BASH_ENV
-            make e2e_test_ci
+            make e2e_test_docker
           environment:
               # Env vars needed by the `bin/apply-secure-migrations.sh` script
               DB_PASSWORD: mysecretpassword
