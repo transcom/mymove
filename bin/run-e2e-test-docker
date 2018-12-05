@@ -65,6 +65,7 @@ E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{e
 docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
 docker run \
   -t \
+  --cpus="2.0" \
   -e CYPRESS_baseUrl=http://${MYMOVEHOST}:4000 \
   --add-host ${MYMOVEHOST}:"${E2E_IP}" \
   --add-host ${OFFICEHOST}:"${E2E_IP}" \
