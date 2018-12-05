@@ -704,15 +704,8 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 	return responseVErrors, responseError
 }
 
-var baseLine400ngItems = map[string]bool{
-	"LHS":  true,
-	"135A": true,
-	"135B": true,
-	"105A": true,
-}
-
 // SaveShipmentAndLineItems saves a shipment and a slice of line items in a single transaction.
-func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []ShipmentLineItem) (*validate.Errors, error) {
+func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItems []ShipmentLineItem, generalLineItems []ShipmentLineItem) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -725,15 +718,17 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, lineItems []Ship
 			responseError = errors.Wrap(err, "Error saving shipment")
 			return transactionError
 		}
-
-		for _, lineItem := range lineItems {
-			var verrs *validate.Errors
-			var err error
-			if _, okay := baseLine400ngItems[lineItem.Tariff400ngItem.Code]; okay {
-				verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
-			} else {
-				verrs, err = tx.ValidateAndSave(&lineItem)
+		for _, lineItem := range baselineLineItems {
+			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
+				return transactionError
 			}
+		}
+		for _, lineItem := range generalLineItems {
+			verrs, err = tx.ValidateAndSave(&lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",

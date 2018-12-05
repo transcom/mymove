@@ -238,7 +238,7 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 		lineItems = append(lineItems, lineItem)
 	}
 
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems)
+	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems, []ShipmentLineItem{})
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
@@ -269,7 +269,7 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsDisallowBaselineDuplicates(
 		Tariff400ngItem:   item,
 	}
 	lineItems = append(lineItems, lineItem)
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems)
+	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems, []ShipmentLineItem{})
 
 	suite.Error(err)
 	suite.False(verrs.HasAny())
@@ -301,7 +301,7 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
 		Tariff400ngItem:   item,
 	}
 	lineItems = append(lineItems, lineItem)
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems)
+	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, []ShipmentLineItem{}, lineItems)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
