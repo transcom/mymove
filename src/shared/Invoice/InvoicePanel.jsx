@@ -10,8 +10,6 @@ import {
   selectTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 export class InvoicePanel extends PureComponent {
   approvePayment = () => {
@@ -35,12 +33,7 @@ export class InvoicePanel extends PureComponent {
           />
         </div>
       );
-      title = (
-        <span>
-          Invoicing{' '}
-          <FontAwesomeIcon className="icon invoice-panel-icon-gold invoice-panel-icon--title" icon={faClock} />
-        </span>
-      );
+      title = <span>Invoicing</span>;
     }
 
     return (
