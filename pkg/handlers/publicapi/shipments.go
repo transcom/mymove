@@ -348,7 +348,7 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), append(lineItems, preApprovals...))
+	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), lineItems, preApprovals)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

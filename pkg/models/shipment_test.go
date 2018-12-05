@@ -238,7 +238,70 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 		lineItems = append(lineItems, lineItem)
 	}
 
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems)
+	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems, []ShipmentLineItem{})
+
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+}
+
+// TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
+// tariff 400ng codes cannot be saved.
+func (suite *ModelSuite) TestSaveShipmentAndLineItemsDisallowBaselineDuplicates() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	var lineItems []ShipmentLineItem
+
+	item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "LHS",
+		},
+	})
+	testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItem:   item,
+			ShipmentID:        shipment.ID,
+			Tariff400ngItemID: item.ID,
+			Shipment:          shipment,
+		},
+	})
+	lineItem := ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: item.ID,
+		Tariff400ngItem:   item,
+	}
+	lineItems = append(lineItems, lineItem)
+	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, lineItems, []ShipmentLineItem{})
+
+	suite.Error(err)
+	suite.False(verrs.HasAny())
+}
+
+// TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
+// tariff 400ng codes cannot be saved.
+func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	var lineItems []ShipmentLineItem
+
+	item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105B",
+		},
+	})
+	testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItem:   item,
+			ShipmentID:        shipment.ID,
+			Tariff400ngItemID: item.ID,
+			Shipment:          shipment,
+		},
+	})
+
+	lineItem := ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: item.ID,
+		Tariff400ngItem:   item,
+	}
+	lineItems = append(lineItems, lineItem)
+	verrs, err := shipment.SaveShipmentAndLineItems(suite.db, []ShipmentLineItem{}, lineItems)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
