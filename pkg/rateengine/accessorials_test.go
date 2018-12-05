@@ -165,10 +165,10 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequest() {
 	})
 
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-	pricedItem, err := engine.PricePreapprovalRequest(item)
+	err := engine.PricePreapprovalRequest(&item)
 
 	if suite.NoError(err) {
-		suite.NotNil(pricedItem.AmountCents)
-		suite.NotNil(pricedItem.AppliedRate)
+		suite.NotNil(item.AmountCents)
+		suite.NotNil(item.AppliedRate)
 	}
 }
