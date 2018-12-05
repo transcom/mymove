@@ -1,22 +1,21 @@
 /* global cy */
 
 describe('service member adds a ppm to an hhg', function() {
-  // it('service member clicks on Add PPM Shipment', function() {
-  //   serviceMemberSignsIn('f83bc69f-10aa-48b7-b9fe-425b393d49b8');
-  //   serviceMemberAddsPPMToHHG();
-  //   serviceMemberCancelsAddPPMToHHG();
-  //   serviceMemberContinuesPPMSetup();
-  //   serviceMemberFillsInDatesAndLocations();
-  //   serviceMemberSelectsWeightRange();
-  //   serviceMemberCanCustomizeWeight();
-  //   serviceMemberCanReviewMoveSummary();
-  //   serviceMemberCanSignAgreement();
-  //   serviceMemberViewsUpdatedHomePage();
-  // });
+  it('service member clicks on Add PPM Shipment', function() {
+    serviceMemberSignsIn('f83bc69f-10aa-48b7-b9fe-425b393d49b8');
+    serviceMemberAddsPPMToHHG();
+    serviceMemberCancelsAddPPMToHHG();
+    serviceMemberContinuesPPMSetup();
+    serviceMemberFillsInDatesAndLocations();
+    serviceMemberSelectsWeightRange();
+    serviceMemberCanCustomizeWeight();
+    serviceMemberCanReviewMoveSummary();
+    serviceMemberCanSignAgreement();
+    serviceMemberViewsUpdatedHomePage();
+  });
   it('service member edits an HHG_PPM Shipment', function() {
     serviceMemberSignsIn('f83bc69f-10aa-48b7-b9fe-425b393d49b8');
     serviceMemberClicksEditMove();
-    // serviceMemberVerifiesHHGPPMSummary();
     serviceMemberEditsProfileSection();
     serviceMemberVerifiesProfileWasEditted();
     serviceMemberEditsOrdersSection();
@@ -25,13 +24,71 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberVerifiesContactInfoWasEditted();
     serviceMemberEditsBackupContactInfoSection();
     serviceMemberVerifiesBackupContactInfoWasEditted();
+    serviceMemberEditsPPMDatesAndLocations();
+    serviceMemberVerifiesPPMDatesAndLocationsEditted();
+    serviceMemberEditsPPMWeight();
+    serviceMemberVerifiesPPMWeightsEditted();
   });
 });
+
+function serviceMemberVerifiesPPMWeightsEditted() {
+  cy.get('.ppm-container').should($div => {
+    const text = $div.text();
+
+    expect(text).to.include('Estimated Weight:  1,700 lbs');
+    expect(text).to.include('Estimated PPM Incentive:  $4,736.63 - 5,235.23');
+  });
+}
+
+function serviceMemberEditsPPMWeight() {
+  cy
+    .get('.ppm-container .edit-section-link')
+    .last()
+    .click();
+
+  typeInInput({ name: 'weight_estimate', value: '1700' });
+
+  cy.get('strong').contains('$4,736.63 - 5,235.23');
+  cy.get('.subtext').contains('Originally $4,255.80 - 4,255.80');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+}
+function serviceMemberVerifiesPPMDatesAndLocationsEditted() {
+  cy.get('.ppm-container').should($div => {
+    const text = $div.text();
+    console.log(text);
+    expect(text).to.include('Move Date: 05/28/2018');
+    expect(text).to.include('Pickup ZIP Code:  91206');
+    expect(text).to.include('Additional Pickup:  90042');
+    expect(text).to.include('Delivery ZIP Code:  50308');
+  });
+}
+function serviceMemberEditsPPMDatesAndLocations() {
+  cy
+    .get('.ppm-container .edit-section-link')
+    .first()
+    .click();
+
+  typeInInput({ name: 'planned_move_date', value: '5/28/2018' });
+  typeInInput({ name: 'pickup_postal_code', value: '91206' });
+  cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
+  typeInInput({ name: 'additional_pickup_postal_code', value: '90042' });
+  typeInInput({ name: 'destination_postal_code', value: '50308' });
+  cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
+  typeInInput({ name: 'days_in_storage', value: '60' });
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+}
 
 function serviceMemberVerifiesBackupContactInfoWasEditted() {
   cy.get('.review-content').should($div => {
     const text = $div.text();
-    console.log(text);
     expect(text).to.include('Backup Contact: Backup Name');
     expect(text).to.include('Email:  backup@example.com');
     expect(text).to.include('Phone:  323-111-1111');
@@ -322,59 +379,5 @@ function serviceMemberViewsUpdatedHomePage() {
     expect(text).to.include('Next Step: Wait for approval');
     expect(text).to.include('Weight (est.): 150');
     expect(text).to.include('Incentive (est.): $4,255.80 - 4,703.78');
-  });
-}
-
-function serviceMemberVerifiesHHGPPMSummary() {
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit/);
-  });
-
-  cy.get('.review-content').should($div => {
-    const text = $div.text();
-    // Profile section
-    expect(text).to.include('Name: HHG Ready  For PPM');
-    expect(text).to.include('Branch:Army');
-    expect(text).to.include('Rank/Pay Grade: E-1');
-    expect(text).to.include('DoD ID#: 7777567890');
-    expect(text).to.include('Current Duty Station: Yuma AFB');
-
-    // Orders section
-    expect(text).to.include('Orders Type: Permanent Change Of Station');
-    expect(text).to.include('Orders Date:  05/20/2018');
-    expect(text).to.include('Report-by Date: 08/01/2018');
-    expect(text).to.include('New Duty Station:  Yuma AFB');
-    expect(text).to.include('Dependents?:  Yes');
-    expect(text).to.include('Spouse Pro Gear?: Yes');
-    expect(text).to.include('Orders Uploaded: 1');
-
-    // Contact Info
-    expect(text).to.include('Best Contact Phone: 555-555-5555');
-    expect(text).to.include('Alt. Phone:');
-    expect(text).to.include('Personal Email: hhgforppm@award.ed');
-    expect(text).to.include('Preferred Contact Method: Email');
-    expect(text).to.include('Current Mailing Address: 123 Any Street');
-    expect(text).to.include('P.O. Box 12345');
-    expect(text).to.include('Beverly Hills, CA 90210');
-    expect(text).to.include('Backup Mailing Address: 123 Any Street');
-    expect(text).to.include('P.O. Box 12345');
-    expect(text).to.include('Beverly Hills, CA 90210');
-
-    // Backup Contact info
-    expect(text).to.include('Backup Contact: name');
-    expect(text).to.include('Email:  email@example.com');
-    expect(text).to.include('Phone:  555-555-5555');
-  });
-
-  cy.get('body').should($div => expect($div.text()).not.to.include('Government moves all of your stuff (HHG)'));
-  cy.get('.ppm-container').should($div => {
-    const text = $div.text();
-    expect(text).to.include('Shipment - You move your stuff (PPM)');
-    expect(text).to.include('Move Date: 05/20/2018');
-    expect(text).to.include('Pickup ZIP Code:  90210');
-    expect(text).to.include('Delivery ZIP Code:  50309');
-    expect(text).not.to.include('Storage: Not requested');
-    expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $4,255.80 - 4,703.78');
   });
 }
