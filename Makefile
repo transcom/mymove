@@ -73,12 +73,16 @@ office_client_run: client_deps
 tsp_client_run: client_deps
 	HOST=tsplocal yarn start
 
-server_deps_update: server_generate
+go_deps_update:
 	dep ensure -v -update
-server_deps: go_version .server_deps.stamp
-.server_deps.stamp: Gopkg.lock
+
+go_deps: go_version .go_deps.stamp
+.go_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
 	dep ensure -vendor-only
+
+server_deps: go_deps .server_deps.stamp
+.server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
 	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber ./vendor/github.com/segmentio/chamber
@@ -87,10 +91,8 @@ server_deps: go_version .server_deps.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
-server_deps_linux: go_version .server_deps_linux.stamp
-.server_deps_linux.stamp: Gopkg.lock
-	bin/check_gopath.sh
-	dep ensure -vendor-only
+server_deps_linux: go_deps .server_deps_linux.stamp
+.server_deps_linux.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 
 server_generate: server_deps server_go_bindata .server_generate.stamp
@@ -334,7 +336,7 @@ clean:
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_run_standalone server_run server_run_default server_test
-.PHONY: server_deps_update server_go_bindata
+.PHONY: go_deps_update server_go_bindata
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
 .PHONY: db_run db_destroy

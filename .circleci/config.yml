@@ -457,7 +457,7 @@ jobs:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: pre-commit autoupdate
-      - run: make server_deps_update
+      - run: make go_deps_update
       - run: make client_deps_update
       - run:
           name: Display changes
