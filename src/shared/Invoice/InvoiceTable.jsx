@@ -61,9 +61,9 @@ class InvoiceTable extends PureComponent {
             <tr>
               <th>Code</th>
               <th>Item</th>
-              <th>Loc.</th>
+              <th>Loc</th>
               <th>Base quantity</th>
-              <th>Inv. amt.</th>
+              <th>Inv amt</th>
             </tr>
             {this.props.shipmentLineItems.map(item => {
               return (
