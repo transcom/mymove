@@ -3,6 +3,7 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -532,6 +533,20 @@ func findLineItemByCode(lineItems []models.ShipmentLineItem, code string) (model
 }
 
 func createInvoiceNumber(db *pop.Connection, shipment models.Shipment, clock clock.Clock) (string, error) {
+	// First check to see if we already have any invoices for this shipment.
+	invoices, err := models.FetchInvoicesForShipmentID(db, shipment.ID)
+	if err != nil {
+		return "", err
+	}
+
+	// If we have existing invoices, then get the existing base invoice number and add the appropriate suffix,
+	// then go ahead and return it.
+	invoiceCount := len(invoices)
+	if invoiceCount > 0 {
+		parts := strings.Split(invoices[invoiceCount-1].InvoiceNumber, "-")
+		return fmt.Sprintf("%s-%02d", parts[0], invoiceCount), nil
+	}
+
 	if shipment.ShipmentOffers == nil {
 		return "", errors.New("ShipmentOffers is nil")
 	}
@@ -550,7 +565,7 @@ func createInvoiceNumber(db *pop.Connection, shipment models.Shipment, clock clo
 	if err != nil {
 		return "", err
 	}
-	year := clock.Now().In(loc).Year()
+	year := shipment.CreatedAt.In(loc).Year()
 
 	invoiceNumber, err := models.GenerateInvoiceNumber(db, scac, year)
 	if err != nil {

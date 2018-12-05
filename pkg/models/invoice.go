@@ -77,6 +77,19 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 	return &invoice, nil
 }
 
+// FetchInvoicesForShipmentID returns all invoices for the specified shipment, sorted in descending
+// order by invoiced date.
+func FetchInvoicesForShipmentID(db *pop.Connection, shipmentID uuid.UUID) ([]Invoice, error) {
+	var invoices []Invoice
+
+	err := db.
+		Where("shipment_id = ?", shipmentID).
+		Order("invoiced_date DESC").
+		All(&invoices)
+
+	return invoices, err
+}
+
 // GenerateInvoiceNumber creates an invoice number for a given SCAC/year.
 func GenerateInvoiceNumber(db *pop.Connection, scac string, year int) (string, error) {
 	if len(scac) == 0 {

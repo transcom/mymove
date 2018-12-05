@@ -65,39 +65,95 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
 	})
+}
 
-	suite.T().Run("invoice number", func(t *testing.T) {
-		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
-		newClock := clock.NewMock()
-		loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
+func (suite *InvoiceSuite) TestInvoiceNumbersOnePerShipment() {
+	loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
+	suite.NoError(err)
+
+	// Both shipments from the helper should have the same SCAC and year.
+	costsByShipments1 := helperCostsByShipment(suite)
+	costsByShipments2 := helperCostsByShipment(suite)
+
+	shipment1 := costsByShipments1[0].Shipment
+	scac := shipment1.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
+	year := shipment1.CreatedAt.In(loc).Year()
+
+	var invoiceNumberTestCases = []struct {
+		costsByShipments      []rateengine.CostByShipment
+		expectedInvoiceNumber string
+	}{
+		{costsByShipments1, fmt.Sprintf("%s%d%04d", scac, year%100, 1)},
+		{costsByShipments2, fmt.Sprintf("%s%d%04d", scac, year%100, 2)},
+	}
+
+	err = helperResetInvoiceNumber(suite, scac, year)
+	suite.NoError(err)
+
+	for _, testCase := range invoiceNumberTestCases {
+		generatedTransactions, err := ediinvoice.Generate858C(testCase.costsByShipments, suite.db, false, clock.NewMock())
 		suite.NoError(err)
-		year := newClock.Now().In(loc).Year()
 
-		var expectedInvoiceNumbers []string
-		for i := 1; i <= 3; i++ {
-			expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s%d%04d", scac, year%100, i))
-		}
-
-		err = helperResetInvoiceNumber(suite, scac, year)
-		suite.NoError(err)
-
-		for _, expected := range expectedInvoiceNumbers {
-			generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, newClock)
-			suite.NoError(err)
-
-			// Find the N9 segment we're interested in.
-			foundIt := false
-			for _, segment := range generatedTransactions.Shipments[0] {
-				n9, ok := segment.(*edisegment.N9)
-				if ok && n9.ReferenceIdentificationQualifier == "CN" {
-					suite.Equal(expected, n9.ReferenceIdentification)
-					foundIt = true
-					break
-				}
+		// Find the N9 segment we're interested in.
+		foundIt := false
+		for _, segment := range generatedTransactions.Shipments[0] {
+			n9, ok := segment.(*edisegment.N9)
+			if ok && n9.ReferenceIdentificationQualifier == "CN" {
+				suite.Equal(testCase.expectedInvoiceNumber, n9.ReferenceIdentification)
+				foundIt = true
+				break
 			}
-			suite.True(foundIt, "Could not find N9 segment for invoice number")
 		}
-	})
+		suite.True(foundIt, "Could not find N9 segment for invoice number")
+	}
+}
+
+func (suite *InvoiceSuite) TestInvoiceNumbersMultipleInvoices() {
+	loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
+	suite.NoError(err)
+
+	costsByShipments := helperCostsByShipment(suite)
+	shipment := costsByShipments[0].Shipment
+
+	scac := shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
+	year := shipment.CreatedAt.In(loc).Year()
+
+	baselineInvoiceNumber := fmt.Sprintf("%s%d%04d", scac, year%100, 1)
+
+	var expectedInvoiceNumbers []string
+	expectedInvoiceNumbers = append(expectedInvoiceNumbers, baselineInvoiceNumber)
+	for i := 1; i <= 2; i++ {
+		expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s-%02d", baselineInvoiceNumber, i))
+	}
+
+	err = helperResetInvoiceNumber(suite, scac, year)
+	suite.NoError(err)
+
+	for _, expected := range expectedInvoiceNumbers {
+		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		suite.NoError(err)
+
+		// Find the N9 segment we're interested in.
+		foundIt := false
+		for _, segment := range generatedTransactions.Shipments[0] {
+			n9, ok := segment.(*edisegment.N9)
+			if ok && n9.ReferenceIdentificationQualifier == "CN" {
+				suite.Equal(expected, n9.ReferenceIdentification)
+				foundIt = true
+
+				// Add an invoice record to test out additional invoice numbers for the same shipment.
+				testdatagen.MakeInvoice(suite.db, testdatagen.Assertions{
+					Invoice: models.Invoice{
+						InvoiceNumber: expected,
+						ShipmentID:    shipment.ID,
+					},
+				})
+
+				break
+			}
+		}
+		suite.True(foundIt, "Could not find N9 segment for invoice number")
+	}
 }
 
 func (suite *InvoiceSuite) TestEDIString() {
@@ -106,16 +162,20 @@ func (suite *InvoiceSuite) TestEDIString() {
 		suite.NoError(err, "error setting sequence value")
 
 		costsByShipments := helperCostsByShipment(suite)
+		shipment := costsByShipments[0].Shipment
 
-		scac := costsByShipments[0].Shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
-		newClock := clock.NewMock()
+		// NOTE: Hard-coding the CreatedAt on the shipment to an explicit date (we can't force it
+		// as it gets overwritten by Pop) so we can set the golden EDI accordingly.
+		shipment.CreatedAt = time.Date(2018, 7, 1, 0, 0, 0, 0, time.UTC)
+
+		scac := shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
 		loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
 		suite.NoError(err)
-		year := newClock.Now().In(loc).Year()
+		year := shipment.CreatedAt.In(loc).Year()
 		err = helperResetInvoiceNumber(suite, scac, year)
 		suite.NoError(err)
 
-		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, newClock)
+		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
@@ -144,6 +204,7 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
 		ShipmentOffer: models.ShipmentOffer{
 			ShipmentID: shipment.ID,
+			Shipment:   shipment,
 			Accepted:   swag.Bool(true),
 		},
 		TransportationServiceProvider: models.TransportationServiceProvider{
@@ -165,6 +226,7 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 		lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
 				ShipmentID:        shipment.ID,
+				Shipment:          shipment,
 				Tariff400ngItemID: item.ID,
 				Tariff400ngItem:   item,
 				Quantity1:         unit.BaseQuantityFromInt(2000),
