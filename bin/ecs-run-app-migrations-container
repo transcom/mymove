@@ -4,6 +4,8 @@
 #   template, image, and environment.
 #
 set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
 
 usage() {
     echo "$0 <template> <image> <environment>"
@@ -44,8 +46,8 @@ readonly network_configuration
 db_host=$(aws rds describe-db-instances --db-instance-identifier "app-$environment" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
 readonly db_host
 
-# create the container definition from the json template
-container_definition_json=$(perl -pe "s|{{environment}}|$environment|g; s|{{image}}|$image|g; s|{{db_host}}|$db_host|g;" "$template")
+# $DIR/../cmd/renderer/main.go builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
+container_definition_json=$(go run "$DIR"/../cmd/renderer/main.go -t "$template" environment="$environment" image="$image" db_host="$db_host")
 readonly container_definition_json
 
 # create new task definition with the given image
