@@ -32,11 +32,17 @@ func (s *SocialSecurityNumber) SetEncryptedHash(ctx context.Context, unencrypted
 
 Be sure to pass the derived context from `beeline.StartSpan(...)` rather than the original context when passing context deeper into the function stack.  Reuse the variable name `ctx` when possible rather than allocating a new variable.
 
-Useful fields can be added to the span that would help with debugging. To do this you can use [span.AddField](https://github.com/honeycombio/beeline-go/blob/master/trace/trace.go#L173)
+Useful fields can be added to the span that would help with debugging. To do this you can use [span.AddField](https://github.com/honeycombio/beeline-go/blob/master/trace/trace.go#L173).
 
 ```golang
     err = move.Submit()
     span.AddField("move-status", string(move.Status))
+```
+
+You can add fields that apply to the entire function stack using [span.AddTraceField](https://github.com/honeycombio/beeline-go/blob/master/trace/trace.go#L206).  For example, the application name should be traced down through all the function calls.
+
+```golang
+    span.AddTraceField("auth.application_name", session.ApplicationName)
 ```
 
 ## Adding Zap Logs
