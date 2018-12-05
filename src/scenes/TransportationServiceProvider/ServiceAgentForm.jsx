@@ -13,6 +13,7 @@ let ServiceAgentForm = props => {
 
   return (
     <form className="infoPanel-wizard" onSubmit={handleSubmit}>
+      <div className="infoPanel-wizard-header">Assign servicing agents</div>
       <FormSection name="origin_service_agent">
         <ServiceAgentEdit
           serviceAgentProps={{
