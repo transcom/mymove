@@ -115,3 +115,15 @@ func FetchShipmentOfferByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uui
 
 	return &shipmentOffers[0], err
 }
+
+// Accepted returns all accepted shipment offers from a slice of shipment offers.
+func (so *ShipmentOffers) Accepted() ShipmentOffers {
+	var acceptedOffers ShipmentOffers
+	for _, offer := range *so {
+		if offer.Accepted != nil && *offer.Accepted == true {
+			acceptedOffers = append(acceptedOffers, offer)
+		}
+	}
+
+	return acceptedOffers
+}

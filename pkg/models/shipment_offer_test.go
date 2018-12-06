@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/go-openapi/swag"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -73,4 +74,27 @@ func (suite *ModelSuite) TestShipmentOfferStateMachine() {
 	suite.Nil(err)
 	suite.False(*shipmentOffer.Accepted)
 	suite.Equal("DO NOT WANT", *shipmentOffer.RejectionReason)
+}
+
+func (suite *ModelSuite) TestGetAcceptedShipmentOffer() {
+	// Trying a nil slice of shipment offers.
+	var shipmentOffers ShipmentOffers
+	suite.Nil(shipmentOffers.Accepted())
+
+	// Make a default shipment offer (which shouldn't be accepted).
+	unacceptedOffer := testdatagen.MakeDefaultShipmentOffer(suite.db)
+	shipmentOffers = ShipmentOffers{unacceptedOffer}
+	suite.Nil(shipmentOffers.Accepted())
+
+	// Add an accepted shipment to our slice.
+	acceptedOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+		ShipmentOffer: ShipmentOffer{
+			Shipment: unacceptedOffer.Shipment,
+			Accepted: swag.Bool(true),
+		},
+	})
+	shipmentOffers = append(shipmentOffers, acceptedOffer)
+	acceptedOffers := shipmentOffers.Accepted()
+	suite.Len(acceptedOffers, 1)
+	suite.Equal(acceptedOffer.ID, shipmentOffers.Accepted()[0].ID)
 }

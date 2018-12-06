@@ -482,6 +482,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		"Move.Orders.NewDutyStation.Address",
 		"Move.Orders.NewDutyStation.TransportationOffice",
 		"ServiceMember.DutyStation.TransportationOffice",
+		"ShipmentOffers.TransportationServiceProvider",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
 		"ShipmentLineItems.Tariff400ngItem",
 	).Find(&shipment, shipmentID)
