@@ -6,6 +6,7 @@ import {
   RejectShipment,
   TransportShipment,
   DeliverShipment,
+  CompletePmSurvey,
   CreateServiceAgent,
   IndexServiceAgents,
   UpdateServiceAgent,
@@ -23,6 +24,7 @@ const rejectShipmentType = 'REJECT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
 const deliverShipmentType = 'DELIVER_SHIPMENT';
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
+const completePmSurveyType = 'COMPLETE_PM_SURVEY';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
@@ -38,6 +40,7 @@ const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(acceptShipmentType
 const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(rejectShipmentType);
 const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipmentType);
 const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
+const COMPLETE_PM_SURVEY = ReduxHelpers.generateAsyncActionTypes(completePmSurveyType);
 const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
 
 const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceAgentsType);
@@ -63,6 +66,8 @@ export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(rejectShip
 export const transportShipment = ReduxHelpers.generateAsyncActionCreator(transportShipmentType, TransportShipment);
 
 export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(deliverShipmentType, DeliverShipment);
+
+export const completePmSurvey = ReduxHelpers.generateAsyncActionCreator(completePmSurveyType, CompletePmSurvey);
 
 export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
   loadShipmentDocumentsType,
@@ -273,6 +278,27 @@ export function tspReducer(state = initialState, action) {
         shipmentIsDelivering: false,
         shipmentHasDeliverSuccess: false,
         shipmentHasDeliverError: null,
+        error: action.error.message,
+      });
+
+    // PM SURVEY ACTION
+    case COMPLETE_PM_SURVEY.start:
+      return Object.assign({}, state, {
+        pmSurveyIsCompleting: true,
+        pmSurveyHasCompletionSuccess: false,
+      });
+    case COMPLETE_PM_SURVEY.success:
+      return Object.assign({}, state, {
+        pmSurveyIsCompleting: false,
+        pmSurveyHasCompletionSuccess: true,
+        pmSurveyHasCompletionError: false,
+        shipment: action.payload,
+      });
+    case COMPLETE_PM_SURVEY.failure:
+      return Object.assign({}, state, {
+        pmSurveyIsCompleting: false,
+        pmSurveyHasCompletionSuccess: false,
+        pmSurveyHasCompletionError: null,
         error: action.error.message,
       });
 

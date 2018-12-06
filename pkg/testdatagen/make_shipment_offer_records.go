@@ -202,6 +202,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		// Set dates based on status
 		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
 			shipment.PmSurveyConductedDate = &Now
+			shipment.PmSurveyCompletedAt = &Now
 			shipment.PmSurveyPlannedPackDate = &NowPlusOneWeek
 			shipment.PmSurveyPlannedPickupDate = &NowPlusOneWeek
 			shipment.PmSurveyPlannedDeliveryDate = &NowPlusTwoWeeks

@@ -1,11 +1,11 @@
 {
-  "name": "app-migrations-{{environment}}",
-  "image": "{{image}}",
+  "name": "app-migrations-{{ .environment }}",
+  "image": "{{ .image }}",
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
     "exec",
-    "app-{{environment}}",
+    "app-{{ .environment }}",
     "--",
     "/bin/soda"
   ],
@@ -20,7 +20,7 @@
   "environment": [
     {
       "name": "ENVIRONMENT",
-      "value": "{{environment}}"
+      "value": "{{ .environment }}"
     },
     {
       "name": "SECURE_MIGRATION_SOURCE",
@@ -32,7 +32,7 @@
     },
     {
       "name": "DB_HOST",
-      "value": "{{db_host}}"
+      "value": "{{ .db_host }}"
     },
     {
       "name": "DB_PORT",
@@ -56,13 +56,13 @@
     },
     {
       "name": "AWS_S3_BUCKET_NAME",
-      "value": "transcom-ppp-app-{{environment}}-us-west-2"
+      "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     }
   ],
   "logConfiguration": {
     "logDriver": "awslogs",
     "options": {
-      "awslogs-group": "ecs-tasks-app-{{environment}}",
+      "awslogs-group": "ecs-tasks-app-{{ .environment }}",
       "awslogs-region": "us-west-2",
       "awslogs-stream-prefix": "app-migrations"
     }

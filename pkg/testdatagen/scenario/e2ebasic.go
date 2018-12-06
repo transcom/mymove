@@ -497,6 +497,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:                      models.ShipmentStatusAWARDED,
 			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyCompletedAt:         &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
 			PmSurveyPlannedDeliveryDate: &deliveryDate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
@@ -1337,6 +1338,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email = "hhg@enter.premove"
 
+	// Setting a weight estimate shows that even if PM survey is partially filled out,
+	// the PM Survey Action Button still appears so long as there's no pm_survey_completed_at.
+	weightEstimate := unit.Pound(5000)
+
 	offer22 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("426b87f1-20ad-4c50-a855-ab66e222c7c3")),
@@ -1361,7 +1366,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAPPROVED,
+			Status:                 models.ShipmentStatusAPPROVED,
+			PmSurveyWeightEstimate: &weightEstimate,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1707,7 +1713,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email = "hhgalready@approv.ed"
 
-	weightEstimate := unit.Pound(5000)
+	weightEstimate = unit.Pound(5000)
 
 	offer31 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
@@ -1736,6 +1742,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:                      models.ShipmentStatusAPPROVED,
 			HasDeliveryAddress:          true,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyCompletedAt:         &packDate,
 			PmSurveyMethod:              "PHONE",
 			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
@@ -1751,6 +1758,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg31 := offer31.Shipment
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			ShipmentID: hhg31.ID,
+		},
+	})
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			ShipmentID: hhg31.ID,
+			Role:       models.RoleDESTINATION,
+		},
+	})
 	hhg31.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg31.Move)
 }
@@ -1869,6 +1888,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
 			Status:                      models.ShipmentStatusAPPROVED,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyCompletedAt:         &packDate,
 			PmSurveyMethod:              "PHONE",
 			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
@@ -1959,6 +1979,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 			ID:                          uuid.FromStringOrNil("0851706a-997f-46fb-84e4-2525a444ade0"),
 			Status:                      models.ShipmentStatusAPPROVED,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyCompletedAt:         &packDate,
 			PmSurveyMethod:              "PHONE",
 			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,
@@ -2084,6 +2105,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
 			Status:                      models.ShipmentStatusDELIVERED,
 			PmSurveyConductedDate:       &packDate,
+			PmSurveyCompletedAt:         &packDate,
 			PmSurveyMethod:              "PHONE",
 			PmSurveyPlannedPackDate:     &packDate,
 			PmSurveyPlannedPickupDate:   &pickupDate,

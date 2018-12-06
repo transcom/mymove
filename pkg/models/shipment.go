@@ -97,6 +97,7 @@ type Shipment struct {
 
 	// pre-move survey
 	PmSurveyConductedDate               *time.Time  `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
+	PmSurveyCompletedAt                 *time.Time  `json:"pm_survey_completed_at" db:"pm_survey_completed_at"`
 	PmSurveyPlannedPackDate             *time.Time  `json:"pm_survey_planned_pack_date" db:"pm_survey_planned_pack_date"`
 	PmSurveyPlannedPickupDate           *time.Time  `json:"pm_survey_planned_pickup_date" db:"pm_survey_planned_pickup_date"`
 	PmSurveyPlannedDeliveryDate         *time.Time  `json:"pm_survey_planned_delivery_date" db:"pm_survey_planned_delivery_date"`
@@ -542,6 +543,16 @@ func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, sh
 	}
 	return tspUser, shipment, nil
 
+}
+
+// SaveShipment validates and saves the Shipment
+func SaveShipment(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
+	verrs, err := db.ValidateAndSave(shipment)
+	if verrs.HasAny() || err != nil {
+		saveError := errors.Wrap(err, "Error saving shipment")
+		return verrs, saveError
+	}
+	return verrs, nil
 }
 
 // saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer

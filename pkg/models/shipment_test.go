@@ -306,3 +306,14 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 }
+
+// TestSaveShipment tests that a shipment can be saved
+func (suite *ModelSuite) TestSaveShipment() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	shipment.PmSurveyCompletedAt = &testdatagen.Now
+
+	verrs, err := SaveShipment(suite.db, &shipment)
+
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+}

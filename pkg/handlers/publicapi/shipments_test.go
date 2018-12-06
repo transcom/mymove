@@ -780,3 +780,32 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 		suite.NotNil(updatedPreApproval.AmountCents)
 	}
 }
+
+// TestCompletePmSurveyHandler tests the api endpoint that saves a shipment's Pm Survey
+func (suite *HandlerSuite) TestCompletePmSurveyHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// Handler to Test
+	handler := CompletePmSurveyHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	// Test query with first user
+	path := fmt.Sprintf("/shipments/%s/completePmSurvey", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	params := shipmentop.CompletePmSurveyParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.CompletePmSurveyOK{}, response)
+}
