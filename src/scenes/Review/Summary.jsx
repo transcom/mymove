@@ -63,8 +63,7 @@ export class Summary extends Component {
     const showPPMShipmentSummary =
       (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
     const showHHGShipmentSummary =
-      (currentShipment && !isHHGPPMComboMove) ||
-      (currentShipment && isHHGPPMComboMove && currentPpm.status === 'DRAFT' && !isReviewPage);
+      (currentShipment && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
 
     return (
       <Fragment>
@@ -97,11 +96,12 @@ export class Summary extends Component {
           editOrdersPath={editOrdersPath}
         />
 
-        {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
-        )}
         {showHHGShipmentSummary && (
           <HHGShipmentSummary shipment={currentShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
+        )}
+
+        {showPPMShipmentSummary && (
+          <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
         )}
         {moveIsApproved &&
           !isHHGPPMComboMove && (
