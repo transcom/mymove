@@ -64,7 +64,8 @@ To run a secure migration on ONLY staging (or other chosen environment), upload 
 * Instead of the "Upload the migration" step above, run `aws s3 cp --sse AES256 $YOUR_TMP_MIGRATION_FILE s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
 * Check that it is listed in the S3 staging secure-migrations folder: `aws s3 ls s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
 * Check that it is NOT listed in the S3 production folder: `aws s3 ls s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
-* Now upload empty files of the same name to the prod and experimental environments: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+* Now upload empty files of the same name to the prod environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+* Now upload empty files of the same name to the experimental environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-experimental-us-west-2/secure-migrations/`
 * To verify upload and that the migration can be applied, temporarily change the S3 bucket to the staging bucket in the run-prod-migration file and then run `bin/run-prod-migrations`
 
 Gory Details:
