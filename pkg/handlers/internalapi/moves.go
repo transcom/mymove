@@ -200,9 +200,9 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	// Validate that this move belongs to the current user, an office user, or a tsp user
+	// Validate that this move belongs to the current user
 	_, err := models.FetchMove(h.DB(), session, moveID)
-	if !session.IsOfficeUser() && !session.IsTspUser() && err != nil {
+	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
