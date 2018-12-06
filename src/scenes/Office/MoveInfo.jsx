@@ -333,16 +333,6 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
-              {this.props.hhgInvoiceHasSendSuccess && (
-                <Alert type="success" heading="Success">
-                  Invoice successfully sent
-                </Alert>
-              )}
-              {this.props.hhgInvoiceHasFailure && (
-                <Alert type="error" heading="">
-                  Unable to send invoice. Please try again in a few minutes.
-                </Alert>
-              )}
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
@@ -473,8 +463,6 @@ const mapStateToProps = state => ({
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
   shipmentPatchError: get(state, 'office.shipmentPatchError'),
   approveMoveHasError: get(state, 'office.moveHasApproveError'),
-  hhgInvoiceHasSendSuccess: get(state, 'office.hhgInvoiceHasSendSuccess'),
-  hhgInvoiceHasFailure: get(state, 'office.hhgInvoiceHasFailure'),
   errorMessage: get(state, 'office.error'),
 });
 
