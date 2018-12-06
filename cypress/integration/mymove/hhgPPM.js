@@ -69,7 +69,7 @@ function serviceMemberVerifiesPPMDatesAndLocationsEditted() {
 function serviceMemberEditsPPMDatesAndLocations() {
   cy
     .get('.ppm-container .edit-section-link')
-    .first()
+    .eq(-2)
     .click();
 
   typeInInput({ name: 'planned_move_date', value: '5/28/2018' });
