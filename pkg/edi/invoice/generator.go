@@ -365,7 +365,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 					BilledRatedAsQualifier: string(lineItem.Tariff400ngItem.MeasurementUnit1),
 				},
 				&edisegment.L1{
-					FreightRate:              freightRate,
+					FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
 					RateValueQualifier:       rateValueQualifier,
 					Charge:                   lineItem.AmountCents.ToDollarFloat(),
 					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
@@ -373,6 +373,13 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			}
 
 		case models.Tariff400ngItemMeasurementUnitWEIGHT:
+			var weight float64
+			if lineItem.Tariff400ngItem.RequiresPreApproval {
+				weight = lineItem.Quantity1.ToUnitFloat()
+
+			} else {
+				weight = netCentiWeight
+			}
 			segment = []edisegment.Segment{
 				&edisegment.HL{
 					HierarchicalIDNumber:  hierarchicalLevelID,
@@ -380,12 +387,12 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 				},
 				&edisegment.L0{
 					LadingLineItemNumber: ladingLineItemNumber,
-					Weight:               netCentiWeight,
+					Weight:               weight,
 					WeightQualifier:      weightQualifier,
 					WeightUnitCode:       weightUnitCode,
 				},
 				&edisegment.L1{
-					FreightRate:              freightRate,
+					FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
 					RateValueQualifier:       rateValueQualifier,
 					Charge:                   lineItem.AmountCents.ToDollarFloat(),
 					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
