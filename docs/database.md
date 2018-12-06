@@ -55,8 +55,17 @@ To create a secure migration:
 * Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
 * Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
 * Upload the migration to S3 with: `bin/upload-secure-migration <production_migration_file>`
+* Run `bin/run-prod-migrations` to verify that the upload worked and that the migration can be applied successfully
 * Open a pull request!
 * When the pull request lands, the production migrations will be run on Staging and Prod.
+
+To run a secure migration on ONLY staging (or other chosen environment), upload the migration only to the S3 environment and blank files to the others:
+
+* Instead of the "Upload the migration" step above, run `aws s3 cp --sse AES256 $YOUR_TMP_MIGRATION_FILE s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+* Check that it is listed in the S3 staging secure-migrations folder: `aws s3 ls s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+* Check that it is NOT listed in the S3 production folder: `aws s3 ls s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+* Now upload empty files of the same name to the prod and experimental environments: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+* To verify upload and that the migration can be applied, temporarily change the S3 bucket to the staging bucket in the run-prod-migration file and then run `bin/run-prod-migrations`
 
 Gory Details:
 
