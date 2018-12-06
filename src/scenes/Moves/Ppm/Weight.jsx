@@ -14,6 +14,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
 import { convertDollarsToCents } from 'shared/utils';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo, getMaxAdvance } from './ducks';
+import WizardHeader from '../WizardHeader';
+import ppmBlack from 'shared/icon/ppm-black.svg';
 
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
@@ -232,95 +234,100 @@ export class PpmWeight extends Component {
     }
 
     return (
-      <WeightWizardForm
-        handleSubmit={this.handleSubmit}
-        pageList={pages}
-        pageKey={pageKey}
-        initialValues={advanceInitialValues}
-        serverError={error}
-        additionalValues={{
-          hasEstimateInProgress,
-          incentive_estimate_max,
-          maxAdvance,
-        }}
-      >
-        {error && (
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              {error.message}
-            </Alert>
-          </div>
+      <div>
+        {isHHGPPMComboMove && (
+          <WizardHeader icon={ppmBlack} title="Move Setup" right={<p>status tracker goes here</p>} />
         )}
-        <h2>Customize Weight</h2>
-        {!hasLoadSuccess && <LoadingPlaceholder />}
-        {hasLoadSuccess && (
-          <Fragment>
-            <p>Use this slider to customize how much weight you think you’ll carry.</p>
-            <div className="slider-container">
-              <Slider
-                min={selectedWeightInfo.min}
-                max={selectedWeightInfo.max}
-                value={this.state.pendingPpmWeight}
-                onChange={this.onWeightSelecting}
-                onChangeComplete={this.onWeightSelected}
-                labels={{
-                  [selectedWeightInfo.min]: `${selectedWeightInfo.min} lbs`,
-                  [selectedWeightInfo.max]: `${selectedWeightInfo.max} lbs`,
-                }}
-              />
+        <WeightWizardForm
+          handleSubmit={this.handleSubmit}
+          pageList={pages}
+          pageKey={pageKey}
+          initialValues={advanceInitialValues}
+          serverError={error}
+          additionalValues={{
+            hasEstimateInProgress,
+            incentive_estimate_max,
+            maxAdvance,
+          }}
+        >
+          {error && (
+            <div className="usa-width-one-whole error-message">
+              <Alert type="error" heading="An error occurred">
+                {error.message}
+              </Alert>
             </div>
-            {hasEstimateError && (
-              <Fragment>
-                <div className="usa-width-one-whole error-message">
-                  <Alert type="warning" heading="Could not retrieve estimate">
-                    There was an issue retrieving an estimate for your incentive. You still qualify, but need to talk
-                    with your local transportation office which you can look up on <a href="move.mil">move.mil</a>
-                  </Alert>
-                </div>
-              </Fragment>
-            )}
-            <table className="numeric-info">
-              <tbody>
-                {!isHHGPPMComboMove && (
+          )}
+          <h2>Customize Weight</h2>
+          {!hasLoadSuccess && <LoadingPlaceholder />}
+          {hasLoadSuccess && (
+            <Fragment>
+              <p>Use this slider to customize how much weight you think you’ll carry.</p>
+              <div className="slider-container">
+                <Slider
+                  min={selectedWeightInfo.min}
+                  max={selectedWeightInfo.max}
+                  value={this.state.pendingPpmWeight}
+                  onChange={this.onWeightSelecting}
+                  onChangeComplete={this.onWeightSelected}
+                  labels={{
+                    [selectedWeightInfo.min]: `${selectedWeightInfo.min} lbs`,
+                    [selectedWeightInfo.max]: `${selectedWeightInfo.max} lbs`,
+                  }}
+                />
+              </div>
+              {hasEstimateError && (
+                <Fragment>
+                  <div className="usa-width-one-whole error-message">
+                    <Alert type="warning" heading="Could not retrieve estimate">
+                      There was an issue retrieving an estimate for your incentive. You still qualify, but need to talk
+                      with your local transportation office which you can look up on <a href="move.mil">move.mil</a>
+                    </Alert>
+                  </div>
+                </Fragment>
+              )}
+              <table className="numeric-info">
+                <tbody>
+                  {!isHHGPPMComboMove && (
+                    <tr>
+                      <th>Your PPM Weight Estimate:</th>
+                      <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
+                    </tr>
+                  )}
                   <tr>
-                    <th>Your PPM Weight Estimate:</th>
-                    <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
+                    <th>Your PPM Incentive:</th>
+                    <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
                   </tr>
-                )}
-                <tr>
-                  <th>Your PPM Incentive:</th>
-                  <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
-                </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
 
-            {!isHHGPPMComboMove && (
-              <RequestAdvanceForm
-                ppmAdvanceSchema={ppmAdvanceSchema}
-                hasRequestedAdvance={hasRequestedAdvance}
-                maxAdvance={maxAdvance}
-                initialValues={advanceInitialValues}
-              />
-            )}
+              {!isHHGPPMComboMove && (
+                <RequestAdvanceForm
+                  ppmAdvanceSchema={ppmAdvanceSchema}
+                  hasRequestedAdvance={hasRequestedAdvance}
+                  maxAdvance={maxAdvance}
+                  initialValues={advanceInitialValues}
+                />
+              )}
 
-            <div className="info">
-              <h3> How is my PPM Incentive calculated?</h3>
-              <p>
-                The government gives you 95% of what they would pay a mover when you move your own belongings, based on
-                weight and distance. You pay taxes on this income. You can reduce the amount taxable incentive by saving
-                receipts for approved expenses.
-              </p>
+              <div className="info">
+                <h3> How is my PPM Incentive calculated?</h3>
+                <p>
+                  The government gives you 95% of what they would pay a mover when you move your own belongings, based
+                  on weight and distance. You pay taxes on this income. You can reduce the amount taxable incentive by
+                  saving receipts for approved expenses.
+                </p>
 
-              <p>
-                This estimator just presents a range of possible incentives based on your anticipated shipment weight,
-                anticipated moving date, and the specific route that you will be traveling. During your move, you will
-                need to weigh the stuff you’re carrying, and submit weight tickets. We’ll let you know later how to
-                weigh the stuff you carry.
-              </p>
-            </div>
-          </Fragment>
-        )}
-      </WeightWizardForm>
+                <p>
+                  This estimator just presents a range of possible incentives based on your anticipated shipment weight,
+                  anticipated moving date, and the specific route that you will be traveling. During your move, you will
+                  need to weigh the stuff you’re carrying, and submit weight tickets. We’ll let you know later how to
+                  weigh the stuff you carry.
+                </p>
+              </div>
+            </Fragment>
+          )}
+        </WeightWizardForm>
+      </div>
     );
   }
 }

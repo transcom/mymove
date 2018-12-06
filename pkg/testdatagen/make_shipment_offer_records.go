@@ -407,4 +407,16 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		RequiresPreApproval: false,
 	}
 	mustSave(db, &code105A)
+
+	code105C := models.Tariff400ngItem{
+		Code:                "105C",
+		Item:                "Full Unpack",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationDESTINATION,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeNONE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code105C)
 }

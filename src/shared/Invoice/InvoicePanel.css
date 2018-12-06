@@ -11,7 +11,11 @@
 }
 
 .invoice-panel-table-cont {
-  width: 75%;
+  width: 95%;
+}
+
+.invoice-panel-table-cont h5{
+  font-family: sans-serif;
 }
 
 /* Custom widths for columns in the invoice panel table */
@@ -19,9 +23,13 @@
 .invoice-panel table > tbody > tr > th:nth-child(1) {
   width: 10%;
 }
+/* Item */
+.invoice-panel table > tbody > tr > th:nth-child(2) {
+  width: 25%;
+}
 /* Loc. */
 .invoice-panel table > tbody > tr > th:nth-child(3) {
-  width: 15%;
+  width: 8%;
 }
 /*Base Quantity*/
 .invoice-panel table > tbody > tr > th:nth-child(4) {
@@ -30,7 +38,21 @@
 /*Invoice Amount*/
 .invoice-panel table > tbody > tr > th:nth-child(5) {
   width: 15%;
+  text-align: right;
 }
+
+/* Further customization specific to invoice table*/
+.invoice-panel table > tbody > tr > td:nth-child(5) {
+  text-align: right;
+}
+/* Total border */
+.invoice-panel table > tbody > tr:nth-last-child(2) > td {
+  border-bottom: solid 1px #a2a2a2;
+}
+.invoice-panel table > tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
 
 .invoice-panel table th,
 .invoice-panel table td {
@@ -40,7 +62,7 @@
 .invoice-panel table th {
   font-weight: bold;
   border-bottom: solid 1px #a2a2a2;
-  padding: 0rem 2rem 1rem 0rem;
+  padding: 0rem 1rem 1rem 0rem;
 }
 
 .invoice-panel table > tbody > tr > td {

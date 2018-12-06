@@ -89,14 +89,20 @@ func (suite *InvoiceSuite) TestEDIString() {
 }
 
 func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	var weight unit.Pound
+	weight = 2000
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{
+			NetWeight: &weight,
+		},
+	})
 	err := shipment.AssignGBLNumber(suite.db)
 	suite.mustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A"}
+	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
