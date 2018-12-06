@@ -2,11 +2,13 @@ package internalapi
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/dustin/go-humanize"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
+	"github.com/honeycombio/beeline-go"
 	"github.com/transcom/mymove/pkg/auth"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -21,6 +23,9 @@ type ValidateEntitlementHandler struct {
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {
 
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -33,7 +38,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, orders.ServiceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

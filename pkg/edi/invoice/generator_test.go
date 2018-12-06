@@ -3,7 +3,6 @@ package ediinvoice_test
 import (
 	"flag"
 	"fmt"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -195,7 +195,13 @@ func (suite *InvoiceSuite) TestEDIString() {
 }
 
 func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	var weight unit.Pound
+	weight = 2000
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{
+			NetWeight: &weight,
+		},
+	})
 	err := shipment.AssignGBLNumber(suite.db)
 	suite.mustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
@@ -203,9 +209,8 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 	// Create an accepted shipment offer and the associated TSP.
 	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
 		ShipmentOffer: models.ShipmentOffer{
-			ShipmentID: shipment.ID,
-			Shipment:   shipment,
-			Accepted:   swag.Bool(true),
+			Shipment: shipment,
+			Accepted: swag.Bool(true),
 		},
 		TransportationServiceProvider: models.TransportationServiceProvider{
 			StandardCarrierAlphaCode: "ABCD",
@@ -215,7 +220,7 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A"}
+	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
@@ -225,7 +230,6 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 		})
 		lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
-				ShipmentID:        shipment.ID,
 				Shipment:          shipment,
 				Tariff400ngItemID: item.ID,
 				Tariff400ngItem:   item,

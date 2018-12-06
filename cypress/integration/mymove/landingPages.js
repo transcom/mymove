@@ -88,7 +88,7 @@ function ppmSubmitted(userId) {
   cy.signInAsUser(userId);
   cy.contains('Move your own stuff (PPM)');
   cy.contains('Next Step: Wait for approval');
-  cy.should('not.contain', 'Add PPM Shipment');
+  cy.should('not.contain', 'Add PPM (DITY) Move');
   cy.logout();
 }
 
@@ -104,7 +104,7 @@ function hhgMoveSummary(userId) {
   cy.signInAsUser(userId);
   cy.contains('Government Movers and Packers (HHG)');
   cy.contains('Next Step: Prepare for move');
-  cy.contains('Add PPM Shipment');
+  cy.contains('Add PPM (DITY) Move');
   cy.logout();
 }
 

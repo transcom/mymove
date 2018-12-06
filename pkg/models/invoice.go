@@ -29,15 +29,19 @@ const (
 
 // Invoice is a collection of line item charges to be sent for payment
 type Invoice struct {
-	ID            uuid.UUID     `json:"id" db:"id"`
-	Status        InvoiceStatus `json:"status" db:"status"`
-	InvoiceNumber string        `json:"invoice_number" db:"invoice_number"`
-	InvoicedDate  time.Time     `json:"invoiced_date" db:"invoiced_date"`
-	ShipmentID    uuid.UUID     `json:"shipment_id" db:"shipment_id"`
-	Shipment      Shipment      `belongs_to:"shipments"`
-	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
+	ID                uuid.UUID         `json:"id" db:"id"`
+	Status            InvoiceStatus     `json:"status" db:"status"`
+	InvoiceNumber     string            `json:"invoice_number" db:"invoice_number"`
+	InvoicedDate      time.Time         `json:"invoiced_date" db:"invoiced_date"`
+	ShipmentID        uuid.UUID         `json:"shipment_id" db:"shipment_id"`
+	Shipment          Shipment          `belongs_to:"shipments"`
+	ShipmentLineItems ShipmentLineItems `has_many:"shipment_line_items"`
+	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
+	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
 }
+
+// Invoices is an array of invoices
+type Invoices []Invoice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

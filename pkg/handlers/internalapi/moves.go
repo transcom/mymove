@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -137,10 +138,11 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	ctx := params.HTTPRequest.Context()
-	ctx, span := beeline.StartSpan(ctx, "SubmitMoveHandler")
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -167,6 +169,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	err = h.NotificationSender().SendNotification(
+		ctx,
 		notifications.NewMoveSubmitted(h.DB(), h.Logger(), session, moveID),
 	)
 	if err != nil {
@@ -192,8 +195,16 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	_, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/service/invoice"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -98,6 +99,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
+		PmSurveyCompletedAt:                 handlers.FmtDateTimePtr(s.PmSurveyCompletedAt),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -493,6 +495,13 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		return shipmentop.NewSendHHGInvoiceConflict()
 	}
 
+	// before processing the invoice, save it in an in process state
+	var invoices models.Invoices
+	verrs, err := invoice.CreateInvoices{DB: h.DB(), Clock: clock.New()}.Call(&invoices, models.Shipments{shipment})
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 	// Run rate engine on shipment --> returns CostByShipment Struct
 	shipmentCost, err := engine.HandleRunOnShipment(shipment)
@@ -524,11 +533,28 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 
 	// get response from gex --> use status as status for this invoice call
-	switch responseStatus {
-	case 200:
-		return shipmentop.NewSendHHGInvoiceOK()
-	default:
+	if responseStatus != 200 {
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
+		for index := range invoices {
+			invoices[index].Status = models.InvoiceStatusSUBMISSIONFAILURE
+		}
+		// Update invoice records as failed
+		verrs, err := h.DB().ValidateAndSave(&invoices)
+		if verrs.HasAny() {
+			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
+		}
+		if err != nil {
+			h.Logger().Error("Failed to update invoice records to failed state", zap.Error(err))
+		}
 		return shipmentop.NewSendHHGInvoiceInternalServerError()
 	}
+
+	// Update invoice records as submitted
+	shipmentLineItems := shipment.ShipmentLineItems
+	verrs, err = invoice.UpdateInvoicesSubmitted{DB: h.DB()}.Call(invoices, shipmentLineItems)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	return shipmentop.NewSendHHGInvoiceOK()
 }
