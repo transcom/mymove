@@ -73,13 +73,12 @@ Cypress.Commands.add('signInAsUser', userId => {
     })
     .then(resp => {
       // expected forbidden failure, 403
-      expect(resp.status).to.eq(403);
-      // should have both our csrf cookie tokens now
-      cy.getCookie('_gorilla_csrf').should('exist');
+      cy.expect(resp.status).to.eq(403);
 
+      // should have both our csrf cookie tokens now
       // now we log in from the devlocal-auth page
       cy.visit('/devlocal-auth/login');
-      cy.get('button[value="' + userId + '"]').click();
+      cy.get('button[value="' + userId.toLowerCase() + '"]').click();
     });
 });
 
