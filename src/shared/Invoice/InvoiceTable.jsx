@@ -31,10 +31,10 @@ class InvoiceTable extends PureComponent {
   };
 
   submitPayment = () => {
-    //dispatch action to submit invoice to GEX
-    this.props.approvePayment();
     this.setState({ paymentStatus: PAYMENT_IN_PROCESSING });
-    setTimeout(this.invoiceSuccess, 5000);
+
+    //dispatch action to submit invoice to GEX
+    this.props.approvePayment().then(() => this.invoiceSuccess());
   };
 
   invoiceSuccess = () => {

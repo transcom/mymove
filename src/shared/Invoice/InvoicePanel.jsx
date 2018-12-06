@@ -14,7 +14,7 @@ import InvoiceTable from 'shared/Invoice/InvoiceTable';
 
 export class InvoicePanel extends PureComponent {
   approvePayment = () => {
-    this.props.sendHHGInvoice(this.props.shipmentId);
+    return this.props.sendHHGInvoice(this.props.shipmentId);
   };
 
   render() {
