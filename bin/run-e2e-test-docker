@@ -76,6 +76,7 @@ $DOCKER_RUN \
   --add-host ${TSPHOST}:"${E2E_IP}" \
   --name="${CONTAINER_CYPRESS}" \
   --link="${CONTAINER}" \
+  --ipc=host \
   --detach \
   ${CONTAINER_CYPRESS}:latest
 
