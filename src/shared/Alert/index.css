@@ -13,3 +13,20 @@
 .usa-alert .usa-alert-right {
   float: right;
 }
+
+.body--heading {
+  display: flex;
+  align-items: center;
+}
+
+.usa-alert-loading {
+  background-color: #e1f3f8;
+}
+
+.heading--icon {
+  margin-right: 2em;
+}
+
+.usa-alert-loading::before {
+  background-color: #02bfe7;
+}
