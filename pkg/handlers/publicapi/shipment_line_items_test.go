@@ -513,8 +513,8 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered()
 		suite.Equal(apimessages.ShipmentLineItemStatusAPPROVED, okResponse.Payload.Status)
 
 		// And: Rate and amount have been assigned to item
-		suite.NotNil(&okResponse.Payload.AmountCents)
-		suite.NotNil(&okResponse.Payload.AppliedRate)
+		suite.NotNil(okResponse.Payload.AppliedRate)
+		suite.NotNil(okResponse.Payload.AmountCents)
 	}
 }
 

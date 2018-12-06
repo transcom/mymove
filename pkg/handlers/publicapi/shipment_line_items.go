@@ -34,8 +34,14 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 
 	var amt *int64
 	if s.AmountCents != nil {
-		int := s.AmountCents.Int64()
-		amt = &int
+		intVal := s.AmountCents.Int64()
+		amt = &intVal
+	}
+
+	var rate *int64
+	if s.AppliedRate != nil {
+		intVal := s.AppliedRate.Int64()
+		rate = &intVal
 	}
 
 	return &apimessages.ShipmentLineItem{
@@ -49,6 +55,7 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		Quantity2:         handlers.FmtInt64(int64(s.Quantity2)),
 		Status:            apimessages.ShipmentLineItemStatus(s.Status),
 		AmountCents:       amt,
+		AppliedRate:       rate,
 		SubmittedDate:     *handlers.FmtDateTime(s.SubmittedDate),
 		ApprovedDate:      *handlers.FmtDateTime(s.ApprovedDate),
 	}
