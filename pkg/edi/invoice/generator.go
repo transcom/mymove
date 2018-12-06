@@ -7,6 +7,7 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -237,6 +238,9 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 		return nil, errors.Errorf("Found %d accepted shipment offers", numAcceptedOffers)
 	}
 	acceptedOffer := acceptedOffers[0]
+	if acceptedOffer.TransportationServiceProvider.ID == uuid.Nil {
+		return nil, errors.New("Accepted shipment offer is missing Transportation Service Provider")
+	}
 
 	return []edisegment.Segment{
 		&edisegment.BX{
