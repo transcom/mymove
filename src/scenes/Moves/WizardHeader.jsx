@@ -5,12 +5,12 @@ import './WizardHeader.css';
 const WizardHeader = ({ icon, right, title }) => (
   <div className="wizard-header">
     <div className="usa-grid">
-      <div className="usa-width-one-half">
+      <div className="usa-width-one-third">
         <img className="icon" src={icon} alt="" />
         <p>{title}</p>
       </div>
-      <div className="usa-width-one-half" style={{ textAlign: 'right' }}>
-        {right}
+      <div className="usa-width-two-thirds">
+        <div style={{ float: 'right', marginRight: '-17px' }}>{right}</div>
       </div>
     </div>
     <div className="usa-grid">
