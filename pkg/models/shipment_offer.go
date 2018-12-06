@@ -116,15 +116,14 @@ func FetchShipmentOfferByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uui
 	return &shipmentOffers[0], err
 }
 
-// GetAcceptedShipmentOffer returns a pointer to the first (only?) accepted shipment offer or nil if no
-// accepted shipment found, given a list of ShipmentOffers.  Often used in cases where we have already
-// eagerly fetched all of the shipment offers.
-func GetAcceptedShipmentOffer(shipmentOffers ShipmentOffers) *ShipmentOffer {
-	for _, shipmentOffer := range shipmentOffers {
-		if shipmentOffer.Accepted != nil && *shipmentOffer.Accepted == true {
-			return &shipmentOffer
+// Accepted returns all accepted shipment offers from a slice of shipment offers.
+func (so *ShipmentOffers) Accepted() ShipmentOffers {
+	var acceptedOffers ShipmentOffers
+	for _, offer := range *so {
+		if offer.Accepted != nil && *offer.Accepted == true {
+			acceptedOffers = append(acceptedOffers, offer)
 		}
 	}
 
-	return nil
+	return acceptedOffers
 }
