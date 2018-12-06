@@ -17,13 +17,19 @@ TSPHOST=tsplocal
 # Change the port for tests
 HTTP_PORT=4000
 
+# When running locally enable TTY
+DOCKER_RUN="docker run -t"
+if [ ! -z "${CIRCLECI+x}" ]; then
+  DOCKER_RUN="docker run"
+fi
+
 make e2e_clean client_build db_e2e_init server_build_linux
 
 # Build the docker container
 docker build --tag e2e:latest .
 
 # Run the image with the ports changed
-docker run \
+$DOCKER_RUN \
   -e CLIENT_AUTH_SECRET_KEY \
   -e DB_HOST="database" \
   -e DB_NAME \
@@ -63,8 +69,7 @@ E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{e
 
 # Run the cypress tests
 docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
-docker run \
-  -t \
+$DOCKER_RUN \
   -e CYPRESS_baseUrl=http://${MYMOVEHOST}:4000 \
   --add-host ${MYMOVEHOST}:"${E2E_IP}" \
   --add-host ${OFFICEHOST}:"${E2E_IP}" \
