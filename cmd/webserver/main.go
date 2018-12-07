@@ -400,7 +400,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(err, "Error decoding CSRF Auth Key")
 	}
 	if len(csrfAuthKey) != 32 {
-		return errors.New("CSRF Auth Key is not 32 bytes")
+		return errors.New("CSRF Auth Key is not 32 bytes. Auth Key length: " + strconv.Itoa(len(csrfAuthKey)))
 	}
 
 	return nil
