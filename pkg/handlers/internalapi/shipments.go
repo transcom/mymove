@@ -22,6 +22,20 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
+func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
+	if a == nil {
+		return nil
+	}
+
+	return &internalmessages.Invoice{
+		ID: *handlers.FmtUUID(a.ID),
+
+		Status:    internalmessages.InvoiceStatus(a.Status),
+		CreatedAt: *handlers.FmtDateTime(a.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(a.UpdatedAt),
+	}
+}
+
 func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
@@ -556,5 +570,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	return shipmentop.NewSendHHGInvoiceOK()
+	payload := payloadForInvoiceModel(&invoices[0])
+
+	return shipmentop.NewSendHHGInvoiceOK().WithPayload(payload)
 }
