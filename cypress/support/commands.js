@@ -78,7 +78,7 @@ Cypress.Commands.add('signInAsUser', userId => {
       // should have both our csrf cookie tokens now
       // now we log in from the devlocal-auth page
       cy.visit('/devlocal-auth/login');
-      cy.get('button[value="' + userId.toLowerCase() + '"]').click();
+      cy.get('button[value="' + userId + '"]').click();
     });
 });
 

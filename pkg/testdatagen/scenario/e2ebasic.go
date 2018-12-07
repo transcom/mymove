@@ -268,7 +268,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 * Service member with orders and a move
 	 */
 	email = "profile@comple.te"
-	uuidStr = "13F3949D-0D53-4BE4-B1B1-AE4314793F34"
+	uuidStr = "13f3949d-0d53-4be4-b1b1-ae4314793f34"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
