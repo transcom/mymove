@@ -335,7 +335,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		const freightRate = 4.07
 
 		// Initialize empty edisegment
-		var segment []edisegment.Segment
+		var tariffSegment []edisegment.Segment
 
 		// Initialize hierarchicalLevelCode
 		var hierarchicalLevelID string
@@ -351,58 +351,70 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 
 		}
 
-		// Use unit of measure to determine proper segment building path
-		switch lineItem.Tariff400ngItem.MeasurementUnit1 {
-		case models.Tariff400ngItemMeasurementUnitFLATRATE:
-			segment = []edisegment.Segment{
-				&edisegment.HL{
-					HierarchicalIDNumber:  hierarchicalLevelID,
-					HierarchicalLevelCode: hierarchicalLevelCode,
-				},
-				&edisegment.L0{
-					LadingLineItemNumber:   ladingLineItemNumber,
-					BilledRatedAsQuantity:  billedRatedAsQuantity,
-					BilledRatedAsQualifier: string(lineItem.Tariff400ngItem.MeasurementUnit1),
-				},
-				&edisegment.L1{
-					FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
-					RateValueQualifier:       rateValueQualifier,
-					Charge:                   lineItem.AmountCents.ToDollarFloat(),
-					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
-				},
-			}
+		// Using Maps to group up MeasurementUnit types into categories
+		unitBasedMeasurementUnits := map[models.Tariff400ngItemMeasurementUnit]int{
+			models.Tariff400ngItemMeasurementUnitFLATRATE: 0,
+			models.Tariff400ngItemMeasurementUnitEACH:     0,
+		}
 
-		case models.Tariff400ngItemMeasurementUnitWEIGHT:
+		weightBasedMeasurements := map[models.Tariff400ngItemMeasurementUnit]int{
+			models.Tariff400ngItemMeasurementUnitWEIGHT: 0,
+		}
+
+		// This will check if the Measurement unit is in one of the maps above.
+		// Doing this allows us to have two generic paths based on groups of MeasurementUnits
+		// This is a way to do something a-kin to OR logic in our comparison for the category.
+		_, isUnitBased := unitBasedMeasurementUnits[lineItem.Tariff400ngItem.MeasurementUnit1]
+		_, isWeightBased := weightBasedMeasurements[lineItem.Tariff400ngItem.MeasurementUnit1]
+
+		tariffSegment = []edisegment.Segment{
+			&edisegment.HL{
+				HierarchicalIDNumber:  hierarchicalLevelID,
+				HierarchicalLevelCode: hierarchicalLevelCode,
+			},
+		}
+
+		if isUnitBased {
+			unitBasedSegment := &edisegment.L0{
+				LadingLineItemNumber:   ladingLineItemNumber,
+				BilledRatedAsQuantity:  billedRatedAsQuantity,
+				BilledRatedAsQualifier: string(lineItem.Tariff400ngItem.MeasurementUnit1),
+			}
+			tariffSegment = append(tariffSegment, unitBasedSegment)
+
+		} else if isWeightBased {
 			var weight float64
+
 			if lineItem.Tariff400ngItem.RequiresPreApproval {
 				weight = lineItem.Quantity1.ToUnitFloat()
 
 			} else {
 				weight = netCentiWeight
 			}
-			segment = []edisegment.Segment{
-				&edisegment.HL{
-					HierarchicalIDNumber:  hierarchicalLevelID,
-					HierarchicalLevelCode: hierarchicalLevelCode,
-				},
-				&edisegment.L0{
-					LadingLineItemNumber: ladingLineItemNumber,
-					Weight:               weight,
-					WeightQualifier:      weightQualifier,
-					WeightUnitCode:       weightUnitCode,
-				},
-				&edisegment.L1{
-					FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
-					RateValueQualifier:       rateValueQualifier,
-					Charge:                   lineItem.AmountCents.ToDollarFloat(),
-					SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
-				},
+
+			weightBasedSegment := &edisegment.L0{
+				LadingLineItemNumber: ladingLineItemNumber,
+				Weight:               weight,
+				WeightQualifier:      weightQualifier,
+				WeightUnitCode:       weightUnitCode,
 			}
-		default:
-			logger.Error(string(lineItem.Tariff400ngItem.MeasurementUnit1) + "Used with " + lineItem.ID.String() + " is an EDI meaasurement unit we're not prepared for.")
+			tariffSegment = append(tariffSegment, weightBasedSegment)
+
+		} else {
+			logger.Error(string(lineItem.Tariff400ngItem.MeasurementUnit1) + "Used with " +
+				lineItem.ID.String() + " is an EDI meaasurement unit we're not prepared for.")
 		}
 
-		segments = append(segments, segment...)
+		segmentL1 := &edisegment.L1{
+			FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
+			RateValueQualifier:       rateValueQualifier,
+			Charge:                   lineItem.AmountCents.ToDollarFloat(),
+			SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
+		}
+
+		tariffSegment = append(tariffSegment, segmentL1)
+
+		segments = append(segments, tariffSegment...)
 
 	}
 
