@@ -406,10 +406,7 @@ func main() {
 	v.AutomaticEnv()
 
 	env := v.GetString("env")
-	isDevOrTest := false
-	if env == "development" || env == "test" {
-		isDevOrTest = true
-	}
+	isDevOrTest := env == "development" || env == "test"
 
 	logger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
