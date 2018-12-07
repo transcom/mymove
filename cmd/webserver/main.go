@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -212,6 +213,9 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Int("db-port", 5432, "Database Port")
 	flag.String("db-user", "postgres", "Database Username")
 	flag.String("db-password", "", "Database Password")
+
+	// CSRF Protection
+	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 }
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
@@ -389,6 +393,14 @@ func checkConfig(v *viper.Viper) error {
 		if p := v.GetInt(c); p <= 0 || p > 65535 {
 			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
 		}
+	}
+
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		return errors.Wrap(err, "Error decoding CSRF Auth Key")
+	}
+	if len(csrfAuthKey) != 32 {
+		return errors.New("CSRF Auth Key is not 32 bytes")
 	}
 
 	return nil
@@ -606,8 +618,11 @@ func main() {
 	// PS: Don't forget to pass csrf.Secure(false) if you're developing locally
 	// over plain HTTP (just don't leave it on in production).
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
-	// ToDo: Need to generate a real auth key and somehow rotate the key
-	root.Use(csrf.Protect([]byte("511927246155170812911214413150111458588711218413210252143172561396280124219236164"), csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
+	}
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
 	root.Use(csrfCookieMiddleware)
 	site.Handle(pat.New("/*"), root)
 
