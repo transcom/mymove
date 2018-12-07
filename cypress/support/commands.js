@@ -63,6 +63,7 @@ Cypress.Commands.add('signInAsUser', userId => {
   // ToDo: Should figure out why cypress can't get _gorilla_csrf cookie automatically
   //   this is a workaround for now
   // send a POST that will fail to get _gorilla_csrf cookie
+  cy.logout();
   cy
     .request({
       method: 'POST',
