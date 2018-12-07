@@ -40,6 +40,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { getShipment } from 'shared/Entities/modules/shipments';
 
 import {
   loadMoveDependencies,
@@ -139,6 +140,7 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
+      this.props.getShipment('Shipments.getShipment', this.props.officeShipment.id);
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
       this.props.loadShipmentDependencies(this.props.officeShipment.id);
     }
@@ -442,31 +444,37 @@ MoveInfo.propTypes = {
   }).isRequired,
 };
 
-const mapStateToProps = state => ({
-  swaggerError: get(state, 'swagger.hasErrored'),
-  officeMove: get(state, 'office.officeMove', {}),
-  officeShipment: get(state, 'office.officeShipment', {}),
-  shipment: get(state, 'tsp.shipment', {}),
-  officeOrders: get(state, 'office.officeOrders', {}),
-  officeServiceMember: get(state, 'office.officeServiceMember', {}),
-  officeBackupContacts: get(state, 'office.officeBackupContacts', []),
-  officePPM: get(state, 'office.officePPMs.0', {}),
-  officeHHG: get(state, 'office.officeMove.shipments.0', {}),
-  ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
-  moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
-  tariff400ngItems: selectTariff400ngItems(state),
-  serviceAgents: get(state, 'tsp.serviceAgents', []),
-  shipmentLineItems: selectSortedShipmentLineItems(state),
-  loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
-  loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
-  shipmentPatchError: get(state, 'office.shipmentPatchError'),
-  approveMoveHasError: get(state, 'office.moveHasApproveError'),
-  errorMessage: get(state, 'office.error'),
-});
+const mapStateToProps = state => {
+  const officeMove = get(state, 'office.officeMove', {});
+  const shipmentId = get(officeMove, 'shipments.0.id');
+
+  return {
+    swaggerError: get(state, 'swagger.hasErrored'),
+    officeMove: get(state, 'office.officeMove', {}),
+    officeShipment: get(state, 'office.officeShipment', {}),
+    shipment: get(state, `entities.shipment.${shipmentId}`, {}),
+    officeOrders: get(state, 'office.officeOrders', {}),
+    officeServiceMember: get(state, 'office.officeServiceMember', {}),
+    officeBackupContacts: get(state, 'office.officeBackupContacts', []),
+    officePPM: get(state, 'office.officePPMs.0', {}),
+    officeHHG: get(state, 'office.officeMove.shipments.0', {}),
+    ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
+    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    tariff400ngItems: selectTariff400ngItems(state),
+    serviceAgents: get(state, 'tsp.serviceAgents', []),
+    shipmentLineItems: selectSortedShipmentLineItems(state),
+    loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
+    loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
+    shipmentPatchError: get(state, 'office.shipmentPatchError'),
+    approveMoveHasError: get(state, 'office.moveHasApproveError'),
+    errorMessage: get(state, 'office.error'),
+  };
+};
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
+      getShipment,
       loadShipmentDependencies,
       loadMoveDependencies,
       getMoveDocumentsForMove,
