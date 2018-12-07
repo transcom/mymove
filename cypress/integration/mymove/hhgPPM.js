@@ -60,6 +60,11 @@ function serviceMemberFillsInDatesAndLocations() {
   });
 
   cy.get('.wizard-header').should('contain', 'Move Setup');
+  cy.get('.wizard-header .progress-timeline .current').should('contain', 'Move Setup');
+  cy
+    .get('.wizard-header .progress-timeline .step')
+    .last()
+    .should('contain', 'Review');
 
   cy
     .get('input[name="planned_move_date"]')
@@ -82,6 +87,11 @@ function serviceMemberSelectsWeightRange() {
   });
 
   cy.get('.wizard-header').should('contain', 'Move Setup');
+  cy.get('.wizard-header .progress-timeline .current').should('contain', 'Move Setup');
+  cy
+    .get('.wizard-header .progress-timeline .step')
+    .last()
+    .should('contain', 'Review');
 
   cy.get('.entitlement-container p:nth-child(2)').should($div => {
     const text = $div.text();
@@ -99,6 +109,11 @@ function serviceMemberCanCustomizeWeight() {
   });
 
   cy.get('.wizard-header').should('contain', 'Move Setup');
+  cy.get('.wizard-header .progress-timeline .current').should('contain', 'Move Setup');
+  cy
+    .get('.wizard-header .progress-timeline .step')
+    .last()
+    .should('contain', 'Review');
 
   cy.get('.rangeslider__handle').click();
 
@@ -112,8 +127,13 @@ function serviceMemberCanReviewMoveSummary() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('.wizard-header').should('not.contain', 'Move Setup');
-  cy.get('.wizard-header').should('not.contain', 'Review');
+  cy.get('.wizard-header .usa-width-one-third').should('not.contain', 'Move Setup');
+  cy.get('.wizard-header .usa-width-one-third').should('not.contain', 'Review');
+  cy
+    .get('.wizard-header .progress-timeline .step')
+    .first()
+    .should('contain', 'Move Setup');
+  cy.get('.wizard-header .progress-timeline .current').should('contain', 'Review');
 
   cy.get('body').should($div => expect($div.text()).not.to.include('Government moves all of your stuff (HHG)'));
   cy.get('.ppm-container').should($div => {
@@ -135,6 +155,11 @@ function serviceMemberCanSignAgreement() {
   });
 
   cy.get('.wizard-header').should('contain', 'Review');
+  cy
+    .get('.wizard-header .progress-timeline .step')
+    .first()
+    .should('contain', 'Move Setup');
+  cy.get('.wizard-header .progress-timeline .current').should('contain', 'Review');
 
   cy
     .get('body')
