@@ -75,31 +75,45 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	}
 	lineItems = append(lineItems, destinationService)
 
-	// TODO: Determine if we have a separate unpack fee as well.  See notes below.
-	//
 	// Pack fee ("105A")
-	//
-	// Note: For now, I'm adding pack and unpack fees together here and put under 105A.  We don't currently
-	// have a 105C (for unpack) in our tariff400ng_items table.  See this Pivotal for more details:
-	// https://www.pivotaltracker.com/story/show/161564001
 	fullPackItem, err := models.FetchTariff400ngItemByCode(db, "105A")
 	if err != nil {
 		return nil, err
 	}
-	packAndUnpackFee := cost.NonLinehaulCostComputation.Pack.Fee + cost.NonLinehaulCostComputation.Unpack.Fee
+	packFee := cost.NonLinehaulCostComputation.Pack.Fee
 	packRate := cost.NonLinehaulCostComputation.Pack.Rate
-	fullPackAndUnpack := models.ShipmentLineItem{
+	fullPack := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: fullPackItem.ID,
 		Tariff400ngItem:   fullPackItem,
 		Location:          models.ShipmentLineItemLocationORIGIN,
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		AmountCents:       &packAndUnpackFee,
+		AmountCents:       &packFee,
 		AppliedRate:       &packRate,
 		SubmittedDate:     now,
 	}
-	lineItems = append(lineItems, fullPackAndUnpack)
+	lineItems = append(lineItems, fullPack)
+
+	// Unpack fee ("105C")
+	fullUnpackItem, err := models.FetchTariff400ngItemByCode(db, "105C")
+	if err != nil {
+		return nil, err
+	}
+	unpackFee := cost.NonLinehaulCostComputation.Unpack.Fee
+	unpackRate := cost.NonLinehaulCostComputation.Unpack.Rate
+	fullUnpack := models.ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: fullUnpackItem.ID,
+		Tariff400ngItem:   fullUnpackItem,
+		Location:          models.ShipmentLineItemLocationDESTINATION,
+		Quantity1:         bqNetWeight,
+		Status:            models.ShipmentLineItemStatusSUBMITTED,
+		AmountCents:       &unpackFee,
+		AppliedRate:       &unpackRate,
+		SubmittedDate:     now,
+	}
+	lineItems = append(lineItems, fullUnpack)
 
 	return lineItems, nil
 }

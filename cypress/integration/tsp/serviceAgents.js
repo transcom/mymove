@@ -166,6 +166,8 @@ function tspUserClicksAssignServiceAgent(locator) {
     .get('button')
     .contains('Assign servicing agents')
     .click();
+
+  cy.get('.infoPanel-wizard-header').contains('Assign servicing agents');
 }
 
 function tspUserVerifiesServiceAgentAssigned() {

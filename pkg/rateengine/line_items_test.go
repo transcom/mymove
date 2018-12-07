@@ -26,7 +26,9 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 	lineItems, err := CreateBaseShipmentLineItems(suite.db, shipmentCost)
 	suite.NoError(err)
 
-	suite.Len(lineItems, 4)
+	// There are 5 Base Shipment line itmes:
+	// origin fee, destination fee, linehaul, pack, unpack
+	suite.Len(lineItems, 5)
 
 	itemLHS := suite.findLineItem(lineItems, "LHS")
 	if itemLHS != nil {
@@ -45,7 +47,12 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	item105A := suite.findLineItem(lineItems, "105A")
 	if item105A != nil {
-		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(97930), unit.Millicents(4431000))
+		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(88625), unit.Millicents(4431000))
+	}
+
+	item105C := suite.findLineItem(lineItems, "105C")
+	if item105C != nil {
+		suite.validateLineItemFields(*item105C, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(9305), unit.Millicents(465280))
 	}
 }
 

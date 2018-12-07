@@ -29,7 +29,9 @@ describe('InvoiceTable tests', () => {
 
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
-      wrapper = shallow(<InvoiceTable shipmentLineItems={shipmentLineItems} totalAmount={10} />);
+      wrapper = shallow(
+        <InvoiceTable shipmentLineItems={shipmentLineItems} totalAmount={10} shipmentStatus="delivered" />,
+      );
       expect(wrapper.find('table').length).toEqual(1);
     });
 

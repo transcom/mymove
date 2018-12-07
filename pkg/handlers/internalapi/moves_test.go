@@ -301,6 +301,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 	path := fmt.Sprintf("/moves/%s/move_dates", move.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	moveID := strfmt.UUID(move.ID.String())
 	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
@@ -358,4 +359,32 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		strfmt.Date(move.Orders.ReportByDate),
 	}
 	suite.Equal(report, okResponse.Payload.Report)
+}
+
+func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
+	// Given: a set of orders, a move, user and servicemember
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	// And: another logged in user
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+
+	// And: the context contains the auth values for not logged-in user
+	req := httptest.NewRequest("GET", "/moves/some_id/", nil)
+	req = suite.AuthenticateRequest(req, anotherUser)
+
+	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
+	params := moveop.ShowMoveDatesSummaryParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveDate:    moveDate,
+	}
+
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetPlanner(route.NewTestingPlanner(1125))
+
+	showHandler := ShowMoveDatesSummaryHandler{context}
+	response := showHandler.Handle(params)
+
+	// Then: expect a forbidden response
+	suite.CheckResponseForbidden(response)
+
 }
