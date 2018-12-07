@@ -195,6 +195,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 	clientKeyEncoded := v.GetString("key")
 	clientCertEncoded := v.GetString("cert")
 	skipVerify := v.GetBool("skip-verify")
+	timeout := v.GetInt("timeout")
 
 	if verbose {
 		if skipVerify {
@@ -264,7 +265,10 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 	}
 
 	httpTransport := &http.Transport{TLSClientConfig: tlsConfig}
-	httpClient := &http.Client{Transport: httpTransport}
+	httpClient := &http.Client{
+		Timeout:   time.Duration(timeout) * time.Second,
+		Transport: httpTransport,
+	}
 	return httpClient, nil
 
 }
@@ -332,6 +336,7 @@ func main() {
 	flag.Bool("skip-verify", false, "skip certifiate validation")
 	flag.Int("tries", 5, "number of tries")
 	flag.Int("backoff", 1, "backoff in seconds")
+	flag.Int("timeout", 300, "timeout in seconds")
 	flag.Bool("exit-on-error", false, "exit on first health check error")
 	flag.String("log-env", "development", "logging config: development or production")
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")
