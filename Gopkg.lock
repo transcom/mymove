@@ -600,12 +600,36 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:dbbeb8ddb0be949954c8157ee8439c2adfd8dc1c9510eb44a6e58cb68c3dce28"
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  pruneopts = ""
+  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  version = "v1.1.1"
+
+[[projects]]
+  digest = "1:184d328243f8f2fc51d5682ba43d3b8fa9d91da7ac7ba1f25ac371a930f49a2b"
+  name = "github.com/gorilla/csrf"
+  packages = ["."]
+  pruneopts = ""
+  revision = "05b4a732b984ec326cac085631060968d4706b17"
+  version = "v1.5.1"
+
+[[projects]]
   digest = "1:66d63ec7b6035984dced87ad37066e5f4ad277c60234a9d9925537248e983200"
   name = "github.com/gorilla/handlers"
   packages = ["."]
   pruneopts = ""
   revision = "7e0847f9db758cdebd26c149d0ae9d5d0b9c98ce"
   version = "v1.4.0"
+
+[[projects]]
+  digest = "1:51a1d17ba9fe6648d9fdd5b822baa616d6ec7f28c8669c2091126d206796b5ae"
+  name = "github.com/gorilla/securecookie"
+  packages = ["."]
+  pruneopts = ""
+  revision = "e59506cc896acb7f7bf732d4fdf5e25f7ccd8983"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:d14365c51dd1d34d5c79833ec91413bfbb166be978724f15701e17080dc06dec"
@@ -1382,6 +1406,7 @@
     "github.com/gobuffalo/validate/validators",
     "github.com/gofrs/uuid",
     "github.com/golang/lint/golint",
+    "github.com/gorilla/csrf",
     "github.com/honeycombio/beeline-go",
     "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
