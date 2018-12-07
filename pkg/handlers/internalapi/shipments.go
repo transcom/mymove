@@ -8,7 +8,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -510,8 +510,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 
 	// before processing the invoice, save it in an in process state
-	var invoices models.Invoices
-	verrs, err := invoice.CreateInvoices{DB: h.DB(), Clock: clock.New()}.Call(&invoices, models.Shipments{shipment})
+	var invoice models.Invoice
+	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
@@ -549,11 +549,9 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	// get response from gex --> use status as status for this invoice call
 	if responseStatus != 200 {
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
-		for index := range invoices {
-			invoices[index].Status = models.InvoiceStatusSUBMISSIONFAILURE
-		}
+		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
 		// Update invoice records as failed
-		verrs, err := h.DB().ValidateAndSave(&invoices)
+		verrs, err := h.DB().ValidateAndSave(&invoice)
 		if verrs.HasAny() {
 			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
 		}
@@ -565,12 +563,12 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 
 	// Update invoice records as submitted
 	shipmentLineItems := shipment.ShipmentLineItems
-	verrs, err = invoice.UpdateInvoicesSubmitted{DB: h.DB()}.Call(invoices, shipmentLineItems)
+	verrs, err = invoiceop.UpdateInvoicesSubmitted{DB: h.DB()}.Call(invoice, shipmentLineItems)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	payload := payloadForInvoiceModel(&invoices[0])
+	payload := payloadForInvoiceModel(&invoice)
 
 	return shipmentop.NewSendHHGInvoiceOK().WithPayload(payload)
 }

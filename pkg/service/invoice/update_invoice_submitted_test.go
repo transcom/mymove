@@ -16,12 +16,12 @@ func (suite *UpdateInvoicesSuite) TestUpdateInvoicesCall() {
 	shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
 	suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 
-	createInvoices := CreateInvoices{
+	createInvoice := CreateInvoice{
 		suite.db,
 		clock.NewMock(),
 	}
-	var invoices models.Invoices
-	verrs, err := createInvoices.Call(&invoices, models.Shipments{shipmentLineItem.Shipment})
+	var invoice models.Invoice
+	verrs, err := createInvoice.Call(&invoice, shipmentLineItem.Shipment)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 	updateInvoicesSubmitted := UpdateInvoicesSubmitted{
@@ -29,13 +29,12 @@ func (suite *UpdateInvoicesSuite) TestUpdateInvoicesCall() {
 	}
 	shipmentLineItems := models.ShipmentLineItems{shipmentLineItem}
 
-	verrs, err = updateInvoicesSubmitted.Call(invoices, shipmentLineItems)
+	verrs, err = updateInvoicesSubmitted.Call(invoice, shipmentLineItems)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 
-	suite.Equal(1, len(invoices))
-	suite.Equal(models.InvoiceStatusSUBMITTED, invoices[0].Status)
-	suite.Equal(invoices[0].ID, *shipmentLineItems[0].InvoiceID)
+	suite.Equal(models.InvoiceStatusSUBMITTED, invoice.Status)
+	suite.Equal(invoice.ID, *shipmentLineItems[0].InvoiceID)
 }
 
 type UpdateInvoicesSuite struct {
