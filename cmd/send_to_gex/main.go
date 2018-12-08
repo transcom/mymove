@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/transcom/mymove/pkg/edi/gex"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/edi/gex"
 )
 
 // Call this from command line with go run cmd/send_to_gex/main.go -edi <filepath>
@@ -35,14 +35,9 @@ func main() {
 	// make sure edi ends in new line
 	ediString = strings.TrimSpace(ediString) + "\n"
 
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
-	}
-
 	fmt.Println(ediString)
-	statusCode, err := gex.SendInvoiceToGex(logger, ediString, *transactionName)
+	resp, err := gex.SendInvoiceToGex(ediString, *transactionName)
 
 	fmt.Println("Sending to GEX. . .")
-	fmt.Printf("status code: %v, error: %v \n", statusCode, err)
+	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
 }

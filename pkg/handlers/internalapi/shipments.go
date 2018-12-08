@@ -527,14 +527,14 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), invoice858CString, transactionName)
+	resp, err := gex.SendInvoiceToGex(invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	// get response from gex --> use status as status for this invoice call
-	if responseStatus != 200 {
-		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
+	if resp.StatusCode != 200 {
+		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", resp.StatusCode))
 		for index := range invoices {
 			invoices[index].Status = models.InvoiceStatusSUBMISSIONFAILURE
 		}

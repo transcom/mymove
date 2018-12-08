@@ -88,8 +88,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		statusCode, err := gex.SendInvoiceToGex(logger, invoice858CString, *transactionName)
-		fmt.Printf("status code: %v, error: %v", statusCode, err)
+		resp, err := gex.SendInvoiceToGex(invoice858CString, *transactionName)
+		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
 	} else {
 		ediWriter := edi.NewWriter(os.Stdout)
 		ediWriter.WriteAll(invoice858C.Segments())

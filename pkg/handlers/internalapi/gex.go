@@ -2,8 +2,6 @@ package internalapi
 
 import (
 	"bytes"
-	"net/http"
-	"os"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -29,31 +27,9 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	// EDI parser will fail silently
 	transactionBody = strings.TrimSpace(transactionBody) + "\n"
 
-	request, err := http.NewRequest(
-		"POST",
-		"https://gexweba.daas.dla.mil/msg_data/submit/"+transactionName,
-		strings.NewReader(transactionBody),
-	)
+	resp, err := gex.SendInvoiceToGex(transactionBody, transactionName)
 	if err != nil {
-		h.Logger().Error("Creating GEX POST request", zap.Error(err))
-		return gexop.NewSendGexRequestInternalServerError()
-	}
-
-	// We need to provide basic auth credentials for the GEX server, as well as
-	// our client certificate for the proxy in front of the GEX server.
-	request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
-
-	config, err := gex.GetTLSConfig()
-	if err != nil {
-		h.Logger().Error("Creating TLS config", zap.Error(err))
-		return gexop.NewSendGexRequestInternalServerError()
-	}
-
-	tr := &http.Transport{TLSClientConfig: config}
-	client := &http.Client{Transport: tr}
-	resp, err := client.Do(request)
-	if err != nil {
-		h.Logger().Error("Sending GEX POST request", zap.Error(err))
+		h.Logger().Error("Sending Invoice to Gex", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
 	}
 
