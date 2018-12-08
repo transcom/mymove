@@ -703,6 +703,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
 	}
+	logger.Info("Enabling CSRF protection")
 	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
 	root.Use(csrfCookieMiddleware)
 
