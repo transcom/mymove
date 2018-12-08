@@ -5,11 +5,12 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 func createRandomRSAPEM() (s string, err error) {
@@ -198,6 +199,33 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 	// And there should be an ID token in the request context
 	suite.NotNil(resultingSession)
 	suite.Equal(idToken, resultingSession.IDToken, "handler returned wrong id_token")
+
+	// And the cookie should be renewed
+	setCookies := rr.HeaderMap["Set-Cookie"]
+	suite.Equal(1, len(setCookies), "expected cookie to be set")
+}
+
+func (suite *authSuite) TestCsrfCookieMiddleware() {
+	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
+
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/protected", nil)
+
+	// Set a secure cookie on the request
+	cookie := http.Cookie{
+		Name:    MaskGorillaCSRFToken,
+		Value:   "fakecsrftoken",
+		Path:    "/",
+		Expires: expiry,
+	}
+	req.AddCookie(&cookie)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := CsrfCookieMiddleware(suite.logger, false)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should get a 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
 	// And the cookie should be renewed
 	setCookies := rr.HeaderMap["Set-Cookie"]
