@@ -24,12 +24,12 @@ func (suite *UpdateInvoicesSuite) TestUpdateInvoicesCall() {
 	verrs, err := createInvoice.Call(&invoice, shipmentLineItem.Shipment)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
-	updateInvoicesSubmitted := UpdateInvoicesSubmitted{
+	updateInvoicesSubmitted := UpdateInvoiceSubmitted{
 		DB: suite.db,
 	}
 	shipmentLineItems := models.ShipmentLineItems{shipmentLineItem}
 
-	verrs, err = updateInvoicesSubmitted.Call(invoice, shipmentLineItems)
+	verrs, err = updateInvoicesSubmitted.Call(&invoice, shipmentLineItems)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 
