@@ -18,6 +18,7 @@ describe('completing the ppm flow', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
+    cy.get('.wizard-header').should('not.exist');
     cy
       .get('input[name="planned_move_date"]')
       .first()
@@ -35,6 +36,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-size/);
     });
 
+    cy.get('.wizard-header').should('not.exist');
     //todo verify entitlement
     cy.contains('moving truck').click();
 
@@ -44,6 +46,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-incentive/);
     });
 
+    cy.get('.wizard-header').should('not.exist');
     cy.get('.rangeslider__handle').click();
 
     cy.get('.incentive').contains('$');
@@ -56,6 +59,7 @@ describe('completing the ppm flow', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
     });
+    cy.get('.wizard-header').should('not.exist');
 
     // //todo: should probably have test suite for review and edit screens
     cy.contains('$1,333.91'); // Verify that the advance matches what was input
@@ -66,6 +70,7 @@ describe('completing the ppm flow', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
     });
+    cy.get('.wizard-header').should('not.exist');
 
     cy.get('input[name="signature"]').type('Jane Doe');
 

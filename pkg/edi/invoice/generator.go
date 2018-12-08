@@ -7,6 +7,7 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -215,6 +216,31 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	if GBL == nil {
 		return segments, errors.New("GBL Number is missing for Shipment Identification Number (BX04)")
 	}
+	originTransportationOfficeName := shipment.ServiceMember.DutyStation.TransportationOffice.Name
+	if originTransportationOfficeName == "" {
+		return segments, errors.New("Transportation Office Name is missing (for N102)")
+	}
+	destinationTransportationOfficeName := shipment.Move.Orders.NewDutyStation.TransportationOffice.Name
+	if destinationTransportationOfficeName == "" {
+		return segments, errors.New("Transportation Office Name is missing (for N102)")
+	}
+	weightLbs := shipment.NetWeight
+	if weightLbs == nil {
+		return nil, errors.New("Shipment is missing the NetWeight")
+	}
+	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
+
+	acceptedOffers := shipment.ShipmentOffers.Accepted()
+	numAcceptedOffers := len(acceptedOffers)
+	if numAcceptedOffers == 0 {
+		return nil, errors.New("No accepted shipment offer found")
+	} else if numAcceptedOffers > 1 {
+		return nil, errors.Errorf("Found %d accepted shipment offers", numAcceptedOffers)
+	}
+	acceptedOffer := acceptedOffers[0]
+	if acceptedOffer.TransportationServiceProvider.ID == uuid.Nil {
+		return nil, errors.New("Accepted shipment offer is missing Transportation Service Provider")
+	}
 
 	return []edisegment.Segment{
 		&edisegment.BX{
@@ -222,8 +248,8 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			TransactionMethodTypeCode:    "J",  // Motor
 			ShipmentMethodOfPayment:      "PP", // Prepaid by seller
 			ShipmentIdentificationNumber: *GBL,
-			StandardCarrierAlphaCode:     "MCCG", // TODO: real SCAC
-			ShipmentQualifier:            "4",    // HHG Government Bill of Lading
+			StandardCarrierAlphaCode:     acceptedOffer.TransportationServiceProvider.StandardCarrierAlphaCode,
+			ShipmentQualifier:            "4", // HHG Government Bill of Lading
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "DY", // DoD transportation service code #
@@ -260,16 +286,16 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 		},
 		// Origin installation information
 		&edisegment.N1{
-			EntityIdentifierCode:        "RG",   // Issuing office name qualifier
-			Name:                        "LKNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27",   // GBLOC
+			EntityIdentifierCode:        "RG", // Issuing office name qualifier
+			Name:                        originTransportationOfficeName,
+			IdentificationCodeQualifier: "27", // GBLOC
 			IdentificationCode:          *shipment.SourceGBLOC,
 		},
 		// Destination installation information
 		&edisegment.N1{
-			EntityIdentifierCode:        "RH",   // Destination name qualifier
-			Name:                        "MLNQ", // TODO: pull from TransportationOffice
-			IdentificationCodeQualifier: "27",   // GBLOC
+			EntityIdentifierCode:        "RH", // Destination name qualifier
+			Name:                        destinationTransportationOfficeName,
+			IdentificationCodeQualifier: "27", // GBLOC
 			IdentificationCode:          *shipment.DestinationGBLOC,
 		},
 		// Accounting info
@@ -281,9 +307,9 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			FinancialInformationCode:     *tac,
 		},
 		&edisegment.L10{
-			Weight:          108.2, // TODO: real weight
-			WeightQualifier: "B",   // Billing weight
-			WeightUnitCode:  "L",   // Pounds
+			Weight:          netCentiWeight,
+			WeightQualifier: "B", // Billing weight
+			WeightUnitCode:  "L", // Pounds
 		},
 	}, nil
 }
@@ -295,6 +321,12 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	// L1 segment: p. 82
 
 	lineItems := shipmentWithCost.Shipment.ShipmentLineItems
+	shipment := shipmentWithCost.Shipment
+	weightLbs := shipment.NetWeight
+	if weightLbs == nil {
+		return nil, errors.New("Shipment is missing the NetWeight")
+	}
+	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
 
 	// TODO: For the moment, we are explicitly grabbing the line items for linehaul, pack, etc.
 	// TODO: We ultimately need to process all line items and hopefully abstract out their processing.
@@ -308,27 +340,25 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	}
 	segments = append(segments, linehaulSegments...)
 
-	fullPackSegments, err := generateFullPackSegments(lineItems)
+	fullPackSegments, err := generateFullPackSegments(lineItems, netCentiWeight)
 	if err != nil {
 		return nil, err
 	}
 	segments = append(segments, fullPackSegments...)
 
-	// TODO: We are missing full unpack (no "105C" currently in our tariff400ng_items table)
-	// TODO: Currently, the pack shipment line item covers the charge for both pack/unpack.
-	// fullUnpackSegments, err := generateFullUnpackSegments(lineItems)
-	// if err != nil {
-	//     return nil, err
-	// }
-	// segments = append(segments, fullUnpackSegments...)
+	fullUnpackSegments, err := generateFullUnpackSegments(lineItems, netCentiWeight)
+	if err != nil {
+		return nil, err
+	}
+	segments = append(segments, fullUnpackSegments...)
 
-	originServiceSegments, err := generateOriginServiceSegments(lineItems)
+	originServiceSegments, err := generateOriginServiceSegments(lineItems, netCentiWeight)
 	if err != nil {
 		return nil, err
 	}
 	segments = append(segments, originServiceSegments...)
 
-	destinationServiceSegments, err := generateDestinationServiceSegments(lineItems)
+	destinationServiceSegments, err := generateDestinationServiceSegments(lineItems, netCentiWeight)
 	if err != nil {
 		return nil, err
 	}
@@ -370,7 +400,7 @@ func generateLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 	}, nil
 }
 
-func generateFullPackSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+func generateFullPackSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "105A")
 	if err != nil {
 		return nil, err
@@ -384,7 +414,7 @@ func generateFullPackSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               lineItem.Quantity1.ToUnitFloat(),
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
@@ -397,7 +427,7 @@ func generateFullPackSegments(lineItems []models.ShipmentLineItem) ([]edisegment
 	}, nil
 }
 
-func generateFullUnpackSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+func generateFullUnpackSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "105C")
 	if err != nil {
 		return nil, err
@@ -411,7 +441,7 @@ func generateFullUnpackSegments(lineItems []models.ShipmentLineItem) ([]edisegme
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               lineItem.Quantity1.ToUnitFloat(),
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
@@ -419,12 +449,12 @@ func generateFullUnpackSegments(lineItems []models.ShipmentLineItem) ([]edisegme
 			FreightRate:              65.77, // TODO: placeholder for now
 			RateValueQualifier:       "RC",  // Rate
 			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: "105C", // unpack TODO: verify that GEX can recognize 105C (unpack used to be included with pack above)
+			SpecialChargeDescription: "105C", // unpack
 		},
 	}, nil
 }
 
-func generateOriginServiceSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+func generateOriginServiceSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "135A")
 	if err != nil {
 		return nil, err
@@ -438,7 +468,7 @@ func generateOriginServiceSegments(lineItems []models.ShipmentLineItem) ([]edise
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               lineItem.Quantity1.ToUnitFloat(),
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},
@@ -451,7 +481,7 @@ func generateOriginServiceSegments(lineItems []models.ShipmentLineItem) ([]edise
 	}, nil
 }
 
-func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
+func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
 	lineItem, err := findLineItemByCode(lineItems, "135B")
 	if err != nil {
 		return nil, err
@@ -465,7 +495,7 @@ func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem) ([]
 		},
 		&edisegment.L0{
 			LadingLineItemNumber: 1,
-			Weight:               lineItem.Quantity1.ToUnitFloat(),
+			Weight:               centiWeight,
 			WeightQualifier:      "B", // Billed weight
 			WeightUnitCode:       "L", // Pounds
 		},

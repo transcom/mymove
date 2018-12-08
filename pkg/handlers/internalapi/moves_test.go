@@ -2,11 +2,12 @@ package internalapi
 
 import (
 	"fmt"
+	"net/http/httptest"
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
-	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -17,33 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
-	// Given: a set of orders, user and servicemember
-	orders := testdatagen.MakeDefaultOrder(suite.TestDB())
-
-	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
-	req = suite.AuthenticateRequest(req, orders.ServiceMember)
-
-	// When: a new Move is posted
-	var selectedType = internalmessages.SelectedMoveTypePPM
-	newMovePayload := &internalmessages.CreateMovePayload{
-		SelectedMoveType: &selectedType,
-	}
-	params := moveop.CreateMoveParams{
-		OrdersID:          strfmt.UUID(orders.ID.String()),
-		CreateMovePayload: newMovePayload,
-		HTTPRequest:       req,
-	}
-	// Then: we expect a move to have been created based on orders
-	handler := CreateMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
-	okResponse := response.(*moveop.CreateMoveCreated)
-
-	suite.Assertions.Equal(orders.ID.String(), okResponse.Payload.OrdersID.String())
-}
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
@@ -327,6 +301,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 	path := fmt.Sprintf("/moves/%s/move_dates", move.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	moveID := strfmt.UUID(move.ID.String())
 	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
@@ -384,4 +359,32 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		strfmt.Date(move.Orders.ReportByDate),
 	}
 	suite.Equal(report, okResponse.Payload.Report)
+}
+
+func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
+	// Given: a set of orders, a move, user and servicemember
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	// And: another logged in user
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+
+	// And: the context contains the auth values for not logged-in user
+	req := httptest.NewRequest("GET", "/moves/some_id/", nil)
+	req = suite.AuthenticateRequest(req, anotherUser)
+
+	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
+	params := moveop.ShowMoveDatesSummaryParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveDate:    moveDate,
+	}
+
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context.SetPlanner(route.NewTestingPlanner(1125))
+
+	showHandler := ShowMoveDatesSummaryHandler{context}
+	response := showHandler.Handle(params)
+
+	// Then: expect a forbidden response
+	suite.CheckResponseForbidden(response)
+
 }

@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -56,37 +57,6 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		Shipments:               shipmentPayloads,
 	}
 	return movePayload, nil
-}
-
-// CreateMoveHandler creates a new move via POST /move
-type CreateMoveHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle ... creates a new Move from a request payload
-func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
-	ordersID, _ := uuid.FromString(params.OrdersID.String())
-
-	orders, err := models.FetchOrderForUser(h.DB(), session, ordersID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	selectedMoveType := models.SelectedMoveType(*params.CreateMovePayload.SelectedMoveType)
-	move, verrs, err := orders.CreateNewMove(h.DB(), &selectedMoveType)
-	if verrs.HasAny() || err != nil {
-		if err == models.ErrCreateViolatesUniqueConstraint {
-			h.Logger().Error("Failed to create Unique Record Locator")
-		}
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	return moveop.NewCreateMoveCreated().WithPayload(movePayload)
 }
 
 // ShowMoveHandler returns a move for a user and move ID
@@ -168,10 +138,11 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	ctx := params.HTTPRequest.Context()
-	ctx, span := beeline.StartSpan(ctx, "SubmitMoveHandler")
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -198,6 +169,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	err = h.NotificationSender().SendNotification(
+		ctx,
 		notifications.NewMoveSubmitted(h.DB(), h.Logger(), session, moveID),
 	)
 	if err != nil {
@@ -223,8 +195,16 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	_, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {

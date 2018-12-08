@@ -151,3 +151,24 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 		}
 	}
 }
+
+func (suite *RateEngineSuite) TestPricePreapprovalRequest() {
+
+	item := testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Status: models.ShipmentLineItemStatusSUBMITTED,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "4A",
+			RequiresPreApproval: true,
+		},
+	})
+
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	err := engine.PricePreapprovalRequest(&item)
+
+	if suite.NoError(err) {
+		suite.NotNil(item.AmountCents)
+		suite.NotNil(item.AppliedRate)
+	}
+}

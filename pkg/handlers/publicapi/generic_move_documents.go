@@ -1,8 +1,11 @@
 package publicapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 
 	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/auth"
@@ -68,6 +71,10 @@ type CreateGenericMoveDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
@@ -102,7 +109,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.DB(), session, converted)
+		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}

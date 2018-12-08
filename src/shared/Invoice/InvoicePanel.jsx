@@ -9,14 +9,12 @@ import {
   selectUnbilledShipmentLineItems,
   selectTotalFromUnbilledLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { sendHHGInvoice } from 'scenes/Office/ducks';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 export class InvoicePanel extends PureComponent {
   approvePayment = () => {
-    //this.props.onApprovePayment(this.props.shipmentId);
-    console.log('Approve Payment button clicked!');
+    return this.props.sendHHGInvoice(this.props.shipmentId);
   };
 
   render() {
@@ -35,12 +33,7 @@ export class InvoicePanel extends PureComponent {
           />
         </div>
       );
-      title = (
-        <span>
-          Invoicing{' '}
-          <FontAwesomeIcon className="icon invoice-panel-icon-gold invoice-panel-icon--title" icon={faClock} />
-        </span>
-      );
+      title = <span>Invoicing</span>;
     }
 
     return (
@@ -69,6 +62,6 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators({ sendHHGInvoice }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);

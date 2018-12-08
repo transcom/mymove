@@ -22,7 +22,9 @@ import (
 func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			_, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
+			ctx, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
+			defer span.Send()
+
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
@@ -45,12 +47,12 @@ func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler
 			}
 
 			// Include session office, service member, tsp and user IDs to the beeline event
-			span.AddField("auth.office_user_id", session.OfficeUserID)
-			span.AddField("auth.service_member_id", session.ServiceMemberID)
-			span.AddField("auth.tsp_user_id", session.TspUserID)
-			span.AddField("auth.user_id", session.UserID)
-			span.Send()
-			next.ServeHTTP(w, r)
+			span.AddTraceField("auth.office_user_id", session.OfficeUserID)
+			span.AddTraceField("auth.service_member_id", session.ServiceMemberID)
+			span.AddTraceField("auth.tsp_user_id", session.TspUserID)
+			span.AddTraceField("auth.user_id", session.UserID)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 		return http.HandlerFunc(mw)

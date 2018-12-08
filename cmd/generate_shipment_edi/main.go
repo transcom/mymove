@@ -46,7 +46,9 @@ func main() {
 	err = db.Eager(
 		"PickupAddress",
 		"Move.Orders.NewDutyStation.Address",
-		"ServiceMember",
+		"Move.Orders.NewDutyStation.TransportationOffice",
+		"ServiceMember.DutyStation.TransportationOffice",
+		"ShipmentOffers.TransportationServiceProvider",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
 		"ShipmentLineItems.Tariff400ngItem",
 	).Where("shipment_offers.accepted=true").
