@@ -615,15 +615,6 @@ func main() {
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	root.Use(logging.LogRequestMiddleware)
-	// PS: Don't forget to pass csrf.Secure(false) if you're developing locally
-	// over plain HTTP (just don't leave it on in production).
-	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
-	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
-	if err != nil {
-		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
-	}
-	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
-	root.Use(csrfCookieMiddleware)
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
@@ -673,6 +664,16 @@ func main() {
 
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(build, v.GetString("new-relic-application-id"), v.GetString("new-relic-license-key"), logger))
+
+	// PS: Don't forget to pass csrf.Secure(false) if you're developing locally
+	// over plain HTTP (just don't leave it on in production).
+	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
+	}
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(csrfCookieMiddleware)
 
 	var httpHandler http.Handler
 	if useHoneycomb {
