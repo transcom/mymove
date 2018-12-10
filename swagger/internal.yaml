@@ -3203,7 +3203,7 @@ paths:
           description: server error
   /shipments/{shipmentId}/invoice:
     post:
-      summary: Sends an invoice to Syncada through GEX
+      summary: Creates an invoice to send to Syncada through GEX
       description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
       operationId: sendHHGInvoice
       tags:
