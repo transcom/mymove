@@ -202,6 +202,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		// Set dates based on status
 		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
 			shipment.PmSurveyConductedDate = &Now
+			shipment.PmSurveyCompletedAt = &Now
 			shipment.PmSurveyPlannedPackDate = &NowPlusOneWeek
 			shipment.PmSurveyPlannedPickupDate = &NowPlusOneWeek
 			shipment.PmSurveyPlannedDeliveryDate = &NowPlusTwoWeeks
@@ -275,7 +276,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		count += split
 		for _, shipment := range subShipmentList {
 			var offerState *bool
-			if shipment.Status == models.ShipmentStatusACCEPTED || shipment.Status == models.ShipmentStatusAPPROVED {
+			if shipment.Status != models.ShipmentStatusAWARDED {
 				offerState = models.BoolPointer(true)
 			}
 			shipmentOfferAssertions := Assertions{
@@ -411,4 +412,16 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		RequiresPreApproval: false,
 	}
 	mustSave(db, &code105A)
+
+	code105C := models.Tariff400ngItem{
+		Code:                "105C",
+		Item:                "Full Unpack",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationDESTINATION,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeNONE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code105C)
 }

@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -196,10 +195,6 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
 	flag.String("aws-s3-key-namespace", "", "Key prefix for all objects written to S3")
 	flag.String("aws-ses-region", "", "AWS region used for SES")
-
-	// New Relic Config
-	flag.String("new-relic-application-id", "", "App ID for New Relic Browser")
-	flag.String("new-relic-license-key", "", "License key for New Relic Browser")
 
 	// Honeycomb Config
 	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
@@ -684,7 +679,7 @@ func main() {
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,
-	root.HandleFunc(pat.Get("/*"), indexHandler(build, v.GetString("new-relic-application-id"), v.GetString("new-relic-license-key"), logger))
+	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
 
 	var httpHandler http.Handler
 	if useHoneycomb {
@@ -749,21 +744,8 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 	}
 }
 
-// indexHandler injects New Relic client code and credentials into index.html
-// and returns a handler that will serve the resulting content
-func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, logger *zap.Logger) http.HandlerFunc {
-	data := map[string]string{
-		"NewRelicApplicationID": newRelicApplicationID,
-		"NewRelicLicenseKey":    newRelicLicenseKey,
-	}
-	newRelicTemplate, err := template.ParseFiles(path.Join(buildDir, "new_relic.html"))
-	if err != nil {
-		logger.Fatal("could not load new_relic.html template: run make client_build", zap.Error(err))
-	}
-	newRelicHTML := bytes.NewBuffer([]byte{})
-	if err := newRelicTemplate.Execute(newRelicHTML, data); err != nil {
-		logger.Fatal("could not render new_relic.html template", zap.Error(err))
-	}
+// indexHandler returns a handler that will serve the resulting content
+func indexHandler(buildDir string, logger *zap.Logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
 	// #nosec - indexPath does not come from user input
@@ -771,7 +753,6 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 	if err != nil {
 		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
 	}
-	mergedHTML := bytes.Replace(indexHTML, []byte(`<script type="new-relic-placeholder"></script>`), newRelicHTML.Bytes(), 1)
 
 	stat, err := os.Stat(indexPath)
 	if err != nil {
@@ -779,6 +760,6 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(mergedHTML))
+		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(indexHTML))
 	}
 }

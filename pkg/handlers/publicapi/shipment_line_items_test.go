@@ -475,6 +475,49 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 	}
 }
 
+func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	item := testdatagen.MakeCompleteShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Status: models.ShipmentLineItemStatusSUBMITTED,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "4A",
+			RequiresPreApproval: true,
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusDELIVERED,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/shipments/accessorials/some_id/approve", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.ApproveShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(item.ID.String()),
+	}
+
+	// And: get shipment line item is returned
+	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	if suite.Assertions.IsType(&accessorialop.ApproveShipmentLineItemOK{}, response) {
+		okResponse := response.(*accessorialop.ApproveShipmentLineItemOK)
+
+		// And: Payload is equivalent to original shipment line item
+		suite.Equal(item.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(apimessages.ShipmentLineItemStatusAPPROVED, okResponse.Payload.Status)
+
+		// And: Rate and amount have been assigned to item
+		suite.NotNil(okResponse.Payload.AppliedRate)
+		suite.NotNil(okResponse.Payload.AmountCents)
+	}
+}
+
 func (suite *HandlerSuite) TestApproveShipmentLineItemNotRequired() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
 

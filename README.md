@@ -59,7 +59,6 @@ As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Ed
 The client application (i.e. website) makes outbound requests to the following domains in its normal operation. If you have a firewall in place, it will need to be configured to allow outbound access to them for the application to operate.
 
 * S3 for document downloads; exact domains TBD.
-* New Relic for browser performance monitoring; specifically `bam.nr-data.net` and `js-agent.newrelic.*`. [More info and IPs are listed here](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/networks#agents).
 * Honeycomb for server-side debugging and observability. Currently being tested in staging and experimental environments.
 
 ## Development
