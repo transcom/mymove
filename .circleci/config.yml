@@ -12,6 +12,7 @@ version: "2.1"
 executors:
   # `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
   mymove:
+    resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
@@ -23,6 +24,7 @@ executors:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
   # `mymove_and_postgres` adds a secondary postgres container to be used during testing.
   mymove_and_postgres:
+    resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
