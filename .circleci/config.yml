@@ -18,7 +18,7 @@ executors:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
   # `mymove_e2e` is the same as `mymove` executor but upgrades the resource class
   mymove_e2e:
-    resource_class: medium+
+    resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
