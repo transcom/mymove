@@ -26,10 +26,8 @@ export class InvoicePanel extends PureComponent {
         <div>
           <InvoiceTable
             shipmentLineItems={this.props.unbilledShipmentLineItems}
-            shipmentStatus={this.props.shipmentStatus}
             totalAmount={this.props.lineItemsTotal}
-            approvePayment={this.approvePayment}
-            canApprove={this.props.canApprove}
+            title={<h5>Unbilled Line Items</h5>}
           />
         </div>
       );
