@@ -34,7 +34,15 @@ class InvoiceTable extends PureComponent {
     this.setState({ paymentStatus: PAYMENT_IN_PROCESSING });
 
     //dispatch action to submit invoice to GEX
-    this.props.approvePayment().then(() => this.invoiceSuccess());
+    this.props.approvePayment().then(status => {
+      //this is a temp workaround until invoice table gets refactored
+      //and invoice status starts coming from redux store instead of being in-state
+      if (status.type === 'SEND_HHG_INVOICE_SUCCESS') {
+        this.invoiceSuccess();
+      } else {
+        this.invoiceFail();
+      }
+    });
   };
 
   invoiceSuccess = () => {
