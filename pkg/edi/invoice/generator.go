@@ -21,7 +21,6 @@ const dateFormat = "20060102"
 const timeFormat = "1504"
 const senderCode = "MYMOVE"
 
-//const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
 const receiverCode = "8004171844" // Syncada
 
 // ICNSequenceName used to query Interchange Control Numbers from DB
