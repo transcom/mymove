@@ -128,7 +128,6 @@ function serviceMemberVerifiesPPMDatesAndLocationsEdited() {
     console.log(text);
     expect(text).to.include('Move Date: 05/28/2018');
     expect(text).to.include('Pickup ZIP Code:  91206');
-    expect(text).to.include('Additional Pickup:  90042');
     expect(text).to.include('Delivery ZIP Code:  50308');
   });
 }
@@ -140,11 +139,7 @@ function serviceMemberEditsPPMDatesAndLocations() {
 
   typeInInput({ name: 'planned_move_date', value: '5/28/2018' });
   typeInInput({ name: 'pickup_postal_code', value: '91206' });
-  cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
-  typeInInput({ name: 'additional_pickup_postal_code', value: '90042' });
   typeInInput({ name: 'destination_postal_code', value: '50308' });
-  cy.get('input[type="radio"]').check('yes', { force: true }); // checks yes for both radios on form
-  typeInInput({ name: 'days_in_storage', value: '60' });
 
   cy
     .get('button')
