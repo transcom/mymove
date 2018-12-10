@@ -563,7 +563,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 
 	// Update invoice records as submitted
 	shipmentLineItems := shipment.ShipmentLineItems
-	verrs, err = invoiceop.UpdateInvoicesSubmitted{DB: h.DB()}.Call(invoice, shipmentLineItems)
+	verrs, err = invoiceop.UpdateInvoiceSubmitted{DB: h.DB()}.Call(&invoice, shipmentLineItems)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
