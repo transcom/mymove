@@ -36,16 +36,14 @@ func SendInvoiceToGex(edi string, transactionName string) (resp *http.Response, 
 
 	config, err := GetTLSConfig()
 	if err != nil {
-		errors.Wrap(err, "Creating TLS config")
-		return resp, err
+		return resp, errors.Wrap(err, "Creating TLS config")
 	}
 
 	tr := &http.Transport{TLSClientConfig: config}
 	client := &http.Client{Transport: tr, Timeout: gexRequestTimeout}
 	resp, err = client.Do(request)
 	if err != nil {
-		errors.Wrap(err, "Sending GEX POST request")
-		return resp, err
+		return resp, errors.Wrap(err, "Sending GEX POST request")
 	}
 
 	return resp, err
