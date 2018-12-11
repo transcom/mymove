@@ -40,7 +40,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { getShipment } from 'shared/Entities/modules/shipments';
+import { getShipment, updateShipment } from 'shared/Entities/modules/shipments';
 
 import {
   loadMoveDependencies,
@@ -100,7 +100,7 @@ const HHGTabContent = props => {
       <RoutingPanel title="Routing" moveId={props.moveId} />
       <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
       <LocationsContainer update={props.patchShipment} />
-      <Weights title="Weights & Items" shipment={props.shipment} update={props.patchShipment} />
+      <Weights title="Weights & Items" shipment={props.shipment} update={props.updateShipment} />
       {props.officeShipment && (
         <PremoveSurvey
           title="Premove Survey"
@@ -316,6 +316,7 @@ class MoveInfo extends Component {
                     officeHHG={JSON.stringify(this.props.officeHHG)}
                     officeShipment={this.props.officeShipment}
                     patchShipment={this.props.patchShipment}
+                    updateShipment={this.props.updateShipment}
                     moveId={this.props.match.params.moveId}
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
@@ -475,6 +476,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       getShipment,
+      updateShipment,
       loadShipmentDependencies,
       loadMoveDependencies,
       getMoveDocumentsForMove,

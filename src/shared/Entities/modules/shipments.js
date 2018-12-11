@@ -25,11 +25,15 @@ export function createShipment(
 }
 
 export function updateShipment(
-  label,
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
-  return swaggerRequest(getClient, 'shipments.patchShipment', { shipmentId, shipment }, { label });
+  return swaggerRequest(
+    getPublicClient,
+    'shipments.patchShipment',
+    { shipmentId, update: shipment },
+    { label: 'shipments.updateShipment' },
+  );
 }
 
 export function selectShipment(state, id) {
