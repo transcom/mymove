@@ -1019,6 +1019,41 @@ definitions:
       backup_mailing_address:
         $ref: '#/definitions/Address'
         title: Backup Mailing Address
+  Invoice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/InvoiceStatus'
+      invoiced_date:
+        type: string
+        title: Invoiced date
+        format: date-time
+      invoice_number:
+        type: string
+        example: '12432'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  InvoiceStatus:
+    type: string
+    title: Status
+    enum:
+      - DRAFT
+      - IN_PROCESS
+      - SUBMITTED
+      - SUBMISSION_FAILURE
+    x-display-value:
+      DRAFT: Draft
+      IN_PROCESS: In Process
+      SUBMITTED: Submitted
+      SUBMISSION_FAILURE: Submission Failure
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -3168,9 +3203,9 @@ paths:
           description: server error
   /shipments/{shipmentId}/invoice:
     post:
-      summary: Sends an invoice to Syncada through GEX
+      summary: Creates an invoice to send to Syncada through GEX
       description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
-      operationId: sendHHGInvoice
+      operationId: createAndSendHHGInvoice
       tags:
         - shipments
       parameters:
@@ -3183,6 +3218,8 @@ paths:
       responses:
         200:
           description: invoice was submitted successfully
+          schema:
+            $ref: '#/definitions/Invoice'
         400:
           description: invalid request
         401:
