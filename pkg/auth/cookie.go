@@ -113,8 +113,8 @@ func WriteCsrfCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout b
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
-// CsrfCookieMiddleware handle serializing and de-serializing the CSRF Token of the user_session cookie
-func CsrfCookieMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
+// MaskedCsrfMiddleware handle serializing and de-serializing the CSRF Token of the user_session cookie
+func MaskedCsrfMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			WriteCsrfCookie(w, csrf.Token(r), noSessionTimeout, logger)

@@ -486,7 +486,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout)
-	csrfCookieMiddleware := auth.CsrfCookieMiddleware(logger, noSessionTimeout)
+	maskedCsrfMiddleware := auth.MaskedCsrfMiddleware(logger, noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
@@ -634,6 +634,20 @@ func main() {
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
 
+	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
+	}
+	logger.Info("Enabling CSRF protection")
+	// csrfMiddleware needs to be generated once and used twice
+	// setting the masked csrf cookie removes the unmasked cookie
+	// setting the masked csrf cookie after the unmasked cookie returns null value for the masked cookie
+	unmaskedCsrfMiddleware := csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"))
+	root.Use(unmaskedCsrfMiddleware)
+	root.Use(maskedCsrfMiddleware)
+	root.Use(unmaskedCsrfMiddleware)
+
 	// Sends build variables to honeycomb
 	if len(gitBranch) > 0 && len(gitCommit) > 0 {
 		root.Use(func(next http.Handler) http.Handler {
@@ -695,17 +709,6 @@ func main() {
 
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
-
-	// PS: Don't forget to pass csrf.Secure(false) if you're developing locally
-	// over plain HTTP (just don't leave it on in production).
-	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
-	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
-	if err != nil {
-		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
-	}
-	logger.Info("Enabling CSRF protection")
-	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
-	root.Use(csrfCookieMiddleware)
 
 	var httpHandler http.Handler
 	if useHoneycomb {

@@ -205,7 +205,7 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 	suite.Equal(1, len(setCookies), "expected cookie to be set")
 }
 
-func (suite *authSuite) TestCsrfCookieMiddleware() {
+func (suite *authSuite) TestMaskedCsrfMiddleware() {
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 
 	rr := httptest.NewRecorder()
@@ -220,7 +220,7 @@ func (suite *authSuite) TestCsrfCookieMiddleware() {
 	}
 	req.AddCookie(&cookie)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := CsrfCookieMiddleware(suite.logger, false)(handler)
+	middleware := MaskedCsrfMiddleware(suite.logger, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
