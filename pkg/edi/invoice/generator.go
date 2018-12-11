@@ -368,17 +368,21 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		unitBasedMeasurementUnits := map[models.Tariff400ngItemMeasurementUnit]int{
 			models.Tariff400ngItemMeasurementUnitFLATRATE: 0,
 			models.Tariff400ngItemMeasurementUnitEACH:     0,
+			models.Tariff400ngItemMeasurementUnitHOURS:    0,
+			models.Tariff400ngItemMeasurementUnitDAYS:     0,
 		}
 
 		weightBasedMeasurements := map[models.Tariff400ngItemMeasurementUnit]int{
 			models.Tariff400ngItemMeasurementUnitWEIGHT: 0,
 		}
 
+		measurementUnit := lineItem.Tariff400ngItem.MeasurementUnit1
+
 		// This will check if the Measurement unit is in one of the maps above.
 		// Doing this allows us to have two generic paths based on groups of MeasurementUnits
 		// This is a way to do something a-kin to OR logic in our comparison for the category.
-		_, isUnitBased := unitBasedMeasurementUnits[lineItem.Tariff400ngItem.MeasurementUnit1]
-		_, isWeightBased := weightBasedMeasurements[lineItem.Tariff400ngItem.MeasurementUnit1]
+		_, isUnitBased := unitBasedMeasurementUnits[measurementUnit]
+		_, isWeightBased := weightBasedMeasurements[measurementUnit]
 
 		tariffSegment = []edisegment.Segment{
 			&edisegment.HL{
@@ -391,7 +395,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			unitBasedSegment := &edisegment.L0{
 				LadingLineItemNumber:   ladingLineItemNumber,
 				BilledRatedAsQuantity:  billedRatedAsQuantity,
-				BilledRatedAsQualifier: string(lineItem.Tariff400ngItem.MeasurementUnit1),
+				BilledRatedAsQualifier: string(measurementUnit),
 			}
 			tariffSegment = append(tariffSegment, unitBasedSegment)
 
@@ -414,7 +418,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			tariffSegment = append(tariffSegment, weightBasedSegment)
 
 		} else {
-			logger.Error(string(lineItem.Tariff400ngItem.MeasurementUnit1) + "Used with " +
+			logger.Error(string(measurementUnit) + "Used with " +
 				lineItem.ID.String() + " is an EDI meaasurement unit we're not prepared for.")
 		}
 
