@@ -7,7 +7,6 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -226,21 +225,25 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	}
 	weightLbs := shipment.NetWeight
 	if weightLbs == nil {
-		return nil, errors.New("Shipment is missing the NetWeight")
+		return segments, errors.New("Shipment is missing the NetWeight")
 	}
 	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
 
-	acceptedOffers := shipment.ShipmentOffers.Accepted()
-	numAcceptedOffers := len(acceptedOffers)
-	if numAcceptedOffers == 0 {
-		return nil, errors.New("No accepted shipment offer found")
-	} else if numAcceptedOffers > 1 {
-		return nil, errors.Errorf("Found %d accepted shipment offers", numAcceptedOffers)
+	acceptedOffer, err := shipment.GetAcceptedShipmentOffer()
+	if err != nil || acceptedOffer == nil {
+		return segments, errors.Wrap(err, "Error retrieving ACCEPTED ShipmentOffer for EDI generator")
 	}
-	acceptedOffer := acceptedOffers[0]
-	if acceptedOffer.TransportationServiceProvider.ID == uuid.Nil {
-		return nil, errors.New("Accepted shipment offer is missing Transportation Service Provider")
+
+	scac := acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
+	if scac == "" {
+		return segments, errors.New("SCAC for TSP is missing with TSP ID: " + acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
 	}
+
+	var supplierID string
+	if acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID == nil {
+		return segments, errors.New("SupplierID for TSP is missing with TSP ID " + acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
+	}
+	supplierID = *acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID
 
 	return []edisegment.Segment{
 		&edisegment.BX{
@@ -248,7 +251,7 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			TransactionMethodTypeCode:    "J",  // Motor
 			ShipmentMethodOfPayment:      "PP", // Prepaid by seller
 			ShipmentIdentificationNumber: *GBL,
-			StandardCarrierAlphaCode:     acceptedOffer.TransportationServiceProvider.StandardCarrierAlphaCode,
+			StandardCarrierAlphaCode:     scac,
 			ShipmentQualifier:            "4", // HHG Government Bill of Lading
 		},
 		&edisegment.N9{
@@ -260,8 +263,8 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 			ReferenceIdentification:          "ABCD00001-1", // TODO: real invoice number
 		},
 		&edisegment.N9{
-			ReferenceIdentificationQualifier: "PQ",       // Payee code
-			ReferenceIdentification:          "ABBV2708", // TODO: add real supplier ID
+			ReferenceIdentificationQualifier: "PQ", // Payee code
+			ReferenceIdentification:          supplierID,
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "OQ", // Order number

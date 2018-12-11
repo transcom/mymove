@@ -257,14 +257,10 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 		return CostByShipment{}, errors.New("ShipmentOffers is nil")
 	}
 
-	acceptedOffers := shipment.ShipmentOffers.Accepted()
-	numAcceptedOffers := len(acceptedOffers)
-	if numAcceptedOffers == 0 {
-		return CostByShipment{}, errors.New("ShipmentOffers fetched, but no accepted offer found")
-	} else if numAcceptedOffers > 1 {
-		return CostByShipment{}, errors.Errorf("Found %d accepted shipment offers", numAcceptedOffers)
+	acceptedOffer, err := shipment.GetAcceptedShipmentOffer()
+	if err != nil || acceptedOffer == nil {
+		return CostByShipment{}, errors.Wrap(err, "Error retrieving ACCEPTED ShipmentOffer in rateengine")
 	}
-	acceptedOffer := acceptedOffers[0]
 
 	if acceptedOffer.TransportationServiceProviderPerformance.ID == uuid.Nil {
 		return CostByShipment{}, errors.New("TransportationServiceProviderPerformance is nil")

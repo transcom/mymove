@@ -18,6 +18,7 @@ const defaultPocGeneralPhone = "(555) 101-0101"
 const defaultPocClaimsName = "Art Vandelay"
 const defaultPocClaimsEmail = "vandelay.ind@example.com"
 const defaultPocClaimsPhone = "(555) 321-4321"
+const defaultPayeeCode = "1234"
 
 // RandomSCAC generates a random 4 figure string from allowed alphanumeric bytes to represent the SCAC.
 func RandomSCAC() string {
@@ -28,12 +29,32 @@ func RandomSCAC() string {
 	return string(b)
 }
 
+// DefaultSupplierID generates a default SupplierID for a given SCAC
+func DefaultSupplierID(scac string) *string {
+	var supplierID = scac + defaultPayeeCode
+	return &supplierID
+}
+
 // MakeTSP makes a single transportation service provider record.
 func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationServiceProvider {
 
+	// Check to see if TSP has already been created
+	existingTsp := models.TransportationServiceProvider{}
+	if !isZeroUUID(assertions.TransportationServiceProvider.ID) {
+		if err := db.Find(&existingTsp, assertions.TransportationServiceProvider.ID); err == nil {
+			// Found existing TSP for this ID
+			return existingTsp
+		}
+	}
+
 	scac := assertions.TransportationServiceProvider.StandardCarrierAlphaCode
 	if scac == "" {
-		scac = RandomSCAC()
+		scac = "ABCD" //RandomSCAC()
+	}
+
+	supplierID := assertions.TransportationServiceProvider.SupplierID
+	if supplierID == nil || *supplierID == "" {
+		supplierID = DefaultSupplierID(scac)
 	}
 
 	name := assertions.TransportationServiceProvider.Name
@@ -73,6 +94,7 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: scac,
+		SupplierID:               supplierID,
 		Enrolled:                 assertions.TransportationServiceProvider.Enrolled,
 		Name:                     name,
 		PocGeneralName:           pocGeneralName,

@@ -25,6 +25,9 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	// Test for TSP ID first before creating a new TSP
 	tsp := assertions.ShipmentOffer.TransportationServiceProvider
 	if isZeroUUID(tsp.ID) || isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
+		if !isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
+			assertions.TransportationServiceProvider.ID = assertions.ShipmentOffer.TransportationServiceProviderID
+		}
 		tsp = MakeTSP(db, assertions)
 	}
 
@@ -279,6 +282,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			if shipment.Status != models.ShipmentStatusAWARDED {
 				offerState = models.BoolPointer(true)
 			}
+			// TODO: How to resolve not using TransportationServiceProviderID at this point
 			shipmentOfferAssertions := Assertions{
 				ShipmentOffer: models.ShipmentOffer{
 					ShipmentID:                      shipment.ID,

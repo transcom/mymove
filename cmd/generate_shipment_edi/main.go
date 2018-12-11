@@ -48,8 +48,8 @@ func main() {
 		"Move.Orders.NewDutyStation.Address",
 		"Move.Orders.NewDutyStation.TransportationOffice",
 		"ServiceMember.DutyStation.TransportationOffice",
-		"ShipmentOffers.TransportationServiceProvider",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
+		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
 		"ShipmentLineItems.Tariff400ngItem",
 	).Where("shipment_offers.accepted=true").
 		Where("move_id = $1", &moveID).

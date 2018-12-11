@@ -510,7 +510,8 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
 		"PartialSITDeliveryAddress",
-		"ShipmentOffers.TransportationServiceProviderPerformance").
+		"ShipmentOffers.TransportationServiceProviderPerformance",
+		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider").
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
@@ -781,4 +782,46 @@ func (s *Shipment) FetchShipmentLineItemsByItemID(db *pop.Connection, tariff400n
 		Where("tariff400ng_item_id = ?", tariff400ngItemID).
 		All(&lineItems)
 	return lineItems, err
+}
+
+// RequiresAnAcceptedTsp returns true if a shipment requires that there should be an accepted TSP assigned
+// to the shipment
+func (s *Shipment) RequiresAnAcceptedTsp() bool {
+	if s.Status == ShipmentStatusACCEPTED ||
+		s.Status == ShipmentStatusAPPROVED ||
+		s.Status == ShipmentStatusINTRANSIT ||
+		s.Status == ShipmentStatusDELIVERED ||
+		s.Status == ShipmentStatusCOMPLETED {
+		return true
+	}
+	return false
+}
+
+// GetAcceptedShipmentOffer returns the ShipmentOffer for an Accepted TSP for a Shipment
+func (s *Shipment) GetAcceptedShipmentOffer() (*ShipmentOffer, error) {
+
+	acceptedOffers, err := s.ShipmentOffers.Accepted()
+	if err != nil {
+		return nil, err
+	}
+
+	numAcceptedOffers := len(acceptedOffers)
+
+	// Should never have more than 1 accepted offer for a shipment
+	if numAcceptedOffers > 1 {
+		return nil, errors.Errorf("Found %d accepted shipment offers", numAcceptedOffers)
+	}
+
+	// If the Shipment is in a state that requires a TSP then check for the Accepted TSP
+	if s.RequiresAnAcceptedTsp() == true {
+		if numAcceptedOffers == 0 {
+			return nil, errors.New("No accepted shipment offer found")
+		}
+	} else if numAcceptedOffers == 0 {
+		// If the Shipment does not require that it has a TSP then return nil
+		// -- The Shipment is currently in a state that doesn't require a TSP to be associated to it
+		return nil, nil
+	}
+
+	return &acceptedOffers[0], nil
 }

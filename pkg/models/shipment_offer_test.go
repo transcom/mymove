@@ -79,12 +79,14 @@ func (suite *ModelSuite) TestShipmentOfferStateMachine() {
 func (suite *ModelSuite) TestGetAcceptedShipmentOffer() {
 	// Trying a nil slice of shipment offers.
 	var shipmentOffers ShipmentOffers
-	suite.Nil(shipmentOffers.Accepted())
+	shipmentOffers, _ = shipmentOffers.Accepted()
+	suite.Nil(shipmentOffers)
 
 	// Make a default shipment offer (which shouldn't be accepted).
 	unacceptedOffer := testdatagen.MakeDefaultShipmentOffer(suite.db)
 	shipmentOffers = ShipmentOffers{unacceptedOffer}
-	suite.Nil(shipmentOffers.Accepted())
+	shipmentOffers, _ = shipmentOffers.Accepted()
+	suite.Nil(shipmentOffers)
 
 	// Add an accepted shipment to our slice.
 	acceptedOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
@@ -94,7 +96,53 @@ func (suite *ModelSuite) TestGetAcceptedShipmentOffer() {
 		},
 	})
 	shipmentOffers = append(shipmentOffers, acceptedOffer)
-	acceptedOffers := shipmentOffers.Accepted()
+	acceptedOffers, _ := shipmentOffers.Accepted()
 	suite.Len(acceptedOffers, 1)
-	suite.Equal(acceptedOffer.ID, shipmentOffers.Accepted()[0].ID)
+	suite.Equal(acceptedOffer.ID, acceptedOffers[0].ID)
+}
+
+func (suite *ModelSuite) TestGetAcceptedShipmentOfferFromShipment() {
+	t := suite.T()
+	pickupDate := time.Now()
+	deliveryDate := time.Now().AddDate(0, 0, 1)
+	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	tsp := testdatagen.MakeDefaultTSP(suite.db)
+	tspp := testdatagen.MakeDefaultTSPPerformance(suite.db)
+
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
+	market := "dHHG"
+
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: Shipment{
+			RequestedPickupDate:     &pickupDate,
+			ActualPickupDate:        &pickupDate,
+			ActualDeliveryDate:      &deliveryDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
+			Market:                  &market,
+		},
+	})
+
+	shipmentOffer, err := CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, tspp.ID, false)
+	suite.Nil(err, "error making ShipmentOffer")
+
+	expectedShipmentOffer := ShipmentOffer{}
+	if err := suite.db.Find(&expectedShipmentOffer, shipmentOffer.ID); err != nil {
+		t.Fatalf("could not find shipmentOffer: %v", err)
+	}
+
+	// Accept the ShipmentOffer
+	shipmentRet, shipmentOfferRet, verr, errRet := AcceptShipmentForTSP(suite.db, tsp.ID, shipment.ID)
+	suite.NotNil(shipmentRet)
+	suite.NotNil(shipmentOfferRet)
+	suite.Nil(verr)
+	suite.Nil(errRet)
+
+	// Get the Accepted ShipmentOffer from the Shipment
+	acceptedOffer, acceptedErr := shipment.GetAcceptedShipmentOffer()
+	suite.Nil(acceptedErr)
+	suite.NotNil(acceptedOffer)
+	suite.Equal(acceptedOffer.ID, shipmentOfferRet.ID)
 }

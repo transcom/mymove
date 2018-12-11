@@ -340,11 +340,14 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 		},
 	})
 
+	var scac = "NPEK"
+	var supplierID = scac + "1234" // scac + payee code
 	// Make a TSP in the same TDL, but that is NOT enrolled
 	tdl := *shipment.TrafficDistributionList
 	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: "NPEK",
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID, //NPEK1234
 			Enrolled:                 false,
 		},
 	})
@@ -612,9 +615,12 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	}
 
 	// Make Non-Peak TSP and Shipment
+	var scac = "NPEK"
+	var supplierID = scac + "1234" // scac + payee code
 	tspNonPeak := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: "NPEK",
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID, //NPEK1234
 			Enrolled:                 true,
 		},
 	})
