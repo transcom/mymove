@@ -21,18 +21,9 @@ executors:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
-  # `mymove_and_postgres_medium` and `mymove_and_postgres_large` add a secondary postgres container to be used during testing.
+  # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
-    working_directory: ~/go/src/github.com/transcom/mymove
-    docker:
-      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
-      - image: postgres:10.5
-        environment:
-          - POSTGRES_PASSWORD: mysecretpassword
-          - POSTGRES_DB: test_db
-  mymove_and_postgres_large:
-    resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
@@ -209,7 +200,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    executor: mymove_and_postgres_large
+    executor: mymove_and_postgres_medium
     steps:
       - checkout
       - setup_remote_docker:
