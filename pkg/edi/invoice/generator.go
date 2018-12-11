@@ -348,7 +348,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		const freightRate = 4.07
 
 		// Initialize empty edisegment
-		var tariffSegment []edisegment.Segment
+		var tariffSegments []edisegment.Segment
 
 		// Initialize hierarchicalLevelCode
 		var hierarchicalLevelID string
@@ -384,7 +384,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 		_, isUnitBased := unitBasedMeasurementUnits[measurementUnit]
 		_, isWeightBased := weightBasedMeasurements[measurementUnit]
 
-		tariffSegment = []edisegment.Segment{
+		tariffSegments = []edisegment.Segment{
 			&edisegment.HL{
 				HierarchicalIDNumber:  hierarchicalLevelID,
 				HierarchicalLevelCode: hierarchicalLevelCode,
@@ -397,7 +397,7 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 				BilledRatedAsQuantity:  billedRatedAsQuantity,
 				BilledRatedAsQualifier: string(measurementUnit),
 			}
-			tariffSegment = append(tariffSegment, unitBasedSegment)
+			tariffSegments = append(tariffSegments, unitBasedSegment)
 
 		} else if isWeightBased {
 			var weight float64
@@ -415,11 +415,11 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 				WeightQualifier:      weightQualifier,
 				WeightUnitCode:       weightUnitCode,
 			}
-			tariffSegment = append(tariffSegment, weightBasedSegment)
+			tariffSegments = append(tariffSegments, weightBasedSegment)
 
 		} else {
 			logger.Error(string(measurementUnit) + "Used with " +
-				lineItem.ID.String() + " is an EDI meaasurement unit we're not prepared for.")
+				lineItem.ID.String() + " is an EDI measurement unit we're not prepared for.")
 		}
 
 		segmentL1 := &edisegment.L1{
@@ -429,9 +429,9 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 			SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
 		}
 
-		tariffSegment = append(tariffSegment, segmentL1)
+		tariffSegments = append(tariffSegments, segmentL1)
 
-		segments = append(segments, tariffSegment...)
+		segments = append(segments, tariffSegments...)
 
 	}
 
