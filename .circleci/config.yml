@@ -10,7 +10,7 @@
 version: "2.1"
 
 executors:
-  # `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
+  # `mymove_small` and `mymove_medium` use the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
@@ -21,9 +21,18 @@ executors:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
-  # `mymove_and_postgres` adds a secondary postgres container to be used during testing.
-  mymove_and_postgres:
+  # `mymove_and_postgres_medium` and `mymove_and_postgres_large` add a secondary postgres container to be used during testing.
+  mymove_and_postgres_medium:
     resource_class: medium
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
+      - image: postgres:10.5
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+  mymove_and_postgres_large:
+    resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
@@ -157,7 +166,7 @@ jobs:
 
   # `pre_test` runs pre-commit against all files.
   pre_test:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
@@ -200,7 +209,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    executor: mymove_and_postgres
+    executor: mymove_and_postgres_large
     steps:
       - checkout
       - setup_remote_docker:
@@ -286,7 +295,7 @@ jobs:
 
   # `server_test` runs the server side Go tests
   server_test:
-    executor: mymove_and_postgres
+    executor: mymove_and_postgres_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -349,7 +358,7 @@ jobs:
 
   # `build_app` builds the application container and pushes to the container repository
   build_app:
-    executor: mymove_and_postgres
+    executor: mymove_and_postgres_medium
     steps:
       - checkout
       - setup_remote_docker:
