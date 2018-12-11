@@ -510,7 +510,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 
 	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(costByShipment, h.DB(), h.SendProductionInvoice(), clock.New())
+	invoice858C, err := ediinvoice.Generate858C(costByShipment.Shipment, h.DB(), h.SendProductionInvoice(), clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

@@ -75,7 +75,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	invoice858C, err := ediinvoice.Generate858C(costByShipment, db, false, clock.New())
+	invoice858C, err := ediinvoice.Generate858C(costByShipment.Shipment, db, false, clock.New())
 	if err != nil {
 		log.Fatal(err)
 	}
