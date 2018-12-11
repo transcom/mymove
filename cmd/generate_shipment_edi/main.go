@@ -67,17 +67,15 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	planner := route.NewHEREPlanner(logger, *hereGeoEndpoint, *hereRouteEndpoint, *hereAppID, *hereAppCode)
-	var costsByShipments []rateengine.CostByShipment
 
 	engine := rateengine.NewRateEngine(db, logger, planner)
-	for _, shipment := range shipments {
-		costByShipment, err := engine.HandleRunOnShipment(shipment)
-		if err != nil {
-			log.Fatal(err)
-		}
-		costsByShipments = append(costsByShipments, costByShipment)
+
+	shipment := shipments[0]
+	costByShipment, err := engine.HandleRunOnShipment(shipment)
+	if err != nil {
+		log.Fatal(err)
 	}
-	invoice858C, err := ediinvoice.Generate858C(costsByShipments, db, false, clock.New())
+	invoice858C, err := ediinvoice.Generate858C(costByShipment, db, false, clock.New())
 	if err != nil {
 		log.Fatal(err)
 	}

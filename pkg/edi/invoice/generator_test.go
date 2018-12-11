@@ -29,7 +29,7 @@ import (
 var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
-	costsByShipments := helperCostsByShipment(suite)
+	costByShipment := helperCostsByShipment(suite)
 
 	var icnTestCases = []struct {
 		initial  int64
@@ -44,7 +44,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
 			suite.NoError(err, "error setting sequence value")
 
-			generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+			generatedTransactions, err := ediinvoice.Generate858C(costByShipment, suite.db, false, clock.NewMock())
 
 			suite.NoError(err)
 			if suite.NoError(err) {
@@ -57,7 +57,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	}
 
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
-		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(costByShipment, suite.db, false, clock.NewMock())
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
@@ -89,7 +89,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 	})
 }
 
-func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
+func helperCostsByShipment(suite *InvoiceSuite) rateengine.CostByShipment {
 	var weight unit.Pound
 	weight = 2000
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
@@ -136,11 +136,11 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 	}
 	shipment.ShipmentLineItems = lineItems
 
-	costsByShipments := []rateengine.CostByShipment{{
+	costByShipment := rateengine.CostByShipment{
 		Shipment: shipment,
 		Cost:     rateengine.CostComputation{},
-	}}
-	return costsByShipments
+	}
+	return costByShipment
 }
 
 func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {

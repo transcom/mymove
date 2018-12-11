@@ -29,11 +29,11 @@ const ICNSequenceName = "interchange_control_number"
 
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
-	ISA       edisegment.ISA
-	GS        edisegment.GS
-	Shipments [][]edisegment.Segment
-	GE        edisegment.GE
-	IEA       edisegment.IEA
+	ISA      edisegment.ISA
+	GS       edisegment.GS
+	Shipment []edisegment.Segment
+	GE       edisegment.GE
+	IEA      edisegment.IEA
 }
 
 // Segments returns the invoice as an array of rows (string arrays),
@@ -43,10 +43,9 @@ func (invoice Invoice858C) Segments() [][]string {
 		invoice.ISA.StringArray(),
 		invoice.GS.StringArray(),
 	}
-	for _, shipment := range invoice.Shipments {
-		for _, line := range shipment {
-			records = append(records, line.StringArray())
-		}
+
+	for _, line := range invoice.Shipment {
+		records = append(records, line.StringArray())
 	}
 	records = append(records, invoice.GE.StringArray())
 	records = append(records, invoice.IEA.StringArray())
@@ -65,7 +64,7 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+func Generate858C(shipmentWithCost rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
 	loc, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		return Invoice858C{}, err
@@ -114,22 +113,14 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		Version:                  "004010",
 	}
 
-	var shipments []models.Shipment
-
-	invoice.Shipments = make([][]edisegment.Segment, 0)
-	for index, shipmentWithCost := range shipmentsAndCosts {
-		shipment := shipmentWithCost.Shipment
-
-		shipmentSegments, err := generate858CShipment(shipmentWithCost, index+1)
-		if err != nil {
-			return invoice, err
-		}
-		invoice.Shipments = append(invoice.Shipments, shipmentSegments)
-		shipments = append(shipments, shipment)
+	shipmentSegments, err := generate858CShipment(shipmentWithCost, 1)
+	if err != nil {
+		return invoice, err
 	}
+	invoice.Shipment = shipmentSegments
 
 	invoice.GE = edisegment.GE{
-		NumberOfTransactionSetsIncluded: len(shipments),
+		NumberOfTransactionSetsIncluded: 1,
 		GroupControlNumber:              interchangeControlNumber,
 	}
 	invoice.IEA = edisegment.IEA{
