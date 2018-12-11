@@ -13,6 +13,10 @@ export function createOrUpdateShipment(label, moveId, shipment, id) {
 }
 
 export function getShipment(label, shipmentId) {
+  return swaggerRequest(getClient, 'shipments.getShipment', { shipmentId }, { label });
+}
+
+export function getPublicShipment(label, shipmentId) {
   return swaggerRequest(getPublicClient, 'shipments.getShipment', { shipmentId }, { label });
 }
 
@@ -25,6 +29,14 @@ export function createShipment(
 }
 
 export function updateShipment(
+  label,
+  shipmentId,
+  shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
+) {
+  return swaggerRequest(getClient, 'shipments.patchShipment', { shipmentId, shipment }, { label });
+}
+
+export function updatePublicShipment(
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {

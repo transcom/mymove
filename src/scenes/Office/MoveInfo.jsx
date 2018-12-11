@@ -40,7 +40,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { getShipment, updateShipment } from 'shared/Entities/modules/shipments';
+import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
 
 import {
   loadMoveDependencies,
@@ -100,7 +100,7 @@ const HHGTabContent = props => {
       <RoutingPanel title="Routing" moveId={props.moveId} />
       <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
       <LocationsContainer update={props.patchShipment} />
-      <Weights title="Weights & Items" shipment={props.shipment} update={props.updateShipment} />
+      <Weights title="Weights & Items" shipment={props.shipment} update={props.updatePublicShipment} />
       {props.officeShipment && (
         <PremoveSurvey
           title="Premove Survey"
@@ -140,7 +140,7 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
-      this.props.getShipment('Shipments.getShipment', this.props.officeShipment.id);
+      this.props.getPublicShipment('Shipments.getPublicShipment', this.props.officeShipment.id);
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
       this.props.loadShipmentDependencies(this.props.officeShipment.id);
     }
@@ -316,7 +316,7 @@ class MoveInfo extends Component {
                     officeHHG={JSON.stringify(this.props.officeHHG)}
                     officeShipment={this.props.officeShipment}
                     patchShipment={this.props.patchShipment}
-                    updateShipment={this.props.updateShipment}
+                    updatePublicShipment={this.props.updatePublicShipment}
                     moveId={this.props.match.params.moveId}
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
@@ -475,8 +475,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      getShipment,
-      updateShipment,
+      getPublicShipment,
+      updatePublicShipment,
       loadShipmentDependencies,
       loadMoveDependencies,
       getMoveDocumentsForMove,
