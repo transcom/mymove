@@ -9,6 +9,7 @@ import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { getMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
+import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
@@ -131,7 +132,7 @@ Summary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   return {
-    currentPpm: state.ppm.currentPpm,
+    currentPpm: getPPM(state),
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),

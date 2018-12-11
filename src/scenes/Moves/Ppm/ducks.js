@@ -227,7 +227,7 @@ export function getPPM(state) {
   if (moveId && ppmsFromEntities) {
     return Object.values(state.entities.personallyProcuredMove).find(ppm => ppm.move_id === moveId);
   } else {
-    return state.ppm.currentPpm || {};
+    return state.ppm.currentPpm;
   }
 }
 
