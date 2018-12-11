@@ -480,10 +480,10 @@ type ShipmentInvoiceHandler struct {
 }
 
 // Handle is the handler
-func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) middleware.Responder {
+func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoiceParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
-		return shipmentop.NewSendHHGInvoiceForbidden()
+		return shipmentop.NewCreateAndSendHHGInvoiceForbidden()
 	}
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -506,7 +506,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 	if shipment.Status != models.ShipmentStatusDELIVERED && shipment.Status != models.ShipmentStatusCOMPLETED {
 		h.Logger().Error("Shipment status not in delivered state.")
-		return shipmentop.NewSendHHGInvoiceConflict()
+		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
 	// before processing the invoice, save it in an in process state
@@ -550,7 +550,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	if responseStatus != 200 {
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
 		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
-		// Update invoice records as failed
+		// Update invoice record as failed
 		verrs, err := h.DB().ValidateAndSave(&invoice)
 		if verrs.HasAny() {
 			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
@@ -558,10 +558,10 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		if err != nil {
 			h.Logger().Error("Failed to update invoice records to failed state", zap.Error(err))
 		}
-		return shipmentop.NewSendHHGInvoiceInternalServerError()
+		return shipmentop.NewCreateAndSendHHGInvoiceInternalServerError()
 	}
 
-	// Update invoice records as submitted
+	// Update invoice record as submitted
 	shipmentLineItems := shipment.ShipmentLineItems
 	verrs, err = invoiceop.UpdateInvoiceSubmitted{DB: h.DB()}.Call(&invoice, shipmentLineItems)
 	if err != nil || verrs.HasAny() {
@@ -570,5 +570,5 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 
 	payload := payloadForInvoiceModel(&invoice)
 
-	return shipmentop.NewSendHHGInvoiceOK().WithPayload(payload)
+	return shipmentop.NewCreateAndSendHHGInvoiceOK().WithPayload(payload)
 }
