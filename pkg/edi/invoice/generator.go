@@ -3,7 +3,6 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -27,9 +26,6 @@ const receiverCode = "8004171844" // Syncada
 
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
-
-// InvoiceTimeZone is the time zone we are using for invoice-related dates/times.
-const InvoiceTimeZone = "America/Los_Angeles"
 
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
@@ -69,8 +65,8 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
-	loc, err := time.LoadLocation(InvoiceTimeZone)
+func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+	loc, err := time.LoadLocation(models.InvoiceTimeZone)
 	if err != nil {
 		return Invoice858C{}, err
 	}
@@ -124,7 +120,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 	for index, shipmentWithCost := range shipmentsAndCosts {
 		shipment := shipmentWithCost.Shipment
 
-		shipmentSegments, err := generate858CShipment(db, shipmentWithCost, index+1, clock)
+		shipmentSegments, err := generate858CShipment(db, shipmentWithCost, invoiceModel, index+1, clock)
 		if err != nil {
 			return invoice, err
 		}
@@ -144,7 +140,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 	return invoice, nil
 }
 
-func generate858CShipment(db *pop.Connection, shipmentWithCost rateengine.CostByShipment, sequenceNum int, clock clock.Clock) ([]edisegment.Segment, error) {
+func generate858CShipment(db *pop.Connection, shipmentWithCost rateengine.CostByShipment, invoiceModel models.Invoice, sequenceNum int, clock clock.Clock) ([]edisegment.Segment, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -153,7 +149,7 @@ func generate858CShipment(db *pop.Connection, shipmentWithCost rateengine.CostBy
 		},
 	}
 
-	headingSegments, err := getHeadingSegments(db, shipmentWithCost, sequenceNum, clock)
+	headingSegments, err := getHeadingSegments(db, shipmentWithCost, invoiceModel, sequenceNum, clock)
 	if err != nil {
 		return segments, err
 	}
@@ -173,7 +169,7 @@ func generate858CShipment(db *pop.Connection, shipmentWithCost rateengine.CostBy
 	return segments, nil
 }
 
-func getHeadingSegments(db *pop.Connection, shipmentWithCost rateengine.CostByShipment, sequenceNum int, clock clock.Clock) ([]edisegment.Segment, error) {
+func getHeadingSegments(db *pop.Connection, shipmentWithCost rateengine.CostByShipment, invoiceModel models.Invoice, sequenceNum int, clock clock.Clock) ([]edisegment.Segment, error) {
 	shipment := shipmentWithCost.Shipment
 	segments := []edisegment.Segment{}
 	/* for bx
@@ -246,9 +242,8 @@ func getHeadingSegments(db *pop.Connection, shipmentWithCost rateengine.CostBySh
 		return nil, errors.New("Accepted shipment offer is missing Transportation Service Provider")
 	}
 
-	invoiceNumber, err := createInvoiceNumber(db, shipment, clock)
-	if err != nil {
-		return segments, errors.Wrap(err, "Could not create invoice number")
+	if invoiceModel.ID == uuid.Nil {
+		return nil, errors.New("Invalid invoice model for shipment")
 	}
 
 	return []edisegment.Segment{
@@ -266,7 +261,7 @@ func getHeadingSegments(db *pop.Connection, shipmentWithCost rateengine.CostBySh
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "CN", // Invoice number
-			ReferenceIdentification:          invoiceNumber,
+			ReferenceIdentification:          invoiceModel.InvoiceNumber,
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "PQ",       // Payee code
@@ -552,46 +547,4 @@ func findLineItemByCode(lineItems []models.ShipmentLineItem, code string) (model
 	}
 
 	return models.ShipmentLineItem{}, errors.Errorf("Could not find shipment line item with code %s", code)
-}
-
-func createInvoiceNumber(db *pop.Connection, shipment models.Shipment, clock clock.Clock) (string, error) {
-	// First check to see if we already have any invoices for this shipment.
-	invoices, err := models.FetchInvoicesForShipmentID(db, shipment.ID)
-	if err != nil {
-		return "", err
-	}
-
-	// If we have existing invoices, then get the existing base invoice number and add the appropriate suffix,
-	// then go ahead and return it.
-	invoiceCount := len(invoices)
-	if invoiceCount > 0 {
-		parts := strings.Split(invoices[invoiceCount-1].InvoiceNumber, "-")
-		return fmt.Sprintf("%s-%02d", parts[0], invoiceCount), nil
-	}
-
-	acceptedOffers := shipment.ShipmentOffers.Accepted()
-	numAcceptedOffers := len(acceptedOffers)
-	if numAcceptedOffers == 0 {
-		return "", errors.New("No accepted shipment offer found")
-	} else if numAcceptedOffers > 1 {
-		return "", errors.Errorf("Found %d accepted shipment offers", numAcceptedOffers)
-	}
-	acceptedOffer := acceptedOffers[0]
-	if acceptedOffer.TransportationServiceProvider.ID == uuid.Nil {
-		return "", errors.New("Accepted shipment offer is missing Transportation Service Provider")
-	}
-
-	scac := acceptedOffer.TransportationServiceProvider.StandardCarrierAlphaCode
-	loc, err := time.LoadLocation(InvoiceTimeZone)
-	if err != nil {
-		return "", err
-	}
-	year := shipment.CreatedAt.In(loc).Year()
-
-	invoiceNumber, err := models.GenerateInvoiceNumber(db, scac, year)
-	if err != nil {
-		return "", errors.Wrap(err, "Could not generate invoice number")
-	}
-
-	return invoiceNumber, nil
 }

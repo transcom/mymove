@@ -68,7 +68,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 }
 
 func (suite *InvoiceSuite) TestInvoiceNumbersOnePerShipment() {
-	loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
+	loc, err := time.LoadLocation(models.InvoiceTimeZone)
 	suite.NoError(err)
 
 	// Both shipments from the helper should have the same SCAC and year.
@@ -109,7 +109,7 @@ func (suite *InvoiceSuite) TestInvoiceNumbersOnePerShipment() {
 }
 
 func (suite *InvoiceSuite) TestInvoiceNumbersMultipleInvoices() {
-	loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
+	loc, err := time.LoadLocation(models.InvoiceTimeZone)
 	suite.NoError(err)
 
 	costsByShipments := helperCostsByShipment(suite)
@@ -169,7 +169,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		shipment.CreatedAt = time.Date(2018, 7, 1, 0, 0, 0, 0, time.UTC)
 
 		scac := shipment.ShipmentOffers[0].TransportationServiceProvider.StandardCarrierAlphaCode
-		loc, err := time.LoadLocation(ediinvoice.InvoiceTimeZone)
+		loc, err := time.LoadLocation(models.InvoiceTimeZone)
 		suite.NoError(err)
 		year := shipment.CreatedAt.In(loc).Year()
 		err = helperResetInvoiceNumber(suite, scac, year)

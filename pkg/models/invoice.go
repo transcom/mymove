@@ -27,6 +27,9 @@ const (
 	InvoiceStatusSUBMISSIONFAILURE InvoiceStatus = "SUBMISSION_FAILURE"
 )
 
+// InvoiceTimeZone is the time zone we are using for invoice-related dates/times.
+const InvoiceTimeZone = "America/Los_Angeles"
+
 // Invoice is a collection of line item charges to be sent for payment
 type Invoice struct {
 	ID                uuid.UUID         `json:"id" db:"id"`
@@ -94,8 +97,8 @@ func FetchInvoicesForShipmentID(db *pop.Connection, shipmentID uuid.UUID) ([]Inv
 	return invoices, err
 }
 
-// GenerateInvoiceNumber creates an invoice number for a given SCAC/year.
-func GenerateInvoiceNumber(db *pop.Connection, scac string, year int) (string, error) {
+// GenerateBaseInvoiceNumber creates a new base invoice number (the first for a shipment) for a given SCAC/year.
+func GenerateBaseInvoiceNumber(db *pop.Connection, scac string, year int) (string, error) {
 	if len(scac) == 0 {
 		return "", errors.New("SCAC cannot be nil or empty string")
 	}

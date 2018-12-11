@@ -485,6 +485,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 		"ShipmentOffers.TransportationServiceProvider",
 		"ShipmentOffers.TransportationServiceProviderPerformance",
 		"ShipmentLineItems.Tariff400ngItem",
+		"Invoices",
 	).Find(&shipment, shipmentID)
 
 	if err != nil {
@@ -500,6 +501,12 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	verrs, err := invoice.CreateInvoices{DB: h.DB(), Clock: clock.New()}.Call(&invoices, models.Shipments{shipment})
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	// Re-fetch the invoices now that we've added to them.
+	shipment.Invoices, err = models.FetchInvoicesForShipmentID(h.DB(), shipment.ID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
