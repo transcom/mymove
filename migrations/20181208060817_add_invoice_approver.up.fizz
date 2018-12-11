@@ -1,0 +1,3 @@
+add_column("invoices", "approver_id", "uuid", {})
+
+add_foreign_key("invoices", "approver_id", {"office_users": ["id"]}, {})

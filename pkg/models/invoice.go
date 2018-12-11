@@ -9,7 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
-	// "github.com/transcom/mymove/pkg/models"
 )
 
 // InvoiceStatus represents the status of an invoice
@@ -29,6 +28,8 @@ const (
 // Invoice is a collection of line item charges to be sent for payment
 type Invoice struct {
 	ID                uuid.UUID         `json:"id" db:"id"`
+	ApproverID        uuid.UUID         `json:"approver_id" db:"approver_id"`
+	Approver          OfficeUser        `belongs_to:"office_user"`
 	Status            InvoiceStatus     `json:"status" db:"status"`
 	InvoiceNumber     string            `json:"invoice_number" db:"invoice_number"`
 	InvoicedDate      time.Time         `json:"invoiced_date" db:"invoiced_date"`
@@ -50,6 +51,7 @@ func (i *Invoice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: i.InvoiceNumber, Name: "InvoiceNumber"},
 		&validators.TimeIsPresent{Field: i.InvoicedDate, Name: "InvoicedDate"},
 		&validators.UUIDIsPresent{Field: i.ShipmentID, Name: "ShipmentID"},
+		&validators.UUIDIsPresent{Field: i.ApproverID, Name: "ApproverID"},
 	), nil
 }
 

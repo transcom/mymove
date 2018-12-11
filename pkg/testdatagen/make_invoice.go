@@ -9,6 +9,11 @@ import (
 
 // MakeInvoice creates a single invoice record with an associated shipment
 func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
+	approver := assertions.Invoice.Approver
+	if isZeroUUID(approver.ID) {
+		approver = MakeOfficeUser(db, assertions)
+	}
+
 	shipment := assertions.Invoice.Shipment
 	if isZeroUUID(shipment.ID) {
 		shipment = MakeShipment(db, assertions)
@@ -17,6 +22,8 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 	// filled in dummy data
 	Invoice := models.Invoice{
 		Status:        models.InvoiceStatusINPROCESS,
+		ApproverID:    approver.ID,
+		Approver:      approver,
 		InvoiceNumber: "1234",
 		InvoicedDate:  time.Now(),
 		ShipmentID:    shipment.ID,

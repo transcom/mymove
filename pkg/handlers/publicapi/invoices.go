@@ -18,11 +18,12 @@ func payloadForInvoiceModel(a *models.Invoice) *apimessages.Invoice {
 	}
 
 	return &apimessages.Invoice{
-		ID: *handlers.FmtUUID(a.ID),
-
-		Status:    apimessages.InvoiceStatus(a.Status),
-		CreatedAt: *handlers.FmtDateTime(a.CreatedAt),
-		UpdatedAt: *handlers.FmtDateTime(a.UpdatedAt),
+		ID:                *handlers.FmtUUID(a.ID),
+		ApproverFirstName: a.Approver.FirstName,
+		ApproverLastName:  a.Approver.LastName,
+		Status:            apimessages.InvoiceStatus(a.Status),
+		CreatedAt:         *handlers.FmtDateTime(a.CreatedAt),
+		UpdatedAt:         *handlers.FmtDateTime(a.UpdatedAt),
 	}
 }
 

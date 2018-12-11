@@ -14,8 +14,10 @@ type CreateInvoice struct {
 }
 
 // Call creates Invoice and updates its ShipmentLineItem associations
-func (c CreateInvoice) Call(invoice *models.Invoice, shipment models.Shipment) (*validate.Errors, error) {
+func (c CreateInvoice) Call(approver models.OfficeUser, invoice *models.Invoice, shipment models.Shipment) (*validate.Errors, error) {
 	*invoice = models.Invoice{
+		ApproverID:    approver.ID,
+		Approver:      approver,
 		Status:        models.InvoiceStatusINPROCESS,
 		InvoiceNumber: "1", // placeholder
 		InvoicedDate:  c.Clock.Now().UTC(),

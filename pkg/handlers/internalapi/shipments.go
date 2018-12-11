@@ -28,11 +28,12 @@ func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
 	}
 
 	return &internalmessages.Invoice{
-		ID: *handlers.FmtUUID(a.ID),
-
-		Status:    internalmessages.InvoiceStatus(a.Status),
-		CreatedAt: *handlers.FmtDateTime(a.CreatedAt),
-		UpdatedAt: *handlers.FmtDateTime(a.UpdatedAt),
+		ID:                *handlers.FmtUUID(a.ID),
+		ApproverFirstName: a.Approver.FirstName,
+		ApproverLastName:  a.Approver.LastName,
+		Status:            internalmessages.InvoiceStatus(a.Status),
+		CreatedAt:         *handlers.FmtDateTime(a.CreatedAt),
+		UpdatedAt:         *handlers.FmtDateTime(a.UpdatedAt),
 	}
 }
 
@@ -509,9 +510,14 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
+	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	// before processing the invoice, save it in an in process state
 	var invoice models.Invoice
-	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(&invoice, shipment)
+	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(*approver, &invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
