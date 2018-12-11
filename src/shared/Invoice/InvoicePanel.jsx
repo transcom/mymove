@@ -32,7 +32,7 @@ export class InvoicePanel extends PureComponent {
     let invoicingContent = <span className="empty-content">No line items</span>;
     let title = 'Invoicing';
 
-    if (this.props.unbilledShipmentLineItems.length > 0) {
+    if (this.props.unbilledShipmentLineItems.length > 0 && this.props.isShipmentDelivered) {
       let tableTitle = <h5>Unbilled line items</h5>;
       let paymentStatus = null;
 
@@ -72,7 +72,6 @@ export class InvoicePanel extends PureComponent {
           <InvoicePayment
             cancelPayment={this.props.resetInvoiceFlow}
             approvePayment={this.approvePayment}
-            isDelivered={this.props.isShipmentDelivered}
             paymentStatus={paymentStatus}
           />
           <InvoiceTable
