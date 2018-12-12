@@ -28,6 +28,16 @@ const receiverCode = "8004171844" // Syncada
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
 
+const rateValueQualifier = "RC"    // Rate
+const hierarchicalLevelCode = "SS" // Services
+const weightQualifier = "B"        // Billed Weight
+const weightUnitCode = "L"         // Pounds
+const ladingLineItemNumber = 1
+const billedRatedAsQuantity = 1
+
+// Place holders that currently exist TODO: Replace this constants with real value
+const freightRate = 4.07
+
 var logger *zap.Logger
 
 // Invoice858C holds all the segments that are generated
@@ -337,103 +347,106 @@ func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegme
 	// Iterate over lineitems
 	for _, lineItem := range lineItems {
 		// Some hardcoded values that are being used
-		const rateValueQualifier = "RC"    // Rate
-		const hierarchicalLevelCode = "SS" // Services
-		const weightQualifier = "B"        // Billed Weight
-		const weightUnitCode = "L"         // Pounds
-		const ladingLineItemNumber = 1
-		const billedRatedAsQuantity = 1
-
-		// Place holders that currently exist TODO: Replace this constants with real value
-		const freightRate = 4.07
 
 		// Initialize empty edisegment
 		var tariffSegments []edisegment.Segment
 
-		// Initialize hierarchicalLevelCode
-		var hierarchicalLevelID string
-
-		// Determine HierarchicalLevelCode
-		switch lineItem.Location {
-
-		case models.ShipmentLineItemLocationORIGIN:
-			hierarchicalLevelID = "304"
-
-		case models.ShipmentLineItemLocationDESTINATION:
-			hierarchicalLevelID = "303"
-
-		}
-
-		// Using Maps to group up MeasurementUnit types into categories
-		unitBasedMeasurementUnits := map[models.Tariff400ngItemMeasurementUnit]int{
-			models.Tariff400ngItemMeasurementUnitFLATRATE: 0,
-			models.Tariff400ngItemMeasurementUnitEACH:     0,
-			models.Tariff400ngItemMeasurementUnitHOURS:    0,
-			models.Tariff400ngItemMeasurementUnitDAYS:     0,
-		}
-
-		weightBasedMeasurements := map[models.Tariff400ngItemMeasurementUnit]int{
-			models.Tariff400ngItemMeasurementUnitWEIGHT: 0,
-		}
-
-		measurementUnit := lineItem.Tariff400ngItem.MeasurementUnit1
-
-		// This will check if the Measurement unit is in one of the maps above.
-		// Doing this allows us to have two generic paths based on groups of MeasurementUnits
-		// This is a way to do something a-kin to OR logic in our comparison for the category.
-		_, isUnitBased := unitBasedMeasurementUnits[measurementUnit]
-		_, isWeightBased := weightBasedMeasurements[measurementUnit]
-
-		tariffSegments = []edisegment.Segment{
-			&edisegment.HL{
-				HierarchicalIDNumber:  hierarchicalLevelID,
-				HierarchicalLevelCode: hierarchicalLevelCode,
-			},
-		}
-
-		if isUnitBased {
-			unitBasedSegment := &edisegment.L0{
-				LadingLineItemNumber:   ladingLineItemNumber,
-				BilledRatedAsQuantity:  billedRatedAsQuantity,
-				BilledRatedAsQualifier: string(measurementUnit),
-			}
-			tariffSegments = append(tariffSegments, unitBasedSegment)
-
-		} else if isWeightBased {
-			var weight float64
-
-			if lineItem.Tariff400ngItem.RequiresPreApproval {
-				weight = lineItem.Quantity1.ToUnitFloat()
-
-			} else {
-				weight = netCentiWeight
-			}
-
-			weightBasedSegment := &edisegment.L0{
-				LadingLineItemNumber: ladingLineItemNumber,
-				Weight:               weight,
-				WeightQualifier:      weightQualifier,
-				WeightUnitCode:       weightUnitCode,
-			}
-			tariffSegments = append(tariffSegments, weightBasedSegment)
-
-		} else {
-			logger.Error(string(measurementUnit) + "Used with " +
-				lineItem.ID.String() + " is an EDI measurement unit we're not prepared for.")
-		}
-
-		segmentL1 := &edisegment.L1{
-			FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
-			RateValueQualifier:       rateValueQualifier,
-			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
-		}
-
-		tariffSegments = append(tariffSegments, segmentL1)
+		// Build and put together the segments
+		hlSegment := MakeHLSegment(lineItem)
+		l0Segment := MakeL0Segment(lineItem, netCentiWeight)
+		l1Segment := MakeL1Segment(lineItem)
+		tariffSegments = append(tariffSegments, hlSegment, l0Segment, l1Segment)
 
 		segments = append(segments, tariffSegments...)
 
 	}
 
 	return segments, nil
+}
+
+// MakeHLSegment builds HL segment based on shipment line item input.
+func MakeHLSegment(lineItem models.ShipmentLineItem) *edisegment.HL {
+	// Initialize hierarchicalLevelCode
+	var hierarchicalLevelID string
+
+	// Determine HierarchicalLevelCode
+	switch lineItem.Location {
+
+	case models.ShipmentLineItemLocationORIGIN:
+		hierarchicalLevelID = "304"
+
+	case models.ShipmentLineItemLocationDESTINATION:
+		hierarchicalLevelID = "303"
+
+	}
+	return &edisegment.HL{
+		HierarchicalIDNumber:  hierarchicalLevelID,
+		HierarchicalLevelCode: hierarchicalLevelCode,
+	}
+
+}
+
+// MakeL0Segment builds L0 segment based on shipment line item input and shipment centiweight input.
+func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *edisegment.L0 {
+	// Using Maps to group up MeasurementUnit types into categories
+	unitBasedMeasurementUnits := map[models.Tariff400ngItemMeasurementUnit]int{
+		models.Tariff400ngItemMeasurementUnitFLATRATE: 0,
+		models.Tariff400ngItemMeasurementUnitEACH:     0,
+		models.Tariff400ngItemMeasurementUnitHOURS:    0,
+		models.Tariff400ngItemMeasurementUnitDAYS:     0,
+	}
+
+	weightBasedMeasurements := map[models.Tariff400ngItemMeasurementUnit]int{
+		models.Tariff400ngItemMeasurementUnitWEIGHT: 0,
+	}
+
+	measurementUnit := lineItem.Tariff400ngItem.MeasurementUnit1
+
+	// This will check if the Measurement unit is in one of the maps above.
+	// Doing this allows us to have two generic paths based on groups of MeasurementUnits
+	// This is a way to do something a-kin to OR logic in our comparison for the category.
+	_, isUnitBased := unitBasedMeasurementUnits[measurementUnit]
+	_, isWeightBased := weightBasedMeasurements[measurementUnit]
+
+	if isUnitBased {
+		return &edisegment.L0{
+			LadingLineItemNumber:   ladingLineItemNumber,
+			BilledRatedAsQuantity:  billedRatedAsQuantity,
+			BilledRatedAsQualifier: string(measurementUnit),
+		}
+
+	} else if isWeightBased {
+		var weight float64
+
+		if lineItem.Tariff400ngItem.RequiresPreApproval {
+			weight = lineItem.Quantity1.ToUnitFloat()
+
+		} else {
+			weight = netCentiWeight
+		}
+
+		return &edisegment.L0{
+			LadingLineItemNumber: ladingLineItemNumber,
+			Weight:               weight,
+			WeightQualifier:      weightQualifier,
+			WeightUnitCode:       weightUnitCode,
+		}
+
+	} else {
+		logger.Error(string(measurementUnit) + "Used with " +
+			lineItem.ID.String() + " is an EDI measurement unit we're not prepared for.")
+		return nil
+	}
+
+}
+
+// MakeL1Segment builds L1 segment based on shipment lineitem input.
+func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
+	return &edisegment.L1{
+		FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
+		RateValueQualifier:       rateValueQualifier,
+		Charge:                   lineItem.AmountCents.ToDollarFloat(),
+		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
+	}
+
 }
