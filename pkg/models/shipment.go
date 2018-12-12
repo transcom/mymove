@@ -804,6 +804,9 @@ func (s *Shipment) GetAcceptedShipmentOffer() (*ShipmentOffer, error) {
 	if err != nil {
 		return nil, err
 	}
+	if acceptedOffers == nil {
+		return nil, nil
+	}
 
 	numAcceptedOffers := len(acceptedOffers)
 

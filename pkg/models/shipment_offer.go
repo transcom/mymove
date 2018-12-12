@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"go.uber.org/zap"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -119,19 +118,13 @@ func FetchShipmentOfferByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uui
 
 // Accepted returns the accepted shipment offers from a slice of shipment offers.
 func (so *ShipmentOffers) Accepted() (ShipmentOffers, error) {
-	var logger zap.Logger
 	var acceptedOffers ShipmentOffers
 	for _, offer := range *so {
 		if offer.Accepted != nil && *offer.Accepted == true {
 			acceptedOffers = append(acceptedOffers, offer)
 
 			if offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID == uuid.Nil {
-				logger.Error("check TSP IDs",
-					zap.String("offer.TransportationServiceProviderPerformance.TransportationServiceProviderID", offer.TransportationServiceProviderPerformance.TransportationServiceProviderID.String()),
-					zap.String("offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID", offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID.String()),
-					zap.Bool("IDs match", (offer.TransportationServiceProviderPerformance.TransportationServiceProviderID == offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID)))
-
-				return nil, errors.New("Accepted shipment offer is missing Transportation Service Provider")
+				return nil, errors.Errorf("Accepted shipment offer is missing Transportation Service Provider")
 			}
 
 			if offer.TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode == "" {

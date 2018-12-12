@@ -167,7 +167,7 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	newShipment, newShipmentOffer, _, err := AcceptShipmentForTSP(suite.db, tspUser.TransportationServiceProviderID, shipment.ID)
 	suite.NoError(err)
 
-	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Awarded")
+	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Accepted")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
 }
