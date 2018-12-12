@@ -2147,6 +2147,35 @@ paths:
           description: no service agent found with that UUID
         500:
           description: server error
+  /shipments/{shipmentId}/transportation_service_provider:
+    get:
+      summary: Gets transportation service provider for shipment
+      description: Allows a user to retrieve the transportation service provider for a shipment.
+      operationId: getTransportationServiceProvider
+      tags:
+        - transportation_service_provider
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns a Transporation Service Provider
+          schema:
+            $ref: '#/definitions/TransportationServiceProvider'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
+        422:
+          description: cannot process request with given information
+        500:
+          description: server error
   /shipment/{shipmentId}/completePmSurvey:
     post:
       summary: Completes a pre-move survey on a shipment
