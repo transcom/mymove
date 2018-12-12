@@ -51,6 +51,10 @@ class InvoicePayment extends PureComponent {
           </Alert>
         );
         break;
+      default:
+        // unknown status
+        paymentContainer = null;
+        break;
     }
     return paymentContainer;
   }
