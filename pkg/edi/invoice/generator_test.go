@@ -115,7 +115,7 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B"}
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
 
@@ -239,7 +239,7 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 			suite.Equal(1, l0Segment.LadingLineItemNumber)
 
 			if l0Segment.BilledRatedAsQuantity != 0 {
-				if lineItem.Tariff400ngItem.Code == "LHS" {
+				if lineItem.Tariff400ngItem.MeasurementUnit1 == models.Tariff400ngItemMeasurementUnitFLATRATE {
 					suite.Equal(float64(1), l0Segment.BilledRatedAsQuantity)
 				} else {
 					suite.Equal(lineItem.Quantity1.ToUnitFloat(), l0Segment.BilledRatedAsQuantity)

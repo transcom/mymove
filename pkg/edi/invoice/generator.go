@@ -411,7 +411,7 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 	if isUnitBased {
 
 		actualBilledRatedAsQuantity := float64(billedRatedAsQuantity)
-		if lineItem.Tariff400ngItem.Code != "LHS" {
+		if lineItem.Tariff400ngItem.MeasurementUnit1 != models.Tariff400ngItemMeasurementUnitFLATRATE {
 			actualBilledRatedAsQuantity = lineItem.Quantity1.ToUnitFloat()
 		}
 
