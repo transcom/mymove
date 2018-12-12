@@ -1772,6 +1772,70 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	hhg31.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg31.Move)
+
+	/*
+	 * Service member with approved basics and accepted shipment
+	 */
+	email = "hhg@gbl.disabled"
+
+	offer32 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("ab04735c-fc9c-40a3-8e46-73dc0ca163da")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("35e3f64d-5615-4c9d-acf3-b832404d5627"),
+			FirstName:     models.StringPointer("GBLDisabled"),
+			LastName:      models.StringPointer("Waiting for office"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("262d079b-1e18-48bc-8351-f6a092af67d9"),
+			Locator:          "GBLDIS",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("54321"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("440dfbf6-a9da-4d37-b3e1-7327424eda01"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			ID:                          uuid.FromStringOrNil("53115e49-466e-42ee-85c6-9215add89cea"),
+			Status:                      models.ShipmentStatusACCEPTED,
+			PmSurveyConductedDate:       &packDate,
+			PmSurveyCompletedAt:         &packDate,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &packDate,
+			PmSurveyPlannedPickupDate:   &pickupDate,
+			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyWeightEstimate:      &weightEstimate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer32.Shipment,
+			ShipmentID: offer32.ShipmentID,
+		},
+	})
+
+	hhg32 := offer32.Shipment
+	hhg32.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg32.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM

@@ -14,7 +14,34 @@ describe('TSP User generates GBL', function() {
   it('tsp user can open a GBL from the shipment info page', function() {
     tspUserViewsGBL();
   });
+
+  it('tsp user cannot generate gbl until office approves shipment', function() {
+    tspUserCannotGenerateGBL();
+  });
 });
+
+function tspUserCannotGenerateGBL() {
+  const gblButtonText = 'Generate the GBL';
+
+  cy.visit('/queues/accepted');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/accepted/);
+  });
+
+  cy
+    .get('div')
+    .contains('GBLDIS')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  cy
+    .get('button')
+    .contains(gblButtonText)
+    .should('be.disabled');
+}
 
 function tspUserGeneratesGBL() {
   const gblButtonText = 'Generate the GBL';
