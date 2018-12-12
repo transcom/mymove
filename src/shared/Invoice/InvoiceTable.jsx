@@ -8,7 +8,7 @@ import './InvoicePanel.css';
 class InvoiceTable extends PureComponent {
   render() {
     return (
-      <div className="invoice-panel-table-cont">
+      <div>
         {this.props.title}
         <table cellSpacing={0}>
           <tbody>

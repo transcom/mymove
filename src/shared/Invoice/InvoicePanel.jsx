@@ -68,7 +68,7 @@ export class InvoicePanel extends PureComponent {
       }
 
       invoicingContent = (
-        <div>
+        <div className="invoice-panel-table-cont">
           <InvoicePayment
             cancelPayment={this.props.resetInvoiceFlow}
             approvePayment={this.approvePayment}
