@@ -10,13 +10,20 @@
 version: "2.1"
 
 executors:
-  # `mymove` uses the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
-  mymove:
+  # `mymove_small` and `mymove_medium` use the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
+  mymove_small:
+    resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
-  # `mymove_and_postgres` adds a secondary postgres container to be used during testing.
-  mymove_and_postgres:
+  mymove_medium:
+    resource_class: medium
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
+  # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
+  mymove_and_postgres_medium:
+    resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
@@ -98,7 +105,7 @@ jobs:
 
   # `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
   pre_deps_golang:
-    executor: mymove
+    executor: mymove_small
     steps:
       - checkout
       - restore_cache:
@@ -124,7 +131,7 @@ jobs:
 
   # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
   pre_deps_yarn:
-    executor: mymove
+    executor: mymove_small
     steps:
       - checkout
       - restore_cache:
@@ -150,7 +157,7 @@ jobs:
 
   # `pre_test` runs pre-commit against all files.
   pre_test:
-    executor: mymove
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
@@ -193,7 +200,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    executor: mymove_and_postgres
+    executor: mymove_and_postgres_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -279,7 +286,7 @@ jobs:
 
   # `server_test` runs the server side Go tests
   server_test:
-    executor: mymove_and_postgres
+    executor: mymove_and_postgres_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -314,7 +321,7 @@ jobs:
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -329,7 +336,7 @@ jobs:
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
   build_tools:
-    executor: mymove
+    executor: mymove_small
     steps:
       - checkout
       - restore_cache:
@@ -342,7 +349,7 @@ jobs:
 
   # `build_app` builds the application container and pushes to the container repository
   build_app:
-    executor: mymove_and_postgres
+    executor: mymove_and_postgres_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -370,7 +377,7 @@ jobs:
 
   # `build_migrations` builds the migrations container and pushes to the container repository
   build_migrations:
-    executor: mymove
+    executor: mymove_small
     steps:
       - checkout
       - setup_remote_docker:
@@ -392,7 +399,7 @@ jobs:
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
   deploy_experimental_migrations:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "experimental"
     steps:
@@ -400,7 +407,7 @@ jobs:
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "experimental"
     steps:
@@ -409,7 +416,7 @@ jobs:
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "experimental"
     steps:
@@ -418,7 +425,7 @@ jobs:
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "staging"
     steps:
@@ -426,7 +433,7 @@ jobs:
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "staging"
     steps:
@@ -435,7 +442,7 @@ jobs:
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "staging"
     steps:
@@ -444,7 +451,7 @@ jobs:
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "prod"
     steps:
@@ -452,7 +459,7 @@ jobs:
 
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "prod"
     steps:
@@ -461,7 +468,7 @@ jobs:
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
-    executor: mymove
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: "prod"
     steps:
@@ -471,7 +478,7 @@ jobs:
   # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.
   # The changes are submitted as a pull request for review.
   update_dependencies:
-    executor: mymove
+    executor: mymove_small
     steps:
       - checkout
       - restore_cache:
