@@ -390,10 +390,11 @@ func MakeHLSegment(lineItem models.ShipmentLineItem) *edisegment.HL {
 func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *edisegment.L0 {
 	// Using Maps to group up MeasurementUnit types into categories
 	unitBasedMeasurementUnits := map[models.Tariff400ngItemMeasurementUnit]int{
-		models.Tariff400ngItemMeasurementUnitFLATRATE: 0,
-		models.Tariff400ngItemMeasurementUnitEACH:     0,
-		models.Tariff400ngItemMeasurementUnitHOURS:    0,
-		models.Tariff400ngItemMeasurementUnitDAYS:     0,
+		models.Tariff400ngItemMeasurementUnitFLATRATE:  0,
+		models.Tariff400ngItemMeasurementUnitEACH:      0,
+		models.Tariff400ngItemMeasurementUnitHOURS:     0,
+		models.Tariff400ngItemMeasurementUnitDAYS:      0,
+		models.Tariff400ngItemMeasurementUnitCUBICFOOT: 0,
 	}
 
 	weightBasedMeasurements := map[models.Tariff400ngItemMeasurementUnit]int{

@@ -127,6 +127,15 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
 		case "16A":
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		case "105B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitCUBICFOOT
+
+		case "130B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitEACH
+
+		case "125B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+
 		default:
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
 		}
