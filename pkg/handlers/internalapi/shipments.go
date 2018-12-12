@@ -475,16 +475,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	var shipment models.Shipment
-
-	err := h.DB().Eager(
-		"PickupAddress",
-		"Move.Orders.NewDutyStation.Address",
-		"Move.Orders.NewDutyStation.TransportationOffice",
-		"ServiceMember.DutyStation.TransportationOffice",
-		"ShipmentOffers.TransportationServiceProviderPerformance",
-		"ShipmentLineItems.Tariff400ngItem",
-	).Find(&shipment, shipmentID)
+	shipment, err := invoice.FetchInvoiceShipment{DB: h.DB()}.Call(shipmentID)
 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
