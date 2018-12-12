@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/auth"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -58,9 +59,15 @@ type IndexIssuesHandler struct {
 
 // Handle retrieves a list of all issues in the system
 func (h IndexIssuesHandler) Handle(params issueop.IndexIssuesParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	var issues models.Issues
 	var response middleware.Responder
-	if err := h.DB().All(&issues); err != nil {
+	if session == nil {
+		response = issueop.NewIndexIssuesUnauthorized()
+	} else if !session.IsOfficeUser() {
+		response = issueop.NewIndexIssuesForbidden()
+	} else if err := h.DB().All(&issues); err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
 		response = issueop.NewIndexIssuesBadRequest()
 	} else {
