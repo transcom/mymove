@@ -78,7 +78,7 @@ $DOCKER_RUN \
   --link="${CONTAINER}" \
   --ipc=host \
   --detach \
-  ${CONTAINER_CYPRESS}:latest
+  ${CONTAINER_CYPRESS}:latest run --spec "${SPEC:-cypress/integration/**/*}"
 
 docker logs -f ${CONTAINER_CYPRESS}
 

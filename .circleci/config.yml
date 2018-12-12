@@ -100,6 +100,43 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+  e2e_tests:
+    parameters:
+      spec:
+        type: string
+    steps:
+      - run:
+          name: make e2e_test_docker
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            echo 'export SPEC=<< parameters.spec>>' >> $BASH_ENV
+            source $BASH_ENV
+            make e2e_test_docker
+          environment:
+              # Env vars needed by the `bin/apply-secure-migrations.sh` script
+              DB_PASSWORD: mysecretpassword
+              DB_USER: postgres
+              DB_HOST: localhost
+              DB_PORT: 5432
+              DB_NAME: test_db
+              # Env vars needed for the webserver to run inside docker
+              SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
+              SECURE_MIGRATION_SOURCE: local
+              LOGIN_GOV_CALLBACK_PROTOCOL: http
+              LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
+              LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
+              LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
+              LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+              HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
+              HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
+              DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
 
 jobs:
 
@@ -198,8 +235,8 @@ jobs:
             - ~/.cache/pre-commit
       - announce_failure
 
-  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests:
+  # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests_mymove:
     executor: mymove_medium
     steps:
       - checkout
@@ -217,44 +254,68 @@ jobs:
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run:
-          name: make e2e_test_docker
-          command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
-            source $BASH_ENV
-            make e2e_test_docker
-          environment:
-              # Env vars needed by the `bin/apply-secure-migrations.sh` script
-              DB_PASSWORD: mysecretpassword
-              DB_USER: postgres
-              DB_HOST: localhost
-              DB_PORT: 5432
-              DB_NAME: test_db
-              # Env vars needed for the webserver to run inside docker
-              SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
-              SECURE_MIGRATION_SOURCE: local
-              LOGIN_GOV_CALLBACK_PROTOCOL: http
-              LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-              LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-              LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
-              LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-              HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
-              HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
-              DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+      - e2e_tests:
+          spec: "cypress/integration/mymove/**/*"
       - store_artifacts:
           path: cypress/videos
       - store_artifacts:
           path: cypress/screenshots
       - store_test_results:
           path: cypress/results
-      # `v1-cache-cypress-3.1.0` is used to cache the Cypress binary
+      - announce_failure
+  integration_tests_office:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - e2e_tests:
+          spec: "cypress/integration/office/**/*"
+      - store_artifacts:
+          path: cypress/videos
+      - store_artifacts:
+          path: cypress/screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+  integration_tests_tsp:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - e2e_tests:
+          spec: "cypress/integration/tsp/**/*"
+      - store_artifacts:
+          path: cypress/videos
+      - store_artifacts:
+          path: cypress/screenshots
+      - store_test_results:
+          path: cypress/results
       - announce_failure
 
   # `server_test` runs the server side Go tests
@@ -489,7 +550,25 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - integration_tests:
+      - integration_tests_mymove:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          #filters:
+          #  branches:
+          #    ignore: YOUR BRANCH NAME HERE
+
+      - integration_tests_office:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          #filters:
+          #  branches:
+          #    ignore: YOUR BRANCH NAME HERE
+
+      - integration_tests_tsp:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
@@ -553,7 +632,9 @@ workflows:
             - build_app
             - build_tools
             - build_migrations
-            - integration_tests
+            - integration_tests_mymove
+            - integration_tests_office
+            - integration_tests_tsp
           filters:
             branches:
               only: master
