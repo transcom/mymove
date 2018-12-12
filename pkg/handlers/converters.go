@@ -46,7 +46,7 @@ func FmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
 
 // FmtDate converts pop type to go-swagger type
 func FmtDate(date time.Time) *strfmt.Date {
-	if date.IsZero() || date.IsZero() {
+	if date.IsZero() {
 		return nil
 	}
 
