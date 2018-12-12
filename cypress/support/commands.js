@@ -28,6 +28,9 @@ import * as mime from 'mime-types';
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
+  // make sure we log out first before sign in
+  cy.logout();
+
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
@@ -48,6 +51,9 @@ Cypress.Commands.add('signIntoTSP', () => {
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 Cypress.Commands.add('signInAsUser', userId => {
+  // make sure we log out first before sign in
+  cy.logout();
+
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
