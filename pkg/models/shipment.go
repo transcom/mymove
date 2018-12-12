@@ -804,9 +804,6 @@ func (s *Shipment) GetAcceptedShipmentOffer() (*ShipmentOffer, error) {
 	if err != nil {
 		return nil, err
 	}
-	if acceptedOffers == nil {
-		return nil, nil
-	}
 
 	numAcceptedOffers := len(acceptedOffers)
 
@@ -817,12 +814,17 @@ func (s *Shipment) GetAcceptedShipmentOffer() (*ShipmentOffer, error) {
 
 	// If the Shipment is in a state that requires a TSP then check for the Accepted TSP
 	if s.RequiresAnAcceptedTsp() == true {
-		if numAcceptedOffers == 0 {
+		if numAcceptedOffers == 0 || acceptedOffers == nil {
 			return nil, errors.New("No accepted shipment offer found")
 		}
 	} else if numAcceptedOffers == 0 {
 		// If the Shipment does not require that it has a TSP then return nil
 		// -- The Shipment is currently in a state that doesn't require a TSP to be associated to it
+		return nil, nil
+	}
+
+	// Double-check for nil before accessing the variable
+	if acceptedOffers == nil {
 		return nil, nil
 	}
 
