@@ -28,13 +28,17 @@ func FmtUUIDPtr(u *uuid.UUID) *strfmt.UUID {
 
 // FmtDateTime converts pop type to go-swagger type
 func FmtDateTime(dateTime time.Time) *strfmt.DateTime {
+	if dateTime.IsZero() {
+		return nil
+	}
+
 	fmtDateTime := strfmt.DateTime(dateTime)
 	return &fmtDateTime
 }
 
 // FmtDateTimePtr converts pop type to go-swagger type
 func FmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
-	if dateTime == nil {
+	if dateTime == nil || dateTime.IsZero() {
 		return nil
 	}
 	return (*strfmt.DateTime)(dateTime)
@@ -42,6 +46,10 @@ func FmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
 
 // FmtDate converts pop type to go-swagger type
 func FmtDate(date time.Time) *strfmt.Date {
+	if date.IsZero() || date.IsZero() {
+		return nil
+	}
+
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
 }
