@@ -19,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -29,7 +28,7 @@ import (
 var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
-	costsByShipments := helperCostsByShipment(suite)
+	shipment := helperShipment(suite)
 
 	var icnTestCases = []struct {
 		initial  int64
@@ -44,7 +43,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
 			suite.NoError(err, "error setting sequence value")
 
-			generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+			generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
 
 			suite.NoError(err)
 			if suite.NoError(err) {
@@ -57,7 +56,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	}
 
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
-		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
@@ -68,9 +67,9 @@ func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
 		err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, 1)
 		suite.NoError(err, "error setting sequence value")
-		costsByShipments := helperCostsByShipment(suite)
+		shipment := helperShipment(suite)
 
-		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
@@ -89,7 +88,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 	})
 }
 
-func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
+func helperShipment(suite *InvoiceSuite) models.Shipment {
 	var weight unit.Pound
 	weight = 2000
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
@@ -136,11 +135,7 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 	}
 	shipment.ShipmentLineItems = lineItems
 
-	costsByShipments := []rateengine.CostByShipment{{
-		Shipment: shipment,
-		Cost:     rateengine.CostComputation{},
-	}}
-	return costsByShipments
+	return shipment
 }
 
 func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {

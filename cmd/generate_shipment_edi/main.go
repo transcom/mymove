@@ -9,14 +9,12 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/namsral/flag"
-	"github.com/transcom/mymove/pkg/service/invoice"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
-	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/service/invoice"
 )
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go -moveID <UUID>
@@ -25,10 +23,6 @@ func main() {
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	sendToGex := flag.Bool("gex", false, "Choose to send the file to gex")
 	transactionName := flag.String("transactionName", "test", "The required name sent in the url of the gex api request")
-	hereGeoEndpoint := flag.String("here_maps_geocode_endpoint", "", "URL for the HERE maps geocoder endpoint")
-	hereRouteEndpoint := flag.String("here_maps_routing_endpoint", "", "URL for the HERE maps routing endpoint")
-	hereAppID := flag.String("here_maps_app_id", "", "HERE maps App ID for this application")
-	hereAppCode := flag.String("here_maps_app_code", "", "HERE maps App API code")
 	flag.Parse()
 
 	if *shipmentIDString == "" {
@@ -50,15 +44,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	planner := route.NewHEREPlanner(logger, *hereGeoEndpoint, *hereRouteEndpoint, *hereAppID, *hereAppCode)
 
-	engine := rateengine.NewRateEngine(db, logger, planner)
-	costByShipment, err := engine.HandleRunOnShipment(shipment)
-	if err != nil {
-		log.Fatal(err)
-	}
-	costsByShipments := []rateengine.CostByShipment{costByShipment}
-	invoice858C, err := ediinvoice.Generate858C(costsByShipments, db, false, clock.New())
+	invoice858C, err := ediinvoice.Generate858C(shipment, db, false, clock.New())
 	if err != nil {
 		log.Fatal(err)
 	}
