@@ -239,7 +239,11 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 			suite.Equal(1, l0Segment.LadingLineItemNumber)
 
 			if l0Segment.BilledRatedAsQuantity != 0 {
-				suite.Equal(float64(1), l0Segment.BilledRatedAsQuantity)
+				if lineItem.Tariff400ngItem.Code == "LHS" {
+					suite.Equal(float64(1), l0Segment.BilledRatedAsQuantity)
+				} else {
+					suite.Equal(lineItem.Quantity1.ToUnitFloat(), l0Segment.BilledRatedAsQuantity)
+				}
 			}
 
 			if l0Segment.BilledRatedAsQualifier != "" {

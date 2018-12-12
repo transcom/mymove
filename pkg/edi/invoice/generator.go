@@ -409,9 +409,15 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 	_, isWeightBased := weightBasedMeasurements[measurementUnit]
 
 	if isUnitBased {
+
+		actualBilledRatedAsQuantity := float64(billedRatedAsQuantity)
+		if lineItem.Tariff400ngItem.Code != "LHS" {
+			actualBilledRatedAsQuantity = lineItem.Quantity1.ToUnitFloat()
+		}
+
 		return &edisegment.L0{
 			LadingLineItemNumber:   ladingLineItemNumber,
-			BilledRatedAsQuantity:  billedRatedAsQuantity,
+			BilledRatedAsQuantity:  actualBilledRatedAsQuantity,
 			BilledRatedAsQualifier: string(measurementUnit),
 		}
 
