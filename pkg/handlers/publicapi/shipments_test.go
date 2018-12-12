@@ -693,8 +693,8 @@ func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	path := fmt.Sprintf("/shipments/%s/transport", shipment.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	actualPackDate := testdatagen.Now
-	actualPickupDate := testdatagen.NowPlusTwoDays
+	actualPackDate := shipment.BookDate.AddDate(0, 0, 1)
+	actualPickupDate := actualPackDate.AddDate(0, 0, 1)
 
 	body := apimessages.TransportPayload{
 		ActualPackDate:   handlers.FmtDatePtr(&actualPackDate),
