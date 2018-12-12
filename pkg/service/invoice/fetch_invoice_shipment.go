@@ -13,7 +13,10 @@ type FetchInvoiceShipment struct {
 }
 
 // Call queries a shipment for a given ID along with required associations
-// Only line items that are approved or do not require preapproval should be returned
+// Conditions for adding line items are:
+// - must be approved or not require preapproval
+// - must NOT have an existing invoice association (ie. has been invoiced already)
+// - must be associated with the passed shipment ID
 func (f FetchInvoiceShipment) Call(shipmentID uuid.UUID) (models.Shipment, error) {
 	var shipment models.Shipment
 	err := f.DB.
