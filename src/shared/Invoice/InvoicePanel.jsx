@@ -107,7 +107,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     unbilledShipmentLineItems: isShipmentDelivered ? selectUnbilledShipmentLineItems(state, ownProps.shipmentId) : [],
     lineItemsTotal: isShipmentDelivered ? selectTotalFromUnbilledLineItems(state, ownProps.shipmentId) : 0,
-    isShipmentDelivered: ownProps.shipmentStatus.toUpperCase() === 'DELIVERED',
+    isShipmentDelivered: isShipmentDelivered,
     invoiceProcessing: get(state, 'office.hhgInvoiceIsSending'),
     invoiceSentSuccessfully: get(state, 'office.hhgInvoiceHasSendSuccess'),
     invoiceHasFailed: get(state, 'office.hhgInvoiceHasFailure'),
