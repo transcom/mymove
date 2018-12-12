@@ -28,23 +28,11 @@ import * as mime from 'mime-types';
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  cy
-    .request({
-      method: 'POST',
-      url: '/devlocal-auth/login',
-      form: true,
-      failOnStatusCode: false,
-    })
-    .then(resp => {
-      // expected forbidden failure, 403
-      expect(resp.status).to.eq(403);
-      // should have both our csrf cookie tokens now
-      cy.getCookie('_gorilla_csrf').should('exist');
-
-      // now we log in from the devlocal-auth page
-      cy.visit('/devlocal-auth/login');
-      cy.get('button[data-hook="new-user-login"]').click();
-    });
+  cy.visit('/devlocal-auth/login');
+  // should have both our csrf cookie tokens now
+  cy.getCookie('_gorilla_csrf').should('exist');
+  cy.getCookie('masked_gorilla_csrf').should('exist');
+  cy.get('button[data-hook="new-user-login"]').click();
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
@@ -60,27 +48,11 @@ Cypress.Commands.add('signIntoTSP', () => {
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 Cypress.Commands.add('signInAsUser', userId => {
-  // ToDo: Should figure out why cypress can't get _gorilla_csrf cookie automatically
-  //   this is a workaround for now
-  // send a POST that will fail to get _gorilla_csrf cookie
-  cy.logout();
-  cy
-    .request({
-      method: 'POST',
-      url: '/devlocal-auth/login',
-      form: true,
-      body: { id: userId },
-      failOnStatusCode: false,
-    })
-    .then(resp => {
-      // expected forbidden failure, 403
-      cy.expect(resp.status).to.eq(403);
-
-      // should have both our csrf cookie tokens now
-      // now we log in from the devlocal-auth page
-      cy.visit('/devlocal-auth/login');
-      cy.get('button[value="' + userId + '"]').click();
-    });
+  cy.visit('/devlocal-auth/login');
+  // should have both our csrf cookie tokens now
+  cy.getCookie('_gorilla_csrf').should('exist');
+  cy.getCookie('masked_gorilla_csrf').should('exist');
+  cy.get('button[value="' + userId + '"]').click();
 });
 
 Cypress.Commands.add('logout', () => {
