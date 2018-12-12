@@ -7,6 +7,7 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -20,7 +21,6 @@ const dateFormat = "20060102"
 const timeFormat = "1504"
 const senderCode = "MYMOVE"
 
-//const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
 const receiverCode = "8004171844" // Syncada
 
 // ICNSequenceName used to query Interchange Control Numbers from DB
@@ -229,14 +229,26 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	}
 	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
 
+	acceptedOffers := shipment.ShipmentOffers.Accepted()
+	numAcceptedOffers := len(acceptedOffers)
+	if numAcceptedOffers == 0 {
+		return nil, errors.New("No accepted shipment offer found")
+	} else if numAcceptedOffers > 1 {
+		return nil, errors.Errorf("Found %d accepted shipment offers", numAcceptedOffers)
+	}
+	acceptedOffer := acceptedOffers[0]
+	if acceptedOffer.TransportationServiceProvider.ID == uuid.Nil {
+		return nil, errors.New("Accepted shipment offer is missing Transportation Service Provider")
+	}
+
 	return []edisegment.Segment{
 		&edisegment.BX{
 			TransactionSetPurposeCode:    "00", // Original
 			TransactionMethodTypeCode:    "J",  // Motor
 			ShipmentMethodOfPayment:      "PP", // Prepaid by seller
 			ShipmentIdentificationNumber: *GBL,
-			StandardCarrierAlphaCode:     "MCCG", // TODO: real SCAC
-			ShipmentQualifier:            "4",    // HHG Government Bill of Lading
+			StandardCarrierAlphaCode:     acceptedOffer.TransportationServiceProvider.StandardCarrierAlphaCode,
+			ShipmentQualifier:            "4", // HHG Government Bill of Lading
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "DY", // DoD transportation service code #

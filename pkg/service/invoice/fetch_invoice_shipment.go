@@ -22,6 +22,7 @@ func (f FetchInvoiceShipment) Call(shipmentID uuid.UUID) (models.Shipment, error
 			"Move.Orders.NewDutyStation.Address",
 			"Move.Orders.NewDutyStation.TransportationOffice",
 			"ServiceMember.DutyStation.TransportationOffice",
+			"ShipmentOffers.TransportationServiceProvider",
 			"ShipmentOffers.TransportationServiceProviderPerformance",
 			"ShipmentLineItems.Tariff400ngItem",
 		).

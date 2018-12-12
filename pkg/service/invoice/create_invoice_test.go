@@ -7,18 +7,17 @@ import (
 )
 
 func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
-	shipments := models.Shipments{testdatagen.MakeDefaultShipment(suite.db)}
-	createInvoices := CreateInvoices{
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	createInvoice := CreateInvoice{
 		DB:    suite.db,
 		Clock: clock.NewMock(),
 	}
-	var invoices models.Invoices
+	var invoice models.Invoice
 
-	verrs, err := createInvoices.Call(&invoices, shipments)
+	verrs, err := createInvoice.Call(&invoice, shipment)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 
-	suite.Equal(1, len(invoices))
-	suite.Equal(models.InvoiceStatusINPROCESS, invoices[0].Status)
-	suite.NotEqual(models.Invoice{}.ID, invoices[0].ID)
+	suite.Equal(models.InvoiceStatusINPROCESS, invoice.Status)
+	suite.NotEqual(models.Invoice{}.ID, invoice)
 }

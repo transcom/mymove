@@ -402,12 +402,12 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
-	params := shipmentop.SendHHGInvoiceParams{
+	params := shipmentop.CreateAndSendHHGInvoiceParams{
 		HTTPRequest: req,
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
 	// assert we got back the conflict response
 	response := handler.Handle(params)
-	suite.Equal(shipmentop.NewSendHHGInvoiceConflict(), response)
+	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), response)
 }
