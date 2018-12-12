@@ -36,6 +36,7 @@ func (f FetchInvoiceShipment) Call(shipmentID uuid.UUID) (models.Shipment, error
 		LeftJoin("tariff400ng_items as ti", "shipment_line_items.tariff400ng_item_id = ti.id").
 		Where("(shipment_line_items.status=? OR ti.requires_pre_approval = false)",
 			models.ShipmentLineItemStatusAPPROVED).
+		Where("shipment_line_items.invoice_id IS NULL").
 		Where("shipment_line_items.shipment_id=?", shipmentID).
 		All(&lineItems)
 	shipment.ShipmentLineItems = lineItems
