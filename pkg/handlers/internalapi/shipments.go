@@ -518,15 +518,13 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 	// Run rate engine on shipment --> returns CostByShipment Struct
-	shipmentCost, err := engine.HandleRunOnShipment(shipment)
+	costByShipment, err := engine.HandleRunOnShipment(shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	var costsByShipments []rateengine.CostByShipment
-	costsByShipments = append(costsByShipments, shipmentCost)
 
 	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(costsByShipments, h.DB(), h.SendProductionInvoice(), clock.New())
+	invoice858C, err := ediinvoice.Generate858C(costByShipment.Shipment, h.DB(), h.SendProductionInvoice(), clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
