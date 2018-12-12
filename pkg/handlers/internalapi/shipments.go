@@ -8,7 +8,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -21,6 +21,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 )
+
+func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
+	if a == nil {
+		return nil
+	}
+
+	return &internalmessages.Invoice{
+		ID: *handlers.FmtUUID(a.ID),
+
+		Status:    internalmessages.InvoiceStatus(a.Status),
+		CreatedAt: *handlers.FmtDateTime(a.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(a.UpdatedAt),
+	}
+}
 
 func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
@@ -466,10 +480,10 @@ type ShipmentInvoiceHandler struct {
 }
 
 // Handle is the handler
-func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) middleware.Responder {
+func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoiceParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
-		return shipmentop.NewSendHHGInvoiceForbidden()
+		return shipmentop.NewCreateAndSendHHGInvoiceForbidden()
 	}
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -492,12 +506,12 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	}
 	if shipment.Status != models.ShipmentStatusDELIVERED && shipment.Status != models.ShipmentStatusCOMPLETED {
 		h.Logger().Error("Shipment status not in delivered state.")
-		return shipmentop.NewSendHHGInvoiceConflict()
+		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
 	// before processing the invoice, save it in an in process state
-	var invoices models.Invoices
-	verrs, err := invoice.CreateInvoices{DB: h.DB(), Clock: clock.New()}.Call(&invoices, models.Shipments{shipment})
+	var invoice models.Invoice
+	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
@@ -535,26 +549,26 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.SendHHGInvoiceParams) m
 	// get response from gex --> use status as status for this invoice call
 	if responseStatus != 200 {
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
-		for index := range invoices {
-			invoices[index].Status = models.InvoiceStatusSUBMISSIONFAILURE
-		}
-		// Update invoice records as failed
-		verrs, err := h.DB().ValidateAndSave(&invoices)
+		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
+		// Update invoice record as failed
+		verrs, err := h.DB().ValidateAndSave(&invoice)
 		if verrs.HasAny() {
 			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
 		}
 		if err != nil {
 			h.Logger().Error("Failed to update invoice records to failed state", zap.Error(err))
 		}
-		return shipmentop.NewSendHHGInvoiceInternalServerError()
+		return shipmentop.NewCreateAndSendHHGInvoiceInternalServerError()
 	}
 
-	// Update invoice records as submitted
+	// Update invoice record as submitted
 	shipmentLineItems := shipment.ShipmentLineItems
-	verrs, err = invoice.UpdateInvoicesSubmitted{DB: h.DB()}.Call(invoices, shipmentLineItems)
+	verrs, err = invoiceop.UpdateInvoiceSubmitted{DB: h.DB()}.Call(&invoice, shipmentLineItems)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	return shipmentop.NewSendHHGInvoiceOK()
+	payload := payloadForInvoiceModel(&invoice)
+
+	return shipmentop.NewCreateAndSendHHGInvoiceOK().WithPayload(payload)
 }

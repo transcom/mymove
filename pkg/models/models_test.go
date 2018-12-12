@@ -4,6 +4,7 @@ import (
 	"log"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/gobuffalo/pop"
@@ -74,6 +75,19 @@ func (suite *ModelSuite) noValidationErrors(verrs *validate.Errors, err error) b
 	}
 
 	return !suite.NoError(err) && noVerr
+}
+
+// FatalNoError ends a test if an error is not nil
+func (suite *ModelSuite) FatalNoError(err error, messages ...string) {
+	t := suite.T()
+	t.Helper()
+	if !suite.NoError(err) {
+		if len(messages) > 0 {
+			t.Fatalf("%s: %s", strings.Join(messages, ","), err.Error())
+		} else {
+			t.Fatal(err.Error())
+		}
+	}
 }
 
 func TestModelSuite(t *testing.T) {

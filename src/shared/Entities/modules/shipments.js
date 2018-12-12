@@ -2,7 +2,7 @@ import { denormalize } from 'normalizr';
 
 import { shipments } from '../schema';
 import { swaggerRequest } from 'shared/Swagger/request';
-import { getClient } from 'shared/Swagger/api';
+import { getClient, getPublicClient } from 'shared/Swagger/api';
 
 export function createOrUpdateShipment(label, moveId, shipment, id) {
   if (id) {
@@ -14,6 +14,10 @@ export function createOrUpdateShipment(label, moveId, shipment, id) {
 
 export function getShipment(label, shipmentId) {
   return swaggerRequest(getClient, 'shipments.getShipment', { shipmentId }, { label });
+}
+
+export function getPublicShipment(label, shipmentId) {
+  return swaggerRequest(getPublicClient, 'shipments.getShipment', { shipmentId }, { label });
 }
 
 export function createShipment(
@@ -30,6 +34,18 @@ export function updateShipment(
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
 ) {
   return swaggerRequest(getClient, 'shipments.patchShipment', { shipmentId, shipment }, { label });
+}
+
+export function updatePublicShipment(
+  shipmentId,
+  shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
+) {
+  return swaggerRequest(
+    getPublicClient,
+    'shipments.patchShipment',
+    { shipmentId, update: shipment },
+    { label: 'shipments.updateShipment' },
+  );
 }
 
 export function selectShipment(state, id) {

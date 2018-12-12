@@ -54,6 +54,7 @@ To create a secure migration:
 * Copy the production migration into the local test migration.
 * Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
 * Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
+* If you are wanting to run a secure migration for a specific non-production environment, then **please read the next section first**.
 * Upload the migration to S3 with: `bin/upload-secure-migration <production_migration_file>`
 * Run `bin/run-prod-migrations` to verify that the upload worked and that the migration can be applied successfully
 * Open a pull request!
