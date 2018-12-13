@@ -108,6 +108,22 @@ func (suite *DatesSuite) TestCreateValidDatesBetweenTwoDatesEndDateMustBeLater()
 	suite.Error(err)
 }
 
+func (suite *DatesSuite) TestNextValidMoveDate() {
+	invalidMoveDates := []time.Time{
+		time.Date(2018, 12, 8, 0, 0, 0, 0, time.UTC),  // Saturday
+		time.Date(2018, 12, 9, 0, 0, 0, 0, time.UTC),  // Sunday
+		time.Date(2018, 12, 25, 0, 0, 0, 0, time.UTC), // Christmas
+	}
+
+	usCalendar := NewUSCalendar()
+	for _, d := range invalidMoveDates {
+		validDate := NextValidMoveDate(d, usCalendar)
+		// The date should be a different, valid workday
+		suite.False(validDate.Equal(d))
+		suite.True(usCalendar.IsWorkday(validDate))
+	}
+}
+
 type DatesSuite struct {
 	suite.Suite
 	db     *pop.Connection

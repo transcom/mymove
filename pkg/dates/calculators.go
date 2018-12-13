@@ -63,3 +63,13 @@ func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, inc
 	}
 	return dates, nil
 }
+
+// NextValidMoveDate returns next subsequent non-holiday weekday
+// This is mostly used for testing purposes
+func NextValidMoveDate(d time.Time, calendar *cal.Calendar) time.Time {
+	// Add days until we get a non-holiday weekday
+	for !calendar.IsWorkday(d) {
+		d = d.AddDate(0, 0, 1)
+	}
+	return d
+}
