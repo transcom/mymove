@@ -42,6 +42,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
+import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 
 import {
   loadMoveDependencies,
@@ -142,10 +143,12 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
-      this.props.getPublicShipment('Shipments.getPublicShipment', this.props.officeShipment.id);
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
-      this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.officeShipment.id);
-      this.props.loadShipmentDependencies(this.props.officeShipment.id);
+      const shipmentId = this.props.officeShipment.id;
+      this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+      this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
+      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
+      this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+      this.props.loadShipmentDependencies(shipmentId);
     }
   }
 
@@ -496,6 +499,7 @@ const mapDispatchToProps = dispatch =>
       getAllShipmentLineItems,
       getAllInvoices,
       resetMove,
+      getTspForShipment,
     },
     dispatch,
   );
