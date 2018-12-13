@@ -88,3 +88,15 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	suite.Equal("FETCH_FORBIDDEN", err.Error())
 
 }
+
+func (suite *ModelSuite) TestFetchInvoicesForShipment() {
+	invoice1 := testdatagen.MakeDefaultInvoice(suite.db)
+	testdatagen.MakeDefaultInvoice(suite.db)
+
+	// Then: invoice is returned
+	extantInvoices, err := FetchInvoicesForShipment(suite.db, invoice1.ShipmentID)
+	if suite.NoError(err) {
+		suite.Len(extantInvoices, 1)
+		suite.Equal(extantInvoices[0].ID, invoice1.ID)
+	}
+}

@@ -232,6 +232,10 @@ definitions:
       requires_pre_approval:
         type: boolean
         title: Requires pre-approval
+  Invoices:
+    type: array
+    items:
+      $ref: '#/definitions/Invoice'
   Invoice:
     type: object
     properties:
@@ -2379,6 +2383,33 @@ paths:
           description: User not permitted to get invoice for this shipment
         404:
           description: Invoice UUID not found in system
+        500:
+          description: server error
+  /shipments/{shipmentId}/invoices:
+    get:
+      summary: Retrieve invoices associated with a shipment
+      description: Gets a list of all invoices associated with a shipment.
+      operationId: getShipmentInvoices
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: list of invoices associated with shipment
+          schema:
+            $ref: '#/definitions/Invoices'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of invoices for this shipment
+        404:
+          description: Shipment UUID not found in system
         500:
           description: server error
   /shipments/{shipmentId}/accessorials:

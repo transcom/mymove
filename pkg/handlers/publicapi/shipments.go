@@ -151,6 +151,45 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	return shipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
+// GetShipmentInvoicesHandler returns all invoices for a shipment
+type GetShipmentInvoicesHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle accepts the shipment ID - returns list of associated invoices
+func (h GetShipmentInvoicesHandler) Handle(params shipmentop.GetShipmentInvoicesParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	if !session.IsOfficeUser() {
+		// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+		// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+		// See original commits in https://github.com/transcom/mymove/pull/802
+		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewGetShipmentInvoicesForbidden()
+		}
+
+		// Make sure TSP has access to this shipment
+		_, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewGetShipmentInvoicesForbidden()
+		}
+	}
+
+	invoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewGetShipmentInvoicesBadRequest()
+	}
+
+	payload := payloadForInvoiceModels(invoices)
+	return shipmentop.NewGetShipmentInvoicesOK().WithPayload(payload)
+}
+
 // AcceptShipmentHandler allows a TSP to accept a particular shipment
 type AcceptShipmentHandler struct {
 	handlers.HandlerContext

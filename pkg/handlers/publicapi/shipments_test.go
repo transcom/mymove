@@ -809,3 +809,73 @@ func (suite *HandlerSuite) TestCompletePmSurveyHandler() {
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&shipmentop.CompletePmSurveyOK{}, response)
 }
+
+// TestGetShipmentInvoicesHandler tests the api endpoint that saves a shipment's Pm Survey
+func (suite *HandlerSuite) TestGetShipmentInvoicesHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// Given 2 invoices
+	testdatagen.MakeInvoice(suite.TestDB(), testdatagen.Assertions{
+		Invoice: models.Invoice{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+		},
+	})
+	testdatagen.MakeInvoice(suite.TestDB(), testdatagen.Assertions{
+		Invoice: models.Invoice{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+		},
+	})
+
+	// Handler to Test
+	handler := GetShipmentInvoicesHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := fmt.Sprintf("/shipments/%s/invoices", shipment.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+
+	// An unauthorized TSP user should be forbidden
+	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+	req = suite.AuthenticateTspRequest(req, otherTspUser)
+	params := shipmentop.GetShipmentInvoicesParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.GetShipmentInvoicesForbidden{}, response)
+
+	// A valid TSP user should retrieve invoices
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = shipmentop.GetShipmentInvoicesParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+
+	response = handler.Handle(params)
+	if suite.Assertions.IsType(&shipmentop.GetShipmentInvoicesOK{}, response) {
+		okResponse := response.(*shipmentop.GetShipmentInvoicesOK)
+		suite.Len(okResponse.Payload, 2)
+	}
+
+	// A valid office user should retrieve invoices
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	params = shipmentop.GetShipmentInvoicesParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+
+	response = handler.Handle(params)
+	if suite.Assertions.IsType(&shipmentop.GetShipmentInvoicesOK{}, response) {
+		okResponse := response.(*shipmentop.GetShipmentInvoicesOK)
+		suite.Len(okResponse.Payload, 2)
+	}
+}
