@@ -1,24 +1,28 @@
 package scenario
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/go-openapi/swag"
+	"go.uber.org/zap"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/storage"
-	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
-	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
+	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
+	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
 // E2eBasicScenario builds a basic set of data for e2e testing
@@ -2117,9 +2121,8 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			ID:     uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
-			Status: models.ShipmentStatusDELIVERED,
-
+			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
+			Status:                      models.ShipmentStatusINTRANSIT,
 			PmSurveyMethod:              "PHONE",
 			PmSurveyPlannedPackDate:     &nowMinusTen,
 			PmSurveyPlannedPickupDate:   &nowMinusFive,
@@ -2127,7 +2130,6 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			NetWeight:                   &netWeight,
 			ActualPickupDate:            &nowMinusFive,
 			OriginalDeliveryDate:        &nowMinusOne,
-			ActualDeliveryDate:          &nowMinusOne,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2139,6 +2141,18 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			Accepted:                        models.BoolPointer(true),
 		},
 	})
+
+	planner := route.NewTestingPlanner(1234)
+	engine := rateengine.NewRateEngine(db, logger, planner)
+	verrs, err := shipmentservice.DeliverAndPriceShipment{
+		DB:     db,
+		Engine: engine,
+	}.Call(nowMinusOne, &offer.Shipment)
+
+	if verrs.HasAny() || err != nil {
+		fmt.Println(verrs.String())
+		log.Panic(err)
+	}
 
 	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
 		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{TransportationServiceProvider: tspUser.TransportationServiceProvider,

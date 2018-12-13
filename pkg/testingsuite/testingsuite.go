@@ -36,3 +36,16 @@ func (suite *LocalTestSuite) FatalNoError(err error, messages ...string) {
 		}
 	}
 }
+
+// FatalFalse ends a test if a value is not false
+func (suite *LocalTestSuite) FatalFalse(b bool, messages ...string) {
+	t := suite.T()
+	t.Helper()
+	if !suite.False(b) {
+		if len(messages) > 0 {
+			t.Fatalf("%s", strings.Join(messages, ","))
+		} else {
+			t.Fatal()
+		}
+	}
+}
