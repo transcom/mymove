@@ -41,7 +41,7 @@ function tspUserViewsHHGHeaderInfo() {
   // Check the info bar
   cy
     .get('ul')
-    .contains('li', 'GBL# LKBM7123456')
+    .contains('li', 'GBL# LKNQ7123456')
     .parentsUntil('div')
     .contains('li', 'Locator# HHGPPM')
     .parentsUntil('div')
@@ -80,7 +80,7 @@ function tspUserViewsHHGPPMHeaderInfo() {
   // Check the info bar
   cy
     .get('ul')
-    .contains('li', 'GBL# LKBM7123456')
+    .contains('li', 'GBL# LKNQ7123456')
     .parentsUntil('div')
     .contains('li', 'Locator# HHGPPM')
     .parentsUntil('div')

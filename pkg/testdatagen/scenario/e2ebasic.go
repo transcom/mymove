@@ -1836,7 +1836,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		Shipment: models.Shipment{
 			Status:             models.ShipmentStatusAWARDED,
 			HasDeliveryAddress: true,
-			GBLNumber:          models.StringPointer("LKBM7123456"),
+			GBLNumber:          models.StringPointer("LKNQ7123456"),
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
