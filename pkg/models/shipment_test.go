@@ -317,3 +317,71 @@ func (suite *ModelSuite) TestSaveShipment() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 }
+
+// TestAcceptedShipmentOffer test that we can retrieve a valid accepted shipment offer
+func (suite *ModelSuite) TestAcceptedShipmentOffer() {
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	suite.Equal(ShipmentStatusDRAFT, shipment.Status, "expected Draft")
+
+	// Shipment does not have an accepted shipment offer
+	noAcceptedShipmentOffer, err := shipment.AcceptedShipmentOffer()
+	suite.Nil(err) // Shipment.Status does not require an accepted ShipmentOffer
+	suite.Nil(noAcceptedShipmentOffer)
+
+	shipmentOffer := testdatagen.MakeDefaultShipmentOffer(suite.db)
+	shipment.ShipmentOffers = append(shipment.ShipmentOffers, shipmentOffer)
+	suite.Len(shipment.ShipmentOffers, 1)
+
+	// Can submit shipment
+	err = shipment.Submit()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
+
+	// Can award shipment
+	err = shipment.Award()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
+
+	// ShipmentOffer has not been accepted yet
+	// Shipment does not have an accepted shipment offer
+	noAcceptedShipmentOffer, err = shipment.AcceptedShipmentOffer()
+	suite.Nil(err) // Shipment.Status does not require an accepted ShipmentOffer
+	suite.Nil(noAcceptedShipmentOffer)
+
+	// Can accept shipment
+	err = shipment.Accept()
+	suite.Nil(err)
+	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
+
+	// ShipmentOffer has not been accepted yet
+	// Shipment does not have an accepted shipment offer, but Shipment is in the Accepted state
+	noAcceptedShipmentOffer, err = shipment.AcceptedShipmentOffer()
+	suite.NotNil(err) // Shipment.Status requires an accepted ShipmentOffer
+	suite.Nil(noAcceptedShipmentOffer)
+
+	// Accept ShipmentOffer for the TSP
+	err = shipment.ShipmentOffers[0].Accept()
+	suite.Nil(err)
+	suite.True(*shipment.ShipmentOffers[0].Accepted)
+	suite.Nil(shipment.ShipmentOffers[0].RejectionReason)
+
+	// Get accepted shipment offer from shipment
+	acceptedShipmentOffer, err := shipment.AcceptedShipmentOffer()
+	suite.Nil(err)
+	suite.NotNil(acceptedShipmentOffer)
+
+	// Test results of TSP for an accepted shipment offer
+	// accepted shipment offer can't have empty or nil values for certain data
+	scac, err := acceptedShipmentOffer.SCAC()
+	suite.Nil(err)
+	suite.NotEmpty(scac)
+	supplierID, err := acceptedShipmentOffer.SupplierID()
+	suite.Nil(err)
+	suite.NotNil(supplierID)
+	suite.NotEmpty(*supplierID)
+
+	// Do TSPs have the same ID
+	suite.NotEmpty(acceptedShipmentOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID.String())
+	suite.Equal(acceptedShipmentOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID,
+		shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.ID)
+}
