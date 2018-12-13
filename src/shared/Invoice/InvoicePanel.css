@@ -11,10 +11,10 @@
 }
 
 .invoice-panel-table-cont {
-  width: 75%;
+  width: 90%;
 }
 
-.invoice-panel-table-cont h5{
+.invoice-panel h1,h2,h3,h4,h5{
   font-family: sans-serif;
 }
 
@@ -83,4 +83,9 @@
 .warning--header {
   font-size: 1.2em;
   display: block;
+}
+
+h5 > span.detail {
+  font-weight: 400;
+  font-size: 0.9em;
 }

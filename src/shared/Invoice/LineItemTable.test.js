@@ -1,10 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import InvoiceTable from './InvoiceTable';
-import { isOfficeSite } from 'shared/constants.js';
+import LineItemTable from './LineItemTable';
 import * as CONSTANTS from 'shared/constants.js';
 
-describe('InvoiceTable tests', () => {
+describe('LineItemTable tests', () => {
   let wrapper;
   const shipmentLineItems = [
     {
@@ -30,7 +29,7 @@ describe('InvoiceTable tests', () => {
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
-        <InvoiceTable shipmentLineItems={shipmentLineItems} totalAmount={10} shipmentStatus="delivered" />,
+        <LineItemTable shipmentLineItems={shipmentLineItems} totalAmount={10} shipmentStatus="delivered" />,
       );
       expect(wrapper.find('table').length).toEqual(1);
     });

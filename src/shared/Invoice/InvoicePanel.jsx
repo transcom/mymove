@@ -1,92 +1,53 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
-
-import './InvoicePanel.css';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { isOfficeSite, isDevelopment } from 'shared/constants.js';
 
 import BasicPanel from 'shared/BasicPanel';
 import {
   selectUnbilledShipmentLineItems,
   selectTotalFromUnbilledLineItems,
+  getAllShipmentLineItems,
+  getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { sendHHGInvoice, draftInvoice, resetInvoiceFlow } from 'scenes/Office/ducks';
+import { selectSortedInvoices, createInvoice, createInvoiceLabel } from 'shared/Entities/modules/invoices';
+import { getRequestStatus } from 'shared/Swagger/selectors';
+import UnbilledTable from 'shared/Invoice/UnbilledTable';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
-import {
-  default as InvoicePayment,
-  PAYMENT_IN_PROCESSING,
-  PAYMENT_IN_CONFIRMATION,
-  PAYMENT_FAILED,
-  PAYMENT_APPROVED,
-} from './InvoicePayment';
+
+import './InvoicePanel.css';
 
 export class InvoicePanel extends PureComponent {
   approvePayment = () => {
-    return this.props.sendHHGInvoice(this.props.shipmentId);
+    return this.props.createInvoice(createInvoiceLabel, this.props.shipmentId).then(() => {
+      return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+    });
   };
 
   render() {
-    let invoicingContent = <span className="empty-content">No line items</span>;
-    let title = 'Invoicing';
-
-    if (this.props.unbilledShipmentLineItems.length > 0 && this.props.isShipmentDelivered) {
-      let tableTitle = <h5>Unbilled line items</h5>;
-      let paymentStatus = null;
-
-      //figure out payment status
-      if (this.props.isInvoiceInDraft) {
-        paymentStatus = PAYMENT_IN_CONFIRMATION;
-      } else if (this.props.invoiceProcessing) {
-        paymentStatus = PAYMENT_IN_PROCESSING;
-      } else if (this.props.invoiceSentSuccessfully) {
-        paymentStatus = PAYMENT_APPROVED;
-      } else if (this.props.invoiceHasFailed) {
-        paymentStatus = PAYMENT_FAILED;
-      }
-
-      if (
-        isOfficeSite && //user is an office user
-        isDevelopment && //only for development env
-        (!paymentStatus || paymentStatus === PAYMENT_FAILED)
-      ) {
-        //payment status is empty or invoice payment has failed
-        tableTitle = (
-          <div className="invoice-panel-header-cont">
-            <div className="usa-width-one-half">
-              <h5>Unbilled line items</h5>
-            </div>
-            <div className="usa-width-one-half align-right">
-              <button className="button button-secondary" onClick={this.props.draftInvoice}>
-                Approve Payment
-              </button>
-            </div>
-          </div>
-        );
-      }
-
-      invoicingContent = (
-        <div className="invoice-panel-table-cont">
-          <InvoicePayment
-            cancelPayment={this.props.resetInvoiceFlow}
-            approvePayment={this.approvePayment}
-            paymentStatus={paymentStatus}
-          />
-          <InvoiceTable
-            shipmentLineItems={this.props.unbilledShipmentLineItems}
-            totalAmount={this.props.lineItemsTotal}
-            title={tableTitle}
-          />
-        </div>
-      );
-      title = <span>Invoicing</span>;
-    }
-
+    // For now we're only allowing one invoice to be generated
+    const allowPayments = !this.props.invoices || !this.props.invoices.length;
     return (
       <div className="invoice-panel">
-        <BasicPanel title={title}>{invoicingContent}</BasicPanel>
+        <BasicPanel title="Invoicing">
+          <UnbilledTable
+            isInvoiceInDraft={this.props.isInvoiceInDraft}
+            lineItems={this.props.unbilledShipmentLineItems}
+            lineItemsTotal={this.props.unbilledLineItemsTotal}
+            draftInvoice={this.props.draftInvoice}
+            cancelPayment={this.props.resetInvoiceFlow}
+            approvePayment={this.approvePayment.bind(this)}
+            allowPayments={allowPayments}
+            // paymentStatus={paymentStatus}
+            createInvoiceStatus={this.props.createInvoiceStatus}
+          />
+
+          {this.props.invoices &&
+            this.props.invoices.map(invoice => {
+              return <InvoiceTable invoice={invoice} key={invoice.id} />;
+            })}
+        </BasicPanel>
       </div>
     );
   }
@@ -94,9 +55,9 @@ export class InvoicePanel extends PureComponent {
 
 InvoicePanel.propTypes = {
   unbilledShipmentLineItems: PropTypes.array,
+  unbilledLineItemsTotal: PropTypes.number,
   shipmentId: PropTypes.string,
   shipmentStatus: PropTypes.string,
-  lineItemsTotal: PropTypes.number,
   onApprovePayment: PropTypes.func,
   canApprove: PropTypes.bool,
   isShipmentDelivered: PropTypes.bool,
@@ -105,17 +66,15 @@ InvoicePanel.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   const isShipmentDelivered = ownProps.shipmentStatus.toUpperCase() === 'DELIVERED';
   return {
+    invoices: isShipmentDelivered ? selectSortedInvoices(state, ownProps.shipmentId) : [],
     unbilledShipmentLineItems: isShipmentDelivered ? selectUnbilledShipmentLineItems(state, ownProps.shipmentId) : [],
-    lineItemsTotal: isShipmentDelivered ? selectTotalFromUnbilledLineItems(state, ownProps.shipmentId) : 0,
+    unbilledLineItemsTotal: isShipmentDelivered ? selectTotalFromUnbilledLineItems(state, ownProps.shipmentId) : 0,
     isShipmentDelivered: isShipmentDelivered,
-    invoiceProcessing: get(state, 'office.hhgInvoiceIsSending'),
-    invoiceSentSuccessfully: get(state, 'office.hhgInvoiceHasSendSuccess'),
-    invoiceHasFailed: get(state, 'office.hhgInvoiceHasFailure'),
-    isInvoiceInDraft: get(state, 'office.hhgInvoiceInDraft'),
+    createInvoiceStatus: getRequestStatus(state, createInvoiceLabel),
   };
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ sendHHGInvoice, draftInvoice, resetInvoiceFlow }, dispatch);
+  return bindActionCreators({ createInvoice, getAllShipmentLineItems }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);

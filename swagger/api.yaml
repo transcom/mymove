@@ -312,6 +312,11 @@ definitions:
         example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       status:
         $ref: '#/definitions/ShipmentLineItemStatus'
+      invoice_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       amount_cents:
         type: integer
         format: cents

@@ -31,6 +31,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -148,6 +149,7 @@ class ShipmentInfo extends Component {
       this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
       this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
+      this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.shipment.id);
     }
   }
 
@@ -504,6 +506,7 @@ const mapDispatchToProps = dispatch =>
       getAllShipmentDocuments,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      getAllInvoices,
     },
     dispatch,
   );

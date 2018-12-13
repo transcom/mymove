@@ -40,6 +40,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
 
 import {
@@ -142,6 +143,7 @@ class MoveInfo extends Component {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
       this.props.getPublicShipment('Shipments.getPublicShipment', this.props.officeShipment.id);
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
+      this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.officeShipment.id);
       this.props.loadShipmentDependencies(this.props.officeShipment.id);
     }
   }
@@ -489,6 +491,7 @@ const mapDispatchToProps = dispatch =>
       sendHHGInvoice,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      getAllInvoices,
       resetMove,
     },
     dispatch,

@@ -10,60 +10,98 @@ export const PAYMENT_APPROVED = 'IN_APPROVED_FLOW';
 export const PAYMENT_FAILED = 'IN_FAILURE_FLOW';
 
 class InvoicePayment extends PureComponent {
-  render() {
-    let paymentContainer = null;
+  constructor(props) {
+    super(props);
 
-    //calculate what payment status view to display
-    switch (this.props.paymentStatus) {
-      case PAYMENT_IN_CONFIRMATION:
-        paymentContainer = (
-          <Alert type="warning" heading="Approve payment?">
-            <span className="warning--header">Please make sure you've double-checked everything.</span>
-            <button className="button usa-button-secondary" onClick={this.props.cancelPayment}>
-              Cancel
+    this.state = {
+      draftInvoice: false,
+    };
+  }
+
+  draftInvoice = () => {
+    this.setState({ draftInvoice: true });
+  };
+
+  cancelPayment = () => {
+    this.setState({ draftInvoice: false });
+  };
+
+  approvePayment = () => {
+    this.props.approvePayment();
+    this.cancelPayment();
+  };
+
+  render() {
+    const status = this.props.createInvoiceStatus;
+    let paymentAlert;
+    const allowPayment = this.props.allowPayment && !status.isLoading;
+
+    let header = (
+      <div className="invoice-panel-header-cont">
+        <div className="usa-width-one-half">
+          <h5>Unbilled line items</h5>
+        </div>
+        {allowPayment && (
+          <div className="usa-width-one-half align-right">
+            <button className="button button-secondary" onClick={this.draftInvoice}>
+              Approve Payment
             </button>
-            <button className="button usa-button-primary" onClick={this.props.approvePayment}>
-              Approve
-            </button>
-          </Alert>
-        );
-        break;
-      case PAYMENT_IN_PROCESSING:
-        paymentContainer = (
-          <Alert type="loading" heading="Creating invoice">
-            <span className="warning--header">Sending information to USBank/Syncada.</span>
-          </Alert>
-        );
-        break;
-      case PAYMENT_APPROVED:
-        paymentContainer = (
-          <div>
-            <Alert type="success" heading="Success!">
-              <span className="warning--header">The invoice has been created and will be paid soon.</span>
-            </Alert>
           </div>
-        );
-        break;
-      case PAYMENT_FAILED:
-        paymentContainer = (
-          <Alert type="error" heading="Oops, something went wrong!">
-            <span className="warning--header">Please try again.</span>
-          </Alert>
-        );
-        break;
-      default:
-        // unknown status
-        paymentContainer = null;
-        break;
+        )}
+      </div>
+    );
+
+    if (this.state.draftInvoice) {
+      header = (
+        <Alert type="warning" heading="Approve payment?">
+          <span className="warning--header">Please make sure you've double-checked everything.</span>
+          <button className="button usa-button-secondary" onClick={this.cancelPayment}>
+            Cancel
+          </button>
+          <button className="button usa-button-primary" onClick={this.approvePayment}>
+            Approve
+          </button>
+        </Alert>
+      );
     }
-    return paymentContainer;
+
+    if (status.error) {
+      paymentAlert = (
+        <Alert type="error" heading="Oops, something went wrong!">
+          <span className="warning--header">Please try again.</span>
+        </Alert>
+      );
+    } else if (status.isLoading) {
+      paymentAlert = (
+        <Alert type="loading" heading="Creating invoice">
+          <span className="warning--header">Sending information to USBank/Syncada.</span>
+        </Alert>
+      );
+    } else if (status.isSuccess) {
+      paymentAlert = (
+        <div>
+          <Alert type="success" heading="Success!">
+            <span className="warning--header">The invoice has been created and will be paid soon.</span>
+          </Alert>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        {paymentAlert}
+        {header}
+      </div>
+    );
   }
 }
 
 InvoicePayment.propTypes = {
   approvePayment: PropTypes.func,
   cancelPayment: PropTypes.func,
-  paymentStatus: PropTypes.string,
+  // paymentStatus: PropTypes.string,
+  createInvoiceStatus: PropTypes.object,
+  allowPayment: PropTypes.bool,
 };
 
 export default InvoicePayment;
