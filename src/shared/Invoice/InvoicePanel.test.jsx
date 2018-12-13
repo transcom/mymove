@@ -59,7 +59,8 @@ describe('InvoicePanel tests', () => {
       />,
     );
 
-    it('renders enabled "Approve Payment" button', () => {
+    //todo: this is a test that should be in the InvoicePayment test, not here
+    it.skip('renders enabled "Approve Payment" button', () => {
       CONSTANTS.isDevelopment = true;
       expect(wrapper.props().shipmentStatus).toBe('DELIVERED');
       wrapper.update();
