@@ -31,15 +31,16 @@ var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
 var selectedMoveTypePPM = models.SelectedMoveTypePPM
 var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
-var nowTime = time.Now()
+// Often weekends and holidays are not allowable dates, so ensure weekdays
+var nowTime = testdatagen.NextWeekday(time.Now())
 
-var nowPlusOne = nowTime.AddDate(0, 0, 1)
-var nowPlusFive = nowTime.AddDate(0, 0, 5)
-var nowPlusTen = nowTime.AddDate(0, 0, 10)
+var nowPlusOne = testdatagen.NextWeekday(nowTime.AddDate(0, 0, 1))
+var nowPlusFive = testdatagen.NextWeekday(nowTime.AddDate(0, 0, 5))
+var nowPlusTen = testdatagen.NextWeekday(nowTime.AddDate(0, 0, 10))
 
-var nowMinusOne = nowTime.AddDate(0, 0, -1)
-var nowMinusFive = nowTime.AddDate(0, 0, -5)
-var nowMinusTen = nowTime.AddDate(0, 0, -10)
+var nowMinusOne = testdatagen.NextWeekday(nowTime.AddDate(0, 0, -1))
+var nowMinusFive = testdatagen.NextWeekday(nowTime.AddDate(0, 0, -5))
+var nowMinusTen = testdatagen.NextWeekday(nowTime.AddDate(0, 0, -10))
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {

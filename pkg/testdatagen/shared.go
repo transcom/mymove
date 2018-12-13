@@ -94,6 +94,17 @@ func noErr(err error) {
 	}
 }
 
+// NextWeekday returns next subsequent weekday if date falls on a weekend
+func NextWeekday(d time.Time) time.Time {
+	currentDay := d.Weekday()
+	if currentDay == 0 || currentDay == 6 {
+		// 1 day if Sunday (0), 2 if Saturday (6)
+		daysToAdd := 1 + int(currentDay)/6
+		return d.AddDate(0, 0, daysToAdd)
+	}
+	return d
+}
+
 // zip5ToZip3 takes a ZIP5 string and returns the ZIP3 representation of it.
 func zip5ToZip3(zip5 string) string {
 	return zip5[0:3]
