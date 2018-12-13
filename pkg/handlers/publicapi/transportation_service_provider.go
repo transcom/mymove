@@ -3,17 +3,17 @@ package publicapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	// "github.com/gofrs/uuid"
-	// "go.uber.org/zap"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
-	// "github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
-	transportationserviceproviderop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/transportation_service_provider"
+	tspop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/transportation_service_provider"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForTransportationServieAgentModel(t models.TransportationServiceProvider) *apimessages.TransportationServiceProvider {
+func payloadForTransportationServieProviderModel(t models.TransportationServiceProvider) *apimessages.TransportationServiceProvider {
 	transporationServiceProviderPayload := &apimessages.TransportationServiceProvider{
 		ID:                       *handlers.FmtUUID(t.ID),
 		StandardCarrierAlphaCode: handlers.FmtString(t.StandardCarrierAlphaCode),
@@ -31,12 +31,51 @@ func payloadForTransportationServieAgentModel(t models.TransportationServiceProv
 	return transporationServiceProviderPayload
 }
 
-// ShipmentGetTSPHandler returns a TSP for a shipment
-type ShipmentGetTSPHandler struct {
+// GetTransportationServiceProviderHandler returns a TSP for a shipment
+type GetTransportationServiceProviderHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle getting the tsp for a shipment
-func (h ShipmentGetTSPHandler) Handle(params transportationserviceproviderop.GetTransportationServiceProviderParams) middleware.Responder {
-	return middleware.NotImplemented("operation .getTSP has not yet been implemented")
+func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTransportationServiceProviderParams) middleware.Responder {
+	var shipment *models.Shipment
+	var err error
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	if session.IsTspUser() {
+		// TODO (2018_08_27 cgilmer): Find a way to check Shipment belongs to TSP without 2 queries
+		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			// return tspop.NewGetTransporationServiceProviderForbidden()
+		}
+
+		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return tspop.NewGetTransportationServiceProviderBadRequest()
+		}
+	} else if session.IsOfficeUser() {
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return tspop.NewGetTransportationServiceProviderBadRequest()
+		}
+
+	} else {
+		return tspop.NewGetTransportationServiceProviderForbidden()
+	}
+
+	// Assume that the last shipmentOffer contains the current TSP
+	// This might be a bad assumption, but TSPs can't currently reject offers
+	lastItemIndex := len(shipment.ShipmentOffers) - 1
+	transportationServiceProviderID := shipment.ShipmentOffers[lastItemIndex].TransportationServiceProviderID
+	transportationServiceProvider, err := models.FetchTransportationServiceProvider(h.DB(), transportationServiceProviderID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	transportationServiceProviderPayload := payloadForTransportationServieProviderModel(*transportationServiceProvider)
+	return tspop.NewGetTransportationServiceProviderOK().WithPayload(transportationServiceProviderPayload)
 }
