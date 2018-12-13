@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { withContext } from 'shared/AppContext';
 
-import { isOfficeSite, isDevelopment } from 'shared/constants.js';
+import { isOfficeSite } from 'shared/constants.js';
 import LineItemTable from 'shared/Invoice/LineItemTable';
 import InvoicePayment from './InvoicePayment';
 
@@ -13,7 +14,7 @@ export class UnbilledTable extends PureComponent {
     const allowPayment =
       this.props.allowPayments &&
       isOfficeSite && //user is an office user
-      isDevelopment; //only for development env
+      this.props.context.flags.allowHhgInvoicePayment;
 
     if (this.props.lineItems.length) {
       itemsComponent = (
@@ -46,4 +47,4 @@ UnbilledTable.propTypes = {
   createInvoiceStatus: PropTypes.object,
 };
 
-export default UnbilledTable;
+export default withContext(UnbilledTable);
