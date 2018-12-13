@@ -136,7 +136,7 @@ export async function CompleteHHG(shipmentId) {
 // HHG invoice
 export async function SendHHGInvoice(shipmentId) {
   const client = await getClient();
-  const response = await client.apis.shipments.sendHHGInvoice({
+  const response = await client.apis.shipments.createAndSendHHGInvoice({
     shipmentId,
   });
   checkResponse(response, 'failed to send invoice to server error');
