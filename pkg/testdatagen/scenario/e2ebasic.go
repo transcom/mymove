@@ -14,6 +14,7 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -31,9 +32,20 @@ var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
 var selectedMoveTypePPM = models.SelectedMoveTypePPM
 var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
+// Often weekends and holidays are not allowable dates
+var cal = dates.NewUSCalendar()
+var nowTime = dates.NextValidMoveDate(time.Now(), cal)
+
+var nowPlusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 1), cal)
+var nowPlusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 5), cal)
+var nowPlusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 10), cal)
+
+var nowMinusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -1), cal)
+var nowMinusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -5), cal)
+var nowMinusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -10), cal)
+
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
-
 	/*
 	 * Basic user with tsp access
 	 */
@@ -95,7 +107,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	nowTime := time.Now()
 	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
@@ -128,7 +139,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	nowTime = time.Now()
 	ppmToCancel := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5ca"),
@@ -240,7 +250,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	nowTime = time.Now()
 	ppmCanceled := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("2da0d5e6-4efb-4ea1-9443-bf9ef64ace65"),
@@ -451,9 +460,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email = "hhg@fromawardedtoaccept.ed"
 
-	packDate := time.Now().AddDate(0, 0, 1)
-	pickupDate := time.Now().AddDate(0, 0, 5)
-	deliveryDate := time.Now().AddDate(0, 0, 10)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "ABCD",
@@ -495,11 +501,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("53ebebef-be58-41ce-9635-a4930149190d"),
 			Status:                      models.ShipmentStatusAWARDED,
-			PmSurveyPlannedPackDate:     &packDate,
-			PmSurveyConductedDate:       &packDate,
-			PmSurveyCompletedAt:         &packDate,
-			PmSurveyPlannedPickupDate:   &pickupDate,
-			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyConductedDate:       &nowPlusOne,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
 		},
@@ -554,8 +560,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status:             models.ShipmentStatusACCEPTED,
-			HasDeliveryAddress: true,
+			Status:                      models.ShipmentStatusACCEPTED,
+			HasDeliveryAddress:          true,
+			BookDate:                    &nowTime,
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyConductedDate:       &nowPlusOne,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -596,7 +608,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAWARDED,
+			Status:                      models.ShipmentStatusAWARDED,
+			BookDate:                    &nowTime,
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyConductedDate:       &nowPlusOne,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -612,7 +630,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 * This shipment is rejected by the e2e test.
 	 */
 	email = "hhg@reject.ing"
-
 	offer5 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("76bdcff3-ade4-41ff-bf09-0b2474cec751")),
@@ -637,7 +654,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAWARDED,
+			Status:                      models.ShipmentStatusAWARDED,
+			BookDate:                    &nowTime,
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyConductedDate:       &nowPlusOne,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -677,7 +700,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusINTRANSIT,
+			Status:                      models.ShipmentStatusINTRANSIT,
+			BookDate:                    &nowMinusTen,
+			PmSurveyPlannedPackDate:     &nowMinusFive,
+			PmSurveyConductedDate:       &nowMinusFive,
+			PmSurveyPlannedPickupDate:   &nowMinusOne,
+			PmSurveyPlannedDeliveryDate: &nowPlusFive,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -718,7 +746,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAPPROVED,
+			Status:   models.ShipmentStatusAPPROVED,
+			BookDate: &nowTime,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1739,14 +1768,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status:                      models.ShipmentStatusAPPROVED,
-			HasDeliveryAddress:          true,
-			PmSurveyConductedDate:       &packDate,
-			PmSurveyCompletedAt:         &packDate,
+			Status:             models.ShipmentStatusAPPROVED,
+			HasDeliveryAddress: true,
+
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &packDate,
-			PmSurveyPlannedPickupDate:   &pickupDate,
-			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -1817,7 +1846,6 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		},
 	})
 
-	nowTime := time.Now()
 	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: smID,
@@ -1842,9 +1870,6 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	 */
 	email := "hhg@govbilloflading.ready"
 
-	packDate := time.Now().AddDate(0, 0, 1)
-	pickupDate := time.Now().AddDate(0, 0, 5)
-	deliveryDate := time.Now().AddDate(0, 0, 10)
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
@@ -1887,12 +1912,11 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
 			Status:                      models.ShipmentStatusAPPROVED,
-			PmSurveyConductedDate:       &packDate,
-			PmSurveyCompletedAt:         &packDate,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &packDate,
-			PmSurveyPlannedPickupDate:   &pickupDate,
-			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -1933,9 +1957,6 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	 */
 	email := "hhg@gov_bill_of_lading.created"
 
-	packDate := time.Now().AddDate(0, 0, 1)
-	pickupDate := time.Now().AddDate(0, 0, 5)
-	deliveryDate := time.Now().AddDate(0, 0, 10)
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
@@ -1976,14 +1997,14 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			ID:                          uuid.FromStringOrNil("0851706a-997f-46fb-84e4-2525a444ade0"),
-			Status:                      models.ShipmentStatusAPPROVED,
-			PmSurveyConductedDate:       &packDate,
-			PmSurveyCompletedAt:         &packDate,
+			ID:     uuid.FromStringOrNil("0851706a-997f-46fb-84e4-2525a444ade0"),
+			Status: models.ShipmentStatusAPPROVED,
+
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &packDate,
-			PmSurveyPlannedPickupDate:   &pickupDate,
-			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2056,9 +2077,6 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	 */
 	email := "hhg@ready_to.invoice"
 	netWeight := unit.Pound(3000)
-	packDate := time.Date(2018, 11, 5, 0, 0, 0, 0, time.UTC)
-	pickupDate := time.Date(2018, 11, 8, 0, 0, 0, 0, time.UTC)
-	deliveryDate := time.Date(2018, 11, 19, 0, 0, 0, 0, time.UTC)
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
@@ -2102,18 +2120,17 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
-			Status:                      models.ShipmentStatusDELIVERED,
-			PmSurveyConductedDate:       &packDate,
-			PmSurveyCompletedAt:         &packDate,
+			ID:     uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
+			Status: models.ShipmentStatusDELIVERED,
+
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &packDate,
-			PmSurveyPlannedPickupDate:   &pickupDate,
-			PmSurveyPlannedDeliveryDate: &deliveryDate,
+			PmSurveyPlannedPackDate:     &nowMinusTen,
+			PmSurveyPlannedPickupDate:   &nowMinusFive,
+			PmSurveyPlannedDeliveryDate: &nowMinusOne,
 			NetWeight:                   &netWeight,
-			ActualPickupDate:            &pickupDate,
-			OriginalDeliveryDate:        &deliveryDate,
-			ActualDeliveryDate:          &deliveryDate,
+			ActualPickupDate:            &nowMinusFive,
+			OriginalDeliveryDate:        &nowMinusOne,
+			ActualDeliveryDate:          &nowMinusOne,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,

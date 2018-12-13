@@ -3,6 +3,7 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
+	"go.uber.org/zap"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -24,6 +25,18 @@ const receiverCode = "8004171844" // Syncada
 
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
+
+const rateValueQualifier = "RC"    // Rate
+const hierarchicalLevelCode = "SS" // Services
+const weightQualifier = "B"        // Billed Weight
+const weightUnitCode = "L"         // Pounds
+const ladingLineItemNumber = 1
+const billedRatedAsQuantity = 1
+
+// Place holders that currently exist TODO: Replace this constants with real value
+const freightRate = 4.07
+
+var logger *zap.Logger
 
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
@@ -315,219 +328,123 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 	}
 	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
 
-	// TODO: For the moment, we are explicitly grabbing the line items for linehaul, pack, etc.
-	// TODO: We ultimately need to process all line items and hopefully abstract out their processing.
-	// TODO: See https://www.pivotaltracker.com/story/show/162065870
-
+	//Initialize empty collection of segments
 	var segments []edisegment.Segment
 
-	linehaulSegments, err := generateLinehaulSegments(lineItems)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, linehaulSegments...)
+	// Iterate over lineitems
+	for _, lineItem := range lineItems {
+		// Some hardcoded values that are being used
 
-	fullPackSegments, err := generateFullPackSegments(lineItems, netCentiWeight)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, fullPackSegments...)
+		// Initialize empty edisegment
+		var tariffSegments []edisegment.Segment
 
-	fullUnpackSegments, err := generateFullUnpackSegments(lineItems, netCentiWeight)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, fullUnpackSegments...)
+		// Build and put together the segments
+		hlSegment := MakeHLSegment(lineItem)
+		l0Segment := MakeL0Segment(lineItem, netCentiWeight)
+		l1Segment := MakeL1Segment(lineItem)
+		tariffSegments = append(tariffSegments, hlSegment, l0Segment, l1Segment)
 
-	originServiceSegments, err := generateOriginServiceSegments(lineItems, netCentiWeight)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, originServiceSegments...)
+		segments = append(segments, tariffSegments...)
 
-	destinationServiceSegments, err := generateDestinationServiceSegments(lineItems, netCentiWeight)
-	if err != nil {
-		return nil, err
 	}
-	segments = append(segments, destinationServiceSegments...)
-
-	// TODO: We haven't migrated fuel surcharge yet ("16A") to use shipment line items.
-	fuelLinehaulSegments, err := generateFuelLinehaulSegments(lineItems)
-	if err != nil {
-		return nil, err
-	}
-	segments = append(segments, fuelLinehaulSegments...)
 
 	return segments, nil
 }
 
-func generateLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
-	lineItem, err := findLineItemByCode(lineItems, "LHS")
-	if err != nil {
-		return nil, err
+// MakeHLSegment builds HL segment based on shipment line item input.
+func MakeHLSegment(lineItem models.ShipmentLineItem) *edisegment.HL {
+	// Initialize hierarchicalLevelCode
+	var hierarchicalLevelID string
+
+	// Determine HierarchicalLevelCode
+	switch lineItem.Location {
+
+	case models.ShipmentLineItemLocationORIGIN:
+		hierarchicalLevelID = "304"
+
+	case models.ShipmentLineItemLocationDESTINATION:
+		hierarchicalLevelID = "303"
+
+	}
+	return &edisegment.HL{
+		HierarchicalIDNumber:  hierarchicalLevelID,
+		HierarchicalLevelCode: hierarchicalLevelCode,
 	}
 
-	return []edisegment.Segment{
-		// Linehaul. Not sure why this uses the 303 code, but that's what I saw from DPS
-		&edisegment.HL{
-			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
-			HierarchicalLevelCode: "SS",  // Services
-		},
-		&edisegment.L0{
-			LadingLineItemNumber:   1,
-			BilledRatedAsQuantity:  1,
-			BilledRatedAsQualifier: "FR", // Flat rate
-		},
-		&edisegment.L1{
-			FreightRate:              0,    // TODO: placeholder for now
-			RateValueQualifier:       "RC", // Rate
-			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: "LHS", // Linehaul
-		},
-	}, nil
 }
 
-func generateFullPackSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
-	lineItem, err := findLineItemByCode(lineItems, "105A")
-	if err != nil {
-		return nil, err
+// MakeL0Segment builds L0 segment based on shipment line item input and shipment centiweight input.
+func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *edisegment.L0 {
+	// Using Maps to group up MeasurementUnit types into categories
+	unitBasedMeasurementUnits := map[models.Tariff400ngItemMeasurementUnit]int{
+		models.Tariff400ngItemMeasurementUnitFLATRATE:       0,
+		models.Tariff400ngItemMeasurementUnitEACH:           0,
+		models.Tariff400ngItemMeasurementUnitHOURS:          0,
+		models.Tariff400ngItemMeasurementUnitDAYS:           0,
+		models.Tariff400ngItemMeasurementUnitCUBICFOOT:      0,
+		models.Tariff400ngItemMeasurementUnitFUELPERCENTAGE: 0,
+		models.Tariff400ngItemMeasurementUnitCONTAINER:      0,
+		models.Tariff400ngItemMeasurementUnitMONETARYVALUE:  0,
+		models.Tariff400ngItemMeasurementUnitNONE:           0,
 	}
 
-	return []edisegment.Segment{
-		// Full pack
-		&edisegment.HL{
-			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
-			HierarchicalLevelCode: "SS",  // Services
-		},
-		&edisegment.L0{
-			LadingLineItemNumber: 1,
-			Weight:               centiWeight,
-			WeightQualifier:      "B", // Billed weight
-			WeightUnitCode:       "L", // Pounds
-		},
-		&edisegment.L1{
-			FreightRate:              65.77, // TODO: placeholder for now
-			RateValueQualifier:       "RC",  // Rate
-			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: "105A", // Full pack
-		},
-	}, nil
-}
-
-func generateFullUnpackSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
-	lineItem, err := findLineItemByCode(lineItems, "105C")
-	if err != nil {
-		return nil, err
+	weightBasedMeasurements := map[models.Tariff400ngItemMeasurementUnit]int{
+		models.Tariff400ngItemMeasurementUnitWEIGHT: 0,
 	}
 
-	return []edisegment.Segment{
-		// Full unpack
-		&edisegment.HL{
-			HierarchicalIDNumber:  "304", // Accessorial services performed at destination
-			HierarchicalLevelCode: "SS",  // Services
-		},
-		&edisegment.L0{
-			LadingLineItemNumber: 1,
-			Weight:               centiWeight,
-			WeightQualifier:      "B", // Billed weight
-			WeightUnitCode:       "L", // Pounds
-		},
-		&edisegment.L1{
-			FreightRate:              65.77, // TODO: placeholder for now
-			RateValueQualifier:       "RC",  // Rate
-			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: "105C", // unpack
-		},
-	}, nil
-}
+	measurementUnit := lineItem.Tariff400ngItem.MeasurementUnit1
 
-func generateOriginServiceSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
-	lineItem, err := findLineItemByCode(lineItems, "135A")
-	if err != nil {
-		return nil, err
-	}
+	// This will check if the Measurement unit is in one of the maps above.
+	// Doing this allows us to have two generic paths based on groups of MeasurementUnits
+	// This is a way to do something a-kin to OR logic in our comparison for the category.
+	_, isUnitBased := unitBasedMeasurementUnits[measurementUnit]
+	_, isWeightBased := weightBasedMeasurements[measurementUnit]
 
-	return []edisegment.Segment{
-		// Origin service charge
-		&edisegment.HL{
-			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
-			HierarchicalLevelCode: "SS",  // Services
-		},
-		&edisegment.L0{
-			LadingLineItemNumber: 1,
-			Weight:               centiWeight,
-			WeightQualifier:      "B", // Billed weight
-			WeightUnitCode:       "L", // Pounds
-		},
-		&edisegment.L1{
-			FreightRate:              4.07, // TODO: placeholder for now
-			RateValueQualifier:       "RC", // Rate
-			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: "135A", // Origin service charge
-		},
-	}, nil
-}
+	if isUnitBased {
 
-func generateDestinationServiceSegments(lineItems []models.ShipmentLineItem, centiWeight float64) ([]edisegment.Segment, error) {
-	lineItem, err := findLineItemByCode(lineItems, "135B")
-	if err != nil {
-		return nil, err
-	}
-
-	return []edisegment.Segment{
-		// Destination service charge
-		&edisegment.HL{
-			HierarchicalIDNumber:  "304", // Accessorial services performed at destination
-			HierarchicalLevelCode: "SS",  // Services
-		},
-		&edisegment.L0{
-			LadingLineItemNumber: 1,
-			Weight:               centiWeight,
-			WeightQualifier:      "B", // Billed weight
-			WeightUnitCode:       "L", // Pounds
-		},
-		&edisegment.L1{
-			FreightRate:              4.07, // TODO: placeholder for now
-			RateValueQualifier:       "RC", // Rate
-			Charge:                   lineItem.AmountCents.ToDollarFloat(),
-			SpecialChargeDescription: "135B", // TODO: check if correct for Destination service charge
-		},
-	}, nil
-}
-
-func generateFuelLinehaulSegments(lineItems []models.ShipmentLineItem) ([]edisegment.Segment, error) {
-	// TODO: We haven't migrated fuel surcharge yet ("16A") to use shipment line items.
-	// lineItem, err := findLineItemByCode(lineItems, "16A")
-	// if err != nil {
-	//     return nil, err
-	// }
-
-	return []edisegment.Segment{
-		// Fuel surcharge - linehaul
-		&edisegment.HL{
-			HierarchicalIDNumber:  "303", // Accessorial services performed at origin
-			HierarchicalLevelCode: "SS",  // Services
-		},
-		&edisegment.L0{
-			LadingLineItemNumber:   1,
-			BilledRatedAsQuantity:  1,
-			BilledRatedAsQualifier: "FR", // Flat rate
-		},
-		&edisegment.L1{
-			FreightRate:              0.03,   // TODO: placeholder for now
-			RateValueQualifier:       "RC",   // Rate
-			Charge:                   227.42, // TODO: add a calculation of this value to rate engine
-			SpecialChargeDescription: "16A",  // Fuel surchage - linehaul
-		},
-	}, nil
-}
-
-func findLineItemByCode(lineItems []models.ShipmentLineItem, code string) (models.ShipmentLineItem, error) {
-	for i := range lineItems {
-		if lineItems[i].Tariff400ngItem.Code == code {
-			return lineItems[i], nil
+		actualBilledRatedAsQuantity := float64(billedRatedAsQuantity)
+		if lineItem.Tariff400ngItem.MeasurementUnit1 != models.Tariff400ngItemMeasurementUnitFLATRATE {
+			actualBilledRatedAsQuantity = lineItem.Quantity1.ToUnitFloat()
 		}
+
+		return &edisegment.L0{
+			LadingLineItemNumber:   ladingLineItemNumber,
+			BilledRatedAsQuantity:  actualBilledRatedAsQuantity,
+			BilledRatedAsQualifier: string(measurementUnit),
+		}
+
+	} else if isWeightBased {
+		var weight float64
+
+		if lineItem.Tariff400ngItem.RequiresPreApproval {
+			weight = lineItem.Quantity1.ToUnitFloat()
+
+		} else {
+			weight = netCentiWeight
+		}
+
+		return &edisegment.L0{
+			LadingLineItemNumber: ladingLineItemNumber,
+			Weight:               weight,
+			WeightQualifier:      weightQualifier,
+			WeightUnitCode:       weightUnitCode,
+		}
+
+	} else {
+		logger.Error(string(measurementUnit) + "Used with " +
+			lineItem.ID.String() + " is an EDI measurement unit we're not prepared for.")
+		return nil
 	}
 
-	return models.ShipmentLineItem{}, errors.Errorf("Could not find shipment line item with code %s", code)
+}
+
+// MakeL1Segment builds L1 segment based on shipment lineitem input.
+func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
+	return &edisegment.L1{
+		FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
+		RateValueQualifier:       rateValueQualifier,
+		Charge:                   lineItem.AmountCents.ToDollarFloat(),
+		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
+	}
+
 }
