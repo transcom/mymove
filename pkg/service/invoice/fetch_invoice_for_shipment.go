@@ -27,7 +27,6 @@ func (f FetchShipmentForInvoice) Call(shipmentID uuid.UUID) (models.Shipment, er
 			"ServiceMember.DutyStation.TransportationOffice",
 			"ShipmentOffers.TransportationServiceProvider",
 			"ShipmentOffers.TransportationServiceProviderPerformance",
-			"ShipmentLineItems.Tariff400ngItem",
 		).
 		Find(&shipment, shipmentID)
 	if err != nil {
@@ -36,6 +35,7 @@ func (f FetchShipmentForInvoice) Call(shipmentID uuid.UUID) (models.Shipment, er
 
 	var lineItems models.ShipmentLineItems
 	err = f.DB.Q().
+		Eager("Tariff400ngItem").
 		LeftJoin("tariff400ng_items as ti", "shipment_line_items.tariff400ng_item_id = ti.id").
 		Where("(shipment_line_items.status=? OR ti.requires_pre_approval = false)",
 			models.ShipmentLineItemStatusAPPROVED).

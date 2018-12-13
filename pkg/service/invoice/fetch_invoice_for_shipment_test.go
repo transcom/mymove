@@ -77,6 +77,26 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 
 		suite.Equal(2, len(actualShipment.ShipmentLineItems))
 	})
+
+	suite.T().Run("tariff item association", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultShipment(suite.db)
+		tariffItem := testdatagen.MakeDefaultTariff400ngItem(suite.db)
+		suite.NotEqual(tariffItem.ID, models.Tariff400ngItem{}.ID)
+		testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment:        shipment,
+				ShipmentID:      shipment.ID,
+				Status:          models.ShipmentLineItemStatusAPPROVED,
+				Tariff400ngItem: tariffItem,
+			},
+		})
+
+		f := FetchShipmentForInvoice{suite.db}
+		actualShipment, err := f.Call(shipment.ID)
+		suite.NoError(err)
+
+		suite.Equal(tariffItem.ID, actualShipment.ShipmentLineItems[0].Tariff400ngItem.ID)
+	})
 }
 
 func helperSetupLineItem(shipment models.Shipment, tv testValues, db *pop.Connection) models.ShipmentLineItem {
