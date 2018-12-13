@@ -2550,6 +2550,10 @@ paths:
             $ref: '#/definitions/IndexIssuesPayload'
         400:
           description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user

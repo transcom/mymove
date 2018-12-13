@@ -14,14 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
 )
 
 const dateFormat = "20060102"
 const timeFormat = "1504"
 const senderCode = "MYMOVE"
 
-//const senderCode = "W28GPR-DPS"   // TODO: update with ours when US Bank gets it to us
 const receiverCode = "8004171844" // Syncada
 
 // ICNSequenceName used to query Interchange Control Numbers from DB
@@ -29,11 +27,11 @@ const ICNSequenceName = "interchange_control_number"
 
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
-	ISA       edisegment.ISA
-	GS        edisegment.GS
-	Shipments [][]edisegment.Segment
-	GE        edisegment.GE
-	IEA       edisegment.IEA
+	ISA      edisegment.ISA
+	GS       edisegment.GS
+	Shipment []edisegment.Segment
+	GE       edisegment.GE
+	IEA      edisegment.IEA
 }
 
 // Segments returns the invoice as an array of rows (string arrays),
@@ -43,10 +41,9 @@ func (invoice Invoice858C) Segments() [][]string {
 		invoice.ISA.StringArray(),
 		invoice.GS.StringArray(),
 	}
-	for _, shipment := range invoice.Shipments {
-		for _, line := range shipment {
-			records = append(records, line.StringArray())
-		}
+
+	for _, line := range invoice.Shipment {
+		records = append(records, line.StringArray())
 	}
 	records = append(records, invoice.GE.StringArray())
 	records = append(records, invoice.IEA.StringArray())
@@ -65,7 +62,7 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+func Generate858C(shipment models.Shipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
 	loc, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		return Invoice858C{}, err
@@ -114,22 +111,14 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 		Version:                  "004010",
 	}
 
-	var shipments []models.Shipment
-
-	invoice.Shipments = make([][]edisegment.Segment, 0)
-	for index, shipmentWithCost := range shipmentsAndCosts {
-		shipment := shipmentWithCost.Shipment
-
-		shipmentSegments, err := generate858CShipment(shipmentWithCost, index+1)
-		if err != nil {
-			return invoice, err
-		}
-		invoice.Shipments = append(invoice.Shipments, shipmentSegments)
-		shipments = append(shipments, shipment)
+	shipmentSegments, err := generate858CShipment(shipment, 1)
+	if err != nil {
+		return invoice, err
 	}
+	invoice.Shipment = shipmentSegments
 
 	invoice.GE = edisegment.GE{
-		NumberOfTransactionSetsIncluded: len(shipments),
+		NumberOfTransactionSetsIncluded: 1,
 		GroupControlNumber:              interchangeControlNumber,
 	}
 	invoice.IEA = edisegment.IEA{
@@ -140,7 +129,7 @@ func Generate858C(shipmentsAndCosts []rateengine.CostByShipment, db *pop.Connect
 	return invoice, nil
 }
 
-func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
+func generate858CShipment(shipment models.Shipment, sequenceNum int) ([]edisegment.Segment, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -149,13 +138,13 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 		},
 	}
 
-	headingSegments, err := getHeadingSegments(shipmentWithCost, sequenceNum)
+	headingSegments, err := getHeadingSegments(shipment, sequenceNum)
 	if err != nil {
 		return segments, err
 	}
 	segments = append(segments, headingSegments...)
 
-	lineItemSegments, err := getLineItemSegments(shipmentWithCost)
+	lineItemSegments, err := getLineItemSegments(shipment)
 	if err != nil {
 		return segments, err
 	}
@@ -169,8 +158,7 @@ func generate858CShipment(shipmentWithCost rateengine.CostByShipment, sequenceNu
 	return segments, nil
 }
 
-func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum int) ([]edisegment.Segment, error) {
-	shipment := shipmentWithCost.Shipment
+func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
 	/* for bx
 	if shipment.TransportationServiceProviderID == nil {
@@ -314,14 +302,13 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	}, nil
 }
 
-func getLineItemSegments(shipmentWithCost rateengine.CostByShipment) ([]edisegment.Segment, error) {
+func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error) {
 	// follows HL loop (p.13) in https://www.ustranscom.mil/cmd/associated/dteb/files/transportationics/dt858c41.pdf
 	// HL segment: p. 51
 	// L0 segment: p. 77
 	// L1 segment: p. 82
 
-	lineItems := shipmentWithCost.Shipment.ShipmentLineItems
-	shipment := shipmentWithCost.Shipment
+	lineItems := shipment.ShipmentLineItems
 	weightLbs := shipment.NetWeight
 	if weightLbs == nil {
 		return nil, errors.New("Shipment is missing the NetWeight")

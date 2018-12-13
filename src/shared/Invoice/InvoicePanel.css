@@ -11,7 +11,7 @@
 }
 
 .invoice-panel-table-cont {
-  width: 95%;
+  width: 75%;
 }
 
 .invoice-panel-table-cont h5{
@@ -68,15 +68,6 @@
 .invoice-panel table > tbody > tr > td {
   border-bottom: 1px solid #f1f1f1;
   padding: 1rem 1rem 1rem 0rem;
-}
-
-.invoice-panel-icon-gold {
-  color: #fdb81e;
-}
-
-.invoice-panel-icon--title {
-  position: relative;
-  top: 2px;
 }
 
 .invoice-panel .align-right {
