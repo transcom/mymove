@@ -784,9 +784,9 @@ func (s *Shipment) FetchShipmentLineItemsByItemID(db *pop.Connection, tariff400n
 	return lineItems, err
 }
 
-// RequiresAnAcceptedTsp returns true if a shipment requires that there should be an accepted TSP assigned
+// requireAnAcceptedTSP returns true if a shipment requires that there should be an accepted TSP assigned
 // to the shipment
-func (s *Shipment) RequiresAnAcceptedTsp() bool {
+func (s *Shipment) requireAnAcceptedTSP() bool {
 	if s.Status == ShipmentStatusACCEPTED ||
 		s.Status == ShipmentStatusAPPROVED ||
 		s.Status == ShipmentStatusINTRANSIT ||
@@ -797,8 +797,8 @@ func (s *Shipment) RequiresAnAcceptedTsp() bool {
 	return false
 }
 
-// GetAcceptedShipmentOffer returns the ShipmentOffer for an Accepted TSP for a Shipment
-func (s *Shipment) GetAcceptedShipmentOffer() (*ShipmentOffer, error) {
+// AcceptedShipmentOffer returns the ShipmentOffer for an Accepted TSP for a Shipment
+func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 
 	acceptedOffers, err := s.ShipmentOffers.Accepted()
 	if err != nil {
@@ -813,7 +813,7 @@ func (s *Shipment) GetAcceptedShipmentOffer() (*ShipmentOffer, error) {
 	}
 
 	// If the Shipment is in a state that requires a TSP then check for the Accepted TSP
-	if s.RequiresAnAcceptedTsp() == true {
+	if s.requireAnAcceptedTSP() == true {
 		if numAcceptedOffers == 0 || acceptedOffers == nil {
 			return nil, errors.New("No accepted shipment offer found")
 		}

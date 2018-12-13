@@ -257,7 +257,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 		return CostByShipment{}, errors.New("ShipmentOffers is nil")
 	}
 
-	acceptedOffer, err := shipment.GetAcceptedShipmentOffer()
+	acceptedOffer, err := shipment.AcceptedShipmentOffer()
 	if err != nil || acceptedOffer == nil {
 		return CostByShipment{}, errors.Wrap(err, "Error retrieving ACCEPTED ShipmentOffer in rateengine")
 	}

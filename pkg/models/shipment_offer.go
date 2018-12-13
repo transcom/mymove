@@ -142,3 +142,21 @@ func (so *ShipmentOffers) Accepted() (ShipmentOffers, error) {
 
 	return acceptedOffers, nil
 }
+
+// SCAC return TransportationServiceProvider's SCAC from the ShipmentOffer
+func (so *ShipmentOffer) SCAC() (string, error) {
+	scac := so.TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
+	if scac == "" {
+		return "", errors.New("SCAC for TSP is missing with TSP ID: " + so.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
+	}
+	return scac, nil
+}
+
+// SupplierID return TransportationServiceProvider's SupplierID from the ShipmentOffer
+func (so *ShipmentOffer) SupplierID() (*string, error) {
+	supplierID := so.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID
+	if supplierID == nil {
+		return nil, errors.New("SupplierID for TSP is missing with TSP ID " + so.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
+	}
+	return supplierID, nil
+}

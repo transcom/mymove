@@ -229,21 +229,20 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 	}
 	netCentiWeight := float64(*weightLbs) / 100 // convert to CW
 
-	acceptedOffer, err := shipment.GetAcceptedShipmentOffer()
+	acceptedOffer, err := shipment.AcceptedShipmentOffer()
 	if err != nil || acceptedOffer == nil {
 		return segments, errors.Wrap(err, "Error retrieving ACCEPTED ShipmentOffer for EDI generator")
 	}
 
-	scac := acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
-	if scac == "" {
-		return segments, errors.New("SCAC for TSP is missing with TSP ID: " + acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
+	scac, err := acceptedOffer.SCAC()
+	if err != nil {
+		return segments, err
 	}
 
-	var supplierID string
-	if acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID == nil {
-		return segments, errors.New("SupplierID for TSP is missing with TSP ID " + acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
+	supplierID, err := acceptedOffer.SupplierID()
+	if err != nil {
+		return segments, err
 	}
-	supplierID = *acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID
 
 	return []edisegment.Segment{
 		&edisegment.BX{
@@ -264,7 +263,7 @@ func getHeadingSegments(shipmentWithCost rateengine.CostByShipment, sequenceNum 
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "PQ", // Payee code
-			ReferenceIdentification:          supplierID,
+			ReferenceIdentification:          *supplierID,
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "OQ", // Order number
