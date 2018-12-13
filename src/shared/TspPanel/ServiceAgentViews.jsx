@@ -35,3 +35,12 @@ export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
     </Fragment>
   );
 };
+
+export const TransportationServiceProviderDisplay = ({ tspProps }) => (
+  <div className="editable-panel-column">
+    <span className="column-subhead">Transportation Service Provider</span>
+    <PanelSwaggerField fieldName="name" {...tspProps} />
+    <PanelSwaggerField fieldName="poc_general_email" {...tspProps} />
+    <PanelSwaggerField fieldName="poc_general_phone" {...tspProps} />
+  </div>
+);

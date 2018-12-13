@@ -1199,6 +1199,7 @@ definitions:
         type: string
         example: 'EXTRA Good TSP'
         x-nullable: true
+        title: Name
       poc_general_name:
         type: string
         example: 'Jon Bon Jovi'
