@@ -11,3 +11,10 @@ export function getTspForShipment(label, shipmentId) {
     { label },
   );
 }
+
+// Selectors
+
+export function selectTspForShipment(state, shipmentId) {
+  const tsp = Object.values(state.entities.transportationServiceProviders).find(tsp => tsp.shipment_id === shipmentId);
+  return tsp || {};
+}
