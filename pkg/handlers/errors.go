@@ -60,7 +60,7 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	cause := errors.Cause(err)
 	switch cause.(type) {
 	case *route.UnsupportedPostalCode:
-		skipLogger.Debug("invalid postal code", zap.Error(err))
+		skipLogger.Debug("unsupported postal code", zap.Error(err))
 		return newErrResponse(http.StatusUnprocessableEntity, err)
 	default:
 		return responseForBaseError(skipLogger, err)
