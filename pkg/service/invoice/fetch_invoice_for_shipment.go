@@ -6,9 +6,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// FetchInvoiceShipment is a service object for fetching an shipment with the fields required for an invoice
+// FetchShipmentForInvoice is a service object for fetching a shipment with the fields required for an invoice
 // This struct should contain dependencies
-type FetchInvoiceShipment struct {
+type FetchShipmentForInvoice struct {
 	DB *pop.Connection
 }
 
@@ -17,7 +17,7 @@ type FetchInvoiceShipment struct {
 // - must be approved or not require preapproval
 // - must NOT have an existing invoice association (ie. has been invoiced already)
 // - must be associated with the passed shipment ID
-func (f FetchInvoiceShipment) Call(shipmentID uuid.UUID) (models.Shipment, error) {
+func (f FetchShipmentForInvoice) Call(shipmentID uuid.UUID) (models.Shipment, error) {
 	var shipment models.Shipment
 	err := f.DB.
 		Eager(

@@ -47,14 +47,14 @@ var tvs = []testValues{
 	},
 }
 
-func (suite *InvoiceServiceSuite) TestFetchInvoiceShipmentCall() {
+func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 	for _, tv := range tvs {
 		suite.T().Run(tv.name, func(t *testing.T) {
 			shipment := testdatagen.MakeDefaultShipment(suite.db)
 			lineItem := helperSetupLineItem(shipment, tv, suite.db)
 			suite.NotEqual(models.ShipmentLineItem{}.ID, lineItem.ID)
 
-			f := FetchInvoiceShipment{suite.db}
+			f := FetchShipmentForInvoice{suite.db}
 			actualShipment, err := f.Call(shipment.ID)
 			suite.NoError(err)
 
@@ -71,7 +71,7 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceShipmentCall() {
 			helperSetupLineItem(shipment, tv, suite.db)
 		}
 
-		f := FetchInvoiceShipment{suite.db}
+		f := FetchShipmentForInvoice{suite.db}
 		actualShipment, err := f.Call(shipment.ID)
 		suite.NoError(err)
 
