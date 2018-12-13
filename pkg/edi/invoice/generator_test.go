@@ -114,12 +114,42 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
+
+		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
+		var location models.ShipmentLineItemLocation
+
+		switch code {
+		case "LHS":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		case "16A":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		case "105B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitCUBICFOOT
+
+		case "130B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitEACH
+
+		case "125B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+
+		default:
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
+		}
+
+		if code == "135A" {
+			location = models.ShipmentLineItemLocationORIGIN
+		}
+		if code == "135B" {
+			location = models.ShipmentLineItemLocationDESTINATION
+		}
+
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
 			Tariff400ngItem: models.Tariff400ngItem{
-				Code: code,
+				Code:             code,
+				MeasurementUnit1: measurementUnit1,
 			},
 		})
 		lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
@@ -129,6 +159,7 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 				Tariff400ngItem:   item,
 				Quantity1:         unit.BaseQuantityFromInt(2000),
 				AmountCents:       &amountCents,
+				Location:          location,
 			},
 		})
 		lineItems = append(lineItems, lineItem)
@@ -181,4 +212,72 @@ func TestInvoiceSuite(t *testing.T) {
 
 	hs := &InvoiceSuite{db: db, logger: logger}
 	suite.Run(t, hs)
+}
+
+func (suite *InvoiceSuite) TestMakeEDISegments() {
+	costsByShipments := helperCostsByShipment(suite)
+	var lineItems []models.ShipmentLineItem
+
+	for _, shipment := range costsByShipments {
+		lineItems = append(shipment.Shipment.ShipmentLineItems)
+	}
+
+	suite.T().Run("test EDI segments", func(t *testing.T) {
+		for _, lineItem := range lineItems {
+
+			// Test HL Segment
+			hlSegment := ediinvoice.MakeHLSegment(lineItem)
+
+			if lineItem.Location == models.ShipmentLineItemLocationORIGIN {
+				suite.Equal("304", hlSegment.HierarchicalIDNumber)
+			}
+
+			if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
+				suite.Equal("303", hlSegment.HierarchicalIDNumber)
+			}
+
+			suite.Equal("SS", hlSegment.HierarchicalLevelCode)
+
+			// Test L0 Segment
+			l0Segment := ediinvoice.MakeL0Segment(lineItem, 20.0000)
+			suite.Equal(1, l0Segment.LadingLineItemNumber)
+
+			if l0Segment.BilledRatedAsQuantity != 0 {
+				if lineItem.Tariff400ngItem.MeasurementUnit1 == models.Tariff400ngItemMeasurementUnitFLATRATE {
+					suite.Equal(float64(1), l0Segment.BilledRatedAsQuantity)
+				} else {
+					suite.Equal(lineItem.Quantity1.ToUnitFloat(), l0Segment.BilledRatedAsQuantity)
+				}
+			}
+
+			if l0Segment.BilledRatedAsQualifier != "" {
+				suite.Equal(string(lineItem.Tariff400ngItem.MeasurementUnit1), l0Segment.BilledRatedAsQualifier)
+			}
+
+			if l0Segment.Weight != 0 {
+				if lineItem.Tariff400ngItem.RequiresPreApproval == true {
+					suite.Equal(lineItem.Quantity1.ToUnitFloat(), l0Segment.Weight)
+				} else {
+					suite.Equal(20.0000, l0Segment.Weight)
+				}
+			}
+
+			if l0Segment.WeightQualifier != "" {
+				suite.Equal("B", l0Segment.WeightQualifier)
+			}
+
+			if l0Segment.WeightUnitCode != "" {
+				suite.Equal("L", l0Segment.WeightUnitCode)
+			}
+
+			// Test L1Segment
+			l1Segment := ediinvoice.MakeL1Segment(lineItem)
+
+			suite.Equal(4.07, l1Segment.FreightRate)
+			suite.Equal("RC", l1Segment.RateValueQualifier)
+			suite.Equal(lineItem.AmountCents.ToDollarFloat(), l1Segment.Charge)
+			suite.Equal(lineItem.Tariff400ngItem.Code, l1Segment.SpecialChargeDescription)
+		}
+	})
+
 }
