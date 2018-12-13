@@ -4,11 +4,6 @@ import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 import './InvoicePanel.css';
 
-export const PAYMENT_IN_CONFIRMATION = 'IN_CONFIRMATION_FLOW';
-export const PAYMENT_IN_PROCESSING = 'IN_PROCESSING_FLOW';
-export const PAYMENT_APPROVED = 'IN_APPROVED_FLOW';
-export const PAYMENT_FAILED = 'IN_FAILURE_FLOW';
-
 class InvoicePayment extends PureComponent {
   constructor(props) {
     super(props);
@@ -32,16 +27,16 @@ class InvoicePayment extends PureComponent {
   };
 
   render() {
-    const status = this.props.createInvoiceStatus;
     let paymentAlert;
-    const allowPayment = this.props.allowPayment && !status.isLoading;
+    const status = this.props.createInvoiceStatus;
+    const allowPayments = this.props.allowPayments && !status.isLoading;
 
     let header = (
       <div className="invoice-panel-header-cont">
         <div className="usa-width-one-half">
           <h5>Unbilled line items</h5>
         </div>
-        {allowPayment && (
+        {allowPayments && (
           <div className="usa-width-one-half align-right">
             <button className="button button-secondary" onClick={this.draftInvoice}>
               Approve Payment
@@ -99,9 +94,8 @@ class InvoicePayment extends PureComponent {
 InvoicePayment.propTypes = {
   approvePayment: PropTypes.func,
   cancelPayment: PropTypes.func,
-  // paymentStatus: PropTypes.string,
   createInvoiceStatus: PropTypes.object,
-  allowPayment: PropTypes.bool,
+  allowPayments: PropTypes.bool,
 };
 
 export default InvoicePayment;

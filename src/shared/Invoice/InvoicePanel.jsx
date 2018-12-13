@@ -32,14 +32,11 @@ export class InvoicePanel extends PureComponent {
       <div className="invoice-panel">
         <BasicPanel title="Invoicing">
           <UnbilledTable
-            isInvoiceInDraft={this.props.isInvoiceInDraft}
             lineItems={this.props.unbilledShipmentLineItems}
             lineItemsTotal={this.props.unbilledLineItemsTotal}
-            draftInvoice={this.props.draftInvoice}
             cancelPayment={this.props.resetInvoiceFlow}
             approvePayment={this.approvePayment.bind(this)}
             allowPayments={allowPayments}
-            // paymentStatus={paymentStatus}
             createInvoiceStatus={this.props.createInvoiceStatus}
           />
 
@@ -58,8 +55,6 @@ InvoicePanel.propTypes = {
   unbilledLineItemsTotal: PropTypes.number,
   shipmentId: PropTypes.string,
   shipmentStatus: PropTypes.string,
-  onApprovePayment: PropTypes.func,
-  canApprove: PropTypes.bool,
   isShipmentDelivered: PropTypes.bool,
 };
 

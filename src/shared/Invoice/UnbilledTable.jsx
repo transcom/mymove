@@ -10,12 +10,12 @@ import './InvoicePanel.css';
 
 export class UnbilledTable extends PureComponent {
   render() {
-    let itemsComponent = <span className="empty-content">No line items</span>;
-    const allowPayment =
+    const allowPayments =
       this.props.allowPayments &&
       isOfficeSite && //user is an office user
       this.props.context.flags.allowHhgInvoicePayment;
 
+    let itemsComponent = <span className="empty-content">No line items</span>;
     if (this.props.lineItems.length) {
       itemsComponent = (
         <LineItemTable shipmentLineItems={this.props.lineItems} totalAmount={this.props.lineItemsTotal} />
@@ -25,7 +25,7 @@ export class UnbilledTable extends PureComponent {
     return (
       <div className="invoice-panel-table-cont">
         <InvoicePayment
-          allowPayment={Boolean(allowPayment)}
+          allowPayments={Boolean(allowPayments)}
           cancelPayment={this.props.cancelPayment}
           approvePayment={this.props.approvePayment}
           createInvoiceStatus={this.props.createInvoiceStatus}
@@ -37,10 +37,8 @@ export class UnbilledTable extends PureComponent {
 }
 
 UnbilledTable.propTypes = {
-  isInvoiceInDraft: PropTypes.bool,
   lineItems: PropTypes.array,
   lineItemsTotal: PropTypes.number,
-  draftInvoice: PropTypes.func,
   approvePayment: PropTypes.func,
   cancelPayment: PropTypes.func,
   allowPayments: PropTypes.bool,
