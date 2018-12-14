@@ -14,19 +14,19 @@ import (
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/service/invoice"
 )
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go -moveID <UUID>
 func main() {
-	moveIDString := flag.String("moveID", "", "The ID of the move where shipments are found")
+	shipmentIDString := flag.String("shipmentID", "", "The ID of the shipment to invoice")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	sendToGex := flag.Bool("gex", false, "Choose to send the file to gex")
 	transactionName := flag.String("transactionName", "test", "The required name sent in the url of the gex api request")
 	flag.Parse()
 
-	if *moveIDString == "" {
-		log.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --moveID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --gex false")
+	if *shipmentIDString == "" {
+		log.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --shipmentID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --gex false")
 	}
 
 	db, err := pop.Connect(*env)
@@ -34,34 +34,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	moveID := uuid.Must(uuid.FromString(*moveIDString))
-	var shipments models.Shipments
-
-	err = db.Eager(
-		"PickupAddress",
-		"Move.Orders.NewDutyStation.Address",
-		"Move.Orders.NewDutyStation.TransportationOffice",
-		"ServiceMember.DutyStation.TransportationOffice",
-		"ShipmentOffers.TransportationServiceProvider",
-		"ShipmentOffers.TransportationServiceProviderPerformance",
-		"ShipmentLineItems.Tariff400ngItem",
-	).Where("shipment_offers.accepted=true").
-		Where("move_id = $1", &moveID).
-		Join("shipment_offers", "shipment_offers.shipment_id = shipments.id").
-		All(&shipments)
+	shipmentID := uuid.Must(uuid.FromString(*shipmentIDString))
+	shipment, err := invoice.FetchShipmentForInvoice{db}.Call(shipmentID)
 	if err != nil {
 		log.Fatal(err)
-	}
-	if len(shipments) == 0 {
-		log.Fatal("No shipments with accepted shipment offers found")
 	}
 
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-
-	shipment := shipments[0]
 
 	invoice858C, err := ediinvoice.Generate858C(shipment, db, false, clock.New())
 	if err != nil {
@@ -80,5 +62,4 @@ func main() {
 		ediWriter := edi.NewWriter(os.Stdout)
 		ediWriter.WriteAll(invoice858C.Segments())
 	}
-
 }
