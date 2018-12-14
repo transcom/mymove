@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -9,7 +11,8 @@ import (
 // MakeOfficeUser creates a single office user and associated TransportOffice
 func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
 	user := assertions.OfficeUser.User
-	email := "leo_spaceman_office@example.com"
+	// There's a uniqueness constraint on office user emails so add some randomness
+	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5))
 
 	if assertions.OfficeUser.UserID == nil || isZeroUUID(*assertions.OfficeUser.UserID) {
 		if assertions.User.LoginGovEmail == "" {

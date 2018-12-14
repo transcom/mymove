@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -119,7 +120,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 }
 
 type RateEngineSuite struct {
-	suite.Suite
+	testingsuite.LocalTestSuite
 	db      *pop.Connection
 	logger  *zap.Logger
 	planner route.Planner
