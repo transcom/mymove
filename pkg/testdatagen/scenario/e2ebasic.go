@@ -12,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
@@ -35,16 +36,17 @@ var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
 var selectedMoveTypePPM = models.SelectedMoveTypePPM
 var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
-// Often weekends and holidays are not allowable dates, so ensure weekdays
-var nowTime = testdatagen.NextWeekday(time.Now())
+// Often weekends and holidays are not allowable dates
+var cal = dates.NewUSCalendar()
+var nowTime = dates.NextValidMoveDate(time.Now(), cal)
 
-var nowPlusOne = testdatagen.NextWeekday(nowTime.AddDate(0, 0, 1))
-var nowPlusFive = testdatagen.NextWeekday(nowTime.AddDate(0, 0, 5))
-var nowPlusTen = testdatagen.NextWeekday(nowTime.AddDate(0, 0, 10))
+var nowPlusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 1), cal)
+var nowPlusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 5), cal)
+var nowPlusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 10), cal)
 
-var nowMinusOne = testdatagen.NextWeekday(nowTime.AddDate(0, 0, -1))
-var nowMinusFive = testdatagen.NextWeekday(nowTime.AddDate(0, 0, -5))
-var nowMinusTen = testdatagen.NextWeekday(nowTime.AddDate(0, 0, -10))
+var nowMinusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -1), cal)
+var nowMinusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -5), cal)
+var nowMinusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
@@ -1841,7 +1843,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		Shipment: models.Shipment{
 			Status:             models.ShipmentStatusAWARDED,
 			HasDeliveryAddress: true,
-			GBLNumber:          models.StringPointer("LKBM7123456"),
+			GBLNumber:          models.StringPointer("LKNQ7123456"),
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
