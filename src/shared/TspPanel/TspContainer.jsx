@@ -22,7 +22,6 @@ function mapStateToProps(state, props) {
   return {
     // reduxForm
     saSchema: getPublicSwaggerDefinition(state, 'ServiceAgent', null),
-    tspSchema: getPublicSwaggerDefinition(state, 'TransportationServiceProvider', null),
     transportationServiceProvider: selectTspForShipment(state, props.shipment.id),
     formValues,
     initialValues: {

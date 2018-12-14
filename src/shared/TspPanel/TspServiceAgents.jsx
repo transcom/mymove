@@ -160,7 +160,7 @@ ServiceAgentEditablePanel.defaultProps = {
 };
 
 const TSPDisplay = props => {
-  const { saSchema, tspSchema, transportationServiceProvider } = props;
+  const { saSchema, transportationServiceProvider } = props;
   const originSAProps = {
     schema: saSchema,
     values: props.origin_service_agent,
@@ -171,13 +171,9 @@ const TSPDisplay = props => {
     values: props.destination_service_agent,
   };
 
-  const tspProps = {
-    values: transportationServiceProvider,
-    schema: tspSchema,
-  };
   return (
     <Fragment>
-      <TransportationServiceProviderDisplay tspProps={tspProps} />
+      <TransportationServiceProviderDisplay tsp={transportationServiceProvider} />
       <ServiceAgentDisplay serviceAgentProps={originSAProps} saRole="Origin" />
       <ServiceAgentDisplay serviceAgentProps={destinationSAProps} saRole="Destination" />
     </Fragment>
@@ -185,17 +181,13 @@ const TSPDisplay = props => {
 };
 
 const TSPEdit = props => {
-  const { saSchema, tspSchema, transportationServiceProvider } = props;
+  const { saSchema, transportationServiceProvider } = props;
   const originValues = get(props, 'formValues.ORIGIN', {});
   const destinationValues = get(props, 'formValues.DESTINATION', {});
-  const tspProps = {
-    values: transportationServiceProvider,
-    schema: tspSchema,
-  };
   return (
     <Fragment>
       <FormSection name="transportation_service_provider">
-        <TransportationServiceProviderDisplay tspProps={tspProps} />
+        <TransportationServiceProviderDisplay tsp={transportationServiceProvider} />
       </FormSection>
       <FormSection name="origin_service_agent">
         <ServiceAgentEdit

@@ -1192,6 +1192,7 @@ definitions:
         type: string
         example: '51980581983'
         x-nullable: true
+        title: SCAC
       enrolled:
         type: boolean
         default: false
