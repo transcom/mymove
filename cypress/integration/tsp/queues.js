@@ -41,7 +41,7 @@ function tspUserViewsNewShipments() {
     .parentsUntil('div.rt-tr-group')
     .contains('div', 'Awarded')
     .parentsUntil('div.rt-tr-group')
-    .contains('div', 'LKBM7000004')
+    .contains('div', 'LKBM7')
     .parentsUntil('div.rt-tr-group')
     .contains('div', 'Submitted, HHG')
     .parentsUntil('div.rt-tr-group')
@@ -49,7 +49,7 @@ function tspUserViewsNewShipments() {
     // Should figure out why this is happening
     // .contains('div', 'US88 to Region 2')
     // .parentsUntil('div.rt-tr-group')
-    .contains('div', '15-May-19');
+    .contains('div', '15-May-18');
 
   // Find and open shipment
   cy

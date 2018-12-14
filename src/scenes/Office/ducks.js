@@ -44,6 +44,8 @@ const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
+const DRAFT_HHG_INVOICE = 'DRAFT_INVOICE';
+const RESET_HHG_INVOICE = 'RESET_INVOICE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -54,6 +56,14 @@ const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
 export const resetMove = () => ({
   type: RESET_MOVE,
+});
+
+export const draftInvoice = () => ({
+  type: DRAFT_HHG_INVOICE,
+});
+
+export const resetInvoiceFlow = () => ({
+  type: RESET_HHG_INVOICE,
 });
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
@@ -272,6 +282,7 @@ const initialState = {
   hhgInvoiceIsSending: false,
   hhgInvoiceHasSendSuccess: false,
   hhgInvoiceHasFailure: false,
+  hhgInvoiceInDraft: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   moveHasApproveError: false,
@@ -374,18 +385,35 @@ export function officeReducer(state = initialState, action) {
         hhgInvoiceIsSending: true,
         hhgInvoiceHasSendSuccess: false,
         hhgInvoiceHasFailure: false,
+        hhgInvoiceInDraft: false,
       });
     case SEND_HHG_INVOICE.success:
       return Object.assign({}, state, {
         hhgInvoiceIsSending: false,
         hhgInvoiceHasSendSuccess: true,
         hhgInvoiceHasFailure: false,
+        hhgInvoiceInDraft: false,
       });
     case SEND_HHG_INVOICE.failure:
       return Object.assign({}, state, {
         hhgInvoiceIsSending: false,
         hhgInvoiceHasFailure: true,
+        hhgInvoiceInDraft: false,
         error: action.error.message,
+      });
+    case DRAFT_HHG_INVOICE:
+      return Object.assign({}, state, {
+        hhgInvoiceInDraft: true,
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasSendSuccess: false,
+        hhgInvoiceHasFailure: false,
+      });
+    case RESET_HHG_INVOICE:
+      return Object.assign({}, state, {
+        hhgInvoiceInDraft: false,
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasSendSuccess: false,
+        hhgInvoiceHasFailure: false,
       });
 
     // SERVICE_MEMBER

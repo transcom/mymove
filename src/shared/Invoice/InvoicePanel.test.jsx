@@ -20,6 +20,7 @@ describe('InvoicePanel tests', () => {
 
   describe('Approve Payment button shows on delivered state and office app', () => {
     CONSTANTS.isOfficeSite = true;
+    CONSTANTS.isDevelopment = true;
     const shipmentLineItems = [
       {
         id: 'sldkjf',
@@ -37,27 +38,19 @@ describe('InvoicePanel tests', () => {
       },
     ];
     let wrapper = mount(
-      <InvoicePanel unbilledShipmentLineItems={shipmentLineItems} lineItemsTotal={0} shipmentStatus={'DELIVERED'} />,
+      <InvoicePanel
+        unbilledShipmentLineItems={shipmentLineItems}
+        lineItemsTotal={0}
+        shipmentStatus={'DELIVERED'}
+        isShipmentDelivered={true}
+      />,
     );
 
     it('renders enabled "Approve Payment" button', () => {
-      expect(isOfficeSite).toBe(true);
+      CONSTANTS.isDevelopment = true;
       expect(wrapper.props().shipmentStatus).toBe('DELIVERED');
-
       wrapper.update();
-      expect(
-        wrapper
-          .children()
-          .containsMatchingElement(<button className="button button-secondary">Approve Payment</button>),
-      ).toBeTruthy();
-    });
-
-    it('renders disabled "Approve Payment" button', () => {
-      expect(isOfficeSite).toBe(true);
-      expect(wrapper.props().shipmentStatus).toBe('DELIVERED');
-
-      wrapper.update();
-      expect(wrapper.find('button').prop('disabled')).toBeTruthy();
+      expect(wrapper.find('.button-secondary').text()).toEqual('Approve Payment');
     });
   });
 
@@ -80,7 +73,12 @@ describe('InvoicePanel tests', () => {
       },
     ];
     wrapper = mount(
-      <InvoicePanel unbilledShipmentLineItems={shipmentLineItems} lineItemsTotal={0} shipmentStatus={'DELIVERED'} />,
+      <InvoicePanel
+        unbilledShipmentLineItems={shipmentLineItems}
+        lineItemsTotal={0}
+        shipmentStatus={'DELIVERED'}
+        isShipmentDelivered={true}
+      />,
     );
     it('renders the table', () => {
       expect(wrapper.find('table').length).toEqual(1);

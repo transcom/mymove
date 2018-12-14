@@ -34,15 +34,5 @@ describe('InvoiceTable tests', () => {
       );
       expect(wrapper.find('table').length).toEqual(1);
     });
-
-    it('renders with Approve Payment button in Office app', () => {
-      CONSTANTS.isOfficeSite = true;
-      wrapper = shallow(
-        <InvoiceTable shipmentLineItems={shipmentLineItems} totalAmount={10} shipmentStatus={'DELIVERED'} />,
-      );
-
-      expect(isOfficeSite).toBe(true);
-      expect(wrapper.find('button').prop('disabled')).toBeTruthy();
-    });
   });
 });

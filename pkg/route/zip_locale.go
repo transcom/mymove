@@ -1,7 +1,6 @@
 package route
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -13,7 +12,7 @@ func Zip5ToLatLong(zip5 string) (LatLong, error) {
 		var ok bool
 		ll, ok = zip5ToLatLongMap[zipAsInt]
 		if !ok {
-			err = fmt.Errorf("could not find zip code %s", zip5)
+			err = NewUnsupportedPostalCodeError(zip5)
 		}
 	}
 	return ll, err
