@@ -62,10 +62,8 @@ Cypress.Commands.add('signInAsUser', userId => {
 });
 
 Cypress.Commands.add('logout', () => {
-  cy
-    .request('/auth/logout')
-    .its('status')
-    .should('equal', 200);
+  // Visit automatically checks if response status is 200
+  cy.visit('/auth/logout');
 });
 
 Cypress.Commands.add('nextPage', () => {
