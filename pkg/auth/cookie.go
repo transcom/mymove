@@ -14,8 +14,8 @@ import (
 // UserSessionCookieName is the key at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
 
-// MaskGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
-const MaskGorillaCSRFToken = "masked_gorilla_csrf"
+// MaskedGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
+const MaskedGorillaCSRFToken = "masked_gorilla_csrf"
 
 // SessionExpiryInMinutes is the number of minutes before a fallow session is harvested
 const SessionExpiryInMinutes = 15
@@ -97,7 +97,7 @@ func WriteCsrfCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout b
 
 	// New cookie
 	cookie := http.Cookie{
-		Name:    MaskGorillaCSRFToken,
+		Name:    MaskedGorillaCSRFToken,
 		Value:   csrfToken,
 		Path:    "/",
 		Expires: expiry,
