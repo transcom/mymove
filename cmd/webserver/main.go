@@ -344,8 +344,8 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
 	err = db.Ping()
 	if err != nil {
-		logger.Error("Failed to ping DB connection", zap.Error(err))
-		return nil, err
+		logger.Warn("Failed to ping DB connection", zap.Error(err))
+		return connection, err
 	}
 
 	// Return the open connection
@@ -456,7 +456,14 @@ func main() {
 	// Create a connection to the DB
 	dbConnection, err := initDatabase(v, logger)
 	if err != nil {
-		logger.Fatal("Connecting to DB", zap.Error(err))
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Connecting to DB", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up but we
+			// can proceed (this avoids a failure loop when deploying containers).
+			logger.Warn("Starting server without DB connection")
+		}
 	}
 
 	myHostname := v.GetString("http-my-server-name")
