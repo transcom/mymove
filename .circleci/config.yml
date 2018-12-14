@@ -565,9 +565,10 @@ workflows:
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
+            - integration_tests
           filters:
             branches:
-              only: placeholder
+              only: kl-162588368-skip-staging-deploy-if-not
 
       - deploy_experimental_app:
           requires:
