@@ -1,12 +1,13 @@
 package models
 
 import (
+	"strings"
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"strings"
-	"time"
 )
 
 // OfficeUser is someone who works in one of the TransportationOffices
@@ -64,4 +65,11 @@ func FetchOfficeUserByEmail(tx *pop.Connection, email string) (*OfficeUser, erro
 		return nil, ErrFetchNotFound
 	}
 	return &users[0], nil
+}
+
+// FetchOfficeUserByID fetches an office user by ID
+func FetchOfficeUserByID(tx *pop.Connection, id uuid.UUID) (*OfficeUser, error) {
+	var user *OfficeUser
+	err := tx.Find(user, id)
+	return user, err
 }

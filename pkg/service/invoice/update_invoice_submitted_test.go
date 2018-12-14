@@ -7,6 +7,7 @@ import (
 )
 
 func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 	shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
 	suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 
@@ -15,7 +16,7 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 		clock.NewMock(),
 	}
 	var invoice models.Invoice
-	verrs, err := createInvoice.Call(&invoice, shipmentLineItem.Shipment)
+	verrs, err := createInvoice.Call(officeUser, &invoice, shipmentLineItem.Shipment)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 	updateInvoicesSubmitted := UpdateInvoiceSubmitted{
