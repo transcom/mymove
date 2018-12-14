@@ -41,7 +41,7 @@ function tspUserViewsNewShipments() {
     .parentsUntil('div.rt-tr-group')
     .contains('div', 'Awarded')
     .parentsUntil('div.rt-tr-group')
-    .contains('div', 'LKBM7')
+    .contains('div', 'LKNQ7')
     .parentsUntil('div.rt-tr-group')
     .contains('div', 'Submitted, HHG')
     .parentsUntil('div.rt-tr-group')
