@@ -640,13 +640,8 @@ func main() {
 		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
 	}
 	logger.Info("Enabling CSRF protection")
-	// csrfMiddleware needs to be generated once and used twice
-	// setting the masked csrf cookie removes the unmasked cookie
-	// setting the masked csrf cookie after the unmasked cookie returns null value for the masked cookie
-	unmaskedCsrfMiddleware := csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"))
-	root.Use(unmaskedCsrfMiddleware)
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
 	root.Use(maskedCsrfMiddleware)
-	root.Use(unmaskedCsrfMiddleware)
 
 	// Sends build variables to honeycomb
 	if len(gitBranch) > 0 && len(gitCommit) > 0 {

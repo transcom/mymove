@@ -109,8 +109,7 @@ func WriteCsrfCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout b
 	cookie.Expires = expiry
 	cookie.MaxAge = maxAge
 
-	// http.SetCookie calls Header().Add() instead of .Set(), which can result in duplicate cookies
-	w.Header().Set("Set-Cookie", cookie.String())
+	http.SetCookie(w, &cookie)
 }
 
 // MaskedCsrfMiddleware handle serializing and de-serializing the CSRF Token of the user_session cookie
