@@ -558,27 +558,27 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          filters:
+            branches:
+              ignore: cg_161694599_e2e_tests_inside_docker
 
       - integration_tests_office:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          filters:
+            branches:
+              ignore: cg_161694599_e2e_tests_inside_docker
 
       - integration_tests_tsp:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          filters:
+            branches:
+              ignore: cg_161694599_e2e_tests_inside_docker
 
       - client_test:
           requires:
@@ -611,21 +611,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder
+              only: cg_161694599_e2e_tests_inside_docker
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder
+              only: cg_161694599_e2e_tests_inside_docker
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder
+              only: cg_161694599_e2e_tests_inside_docker
 
       - deploy_staging_migrations:
           requires:
