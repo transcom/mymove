@@ -537,8 +537,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	// get response from gex --> use status as status for this invoice call
 	if resp.StatusCode != 200 {
 		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", resp.StatusCode))
+		// Update invoice record as failed
 		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
-		// Update invoice records as failed
 		verrs, err := h.DB().ValidateAndSave(&invoice)
 		if verrs.HasAny() {
 			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
