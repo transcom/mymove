@@ -62,7 +62,9 @@ Cypress.Commands.add('signInAsUser', userId => {
 });
 
 Cypress.Commands.add('logout', () => {
-  // Visit automatically checks if response status is 200
+  // The session cookie wasn't being cleared out after doing a get request even though the Set-Cookie
+  // header was present. Switching to cy.visit() fixed the problem, but it's not clear why this worked.
+  // Seems like others using Cypress have similar issues: https://github.com/cypress-io/cypress/issues/781
   cy.visit('/auth/logout');
 });
 
