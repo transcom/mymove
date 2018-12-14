@@ -36,7 +36,7 @@ func main() {
 
 	shipmentID := uuid.Must(uuid.FromString(*shipmentIDString))
 	shipment, err := invoice.FetchShipmentForInvoice{db}.Call(shipmentID)
-  
+
 	if err != nil {
 		log.Fatal(err)
 	}
