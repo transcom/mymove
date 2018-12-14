@@ -57,7 +57,7 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		AmountCents:       amt,
 		AppliedRate:       rate,
 		SubmittedDate:     *handlers.FmtDateTime(s.SubmittedDate),
-		ApprovedDate:      *handlers.FmtDateTime(s.ApprovedDate),
+		ApprovedDate:      handlers.FmtDateTime(s.ApprovedDate),
 	}
 }
 
