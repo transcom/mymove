@@ -213,7 +213,7 @@ func (suite *authSuite) TestMaskedCsrfMiddleware() {
 
 	// Set a secure cookie on the request
 	cookie := http.Cookie{
-		Name:    MaskGorillaCSRFToken,
+		Name:    MaskedGorillaCSRFToken,
 		Value:   "fakecsrftoken",
 		Path:    "/",
 		Expires: expiry,
