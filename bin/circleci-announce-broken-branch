@@ -1,7 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-payload=$(
+GIT_TEXT=$(git --no-pager show --format=format:'%s')
+NOW=$(date '+%s')
+NOW_ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+#####
+## Announce in Slack channel
+#####
+slack_payload=$(
 cat <<EOM
 {
     "channel": "#dp3-engineering",
@@ -12,11 +19,46 @@ cat <<EOM
             "pretext": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken!",
             "title": "CircleCI job #$CIRCLE_BUILD_NUM",
             "title_link": "$CIRCLE_BUILD_URL",
-            "text": "$(git --no-pager show --format=format:'%s')",
-            "ts": $(date '+%s')
+            "text": "$GIT_TEXT",
+            "ts": $NOW
         }
     ]
 }
 EOM
 )
-curl -X POST --data-urlencode payload="$payload" "$SLACK_WEBHOOK_URL"
+curl -X POST --data-urlencode payload="$slack_payload" "$SLACK_WEBHOOK_URL"
+
+#####
+## Page the on-call via PagerDuty
+#####
+
+pd_payload=$(
+cat <<EOM
+{
+  "payload": {
+    "summary": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken",
+    "timestamp": "$NOW_ISO8601",
+    "source": "CircleCI job #$CIRCLE_BUILD_NUM",
+    "severity": "info",
+    "class": "cicd failure"
+  },
+  "routing_key": "$PD_ROUTING_KEY",
+  "dedup_key": "circle-$CIRCLE_BUILD_NUM",
+  "links": [{
+    "href": "$CIRCLE_BUILD_URL",
+    "text": "CircleCI Build URL"
+  }],
+  "event_action": "trigger"
+}
+EOM
+)
+
+echo "$pd_payload"
+echo
+
+curl -XPOST \
+  -H "Authorization: Token token=$PD_AUTH_TOKEN" \
+  -H "Accept: application/vnd.pagerduty+json;version=2" \
+  -H "Content-Type: application/json" \
+  --data "$pd_payload" \
+  "https://events.pagerduty.com/v2/enqueue"

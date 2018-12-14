@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { createOrUpdatePpm, getRawWeightInfo, isHHGPPMComboMove } from './ducks';
 import WizardHeader from '../WizardHeader';
 import WizardPage from 'shared/WizardPage';
+import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import PpmSize from './Size';
 
@@ -35,7 +36,16 @@ export class PpmSizeWizardPage extends Component {
     return (
       <div>
         {isHHGPPMComboMove && (
-          <WizardHeader icon={ppmBlack} title="Move Setup" right={<p>status tracker goes here</p>} />
+          <WizardHeader
+            icon={ppmBlack}
+            title="Move Setup"
+            right={
+              <ProgressTimeline>
+                <ProgressTimelineStep name="Move Setup" current />
+                <ProgressTimelineStep name="Review" />
+              </ProgressTimeline>
+            }
+          />
         )}
         <WizardPage
           handleSubmit={this.handleSubmit}

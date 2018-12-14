@@ -19,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -29,7 +28,7 @@ import (
 var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
-	costsByShipments := helperCostsByShipment(suite)
+	shipment := helperShipment(suite)
 
 	var icnTestCases = []struct {
 		initial  int64
@@ -44,7 +43,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
 			suite.NoError(err, "error setting sequence value")
 
-			generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+			generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
 
 			suite.NoError(err)
 			if suite.NoError(err) {
@@ -57,7 +56,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	}
 
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
-		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
@@ -68,9 +67,9 @@ func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
 		err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, 1)
 		suite.NoError(err, "error setting sequence value")
-		costsByShipments := helperCostsByShipment(suite)
+		shipment := helperShipment(suite)
 
-		generatedTransactions, err := ediinvoice.Generate858C(costsByShipments, suite.db, false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
@@ -89,7 +88,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 	})
 }
 
-func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
+func helperShipment(suite *InvoiceSuite) models.Shipment {
 	var weight unit.Pound
 	weight = 2000
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
@@ -118,12 +117,42 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
+
+		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
+		var location models.ShipmentLineItemLocation
+
+		switch code {
+		case "LHS":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		case "16A":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		case "105B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitCUBICFOOT
+
+		case "130B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitEACH
+
+		case "125B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+
+		default:
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
+		}
+
+		if code == "135A" {
+			location = models.ShipmentLineItemLocationORIGIN
+		}
+		if code == "135B" {
+			location = models.ShipmentLineItemLocationDESTINATION
+		}
+
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
 			Tariff400ngItem: models.Tariff400ngItem{
-				Code: code,
+				Code:             code,
+				MeasurementUnit1: measurementUnit1,
 			},
 		})
 		lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
@@ -133,17 +162,14 @@ func helperCostsByShipment(suite *InvoiceSuite) []rateengine.CostByShipment {
 				Tariff400ngItem:   item,
 				Quantity1:         unit.BaseQuantityFromInt(2000),
 				AmountCents:       &amountCents,
+				Location:          location,
 			},
 		})
 		lineItems = append(lineItems, lineItem)
 	}
 	shipment.ShipmentLineItems = lineItems
 
-	costsByShipments := []rateengine.CostByShipment{{
-		Shipment: shipment,
-		Cost:     rateengine.CostComputation{},
-	}}
-	return costsByShipments
+	return shipment
 }
 
 func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
@@ -189,4 +215,70 @@ func TestInvoiceSuite(t *testing.T) {
 
 	hs := &InvoiceSuite{db: db, logger: logger}
 	suite.Run(t, hs)
+}
+
+func (suite *InvoiceSuite) TestMakeEDISegments() {
+	shipment := helperShipment(suite)
+	var lineItems []models.ShipmentLineItem
+
+	lineItems = append(shipment.ShipmentLineItems)
+
+	suite.T().Run("test EDI segments", func(t *testing.T) {
+		for _, lineItem := range lineItems {
+
+			// Test HL Segment
+			hlSegment := ediinvoice.MakeHLSegment(lineItem)
+
+			if lineItem.Location == models.ShipmentLineItemLocationORIGIN {
+				suite.Equal("304", hlSegment.HierarchicalIDNumber)
+			}
+
+			if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
+				suite.Equal("303", hlSegment.HierarchicalIDNumber)
+			}
+
+			suite.Equal("SS", hlSegment.HierarchicalLevelCode)
+
+			// Test L0 Segment
+			l0Segment := ediinvoice.MakeL0Segment(lineItem, 20.0000)
+			suite.Equal(1, l0Segment.LadingLineItemNumber)
+
+			if l0Segment.BilledRatedAsQuantity != 0 {
+				if lineItem.Tariff400ngItem.MeasurementUnit1 == models.Tariff400ngItemMeasurementUnitFLATRATE {
+					suite.Equal(float64(1), l0Segment.BilledRatedAsQuantity)
+				} else {
+					suite.Equal(lineItem.Quantity1.ToUnitFloat(), l0Segment.BilledRatedAsQuantity)
+				}
+			}
+
+			if l0Segment.BilledRatedAsQualifier != "" {
+				suite.Equal(string(lineItem.Tariff400ngItem.MeasurementUnit1), l0Segment.BilledRatedAsQualifier)
+			}
+
+			if l0Segment.Weight != 0 {
+				if lineItem.Tariff400ngItem.RequiresPreApproval == true {
+					suite.Equal(lineItem.Quantity1.ToUnitFloat(), l0Segment.Weight)
+				} else {
+					suite.Equal(20.0000, l0Segment.Weight)
+				}
+			}
+
+			if l0Segment.WeightQualifier != "" {
+				suite.Equal("B", l0Segment.WeightQualifier)
+			}
+
+			if l0Segment.WeightUnitCode != "" {
+				suite.Equal("L", l0Segment.WeightUnitCode)
+			}
+
+			// Test L1Segment
+			l1Segment := ediinvoice.MakeL1Segment(lineItem)
+
+			suite.Equal(4.07, l1Segment.FreightRate)
+			suite.Equal("RC", l1Segment.RateValueQualifier)
+			suite.Equal(lineItem.AmountCents.ToDollarFloat(), l1Segment.Charge)
+			suite.Equal(lineItem.Tariff400ngItem.Code, l1Segment.SpecialChargeDescription)
+		}
+	})
+
 }

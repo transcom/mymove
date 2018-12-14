@@ -19,6 +19,7 @@ import Alert from 'shared/Alert';
 import WizardHeader from '../WizardHeader';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
+import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 
 const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
@@ -91,7 +92,16 @@ export class DateAndLocation extends Component {
     return (
       <div>
         {isHHGPPMComboMove && (
-          <WizardHeader icon={ppmBlack} title="Move Setup" right={<p>status tracker goes here</p>} />
+          <WizardHeader
+            icon={ppmBlack}
+            title="Move Setup"
+            right={
+              <ProgressTimeline>
+                <ProgressTimelineStep name="Move Setup" current />
+                <ProgressTimelineStep name="Review" />
+              </ProgressTimeline>
+            }
+          />
         )}
         <DateAndLocationWizardForm
           handleSubmit={this.handleSubmit}

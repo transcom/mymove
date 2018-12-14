@@ -85,7 +85,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 
 ### Presentation vs. Container components
 
-* See this blog post, and this GitHub gist. Personally I found the gist to convey the idea faster.
+* See this [blog post](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0), and this [GitHub gist](https://gist.github.com/chantastic/fc9e3853464dffdb1e3c). Personally I found the gist to convey the idea faster.
 * The gist (ha!) of it is: React components should either have styling or logic, but not both.
 * Presentational components should be declared with plain functions, not fat arrow functions.
 

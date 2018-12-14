@@ -11,6 +11,7 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import WizardHeader from 'scenes/Moves/WizardHeader';
+import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import reviewGray from 'shared/icon/review-gray.svg';
 import './index.css';
 
@@ -57,7 +58,18 @@ export class SignedCertification extends Component {
     };
     return (
       <div>
-        {isHHGPPMComboMove && <WizardHeader icon={reviewGray} title="Review" right={<p>status tracker goes here</p>} />}
+        {isHHGPPMComboMove && (
+          <WizardHeader
+            icon={reviewGray}
+            title="Review"
+            right={
+              <ProgressTimeline>
+                <ProgressTimelineStep name="Move Setup" completed />
+                <ProgressTimelineStep name="Review" current />
+              </ProgressTimeline>
+            }
+          />
+        )}
         <div className="legalese">
           {this.props.certificationText && (
             <SignatureWizardForm

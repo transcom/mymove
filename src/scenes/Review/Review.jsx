@@ -5,6 +5,7 @@ import Summary from './Summary';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import WizardHeader from 'scenes/Moves/WizardHeader';
+import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 
 class Review extends Component {
   componentDidMount() {
@@ -15,7 +16,16 @@ class Review extends Component {
 
     return (
       <div>
-        {isHHGPPMComboMove && <WizardHeader right={<p>status tracker goes here</p>} />}
+        {isHHGPPMComboMove && (
+          <WizardHeader
+            right={
+              <ProgressTimeline>
+                <ProgressTimelineStep name="Move Setup" completed />
+                <ProgressTimelineStep name="Review" current />
+              </ProgressTimeline>
+            }
+          />
+        )}
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={pageKey} pageIsValid={true}>
           <h1>Review</h1>
           <p>You're almost done! Please review your details before we finalize the move.</p>
