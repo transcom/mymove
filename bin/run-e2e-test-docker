@@ -87,9 +87,9 @@ $DOCKER_RUN \
 docker logs -f ${CONTAINER_CYPRESS}
 
 # Copy out the results
-docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ || true
-docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ || true
-docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ || true
+docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
+docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
+docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
 
 # Grab the exit code
 EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
