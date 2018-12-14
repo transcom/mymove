@@ -87,15 +87,6 @@ func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request
 // WriteCsrfCookie update the cookie for the session
 func WriteCsrfCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger) {
 
-	// New cookie
-	cookie := http.Cookie{
-		Name:    MaskGorillaCSRFToken,
-		Value:   "blank",
-		Path:    "/",
-		Expires: time.Unix(0, 0),
-		MaxAge:  -1,
-	}
-
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	maxAge := sessionExpiryInSeconds
 	// Never expire token if in development
@@ -104,9 +95,14 @@ func WriteCsrfCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout b
 		maxAge = likeForeverInSeconds
 	}
 
-	cookie.Value = csrfToken
-	cookie.Expires = expiry
-	cookie.MaxAge = maxAge
+	// New cookie
+	cookie := http.Cookie{
+		Name:    MaskGorillaCSRFToken,
+		Value:   csrfToken,
+		Path:    "/",
+		Expires: expiry,
+		MaxAge:  maxAge,
+	}
 
 	http.SetCookie(w, &cookie)
 }
