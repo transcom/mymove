@@ -42,6 +42,12 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
+  halt_workflow_if_older_sha:
+    parameters:
+    steps:
+      - run:
+          name: Halt workflow
+          command: bin/check-staging-app-sha $CIRCLE_SHA1
   deploy_migrations_steps:
     steps:
       - checkout
@@ -283,6 +289,8 @@ jobs:
           paths:
             - ~/.cache/Cypress/3.1.0
       - announce_failure
+      # prevent deploy to staging if current build is an older sha than staging has deployed
+      - halt_workflow_if_older_sha
 
   # `server_test` runs the server side Go tests
   server_test:
