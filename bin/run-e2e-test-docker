@@ -23,6 +23,10 @@ if [ ! -z "${CIRCLECI+x}" ]; then
   DOCKER_RUN="docker run"
 fi
 
+# Check that the docker process is running first
+docker system info >> /dev/null
+
+# Begin setup
 make e2e_clean client_build db_e2e_init server_build_linux
 
 # Build the docker container
