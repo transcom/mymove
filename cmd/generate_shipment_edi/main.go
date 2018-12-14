@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/namsral/flag"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
@@ -35,15 +34,9 @@ func main() {
 	}
 
 	shipmentID := uuid.Must(uuid.FromString(*shipmentIDString))
-	shipment, err := invoice.FetchShipmentForInvoice{db}.Call(shipmentID)
-
+	shipment, err := invoice.FetchShipmentForInvoice{DB: db}.Call(shipmentID)
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 
 	invoice858C, err := ediinvoice.Generate858C(shipment, db, false, clock.New())
@@ -57,8 +50,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		statusCode, err := gex.SendInvoiceToGex(logger, invoice858CString, *transactionName)
-		fmt.Printf("status code: %v, error: %v", statusCode, err)
+		resp, err := gex.SendInvoiceToGex(invoice858CString, *transactionName)
+		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
 	} else {
 		ediWriter := edi.NewWriter(os.Stdout)
 		ediWriter.WriteAll(invoice858C.Segments())
