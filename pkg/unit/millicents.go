@@ -38,12 +38,3 @@ func (m Millicents) ToDollarFloat() float64 {
 	d = d / 100
 	return d
 }
-
-// ToFlooredDollarFloat returns a dollar representation of this value (rounded down if more than 2 decimals)
-func (m Millicents) ToFlooredDollarFloat() float64 {
-	// round down to nearest cent
-	d := math.Floor(float64(m) / 1000)
-	// convert cents to dollars
-	d = d / 100
-	return d
-}
