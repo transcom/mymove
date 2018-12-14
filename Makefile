@@ -32,6 +32,7 @@ ensure_pre_commit: .git/hooks/pre-commit
 prereqs: .prereqs.stamp
 .prereqs.stamp: bin/prereqs
 	bin/prereqs
+	bin/check-hosts-file
 	touch .prereqs.stamp
 
 go_version: .go_version.stamp
