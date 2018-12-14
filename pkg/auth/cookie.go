@@ -104,7 +104,6 @@ func WriteCsrfCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout b
 		maxAge = likeForeverInSeconds
 	}
 
-	logger.Info("Cookie", zap.Int("Size", len(csrfToken)))
 	cookie.Value = csrfToken
 	cookie.Expires = expiry
 	cookie.MaxAge = maxAge
