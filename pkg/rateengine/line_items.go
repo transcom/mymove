@@ -1,10 +1,11 @@
 package rateengine
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
-	"time"
 )
 
 // CreateBaseShipmentLineItems will create and return the models for the base shipment line items that every

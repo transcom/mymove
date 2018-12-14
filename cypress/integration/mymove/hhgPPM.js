@@ -78,10 +78,10 @@ function serviceMemberVerifiesHHGPPMSummary() {
 
     // HHG Panel
     expect(text).to.include('Shipment - Government moves all of your stuff (HHG)');
-    expect(text).to.include('Movers Packing: Mon, May 13 - Tue, May 14');
-    expect(text).to.include('Loading Truck: Wed, May 15');
-    expect(text).to.include('Move in Transit:Thu, May 16 - Sun, May 19');
-    expect(text).to.include('Delivery:Mon, May 20');
+    expect(text).to.include('Movers Packing: Fri, May 11 - Mon, May 14');
+    expect(text).to.include('Loading Truck: Tue, May 15');
+    expect(text).to.include('Move in Transit:Wed, May 16 - Sun, May 20');
+    expect(text).to.include('Delivery:Mon, May 21');
     expect(text).to.include(
       'Weight Estimate:2,000 lbs + 225 lbs pro-gear + 312 lbs spouse pro-gear Great! You appear within your weight allowance.',
     );

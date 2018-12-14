@@ -28,11 +28,12 @@ func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
 	}
 
 	return &internalmessages.Invoice{
-		ID: *handlers.FmtUUID(a.ID),
-
-		Status:    internalmessages.InvoiceStatus(a.Status),
-		CreatedAt: *handlers.FmtDateTime(a.CreatedAt),
-		UpdatedAt: *handlers.FmtDateTime(a.UpdatedAt),
+		ID:                *handlers.FmtUUID(a.ID),
+		ShipmentID:        *handlers.FmtUUID(a.ShipmentID),
+		ApproverFirstName: a.Approver.FirstName,
+		ApproverLastName:  a.Approver.LastName,
+		Status:            internalmessages.InvoiceStatus(a.Status),
+		InvoicedDate:      *handlers.FmtDateTime(a.InvoicedDate),
 	}
 }
 
@@ -489,17 +490,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
-	var shipment models.Shipment
-
-	err := h.DB().Eager(
-		"PickupAddress",
-		"Move.Orders.NewDutyStation.Address",
-		"Move.Orders.NewDutyStation.TransportationOffice",
-		"ServiceMember.DutyStation.TransportationOffice",
-		"ShipmentOffers.TransportationServiceProvider",
-		"ShipmentOffers.TransportationServiceProviderPerformance",
-		"ShipmentLineItems.Tariff400ngItem",
-	).Find(&shipment, shipmentID)
+	shipment, err := invoiceop.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
@@ -509,24 +500,27 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
+	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	// before processing the invoice, save it in an in process state
 	var invoice models.Invoice
-	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(&invoice, shipment)
+	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(*approver, &invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 	// Run rate engine on shipment --> returns CostByShipment Struct
-	shipmentCost, err := engine.HandleRunOnShipment(shipment)
+	costByShipment, err := engine.HandleRunOnShipment(shipment)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	var costsByShipments []rateengine.CostByShipment
-	costsByShipments = append(costsByShipments, shipmentCost)
 
 	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(costsByShipments, h.DB(), h.SendProductionInvoice(), clock.New())
+	invoice858C, err := ediinvoice.Generate858C(costByShipment.Shipment, h.DB(), h.SendProductionInvoice(), clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

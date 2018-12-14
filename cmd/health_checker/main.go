@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	neturl "net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -195,6 +196,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 	clientKeyEncoded := v.GetString("key")
 	clientCertEncoded := v.GetString("cert")
 	skipVerify := v.GetBool("skip-verify")
+	timeout := v.GetDuration("timeout")
 
 	if verbose {
 		if skipVerify {
@@ -264,33 +266,45 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 	}
 
 	httpTransport := &http.Transport{TLSClientConfig: tlsConfig}
-	httpClient := &http.Client{Transport: httpTransport}
+	httpClient := &http.Client{
+		Timeout:   timeout,
+		Transport: httpTransport,
+	}
 	return httpClient, nil
 
 }
 
 func checkURL(httpClient *http.Client, url string, validStatusCodes intSlice, maxTries int, backoff int, logger *zap.Logger) error {
 	for tries := 0; tries < maxTries; tries++ {
+		statusCode := 0
 		resp, err := httpClient.Get(url)
 		if err != nil {
-			return errors.Wrap(err, "error calling GET on url "+url)
-		}
-		logger.Info(
-			"HTTP GET request completed",
-			zap.Int("try", tries),
-			zap.String("url", url),
-			zap.Int("code", resp.StatusCode))
-		if validStatusCodes.Contains(resp.StatusCode) {
-			break
-		} else {
-			if tries < maxTries-1 {
-				sleepPeriod := time.Duration((tries+1)*backoff) * time.Second
-				logger.Info("sleeping", zap.Duration("period", sleepPeriod))
-				time.Sleep(sleepPeriod)
-				continue
+			if uerr, ok := err.(*neturl.Error); ok && uerr.Timeout() {
+				logger.Info(
+					"HTTP GET request timed out",
+					zap.Int("try", tries),
+					zap.String("url", url))
+			} else {
+				return errors.Wrap(err, "error calling GET on url "+url)
 			}
-			return &errHealthCheck{URL: url, StatusCode: resp.StatusCode, Tries: maxTries}
+		} else {
+			statusCode = resp.StatusCode
+			logger.Info(
+				"HTTP GET request completed",
+				zap.Int("try", tries),
+				zap.String("url", url),
+				zap.Int("code", statusCode))
+			if validStatusCodes.Contains(statusCode) {
+				break
+			}
 		}
+		if tries < maxTries-1 {
+			sleepPeriod := time.Duration((tries+1)*backoff) * time.Second
+			logger.Info("sleeping", zap.Duration("period", sleepPeriod))
+			time.Sleep(sleepPeriod)
+			continue
+		}
+		return &errHealthCheck{URL: url, StatusCode: statusCode, Tries: maxTries}
 	}
 	return nil
 }
@@ -332,6 +346,7 @@ func main() {
 	flag.Bool("skip-verify", false, "skip certifiate validation")
 	flag.Int("tries", 5, "number of tries")
 	flag.Int("backoff", 1, "backoff in seconds")
+	flag.Duration("timeout", 5*time.Minute, "timeout duration")
 	flag.Bool("exit-on-error", false, "exit on first health check error")
 	flag.String("log-env", "development", "logging config: development or production")
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")

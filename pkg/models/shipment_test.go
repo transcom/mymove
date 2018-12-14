@@ -310,7 +310,8 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
 // TestSaveShipment tests that a shipment can be saved
 func (suite *ModelSuite) TestSaveShipment() {
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
-	shipment.PmSurveyCompletedAt = &testdatagen.Now
+	now := time.Now()
+	shipment.PmSurveyCompletedAt = &now
 
 	verrs, err := SaveShipment(suite.db, &shipment)
 
