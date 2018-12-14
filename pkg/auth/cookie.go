@@ -155,6 +155,9 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		}
 	}
 	// http.SetCookie calls Header().Add() instead of .Set(), which can result in duplicate cookies
+	// It's ok to use this here because we want to delete and rewrite `Set-Cookie` on login or if the
+	// session token is lost.  However, we would normally use http.SetCookie for any other cookie operations
+	// so as not to delete the session token.
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
