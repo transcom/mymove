@@ -121,7 +121,8 @@ func FetchShipmentLineItemByID(dbConnection *pop.Connection, shipmentLineItemID 
 // Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state.
 func (s *ShipmentLineItem) Approve() error {
 	if s.Status != ShipmentLineItemStatusSUBMITTED {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+		var logMsg = "func Approve(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
+		return errors.Wrap(ErrInvalidTransition, logMsg)
 	}
 	s.Status = ShipmentLineItemStatusAPPROVED
 	s.ApprovedDate = time.Now()

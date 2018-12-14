@@ -76,15 +76,19 @@ func (suite *ModelSuite) TestShipmentOfferStateMachine() {
 	suite.Equal("DO NOT WANT", *shipmentOffer.RejectionReason)
 }
 
-func (suite *ModelSuite) TestGetAcceptedShipmentOffer() {
+func (suite *ModelSuite) TestAccepted() {
 	// Trying a nil slice of shipment offers.
 	var shipmentOffers ShipmentOffers
-	suite.Nil(shipmentOffers.Accepted())
+	shipmentOffers, err := shipmentOffers.Accepted()
+	suite.Nil(err)
+	suite.Nil(shipmentOffers)
 
 	// Make a default shipment offer (which shouldn't be accepted).
 	unacceptedOffer := testdatagen.MakeDefaultShipmentOffer(suite.db)
 	shipmentOffers = ShipmentOffers{unacceptedOffer}
-	suite.Nil(shipmentOffers.Accepted())
+	shipmentOffers, err = shipmentOffers.Accepted()
+	suite.Nil(err)
+	suite.Nil(shipmentOffers)
 
 	// Add an accepted shipment to our slice.
 	acceptedOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
@@ -94,7 +98,7 @@ func (suite *ModelSuite) TestGetAcceptedShipmentOffer() {
 		},
 	})
 	shipmentOffers = append(shipmentOffers, acceptedOffer)
-	acceptedOffers := shipmentOffers.Accepted()
+	acceptedOffers, _ := shipmentOffers.Accepted()
 	suite.Len(acceptedOffers, 1)
-	suite.Equal(acceptedOffer.ID, shipmentOffers.Accepted()[0].ID)
+	suite.Equal(acceptedOffer.ID, acceptedOffers[0].ID)
 }
