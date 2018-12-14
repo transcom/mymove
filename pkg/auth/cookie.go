@@ -157,7 +157,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
-// SessionCookieMiddleware handle serializing and de-serializing the session betweem the user_session cookie and the request context
+// SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
 func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
