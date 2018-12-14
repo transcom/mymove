@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/transcom/mymove/pkg/route"
 	"net/http"
 	"strings"
 
@@ -55,6 +56,20 @@ func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	// AddCallerSkip(1) prevents log statements from listing this file and func as the caller
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
+
+	cause := errors.Cause(err)
+	switch cause.(type) {
+	case *route.UnsupportedPostalCode:
+		skipLogger.Debug("unsupported postal code", zap.Error(err))
+		return newErrResponse(http.StatusUnprocessableEntity, err)
+	default:
+		return responseForBaseError(skipLogger, err)
+	}
+}
+
+func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
+	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
+
 	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
 		skipLogger.Debug("not found", zap.Error(err))

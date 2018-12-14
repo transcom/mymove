@@ -14,6 +14,7 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -31,15 +32,17 @@ var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
 var selectedMoveTypePPM = models.SelectedMoveTypePPM
 var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
-var nowTime = time.Now()
+// Often weekends and holidays are not allowable dates
+var cal = dates.NewUSCalendar()
+var nowTime = dates.NextValidMoveDate(time.Now(), cal)
 
-var nowPlusOne = nowTime.AddDate(0, 0, 1)
-var nowPlusFive = nowTime.AddDate(0, 0, 5)
-var nowPlusTen = nowTime.AddDate(0, 0, 10)
+var nowPlusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 1), cal)
+var nowPlusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 5), cal)
+var nowPlusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 10), cal)
 
-var nowMinusOne = nowTime.AddDate(0, 0, -1)
-var nowMinusFive = nowTime.AddDate(0, 0, -5)
-var nowMinusTen = nowTime.AddDate(0, 0, -10)
+var nowMinusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -1), cal)
+var nowMinusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -5), cal)
+var nowMinusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
