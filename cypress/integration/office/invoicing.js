@@ -13,7 +13,7 @@ describe(
         .get('.invoice-panel .basic-panel-content')
         .children()
         .first()
-        .should('have.class', 'empty-content');
+        .should('have.text', 'No line items');
     });
   },
 );
