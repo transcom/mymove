@@ -14,5 +14,5 @@ if [[ $(git rev-list --count "$staging_sha".."$circle_sha") == 0 ]]; then
 else
   echo "Checked shas; staging SHA $staging_sha is older than circle SHA $circle_sha"
   echo "stopping workflow to test that it can and what happens"
-  circleci step halt
+  exit 1
 fi
