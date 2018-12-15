@@ -44,6 +44,14 @@ commands:
           when: on_fail
   pause_migrations:
     type: approval
+    requires:
+      - pre_test
+      - client_test
+      - server_test
+      - build_app
+      - build_tools
+      - build_migrations
+
   halt_workflow_if_older_sha:
     steps:
       - run:
