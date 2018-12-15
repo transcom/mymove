@@ -42,12 +42,14 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
+  pause_migrations:
+    type: approval
   halt_workflow_if_older_sha:
-    parameters:
     steps:
       - run:
           name: Halt workflow
           command: bin/check-staging-app-sha $CIRCLE_SHA1
+      - pause_migrations
   deploy_migrations_steps:
     steps:
       - checkout
