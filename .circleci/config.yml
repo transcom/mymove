@@ -42,16 +42,6 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
-  pause_migrations:
-    type: approval
-    requires:
-      - pre_test
-      - client_test
-      - server_test
-      - build_app
-      - build_tools
-      - build_migrations
-
   halt_workflow_if_older_sha:
     steps:
       - run:
@@ -301,6 +291,13 @@ jobs:
       - announce_failure
       # prevent deploy to staging if current build is an older sha than staging has deployed
       - halt_workflow_if_older_sha
+
+    pause_migrations:
+      type: approval
+      steps:
+        - run:
+            name: Pausing for migration approval
+            command: echo "Pausing for approval"
 
   # `server_test` runs the server side Go tests
   server_test:

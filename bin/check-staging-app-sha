@@ -11,8 +11,8 @@ staging_sha=$(curl "https://my.staging.move.mil/health" --silent | jq ".gitCommi
 
 if [[ $(git rev-list --count "$staging_sha".."$circle_sha") == 0 ]]; then
   echo "staging SHA $staging_sha is newer than circle SHA $circle_sha"
+  circleci step halt
 else
   echo "Checked shas; staging SHA $staging_sha is older than circle SHA $circle_sha"
   echo "bypassing the approval"
-  circleci step halt
 fi
