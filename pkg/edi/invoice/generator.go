@@ -440,8 +440,13 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 
 // MakeL1Segment builds L1 segment based on shipment lineitem input.
 func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
+	freightRate := float64(0.00)
+	if lineItem.Tariff400ngItem.Code != "LHS" {
+		freightRate = lineItem.AppliedRate.ToDollarFloat()
+	}
+
 	return &edisegment.L1{
-		FreightRate:              lineItem.AppliedRate.ToDollarFloat(),
+		FreightRate:              freightRate,
 		RateValueQualifier:       rateValueQualifier,
 		Charge:                   lineItem.AmountCents.ToDollarFloat(),
 		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,

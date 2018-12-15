@@ -116,6 +116,7 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	var lineItems []models.ShipmentLineItem
 	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B"}
 	amountCents := unit.Cents(12325)
+	appliedRate := unit.Millicents(2537234)
 	for _, code := range codes {
 
 		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
@@ -158,6 +159,7 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 				Tariff400ngItemID: item.ID,
 				Tariff400ngItem:   item,
 				Quantity1:         unit.BaseQuantityFromInt(2000),
+				AppliedRate:       &appliedRate,
 				AmountCents:       &amountCents,
 				Location:          location,
 			},
@@ -270,8 +272,11 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 
 			// Test L1Segment
 			l1Segment := ediinvoice.MakeL1Segment(lineItem)
-
-			suite.Equal(4.07, l1Segment.FreightRate)
+			freightRate := float64(0.00)
+			if lineItem.Tariff400ngItem.Code != "LHS" {
+				freightRate = lineItem.AppliedRate.ToDollarFloat()
+			}
+			suite.Equal(freightRate, l1Segment.FreightRate)
 			suite.Equal("RC", l1Segment.RateValueQualifier)
 			suite.Equal(lineItem.AmountCents.ToDollarFloat(), l1Segment.Charge)
 			suite.Equal(lineItem.Tariff400ngItem.Code, l1Segment.SpecialChargeDescription)
