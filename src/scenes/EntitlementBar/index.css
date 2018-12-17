@@ -12,3 +12,11 @@
   margin-top: -1em;
   margin-bottom: 1em;
 }
+
+.entitlement-container a {
+  cursor: pointer;
+}
+
+.usa-alert a {
+  cursor: pointer;
+}
