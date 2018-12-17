@@ -47,7 +47,6 @@ commands:
       - run:
           name: Halt workflow
           command: bin/check-staging-app-sha $CIRCLE_SHA1
-      - pause_migrations
   deploy_migrations_steps:
     steps:
       - checkout
