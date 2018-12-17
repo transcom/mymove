@@ -45,7 +45,7 @@ commands:
   halt_workflow_if_older_sha:
     steps:
       - run:
-          name: Halt workflow
+          name: Halt workflow to prevent old master deploying to staging
           command: bin/check-staging-app-sha $CIRCLE_SHA1
   deploy_migrations_steps:
     steps:
@@ -288,6 +288,7 @@ jobs:
           paths:
             - ~/.cache/Cypress/3.1.0
       - announce_failure
+      - halt_workflow_if_older_sha
 
   # `server_test` runs the server side Go tests
   server_test:
@@ -431,15 +432,6 @@ jobs:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
-  pause_migrations:
-    executor: mymove_small
-    steps:
-      - halt_workflow_if_older_sha
-      - run:
-          name: Pausing for migration approval
-          command: echo "Pausing for approval"
-
-
   # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
     executor: mymove_small
@@ -563,17 +555,17 @@ workflows:
           requires:
             - pre_deps_golang
 
-      - pause_migrations:
-          type: approval
-          requires:
-            - integration_tests
-
       - deploy_experimental_migrations:
           requires:
-            - pause_migrations
+            - pre_test
+            - client_test
+            - server_test
+            - build_app
+            # - build_tools # tools don't need to build to deploy to experimental
+            - build_migrations
           filters:
             branches:
-              only: kl-162588368-skip-staging-deploy-if-not
+              only: placeholder
 
       - deploy_experimental_app:
           requires:
