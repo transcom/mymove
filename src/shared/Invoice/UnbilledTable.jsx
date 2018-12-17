@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withContext } from 'shared/AppContext';
 
 import { isOfficeSite } from 'shared/constants.js';
 import LineItemTable from 'shared/Invoice/LineItemTable';
@@ -10,10 +9,7 @@ import './InvoicePanel.css';
 
 export class UnbilledTable extends PureComponent {
   render() {
-    const allowPayments =
-      this.props.allowPayments &&
-      isOfficeSite && //user is an office user
-      this.props.context.flags.allowHhgInvoicePayment;
+    const allowPayments = this.props.allowPayments && isOfficeSite; //user is an office user
 
     let itemsComponent = <span className="empty-content">No line items</span>;
     if (this.props.lineItems.length) {
@@ -45,4 +41,4 @@ UnbilledTable.propTypes = {
   createInvoiceStatus: PropTypes.object,
 };
 
-export default withContext(UnbilledTable);
+export default UnbilledTable;

@@ -1,7 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import LineItemTable from './LineItemTable';
-import * as CONSTANTS from 'shared/constants.js';
 
 describe('LineItemTable tests', () => {
   let wrapper;
@@ -22,16 +21,13 @@ describe('LineItemTable tests', () => {
     },
   ];
 
-  beforeEach(() => {
-    CONSTANTS.isOfficeSite = false;
-  });
-
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
         <LineItemTable shipmentLineItems={shipmentLineItems} totalAmount={10} shipmentStatus="delivered" />,
       );
       expect(wrapper.find('table').length).toEqual(1);
+      expect(wrapper.find('tr').length).toEqual(shipmentLineItems.length + 2);
     });
   });
 });

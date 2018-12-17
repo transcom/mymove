@@ -122,6 +122,7 @@ const HHGTabContent = props => {
           shipmentStatus={shipmentStatus}
           onApprovePayment={props.sendHHGInvoice}
           canApprove={props.canApprovePaymentInvoice}
+          allowPayments={props.allowHhgInvoicePayment}
         />
       )}
     </div>
@@ -213,6 +214,7 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
+    const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
@@ -325,6 +327,7 @@ class MoveInfo extends Component {
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                     canApprovePaymentInvoice={hhgDelivered}
                     officeMove={this.props.officeMove}
+                    allowHhgInvoicePayment={allowHhgInvoicePayment}
                   />
                 </PrivateRoute>
               </Switch>

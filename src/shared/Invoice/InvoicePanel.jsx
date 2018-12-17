@@ -27,7 +27,7 @@ export class InvoicePanel extends PureComponent {
 
   render() {
     // For now we're only allowing one invoice to be generated
-    const allowPayments = !this.props.invoices || !this.props.invoices.length;
+    const allowPayments = this.props.allowPayments && (!this.props.invoices || !this.props.invoices.length);
     return (
       <div className="invoice-panel">
         <BasicPanel title="Invoicing">
@@ -56,6 +56,7 @@ InvoicePanel.propTypes = {
   shipmentId: PropTypes.string,
   shipmentStatus: PropTypes.string,
   isShipmentDelivered: PropTypes.bool,
+  allowPayments: PropTypes.bool,
 };
 
 const mapStateToProps = (state, ownProps) => {
