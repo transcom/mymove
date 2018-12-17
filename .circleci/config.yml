@@ -292,13 +292,6 @@ jobs:
       # prevent deploy to staging if current build is an older sha than staging has deployed
       - halt_workflow_if_older_sha
 
-    pause_migrations:
-      type: approval
-      steps:
-        - run:
-            name: Pausing for migration approval
-            command: echo "Pausing for approval"
-
   # `server_test` runs the server side Go tests
   server_test:
     executor: mymove_and_postgres_medium
@@ -441,6 +434,15 @@ jobs:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
+  pause_migrations:
+    executor: mymove_small
+    steps:
+      - halt_workflow_if_older_sha
+      - run:
+          name: Pausing for migration approval
+          command: echo "Pausing for approval"
+
+
   # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
     executor: mymove_small
@@ -564,15 +566,15 @@ workflows:
           requires:
             - pre_deps_golang
 
+
+      - pause_migrations:
+          type: approval
+          requires:
+            - integration_tests
+
       - deploy_experimental_migrations:
           requires:
-            - pre_test
-            - client_test
-            - server_test
-            - build_app
-            # - build_tools # tools don't need to build to deploy to experimental
-            - build_migrations
-            - integration_tests
+            - pause_migrations
           filters:
             branches:
               only: kl-162588368-skip-staging-deploy-if-not
