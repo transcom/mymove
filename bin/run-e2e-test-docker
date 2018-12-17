@@ -19,7 +19,7 @@ HTTP_PORT=4000
 
 # When running locally enable TTY
 DOCKER_RUN="docker run -t"
-if [ ! -z "${CIRCLECI+x}" ]; then
+if [ -n "${CIRCLECI+x}" ]; then
   DOCKER_RUN="docker run"
 fi
 
@@ -67,9 +67,9 @@ $DOCKER_RUN \
   --link="db-dev:database" \
   --detach \
   --rm \
-  e2e:latest
+  ${CONTAINER}:latest
 
-E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' e2e)
+E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
 
 # Run the cypress tests
 docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
@@ -84,13 +84,19 @@ $DOCKER_RUN \
   --detach \
   ${CONTAINER_CYPRESS}:latest run --spec "${SPEC:-cypress/integration/**/*}"
 
+# Tail the logs so users can follow along
 docker logs -f ${CONTAINER_CYPRESS}
+
+# Stop the app container to release the DB connection
+docker stop ${CONTAINER}
 
 # Copy out the results
 docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
 docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
 docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
 
-# Grab the exit code
+# Grab the exit code from the test container
 EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
+
+# Exit with the status from tests
 exit "${EXIT_STATUS}"
