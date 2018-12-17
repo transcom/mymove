@@ -501,6 +501,18 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
+	//for now we limit a shipment to 1 invoice
+	//if invoices exists and at least one is either in process or has succeeded then return 409
+	existingInvoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	for _, element := range existingInvoices {
+		if element.Status != models.InvoiceStatusSUBMISSIONFAILURE {
+			return shipmentop.NewCreateAndSendHHGInvoiceConflict().WithPayload("Invoice is processing for this shipment")
+		}
+	}
+
 	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
