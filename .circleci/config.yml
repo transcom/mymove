@@ -288,8 +288,6 @@ jobs:
           paths:
             - ~/.cache/Cypress/3.1.0
       - announce_failure
-      # prevent deploy to staging if current build is an older sha than staging has deployed
-      - halt_workflow_if_older_sha
 
   # `server_test` runs the server side Go tests
   server_test:
@@ -564,7 +562,6 @@ workflows:
       - build_migrations:
           requires:
             - pre_deps_golang
-
 
       - pause_migrations:
           type: approval
