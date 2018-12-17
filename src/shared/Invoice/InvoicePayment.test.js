@@ -43,7 +43,7 @@ describe('Invoice Payment Component tests', () => {
   //   });
   // });
   describe('When invoice status is in failed condition', () => {
-    it('renders under invoice failed view ', () => {
+    it('renders under invoice failed view', () => {
       wrapper = shallow(
         <InvoicePayment
           approvePayment={confirm}
@@ -57,6 +57,30 @@ describe('Invoice Payment Component tests', () => {
         />,
       );
       expect(wrapper.find('.warning--header').text()).toEqual('Please try again.');
+    });
+  });
+  describe('When invoice has already been approved by another user', () => {
+    it('renders warning letting user know that invoice is already in process', () => {
+      wrapper = shallow(
+        <InvoicePayment
+          approvePayment={confirm}
+          cancelPayment={cancel}
+          allowPayments={false}
+          createInvoiceStatus={{
+            error: {
+              response: {
+                status: 409,
+                response: {
+                  body: 'Invoice has already been approved for this shipment.',
+                },
+              },
+            },
+          }}
+        />,
+      );
+      expect(wrapper.find('.warning--header').text()).toEqual(
+        'Invoice already processing, please reload page for updated information.',
+      );
     });
   });
   describe('When invoice status is approved', () => {
