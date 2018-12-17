@@ -7,6 +7,7 @@ import (
 )
 
 func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 	shipment := testdatagen.MakeDefaultShipment(suite.db)
 	createInvoice := CreateInvoice{
 		DB:    suite.db,
@@ -14,7 +15,7 @@ func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
 	}
 	var invoice models.Invoice
 
-	verrs, err := createInvoice.Call(&invoice, shipment)
+	verrs, err := createInvoice.Call(officeUser, &invoice, shipment)
 	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
 

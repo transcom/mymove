@@ -1,0 +1,5 @@
+sql("ALTER TABLE invoices ADD COLUMN approver_id UUID;")
+sql("UPDATE invoices SET approver_id='709739d6-96b4-4e67-8fe6-28671e80a69a';")
+sql("ALTER TABLE invoices ALTER COLUMN approver_id SET NOT NULL;")
+
+add_foreign_key("invoices", "approver_id", {"office_users": ["id"]}, {})

@@ -28,11 +28,12 @@ func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
 	}
 
 	return &internalmessages.Invoice{
-		ID: *handlers.FmtUUID(a.ID),
-
-		Status:    internalmessages.InvoiceStatus(a.Status),
-		CreatedAt: *handlers.FmtDateTime(a.CreatedAt),
-		UpdatedAt: *handlers.FmtDateTime(a.UpdatedAt),
+		ID:                *handlers.FmtUUID(a.ID),
+		ShipmentID:        *handlers.FmtUUID(a.ShipmentID),
+		ApproverFirstName: a.Approver.FirstName,
+		ApproverLastName:  a.Approver.LastName,
+		Status:            internalmessages.InvoiceStatus(a.Status),
+		InvoicedDate:      *handlers.FmtDateTime(a.InvoicedDate),
 	}
 }
 
@@ -488,9 +489,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
 	shipment, err := invoiceop.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
-
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -499,9 +498,14 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
+	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	// before processing the invoice, save it in an in process state
 	var invoice models.Invoice
-	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(&invoice, shipment)
+	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(*approver, &invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
@@ -529,16 +533,16 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), invoice858CString, transactionName)
+	resp, err := gex.SendInvoiceToGex(invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	// get response from gex --> use status as status for this invoice call
-	if responseStatus != 200 {
-		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
-		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
+	if resp.StatusCode != 200 {
+		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", resp.StatusCode))
 		// Update invoice record as failed
+		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
 		verrs, err := h.DB().ValidateAndSave(&invoice)
 		if verrs.HasAny() {
 			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
