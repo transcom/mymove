@@ -455,9 +455,6 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerMultipleInvoiceRequests() {
 	suite.Equal(shipmentop.ApproveHHGOKCode, response)
 
 	//assert the second request returns a 409 error
-	failedResponse := shipmentop.CreateAndSendHHGInvoiceParams{
-		HTTPRequest: req,
-		ShipmentID:  strfmt.UUID(shipment.ID.String()),
-	}
-	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), response)
+	failedResponse := handler.Handle(params)
+	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), failedResponse)
 }
