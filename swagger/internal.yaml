@@ -2243,10 +2243,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      current_duty_station_id:
-        type: string
-        format: uuid
-        example: c53a4180-65aa-42ec-a945-5fd21dec0538
       orders_number:
         type: string
         title: Orders Number
@@ -2658,39 +2654,6 @@ paths:
           description: user is not authorized
         404:
           description: order is not found
-        500:
-          description: internal server error
-    patch:
-      summary: Updates orders information
-      description: All fields sent in this request will be set on the orders referenced
-      operationId: patchOrders
-      tags:
-        - orders
-      parameters:
-        - in: path
-          name: ordersId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the orders model
-        - in: body
-          name: patchOrders
-          required: true
-          schema:
-            $ref: '#/definitions/CreateUpdateOrders'
-      responses:
-        200:
-          description: updated instance of orders
-          schema:
-            $ref: '#/definitions/Orders'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
         500:
           description: internal server error
   /moves:
