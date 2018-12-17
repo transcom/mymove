@@ -143,6 +143,7 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
 		}
 
+		// default location created in testdatagen shipmentLineItem is DESTINATION
 		if code == "135A" {
 			location = models.ShipmentLineItemLocationORIGIN
 		}
@@ -150,6 +151,12 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 			location = models.ShipmentLineItemLocationDESTINATION
 		}
 		if code == "46A" {
+			location = models.ShipmentLineItemLocationNEITHER
+		}
+		if code == "105A" {
+			location = models.ShipmentLineItemLocationORIGIN
+		}
+		if code == "LHS" {
 			location = models.ShipmentLineItemLocationNEITHER
 		}
 
@@ -170,6 +177,8 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 				Location:          location,
 			},
 		})
+		fmt.Print("%%%%%%%%%%%%%%%", code, lineItem.Location)
+		fmt.Println()
 		lineItems = append(lineItems, lineItem)
 	}
 	shipment.ShipmentLineItems = lineItems
@@ -235,11 +244,11 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 			hlSegment := ediinvoice.MakeHLSegment(lineItem)
 
 			if lineItem.Location == models.ShipmentLineItemLocationORIGIN {
-				suite.Equal("304", hlSegment.HierarchicalIDNumber)
+				suite.Equal("303", hlSegment.HierarchicalIDNumber)
 			}
 
 			if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
-				suite.Equal("303", hlSegment.HierarchicalIDNumber)
+				suite.Equal("304", hlSegment.HierarchicalIDNumber)
 			}
 
 			if lineItem.Location == models.ShipmentLineItemLocationNEITHER {
@@ -282,11 +291,11 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 
 			// Test L1Segment
 			l1Segment := ediinvoice.MakeL1Segment(lineItem)
-			freightRate := float64(0.00)
+			expectedFreightRate := float64(0.00)
 			if lineItem.Tariff400ngItem.Code != "LHS" {
-				freightRate = lineItem.AppliedRate.ToDollarFloat()
+				expectedFreightRate = lineItem.AppliedRate.ToDollarFloat()
 			}
-			suite.Equal(freightRate, l1Segment.FreightRate)
+			suite.Equal(expectedFreightRate, l1Segment.FreightRate)
 			suite.Equal("RC", l1Segment.RateValueQualifier)
 			suite.Equal(lineItem.AmountCents.ToDollarFloat(), l1Segment.Charge)
 			suite.Equal(lineItem.Tariff400ngItem.Code, l1Segment.SpecialChargeDescription)
