@@ -54,6 +54,7 @@ type ShipmentLineItem struct {
 	ApprovedDate  time.Time              `json:"approved_date" db:"approved_date"`
 	CreatedAt     time.Time              `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time              `json:"updated_at" db:"updated_at"`
+	FuelSurcharge unit.Cents             `json:"fuel_surcharge" db:"fuel_surcharge"`
 }
 
 // ShipmentLineItems is not required by pop and may be deleted
