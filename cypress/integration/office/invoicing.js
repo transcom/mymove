@@ -6,7 +6,7 @@ describe(
       cy.signIntoOffice();
     });
     it('opens the shipment tab', () => {
-      cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+      cy.visit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
 
       // The invoice table should be empty.
       cy
