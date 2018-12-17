@@ -362,10 +362,10 @@ func MakeHLSegment(lineItem models.ShipmentLineItem) *edisegment.HL {
 	switch lineItem.Location {
 
 	case models.ShipmentLineItemLocationORIGIN:
-		hierarchicalLevelID = "304"
+		hierarchicalLevelID = "303"
 
 	case models.ShipmentLineItemLocationDESTINATION:
-		hierarchicalLevelID = "303"
+		hierarchicalLevelID = "304"
 
 	case models.ShipmentLineItemLocationNEITHER:
 		hierarchicalLevelID = "303"
