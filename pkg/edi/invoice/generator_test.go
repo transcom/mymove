@@ -117,7 +117,7 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B"}
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B", "46A"}
 	amountCents := unit.Cents(12325)
 	for _, code := range codes {
 
@@ -147,6 +147,9 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 		}
 		if code == "135B" {
 			location = models.ShipmentLineItemLocationDESTINATION
+		}
+		if code == "46A" {
+			location = models.ShipmentLineItemLocationNEITHER
 		}
 
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
@@ -234,6 +237,10 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 			}
 
 			if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
+				suite.Equal("303", hlSegment.HierarchicalIDNumber)
+			}
+
+			if lineItem.Location == models.ShipmentLineItemLocationNEITHER {
 				suite.Equal("303", hlSegment.HierarchicalIDNumber)
 			}
 
