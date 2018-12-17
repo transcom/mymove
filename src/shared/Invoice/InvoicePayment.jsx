@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 
 import Alert from 'shared/Alert';
 import './InvoicePanel.css';
@@ -29,7 +30,7 @@ class InvoicePayment extends PureComponent {
   render() {
     let paymentAlert;
     const status = this.props.createInvoiceStatus;
-    const allowPayments = this.props.allowPayments && !status.isLoading;
+    const allowPayments = true; // this.props.allowPayments && !status.isLoading;
 
     let header = (
       <div className="invoice-panel-header-cont">
@@ -61,11 +62,26 @@ class InvoicePayment extends PureComponent {
     }
 
     if (status.error) {
-      paymentAlert = (
-        <Alert type="error" heading="Oops, something went wrong!">
-          <span className="warning--header">Please try again.</span>
-        </Alert>
-      );
+      //handle 409 status: shipment invoice already processed
+      let httpResCode = get(status, 'error.response.status');
+      let errMessage = get(status, 'error.response.response.body');
+      if (httpResCode === 409 && errMessage === 'Invoice has already been approved for this shipment.') {
+        paymentAlert = (
+          <div>
+            <Alert type="success" heading="Success!">
+              <span className="warning--header">
+                Invoice already processing, please reload page for updated information.
+              </span>
+            </Alert>
+          </div>
+        );
+      } else {
+        paymentAlert = (
+          <Alert type="error" heading="Oops, something went wrong!">
+            <span className="warning--header">Please try again.</span>
+          </Alert>
+        );
+      }
     } else if (status.isLoading) {
       paymentAlert = (
         <Alert type="loading" heading="Creating invoice">
