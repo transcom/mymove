@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -415,6 +416,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 func (suite *HandlerSuite) TestShipmentInvoiceHandlerMultipleInvoiceRequests() {
 	//Given: an office user
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	pickupDate := time.Now()
 
 	//and a shipment that is delivered
 	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
@@ -428,6 +430,8 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerMultipleInvoiceRequests() {
 			WeightEstimate:               handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
 			ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(swag.Int64(325)),
 			SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(swag.Int64(120)),
+			NetWeight:                    handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
+			ActualPickupDate:             &pickupDate,
 		},
 	})
 
@@ -457,5 +461,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerMultipleInvoiceRequests() {
 
 	//assert the second request returns a 409 error
 	failedResponse := handler.Handle(params)
-	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict().WithPayload("Invoice is processing for this shipment"), failedResponse)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, failedResponse)
+	errResponse := failedResponse.(*handlers.ErrResponse)
+	suite.Equal(http.StatusConflict, errResponse.Code)
 }
