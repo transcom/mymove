@@ -130,8 +130,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
 	verrs.Append(smVerrs)
 	if verrs.HasAny() || err != nil {
-		h.HoneyZapLogger().TraceInfo(ctx, "error when creating new service member")
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error when creating new service member")
 	}
 	// Update session info
 	session.ServiceMemberID = newServiceMember.ID
@@ -203,12 +202,10 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 	payload := params.PatchServiceMemberPayload
 	if verrs, err := h.patchServiceMemberWithPayload(ctx, &serviceMember, payload); verrs.HasAny() || err != nil {
-		return h.RespondAndTraceError(ctx, err, "error patching service member", zap.String("service_member_id", serviceMember.ID.String()))
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error patching service member", zap.String("service_member_id", serviceMember.ID.String()))
 	}
 	if verrs, err := models.SaveServiceMember(ctx, h.DB(), &serviceMember); verrs.HasAny() || err != nil {
-		h.HoneyZapLogger().TraceError(ctx, "error saving service member",
-			zap.String("service_member_id", serviceMember.ID.String()))
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving service member", zap.String("service_member_id", serviceMember.ID.String()))
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
