@@ -30,7 +30,8 @@ class InvoicePayment extends PureComponent {
   render() {
     let paymentAlert;
     const status = this.props.createInvoiceStatus;
-    const allowPayments = this.props.allowPayments && !status.isLoading;
+    const allowPayments = true;
+    //const allowPayments = this.props.allowPayments && !status.isLoading;
 
     let header = (
       <div className="invoice-panel-header-cont">
@@ -64,8 +65,8 @@ class InvoicePayment extends PureComponent {
     if (status.error) {
       //handle 409 status: shipment invoice already processed
       let httpResCode = get(status, 'error.response.status');
-      let errMessage = get(status, 'error.response.response.body');
-      if (httpResCode === 409 && errMessage === 'Invoice is processing for this shipment') {
+      let errMessage = get(status, 'error.response.response.body.message');
+      if (httpResCode === 409 && errMessage === 'invoice is processing or already processed for this shipment') {
         paymentAlert = (
           <div>
             <Alert type="success" heading="Success!">

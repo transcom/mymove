@@ -436,6 +436,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerMultipleInvoiceRequests() {
 			ShipmentID: shipment.ID,
 		},
 	})
+	shipmentOffer.Accept()
 	suite.MustSave(&shipment)
 	suite.MustSave(&shipmentOffer)
 
@@ -456,5 +457,5 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerMultipleInvoiceRequests() {
 
 	//assert the second request returns a 409 error
 	failedResponse := handler.Handle(params)
-	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), failedResponse)
+	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict().WithPayload("Invoice is processing for this shipment"), failedResponse)
 }

@@ -71,7 +71,9 @@ describe('Invoice Payment Component tests', () => {
               response: {
                 status: 409,
                 response: {
-                  body: 'Invoice is processing for this shipment',
+                  body: {
+                    message: 'invoice is processing or already processed for this shipment',
+                  },
                 },
               },
             },
