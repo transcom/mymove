@@ -125,3 +125,18 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }
+
+func (suite *UploaderSuite) TestCreateUploadS3OnlyFromString() {
+	document := testdatagen.MakeDefaultDocument(suite.db)
+
+	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
+	file := suite.fixture("test.pdf")
+
+	data := "Test file for TestCreateUploadS3OnlyFromString"
+	err := up.CreateUploadS3OnlyFromString(document.ServiceMember.UserID, data, &file)
+
+	suite.Nil(err, "failed to create upload")
+	//suite.False(verrs.HasAny(), "failed to validate upload", verrs)
+	//suite.Equal(upload.ContentType, "application/pdf")
+	//suite.Equal(upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
+}
