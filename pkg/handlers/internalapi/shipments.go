@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -506,9 +507,13 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 	for _, element := range existingInvoices {
-		if element.Status != models.InvoiceStatusSUBMISSIONFAILURE {
-			return shipmentop.NewCreateAndSendHHGInvoiceConflict().WithPayload("Invoice is processing for this shipment")
+		//if an invoice has started, is in process or has been submitted successfully
+		if element.Status == models.InvoiceStatusDRAFT ||
+			element.Status == models.InvoiceStatusINPROCESS ||
+			element.Status == models.InvoiceStatusSUBMITTED {
+			return handlers.ResponseForCustomErrors(h.Logger(), errors.New("invoice is processing or already processed for this shipment"), 409)
 		}
+
 	}
 
 	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
