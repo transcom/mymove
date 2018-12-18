@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -28,22 +29,28 @@ export class InvoicePanel extends PureComponent {
   render() {
     // For now we're only allowing one invoice to be generated
     const allowPayments = this.props.allowPayments && (!this.props.invoices || !this.props.invoices.length);
+    const hasUnbilled = Boolean(get(this.props, 'unbilledShipmentLineItems.length'));
+    const hasInvoices = Boolean(get(this.props, 'invoices.length'));
     return (
       <div className="invoice-panel">
         <BasicPanel title="Invoicing">
-          <UnbilledTable
-            lineItems={this.props.unbilledShipmentLineItems}
-            lineItemsTotal={this.props.unbilledLineItemsTotal}
-            cancelPayment={this.props.resetInvoiceFlow}
-            approvePayment={this.approvePayment.bind(this)}
-            allowPayments={allowPayments}
-            createInvoiceStatus={this.props.createInvoiceStatus}
-          />
+          {hasUnbilled && (
+            <UnbilledTable
+              lineItems={this.props.unbilledShipmentLineItems}
+              lineItemsTotal={this.props.unbilledLineItemsTotal}
+              cancelPayment={this.props.resetInvoiceFlow}
+              approvePayment={this.approvePayment.bind(this)}
+              allowPayments={allowPayments}
+              createInvoiceStatus={this.props.createInvoiceStatus}
+            />
+          )}
 
-          {this.props.invoices &&
+          {hasInvoices &&
             this.props.invoices.map(invoice => {
               return <InvoiceTable invoice={invoice} key={invoice.id} />;
             })}
+
+          {!hasUnbilled && !hasInvoices && <span className="empty-content">No line items</span>}
         </BasicPanel>
       </div>
     );

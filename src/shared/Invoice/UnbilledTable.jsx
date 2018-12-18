@@ -11,7 +11,7 @@ export class UnbilledTable extends PureComponent {
   render() {
     const allowPayments = this.props.allowPayments && isOfficeSite; //user is an office user
 
-    let itemsComponent = <span className="empty-content">No line items</span>;
+    let itemsComponent;
     if (this.props.lineItems.length) {
       itemsComponent = (
         <LineItemTable shipmentLineItems={this.props.lineItems} totalAmount={this.props.lineItemsTotal} />
