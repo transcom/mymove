@@ -1,16 +1,12 @@
-describe(
-  'As an office user, I want to keep track of HHG shipment costs before they are billed, ' +
-    'so if there are pre-approved, unbilled charges, I should see them.',
-  () => {
-    beforeEach(() => {
-      cy.signIntoOffice();
-    });
+describe('Office user looks at the invoice tab to view unbilled line items', () => {
+  beforeEach(() => {
+    cy.signIntoOffice();
+  });
 
-    it('there are no unbilled line items', checkNoUnbilledLineItems);
+  it('there are no unbilled line items', checkNoUnbilledLineItems);
 
-    it('there are unbilled line items', checkExistUnbilledLineItems);
-  },
-);
+  it('there are unbilled line items', checkExistUnbilledLineItems);
+});
 
 function checkNoUnbilledLineItems() {
   // Open the shipments tab.
@@ -28,7 +24,7 @@ function checkExistUnbilledLineItems() {
   // Open the shipments tab.
   cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
 
-  // The invoice table should display unbilled line items.
+  // The invoice table should display the unbilled line items.
   cy
     .get('.invoice-panel .basic-panel-content tbody')
     .children()
