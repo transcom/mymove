@@ -7,7 +7,7 @@ prereqs_found=true
 function has() {
     local tool=$1
     local tool_install_direction=$2
-    if [[ ! -z $(type -p "${tool}") ]]; then
+    if [[ -n $(type -p "${tool}") ]]; then
         echo "${tool} installed."
     else
         echo "WARNING: ${tool} not found, install via: ${tool_install_direction}"
