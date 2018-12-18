@@ -47,25 +47,4 @@ describe('UnbilledTable tests', () => {
       expect(wrapper.find('LineItemTable').length).toEqual(1);
     });
   });
-  describe('When shipmentLineItems do not exist', () => {
-    it("doesn't render a LineItemTable", () => {
-      wrapper = shallow(
-        <UnbilledTable
-          lineItems={[]}
-          lineItemsTotal={0}
-          approvePayment={no_op}
-          cancelPayment={no_op}
-          allowPayments={true}
-          createInvoiceStatus={{
-            error: null,
-            isLoading: false,
-            isSuccess: false,
-          }}
-        />,
-      );
-      expect(wrapper.find('InvoicePayment').length).toEqual(1);
-      expect(wrapper.find('LineItemTable').length).toEqual(0);
-      expect(wrapper.find('span.empty-content').text()).toEqual('No line items');
-    });
-  });
 });
