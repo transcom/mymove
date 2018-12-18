@@ -67,7 +67,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
 	suite.Equal(newUser.ID, user.ID)
 }
 
-func (suite *ModelSuite) TestFetchOfficeUserById() {
+func (suite *ModelSuite) TestFetchOfficeUserByID() {
 	fakeUUID, _ := uuid.FromString("99999999-8888-7777-8b57-e39519f42dc1")
 
 	user, err := FetchOfficeUserByID(suite.db, fakeUUID)
