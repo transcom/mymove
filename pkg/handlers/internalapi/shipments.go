@@ -490,9 +490,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
 	shipment, err := invoiceop.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
-
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -536,16 +534,16 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	responseStatus, err := gex.SendInvoiceToGex(h.Logger(), invoice858CString, transactionName)
+	resp, err := gex.SendInvoiceToGex(invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	// get response from gex --> use status as status for this invoice call
-	if responseStatus != 200 {
-		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", responseStatus))
-		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
+	if resp.StatusCode != 200 {
+		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", resp.StatusCode))
 		// Update invoice record as failed
+		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
 		verrs, err := h.DB().ValidateAndSave(&invoice)
 		if verrs.HasAny() {
 			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))

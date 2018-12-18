@@ -24,6 +24,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
+* [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
 
 ## ADRs
 
