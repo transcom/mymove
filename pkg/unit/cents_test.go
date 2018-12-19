@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestCentsMultiply(t *testing.T) {
+func TestCents_Multiply(t *testing.T) {
 	cents := Cents(25)
 	result := cents.Multiply(5)
 
@@ -14,7 +14,7 @@ func TestCentsMultiply(t *testing.T) {
 	}
 }
 
-func TestCentsAddCents(t *testing.T) {
+func TestCents_AddCents(t *testing.T) {
 	cents := Cents(25)
 	result := cents.AddCents(5)
 	expected := Cents(30)
@@ -31,7 +31,7 @@ func TestCentsAddCents(t *testing.T) {
 
 }
 
-func TestCentsMultiplyFloat64(t *testing.T) {
+func TestCents_MultiplyFloat64(t *testing.T) {
 	cents := Cents(2500)
 	result := cents.MultiplyFloat64(0.333)
 
@@ -41,7 +41,7 @@ func TestCentsMultiplyFloat64(t *testing.T) {
 	}
 }
 
-func TestCentsToDollarString(t *testing.T) {
+func TestCents_ToDollarString(t *testing.T) {
 	cents := Cents(1)
 	result := cents.ToDollarString()
 	expected := "$0.01"
@@ -61,5 +61,15 @@ func TestCentsToDollarString(t *testing.T) {
 	expected = "$100.99"
 	if result != expected {
 		t.Errorf("wrong conversion of Cents: expected %s, got %s", expected, result)
+	}
+}
+
+func TestCents_ToMillicents(t *testing.T) {
+	cents := Cents(12)
+	result := cents.ToMillicents()
+
+	expected := Millicents(12000)
+	if result != expected {
+		t.Errorf("wrong conversion of Cents: expected %d, got %d", expected, result)
 	}
 }
