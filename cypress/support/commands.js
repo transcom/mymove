@@ -61,6 +61,95 @@ Cypress.Commands.add('signInAsUser', userId => {
   cy.get('button[value="' + userId + '"]').click();
 });
 
+Cypress.Commands.add(
+  'signInAsUserPostRequest',
+  (
+    signInAs,
+    userId,
+    expectedStatusCode = 200,
+    expectedRespBody = null,
+    sendGorillaCSRF = true,
+    sendMaskedGorillaCSRF = true,
+  ) => {
+    // setup baseurl
+    switch (signInAs.toLowerCase()) {
+      case 'mymove':
+        Cypress.config('baseUrl', 'http://localhost:4000');
+        break;
+      case 'office':
+        Cypress.config('baseUrl', 'http://officelocal:4000');
+        break;
+      case 'tsp':
+        Cypress.config('baseUrl', 'http://tsplocal:4000');
+        break;
+      default:
+        break;
+    }
+
+    // request use to log in
+    let sendRequest = maskedCSRFToken => {
+      cy
+        .request({
+          url: '/devlocal-auth/login',
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': maskedCSRFToken,
+          },
+          body: {
+            id: userId,
+          },
+          form: true,
+          failOnStatusCode: false,
+        })
+        .then(resp => {
+          cy.visit('/');
+          // Default status code to check is 200
+          expect(resp.status).to.eq(expectedStatusCode);
+          // check response body if needed
+          if (expectedRespBody) {
+            expect(resp.body).to.eq(expectedRespBody);
+          }
+        });
+    };
+
+    // make sure we log out first before sign in
+    cy.logout();
+    // GET landing page to get csrf cookies
+    cy.request('/');
+
+    // Clear out cookies if we don't want to send in request
+    if (!sendGorillaCSRF) {
+      cy.clearCookie('_gorilla_csrf');
+      // Don't include cookie in request header
+      cy.getCookie('_gorilla_csrf').should('not.exist');
+    } else {
+      // Include cookie in request header
+      cy.getCookie('_gorilla_csrf').should('exist');
+    }
+
+    if (!sendMaskedGorillaCSRF) {
+      // Clear out the masked CSRF token
+      cy.clearCookie('masked_gorilla_csrf');
+      // Send request without masked token
+      cy
+        .getCookie('masked_gorilla_csrf')
+        .should('not.exist')
+        .then(() => {
+          // null token will omit the 'X-CSRF-HEADER' from request
+          sendRequest();
+        });
+    } else {
+      // Send request with masked token
+      cy
+        .getCookie('masked_gorilla_csrf')
+        .should('exist')
+        .then(cookie => {
+          sendRequest(cookie.value);
+        });
+    }
+  },
+);
+
 Cypress.Commands.add('logout', () => {
   // The session cookie wasn't being cleared out after doing a get request even though the Set-Cookie
   // header was present. Switching to cy.visit() fixed the problem, but it's not clear why this worked.
