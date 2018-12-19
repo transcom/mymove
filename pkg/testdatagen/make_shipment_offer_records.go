@@ -52,6 +52,8 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 
 	mustCreate(db, &shipmentOffer)
 
+	shipmentOffer.Shipment.ShipmentOffers = append(shipmentOffer.Shipment.ShipmentOffers, shipmentOffer)
+
 	return shipmentOffer
 }
 
@@ -275,7 +277,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		tspUser := tspUserList[index]
 		subShipmentList := shipmentList[count : count+split]
 		count += split
-		for _, shipment := range subShipmentList {
+		for i, shipment := range subShipmentList {
 			var offerState *bool
 			if shipment.Status != models.ShipmentStatusAWARDED {
 				offerState = models.BoolPointer(true)
@@ -291,6 +293,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			}
 			shipmentOffer := MakeShipmentOffer(db, shipmentOfferAssertions)
 			shipmentOfferList = append(shipmentOfferList, shipmentOffer)
+			shipmentList[i].ShipmentOffers = append(shipment.ShipmentOffers, shipmentOffer)
 		}
 	}
 
