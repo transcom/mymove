@@ -20,7 +20,7 @@ type StoreInvoiceSuite struct {
 	suite.Suite
 	db     *pop.Connection
 	logger *zap.Logger
-	storer storage.FileStorer // *storageTest.FakeS3Storage
+	storer storage.FileStorer
 }
 
 // SetupTest

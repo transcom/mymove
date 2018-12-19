@@ -560,8 +560,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	if resp.StatusCode == 200 {
-		// Send invoice to S3 for storage if response from gex is successful
+	// Send invoice to S3 for storage if response from GEX is successful
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		fs := h.FileStorer()
 		verrs, err := ediinvoice.StoreInvoice858C(invoice858CString, invoice.ID, &fs, h.Logger(), session.UserID)
 		if verrs.HasAny() {
