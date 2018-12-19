@@ -67,10 +67,11 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 		return tspop.NewGetTransportationServiceProviderForbidden()
 	}
 
-	// Assume that the last shipmentOffer contains the current TSP
-	// This might be a bad assumption, but TSPs can't currently reject offers
-	lastItemIndex := len(shipment.ShipmentOffers) - 1
-	transportationServiceProviderID := shipment.ShipmentOffers[lastItemIndex].TransportationServiceProviderID
+	transportationServiceProviderID, err := shipment.CurrentTransportationServiceProviderID()
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	transportationServiceProvider, err := models.FetchTransportationServiceProvider(h.DB(), transportationServiceProviderID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
