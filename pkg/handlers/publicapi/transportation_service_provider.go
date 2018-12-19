@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForTransportationServieProviderModel(t models.TransportationServiceProvider) *apimessages.TransportationServiceProvider {
+func payloadForTransportationServiceProviderModel(t models.TransportationServiceProvider) *apimessages.TransportationServiceProvider {
 	transporationServiceProviderPayload := &apimessages.TransportationServiceProvider{
 		ID:                       *handlers.FmtUUID(t.ID),
 		StandardCarrierAlphaCode: handlers.FmtString(t.StandardCarrierAlphaCode),
@@ -53,13 +53,13 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 
 		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+			handlers.ResponseForError(h.Logger(), err)
 			return tspop.NewGetTransportationServiceProviderBadRequest()
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+			handlers.ResponseForError(h.Logger(), err)
 			return tspop.NewGetTransportationServiceProviderBadRequest()
 		}
 
@@ -77,6 +77,6 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	transportationServiceProviderPayload := payloadForTransportationServieProviderModel(*transportationServiceProvider)
+	transportationServiceProviderPayload := payloadForTransportationServiceProviderModel(*transportationServiceProvider)
 	return tspop.NewGetTransportationServiceProviderOK().WithPayload(transportationServiceProviderPayload)
 }
