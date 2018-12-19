@@ -1,6 +1,7 @@
 package uploader_test
 
 import (
+	"github.com/pkg/errors"
 	"io"
 	"log"
 	"os"
@@ -126,24 +127,42 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.Nil(upload, "returned an upload when erroring")
 }
 
+func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {
+	outputFile, err := suite.fs.TempFile("/tmp/milmoves/", "TestCreateUploadS3Only")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return outputFile, nil
+}
+
 func (suite *UploaderSuite) TestCreateUploadS3Only() {
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
+	fixtureFileInfo, err := file.Stat()
+	suite.Nil(err)
 
 	// Create file and upload
 	upload, err := up.CreateUploadS3Only(document.ServiceMember.UserID, &file)
 	suite.Nil(err, "failed to create upload")
 	suite.NotNil(upload, "failed to create upload structure")
+	file.Close()
 
-	// Download file previously uploaded
-	rc, err := up.Download(upload)
+	// Download file and test size
+	download, err := up.Download(upload)
 	suite.Nil(err)
-	var buff []byte
-	num, err := rc.Read(buff)
+	defer download.Close()
+
+	outputFile, err := suite.helperNewTempFile()
 	suite.Nil(err)
-	suite.NotEqual(0, num)
+
+	written, err := io.Copy(outputFile, download)
+	suite.Nil(err)
+	suite.NotEqual(0, written)
+
+	info, err := outputFile.Stat()
+	suite.Equal(fixtureFileInfo.Size(), info.Size())
 
 	// Delete file previously uploaded
 	err = up.Storer.Delete(upload.StorageKey)

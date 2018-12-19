@@ -82,6 +82,7 @@ func StoreInvoice858C(edi string, invoiceID uuid.UUID, fs *storage.FileStorer, l
 	//aFile, err := createAFileFromLocalFile(ediFilePath, ediFilename)
 
 	var aFile = afero.NewOsFs()
+	//var fs = afero.NewMemMapFs()
 
 	pathExist, err := afero.DirExists(aFile, ediFilePath)
 	if err == nil {
