@@ -126,15 +126,14 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.Nil(upload, "returned an upload when erroring")
 }
 
-func (suite *UploaderSuite) TestCreateUploadS3OnlyFromString() {
+func (suite *UploaderSuite) TestCreateUploadS3Only() {
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
 	// Create file and upload
-	data := "Test file for TestCreateUploadS3OnlyFromString"
-	upload, err := up.CreateUploadS3OnlyFromString(document.ServiceMember.UserID, data, &file)
+	upload, err := up.CreateUploadS3Only(document.ServiceMember.UserID, &file)
 	suite.Nil(err, "failed to create upload")
 	suite.NotNil(upload, "failed to create upload structure")
 

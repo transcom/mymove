@@ -108,10 +108,10 @@ func generateS3StorageKey(userID uuid.UUID) (string, error) {
 	return storageKey, nil
 }
 
-// CreateUploadS3OnlyFromString creates a new upload (not in the model), storing the specified
+// CreateUploadS3Only creates a new upload (not in the model), storing the specified
 // file using the supplied storer (does not save Upload object to the database) containing
 // the file's metadata.
-func (u *Uploader) CreateUploadS3OnlyFromString(userID uuid.UUID, data string, aFile *afero.File) (*models.Upload, error) {
+func (u *Uploader) CreateUploadS3Only(userID uuid.UUID, aFile *afero.File) (*models.Upload, error) {
 	var responseError error
 	newUpload := &models.Upload{
 		Filename:   (*aFile).Name(),

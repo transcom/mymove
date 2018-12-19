@@ -93,24 +93,34 @@ func StoreInvoice858C(edi string, invoiceID uuid.UUID, fs *storage.FileStorer, l
 				return verrs, errors.Errorf("ERROR: Could not create dir for StoreInvoice858C dir: %s", ediFilePath)
 			}
 		}
+	} else {
+		return verrs, errors.New("Failed to create local EDI file for storage")
 	}
 
 	f, err := aFile.Create(ediTmpFile)
-	f.WriteString(edi)
+	if err != nil {
+		return verrs, errors.Wrap(err, "afero.DirExists Failed in StoreInvoice858C()")
+	}
+
+	_, err = f.WriteString(edi)
+	if err != nil {
+		return verrs, errors.Wrap(err, "f.WriteString(edi) Failed in StoreInvoice858C()")
+	}
+
 	err = f.Sync()
 	if err != nil {
 		verrs.Add(validators.GenerateKey("Sync EDI file"), err.Error())
 	}
 
 	loader := uploader.NewUploader(nil, logger, *fs)
-	_, err = loader.CreateUploadS3OnlyFromString(userID, edi, &f)
+	_, err = loader.CreateUploadS3Only(userID, &f)
 
-	// Remove temp EDI/Invoice file from local filesystem after uploading to S3
 	err = f.Close()
 	if err != nil {
 		verrs.Add(validators.GenerateKey("Close EDI file"), err.Error())
 	}
 
+	// Remove temp EDI/Invoice file from local filesystem after uploading to S3
 	err = aFile.Remove(ediTmpFile)
 	if err != nil {
 		verrs.Add(validators.GenerateKey("Remove EDI File"),
