@@ -117,7 +117,7 @@ export class Landing extends Component {
               )}
               {isHHGPPMComboMove &&
                 hasSubmitSuccess && (
-                  <Alert type="success" heading="You've added a PPM Shipment">
+                  <Alert type="success" heading="You've added a PPM shipment">
                     Next, your shipment is awaiting approval and this can take up to 3 business days
                   </Alert>
                 )}
