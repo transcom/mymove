@@ -1,6 +1,6 @@
-describe('Office user looks at the invoice tab to view unbilled line items', () => {
+describe('TSP user looks at the invoice panel to view unbilled line items', () => {
   beforeEach(() => {
-    cy.signIntoOffice();
+    cy.signIntoTSP();
   });
 
   it('there are no unbilled line items', checkNoUnbilledLineItems);
@@ -9,8 +9,8 @@ describe('Office user looks at the invoice tab to view unbilled line items', () 
 });
 
 function checkNoUnbilledLineItems() {
-  // Open the shipments tab.
-  cy.visit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
+  // Open the shipment with no unbilled line items.
+  cy.visit('/shipments/0851706a-997f-46fb-84e4-2525a444ade0');
 
   // The invoice table should be empty.
   cy
@@ -21,8 +21,8 @@ function checkNoUnbilledLineItems() {
 }
 
 function checkExistUnbilledLineItems() {
-  // Open the shipments tab.
-  cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+  // Open the shipment with unbilled line items.
+  cy.visit('shipments/67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9');
 
   // The invoice table should display the unbilled line items.
   cy

@@ -704,6 +704,42 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 	}
 }
 
+func (suite *AwardQueueSuite) Test_validateShipmentForAward() {
+	t := suite.T()
+	t.Helper()
+
+	// A default shipment, which has all valid fields on it
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	err := validateShipmentForAward(shipment)
+	suite.Nil(err)
+
+	// A shipment with a nil TDL ID
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.TrafficDistributionListID = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
+
+	// A shipment with a nil BookDate
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.BookDate = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
+
+	// A shipment with a nil RequestedPickupDate
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.RequestedPickupDate = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
+}
+
 func (suite *AwardQueueSuite) Test_waitForLock() {
 	ctx := context.Background()
 	ret := make(chan int)
