@@ -103,6 +103,11 @@ func StoreInvoice858C(edi string, invoiceID uuid.UUID, fs *storage.FileStorer, l
 	_, err = loader.CreateUploadS3OnlyFromString(userID, edi, &f)
 
 	// Remove temp EDI/Invoice file from local filesystem after uploading to S3
+	err = f.Close()
+	if err != nil {
+		verrs.Add(validators.GenerateKey("Close EDI file"), err.Error())
+	}
+
 	err = aFile.Remove(ediTmpFile)
 	if err != nil {
 		verrs.Add(validators.GenerateKey("Remove EDI File"),
