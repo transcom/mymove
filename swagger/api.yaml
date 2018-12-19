@@ -1180,6 +1180,11 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
+      transportation_service_provider_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
   TransportationServiceProvider:
     type: object
     properties:
