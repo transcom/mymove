@@ -3205,6 +3205,8 @@ paths:
           description: not authorized to send this invoice
         409:
           description: the shipment is not in a state to be invoiced
+          schema:
+            $ref: '#/definitions/Invoice'
         500:
           description: server error
   /reimbursement/{reimbursementId}/approve:
