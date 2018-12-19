@@ -816,13 +816,14 @@ func main() {
 		mutualTLSServer := server.Server{
 			// Ensure that any DoD-signed client certificate can be validated,
 			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:     dodCACertPool,
-			ClientAuthType: tls.RequireAndVerifyClientCert,
-			ListenAddress:  listenInterface,
-			HTTPHandler:    httpHandler,
-			Logger:         logger,
-			Port:           v.GetInt("mutual-tls-port"),
-			TLSCerts:       moveMilCerts,
+			CaCertPool:            dodCACertPool,
+			ClientAuthType:        tls.RequireAndVerifyClientCert,
+			ListenAddress:         listenInterface,
+			HTTPHandler:           httpHandler,
+			Logger:                logger,
+			Port:                  v.GetInt("mutual-tls-port"),
+			TLSCerts:              moveMilCerts,
+			VerifyPeerCertificate: authentication.ClientCertVerifier(dbConnection),
 		}
 		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()

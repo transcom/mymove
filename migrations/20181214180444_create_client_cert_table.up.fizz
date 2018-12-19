@@ -1,0 +1,6 @@
+create_table("client_certs") {
+    t.Column("sha256_digest", "bytea", {"primary": true})
+    t.Column("subject", "text", {})
+    t.Column("allow_dps_auth_api", "bool", {"default": false})
+    t.Column("allow_orders_api", "bool", {"default": false})
+}
