@@ -434,6 +434,7 @@ jobs:
   check_circle_against_staging_sha:
     executor: mymove_small
     steps:
+      - checkout
       - halt_workflow_if_older_sha
 
   # `deploy_staging_migrations` deploys migrations to the staging environment

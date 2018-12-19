@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import InvoiceTable from './InvoiceTable';
-import { isOfficeSite } from 'shared/constants.js';
+import { UnbilledTable } from './UnbilledTable';
 import * as CONSTANTS from 'shared/constants.js';
+import { no_op } from 'shared/utils.js';
 
-describe('InvoiceTable tests', () => {
+describe('UnbilledTable tests', () => {
   let wrapper;
   const shipmentLineItems = [
     {
@@ -30,9 +30,21 @@ describe('InvoiceTable tests', () => {
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
       wrapper = shallow(
-        <InvoiceTable shipmentLineItems={shipmentLineItems} totalAmount={10} shipmentStatus="delivered" />,
+        <UnbilledTable
+          lineItems={shipmentLineItems}
+          lineItemsTotal={10}
+          approvePayment={no_op}
+          cancelPayment={no_op}
+          allowPayments={true}
+          createInvoiceStatus={{
+            error: null,
+            isLoading: false,
+            isSuccess: false,
+          }}
+        />,
       );
-      expect(wrapper.find('table').length).toEqual(1);
+      expect(wrapper.find('InvoicePayment').length).toEqual(1);
+      expect(wrapper.find('LineItemTable').length).toEqual(1);
     });
   });
 });
