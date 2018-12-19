@@ -366,11 +366,10 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {approved &&
-                pmSurveyComplete &&
+              {pmSurveyComplete &&
                 !gblGenerated && (
                   <div>
-                    <button onClick={this.generateGBL} disabled={generateGBLInProgress}>
+                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
                       Generate the GBL
                     </button>
                   </div>
