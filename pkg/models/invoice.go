@@ -81,3 +81,10 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 
 	return &invoice, nil
 }
+
+// FetchInvoicesForShipment fetches all the invoices for a given shipment
+func FetchInvoicesForShipment(db *pop.Connection, shipmentID uuid.UUID) (Invoices, error) {
+	var invoices []Invoice
+	err := db.Where("shipment_id = ?", shipmentID).Eager("Approver").All(&invoices)
+	return invoices, err
+}
