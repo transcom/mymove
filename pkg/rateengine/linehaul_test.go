@@ -209,5 +209,6 @@ func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	fuelSurcharge, err := engine.fuelSurchargeComputation()
 	suite.Nil(err)
-	suite.Equal(0, fuelSurcharge.Int())
+	suite.Equal(unit.Cents(0), fuelSurcharge.Fee)
+	suite.Equal(unit.Millicents(0), fuelSurcharge.Rate)
 }
