@@ -12,6 +12,16 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+func payloadForInvoiceModels(a []models.Invoice) apimessages.Invoices {
+	payloads := make(apimessages.Invoices, len(a))
+
+	for i, acc := range a {
+		payloads[i] = payloadForInvoiceModel(&acc)
+	}
+
+	return payloads
+}
+
 func payloadForInvoiceModel(a *models.Invoice) *apimessages.Invoice {
 	if a == nil {
 		return nil
@@ -20,6 +30,7 @@ func payloadForInvoiceModel(a *models.Invoice) *apimessages.Invoice {
 	return &apimessages.Invoice{
 		ID:                *handlers.FmtUUID(a.ID),
 		ShipmentID:        *handlers.FmtUUID(a.ShipmentID),
+		InvoiceNumber:     a.InvoiceNumber,
 		ApproverFirstName: a.Approver.FirstName,
 		ApproverLastName:  a.Approver.LastName,
 		Status:            apimessages.InvoiceStatus(a.Status),
