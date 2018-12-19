@@ -68,6 +68,8 @@ func helperInvoice(suite *StoreInvoiceSuite) (*models.Invoice, *models.OfficeUse
 	invoice := testdatagen.MakeInvoice(suite.db, testdatagen.Assertions{
 		Invoice: models.Invoice{
 			ShipmentID: shipment.ID,
+			Approver:   officeUser,
+			ApproverID: officeUser.ID,
 		},
 	})
 
@@ -101,5 +103,8 @@ func (suite *StoreInvoiceSuite) TestStoreInvoice858C() {
 	invoice, officeUser := helperInvoice(suite)
 	invoiceString := helperExpectedEDIString(suite, "expected_invoice.edi.golden")
 	fs := suite.helperFileStorer()
-	ediinvoice.StoreInvoice858C(invoiceString, invoice.ID, &fs, suite.logger, officeUser.ID)
+	verrs, err := ediinvoice.StoreInvoice858C(invoiceString, invoice.ID, &fs, suite.logger, officeUser.ID)
+	suite.Nil(err)
+	suite.Empty(verrs.Error())
+
 }

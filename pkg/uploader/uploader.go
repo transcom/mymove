@@ -111,31 +111,37 @@ func generateS3StorageKey(userID uuid.UUID) (string, error) {
 // CreateUploadS3OnlyFromString creates a new upload (not in the model), storing the specified
 // file using the supplied storer (does not save Upload object to the database) containing
 // the file's metadata.
-func (u *Uploader) CreateUploadS3OnlyFromString(userID uuid.UUID, data string, aFile *afero.File) error {
+func (u *Uploader) CreateUploadS3OnlyFromString(userID uuid.UUID, data string, aFile *afero.File) (*models.Upload, error) {
 	var responseError error
+	newUpload := &models.Upload{
+		Filename:   (*aFile).Name(),
+		UploaderID: userID,
+	}
 
 	info, err := (*aFile).Stat()
 	if err != nil {
 		u.logger.Error("Could not get file info", zap.Error(err))
-		return err
+		return nil, err
 	}
 
 	if info.Size() == 0 {
-		return ErrZeroLengthFile
+		return nil, ErrZeroLengthFile
 	}
+	newUpload.Bytes = info.Size()
 
-	// TODO: does error checking on content type need to happen here? Do we care?
-	_, err = storage.DetectContentType(*aFile)
+	contentType, err := storage.DetectContentType(*aFile)
 	if err != nil {
 		u.logger.Error("Could not detect content type", zap.Error(err))
-		return err
+		return nil, err
 	}
+	newUpload.ContentType = contentType
 
 	checksum, err := storage.ComputeChecksum(*aFile)
 	if err != nil {
 		u.logger.Error("Could not compute checksum", zap.Error(err))
-		return err
+		return nil, err
 	}
+	newUpload.Checksum = checksum
 
 	// Push file to S3
 	// TODO: we aren't saving the storage key information, so not sure how deleting a file would
@@ -145,10 +151,11 @@ func (u *Uploader) CreateUploadS3OnlyFromString(userID uuid.UUID, data string, a
 		u.logger.Error("failed to store object", zap.Error(err))
 		responseError = errors.Wrap(err, "failed to store object")
 	}
+	newUpload.StorageKey = storageKey
 
 	u.logger.Info("created an upload to S3 (not stored in datasbase) with key ", zap.String("key", storageKey))
 
-	return responseError
+	return newUpload, responseError
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.

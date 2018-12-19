@@ -132,11 +132,21 @@ func (suite *UploaderSuite) TestCreateUploadS3OnlyFromString() {
 	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
+	// Create file and upload
 	data := "Test file for TestCreateUploadS3OnlyFromString"
-	err := up.CreateUploadS3OnlyFromString(document.ServiceMember.UserID, data, &file)
-
+	upload, err := up.CreateUploadS3OnlyFromString(document.ServiceMember.UserID, data, &file)
 	suite.Nil(err, "failed to create upload")
-	//suite.False(verrs.HasAny(), "failed to validate upload", verrs)
-	//suite.Equal(upload.ContentType, "application/pdf")
-	//suite.Equal(upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
+	suite.NotNil(upload, "failed to create upload structure")
+
+	// Download file previously uploaded
+	rc, err := up.Download(upload)
+	suite.Nil(err)
+	var buff []byte
+	num, err := rc.Read(buff)
+	suite.Nil(err)
+	suite.NotEqual(0, num)
+
+	// Delete file previously uploaded
+	err = up.Storer.Delete(upload.StorageKey)
+	suite.Nil(err)
 }
