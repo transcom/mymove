@@ -60,29 +60,89 @@ describe('Invoice Payment Component tests', () => {
     });
   });
   describe('When invoice has already been approved by another user', () => {
-    it('renders warning letting user know that invoice is already in process', () => {
-      wrapper = shallow(
-        <InvoicePayment
-          approvePayment={confirm}
-          cancelPayment={cancel}
-          allowPayments={false}
-          createInvoiceStatus={{
-            error: {
-              response: {
-                status: 409,
+    describe('and successfully processed', () => {
+      it('renders warning letting user know that invoice is already in process', () => {
+        wrapper = shallow(
+          <InvoicePayment
+            approvePayment={confirm}
+            cancelPayment={cancel}
+            allowPayments={false}
+            createInvoiceStatus={{
+              error: {
                 response: {
-                  body: {
-                    message: 'invoice is processing or already processed for this shipment',
+                  status: 409,
+                  response: {
+                    body: {
+                      status: 'SUBMITTED',
+                      approver_first_name: 'Leo',
+                      approver_last_name: 'Spaceman',
+                    },
                   },
                 },
               },
-            },
-          }}
-        />,
-      );
-      expect(wrapper.find('.warning--header').text()).toEqual(
-        'Invoice already processing, please reload page for updated information.',
-      );
+            }}
+          />,
+        );
+        expect(wrapper.find('.warning--header').text()).toEqual(
+          'Counselor Leo Spaceman already approved this invoice.',
+        );
+      });
+    });
+    describe('and is in draft', () => {
+      it('renders warning letting user know that invoice is already in process', () => {
+        wrapper = shallow(
+          <InvoicePayment
+            approvePayment={confirm}
+            cancelPayment={cancel}
+            allowPayments={false}
+            createInvoiceStatus={{
+              error: {
+                response: {
+                  status: 409,
+                  response: {
+                    body: {
+                      status: 'DRAFT',
+                      approver_first_name: 'Leo',
+                      approver_last_name: 'Spaceman',
+                    },
+                  },
+                },
+              },
+            }}
+          />,
+        );
+        expect(wrapper.find('.warning--header').text()).toEqual(
+          'Counselor Leo Spaceman already submitted this invoice. Please reload your screen to see updated information.',
+        );
+      });
+    });
+    describe('and is in process', () => {
+      it('renders warning letting user know that invoice is already in process', () => {
+        wrapper = shallow(
+          <InvoicePayment
+            approvePayment={confirm}
+            cancelPayment={cancel}
+            allowPayments={false}
+            createInvoiceStatus={{
+              error: {
+                response: {
+                  status: 409,
+                  response: {
+                    body: {
+                      status: 'IN_PROCESS',
+                      approver_first_name: 'Leo',
+                      approver_last_name: 'Spaceman',
+                    },
+                  },
+                },
+              },
+            }}
+          />,
+        );
+        expect(wrapper.find('.warning--header').text()).toEqual(
+          'Counselor Leo Spaceman already submitted this invoice. Please reload your screen to see updated information.',
+        );
+      });
     });
   });
   describe('When invoice status is approved', () => {

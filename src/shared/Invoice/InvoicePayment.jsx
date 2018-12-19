@@ -30,8 +30,7 @@ class InvoicePayment extends PureComponent {
   render() {
     let paymentAlert;
     const status = this.props.createInvoiceStatus;
-    const allowPayments = true;
-    //const allowPayments = this.props.allowPayments && !status.isLoading;
+    const allowPayments = this.props.allowPayments && !status.isLoading;
 
     let header = (
       <div className="invoice-panel-header-cont">
@@ -65,13 +64,26 @@ class InvoicePayment extends PureComponent {
     if (status.error) {
       //handle 409 status: shipment invoice already processed
       let httpResCode = get(status, 'error.response.status');
-      let errMessage = get(status, 'error.response.response.body.message');
-      if (httpResCode === 409 && errMessage === 'invoice is processing or already processed for this shipment') {
+      let invoiceStatus = get(status, 'error.response.response.body.status');
+      let aproverFirstName = get(status, 'error.response.response.body.approver_first_name');
+      let aproverLastName = get(status, 'error.response.response.body.approver_last_name');
+      if (httpResCode === 409 && invoiceStatus === 'SUBMITTED') {
         paymentAlert = (
           <div>
             <Alert type="success" heading="Success!">
               <span className="warning--header">
-                Invoice already processing, please reload page for updated information.
+                Counselor {aproverFirstName} {aproverLastName} already approved this invoice.
+              </span>
+            </Alert>
+          </div>
+        );
+      } else if (httpResCode === 409 && (invoiceStatus === 'IN_PROCESS' || invoiceStatus === 'DRAFT')) {
+        paymentAlert = (
+          <div>
+            <Alert type="success" heading="Success!">
+              <span className="warning--header">
+                Counselor {aproverFirstName} {aproverLastName} already submitted this invoice. Please reload your screen
+                to see updated information.
               </span>
             </Alert>
           </div>
