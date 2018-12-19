@@ -14,7 +14,4 @@ export function getTspForShipment(label, shipmentId) {
 
 // Selectors
 
-export function selectTspForShipment(state, shipmentId) {
-  const tsp = Object.values(state.entities.transportationServiceProviders).find(tsp => tsp.shipment_id === shipmentId);
-  return tsp || {};
-}
+export const selectTspById = (state, tspId) => state.entities.transportationServiceProviders[tspId] || {}; // eslint-disable-line security/detect-object-injection
