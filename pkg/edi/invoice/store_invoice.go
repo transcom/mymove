@@ -98,6 +98,9 @@ func StoreInvoice858C(edi string, invoiceID uuid.UUID, fs *storage.FileStorer, l
 	f, err := aFile.Create(ediTmpFile)
 	f.WriteString(edi)
 	err = f.Sync()
+	if err != nil {
+		verrs.Add(validators.GenerateKey("Sync EDI file"), err.Error())
+	}
 
 	loader := uploader.NewUploader(nil, logger, *fs)
 	_, err = loader.CreateUploadS3OnlyFromString(userID, edi, &f)
