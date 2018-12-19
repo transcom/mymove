@@ -13,6 +13,7 @@ const defaultFlags = {
   hhg: true,
   hhgAndPpm: true,
   documentViewer: true,
+  allowHhgInvoicePayment: true,
 };
 
 const environmentFlags = {
@@ -26,6 +27,7 @@ const environmentFlags = {
 
   production: Object.assign({}, defaultFlags, {
     hhgAndPpm: false,
+    allowHhgInvoicePayment: false,
   }),
 };
 

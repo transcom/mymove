@@ -65,7 +65,7 @@ func FmtDateSlice(dates []time.Time) []strfmt.Date {
 
 // FmtDatePtr converts pop type to go-swagger type
 func FmtDatePtr(date *time.Time) *strfmt.Date {
-	if date == nil {
+	if date == nil || date.IsZero() {
 		return nil
 	}
 	return (*strfmt.Date)(date)

@@ -75,9 +75,14 @@ export const moveDocumentPayload = moveDocument;
 export const tariff400ngItem = new schema.Entity('tariff400ngItems');
 export const tariff400ngItems = new schema.Array(tariff400ngItem);
 
+// Invoice
+export const invoice = new schema.Entity('invoices');
+export const invoices = new schema.Array(invoice);
+
 // ShipmentLineItem
 export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
   tariff400ng_item: tariff400ngItem,
+  invoice: invoice,
 });
 export const shipmentLineItems = new schema.Array(shipmentLineItem);
 
