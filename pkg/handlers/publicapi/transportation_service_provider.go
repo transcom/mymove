@@ -67,8 +67,8 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 		return tspop.NewGetTransportationServiceProviderForbidden()
 	}
 
-	transportationServiceProviderID, err := shipment.CurrentTransportationServiceProviderID()
-	if err != nil {
+	transportationServiceProviderID := shipment.CurrentTransportationServiceProviderID()
+	if &transportationServiceProviderID == nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
