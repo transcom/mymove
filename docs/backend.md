@@ -22,6 +22,7 @@
   * [Learning](#learning)
   * [Testing](#testing)
     * [General](#general)
+    * [Coverage](#coverage)
     * [Models](#models)
     * [Miscellaneous Tips](#miscellaneous-tips)
 * [Environment settings](#environment-settings)
@@ -304,6 +305,12 @@ Knowing what deserves a test and what doesn’t can be tricky, especially early 
 
 * Use table-driven tests where appropriate.
 * Make judicious use of helper functions so that the intent of a test is not lost in a sea of error checking and boilerplate. Use [`t.Helper()`](https://golang.org/pkg/testing/#T.Helper) in your test helper functions to keep stack traces clean.
+
+#### Coverage
+
+Always test exported functions.
+Exported functions should be treated as an API layer for other packages.
+Cover the expected behavior and error scenarios as a user of that API.
 
 #### Models
 
