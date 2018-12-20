@@ -11,7 +11,7 @@ $ make e2e_test
 If you instead would like to run the tests in the console, use the following command:
 
 ```console
-$ make e2e_test_ci
+$ make e2e_test_docker
 ```
 
 ## Run Specific Tests
