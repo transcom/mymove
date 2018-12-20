@@ -128,7 +128,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 }
 
 func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {
-	outputFile, err := suite.fs.TempFile("/tmp/milmoves/", "TestCreateUploadS3Only")
+	outputFile, err := suite.fs.TempFile("/tmp/milmoves/", "TestCreateUploadNoDocument")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

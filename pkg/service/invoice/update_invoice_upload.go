@@ -1,11 +1,11 @@
 package invoice
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -26,7 +26,7 @@ func (u UpdateInvoiceUpload) deleteUpload(upload *models.Upload) error {
 			var logString string
 			if err != nil {
 				logString = fmt.Sprintf("Failed to DeleteUpload for Upload.ID [%s] and StorageKey [%s]", upload.ID, upload.StorageKey)
-				return errors.New(logString)
+				return errors.Wrap(err, logString)
 			}
 		}
 	}
@@ -36,6 +36,12 @@ func (u UpdateInvoiceUpload) deleteUpload(upload *models.Upload) error {
 // Call updates the Invoice Upload and removes an old Upload if present
 func (u UpdateInvoiceUpload) Call(invoice *models.Invoice, upload *models.Upload) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
+	if upload == nil {
+		return verrs, errors.New("upload is nil")
+	}
+	if invoice == nil {
+		return verrs, errors.New("invoice is nil")
+	}
 	var err error
 	transactionErr := u.DB.Transaction(func(connection *pop.Connection) error {
 		err = u.deleteUpload(invoice.Upload)
@@ -50,6 +56,7 @@ func (u UpdateInvoiceUpload) Call(invoice *models.Invoice, upload *models.Upload
 		// https://gobuffalo.io/en/docs/db/relations#eager-creation
 		// verrs, err := c.db.Eager().ValidateAndSave(&invoice)
 		verrs2, err := u.DB.ValidateAndSave(invoice)
+		verrs.Append(verrs2)
 		if err != nil || verrs2.HasAny() {
 			return errors.New("error saving invoice")
 		}
