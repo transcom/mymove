@@ -38,7 +38,7 @@ export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
 
 export const TransportationServiceProviderDisplay = ({ tsp }) => {
   const { name, standard_carrier_alpha_code, poc_general_email, poc_general_phone } = tsp;
-  const nameWithScac = `${name} (${standard_carrier_alpha_code})`;
+  const nameWithScac = name ? `${name} (${standard_carrier_alpha_code})` : '';
   return (
     <div className="editable-panel-3-column">
       <span className="column-subhead">TSP</span>

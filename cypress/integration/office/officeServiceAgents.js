@@ -13,23 +13,34 @@ describe('office user can view service agents', function() {
   });
 
   it('office user opens and cancels service agent panel', function() {
-    officeUserEntersServiceAgents();
+    officeUserOpensHhgPanelForMove('LRKREK');
+    officeUserVerifiesServiceAgent();
+    officeUserEditsServiceAgentPanel();
     userCancelsServiceAgent();
   });
 
   it('office user views and edits service agent panels', function() {
-    officeUserEntersServiceAgents();
-    userVerifiesTspAssigned();
+    officeUserOpensHhgPanelForMove('LRKREK');
+    officeUserVerifiesServiceAgent();
+    officeUserEditsServiceAgentPanel();
+    officeUserSeesBlankTspData();
     userClearsServiceAgent('Origin');
     userInputsServiceAgent('OriginUpdate');
     userClearsServiceAgent('Destination');
     userInputsServiceAgent('DestinationUpdate');
     userSavesServiceAgent('OriginUpdate');
+    officeUserSeesBlankTspData();
+  });
+
+  it('office user views tsp for awarded move', function() {
+    officeUserOpensHhgPanelForMove('BACON1');
+    userVerifiesTspAssigned();
+    officeUserEditsServiceAgentPanel();
     userVerifiesTspAssigned();
   });
 });
 
-function officeUserEntersServiceAgents() {
+function officeUserOpensHhgPanelForMove(moveLocator) {
   // Open all moves queue
   cy.visit('/queues/all');
   cy.location().should(loc => {
@@ -39,7 +50,7 @@ function officeUserEntersServiceAgents() {
   // Find move and open it
   cy
     .get('div')
-    .contains('LRKREK')
+    .contains(moveLocator)
     .dblclick();
 
   cy.location().should(loc => {
@@ -54,14 +65,42 @@ function officeUserEntersServiceAgents() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
+}
 
+function officeUserVerifiesServiceAgent() {
   // Verify that the Service Agent Panel contains expected data
   cy.get('span').contains('ACME Movers');
+}
 
+function officeUserEditsServiceAgentPanel() {
   // Click on edit Service Agent
   cy
     .get('.editable-panel-header')
     .contains('TSP & Servicing Agents')
     .siblings()
     .click();
+}
+
+function officeUserSeesBlankTspData() {
+  const tspFields = cy
+    .get('.editable-panel-3-column')
+    .contains('TSP')
+    .parent()
+    .within(() => {
+      cy
+        .get('.panel-field')
+        .contains('Name')
+        .parent()
+        .should('not.contain', 'undefined');
+      cy
+        .get('.panel-field')
+        .contains('Email')
+        .parent()
+        .should('not.contain', 'undefined');
+      cy
+        .get('.panel-field')
+        .contains('Phone number')
+        .parent()
+        .should('not.contain', 'undefined');
+    });
 }
