@@ -115,6 +115,7 @@ const HHGTabContent = props => {
         title="TSP & Servicing Agents"
         shipment={props.officeShipment}
         serviceAgents={props.serviceAgents}
+        transportationServiceProviderId={props.shipment.transportation_service_provider_id}
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
       {has(props, 'officeShipment.id') && (

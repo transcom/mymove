@@ -426,6 +426,7 @@ class ShipmentInfo extends Component {
                     title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
+                    transportationServiceProviderId={this.props.shipment.transportation_service_provider_id}
                   />
                 </div>
               )}
