@@ -42,6 +42,17 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
+  add_hosts:
+    steps:
+      - run:
+          name: Add milmovelocal to /etc/hosts
+          command: sudo echo "127.0.0.1 milmovelocal" >> /etc/hosts
+      - run:
+          name: Add officelocal to /etc/hosts
+          command: sudo echo "127.0.0.1 officelocal" >> /etc/hosts
+      - run:
+          name: Add tsplocal to /etc/hosts
+          command: sudo echo "127.0.0.1 tsplocal" >> /etc/hosts
   halt_workflow_if_older_sha:
     steps:
       - run:
@@ -202,6 +213,7 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
+      - add_hosts
       - restore_cache:
           keys:
             - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
@@ -245,6 +257,7 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
+      - add_hosts
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -272,6 +285,7 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
+      - add_hosts
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -299,6 +313,7 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
+      - add_hosts
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -328,6 +343,7 @@ jobs:
     executor: mymove_and_postgres_medium
     steps:
       - checkout
+      - add_hosts
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -364,6 +380,7 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
+      - add_hosts
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -380,6 +397,7 @@ jobs:
     executor: mymove_small
     steps:
       - checkout
+      - add_hosts
       - restore_cache:
           keys:
             - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
@@ -394,6 +412,7 @@ jobs:
     executor: mymove_and_postgres_medium
     steps:
       - checkout
+      - add_hosts
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -422,6 +441,7 @@ jobs:
     executor: mymove_small
     steps:
       - checkout
+      - add_hosts
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -529,6 +549,7 @@ jobs:
     executor: mymove_small
     steps:
       - checkout
+      - add_hosts
       - restore_cache:
           keys:
             - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
