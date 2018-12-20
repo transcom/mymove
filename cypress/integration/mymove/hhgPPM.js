@@ -464,6 +464,11 @@ function serviceMemberViewsUpdatedHomePage() {
     expect(loc.pathname).to.eq('/');
   });
 
+  cy.get('.usa-alert-success').contains("You've added a PPM shipment");
+  cy
+    .get('.usa-alert-success')
+    .contains('Next, your shipment is awaiting approval and this can take up to 3 business days');
+
   cy.get('body').should($div => {
     expect($div.text()).to.include('Government Movers and Packers');
     expect($div.text()).to.include('Move your own stuff');
