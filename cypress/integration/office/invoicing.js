@@ -6,6 +6,8 @@ describe('Office user looks at the invoice tab to view unbilled line items', () 
   it('there are no unbilled line items', checkNoUnbilledLineItems);
 
   it('there are unbilled line items', checkExistUnbilledLineItems);
+
+  it('there are unbilled line items with an approve button', checkApproveButton);
 });
 
 function checkNoUnbilledLineItems() {
@@ -43,4 +45,12 @@ function checkExistUnbilledLineItems() {
           cy.wrap(cell).should('not.have.text', '');
         });
     });
+}
+
+function checkApproveButton() {
+  // Open the shipments tab.
+  cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+
+  // The invoice tab should have a button with the correct text.
+  cy.get('.invoice-panel-header-cont button').should('have.text', 'Approve Payment');
 }
