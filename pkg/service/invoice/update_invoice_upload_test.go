@@ -49,68 +49,41 @@ func (suite *InvoiceServiceSuite) fixture(name string) afero.File {
 	}
 
 	fixturePath := path.Join(cwd, fixtureDir, name)
-	fmt.Printf("Fixture path: %s ************\n", fixturePath)
 	file, err := suite.openLocalFile(fixturePath)
 
 	if err != nil {
 		suite.T().Fatalf("failed to create a fixture file: %s", err)
 	}
+	// Caller should call close on file when finished
 	return file
 }
 
-func (suite *InvoiceServiceSuite) helperCreateUpload2(storer *storage.FileStorer) *models.Upload {
+func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
 	document := testdatagen.MakeDefaultDocument(suite.db)
 	userID := document.ServiceMember.UserID
-	//storer := suite.helperCreateFileStorer()
-
 	up := uploader.NewUploader(suite.db, suite.logger, *storer)
 
-	fmt.Printf("fixture(test.pdf)\n")
+	// Create file to use for upload
 	file := suite.fixture("test.pdf")
-	suite.NotNil(file)
-	fmt.Printf("file.Stat()\n")
+	if file == nil {
+		suite.T().Fatal("test.pdf is missing")
+	}
 	_, err := file.Stat()
-	suite.Nil(err)
+	if err != nil {
+		suite.T().Fatalf("file.Stat() err: %s", err.Error())
+	}
 
-	// Create file and upload
-	fmt.Printf("up.CreateUploadNoDocument(userID, &file)\n")
+	// Create Upload and save it
 	upload, verrs, err := up.CreateUploadNoDocument(userID, &file)
-	suite.Nil(err, "failed to create upload")
-	suite.Empty(verrs.Error(), "verrs returned error")
-	suite.NotNil(upload, "failed to create upload structure")
+	suite.Nil(err, "CreateUploadNoDocument() failed to create upload")
+	suite.Empty(verrs.Error(), "CreateUploadNoDocument() verrs returned error")
+	suite.NotNil(upload, "CreateUploadNoDocument() failed to create upload structure")
 	if upload == nil {
 		suite.T().Fatalf("failed to create a upload object: %s", err)
 	}
-	fmt.Printf("file.Close()\n")
 	// Call Close on file after CreateUpload is complete
 	file.Close()
-	fmt.Printf("return upload\n")
 	return upload
-}
-
-func (suite *InvoiceServiceSuite) helperCreateUpload() *models.Upload {
-	document := testdatagen.MakeDefaultDocument(suite.db)
-
-	upload := models.Upload{
-		DocumentID:  nil, // For Invoice storage, do not need a Document ID
-		UploaderID:  document.ServiceMember.UserID,
-		Filename:    "1234567890987654321.edi",
-		Bytes:       1048576,
-		ContentType: "text/plain; charset=utf-8",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-	}
-
-	verrs, err := suite.db.ValidateAndSave(&upload)
-
-	if err != nil {
-		suite.T().Errorf("could not save Upload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		suite.T().Errorf("did not expect validation errors: %v", verrs)
-	}
-
-	return &upload
 }
 
 func (suite *InvoiceServiceSuite) helperCreateInvoice() *models.Invoice {
@@ -152,13 +125,28 @@ func (suite *InvoiceServiceSuite) helperFetchInvoice(invoiceID uuid.UUID) (*mode
 	var invoice models.Invoice
 	err := suite.db.Eager().Find(&invoice, invoiceID)
 	if err != nil {
+		fmt.Print(err.Error())
 		if errors.Cause(err).Error() == "sql: no rows in result set" {
 			return nil, errors.New("Record not found")
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
+
 	return &invoice, nil
+}
+
+func (suite *InvoiceServiceSuite) mustSave(model interface{}) {
+	t := suite.T()
+	t.Helper()
+
+	verrs, err := suite.db.ValidateAndSave(model)
+	if err != nil {
+		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
+	}
+	if verrs.HasAny() {
+		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
+	}
 }
 
 // TestUpdateInvoiceUploadCall Test the Service UpdateInvoiceUpload{}.Call() function
@@ -166,24 +154,35 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	storer := suite.helperCreateFileStorer()
 	invoice := suite.helperCreateInvoice()
 	suite.NotNil(invoice)
-	upload := suite.helperCreateUpload2(storer)
+	upload := suite.helperCreateUpload(storer)
 	suite.NotNil(upload)
-	fmt.Printf("Upload %+v\n", upload)
-	fmt.Printf("Upload.ID %s\n", upload.ID.String())
-	fmt.Printf("suite.helperCreateFileStorer()\n")
 
-	fmt.Printf("uploader.NewUploader(suite.db, suite.logger, *storer)\n")
 	up := uploader.NewUploader(suite.db, suite.logger, *storer)
 
-	fmt.Printf("UpdateInvoiceUpload{DB: suite.db, Uploader: up}.Call\n")
 	// Add first upload to invoice
 	verrs, err := UpdateInvoiceUpload{DB: suite.db, Uploader: up}.Call(invoice, upload)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
+	suite.Equal(upload.ID, *invoice.UploadID)
 
 	// Add second upload to invoice -- will force delete of previous upload
-	upload = suite.helperCreateUpload2(storer)
+	upload = suite.helperCreateUpload(storer)
+	suite.NotNil(upload)
 	verrs, err = UpdateInvoiceUpload{DB: suite.db, Uploader: up}.Call(invoice, upload)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
+	suite.Equal(upload.ID, *invoice.UploadID)
+
+	/*
+		// call save on invoice
+		suite.mustSave(invoice)
+
+		// Fetch Invoice from database and compare Upload IDs
+		fetchInvoice, err := suite.helperFetchInvoice(invoice.ID)
+		suite.Nil(err)
+		suite.NotNil(fetchInvoice)
+		suite.NotNil(fetchInvoice.UploadID)
+		suite.NotNil(fetchInvoice.Upload)
+		//suite.Equal(upload.ID, *(fetchInvoice).UploadID)
+	*/
 }

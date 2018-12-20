@@ -68,7 +68,7 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 	}
 
 	if err != nil {
-		logger.Error("Errors encountered for storStoreInvoice858CeEDI():",
+		logger.Error("Errors encountered for StoreInvoice858CeEDI():",
 			zap.Any("err", err.Error()))
 	}
 
