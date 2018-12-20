@@ -21,6 +21,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -131,7 +132,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 
-	flag.String("http-my-server-name", "localhost", "Hostname according to environment.")
+	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
@@ -339,6 +340,14 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 		return nil, err
 	}
 
+	// Check the connection
+	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	err = db.Ping()
+	if err != nil {
+		logger.Warn("Failed to ping DB connection", zap.Error(err))
+		return connection, err
+	}
+
 	// Return the open connection
 	return connection, nil
 }
@@ -447,7 +456,14 @@ func main() {
 	// Create a connection to the DB
 	dbConnection, err := initDatabase(v, logger)
 	if err != nil {
-		logger.Fatal("Connecting to DB", zap.Error(err))
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Connecting to DB", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up but we
+			// can proceed (this avoids a failure loop when deploying containers).
+			logger.Warn("Starting server without DB connection")
+		}
 	}
 
 	myHostname := v.GetString("http-my-server-name")
