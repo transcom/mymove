@@ -36,10 +36,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
 		// associations
-		TrafficDistributionList:         payloadForTrafficDistributionListModel(s.TrafficDistributionList),
-		ServiceMember:                   payloadForServiceMemberModel(&s.ServiceMember),
-		Move:                            payloadForMoveModel(&s.Move),
-		TransportationServiceProviderID: *handlers.FmtUUID(s.CurrentTransportationServiceProviderID()),
+		TrafficDistributionList: payloadForTrafficDistributionListModel(s.TrafficDistributionList),
+		ServiceMember:           payloadForServiceMemberModel(&s.ServiceMember),
+		Move:                    payloadForMoveModel(&s.Move),
 
 		// dates
 		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
@@ -82,6 +81,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+	}
+	tspID := s.CurrentTransportationServiceProviderID()
+	if tspID != uuid.Nil {
+		shipmentpayload.TransportationServiceProviderID = *handlers.FmtUUID(tspID)
 	}
 	return shipmentpayload
 }

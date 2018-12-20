@@ -20,6 +20,28 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
+func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsNotPresent() {
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	shipmentPayload := payloadForShipmentModel(shipment)
+	suite.Equal(shipmentPayload.TransportationServiceProviderID, strfmt.UUID(""))
+}
+
+func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsPresent() {
+	tsp := testdatagen.MakeTSP(suite.TestDB(), testdatagen.Assertions{})
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	testdatagen.MakeShipmentOffer(suite.TestDB(), testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tsp.ID,
+			ShipmentID:                      shipment.ID,
+		},
+	})
+	reloadShipment, _ := models.FetchShipmentByTSP(suite.TestDB(), tsp.ID, shipment.ID)
+
+	shipmentPayload := payloadForShipmentModel(*reloadShipment)
+	expectedTspID := *handlers.FmtUUID(tsp.ID)
+	suite.Equal(shipmentPayload.TransportationServiceProviderID, expectedTspID)
+}
+
 func (suite *HandlerSuite) TestGetShipmentHandler() {
 	numTspUsers := 1
 	numShipments := 1
