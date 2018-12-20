@@ -8,6 +8,8 @@ describe('The document viewer', function() {
   });
 
   it('has a new document links', () => {
+    cy.visit('/');
+
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/queues\/new/);
     });

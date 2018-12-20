@@ -64,6 +64,12 @@ Cypress.Commands.add('signInAsUser', (userId, navigateHome = true) => {
     });
 });
 
+// Reloads the page but makes an attempt to wait for the loading screen to disappear
+Cypress.Commands.add('patientReload', () => {
+  cy.reload();
+  cy.get('h2[data-name="loading-placeholder"]').should('not.exist', { timeout: 10000 });
+});
+
 Cypress.Commands.add('logout', () => {
   cy
     .request('/auth/logout')
