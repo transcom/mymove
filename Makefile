@@ -32,15 +32,19 @@ ensure_pre_commit: .git/hooks/pre-commit
 prereqs: .prereqs.stamp
 .prereqs.stamp: bin/prereqs
 	bin/prereqs
-	bin/check-hosts-file
 	touch .prereqs.stamp
+
+check_hosts: .check_hosts.stamp
+.check_hosts.stamp: bin/check-hosts-file
+	bin/check-hosts-file
+	touch .check_hosts.stamp
 
 go_version: .go_version.stamp
 .go_version.stamp: bin/check_go_version
 	bin/check_go_version
 	touch .go_version.stamp
 
-deps: prereqs ensure_pre_commit client_deps server_deps
+deps: prereqs check_hosts ensure_pre_commit client_deps server_deps
 test: client_test server_test e2e_test
 
 spellcheck:
@@ -52,7 +56,7 @@ spellcheck:
 
 client_deps_update:
 	yarn upgrade
-client_deps: .client_deps.stamp
+client_deps: check_hosts .client_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
 	bin/copy_swagger_ui.sh
@@ -82,7 +86,7 @@ go_deps: go_version .go_deps.stamp
 	bin/check_gopath.sh
 	dep ensure -vendor-only
 
-server_deps: go_deps .server_deps.stamp
+server_deps: check_hosts go_deps .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
@@ -332,7 +336,7 @@ clean:
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf $$GOPATH/pkg/dep/sources
 
-.PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
+.PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
 .PHONY: server_run_standalone server_run server_run_default server_test
 .PHONY: go_deps_update server_go_bindata
 .PHONY: server_generate server_deps server_build
