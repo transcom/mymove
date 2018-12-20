@@ -74,25 +74,25 @@
   },
   "proxy": {
     "/api": {
-      "target": "http://localhost:8080"
+      "target": "http://milmovelocal:8080"
     },
     "/internal": {
-      "target": "http://localhost:8080"
+      "target": "http://milmovelocal:8080"
     },
     "/storage": {
-      "target": "http://localhost:8080"
+      "target": "http://milmovelocal:8080"
     },
     "/auth": {
-      "target": "http://localhost:8080"
+      "target": "http://milmovelocal:8080"
     },
     "/devlocal-auth": {
-      "target": "http://localhost:8080"
+      "target": "http://milmovelocal:8080"
     },
     "/logout": {
-      "target": "http://localhost:8080"
+      "target": "http://milmovelocal:8080"
     },
     "/downloads": {
-      "target": "http://localhost:8080"
+      "target": "http://milmovelocal:8080"
     }
   },
   "version": "0.1.0",
