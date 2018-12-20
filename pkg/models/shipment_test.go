@@ -191,7 +191,7 @@ func (suite *ModelSuite) TestCurrentTransportationServiceProviderID() {
 	// CurrentTransportationServiceProviderID looks at the shipment offers on a shipment
 	// Since it doesn't re-fetch the shipment, if the offers have changed
 	// We need to re-fetch the shipment to reload the offers
-	reloadShipment, err := models.FetchShipmentByTSP(suite.TestDB(), tsp.ID, shipment.ID)
+	reloadShipment, err := FetchShipmentByTSP(suite.db, tsp.ID, shipment.ID)
 	suite.Nil(err)
 	suite.Equal(tsp.ID, reloadShipment.CurrentTransportationServiceProviderID(), "expected ids to be equal")
 }
