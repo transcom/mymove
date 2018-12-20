@@ -1,4 +1,5 @@
 import * as mime from 'mime-types';
+import { milmoveAppName, officeAppName, tspAppName } from './constants';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -39,15 +40,15 @@ Cypress.Commands.add('signInAsNewUser', () => {
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  Cypress.config('baseUrl', 'http://milmovelocal:4000');
+  cy.setupBaseUrl(milmoveAppName);
   cy.signInAsUser(userId);
 });
 Cypress.Commands.add('signIntoOffice', () => {
-  Cypress.config('baseUrl', 'http://officelocal:4000');
+  cy.setupBaseUrl(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
 });
 Cypress.Commands.add('signIntoTSP', () => {
-  Cypress.config('baseUrl', 'http://tsplocal:4000');
+  cy.setupBaseUrl(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 Cypress.Commands.add('signInAsUser', userId => {
@@ -72,19 +73,7 @@ Cypress.Commands.add(
     sendMaskedGorillaCSRF = true,
   ) => {
     // setup baseurl
-    switch (signInAs.toLowerCase()) {
-      case 'mymove':
-        Cypress.config('baseUrl', 'http://localhost:4000');
-        break;
-      case 'office':
-        Cypress.config('baseUrl', 'http://officelocal:4000');
-        break;
-      case 'tsp':
-        Cypress.config('baseUrl', 'http://tsplocal:4000');
-        break;
-      default:
-        break;
-    }
+    cy.setupBaseUrl(signInAs);
 
     // request use to log in
     let sendRequest = maskedCSRFToken => {
@@ -199,4 +188,21 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
         return cy.get(selector).trigger('drop', event);
       });
   });
+});
+
+Cypress.Commands.add('setupBaseUrl', appname => {
+  // setup baseurl
+  switch (appname) {
+    case milmoveAppName:
+      Cypress.config('baseUrl', 'http://milmovelocal:4000');
+      break;
+    case officeAppName:
+      Cypress.config('baseUrl', 'http://officelocal:4000');
+      break;
+    case tspAppName:
+      Cypress.config('baseUrl', 'http://tsplocal:4000');
+      break;
+    default:
+      break;
+  }
 });
