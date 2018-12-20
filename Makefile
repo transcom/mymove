@@ -36,7 +36,11 @@ prereqs: .prereqs.stamp
 
 check_hosts: .check_hosts.stamp
 .check_hosts.stamp: bin/check-hosts-file
+ifndef CIRCLECI
 	bin/check-hosts-file
+else
+	@echo "Relying on CircleCI's test database setup."
+endif
 	touch .check_hosts.stamp
 
 go_version: .go_version.stamp
