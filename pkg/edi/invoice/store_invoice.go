@@ -1,11 +1,14 @@
 package ediinvoice
 
 import (
+	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/transcom/mymove/pkg/models"
+	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
@@ -13,12 +16,13 @@ import (
 )
 
 // StoreInvoice858C stores the EDI/Invoice to S3
-func StoreInvoice858C(edi string, invoiceID uuid.UUID, storer *storage.FileStorer, logger *zap.Logger, userID uuid.UUID) (*validate.Errors, error) {
+func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileStorer,
+	logger *zap.Logger, userID uuid.UUID, db *pop.Connection) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
 
 	// Create path for EDI file
 	// {application-bucket}/app/invoice/{invoice_id}.edi
-	ediFilename := invoiceID.String() + ".edi"
+	ediFilename := invoice.ID.String() + ".edi"
 	ediFilePath := "/app/invoice/"
 	ediTmpFile := ediFilePath + ediFilename
 
@@ -37,11 +41,26 @@ func StoreInvoice858C(edi string, invoiceID uuid.UUID, storer *storage.FileStore
 
 	err = f.Sync()
 	if err != nil {
-		verrs.Add(validators.GenerateKey("Sync EDI file"), err.Error())
+		verrs.Add(validators.GenerateKey("Sync EDI file Failed"), err.Error())
 	}
 
-	loader := uploader.NewUploader(nil, logger, *storer)
-	_, err = loader.CreateUploadS3Only(userID, &f)
+	loader := uploader.NewUploader(db, logger, *storer)
+	upload, verrs2, err := loader.CreateUploadNoDocument(userID, &f)
+	verrs.Append(verrs2)
+	if err != nil {
+		return verrs, errors.Wrap(err, "Failed to Create Upload for StoreInvoice858C()")
+	}
+
+	if upload == nil {
+		return verrs, errors.New("Failed to Create and Save new Upload object in database")
+	}
+
+	// Save Upload to Invoice
+	verrs2, err = invoiceop.UpdateInvoiceUpload{DB: db, Uploader: loader}.Call(invoice, upload)
+	verrs.Append(verrs2)
+	if err != nil {
+		return verrs, errors.New("Failed to save Upload to Invoice")
+	}
 
 	if verrs.HasAny() {
 		logger.Error("Errors encountered for StoreInvoice858C():",

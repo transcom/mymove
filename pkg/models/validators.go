@@ -127,7 +127,7 @@ func NewAllowedFileTypeValidator(field string, name string) *AllowedFileType {
 	return &AllowedFileType{
 		validators.StringInclusion{Name: name,
 			Field: field,
-			List:  []string{"image/jpeg", "image/png", "application/pdf"}}}
+			List:  []string{"image/jpeg", "image/png", "application/pdf", "text/plain", "text/plain; charset=utf-8"}}}
 }
 
 // AffiliationIsPresent validates that a branch is present

@@ -99,12 +99,10 @@ func helperExpectedEDIString(suite *StoreInvoiceSuite, name string) string {
 
 // TestStoreInvoice858C tests the store function EDI/Invoice to S3
 func (suite *StoreInvoiceSuite) TestStoreInvoice858C() {
-
 	invoice, officeUser := helperInvoice(suite)
 	invoiceString := helperExpectedEDIString(suite, "expected_invoice.edi.golden")
 	fs := suite.helperFileStorer()
-	verrs, err := ediinvoice.StoreInvoice858C(invoiceString, invoice.ID, &fs, suite.logger, officeUser.ID)
+	verrs, err := ediinvoice.StoreInvoice858C(invoiceString, invoice, &fs, suite.logger, *officeUser.UserID, suite.db)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
-
 }

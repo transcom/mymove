@@ -38,6 +38,8 @@ type Invoice struct {
 	ShipmentLineItems ShipmentLineItems `has_many:"shipment_line_items"`
 	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
+	UploadID          *uuid.UUID        `json:"upload_id" db:"upload_id"`
+	Upload            *Upload           `json:"upload" db:"upload"`
 }
 
 // Invoices is an array of invoices

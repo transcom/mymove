@@ -135,8 +135,9 @@ func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {
 	return outputFile, nil
 }
 
-func (suite *UploaderSuite) TestCreateUploadS3Only() {
+func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	document := testdatagen.MakeDefaultDocument(suite.db)
+	userID := document.ServiceMember.UserID
 
 	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
@@ -144,8 +145,9 @@ func (suite *UploaderSuite) TestCreateUploadS3Only() {
 	suite.Nil(err)
 
 	// Create file and upload
-	upload, err := up.CreateUploadS3Only(document.ServiceMember.UserID, &file)
+	upload, verrs, err := up.CreateUploadNoDocument(userID, &file)
 	suite.Nil(err, "failed to create upload")
+	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")
 	file.Close()
 
