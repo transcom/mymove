@@ -4,6 +4,7 @@ import {
   userCancelsServiceAgent,
   userInputsServiceAgent,
   userSavesServiceAgent,
+  userVerifiesTspAssigned,
 } from '../../support/testTspServiceAgents';
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
 
@@ -36,13 +37,13 @@ describe('TSP User enters and updates Service Agents', function() {
   });
   it('tsp user updates origin and destination service agents', function() {
     tspUserEntersServiceAgent();
-    tspUserVerifiesTspAssigned();
+    userVerifiesTspAssigned();
     userClearsServiceAgent('Origin');
     userInputsServiceAgent('OriginUpdate');
     userClearsServiceAgent('Destination');
     userInputsServiceAgent('DestinationUpdate');
     userSavesServiceAgent('OriginUpdate');
-    tspUserVerifiesTspAssigned();
+    userVerifiesTspAssigned();
   });
   it('tsp user accepts a shipment', function() {
     tspUserAcceptsShipment();
@@ -104,30 +105,6 @@ function tspUserEntersServiceAgent() {
     .contains('TSP & Servicing Agents')
     .siblings()
     .click();
-}
-
-function tspUserVerifiesTspAssigned() {
-  const tspFields = cy
-    .get('.editable-panel-3-column')
-    .contains('TSP')
-    .parent()
-    .within(() => {
-      cy
-        .get('.panel-field')
-        .contains('Name')
-        .parent()
-        .should('contain', 'Truss Transport LLC (J12K)');
-      cy
-        .get('.panel-field')
-        .contains('Email')
-        .parent()
-        .should('contain', 'joey.j@example.com');
-      cy
-        .get('.panel-field')
-        .contains('Phone number')
-        .parent()
-        .should('contain', '(555) 101-0101');
-    });
 }
 
 function tspUserAcceptsShipment() {

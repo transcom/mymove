@@ -3,6 +3,7 @@ import {
   userInputsServiceAgent,
   userSavesServiceAgent,
   userCancelsServiceAgent,
+  userVerifiesTspAssigned,
 } from '../../support/testTspServiceAgents';
 
 /* global cy */
@@ -18,11 +19,13 @@ describe('office user can view service agents', function() {
 
   it('office user views and edits service agent panels', function() {
     officeUserEntersServiceAgents();
+    userVerifiesTspAssigned();
     userClearsServiceAgent('Origin');
     userInputsServiceAgent('OriginUpdate');
     userClearsServiceAgent('Destination');
     userInputsServiceAgent('DestinationUpdate');
     userSavesServiceAgent('OriginUpdate');
+    userVerifiesTspAssigned();
   });
 });
 
