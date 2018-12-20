@@ -66,7 +66,7 @@ client_deps: check_hosts .client_deps.stamp
 	touch .client_build.stamp
 client_build: client_deps .client_build.stamp
 client_run: client_deps
-	yarn start
+	HOST=milmovelocal yarn start
 client_test: client_deps
 	yarn test
 client_test_coverage : client_deps
