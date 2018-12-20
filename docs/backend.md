@@ -24,7 +24,7 @@
     * [General](#general)
     * [Coverage](#coverage)
     * [Models](#models)
-    * [Miscellaneous Tips](#miscellaneous-tips)
+  * [Miscellaneous Tips](#miscellaneous-tips)
 * [Environment settings](#environment-settings)
   * [Adding `ulimit`](#adding-ulimit)
 
@@ -321,7 +321,7 @@ In general, focus on testing non-trivial behavior.
 * Avoid testing functionality of libraries, e.g. model saving and loading (which is provided by Pop)
 * Try to leverage the type system to ensure that components are “hooked up correctly” instead of writing integration tests.
 
-#### Miscellaneous Tips
+### Miscellaneous Tips
 
 * Use `golang` instead of `go` in Google searches.
 * Try to use the standard lib as much as possible, especially when learning.
