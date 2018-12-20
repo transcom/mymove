@@ -92,7 +92,7 @@ function serviceMemberVerifiesHHGPPMSummary() {
     expect(text).to.include('Pickup ZIP Code:  90210');
     expect(text).to.include('Delivery ZIP Code:  50309');
     expect(text).not.to.include('Storage: Not requested');
-    expect(text).to.include('Estimated Weight:  1,50');
+    expect(text).to.include('Estimated Weight:  1,');
     expect(text).to.include('Estimated PPM Incentive:  $4,255.80 - 4,703.78');
   });
 }
@@ -429,7 +429,7 @@ function serviceMemberCanReviewMoveSummary() {
     expect(text).to.include('Pickup ZIP Code:  90210');
     expect(text).to.include('Delivery ZIP Code:  50309');
     expect(text).not.to.include('Storage: Not requested');
-    expect(text).to.include('Estimated Weight:  1,50');
+    expect(text).to.include('Estimated Weight:  1,');
     expect(text).to.include('Estimated PPM Incentive:  $4,255.80 - 4,703.78');
   });
 
