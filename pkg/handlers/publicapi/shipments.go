@@ -82,6 +82,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
 	}
+	tspID := s.CurrentTransportationServiceProviderID()
+	if tspID != uuid.Nil {
+		shipmentpayload.TransportationServiceProviderID = *handlers.FmtUUID(tspID)
+	}
 	return shipmentpayload
 }
 
