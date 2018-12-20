@@ -25,6 +25,9 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	// Test for TSP ID first before creating a new TSP
 	tsp := assertions.ShipmentOffer.TransportationServiceProvider
 	if isZeroUUID(tsp.ID) || isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
+		if !isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderID) {
+			assertions.TransportationServiceProvider.ID = assertions.ShipmentOffer.TransportationServiceProviderID
+		}
 		tsp = MakeTSP(db, assertions)
 	}
 
@@ -48,6 +51,8 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 	mergeModels(&shipmentOffer, assertions.ShipmentOffer)
 
 	mustCreate(db, &shipmentOffer)
+
+	shipmentOffer.Shipment.ShipmentOffers = append(shipmentOffer.Shipment.ShipmentOffers, shipmentOffer)
 
 	return shipmentOffer
 }
@@ -272,11 +277,12 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		tspUser := tspUserList[index]
 		subShipmentList := shipmentList[count : count+split]
 		count += split
-		for _, shipment := range subShipmentList {
+		for i, shipment := range subShipmentList {
 			var offerState *bool
 			if shipment.Status != models.ShipmentStatusAWARDED {
 				offerState = models.BoolPointer(true)
 			}
+			// TODO: How to resolve not using TransportationServiceProviderID at this point
 			shipmentOfferAssertions := Assertions{
 				ShipmentOffer: models.ShipmentOffer{
 					ShipmentID:                      shipment.ID,
@@ -287,6 +293,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			}
 			shipmentOffer := MakeShipmentOffer(db, shipmentOfferAssertions)
 			shipmentOfferList = append(shipmentOfferList, shipmentOffer)
+			shipmentList[i].ShipmentOffers = append(shipment.ShipmentOffers, shipmentOffer)
 		}
 	}
 

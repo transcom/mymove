@@ -340,11 +340,14 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 		},
 	})
 
+	var scac = "NPEK"
+	var supplierID = scac + "1234" // scac + payee code
 	// Make a TSP in the same TDL, but that is NOT enrolled
 	tdl := *shipment.TrafficDistributionList
 	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: "NPEK",
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID, //NPEK1234
 			Enrolled:                 false,
 		},
 	})
@@ -612,9 +615,12 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	}
 
 	// Make Non-Peak TSP and Shipment
+	var scac = "NPEK"
+	var supplierID = scac + "1234" // scac + payee code
 	tspNonPeak := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: "NPEK",
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID, //NPEK1234
 			Enrolled:                 true,
 		},
 	})
@@ -696,6 +702,42 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 	if expectedCount != tspPerformance.OfferCount {
 		t.Errorf("Wrong OfferCount for TSP: expected %d, got %d", expectedCount, tspPerformance.OfferCount)
 	}
+}
+
+func (suite *AwardQueueSuite) Test_validateShipmentForAward() {
+	t := suite.T()
+	t.Helper()
+
+	// A default shipment, which has all valid fields on it
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	err := validateShipmentForAward(shipment)
+	suite.Nil(err)
+
+	// A shipment with a nil TDL ID
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.TrafficDistributionListID = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
+
+	// A shipment with a nil BookDate
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.BookDate = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
+
+	// A shipment with a nil RequestedPickupDate
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.RequestedPickupDate = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
 }
 
 func (suite *AwardQueueSuite) Test_waitForLock() {

@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -19,12 +20,17 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 		shipment = MakeShipment(db, assertions)
 	}
 
+	invoiceNumber := assertions.Invoice.InvoiceNumber
+	if invoiceNumber == "" {
+		invoiceNumber = string(10000 + rand.Intn(89999))
+	}
+
 	// filled in dummy data
 	Invoice := models.Invoice{
 		Status:        models.InvoiceStatusINPROCESS,
 		ApproverID:    approver.ID,
 		Approver:      approver,
-		InvoiceNumber: "1234",
+		InvoiceNumber: invoiceNumber,
 		InvoicedDate:  time.Now(),
 		ShipmentID:    shipment.ID,
 		Shipment:      shipment,

@@ -101,29 +101,34 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
+	scac := "ABCD"
+	supplierID := scac + "1234" //scac + payee code -- ABCD1234
 	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
 		ShipmentOffer: models.ShipmentOffer{
 			Shipment: shipment,
 			Accepted: swag.Bool(true),
 		},
 		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: "ABCD",
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID,
 		},
 	})
 	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
 
 	// Create some shipment line items.
 	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B"}
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B", "46A"}
 	amountCents := unit.Cents(12325)
-	for _, code := range codes {
 
+	for _, code := range codes {
+		appliedRate := unit.Millicents(2537234)
 		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
 		var location models.ShipmentLineItemLocation
 
 		switch code {
 		case "LHS":
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+			appliedRate = 0
 		case "16A":
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
 		case "105B":
@@ -139,11 +144,15 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
 		}
 
-		if code == "135A" {
+		// default location created in testdatagen shipmentLineItem is DESTINATION
+		if code == "135A" || code == "105A" {
 			location = models.ShipmentLineItemLocationORIGIN
 		}
 		if code == "135B" {
 			location = models.ShipmentLineItemLocationDESTINATION
+		}
+		if code == "LHS" || code == "46A" {
+			location = models.ShipmentLineItemLocationNEITHER
 		}
 
 		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
@@ -158,10 +167,12 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 				Tariff400ngItemID: item.ID,
 				Tariff400ngItem:   item,
 				Quantity1:         unit.BaseQuantityFromInt(2000),
+				AppliedRate:       &appliedRate,
 				AmountCents:       &amountCents,
 				Location:          location,
 			},
 		})
+
 		lineItems = append(lineItems, lineItem)
 	}
 	shipment.ShipmentLineItems = lineItems
@@ -227,10 +238,14 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 			hlSegment := ediinvoice.MakeHLSegment(lineItem)
 
 			if lineItem.Location == models.ShipmentLineItemLocationORIGIN {
-				suite.Equal("304", hlSegment.HierarchicalIDNumber)
+				suite.Equal("303", hlSegment.HierarchicalIDNumber)
 			}
 
 			if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
+				suite.Equal("304", hlSegment.HierarchicalIDNumber)
+			}
+
+			if lineItem.Location == models.ShipmentLineItemLocationNEITHER {
 				suite.Equal("303", hlSegment.HierarchicalIDNumber)
 			}
 
@@ -270,8 +285,9 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 
 			// Test L1Segment
 			l1Segment := ediinvoice.MakeL1Segment(lineItem)
+			expectedFreightRate := lineItem.AppliedRate.ToDollarFloat()
 
-			suite.Equal(4.07, l1Segment.FreightRate)
+			suite.Equal(expectedFreightRate, l1Segment.FreightRate)
 			suite.Equal("RC", l1Segment.RateValueQualifier)
 			suite.Equal(lineItem.AmountCents.ToDollarFloat(), l1Segment.Charge)
 			suite.Equal(lineItem.Tariff400ngItem.Code, l1Segment.SpecialChargeDescription)

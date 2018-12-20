@@ -25,7 +25,7 @@ func (f FetchShipmentForInvoice) Call(shipmentID uuid.UUID) (models.Shipment, er
 			"Move.Orders.NewDutyStation.Address",
 			"Move.Orders.NewDutyStation.TransportationOffice",
 			"ServiceMember.DutyStation.TransportationOffice",
-			"ShipmentOffers.TransportationServiceProvider",
+			"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
 			"ShipmentOffers.TransportationServiceProviderPerformance",
 		).
 		Find(&shipment, shipmentID)

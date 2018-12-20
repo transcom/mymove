@@ -30,6 +30,7 @@ func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
 	return &internalmessages.Invoice{
 		ID:                *handlers.FmtUUID(a.ID),
 		ShipmentID:        *handlers.FmtUUID(a.ShipmentID),
+		InvoiceNumber:     a.InvoiceNumber,
 		ApproverFirstName: a.Approver.FirstName,
 		ApproverLastName:  a.Approver.LastName,
 		Status:            internalmessages.InvoiceStatus(a.Status),
@@ -489,9 +490,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
 	shipment, err := invoiceop.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
-
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
