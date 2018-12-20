@@ -135,18 +135,14 @@ class MoveInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
-    this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-  }
-
-  componentDidUpdate(prevProps) {
-    if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
+    this.props.loadMoveDependencies(this.props.match.params.moveId).then(() => {
+      this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
       this.props.getPublicShipment('Shipments.getPublicShipment', this.props.officeShipment.id);
       this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
       this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.officeShipment.id);
       this.props.loadShipmentDependencies(this.props.officeShipment.id);
-    }
+    });
+    this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
   }
 
   componentWillUnmount() {

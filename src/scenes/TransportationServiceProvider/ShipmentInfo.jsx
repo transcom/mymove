@@ -139,18 +139,17 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadShipmentDependencies(this.props.match.params.shipmentId).catch(err => {
-      this.props.history.replace('/');
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if ((!prevProps.shipment.id && this.props.shipment.id) || prevProps.shipment.id !== this.props.shipment.id) {
-      this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
-      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
-      this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.shipment.id);
-    }
+    this.props
+      .loadShipmentDependencies(this.props.match.params.shipmentId)
+      .then(() => {
+        this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
+        this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+        this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
+        this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.shipment.id);
+      })
+      .catch(err => {
+        this.props.history.replace('/');
+      });
   }
 
   acceptShipment = () => {
