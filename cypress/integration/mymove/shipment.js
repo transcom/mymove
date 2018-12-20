@@ -242,8 +242,12 @@ function checkLoadingDate() {
     .contains('Loading Truck:')
     .next()
     .then(function($tr) {
-      const expectedDate = Cypress.moment(this.dateLabel, 'ddd MMM DD YYYY').toString();
-      const actualDate = Cypress.moment($tr.text(), 'ddd, MMM DD').toString();
-      expect(actualDate).to.equal(expectedDate);
+      let actualDate = Cypress.moment($tr.text(), 'ddd, MMM DD');
+      const expectedDate = Cypress.moment(this.dateLabel, 'ddd MMM DD YYYY');
+      // since the actual date doesn't have year information, moment may fail to parse if it is next year
+      if (!actualDate.isValid()) {
+        actualDate = Cypress.moment($tr.text() + ' ' + expectedDate.year(), 'ddd, MMM DD YYYY');
+      }
+      expect(actualDate.toString()).to.equal(expectedDate.toString());
     });
 }
