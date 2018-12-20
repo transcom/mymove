@@ -362,10 +362,10 @@ func MakeHLSegment(lineItem models.ShipmentLineItem) *edisegment.HL {
 	switch lineItem.Location {
 
 	case models.ShipmentLineItemLocationORIGIN:
-		hierarchicalLevelID = "304"
+		hierarchicalLevelID = "303"
 
 	case models.ShipmentLineItemLocationDESTINATION:
-		hierarchicalLevelID = "303"
+		hierarchicalLevelID = "304"
 
 	case models.ShipmentLineItemLocationNEITHER:
 		hierarchicalLevelID = "303"
@@ -444,8 +444,9 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 
 // MakeL1Segment builds L1 segment based on shipment lineitem input.
 func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
+
 	return &edisegment.L1{
-		FreightRate:              freightRate, //TODO: Replace this with the actual rate. It's a placeholder.
+		FreightRate:              lineItem.AppliedRate.ToDollarFloat(),
 		RateValueQualifier:       rateValueQualifier,
 		Charge:                   lineItem.AmountCents.ToDollarFloat(),
 		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,

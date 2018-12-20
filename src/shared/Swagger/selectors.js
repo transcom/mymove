@@ -6,6 +6,7 @@ export function getRequestStatus(state, label) {
   return {
     error: getLastError(state, label),
     isLoading: getLastRequestIsLoading(state, label),
+    isSuccess: getLastRequestIsSuccess(state, label),
   };
 }
 

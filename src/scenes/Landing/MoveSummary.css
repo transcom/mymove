@@ -102,3 +102,7 @@ a {
 .ppm-panel .shipment_box_contents {
   background-color: #F5FBFD;
 }
+
+.move-summary-header {
+  margin-top: 20px;
+}

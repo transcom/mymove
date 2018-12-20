@@ -47,6 +47,13 @@ func (aq *AwardQueue) findAllUnassignedShipments() (models.Shipments, error) {
 func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.Shipment) (*models.ShipmentOffer, error) {
 	ctx, span := beeline.StartSpan(ctx, "attemptShipmentOffer")
 	defer span.Send()
+
+	// Validate that the shipment has all required data. Do this before touching
+	// the shipment, even for logging.
+	if err := validateShipmentForAward(shipment); err != nil {
+		return nil, err
+	}
+
 	aq.logger.TraceInfo(ctx, "Attempting to offer shipment",
 		zap.String("shipment_id", shipment.ID.String()),
 		zap.String("traffic_distribution_list_id", shipment.TrafficDistributionListID.String()))
@@ -275,9 +282,6 @@ func (aq *AwardQueue) Run(ctx context.Context) error {
 		}
 		aq.logger.Info("Acquired pg_advisory_xact_lock")
 
-		// TODO: for testing purposes, will be removed shortly
-		// time.Sleep(time.Second * 10)
-
 		if err := aq.assignPerformanceBands(ctx); err != nil {
 			return err
 		}
@@ -305,4 +309,20 @@ func NewAwardQueue(db *pop.Connection, logger *hnyzap.Logger) *AwardQueue {
 		db:     db,
 		logger: logger,
 	}
+}
+
+// validateShipmentForAward ensures that a given shipment has all required
+// fields to be processed by the Award Queue.
+func validateShipmentForAward(shipment models.Shipment) error {
+	if shipment.TrafficDistributionListID == nil {
+		return fmt.Errorf("shipment id %v has a nil TDL", shipment.ID)
+	}
+	if shipment.BookDate == nil {
+		return fmt.Errorf("shipment id %v has a nil BookDate", shipment.ID)
+	}
+	if shipment.RequestedPickupDate == nil {
+		return fmt.Errorf("shipment id %v has a nil RequestedPickupDate", shipment.ID)
+	}
+
+	return nil
 }
