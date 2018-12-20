@@ -40,7 +40,9 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
+import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 
 import {
   loadMoveDependencies,
@@ -113,6 +115,7 @@ const HHGTabContent = props => {
         title="TSP & Servicing Agents"
         shipment={props.officeShipment}
         serviceAgents={props.serviceAgents}
+        transportationServiceProviderId={props.shipment.transportation_service_provider_id}
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
       {has(props, 'officeShipment.id') && (
@@ -121,6 +124,7 @@ const HHGTabContent = props => {
           shipmentStatus={shipmentStatus}
           onApprovePayment={props.sendHHGInvoice}
           canApprove={props.canApprovePaymentInvoice}
+          allowPayments={props.allowHhgInvoicePayment}
         />
       )}
     </div>
@@ -140,9 +144,12 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
-      this.props.getPublicShipment('Shipments.getPublicShipment', this.props.officeShipment.id);
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
-      this.props.loadShipmentDependencies(this.props.officeShipment.id);
+      const shipmentId = this.props.officeShipment.id;
+      this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+      this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
+      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
+      this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+      this.props.loadShipmentDependencies(shipmentId);
     }
   }
 
@@ -211,6 +218,7 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
+    const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
@@ -323,6 +331,7 @@ class MoveInfo extends Component {
                     surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                     canApprovePaymentInvoice={hhgDelivered}
                     officeMove={this.props.officeMove}
+                    allowHhgInvoicePayment={allowHhgInvoicePayment}
                   />
                 </PrivateRoute>
               </Switch>
@@ -489,7 +498,9 @@ const mapDispatchToProps = dispatch =>
       sendHHGInvoice,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      getAllInvoices,
       resetMove,
+      getTspForShipment,
     },
     dispatch,
   );

@@ -30,6 +30,7 @@ func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
 	return &internalmessages.Invoice{
 		ID:                *handlers.FmtUUID(a.ID),
 		ShipmentID:        *handlers.FmtUUID(a.ShipmentID),
+		InvoiceNumber:     a.InvoiceNumber,
 		ApproverFirstName: a.Approver.FirstName,
 		ApproverLastName:  a.Approver.LastName,
 		Status:            internalmessages.InvoiceStatus(a.Status),

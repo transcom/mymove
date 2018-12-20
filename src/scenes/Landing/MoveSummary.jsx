@@ -416,7 +416,7 @@ const MoveInfoHeader = props => {
   const { orders, profile, move, entitlement } = props;
   return (
     <Fragment>
-      <h2>
+      <h2 className="move-summary-header">
         {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h2>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}

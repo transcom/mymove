@@ -1,25 +1,29 @@
 package scenario
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/go-openapi/swag"
+	"go.uber.org/zap"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/storage"
-	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
-	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
+	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
+	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
 // E2eBasicScenario builds a basic set of data for e2e testing
@@ -58,6 +62,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		TspUser: models.TspUser{
 			ID:    uuid.FromStringOrNil("1fb58b82-ab60-4f55-a654-0267200473a4"),
 			Email: email,
+		},
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: "J12K",
 		},
 	})
 
@@ -1801,6 +1808,70 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	hhg31.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg31.Move)
+
+	/*
+	 * Service member with approved basics and accepted shipment
+	 */
+	email = "hhg@gbl.disabled"
+
+	offer32 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("ab04735c-fc9c-40a3-8e46-73dc0ca163da")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("35e3f64d-5615-4c9d-acf3-b832404d5627"),
+			FirstName:     models.StringPointer("GBLDisabled"),
+			LastName:      models.StringPointer("Waiting for office"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("262d079b-1e18-48bc-8351-f6a092af67d9"),
+			Locator:          "GBLDIS",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("54321"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("440dfbf6-a9da-4d37-b3e1-7327424eda01"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			ID:                          uuid.FromStringOrNil("53115e49-466e-42ee-85c6-9215add89cea"),
+			Status:                      models.ShipmentStatusACCEPTED,
+			PmSurveyConductedDate:       &nowPlusOne,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusOne,
+			PmSurveyPlannedDeliveryDate: &nowPlusOne,
+			PmSurveyWeightEstimate:      &weightEstimate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer32.Shipment,
+			ShipmentID: offer32.ShipmentID,
+		},
+	})
+
+	hhg32 := offer32.Shipment
+	hhg32.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg32.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -2120,9 +2191,8 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			ID:     uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
-			Status: models.ShipmentStatusDELIVERED,
-
+			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
+			Status:                      models.ShipmentStatusINTRANSIT,
 			PmSurveyMethod:              "PHONE",
 			PmSurveyPlannedPackDate:     &nowMinusTen,
 			PmSurveyPlannedPickupDate:   &nowMinusFive,
@@ -2130,7 +2200,6 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			NetWeight:                   &netWeight,
 			ActualPickupDate:            &nowMinusFive,
 			OriginalDeliveryDate:        &nowMinusOne,
-			ActualDeliveryDate:          &nowMinusOne,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2142,6 +2211,18 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			Accepted:                        models.BoolPointer(true),
 		},
 	})
+
+	planner := route.NewTestingPlanner(1234)
+	engine := rateengine.NewRateEngine(db, logger, planner)
+	verrs, err := shipmentservice.DeliverAndPriceShipment{
+		DB:     db,
+		Engine: engine,
+	}.Call(nowMinusOne, &offer.Shipment)
+
+	if verrs.HasAny() || err != nil {
+		fmt.Println(verrs.String())
+		log.Panic(err)
+	}
 
 	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
 		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{TransportationServiceProvider: tspUser.TransportationServiceProvider,

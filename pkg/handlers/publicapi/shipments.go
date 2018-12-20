@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
+	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -80,6 +81,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+	}
+	tspID := s.CurrentTransportationServiceProviderID()
+	if tspID != uuid.Nil {
+		shipmentpayload.TransportationServiceProviderID = *handlers.FmtUUID(tspID)
 	}
 	return shipmentpayload
 }
@@ -149,6 +154,45 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewGetShipmentOK().WithPayload(sp)
+}
+
+// GetShipmentInvoicesHandler returns all invoices for a shipment
+type GetShipmentInvoicesHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle accepts the shipment ID - returns list of associated invoices
+func (h GetShipmentInvoicesHandler) Handle(params shipmentop.GetShipmentInvoicesParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	if !session.IsOfficeUser() {
+		// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+		// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+		// See original commits in https://github.com/transcom/mymove/pull/802
+		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewGetShipmentInvoicesForbidden()
+		}
+
+		// Make sure TSP has access to this shipment
+		_, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewGetShipmentInvoicesForbidden()
+		}
+	}
+
+	invoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewGetShipmentInvoicesBadRequest()
+	}
+
+	payload := payloadForInvoiceModels(invoices)
+	return shipmentop.NewGetShipmentInvoicesOK().WithPayload(payload)
 }
 
 // AcceptShipmentHandler allows a TSP to accept a particular shipment
@@ -323,33 +367,13 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	}
 
 	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
-
-	err = shipment.Deliver(actualDeliveryDate)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
-	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 
-	shipmentCost, err := engine.HandleRunOnShipment(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
+	verrs, err := shipmentservice.DeliverAndPriceShipment{
+		DB:     h.DB(),
+		Engine: engine,
+	}.Call(actualDeliveryDate, shipment)
 
-	lineItems, err := rateengine.CreateBaseShipmentLineItems(h.DB(), shipmentCost)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	// When the shipment is delivered we should also price existing approved pre-approval requests
-	preApprovals, err := engine.PricePreapprovalRequestsForShipment(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), lineItems, preApprovals)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

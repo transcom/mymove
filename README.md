@@ -24,9 +24,9 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Database](#setup-database)
   * [Setup: Server](#setup-server)
-  * [Setup: Client](#setup-client)
-  * [Setup: Office/admin client](#setup-officeadmin-client)
-  * [Setup: TSP/admin client](#setup-tspadmin-client)
+  * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
+  * [Setup: OfficeLocal client](#setup-officelocal-client)
+  * [Setup: TSPLocal client](#setup-tsplocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: S3](#setup-s3)
@@ -128,9 +128,9 @@ The following commands will get mymove running on your machine for the first tim
 
 ### Setup: Prerequisites
 
-* Install Go version 1.11 with Homebrew. Make sure you do not have other installations.
-  * `brew install go@1.11`
-  * If a later Go version exists, Brew will warn you that "go@1.11 is keg-only, which means it was not symlinked". If that happens, add the following to your bash config: `export PATH="/usr/local/opt/go@1.11/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
+* Install Go version 1.11.4 with Homebrew. Make sure you do not have other installations.
+  * `brew install go@1.11.4`
+  * If a later Go version exists, Brew will warn you that "go@1.11.4 is keg-only, which means it was not symlinked". If that happens, add the following to your bash config: `export PATH="/usr/local/opt/go@1.11.4/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
@@ -157,8 +157,10 @@ In rare cases, you may want to run the server standalone, in which case you can 
 
 Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
 
-### Setup: Client
+### Setup: MilMoveLocal Client
 
+1. add the following line to /etc/hosts
+    `127.0.0.1 milmovelocal`
 1. `make client_build` (if setting up for first time)
 1. `make client_run`
 
@@ -168,7 +170,7 @@ If both the server and client are running, you should be able to view the Swagge
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
-### Setup: Office/admin client
+### Setup: OfficeLocal client
 
 1. add the following line to /etc/hosts
     `127.0.0.1 officelocal`
@@ -178,7 +180,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 3. `make office_client_run`
 4. Login with the email used above to access the office
 
-### Setup: TSP/admin client
+### Setup: TSPLocal client
 
 1. add the following line to /etc/hosts
     `127.0.0.1 tsplocal`
