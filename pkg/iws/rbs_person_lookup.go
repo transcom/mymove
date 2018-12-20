@@ -14,8 +14,8 @@ import (
 	"github.com/transcom/mymove/pkg/server"
 )
 
-// RealTimeBrokerService handles requests to the Real-Time Broker Service
-type RealTimeBrokerService struct {
+// RBSPersonLookup handles requests to the Real-Time Broker Service
+type RBSPersonLookup struct {
 	Client http.Client
 	Host   string
 }
@@ -33,7 +33,7 @@ var ssnRegex = regexp.MustCompile("^\\d{9}$")
 
 // GetPersonUsingEDIPI retrieves personal information through the IWS:RBS REST API using that person's EDIPI (aka DOD ID number).
 // If matched succesfully, it returns the full name and SSN information, as well as the personnel information for each of the organizations the person belongs to
-func (r RealTimeBrokerService) GetPersonUsingEDIPI(edipi uint64) (*Person, []Personnel, error) {
+func (r RBSPersonLookup) GetPersonUsingEDIPI(edipi uint64) (*Person, []Personnel, error) {
 	url, err := buildEdiURL(r.Host, myMoveCustNum, edipi)
 	if err != nil {
 		return nil, []Personnel{}, err
@@ -49,7 +49,7 @@ func (r RealTimeBrokerService) GetPersonUsingEDIPI(edipi uint64) (*Person, []Per
 
 // GetPersonUsingSSN retrieves personal information (including EDIPI) through the IWS:RBS REST API using a SSN, last name, and optionally a first name
 // If matched succesfully, it returns the EDIPI, the full name and SSN information, and the personnel information for each of the organizations the person belongs to
-func (r RealTimeBrokerService) GetPersonUsingSSN(params GetPersonUsingSSNParams) (MatchReasonCode, uint64, *Person, []Personnel, error) {
+func (r RBSPersonLookup) GetPersonUsingSSN(params GetPersonUsingSSNParams) (MatchReasonCode, uint64, *Person, []Personnel, error) {
 	url, err := buildPidsURL(r.Host, myMoveCustNum, params.Ssn, params.LastName, params.FirstName)
 	if err != nil {
 		return MatchReasonCodeNone, 0, nil, []Personnel{}, err
@@ -65,7 +65,7 @@ func (r RealTimeBrokerService) GetPersonUsingSSN(params GetPersonUsingSSNParams)
 
 // GetPersonUsingWorkEmail retrieves personal information (including SSN and EDIPI) through the IWS:RBS REST API using a work e-mail address.
 // If matched succesfully, it returns the EDIPI, the full name and SSN information, and the personnel information for each of the organizations the person belongs to
-func (r RealTimeBrokerService) GetPersonUsingWorkEmail(workEmail string) (uint64, *Person, []Personnel, error) {
+func (r RBSPersonLookup) GetPersonUsingWorkEmail(workEmail string) (uint64, *Person, []Personnel, error) {
 	url, err := buildWkEmaURL(r.Host, myMoveCustNum, workEmail)
 	if err != nil {
 		return 0, nil, []Personnel{}, err
@@ -79,9 +79,9 @@ func (r RealTimeBrokerService) GetPersonUsingWorkEmail(workEmail string) (uint64
 	return parseWkEmaResponse(response)
 }
 
-// NewRealTimeBrokerService creates a new instance of RealtimeBrokerService. This should
+// NewRBSPersonLookup creates a new instance of RBSPersonLookup. This should
 // only be instantiated once
-func NewRealTimeBrokerService(host string, dodCACertPackage string, certString string, keyString string) (*RealTimeBrokerService, error) {
+func NewRBSPersonLookup(host string, dodCACertPackage string, certString string, keyString string) (*RBSPersonLookup, error) {
 	if host == "" {
 		return nil, errors.New("IWS host is not set")
 	}
@@ -110,13 +110,13 @@ func NewRealTimeBrokerService(host string, dodCACertPackage string, certString s
 	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
-	return &RealTimeBrokerService{
+	return &RBSPersonLookup{
 		Client: http.Client{Transport: transport},
 		Host:   host,
 	}, nil
 }
 
-func (r RealTimeBrokerService) sendGetRequest(url string) ([]byte, error) {
+func (r RBSPersonLookup) sendGetRequest(url string) ([]byte, error) {
 	var data []byte
 	resp, err := r.Client.Get(url)
 	// Interesting fact: RBS responds 200 OK, not 404 Not Found, if there are no matches
