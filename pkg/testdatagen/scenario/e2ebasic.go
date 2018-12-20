@@ -63,6 +63,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:    uuid.FromStringOrNil("1fb58b82-ab60-4f55-a654-0267200473a4"),
 			Email: email,
 		},
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: "J12K",
+		},
 	})
 
 	/*
