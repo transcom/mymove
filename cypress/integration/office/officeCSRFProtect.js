@@ -25,3 +25,73 @@ describe('testing CSRF protection', function() {
     cy.signInAsUserPostRequest(signInAs, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false);
   });
 });
+
+describe('testing CSRF protection updating move info', function() {
+  it('tests updating user profile with proper tokens', function() {
+    cy.signIntoOffice();
+
+    // update info
+    cy
+      .get('div[class="rt-tr -odd"]')
+      .first()
+      .dblclick();
+
+    // save info
+    cy
+      .get('a[class="editable-panel-edit"]')
+      .first()
+      .click();
+
+    cy
+      .get('input[name="orders.orders_number"]')
+      .clear()
+      .type('CSRF Test')
+      .blur();
+
+    cy.get('select[name="orders.orders_type_detail"]').select('HHG_PERMITTED');
+
+    cy
+      .get('button[class="usa-button editable-panel-save"]')
+      .should('be.enabled')
+      .click();
+
+    cy.reload();
+
+    cy.contains('CSRF Test');
+  });
+
+  it('tests updating user profile with proper tokens', function() {
+    cy.signIntoOffice();
+
+    // update info
+    cy
+      .get('div[class="rt-tr -odd"]')
+      .first()
+      .dblclick();
+
+    // save info
+    cy
+      .get('a[class="editable-panel-edit"]')
+      .first()
+      .click();
+
+    cy
+      .get('input[name="orders.orders_number"]')
+      .clear()
+      .type('CSRF Protection Failed')
+      .blur();
+
+    cy.get('select[name="orders.orders_type_detail"]').select('HHG_PERMITTED');
+
+    // clear cookie
+    cy.clearCookie('masked_gorilla_csrf');
+    cy.getCookie('masked_gorilla_csrf').should('not.exist');
+
+    cy
+      .get('button[class="usa-button editable-panel-save"]')
+      .should('be.enabled')
+      .click();
+
+    cy.contains('There was an error: Forbidden.');
+  });
+});
