@@ -308,9 +308,14 @@ Knowing what deserves a test and what doesn’t can be tricky, especially early 
 
 #### Coverage
 
-Always test exported functions.
-Exported functions should be treated as an API layer for other packages.
-Cover the expected behavior and error scenarios as a user of that API.
+* Always test exported functions.
+  Exported functions should be treated as an API layer for other packages.
+  Cover the expected behavior and error scenarios as a user of that API.
+* Try not to test unexported functions.
+  Unexported functions are implementation details of exported ones
+  and should not change the intended usage.
+  If you find that an unexported function is complex and needs testing,
+  it might mean it needs to be refactored as it's exported function elsewhere.
 
 #### Models
 
