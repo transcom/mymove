@@ -55,6 +55,8 @@ describe('testing CSRF protection updating move info', function() {
       .should('be.enabled')
       .click();
 
+    cy.wait(100);
+
     cy.reload();
 
     cy.contains('CSRF Test');
