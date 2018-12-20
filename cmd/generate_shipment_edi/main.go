@@ -50,7 +50,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		resp, err := gex.SendInvoiceToGex(invoice858CString, *transactionName)
+		resp, err := gex.SendInvoiceToGex(invoice858CString, *transactionName, true)
 		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
 	} else {
 		ediWriter := edi.NewWriter(os.Stdout)

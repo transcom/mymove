@@ -32,6 +32,8 @@ type HandlerContext interface {
 	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
+	ReallySendToGex() bool
+	SetReallySendToGex()
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
@@ -48,6 +50,7 @@ type handlerContext struct {
 	notificationSender       notifications.NotificationSender
 	iwsRealTimeBrokerService iws.RealTimeBrokerService
 	sendProductionInvoice    bool
+	reallySendToGex          bool
 	dpsAuthParams            dpsauth.Params
 }
 
@@ -138,7 +141,7 @@ func (hctx *handlerContext) SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerSe
 	hctx.iwsRealTimeBrokerService = rbs
 }
 
-// InvoiceIsATest is a flag to notify EDI invoice generation whether it should be sent as a test transaction
+// SendProductionInvoice is a flag to notify EDI invoice generation whether it should be sent as a test or production transaction
 func (hctx *handlerContext) SendProductionInvoice() bool {
 	return hctx.sendProductionInvoice
 }
@@ -146,6 +149,21 @@ func (hctx *handlerContext) SendProductionInvoice() bool {
 // Set UsageIndicator flag for use in EDI invoicing (ediinvoice pkg)
 func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
 	hctx.sendProductionInvoice = sendProductionInvoice
+}
+
+func (hctx *handlerContext) ReallySendToGex() bool {
+	return hctx.reallySendToGex
+}
+
+func (hctx *handlerContext) SetReallySendToGex() {
+	reallySendToGex := true
+	// placeholder stubbed boolean code
+	isDevelopment := true
+	isTest := false
+	if isDevelopment || isTest {
+		reallySendToGex = false
+	}
+	hctx.reallySendToGex = reallySendToGex
 }
 
 func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {
