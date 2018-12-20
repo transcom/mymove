@@ -39,7 +39,7 @@ check_hosts: .check_hosts.stamp
 ifndef CIRCLECI
 	bin/check-hosts-file
 else
-	@echo "Relying on CircleCI's test database setup."
+	@echo "Not checking hosts on CircleCI."
 endif
 	touch .check_hosts.stamp
 
