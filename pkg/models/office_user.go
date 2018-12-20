@@ -69,7 +69,7 @@ func FetchOfficeUserByEmail(tx *pop.Connection, email string) (*OfficeUser, erro
 
 // FetchOfficeUserByID fetches an office user by ID
 func FetchOfficeUserByID(tx *pop.Connection, id uuid.UUID) (*OfficeUser, error) {
-	var user *OfficeUser
-	err := tx.Find(user, id)
-	return user, err
+	var user OfficeUser
+	err := tx.Find(&user, id)
+	return &user, err
 }

@@ -1,53 +1,54 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { formatFromBaseQuantity, formatCents } from 'shared/formatters';
+import { connect } from 'react-redux';
+
+import { formatDateTime } from 'shared/formatters';
+import {
+  selectInvoiceShipmentLineItems,
+  selectTotalFromInvoicedLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
+import LineItemTable from 'shared/Invoice/LineItemTable';
 
 import './InvoicePanel.css';
 
 class InvoiceTable extends PureComponent {
   render() {
+    const tableTitle = (
+      <div className="invoice-panel-header-cont">
+        <div className="usa-width-one-half">
+          <h5>
+            Invoice {this.props.invoice.invoice_number}{' '}
+            <span className="detail">
+              Approved: <strong>{formatDateTime(this.props.invoice.invoiced_date)}</strong> by{' '}
+              {this.props.invoice.approver_first_name} {this.props.invoice.approver_last_name}
+            </span>
+          </h5>
+        </div>
+      </div>
+    );
+
     return (
-      <div>
-        {this.props.title}
-        <table cellSpacing={0}>
-          <tbody>
-            <tr>
-              <th>Code</th>
-              <th>Item</th>
-              <th>Loc</th>
-              <th>Base quantity</th>
-              <th>Inv amt</th>
-            </tr>
-            {this.props.shipmentLineItems.map(item => {
-              return (
-                <tr key={item.id}>
-                  <td>{item.tariff400ng_item.code}</td>
-                  <td>{item.tariff400ng_item.item}</td>
-                  <td>{item.location[0]}</td>
-                  <td>{formatFromBaseQuantity(item.quantity_1)}</td>
-                  <td>${formatCents(item.amount_cents)}</td>
-                </tr>
-              );
-            })}
-            <tr>
-              <td />
-              <td>Total</td>
-              <td />
-              <td />
-              <td>${formatCents(this.props.totalAmount)}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="invoice-panel-table-cont">
+        <LineItemTable
+          shipmentLineItems={this.props.lineItems}
+          totalAmount={this.props.lineItemsTotal}
+          title={tableTitle}
+        />
       </div>
     );
   }
 }
 
 InvoiceTable.propTypes = {
-  title: PropTypes.element,
-  shipmentLineItems: PropTypes.array,
-  totalAmount: PropTypes.number,
+  invoice: PropTypes.object.isRequired,
 };
 
-export default InvoiceTable;
+const mapStateToProps = (state, ownProps) => {
+  return {
+    lineItems: selectInvoiceShipmentLineItems(state, ownProps.invoice.id),
+    lineItemsTotal: selectTotalFromInvoicedLineItems(state, ownProps.invoice.id) || 0,
+  };
+};
+
+export default connect(mapStateToProps, null)(InvoiceTable);
