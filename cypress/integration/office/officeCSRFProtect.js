@@ -60,7 +60,7 @@ describe('testing CSRF protection updating move info', function() {
     cy.contains('CSRF Test');
   });
 
-  it('tests updating user profile with proper tokens', function() {
+  it('tests updating user profile without masked token', function() {
     cy.signIntoOffice();
 
     // update info

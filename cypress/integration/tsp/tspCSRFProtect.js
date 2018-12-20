@@ -58,7 +58,7 @@ describe('testing CSRF protection updating shipment info', function() {
     cy.contains('CSRF Test');
   });
 
-  it('tests updating user profile with proper tokens', function() {
+  it('tests updating user profile without masked tokens', function() {
     cy.signIntoTSP();
 
     // update info
