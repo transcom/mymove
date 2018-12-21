@@ -38,7 +38,7 @@ Cypress.Commands.add('signInAsNewUser', (navigateHome = true) => {
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', (userId, navigateHome = true) => {
-  Cypress.config('baseUrl', 'http://localhost:4000');
+  Cypress.config('baseUrl', 'http://milmovelocal:4000');
   cy.signInAsUser(userId, navigateHome);
 });
 Cypress.Commands.add('signIntoOffice', (navigateHome = true) => {

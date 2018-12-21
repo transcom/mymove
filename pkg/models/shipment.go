@@ -124,6 +124,19 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
+// CurrentTransportationServiceProviderID returns the id for the current TSP for a shipment
+// Assume that the last shipmentOffer contains the current TSP
+// This might be a bad assumption, but TSPs can't currently reject offers
+func (s *Shipment) CurrentTransportationServiceProviderID() uuid.UUID {
+	var id uuid.UUID
+	shipmentOffersLen := len(s.ShipmentOffers)
+	if shipmentOffersLen > 0 {
+		lastItemIndex := shipmentOffersLen - 1
+		id = s.ShipmentOffers[lastItemIndex].TransportationServiceProviderID
+	}
+	return id
+}
+
 // State Machinery
 // Avoid calling Shipment.Status = ... ever. Use these methods to change the state.
 
