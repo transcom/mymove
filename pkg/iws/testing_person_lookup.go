@@ -1,5 +1,7 @@
 package iws
 
+// SSN is a test SSN value
+const SSN = "666839559"
 const edipi = 1234567890
 
 // TestingPersonLookup is a mock of RBS that returns dummy data
@@ -22,7 +24,7 @@ func (r TestingPersonLookup) GetPersonUsingWorkEmail(workEmail string) (uint64, 
 
 func getTestPerson() *Person {
 	person := Person{
-		ID:         "666839559",
+		ID:         SSN,
 		TypeCode:   PersonTypeCodeSSN,
 		LastName:   "McTestface",
 		FirstName:  "Testy",
