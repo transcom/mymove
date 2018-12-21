@@ -136,19 +136,6 @@ func (suite *InvoiceServiceSuite) helperFetchInvoice(invoiceID uuid.UUID) (*mode
 	return &invoice, nil
 }
 
-func (suite *InvoiceServiceSuite) mustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
-	}
-	if verrs.HasAny() {
-		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
-	}
-}
-
 // TestUpdateInvoiceUploadCall Test the Service UpdateInvoiceUpload{}.Call() function
 func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	storer := suite.helperCreateFileStorer()
@@ -173,14 +160,11 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	suite.Empty(verrs.Error())
 	suite.Equal(upload.ID, *invoice.UploadID)
 
-	// call save on invoice
-	//suite.mustSave(invoice)
-
 	// Fetch Invoice from database and compare Upload IDs
 	fetchInvoice, err := suite.helperFetchInvoice(invoice.ID)
 	suite.Nil(err)
 	suite.NotNil(fetchInvoice)
 	suite.NotNil(fetchInvoice.UploadID)
 	suite.NotNil(fetchInvoice.Upload)
-	//suite.Equal(upload.ID, *(fetchInvoice).UploadID)
+	suite.Equal(upload.ID, *(fetchInvoice).UploadID)
 }

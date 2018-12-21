@@ -16,10 +16,32 @@ type UpdateInvoiceUpload struct {
 	Uploader *uploader.Uploader
 }
 
+// saveInvoice using DB Transaction
+func (u UpdateInvoiceUpload) saveInvoice(invoice *models.Invoice) error {
+	txErr := u.DB.Transaction(func(tx *pop.Connection) error {
+		verrs, err := tx.ValidateAndSave(invoice)
+		if err != nil || verrs.HasAny() {
+			var dbError string
+			if err != nil {
+				dbError = err.Error()
+			}
+			if verrs.HasAny() {
+				dbError = dbError + verrs.Error()
+			}
+			return errors.Wrap(err, "error saving invoice")
+		}
+		return nil
+	})
+
+	return txErr
+}
+
 // deleteUpload deletes an existing Upload
-// This function should be called before adding and Upload to an Invoice so that the
-// Upload is removed from the database and from S3 before adding a new Upload to Invoice
+// This function should be called before adding an Upload to an Invoice so that the
+// Upload is removed from the database and from S3 storage before adding a new Upload to Invoice
 func (u UpdateInvoiceUpload) deleteUpload(upload *models.Upload) error {
+
+	// Have to check
 	if upload != nil {
 		if upload.StorageKey != "" {
 			err := u.Uploader.DeleteUpload(upload)
@@ -43,27 +65,31 @@ func (u UpdateInvoiceUpload) Call(invoice *models.Invoice, upload *models.Upload
 		return verrs, errors.New("invoice is nil")
 	}
 	var err error
-	transactionErr := u.DB.Transaction(func(connection *pop.Connection) error {
-		err = u.deleteUpload(invoice.Upload)
+
+	// Delete prior Upload if it exists
+	deleteUpload := invoice.Upload
+	if deleteUpload != nil {
 		invoice.UploadID = nil
 		invoice.Upload = nil
+		err = u.saveInvoice(invoice)
 		if err != nil {
+			return verrs, errors.Wrap(err, "Could not save Invoice for UpdateInvoiceUpload -- remove upload")
+		}
+		err = u.deleteUpload(invoice.Upload)
+		if err != nil {
+			// Save err if delete Upload fails. I don't think we care to bail out if trying to save the new Upload
+			// to the Invoice
 			verrs.Add(validators.GenerateKey("DeleteUpload"), err.Error())
 		}
-		invoice.Upload = upload
-		invoice.UploadID = &upload.ID
-		// Sample code of what eager creation should like
-		// https://gobuffalo.io/en/docs/db/relations#eager-creation
-		// verrs, err := c.db.Eager().ValidateAndSave(&invoice)
-		verrs2, err := u.DB.ValidateAndSave(invoice)
-		verrs.Append(verrs2)
-		if err != nil || verrs2.HasAny() {
-			return errors.New("error saving invoice")
-		}
-		return nil
-	})
-	if transactionErr != nil {
-		return verrs, err
 	}
+
+	// Save new Upload to Invoice
+	invoice.Upload = upload
+	invoice.UploadID = &upload.ID
+	err = u.saveInvoice(invoice)
+	if err != nil {
+		return verrs, errors.Wrap(err, "Could not save Invoice for UpdateInvoiceUpload -- save new upload")
+	}
+
 	return verrs, nil
 }
