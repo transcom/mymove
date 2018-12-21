@@ -1,0 +1,9 @@
+create_table("fuel_eia_diesel_prices") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("pub_date", "timestamp", {})
+	t.Column("rate_start_date", "timestamp", {})
+	t.Column("rate_end_date", "timestamp", {})
+	t.Column("eia_price_per_gallon_millicents", "integer", {})
+	t.Column("baseline_rate", "integer", {})
+}
+
