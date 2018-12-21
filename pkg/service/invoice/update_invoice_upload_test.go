@@ -173,16 +173,14 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	suite.Empty(verrs.Error())
 	suite.Equal(upload.ID, *invoice.UploadID)
 
-	/*
-		// call save on invoice
-		suite.mustSave(invoice)
+	// call save on invoice
+	//suite.mustSave(invoice)
 
-		// Fetch Invoice from database and compare Upload IDs
-		fetchInvoice, err := suite.helperFetchInvoice(invoice.ID)
-		suite.Nil(err)
-		suite.NotNil(fetchInvoice)
-		suite.NotNil(fetchInvoice.UploadID)
-		suite.NotNil(fetchInvoice.Upload)
-		//suite.Equal(upload.ID, *(fetchInvoice).UploadID)
-	*/
+	// Fetch Invoice from database and compare Upload IDs
+	fetchInvoice, err := suite.helperFetchInvoice(invoice.ID)
+	suite.Nil(err)
+	suite.NotNil(fetchInvoice)
+	suite.NotNil(fetchInvoice.UploadID)
+	suite.NotNil(fetchInvoice.Upload)
+	//suite.Equal(upload.ID, *(fetchInvoice).UploadID)
 }
