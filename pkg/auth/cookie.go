@@ -1,16 +1,21 @@
 package auth
 
 import (
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"net/http"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gofrs/uuid"
+	"github.com/gorilla/csrf"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 // UserSessionCookieName is the key at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
+
+// MaskedGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
+const MaskedGorillaCSRFToken = "masked_gorilla_csrf"
 
 // SessionExpiryInMinutes is the number of minutes before a fallow session is harvested
 const SessionExpiryInMinutes = 15
@@ -79,6 +84,40 @@ func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request
 	return claims, ok
 }
 
+// WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
+func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger) {
+
+	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
+	maxAge := sessionExpiryInSeconds
+	// Never expire token if in development
+	if noSessionTimeout {
+		expiry = likeForever
+		maxAge = likeForeverInSeconds
+	}
+
+	// New cookie
+	cookie := http.Cookie{
+		Name:    MaskedGorillaCSRFToken,
+		Value:   csrfToken,
+		Path:    "/",
+		Expires: expiry,
+		MaxAge:  maxAge,
+	}
+
+	http.SetCookie(w, &cookie)
+}
+
+// MaskedCSRFMiddleware handles setting the CSRF Token cookie
+func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger)
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
 // WriteSessionCookie update the cookie for the session
 func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
 
@@ -112,10 +151,13 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		}
 	}
 	// http.SetCookie calls Header().Add() instead of .Set(), which can result in duplicate cookies
+	// It's ok to use this here because we want to delete and rewrite `Set-Cookie` on login or if the
+	// session token is lost.  However, we would normally use http.SetCookie for any other cookie operations
+	// so as not to delete the session token.
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
-// SessionCookieMiddleware handle serializing and de-serializing the session betweem the user_session cookie and the request context
+// SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
 func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
