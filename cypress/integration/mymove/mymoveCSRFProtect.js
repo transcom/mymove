@@ -48,6 +48,8 @@ describe('testing CSRF protection updating user profile', function() {
     // save info
     cy.get('button[type="submit"]').click();
 
+    cy.wait(500);
+
     // reload page
     cy.visit('/moves/review/edit-profile');
 
