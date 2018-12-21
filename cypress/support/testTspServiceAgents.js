@@ -29,6 +29,29 @@ export function getFixture(role) {
   }[role];
 }
 
+export function userVerifiesTspAssigned() {
+  const tspFields = cy
+    .get('.editable-panel-3-column')
+    .contains('TSP')
+    .parent()
+    .within(() => {
+      cy
+        .get('.panel-field')
+        .contains('Name')
+        .parent()
+        .should('contain', 'Truss Transport LLC (J12K)');
+      cy
+        .get('.panel-field')
+        .contains('Email')
+        .parent()
+        .should('contain', 'joey.j@example.com');
+      cy
+        .get('.panel-field')
+        .contains('Phone number')
+        .parent()
+        .should('contain', '(555) 101-0101');
+    });
+}
 export function userInputsServiceAgent(role) {
   const fixture = getFixture(role);
 
