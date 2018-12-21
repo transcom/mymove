@@ -70,10 +70,24 @@ $DOCKER_RUN \
   --rm \
   ${CONTAINER}:latest
 
+# If your container is exiting unexpectedly try uncommenting this code to see the output:
+# docker logs -f ${CONTAINER}
+
+# Grab the IP address of the running container
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
 
 # Run the cypress tests
 docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
+
+# Confirm app container is still running before running tests
+# See note above about what to do if you need to debug
+DOCKER_PID=$(docker ps -qf name=${CONTAINER})
+if [ -z "${DOCKER_PID}" ]; then
+  echo
+  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run. "
+  exit 1
+fi
+
 $DOCKER_RUN \
   -e CYPRESS_baseUrl=http://${MILMOVEHOST}:4000 \
   --add-host ${MILMOVEHOST}:"${E2E_IP}" \
