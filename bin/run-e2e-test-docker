@@ -66,8 +66,9 @@ $DOCKER_RUN \
   --name="${CONTAINER}" \
   --link="db-dev:database" \
   --detach \
-  --rm \
   ${CONTAINER}:latest
+
+docker log ${CONTAINER}
 
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
 
