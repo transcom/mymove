@@ -15,15 +15,21 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"goji.io"
+	"goji.io/pat"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -38,9 +44,6 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
-	"goji.io"
-	"goji.io/pat"
 )
 
 // GitCommit is empty unless set as a build flag
@@ -73,6 +76,23 @@ type errInvalidHost struct {
 
 func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
+}
+
+type errInvalidRegion struct {
+	Region string
+}
+
+func (e *errInvalidRegion) Error() string {
+	return fmt.Sprintf("invalid region %s", e.Region)
+}
+
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
 }
 
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
@@ -131,7 +151,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 
-	flag.String("http-my-server-name", "localhost", "Hostname according to environment.")
+	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
@@ -189,7 +209,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// EDI Invoice Config
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 
-	flag.String("storage-backend", "filesystem", "Storage backend to use, either filesystem or s3.")
+	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
@@ -339,6 +359,14 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 		return nil, err
 	}
 
+	// Check the connection
+	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	err = db.Ping()
+	if err != nil {
+		logger.Warn("Failed to ping DB connection", zap.Error(err))
+		return connection, err
+	}
+
 	// Return the open connection
 	return connection, nil
 }
@@ -388,6 +416,40 @@ func checkConfig(v *viper.Viper) error {
 	for _, c := range portVars {
 		if p := v.GetInt(c); p <= 0 || p > 65535 {
 			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
+		}
+	}
+
+	emailBackend := v.GetString("email-backend")
+	if !stringSliceContains([]string{"local", "ses"}, emailBackend) {
+		return fmt.Errorf("invalid email-backend %s, expecting local or ses", emailBackend)
+	}
+
+	if emailBackend == "ses" {
+		// SES is only available in 3 regions: us-east-1, us-west-2, and eu-west-1
+		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
+		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+	}
+
+	storageBackend := v.GetString("storage-backend")
+	if !stringSliceContains([]string{"local", "s3"}, storageBackend) {
+		return fmt.Errorf("invalid storage-backend %s, expecting local or s3", storageBackend)
+	}
+
+	if storageBackend == "s3" {
+		regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.S3ServiceID)
+		if !ok {
+			return fmt.Errorf("could not find regions for service %s", endpoints.S3ServiceID)
+		}
+
+		r := v.GetString("aws-s3-region")
+		if len(r) == 0 {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
+		}
+
+		if _, ok := regions[r]; !ok {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
 		}
 	}
 
@@ -447,7 +509,14 @@ func main() {
 	// Create a connection to the DB
 	dbConnection, err := initDatabase(v, logger)
 	if err != nil {
-		logger.Fatal("Connecting to DB", zap.Error(err))
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Connecting to DB", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up but we
+			// can proceed (this avoids a failure loop when deploying containers).
+			logger.Warn("Starting server without DB connection")
+		}
 	}
 
 	myHostname := v.GetString("http-my-server-name")

@@ -5,7 +5,7 @@ import { reduxForm, FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
-import { ServiceAgentDisplay, ServiceAgentEdit } from './ServiceAgentViews';
+import { ServiceAgentDisplay, ServiceAgentEdit, TransportationServiceProviderDisplay } from './ServiceAgentViews';
 
 // TODO: Refactor when we switch to using a wizard
 // Editable panel specific to Assign Service Agents. Due to not using a wizard to assign the service agents this
@@ -160,17 +160,20 @@ ServiceAgentEditablePanel.defaultProps = {
 };
 
 const TSPDisplay = props => {
+  const { saSchema, transportationServiceProvider } = props;
   const originSAProps = {
-    schema: props.saSchema,
+    schema: saSchema,
     values: props.origin_service_agent,
   };
 
   const destinationSAProps = {
-    schema: props.saSchema,
+    schema: saSchema,
     values: props.destination_service_agent,
   };
+
   return (
     <Fragment>
+      <TransportationServiceProviderDisplay tsp={transportationServiceProvider} />
       <ServiceAgentDisplay serviceAgentProps={originSAProps} saRole="Origin" />
       <ServiceAgentDisplay serviceAgentProps={destinationSAProps} saRole="Destination" />
     </Fragment>
@@ -178,12 +181,14 @@ const TSPDisplay = props => {
 };
 
 const TSPEdit = props => {
-  const saSchema = props.saSchema;
+  const { saSchema, transportationServiceProvider } = props;
   const originValues = get(props, 'formValues.ORIGIN', {});
   const destinationValues = get(props, 'formValues.DESTINATION', {});
-
   return (
     <Fragment>
+      <FormSection name="transportation_service_provider">
+        <TransportationServiceProviderDisplay tsp={transportationServiceProvider} />
+      </FormSection>
       <FormSection name="origin_service_agent">
         <ServiceAgentEdit
           serviceAgentProps={{

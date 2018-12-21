@@ -1180,6 +1180,11 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
+      transportation_service_provider_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
   TransportationServiceProvider:
     type: object
     properties:
@@ -1192,6 +1197,7 @@ definitions:
         type: string
         example: '51980581983'
         x-nullable: true
+        title: SCAC
       enrolled:
         type: boolean
         default: false
@@ -1199,6 +1205,7 @@ definitions:
         type: string
         example: 'EXTRA Good TSP'
         x-nullable: true
+        title: Name
       poc_general_name:
         type: string
         example: 'Jon Bon Jovi'
@@ -2145,6 +2152,35 @@ paths:
           description: not authorized to access the associated service agent
         404:
           description: no service agent found with that UUID
+        500:
+          description: server error
+  /shipments/{shipmentId}/transportation_service_provider:
+    get:
+      summary: Gets transportation service provider for shipment
+      description: Allows a user to retrieve the transportation service provider for a shipment.
+      operationId: getTransportationServiceProvider
+      tags:
+        - transportation_service_provider
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns a Transporation Service Provider
+          schema:
+            $ref: '#/definitions/TransportationServiceProvider'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
+        422:
+          description: cannot process request with given information
         500:
           description: server error
   /shipment/{shipmentId}/completePmSurvey:

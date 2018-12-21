@@ -3,10 +3,13 @@ import { fileUploadTimeout } from '../../support/constants';
 
 describe('The document viewer', function() {
   beforeEach(() => {
-    cy.signIntoTSP();
+    // The document viewer is launched in a new tab, so prevent visiting home page first
+    cy.signIntoTSP(false);
   });
 
   it('has a new document links', () => {
+    cy.visit('/');
+
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/queues\/new/);
     });
@@ -50,10 +53,9 @@ describe('The document viewer', function() {
       .should('have.attr', 'href')
       .and('match', /^\/shipments\/[^/]+\/documents\/new/);
 
-    cy.visit('/queues/approved/'),
-      {
-        log: true,
-      };
+    cy.visit('/queues/approved/', {
+      log: true,
+    });
 
     // Find a shipment with a doc
     cy
@@ -88,5 +90,37 @@ describe('The document viewer', function() {
       .click();
     cy.get('input[name="title"]').should('be.empty');
     cy.get('input[name="notes"]').should('be.empty');
+  });
+
+  it('can navigate to the shipment info page and show line item info', () => {
+    cy.visit('/shipments/67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9/documents/new', {
+      log: true,
+    });
+
+    cy.get('button.submit').should('be.disabled');
+
+    cy.get('a[title="Home"]').click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/queues\/new/);
+    });
+
+    cy
+      .get('div')
+      .contains('Delivered Shipments')
+      .click();
+
+    cy
+      .get('div')
+      .contains('DOOB')
+      .dblclick();
+
+    cy
+      .get('.invoice-panel')
+      .get('.invoice-panel-table-cont')
+      .find('tbody tr')
+      .should(rows => {
+        expect(rows).to.have.length.of.at.least(3);
+      });
   });
 });
