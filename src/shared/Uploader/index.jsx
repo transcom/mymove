@@ -68,6 +68,12 @@ export class Uploader extends Component {
   }
 
   handlePondInit() {
+    // If this component is unloaded quickly, this function can be called after the ref is deleted,
+    // so check that the ref still exists before continuing
+    if (!this.pond) {
+      return;
+    }
+
     const { labelIdle } = this.props;
     this.pond._pond.setOptions({
       allowMultiple: true,
