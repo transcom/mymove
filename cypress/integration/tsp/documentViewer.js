@@ -97,10 +97,9 @@ describe('The document viewer', function() {
       log: true,
     });
 
-    cy
-      .get('a[title="Home"]')
-      .first()
-      .click();
+    cy.get('button.submit').should('be.disabled');
+
+    cy.get('a[title="Home"]').click();
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/queues\/new/);
