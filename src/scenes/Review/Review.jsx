@@ -32,7 +32,7 @@ class Review extends Component {
         )}
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={pageKey} pageIsValid={true}>
           <div className="edit-title">
-            <h2>Review move details</h2>
+            <h2>Review Move Details</h2>
             <p>You're almost done! Please review your details before we finalize the move.</p>
           </div>
           <Summary />

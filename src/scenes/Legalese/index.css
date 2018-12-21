@@ -3,6 +3,10 @@
   justify-content: space-between;
 }
 
+h2 {
+  margin-top: 1em;
+}
+
 .instructions {
   margin: 0;
 }

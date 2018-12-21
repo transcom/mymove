@@ -80,8 +80,8 @@ export class SignedCertification extends Component {
               initialValues={initialValues}
               discardOnBack
             >
-              <div className="usa-grid">
-                <div className="usa-width-one-whole">
+              <div className="usa-width-one-whole">
+                <div>
                   <h2>Now for the official part...</h2>
                   <span className="box_top">
                     <p className="instructions">
