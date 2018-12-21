@@ -68,7 +68,7 @@ $DOCKER_RUN \
   --detach \
   ${CONTAINER}:latest
 
-docker log ${CONTAINER}
+docker logs -f ${CONTAINER}
 
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
 
