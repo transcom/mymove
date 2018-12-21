@@ -23,7 +23,7 @@ func (u UpdateInvoiceSubmitted) Call(invoice *models.Invoice, shipmentLineItems 
 		// and violating pk unique constraints (the docs say it shouldn't)
 		// https://gobuffalo.io/en/docs/db/relations#eager-creation
 		// verrs, err := c.db.Eager().ValidateAndSave(&invoice)
-		verrs, err := u.DB.ValidateAndSave(invoice)
+		verrs, err := connection.ValidateAndSave(invoice)
 		if err != nil || verrs.HasAny() {
 			return errors.New("error saving invoice")
 		}
@@ -31,7 +31,7 @@ func (u UpdateInvoiceSubmitted) Call(invoice *models.Invoice, shipmentLineItems 
 			shipmentLineItems[liIndex].InvoiceID = &invoice.ID
 			shipmentLineItems[liIndex].Invoice = *invoice
 		}
-		verrs, err = u.DB.ValidateAndSave(&shipmentLineItems)
+		verrs, err = connection.ValidateAndSave(&shipmentLineItems)
 		if err != nil || verrs.HasAny() {
 			return errors.New("error saving shipment line items")
 		}
