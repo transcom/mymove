@@ -7,8 +7,11 @@
   margin: 0;
 }
 
+.usa-width-one-whole > h3 {
+  margin-top: 1em;
+}
+
 .signature-form {
-  padding: 2rem;
   margin-top: 1em;
 }
 
