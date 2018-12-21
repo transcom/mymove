@@ -61,14 +61,14 @@ $DOCKER_RUN \
   -e NO_TLS_PORT="${HTTP_PORT}" \
   -e SECURE_MIGRATION_DIR \
   -e SECURE_MIGRATION_SOURCE \
+  -e CSRF_AUTH_KEY \
   -p "${HTTP_PORT}:${HTTP_PORT}" \
   --expose="${HTTP_PORT}" \
   --name="${CONTAINER}" \
   --link="db-dev:database" \
   --detach \
+  --rm \
   ${CONTAINER}:latest
-
-docker logs -f ${CONTAINER}
 
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
 
