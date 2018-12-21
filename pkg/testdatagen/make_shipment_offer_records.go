@@ -426,4 +426,16 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		RequiresPreApproval: false,
 	}
 	mustSave(db, &code105C)
+
+	code16A := models.Tariff400ngItem{
+		Code:                "16A",
+		Item:                "Fuel Surcharge-LHS",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationORIGIN,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeFUELSURCHARGE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code16A)
 }
