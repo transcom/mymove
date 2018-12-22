@@ -153,6 +153,10 @@
     {
       "name": "DPS_COOKIE_DOMAIN",
       "value": ".sddc.army.mil"
+    },
+    {
+      "name": "REALLY_SEND_GEX_REQUEST",
+      "value": "{{ .REALLY_SEND_GEX_REQUEST }}"
     }
   ],
   "logConfiguration": {
