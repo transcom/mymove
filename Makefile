@@ -212,9 +212,9 @@ db_run:
 			postgres:10.5
 
 db_destroy:
-	@echo "Destroying the local dev database..."
+	@echo "Destroying the local database container..."
 	docker rm -f $(DB_DOCKER_CONTAINER) || \
-		echo "No dev database"
+		echo "No database container"
 
 db_dev_create:
 	DB_NAME=postgres bin/wait-for-db && \
@@ -309,10 +309,10 @@ db_e2e_init: db_test_run_docker db_test_reset_docker db_test_migrate_docker db_e
 db_e2e_reset: db_e2e_init
 	@echo "\033[0;31mUse 'make db_e2e_init' instead please\033[0m"
 
-db_dev_e2e_populate: db_dev_create db_dev_reset db_dev_migrate build_tools
+db_dev_e2e_populate: db_destroy db_dev_run db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
 
-db_test_e2e_populate: db_test_run_docker db_test_reset_docker db_test_migrate_docker build_tools
+db_test_e2e_populate: db_destroy db_test_run_docker db_test_migrate_docker build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
 
 # Backwards compatibility
