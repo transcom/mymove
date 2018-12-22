@@ -36,7 +36,7 @@ func main() {
 	ediString = strings.TrimSpace(ediString) + "\n"
 
 	fmt.Println(ediString)
-	resp, err := gex.SendInvoiceToGex(ediString, *transactionName, true)
+	resp, err := gex.GexResponse{}.SendRequest(ediString, *transactionName)
 
 	fmt.Println("Sending to GEX. . .")
 	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)

@@ -6,6 +6,8 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/edi/gex/test"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -188,6 +190,7 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// EDI Invoice Config
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+	flag.Bool("really-send-gex-request", false, "Flag (bool) to send the actual gex request v. stubbed request")
 
 	flag.String("storage-backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
@@ -537,6 +540,14 @@ func main() {
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
+
+	var gexRequester gex.GexSender
+	if v.GetBool("really-send-gex-request") == true {
+		gexRequester = gex.GexResponse{}
+	} else {
+		gexRequester = test.TestGexResponse{}
+	}
+	handlerContext.SetGexSender(gexRequester)
 
 	rbs, err := initRealTimeBrokerService(v, logger)
 	if err != nil {

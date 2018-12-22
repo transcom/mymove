@@ -2,7 +2,6 @@ package gex
 
 import (
 	"crypto/tls"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -17,39 +16,43 @@ import (
 // gexRequestTimeout is how long to wait on Gex request before timing out (30 seconds).
 const gexRequestTimeout = time.Duration(30) * time.Second
 
-// SendInvoiceToGex sends an edi file string as a POST to the gex api
-func SendInvoiceToGex(edi string, transactionName string, reallySendRequest bool) (resp *http.Response, err error) {
-	// Ensure that the transaction body ends with a newline, otherwise the GEX
-	// EDI parser will fail silently
+// SenderToGex is an interface for sending and receiving a request
+type SenderToGex interface {
+	SendRequest(edi string, transactionName string) (resp *http.Response, err error)
+}
+
+// ActualGexSend represents a struct to contain an actual gex request function
+type ActualGexSend struct{}
+
+// SendRequest sends an edi file string as a POST to the gex api
+func (s ActualGexSend) SendRequest(edi string, transactionName string) (resp *http.Response, err error) {
+	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
 	edi = strings.TrimSpace(edi) + "\n"
-	if reallySendRequest {
-		request, err := http.NewRequest(
-			"POST",
-			"https://gexweba.daas.dla.mil/msg_data/submit/"+transactionName,
-			strings.NewReader(edi),
-		)
-		if err != nil {
-			return resp, errors.Wrap(err, "Creating GEX POST request")
-		}
-
-		// We need to provide basic auth credentials for the GEX server, as well as
-		// our client certificate for the proxy in front of the GEX server.
-		request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
-
-		config, err := GetTLSConfig()
-		if err != nil {
-			return resp, errors.Wrap(err, "Creating TLS config")
-		}
-
-		tr := &http.Transport{TLSClientConfig: config}
-		client := &http.Client{Transport: tr, Timeout: gexRequestTimeout}
-		resp, err = client.Do(request)
-		if err != nil {
-			return resp, errors.Wrap(err, "Sending GEX POST request")
-		}
-	} else {
-		//resp = http.Response(http.ResponseWriter.WriteHeader(http.StatusOK, 200))
+	request, err := http.NewRequest(
+		"POST",
+		"https://gexweba.daas.dla.mil/msg_data/submit/"+transactionName,
+		strings.NewReader(edi),
+	)
+	if err != nil {
+		return resp, errors.Wrap(err, "Creating GEX POST request")
 	}
+
+	// We need to provide basic auth credentials for the GEX server, as well as
+	// our client certificate for the proxy in front of the GEX server.
+	request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
+
+	config, err := GetTLSConfig()
+	if err != nil {
+		return resp, errors.Wrap(err, "Creating TLS config")
+	}
+
+	tr := &http.Transport{TLSClientConfig: config}
+	client := &http.Client{Transport: tr, Timeout: gexRequestTimeout}
+	resp, err = client.Do(request)
+	if err != nil {
+		return resp, errors.Wrap(err, "Sending GEX POST request")
+	}
+
 	return resp, err
 }
 

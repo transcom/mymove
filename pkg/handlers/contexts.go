@@ -5,6 +5,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -32,8 +33,8 @@ type HandlerContext interface {
 	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
-	ReallySendToGex() bool
-	SetReallySendToGex()
+	GexSender() gex.SenderToGex
+	SetGexSender(gexSender gex.SenderToGex)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
@@ -50,8 +51,8 @@ type handlerContext struct {
 	notificationSender       notifications.NotificationSender
 	iwsRealTimeBrokerService iws.RealTimeBrokerService
 	sendProductionInvoice    bool
-	reallySendToGex          bool
 	dpsAuthParams            dpsauth.Params
+	senderToGex              gex.SenderToGex
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -151,19 +152,12 @@ func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool)
 	hctx.sendProductionInvoice = sendProductionInvoice
 }
 
-func (hctx *handlerContext) ReallySendToGex() bool {
-	return hctx.reallySendToGex
+func (hctx *handlerContext) GexSender() gex.SenderToGex {
+	return hctx.senderToGex
 }
 
-func (hctx *handlerContext) SetReallySendToGex() {
-	reallySendToGex := true
-	// placeholder stubbed boolean code
-	isDevelopment := true
-	isTest := false
-	if isDevelopment || isTest {
-		reallySendToGex = false
-	}
-	hctx.reallySendToGex = reallySendToGex
+func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SenderToGex) {
+	hctx.senderToGex = sendGexRequest
 }
 
 func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {
