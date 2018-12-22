@@ -64,7 +64,7 @@ export class AppWrapper extends Component {
         <LastLocationProvider>
           <div className="my-move site">
             <Header />
-            <main className="site__content">
+            <main className="site__content my-move-container">
               <div className="usa-grid">
                 <LogoutOnInactivity />
                 {props.swaggerError && (

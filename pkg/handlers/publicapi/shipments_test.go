@@ -20,6 +20,29 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
+func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsNotPresent() {
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	shipmentPayload := payloadForShipmentModel(shipment)
+	suite.Equal(shipmentPayload.TransportationServiceProviderID, strfmt.UUID(""))
+}
+
+func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsPresent() {
+	tsp := testdatagen.MakeTSP(suite.TestDB(), testdatagen.Assertions{})
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	testdatagen.MakeShipmentOffer(suite.TestDB(), testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tsp.ID,
+			ShipmentID:                      shipment.ID,
+		},
+	})
+	reloadShipment, err := models.FetchShipmentByTSP(suite.TestDB(), tsp.ID, shipment.ID)
+	suite.Nil(err)
+
+	shipmentPayload := payloadForShipmentModel(*reloadShipment)
+	expectedTspID := *handlers.FmtUUID(tsp.ID)
+	suite.Equal(shipmentPayload.TransportationServiceProviderID, expectedTspID)
+}
+
 func (suite *HandlerSuite) TestGetShipmentHandler() {
 	numTspUsers := 1
 	numShipments := 1
@@ -773,7 +796,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// The details of the line items are tested in the rateengine package.  We just
 	// check the count here.
-	suite.Len(addedLineItems, 6)
+	suite.Len(addedLineItems, 7)
 
 	updatedPreApproval, err := models.FetchShipmentLineItemByID(suite.TestDB(), &preApproval.ID)
 	if suite.NoError(err) {

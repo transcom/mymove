@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
 
 import { MoveSummary } from './MoveSummary';
+import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -88,7 +89,9 @@ export class Landing extends Component {
       loggedInUserIsLoading,
       loggedInUserSuccess,
       loggedInUserError,
+      hasSubmitSuccess,
       isProfileComplete,
+      isHHGPPMComboMove,
       createdServiceMemberError,
       moveSubmitSuccess,
       entitlement,
@@ -112,6 +115,12 @@ export class Landing extends Component {
                   You've submitted your move
                 </Alert>
               )}
+              {isHHGPPMComboMove &&
+                hasSubmitSuccess && (
+                  <Alert type="success" heading="You've added a PPM shipment">
+                    Next, your shipment is awaiting approval and this can take up to 3 business days
+                  </Alert>
+                )}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.
@@ -156,6 +165,7 @@ const mapStateToProps = state => {
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: state.user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
@@ -171,6 +181,7 @@ const mapStateToProps = state => {
     createdServiceMemberError: state.serviceMember.error,
     createdServiceMember: state.serviceMember.currentServiceMember,
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
+    hasSubmitSuccess: state.signedCertification.hasSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
