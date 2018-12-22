@@ -3,9 +3,11 @@ import { fileUploadTimeout } from '../../support/constants';
 /* global cy, Cypress */
 describe('The document viewer', function() {
   beforeEach(() => {
-    cy.signIntoOffice();
+    // The document viewer is launched in a new tab, so prevent visiting home page first
+    cy.signIntoOffice(false);
   });
   it('redirects to sign in when not logged in', function() {
+    cy.visit('/');
     cy.contains('Sign Out').click();
     cy.visit('/moves/foo/documents');
     cy.contains('Welcome');
@@ -153,7 +155,6 @@ describe('The document viewer', function() {
     cy.contains('4,999.92');
     cy.contains('GTCC');
   });
-
   it('can upload documents to an HHG move', () => {
     cy.visit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');
 
@@ -185,5 +186,46 @@ describe('The document viewer', function() {
       .click();
 
     cy.contains('All Documents (2)');
+  });
+  it('can navigate to the shipment info page and show line item info', () => {
+    cy.visit('/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/documents/new', {
+      log: true,
+    });
+
+    cy
+      .get('a[title="Home"]')
+      .first()
+      .click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/queues\/new/);
+    });
+
+    cy
+      .get('div')
+      .contains('Delivered HHGs')
+      .click();
+
+    cy
+      .get('div')
+      .contains('DOOB')
+      .dblclick();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+    });
+
+    cy
+      .get('a')
+      .contains('HHG')
+      .click(); // navtab
+
+    cy
+      .get('.invoice-panel')
+      .get('.invoice-panel-table-cont')
+      .find('tbody tr')
+      .should(rows => {
+        expect(rows).to.have.length.of.at.least(3);
+      });
   });
 });
