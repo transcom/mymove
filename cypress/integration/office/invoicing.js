@@ -53,4 +53,15 @@ function checkApproveButton() {
 
   // The invoice tab should have a button with the correct text.
   cy.get('.invoice-panel-header-cont button').should('have.text', 'Approve Payment');
+
+  // Open shipments tab of move with no unbilled line items.
+  cy.visit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
+
+  // The invoice tab should not have a button.
+  cy
+    .get('.invoice-panel')
+    .first()
+    .within(() => {
+      cy.get('button').should('not.exist');
+    });
 }
