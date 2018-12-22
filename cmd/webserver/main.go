@@ -541,11 +541,11 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
-	var gexRequester gex.GexSender
+	var gexRequester gex.SenderToGex
 	if v.GetBool("really-send-gex-request") == true {
-		gexRequester = gex.GexResponse{}
+		gexRequester = gex.ActualGexSend{}
 	} else {
-		gexRequester = test.TestGexResponse{}
+		gexRequester = test.TestGexSend{}
 	}
 	handlerContext.SetGexSender(gexRequester)
 
