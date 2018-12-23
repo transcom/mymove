@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/models"
@@ -45,16 +44,14 @@ func MakeFuelEIADieselPrices(db *pop.Connection) {
 	recordCount := 0
 	for y := oldestYear; y <= endYear; y++ {
 		for i := 1; i <= 12; i++ {
-			fmt.Println(i)
-
 			id := uuid.Must(uuid.NewV4())
 			fuelPrice := models.FuelEIADieselPrice{
 				ID:                          id,
 				PubDate:                     nextPubDate,
 				RateStartDate:               nextStartDate,
 				RateEndDate:                 nextEndDate,
-				EIAPricePerGallonMillicents: unit.Millicents(pricesMillicents[recordCount%pricesLen]),
-				BaselineRate:                int64(baselineRates[recordCount%baselineRateLen]),
+				EIAPricePerGallonMillicents: pricesMillicents[recordCount%pricesLen],
+				BaselineRate:                baselineRates[recordCount%baselineRateLen],
 			}
 
 			nextPubDate = nextPubDate.AddDate(0, 0, 28)
