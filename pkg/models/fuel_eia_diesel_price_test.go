@@ -39,6 +39,25 @@ func (suite *ModelSuite) TestEmptyFuelEIADieselPriceInstantiation() {
 	suite.verifyValidationErrors(&newFuelPrice, expErrors)
 }
 
+func (suite *ModelSuite) TestBadDatesFuelEIADieselPriceInstantiation() {
+	now := time.Now()
+	id := uuid.Must(uuid.NewV4())
+	newFuelPrice := models.FuelEIADieselPrice{
+		ID:                          id,
+		PubDate:                     now,
+		RateStartDate:               now,
+		RateEndDate:                 now.AddDate(0, -1, 0),
+		EIAPricePerGallonMillicents: 320700,
+		BaselineRate:                6,
+	}
+
+	expErrors := map[string][]string{
+		"rate_end_date": {"RateEndDate must be after RateStartDate."},
+	}
+
+	suite.verifyValidationErrors(&newFuelPrice, expErrors)
+}
+
 func (suite *ModelSuite) TestMakeFuelEIADieselPrices() {
 	testdatagen.MakeFuelEIADieselPrices(suite.db)
 }
