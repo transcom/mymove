@@ -4,7 +4,7 @@ describe('completing the ppm flow', function() {
   beforeEach(() => {
     //profile@comple.te
     // cy.resetDb();
-    cy.signInAsUser('13F3949D-0D53-4BE4-B1B1-AE4314793F34');
+    cy.signInAsUser('13f3949d-0d53-4be4-b1b1-ae4314793f34');
   });
 
   //tear down currently means doing this:

@@ -1,3 +1,5 @@
+/* global cy, Cypress */
+
 // ***********************************************************
 // This example support/index.js is processed and
 // loaded automatically before your test files.
@@ -15,6 +17,19 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands';
+
+// Capture the full screen by default
+// These options are overridden for auto-screenshot on fail
+Cypress.Screenshot.defaults({
+  capture: 'fullPage',
+});
+
+afterEach(function() {
+  if (this.currentTest.state === 'failed') {
+    // Take another screenshot so we get the full page
+    cy.screenshot();
+  }
+});
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

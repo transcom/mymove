@@ -140,20 +140,19 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadShipmentDependencies(this.props.match.params.shipmentId).catch(err => {
-      this.props.history.replace('/');
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if ((!prevProps.shipment.id && this.props.shipment.id) || prevProps.shipment.id !== this.props.shipment.id) {
-      const shipmentId = this.props.shipment.id;
-      this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-      this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
-      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
-      this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
-    }
+    this.props
+      .loadShipmentDependencies(this.props.match.params.shipmentId)
+      .then(() => {
+        const shipmentId = this.props.shipment.id;
+        this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+        this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
+        this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+        this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
+        this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+      })
+      .catch(err => {
+        this.props.history.replace('/');
+      });
   }
 
   acceptShipment = () => {
@@ -371,11 +370,10 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {approved &&
-                pmSurveyComplete &&
+              {pmSurveyComplete &&
                 !gblGenerated && (
                   <div>
-                    <button onClick={this.generateGBL} disabled={generateGBLInProgress}>
+                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
                       Generate the GBL
                     </button>
                   </div>

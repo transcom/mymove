@@ -4,5 +4,7 @@
   "reporterOptions": {
     "mochaFile": "cypress/results/test-report-junit.[hash].xml"
   },
+  "viewportWidth": 1440,
+  "viewportHeight": 900,
   "videoUploadOnPasses": false
 }
