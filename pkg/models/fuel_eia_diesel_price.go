@@ -48,6 +48,9 @@ func (f *FuelEIADieselPrice) Validate(tx *pop.Connection) (*validate.Errors, err
 		&validators.TimeIsPresent{Field: f.RateEndDate, Name: "RateEndDate"},
 		&validators.IntIsGreaterThan{Field: f.EIAPricePerGallonMillicents.Int(), Name: "EIAPricePerGallonMillicents", Compared: 0},
 		&validators.IntIsGreaterThan{Field: int(f.BaselineRate), Name: "BaselineRate", Compared: 0},
+		&validators.TimeAfterTime{
+			FirstTime: f.RateEndDate, FirstName: "RateEndDate",
+			SecondTime: f.RateStartDate, SecondName: "RateStartDate"},
 	), nil
 }
 

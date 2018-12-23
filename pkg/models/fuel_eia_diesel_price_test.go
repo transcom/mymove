@@ -3,13 +3,10 @@ package models_test
 import (
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/models"
-	"testing"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 	"time"
 )
-
-func Test_FuelEIADieselPrice(t *testing.T) {
-	//t.Fatal("This test needs to be implemented!")
-}
 
 func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
 	now := time.Now()
@@ -40,4 +37,23 @@ func (suite *ModelSuite) TestEmptyFuelEIADieselPriceInstantiation() {
 		"baseline_rate":                     {"0 is not greater than 0."},
 	}
 	suite.verifyValidationErrors(&newFuelPrice, expErrors)
+}
+
+func (suite *ModelSuite) TestMakeFuelEIADieselPrices() {
+	testdatagen.MakeFuelEIADieselPrices(suite.db)
+}
+
+func (suite *ModelSuite) TestMakeFuelEIADieselPriceForDate() {
+	rateStartDate := time.Date(2017, time.July, 15, 0, 0, 0, 0, time.UTC)
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.RateStartDate = rateStartDate
+	assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents = unit.Millicents(695700)
+	shipmentDate := assertions.FuelEIADieselPrice.RateStartDate.AddDate(0, 0, 10)
+
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.db, shipmentDate, assertions)
+}
+
+func (suite *ModelSuite) TestMakeDefaultFuelEIADieselPriceForDate() {
+	shipmentDate := time.Now()
+	testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.db, shipmentDate)
 }
