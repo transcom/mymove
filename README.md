@@ -121,6 +121,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
 
 1. `./bin/prereqs`
+1. `make db_dev_run`
 1. `make db_dev_migrate`
 1. `make server_run`
 1. `make client_build`
@@ -142,7 +143,9 @@ The following commands will get mymove running on your machine for the first tim
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_migrate`: Creates a PostgreSQL docker container if you haven't made one yet and runs all existing database migrations, which do things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+1. `make db_dev_run`: Creates a PostgreSQL docker container if you haven't made one yet
+
+1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
 You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 You can validate that your test database is running by running `bin/psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
