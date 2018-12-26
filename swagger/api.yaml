@@ -613,9 +613,11 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+        default: false
       spouse_has_pro_gear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+        default: false
       status:
         $ref: '#/definitions/MoveStatus'
       locator:
