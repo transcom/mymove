@@ -22,8 +22,9 @@
   * [Learning](#learning)
   * [Testing](#testing)
     * [General](#general)
+    * [Coverage](#coverage)
     * [Models](#models)
-    * [Miscellaneous Tips](#miscellaneous-tips)
+  * [Miscellaneous Tips](#miscellaneous-tips)
 * [Environment settings](#environment-settings)
   * [Adding `ulimit`](#adding-ulimit)
 
@@ -305,6 +306,17 @@ Knowing what deserves a test and what doesn’t can be tricky, especially early 
 * Use table-driven tests where appropriate.
 * Make judicious use of helper functions so that the intent of a test is not lost in a sea of error checking and boilerplate. Use [`t.Helper()`](https://golang.org/pkg/testing/#T.Helper) in your test helper functions to keep stack traces clean.
 
+#### Coverage
+
+* Always test exported functions.
+  Exported functions should be treated as an API layer for other packages.
+  Cover the expected behavior and error scenarios as a user of that API.
+* Try not to test unexported functions.
+  Unexported functions are implementation details of exported ones
+  and should not change the intended usage.
+  If you find that an unexported function is complex and needs testing,
+  it might mean it needs to be refactored as it's exported function elsewhere.
+
 #### Models
 
 In general, focus on testing non-trivial behavior.
@@ -314,7 +326,7 @@ In general, focus on testing non-trivial behavior.
 * Avoid testing functionality of libraries, e.g. model saving and loading (which is provided by Pop)
 * Try to leverage the type system to ensure that components are “hooked up correctly” instead of writing integration tests.
 
-#### Miscellaneous Tips
+### Miscellaneous Tips
 
 * Use `golang` instead of `go` in Google searches.
 * Try to use the standard lib as much as possible, especially when learning.

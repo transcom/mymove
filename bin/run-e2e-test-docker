@@ -1,0 +1,117 @@
+#!/bin/bash
+
+set -eu -o pipefail
+
+# Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
+export REACT_APP_NODE_ENV=development
+
+# Set the container default name
+CONTAINER=e2e
+CONTAINER_CYPRESS=cypress
+
+# Set hostnames
+MILMOVEHOST=milmovelocal
+OFFICEHOST=officelocal
+TSPHOST=tsplocal
+
+# Change the port for tests
+HTTP_PORT=4000
+
+# When running locally enable TTY
+DOCKER_RUN="docker run -t"
+if [ -n "${CIRCLECI+x}" ]; then
+  DOCKER_RUN="docker run"
+fi
+
+# Check that the docker process is running first
+docker system info >> /dev/null
+
+# Begin setup
+make e2e_clean client_build db_e2e_init server_build_linux
+
+# Build the docker container
+docker build --tag e2e:latest .
+
+# Run the image with the ports changed
+$DOCKER_RUN \
+  -e CLIENT_AUTH_SECRET_KEY \
+  -e DB_HOST="database" \
+  -e DB_NAME \
+  -e DB_PASSWORD \
+  -e DB_PORT \
+  -e DB_USER \
+  -e DOD_CA_PACKAGE="/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b" \
+  -e ENV="test" \
+  -e HERE_MAPS_APP_CODE \
+  -e HERE_MAPS_APP_ID \
+  -e HERE_MAPS_GEOCODE_ENDPOINT \
+  -e HERE_MAPS_ROUTING_ENDPOINT \
+  -e HTTP_MY_SERVER_NAME="${MILMOVEHOST}" \
+  -e IWS_RBS_HOST \
+  -e LOGIN_GOV_CALLBACK_PORT="${HTTP_PORT}" \
+  -e LOGIN_GOV_CALLBACK_PROTOCOL \
+  -e LOGIN_GOV_HOSTNAME \
+  -e LOGIN_GOV_MY_CLIENT_ID \
+  -e LOGIN_GOV_OFFICE_CLIENT_ID \
+  -e LOGIN_GOV_SECRET_KEY \
+  -e LOGIN_GOV_TSP_CLIENT_ID \
+  -e MOVE_MIL_DOD_CA_CERT \
+  -e MOVE_MIL_DOD_TLS_CERT \
+  -e MOVE_MIL_DOD_TLS_KEY \
+  -e NO_TLS_PORT="${HTTP_PORT}" \
+  -e SECURE_MIGRATION_DIR \
+  -e SECURE_MIGRATION_SOURCE \
+  -e CSRF_AUTH_KEY \
+  -p "${HTTP_PORT}:${HTTP_PORT}" \
+  --expose="${HTTP_PORT}" \
+  --name="${CONTAINER}" \
+  --link="db-dev:database" \
+  --detach \
+  --rm \
+  ${CONTAINER}:latest
+
+# If your container is exiting unexpectedly try uncommenting this code to see the output:
+# docker logs -f ${CONTAINER}
+
+# Grab the IP address of the running container
+E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
+
+# Run the cypress tests
+docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
+
+# Confirm app container is still running before running tests
+# See note above about what to do if you need to debug
+DOCKER_PID=$(docker ps -qf name=${CONTAINER})
+if [ -z "${DOCKER_PID}" ]; then
+  echo
+  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run. "
+  exit 1
+fi
+
+$DOCKER_RUN \
+  -e CYPRESS_baseUrl=http://${MILMOVEHOST}:4000 \
+  --add-host ${MILMOVEHOST}:"${E2E_IP}" \
+  --add-host ${OFFICEHOST}:"${E2E_IP}" \
+  --add-host ${TSPHOST}:"${E2E_IP}" \
+  --name="${CONTAINER_CYPRESS}" \
+  --link="${CONTAINER}" \
+  --ipc=host \
+  --detach \
+  ${CONTAINER_CYPRESS}:latest run --spec "${SPEC:-cypress/integration/**/*}"
+
+# Tail the logs so users can follow along
+docker logs -f ${CONTAINER_CYPRESS}
+
+# Stop the app container to release the DB connection
+docker stop ${CONTAINER}
+
+# Copy out the results
+docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
+docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
+docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
+
+# Grab the exit code from the test container
+EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
+
+# Exit with the status from tests
+exit "${EXIT_STATUS}"

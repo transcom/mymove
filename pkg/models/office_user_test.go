@@ -46,7 +46,6 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 }
 
 func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
-
 	user, err := FetchOfficeUserByEmail(suite.db, "not_here@example.com")
 	suite.Equal(err, ErrFetchNotFound)
 	suite.Nil(user)
@@ -63,6 +62,28 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
 	suite.mustSave(&newUser)
 
 	user, err = FetchOfficeUserByEmail(suite.db, email)
+	suite.Nil(err)
+	suite.NotNil(user)
+	suite.Equal(newUser.ID, user.ID)
+}
+
+func (suite *ModelSuite) TestFetchOfficeUserByID() {
+	fakeUUID, _ := uuid.FromString("99999999-8888-7777-8b57-e39519f42dc1")
+
+	user, err := FetchOfficeUserByID(suite.db, fakeUUID)
+	suite.NotNil(err)
+
+	office := CreateTestShippingOffice(suite)
+	newUser := OfficeUser{
+		LastName:               "Tester",
+		FirstName:              "Sally",
+		Email:                  "test@test.com",
+		Telephone:              "(907) 555-1212",
+		TransportationOfficeID: office.ID,
+	}
+	suite.mustSave(&newUser)
+
+	user, err = FetchOfficeUserByID(suite.db, newUser.ID)
 	suite.Nil(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)

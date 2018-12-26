@@ -19,11 +19,10 @@ func (u UpdateInvoiceSubmitted) Call(invoice *models.Invoice, shipmentLineItems 
 	transactionErr := u.DB.Transaction(func(connection *pop.Connection) error {
 		invoice.Status = models.InvoiceStatusSUBMITTED
 		// Sample code of what eager creation should like
-		// Currently it is attempting to recreate shipment line items
-		// and violating pk unique constraints (the docs say it shouldn't)
-		// https://gobuffalo.io/en/docs/db/relations#eager-creation
 		// verrs, err := c.db.Eager().ValidateAndSave(&invoice)
-		verrs, err := u.DB.ValidateAndSave(invoice)
+		// Currently, this is only supported with `ValidateAndCreate`
+		// We might want to consider adding this functionality to pop
+		verrs, err = connection.ValidateAndSave(invoice)
 		if err != nil || verrs.HasAny() {
 			return errors.New("error saving invoice")
 		}
@@ -31,7 +30,7 @@ func (u UpdateInvoiceSubmitted) Call(invoice *models.Invoice, shipmentLineItems 
 			shipmentLineItems[liIndex].InvoiceID = &invoice.ID
 			shipmentLineItems[liIndex].Invoice = *invoice
 		}
-		verrs, err = u.DB.ValidateAndSave(&shipmentLineItems)
+		verrs, err = connection.ValidateAndSave(&shipmentLineItems)
 		if err != nil || verrs.HasAny() {
 			return errors.New("error saving shipment line items")
 		}

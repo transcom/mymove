@@ -31,6 +31,8 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
+import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -138,17 +140,19 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadShipmentDependencies(this.props.match.params.shipmentId).catch(err => {
-      this.props.history.replace('/');
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if ((!prevProps.shipment.id && this.props.shipment.id) || prevProps.shipment.id !== this.props.shipment.id) {
-      this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
-      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
-    }
+    this.props
+      .loadShipmentDependencies(this.props.match.params.shipmentId)
+      .then(() => {
+        const shipmentId = this.props.shipment.id;
+        this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+        this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
+        this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+        this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
+        this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+      })
+      .catch(err => {
+        this.props.history.replace('/');
+      });
   }
 
   acceptShipment = () => {
@@ -366,11 +370,10 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {approved &&
-                pmSurveyComplete &&
+              {pmSurveyComplete &&
                 !gblGenerated && (
                   <div>
-                    <button onClick={this.generateGBL} disabled={generateGBLInProgress}>
+                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
                       Generate the GBL
                     </button>
                   </div>
@@ -421,6 +424,7 @@ class ShipmentInfo extends Component {
                     title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
+                    transportationServiceProviderId={this.props.shipment.transportation_service_provider_id}
                   />
                 </div>
               )}
@@ -504,6 +508,8 @@ const mapDispatchToProps = dispatch =>
       getAllShipmentDocuments,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      getAllInvoices,
+      getTspForShipment,
     },
     dispatch,
   );
