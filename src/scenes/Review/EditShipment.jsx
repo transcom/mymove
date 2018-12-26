@@ -102,7 +102,7 @@ function mapDispatchToProps(dispatch, ownProps) {
       dispatch(updateShipment(updateShipmentLabel, shipmentID, values)).then(function(action) {
         if (!action.error) {
           const moveID = Object.values(action.entities.shipments)[0].move_id;
-          dispatch(push(`/moves/${moveID}/review`));
+          dispatch(push(`/moves/${moveID}/edit`));
         }
       });
     },
