@@ -196,6 +196,35 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
   });
 });
 
+function genericSelect(inputData, fieldName, classSelector) {
+  // fieldName is passed as a classname to the react-select component, so select for it if provided
+  if (fieldName) {
+    classSelector = `${classSelector}.${fieldName}`;
+  }
+  cy
+    .get(`${classSelector} input[type="text"]`)
+    .first()
+    .type(`{selectall}{backspace}${inputData}`, { force: true, delay: 75 });
+
+  // Click on the first presented option
+  cy
+    .get(classSelector)
+    .find('div[role="option"]')
+    .first()
+    .click();
+}
+
+Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
+  let classSelector = '.duty-input-box';
+  genericSelect(stationName, fieldName, classSelector);
+});
+
+Cypress.Commands.add('selectTariff400ngItem', itemName => {
+  let classSelector = '.tariff400-select';
+  let fieldName = 'tariff400ng_item';
+  genericSelect(itemName, fieldName, classSelector);
+});
+
 Cypress.Commands.add('setupBaseUrl', appname => {
   // setup baseurl
   switch (appname) {
