@@ -1,6 +1,11 @@
 package invoice
 
 import (
+	"github.com/go-openapi/swag"
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 	"log"
 	"testing"
 
@@ -32,4 +37,76 @@ func TestInvoiceSuite(t *testing.T) {
 
 	hs := &InvoiceServiceSuite{db: db, logger: logger}
 	suite.Run(t, hs)
+}
+
+func (suite *InvoiceServiceSuite) mustSave(model interface{}) {
+	t := suite.T()
+	t.Helper()
+
+	verrs, err := suite.db.ValidateAndSave(model)
+	if err != nil {
+		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
+	}
+	if verrs.HasAny() {
+		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
+	}
+}
+
+func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
+	var weight unit.Pound
+	weight = 2000
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{
+			NetWeight: &weight,
+		},
+	})
+	err := shipment.AssignGBLNumber(suite.db)
+	suite.mustSave(&shipment)
+	suite.NoError(err, "could not assign GBLNumber")
+
+	// Create an accepted shipment offer and the associated TSP.
+	scac := "ABCD"
+	supplierID := scac + "1234" //scac + payee code -- ABCD1234
+
+	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID,
+		},
+	})
+
+	tspp := testdatagen.MakeTSPPerformance(suite.db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+		},
+	})
+
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			Shipment:                                   shipment,
+			Accepted:                                   swag.Bool(true),
+			TransportationServiceProvider:              tsp,
+			TransportationServiceProviderID:            tsp.ID,
+			TransportationServiceProviderPerformance:   tspp,
+			TransportationServiceProviderPerformanceID: tspp.ID,
+		},
+	})
+	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
+
+	return shipment
+}
+
+// helperResetInvoiceNumber resets the invoice number for a given SCAC/year.
+func helperResetInvoiceNumber(suite *InvoiceServiceSuite, scac string, year int) error {
+	if len(scac) == 0 {
+		return errors.New("SCAC cannot be nil or empty string")
+	}
+
+	if year <= 0 {
+		return errors.Errorf("Year (%d) must be non-negative", year)
+	}
+
+	sql := `DELETE FROM invoice_number_trackers WHERE standard_carrier_alpha_code = $1 AND year = $2`
+	return suite.db.RawQuery(sql, scac, year).Exec()
 }

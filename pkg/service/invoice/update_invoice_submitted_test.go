@@ -8,7 +8,14 @@ import (
 
 func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
-	shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
+	shipment := helperShipment(suite)
+
+	shipmentLineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Shipment: shipment,
+		},
+	})
+
 	suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 
 	createInvoice := CreateInvoice{
@@ -25,8 +32,8 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	shipmentLineItems := models.ShipmentLineItems{shipmentLineItem}
 
 	verrs, err = updateInvoicesSubmitted.Call(&invoice, shipmentLineItems)
-	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 	suite.NoError(err)
+	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 
 	suite.Equal(models.InvoiceStatusSUBMITTED, invoice.Status)
 	suite.Equal(invoice.ID, *shipmentLineItems[0].InvoiceID)
