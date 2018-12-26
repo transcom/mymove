@@ -199,7 +199,8 @@ e2e_clean:
 	docker rm -f e2e_migrations || true
 
 db_run:
-	@echo "Starting the local dev database..."
+ifndef CIRCLECI
+	@echo "Starting the local docker database container..."
 	# The version of the postgres container should match production as closely
 	# as possible.
 	# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
@@ -210,11 +211,18 @@ db_run:
 			-d \
 			-p 5432:5432 \
 			postgres:10.5
+else
+	@echo "Relying on CircleCI's database setup to run the DB."
+endif
 
 db_destroy:
-	@echo "Destroying the local database container..."
+ifndef CIRCLECI
+	@echo "Destroying the local docker database container..."
 	docker rm -f $(DB_DOCKER_CONTAINER) || \
 		echo "No database container"
+else
+	@echo "Relying on CircleCI's database setup to destroy the DB."
+endif
 
 db_dev_create:
 	DB_NAME=postgres bin/wait-for-db && \
@@ -222,9 +230,7 @@ db_dev_create:
 
 db_dev_run: db_run db_dev_create
 
-db_dev_reset:
-	dropdb -p 5432 -h localhost -U postgres --if-exists dev_db
-	createdb -p 5432 -h localhost -U postgres dev_db
+db_dev_reset: db_destroy db_dev_run
 
 db_dev_migrate: server_deps
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
@@ -272,17 +278,9 @@ db_test_migrate_docker: db_test_migrations_build
 		e2e_migrations:latest \
 		migrate -c /migrate/database.yml -p /migrate/migrations up
 
-db_test_reset:
-ifndef CIRCLECI
-	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
-	createdb -p 5432 -h localhost -U postgres test_db
-else
-	@echo "Relying on CircleCI's test database setup."
-endif
+db_test_reset: db_destroy db_test_run
 
-db_test_reset_docker:
-	docker exec $(DB_DOCKER_CONTAINER) dropdb -p 5432 -h localhost -U postgres --if-exists test_db
-	docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db
+db_test_reset_docker: db_destroy db_test_run_docker
 
 db_e2e_up:
 	docker run \
@@ -304,15 +302,15 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: db_test_run_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_init: db_test_reset_docker db_test_migrate_docker db_e2e_up
 
 db_e2e_reset: db_e2e_init
 	@echo "\033[0;31mUse 'make db_e2e_init' instead please\033[0m"
 
-db_dev_e2e_populate: db_destroy db_dev_run db_dev_migrate build_tools
+db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
 
-db_test_e2e_populate: db_destroy db_test_run_docker db_test_migrate_docker build_tools
+db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools
 	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
 
 # Backwards compatibility
