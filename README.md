@@ -36,7 +36,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Testing](#testing)
   * [Logging](#logging)
   * [Database](#database)
-    * [Dev Commands](#dev-commands)
+    * [Dev DB Commands](#dev-db-commands)
+    * [Test DB Commands](#test-db-commands)
     * [Migrations](#migrations)
   * [Environment Variables](#environment-variables)
   * [Documentation](#documentation)
@@ -121,6 +122,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
 
 1. `./bin/prereqs`
+1. `make db_dev_run`
 1. `make db_dev_migrate`
 1. `make server_run`
 1. `make client_build`
@@ -142,7 +144,9 @@ The following commands will get mymove running on your machine for the first tim
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_migrate`: Creates a PostgreSQL docker container if you haven't made one yet and runs all existing database migrations, which do things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+1. `make db_dev_run`: Creates a PostgreSQL docker container if you haven't made one yet
+
+1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
 You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 You can validate that your test database is running by running `bin/psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
@@ -274,14 +278,38 @@ If you need to see some output during the development process (say, for debuggin
 
 * Read [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely) to prevent SQL injections! *
 
-#### Dev Commands
+A few commands exist for starting and stopping the DB docker container:
+
+* `make db_run`: Starts the DB docker container if one doesn't already exist
+* `make db_destroy`: Stops and removes the DB docker container
+
+#### Dev DB Commands
 
 There are a few handy targets in the Makefile to help you interact with the dev database:
 
 * `make db_dev_run`: Initializes a new database if it does not exist and runs it, or starts the previously initialized Docker container if it has been stopped.
+* `make db_dev_create`: Waits to connect to the DB and will create a DB if one doesn't already exist (run usually as part of `db_dev_run`).
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
-* `make db_dev_migrate_down`: reverts the most recently applied migration by running the down migration
+* `make db_dev_e2e_populate`: Populate data with data used to run e2e tests
+
+#### Test DB Commands
+
+The Dev Commands are used to talk to the dev DB.  If you were working with the test DB you would use these commands:
+
+* `make db_test_run`
+* `make db_test_create`
+* `make db_test_reset`
+* `make db_test_migrate`
+* `make db_test_e2e_populate`
+
+The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:
+
+* `make db_test_run_docker`
+* `make db_test_create_docker`
+* `make db_test_reset_docker`
+* `make db_test_migrate_docker`
+* `make db_test_e2e_populate_docker`
 
 #### Migrations
 
@@ -289,8 +317,7 @@ To add new regular and/or secure migrations, see the [database development guide
 
 Running migrations in local development:
 
-1. Use `make db_dev_migrate` to run migrations against your local dev environment.
-1. Use `make db_dev_migrate_down` to revert the most recently applied migration. This is useful while you are developing a migration but should not be necessary otherwise.
+Use `make db_dev_migrate` to run migrations against your local dev environment.
 
 Running migrations on Staging / Production:
 
