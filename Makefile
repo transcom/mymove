@@ -132,7 +132,7 @@ server_run_standalone: client_build server_build db_dev_run
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
-server_run_default: server_deps server_generate db_dev_create
+server_run_default: server_deps server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin --build ./cmd/webserver \
 		--bin /bin/webserver \
