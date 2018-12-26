@@ -83,8 +83,9 @@ export class PreApprovalRequest extends Component {
   };
   render() {
     const row = this.props.shipmentLineItem;
-    const showButtons =
-      this.props.isActionable && !this.state.showDeleteForm && !this.state.showEditForm && !row.invoice_id;
+    const hasInvoice = Boolean(row.invoice_id);
+    const isShowingForm = Boolean(this.state.showDeleteForm || this.state.showEditForm);
+    const showButtons = this.props.isActionable && !isShowingForm && !hasInvoice;
     if (this.state.showEditForm) {
       return (
         <tr>
@@ -101,7 +102,7 @@ export class PreApprovalRequest extends Component {
       );
     } else {
       let status = '';
-      if (isOfficeSite && !row.invoice_id) {
+      if (isOfficeSite && !hasInvoice) {
         status = renderStatusIcon(row.status);
       }
       const deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
