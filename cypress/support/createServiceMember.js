@@ -12,15 +12,25 @@ export default function createServiceMember() {
       serviceMember.user_id = userId;
       return cy.request('internal/duty_stations?search=ft%20car').then(result => {
         serviceMember.current_station_id = Cypress._.get(result, 'body.[0].id');
-        return cy
-          .request('PATCH', `/internal/service_members/${serviceMemberId}`, serviceMember)
-          .then(() =>
-            cy
-              .fixture('backupContact.json')
-              .then(backupContact =>
-                cy.request('POST', `/internal/service_members/${serviceMemberId}/backup_contacts`, backupContact),
+        return cy.getCookie('masked_gorilla_csrf').then(token => {
+          return cy
+            .request({
+              method: 'PATCH',
+              url: `/internal/service_members/${serviceMemberId}`,
+              headers: { 'X-CSRF-Token': token.value },
+              body: serviceMember,
+            })
+            .then(() =>
+              cy.fixture('backupContact.json').then(backupContact =>
+                cy.request({
+                  method: 'POST',
+                  url: `/internal/service_members/${serviceMemberId}/backup_contacts`,
+                  headers: { 'X-CSRF-Token': token.value },
+                  body: backupContact,
+                }),
               ),
-          );
+            );
+        });
       });
     });
   });
