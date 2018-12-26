@@ -136,14 +136,20 @@ export class PpmSize extends Component {
     };
 
     return (
-      <div className="usa-grid-full ppm-size-content">
-        {weightInfo && (
-          <Fragment>
-            <h3>How much will you move?</h3>
-            {<EntitlementBar hhgPPMEntitlementMessage={weightRemainingEntitlementMsg()} entitlement={entitlement} />}
-            <BigButtonGroup selectedOption={selectedOption} onClick={this.onMoveTypeSelected} weightInfo={weightInfo} />
-          </Fragment>
-        )}
+      <div className="usa-grid-full">
+        <div className="ppm-size-content">
+          {weightInfo && (
+            <Fragment>
+              <h2>How much will you move?</h2>
+              {<EntitlementBar hhgPPMEntitlementMessage={weightRemainingEntitlementMsg()} entitlement={entitlement} />}
+              <BigButtonGroup
+                selectedOption={selectedOption}
+                onClick={this.onMoveTypeSelected}
+                weightInfo={weightInfo}
+              />
+            </Fragment>
+          )}
+        </div>
       </div>
     );
   }

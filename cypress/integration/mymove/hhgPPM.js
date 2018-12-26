@@ -418,12 +418,14 @@ function serviceMemberCanReviewMoveSummary() {
   });
 
   cy.get('.wizard-header .usa-width-one-third').should('not.contain', 'Move Setup');
-  cy.get('.wizard-header .usa-width-one-third').should('not.contain', 'Review');
+  cy.get('.wizard-header .usa-width-one-third').should('contain', 'Review');
   cy
     .get('.wizard-header .progress-timeline .step')
     .first()
     .should('contain', 'Move Setup');
   cy.get('.wizard-header .progress-timeline .current').should('contain', 'Review');
+
+  cy.get('h2').should('contain', 'Review Move Details');
 
   cy.get('body').should($div => expect($div.text()).not.to.include('Government moves all of your stuff (HHG)'));
   cy.get('.ppm-container').should($div => {
