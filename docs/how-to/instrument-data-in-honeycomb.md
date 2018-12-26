@@ -60,7 +60,7 @@ Note: Honeycomb supports bool, numbers and strings, so passing more complex type
 
 A typical use case is to use this along with standard error response code.  For instance, instead of using
 `ResponseForErrors` you can use `h.RespondAndTraceError` and provide a message and additional parameters to trace with.
-Similarly, validation errors can be captured via `h.ResponseAndTraceVErrors` instead of using the standard
+Similarly, validation errors can be captured via `h.RespondAndTraceVErrors` instead of using the standard
 `ResponseForVErrors`.
 
 ## What Fields Should be Added to Honeycomb
