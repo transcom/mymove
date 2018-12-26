@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -411,57 +410,4 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 	// assert we got back the conflict response
 	response := handler.Handle(params)
 	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), response)
-}
-
-func (suite *HandlerSuite) TestShipmentInvoiceHandlerMultipleInvoiceRequests() {
-	//Given: an office user
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
-	pickupDate := time.Now()
-
-	//and a shipment that is delivered
-	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status:                       "DELIVERED",
-			EstimatedPackDays:            swag.Int64(2),
-			EstimatedTransitDays:         swag.Int64(5),
-			HasSecondaryPickupAddress:    true,
-			HasDeliveryAddress:           false,
-			HasPartialSITDeliveryAddress: true,
-			WeightEstimate:               handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
-			ProgearWeightEstimate:        handlers.PoundPtrFromInt64Ptr(swag.Int64(325)),
-			SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(swag.Int64(120)),
-			NetWeight:                    handlers.PoundPtrFromInt64Ptr(swag.Int64(4500)),
-			ActualPickupDate:             &pickupDate,
-		},
-	})
-
-	shipmentOffer := testdatagen.MakeShipmentOffer(suite.TestDB(), testdatagen.Assertions{
-		ShipmentOffer: models.ShipmentOffer{
-			ShipmentID: shipment.ID,
-		},
-	})
-	shipmentOffer.Accept()
-	suite.MustSave(&shipment)
-	suite.MustSave(&shipmentOffer)
-
-	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-
-	path := "/shipments/shipment_id/invoice"
-	req := httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
-
-	params := shipmentop.CreateAndSendHHGInvoiceParams{
-		HTTPRequest: req,
-		ShipmentID:  strfmt.UUID(shipment.ID.String()),
-	}
-
-	// assert the first request is made successfully
-	response := handler.Handle(params)
-	suite.Equal(shipmentop.ApproveHHGOKCode, response)
-
-	//assert the second request returns a 409 error
-	failedResponse := handler.Handle(params)
-	suite.Assertions.IsType(&handlers.ErrResponse{}, failedResponse)
-	errResponse := failedResponse.(*handlers.ErrResponse)
-	suite.Equal(http.StatusConflict, errResponse.Code)
 }
