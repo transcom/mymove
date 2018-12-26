@@ -3,6 +3,10 @@ label.inline_radio {
 	margin-bottom: 1px;
 }
 
+h2 {
+  margin-top: 1em;
+}
+
 .grey {
 	color: rgb(100, 100, 100);
 }
