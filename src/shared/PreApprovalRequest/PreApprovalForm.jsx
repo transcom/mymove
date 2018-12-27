@@ -46,7 +46,7 @@ export class Tariff400ngItemSearch extends Component {
           value={this.props.input.value || null}
           onChange={this.localOnChange}
           placeholder="Select an item..."
-          className="tariff400-select"
+          className={`tariff400-select ${this.props.input.name}`}
           classNamePrefix="tariff400"
           filterOption={filterOption}
           defaultValue={this.props.meta.initial || null}
