@@ -134,10 +134,10 @@
       "name": "IWS_RBS_HOST",
       "value": "{{ .IWS_RBS_HOST }}"
     },
-      {
-        "name": "REALLY_SEND_GEX_REQUEST",
-        "value": "{{ .REALLY_SEND_GEX_REQUEST }}"
-      }
+    {
+      "name": "REALLY_SEND_GEX_REQUEST",
+      "value": "{{ .REALLY_SEND_GEX_REQUEST }}"
+    }
   ],
   "logConfiguration": {
     "logDriver": "awslogs",

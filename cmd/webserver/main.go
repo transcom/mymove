@@ -545,7 +545,7 @@ func main() {
 	if v.GetBool("really-send-gex-request") == true {
 		gexRequester = gex.ActualGexSend{}
 	} else {
-		gexRequester = test.TestGexSend{}
+		gexRequester = test.GexTestSend{}
 	}
 	handlerContext.SetGexSender(gexRequester)
 
