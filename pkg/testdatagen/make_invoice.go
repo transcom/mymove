@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"github.com/pkg/errors"
 	"math/rand"
 	"time"
 
@@ -49,4 +50,18 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 // MakeDefaultInvoice makes a invoice with default values
 func MakeDefaultInvoice(db *pop.Connection) models.Invoice {
 	return MakeInvoice(db, Assertions{})
+}
+
+// ResetInvoiceNumber resets the invoice number for a given SCAC/year.
+func ResetInvoiceNumber(db *pop.Connection, scac string, year int) error {
+	if len(scac) == 0 {
+		return errors.New("SCAC cannot be nil or empty string")
+	}
+
+	if year <= 0 {
+		return errors.Errorf("Year (%d) must be non-negative", year)
+	}
+
+	sql := `DELETE FROM invoice_number_trackers WHERE standard_carrier_alpha_code = $1 AND year = $2`
+	return db.RawQuery(sql, scac, year).Exec()
 }

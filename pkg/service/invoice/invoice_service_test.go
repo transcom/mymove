@@ -2,7 +2,6 @@ package invoice
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -95,18 +94,4 @@ func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
 	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
 
 	return shipment
-}
-
-// helperResetInvoiceNumber resets the invoice number for a given SCAC/year.
-func helperResetInvoiceNumber(suite *InvoiceServiceSuite, scac string, year int) error {
-	if len(scac) == 0 {
-		return errors.New("SCAC cannot be nil or empty string")
-	}
-
-	if year <= 0 {
-		return errors.Errorf("Year (%d) must be non-negative", year)
-	}
-
-	sql := `DELETE FROM invoice_number_trackers WHERE standard_carrier_alpha_code = $1 AND year = $2`
-	return suite.db.RawQuery(sql, scac, year).Exec()
 }

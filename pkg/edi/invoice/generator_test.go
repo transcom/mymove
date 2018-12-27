@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-openapi/swag"
-	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/service/invoice"
 	"io/ioutil"
 	"log"
@@ -86,7 +85,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		loc, err := time.LoadLocation(models.InvoiceTimeZone)
 		suite.NoError(err)
 		year := shipment.CreatedAt.In(loc).Year()
-		err = helperResetInvoiceNumber(suite, scac, year)
+		err = testdatagen.ResetInvoiceNumber(suite.db, scac, year)
 		suite.NoError(err)
 
 		invoiceModel := helperShipmentInvoice(suite, shipment)
@@ -233,20 +232,6 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 	bytes, err := ioutil.ReadFile(path)
 	suite.NoError(err, "error loading expected EDI fixture")
 	return string(bytes)
-}
-
-// helperResetInvoiceNumber resets the invoice number for a given SCAC/year.
-func helperResetInvoiceNumber(suite *InvoiceSuite, scac string, year int) error {
-	if len(scac) == 0 {
-		return errors.New("SCAC cannot be nil or empty string")
-	}
-
-	if year <= 0 {
-		return errors.Errorf("Year (%d) must be non-negative", year)
-	}
-
-	sql := `DELETE FROM invoice_number_trackers WHERE standard_carrier_alpha_code = $1 AND year = $2`
-	return suite.db.RawQuery(sql, scac, year).Exec()
 }
 
 type InvoiceSuite struct {

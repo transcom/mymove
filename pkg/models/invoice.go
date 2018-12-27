@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -91,37 +90,4 @@ func FetchInvoicesForShipment(db *pop.Connection, shipmentID uuid.UUID) (Invoice
 	var invoices []Invoice
 	err := db.Where("shipment_id = ?", shipmentID).Eager("Approver").All(&invoices)
 	return invoices, err
-}
-
-// GenerateBaseInvoiceNumber creates a new base invoice number (the first for a shipment) for a given SCAC/year.
-func GenerateBaseInvoiceNumber(db *pop.Connection, scac string, year int) (string, error) {
-	if len(scac) == 0 {
-		return "", errors.New("SCAC cannot be nil or empty string")
-	}
-
-	if year <= 0 {
-		return "", errors.Errorf("Year (%d) must be non-negative", year)
-	}
-
-	var sequenceNumber int
-	sql := `INSERT INTO invoice_number_trackers as trackers (standard_carrier_alpha_code, year, sequence_number)
-			VALUES ($1, $2, 1)
-		ON CONFLICT (standard_carrier_alpha_code, year)
-		DO
-			UPDATE
-				SET sequence_number = trackers.sequence_number + 1
-				WHERE trackers.standard_carrier_alpha_code = $1 AND trackers.year = $2
-		RETURNING sequence_number
-	`
-
-	err := db.RawQuery(sql, scac, year).First(&sequenceNumber)
-	if err != nil {
-		return "", errors.Wrapf(err, "Error when incrementing invoice sequence number for %s/%d", scac, year)
-	}
-
-	if sequenceNumber > 9999 {
-		return "", errors.Errorf("All four-digit invoice sequence numbers already used for %s/%d", scac, year)
-	}
-
-	return fmt.Sprintf("%s%d%04d", scac, year%100, sequenceNumber), nil
 }

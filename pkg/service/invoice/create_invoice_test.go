@@ -47,7 +47,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 		{shipment2, fmt.Sprintf("%s%d%04d", scac, year%100, 2)},
 	}
 
-	err = helperResetInvoiceNumber(suite, scac, year)
+	err = testdatagen.ResetInvoiceNumber(suite.db, scac, year)
 	suite.NoError(err)
 
 	createInvoice := CreateInvoice{
@@ -84,7 +84,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
 		expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s-%02d", baselineInvoiceNumber, i))
 	}
 
-	err = helperResetInvoiceNumber(suite, scac, year)
+	err = testdatagen.ResetInvoiceNumber(suite.db, scac, year)
 	suite.NoError(err)
 
 	createInvoice := CreateInvoice{
