@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -18,16 +19,16 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
-	"github.com/honeycombio/beeline-go"
+	"github.com/gorilla/csrf"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"goji.io"
 	"goji.io/pat"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -44,6 +45,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
+	goji "goji.io"
 )
 
 // GitCommit is empty unless set as a build flag
@@ -232,6 +234,9 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Int("db-port", 5432, "Database Port")
 	flag.String("db-user", "postgres", "Database Username")
 	flag.String("db-password", "", "Database Password")
+
+	// CSRF Protection
+	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 }
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
@@ -419,6 +424,14 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		return errors.Wrap(err, "Error decoding CSRF Auth Key")
+	}
+	if len(csrfAuthKey) != 32 {
+		return errors.New("CSRF Auth Key is not 32 bytes. Auth Key length: " + strconv.Itoa(len(csrfAuthKey)))
+	}
+
 	emailBackend := v.GetString("email-backend")
 	if !stringSliceContains([]string{"local", "ses"}, emailBackend) {
 		return fmt.Errorf("invalid email-backend %s, expecting local or ses", emailBackend)
@@ -468,6 +481,7 @@ func main() {
 	v.AutomaticEnv()
 
 	env := v.GetString("env")
+	isDevOrTest := env == "development" || env == "test"
 
 	logger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
@@ -541,6 +555,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
@@ -688,6 +703,15 @@ func main() {
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
 
+	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
+	}
+	logger.Info("Enabling CSRF protection")
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(maskedCSRFMiddleware)
+
 	// Sends build variables to honeycomb
 	if len(gitBranch) > 0 && len(gitCommit) > 0 {
 		root.Use(func(next http.Handler) http.Handler {
@@ -732,7 +756,7 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
-	if env == "development" || env == "test" {
+	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)

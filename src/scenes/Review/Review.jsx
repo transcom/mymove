@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import WizardHeader from 'scenes/Moves/WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import reviewGray from 'shared/icon/review-gray.svg';
+import './Review.css';
 
 class Review extends Component {
   componentDidMount() {
@@ -18,6 +20,8 @@ class Review extends Component {
       <div>
         {isHHGPPMComboMove && (
           <WizardHeader
+            icon={reviewGray}
+            title="Review"
             right={
               <ProgressTimeline>
                 <ProgressTimelineStep name="Move Setup" completed />
@@ -27,8 +31,10 @@ class Review extends Component {
           />
         )}
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={pageKey} pageIsValid={true}>
-          <h1>Review</h1>
-          <p>You're almost done! Please review your details before we finalize the move.</p>
+          <div className="edit-title">
+            <h2>Review Move Details</h2>
+            <p>You're almost done! Please review your details before we finalize the move.</p>
+          </div>
           <Summary />
         </WizardPage>
       </div>
