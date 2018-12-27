@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/models"
@@ -103,8 +102,6 @@ func MakeFuelEIADieselPrices(db *pop.Connection, assertions Assertions) {
 				EIAPricePerGallonMillicents: pricesMillicents[recordCount%pricesLen],
 				BaselineRate:                baselineRates[recordCount%baselineRateLen],
 			}
-
-			fmt.Printf("%+v\n", fuelPrice)
 
 			nextPubDate = nextPubDate.AddDate(0, 0, 28)
 			nextStartDate = nextEndDate.AddDate(0, 0, 1)
