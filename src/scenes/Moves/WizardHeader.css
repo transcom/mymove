@@ -4,6 +4,11 @@
   max-width: 75px;
 }
 
-.wizard-header p {
+.wizard-header h3 {
   display: inline;
+}
+
+.icon {
+  height: 75;
+  width: auto;
 }
