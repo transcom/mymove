@@ -1,9 +1,12 @@
-create_table("fuel_eia_diesel_prices") {
-	t.Column("id", "uuid", {primary: true})
-	t.Column("pub_date", "timestamp", {})
-	t.Column("rate_start_date", "timestamp", {})
-	t.Column("rate_end_date", "timestamp", {})
-	t.Column("eia_price_per_gallon_millicents", "integer", {})
-	t.Column("baseline_rate", "integer", {})
-}
+sql("CREATE TABLE public.fuel_eia_diesel_prices (
+    id uuid NOT NULL,
+    pub_date date NOT NULL,
+    rate_start_date date NOT NULL,
+    rate_end_date date NOT NULL,
+    eia_price_per_gallon_millicents integer NOT NULL,
+    baseline_rate integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    exclude using gist (daterange(rate_start_date,rate_end_date,'[]') WITH &&)
+);")
 

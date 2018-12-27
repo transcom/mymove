@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"fmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/models"
@@ -13,36 +14,85 @@ func getFuelDefaultPrices() []unit.Millicents {
 }
 
 func getFuelDefaultBaselines() []int64 {
-	return []int64{320700, 333800, 331300, 325200, 279200, 261700, 244200, 195700, 158100, 433800}
+	return []int64{1, 4, 10, 7, 9, 20, 12, 23, 8, 3}
 }
 
-// MakeFuelEIADieselPrices creates a series of FuelEIADieselPrice records
-func MakeFuelEIADieselPrices(db *pop.Connection) {
+// getFuelDefaultDateRange returns the default start date and end year to use for
+// creating fuel prices
+func getFuelDefaultDateRange() (start time.Time, end time.Time) {
 	now := time.Now()
-	// Create rates for 4 months past today's date
-	endYear, _, _ := now.AddDate(0, 4, 0).Date()
+	// Set the end date as 1 year out
+	endDate := now.AddDate(1, 0, 0)
 	// Create rates starting with oldestStartDate
 	oldestYear := 2018
 	oldestMonth := time.October
 	oldestDayStart := 15
 	oldestStartDate := time.Date(oldestYear, oldestMonth, oldestDayStart, 0, 0, 0, 0, time.UTC)
 
-	// Pick a publish date that is the first Monday of the month of the oldestStartDate
-	// Notes: This isn't important for testing
-	oldestPubDate := time.Date(2018, 10, 01, 0, 0, 0, 0, time.UTC)
+	return oldestStartDate, endDate
+}
 
+// MakeFuelEIADieselPrices creates a series of FuelEIADieselPrice records
+// using a default range or the start and end dates from assertions
+// also can set the fuel prices and baselines from the assertions
+func MakeFuelEIADieselPrices(db *pop.Connection, assertions Assertions) {
+
+	// Get the default range. The default will start from Oct 2018 until the
+	// the present Year
+	oldestStartDate, rateEndDate := getFuelDefaultDateRange()
+
+	// Override the default date range with assertions
+	if !assertions.FuelEIADieselPrice.RateStartDate.IsZero() {
+		oldestStartDate = assertions.FuelEIADieselPrice.RateStartDate
+		rateEndDate = oldestStartDate.AddDate(1, 0, 0)
+	}
+
+	if !assertions.FuelEIADieselPrice.RateEndDate.IsZero() {
+		rateEndDate = assertions.FuelEIADieselPrice.RateEndDate
+	}
+
+	// If the start and end dates are not valid (i.e., end date is less than start date)
+	// then correct the end date
+	if oldestStartDate.After(rateEndDate) || oldestStartDate.Equal(rateEndDate) {
+		rateEndDate = oldestStartDate.AddDate(1, 0, 0)
+	}
+
+	startYear := oldestStartDate.Year()
+	endYear := rateEndDate.Year()
+
+	// Pick a publish date that is early in the month of the oldestStartDate
+	oldestPubDate := time.Date(oldestStartDate.Year(), oldestStartDate.Month(), 03, 0, 0, 0, 0, time.UTC)
+
+	// Set up variables for creating records in for loop
 	nextStartDate := oldestStartDate
 	nextEndDate := nextStartDate.AddDate(0, 1, -1)
 	nextPubDate := oldestPubDate
 
+	// Get prices and baseline numbers
 	pricesMillicents := getFuelDefaultPrices()
-	pricesLen := len(pricesMillicents)
-
 	baselineRates := getFuelDefaultBaselines()
+
+	// Use assertions for prices and baseline numbers if assertions are set
+	price := assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents
+	if price != unit.Millicents(0) {
+		pricesMillicents = []unit.Millicents{price}
+	}
+
+	// TODO: rate of 0 is valid, but we're assuming that
+	// TODO: we wouldn't pick 0 to put into an assertion
+	rate := assertions.FuelEIADieselPrice.BaselineRate
+	if rate != 0 {
+		baselineRates = []int64{rate}
+	}
+
+	pricesLen := len(pricesMillicents)
 	baselineRateLen := len(baselineRates)
 
+	// Create records 12 months at a time starting from nextStartDate
+	// The minimum amount of records generated will be 48 months past
+	// nextStartDate
 	recordCount := 0
-	for y := oldestYear; y <= endYear; y++ {
+	for y := startYear; y <= endYear; y++ {
 		for i := 1; i <= 12; i++ {
 			id := uuid.Must(uuid.NewV4())
 			fuelPrice := models.FuelEIADieselPrice{
@@ -53,6 +103,8 @@ func MakeFuelEIADieselPrices(db *pop.Connection) {
 				EIAPricePerGallonMillicents: pricesMillicents[recordCount%pricesLen],
 				BaselineRate:                baselineRates[recordCount%baselineRateLen],
 			}
+
+			fmt.Printf("%+v\n", fuelPrice)
 
 			nextPubDate = nextPubDate.AddDate(0, 0, 28)
 			nextStartDate = nextEndDate.AddDate(0, 0, 1)
@@ -138,4 +190,9 @@ func MakeFuelEIADieselPriceForDate(db *pop.Connection, shipmentDate time.Time, a
 // MakeDefaultFuelEIADieselPriceForDate creates a single FuelEIADieselPrice record with default values for a given shipmentDate
 func MakeDefaultFuelEIADieselPriceForDate(db *pop.Connection, shipmentDate time.Time) models.FuelEIADieselPrice {
 	return MakeFuelEIADieselPriceForDate(db, shipmentDate, Assertions{})
+}
+
+// MakeDefaultFuelEIADieselPrices creates a single FuelEIADieselPrice record with default values for a given shipmentDate
+func MakeDefaultFuelEIADieselPrices(db *pop.Connection) {
+	MakeFuelEIADieselPrices(db, Assertions{})
 }
