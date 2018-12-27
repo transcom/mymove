@@ -162,6 +162,22 @@ tsp_run: build_tools db_dev_run
 
 build: server_build build_tools client_build
 
+# webserver_test runs a few acceptance tests against a local or remote environment.
+# This can help identify potential errors before deploying a container.
+webserver_test: server_generate
+ifndef TEST_ACC_ENV
+	@echo "Running acceptance tests for webserver using local environment."
+	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+else
+	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
+	aws-vault exec $$AWS_PROFILE -- \
+	chamber exec app-$$TEST_ACC_ENV -- \
+	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+endif
+
 server_test: server_deps server_generate db_test_run db_test_reset db_test_migrate
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
@@ -341,7 +357,7 @@ clean:
 	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
-.PHONY: server_run_standalone server_run server_run_default server_test
+.PHONY: server_run_standalone server_run server_run_default server_test webserver_test
 .PHONY: go_deps_update server_go_bindata
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
