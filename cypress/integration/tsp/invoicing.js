@@ -15,8 +15,7 @@ function checkNoUnbilledLineItems() {
   // The invoice table should be empty.
   cy
     .get('.invoice-panel .basic-panel-content')
-    .children()
-    .first()
+    .find('span.empty-content')
     .should('have.text', 'No line items');
 }
 

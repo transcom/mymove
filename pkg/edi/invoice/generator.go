@@ -173,16 +173,6 @@ func generate858CShipment(db *pop.Connection, shipment models.Shipment, invoiceM
 
 func getHeadingSegments(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sequenceNum int) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
-	/* for bx
-	if shipment.TransportationServiceProviderID == nil {
-		return "", errors.New("Shipment is missing TSP ID")
-	}
-	var tsp models.TransportationServiceProvider
-	err := db.Find(&tsp, shipment.TransportationServiceProviderID)
-	if err != nil {
-		return "", err
-	}
-	*/
 
 	name := ""
 	if shipment.ServiceMember.LastName != nil {
