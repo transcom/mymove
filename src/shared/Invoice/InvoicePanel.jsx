@@ -16,6 +16,7 @@ import { selectSortedInvoices, createInvoice, createInvoiceLabel } from 'shared/
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import UnbilledTable from 'shared/Invoice/UnbilledTable';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
+import InvoicePaymentAlert from './InvoicePaymentAlert';
 
 import './InvoicePanel.css';
 
@@ -34,6 +35,8 @@ export class InvoicePanel extends PureComponent {
     return (
       <div className="invoice-panel">
         <BasicPanel title="Invoicing">
+          <InvoicePaymentAlert createInvoiceStatus={this.props.createInvoiceStatus} />
+
           {hasUnbilled && (
             <UnbilledTable
               lineItems={this.props.unbilledShipmentLineItems}
