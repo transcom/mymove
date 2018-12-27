@@ -41,7 +41,7 @@ func (c *ClientCert) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error
 }
 
 // ClientCertExists checks that a client certificate is known to the system
-func ClientCertExists(db *pop.Connection, sha256Digest [32]byte) (bool, error) {
+func ClientCertExists(db *pop.Connection, sha256Digest string) (bool, error) {
 	return db.Eager().Where("sha256_digest = ?", sha256Digest).Exists(&ClientCert{})
 }
 

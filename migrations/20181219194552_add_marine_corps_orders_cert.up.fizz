@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181219194552_add_marine_corps_orders_cert.sql")

@@ -178,6 +178,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
 	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
 
+	flag.String("devlocal-ca", "", "Path to PEM-encoded devlocal CA certificate, enabled in development and test builds")
 	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String("move-mil-dod-tls-cert", "", "The DoD-signed TLS certificate for various move.mil services.")
@@ -756,6 +757,11 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
+	moveMilCerts, caCertPool, err := initDODCertificates(v, logger)
+	if err != nil {
+		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
+	}
+
 	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
@@ -763,6 +769,13 @@ func main() {
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
 		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+
+		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
+		if err != nil {
+			logger.Error("No devlocal CA path defined")
+		} else {
+			caCertPool.AppendCertsFromPEM(devlocalCa)
+		}
 	}
 
 	if storageBackend == "filesystem" {
@@ -782,11 +795,6 @@ func main() {
 	}
 
 	errChan := make(chan error)
-
-	moveMilCerts, dodCACertPool, err := initDODCertificates(v, logger)
-	if err != nil {
-		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
-	}
 
 	listenInterface := v.GetString("interface")
 
@@ -816,7 +824,7 @@ func main() {
 		mutualTLSServer := server.Server{
 			// Ensure that any DoD-signed client certificate can be validated,
 			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:            dodCACertPool,
+			CaCertPool:            caCertPool,
 			ClientAuthType:        tls.RequireAndVerifyClientCert,
 			ListenAddress:         listenInterface,
 			HTTPHandler:           httpHandler,

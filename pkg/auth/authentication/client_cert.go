@@ -3,6 +3,8 @@ package authentication
 import (
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/hex"
+	"fmt"
 	"net/http"
 
 	"github.com/gobuffalo/pop"
@@ -38,14 +40,15 @@ func ClientCertVerifier(db *pop.Connection) func(rawCerts [][]byte, verifiedChai
 
 		// get DER hash
 		hash := sha256.Sum256(rawCerts[0])
+		hashString := hex.EncodeToString(hash[:])
 
 		// check for presence of cert in client_certs table
-		found, err := models.ClientCertExists(db, hash)
+		found, err := models.ClientCertExists(db, hashString)
 		if err != nil {
 			return err
 		}
 		if found != true {
-			return errors.New("Unknown cert")
+			return fmt.Errorf("Unknown cert %s", hashString)
 		}
 		return nil
 	}

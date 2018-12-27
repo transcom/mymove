@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181219194544_add_air_force_orders_cert.sql")
