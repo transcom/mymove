@@ -34,10 +34,7 @@ describe('orders entry', function() {
       .type('8/9/2018{enter}')
       .blur();
 
-    cy
-      .get('.duty-input-box #react-select-2-input')
-      .first()
-      .type('NAS Fort Worth{downarrow}{enter}', { force: true, delay: 150 });
+    cy.selectDutyStation('NAS Fort Worth', 'new_duty_station');
 
     cy.nextPage();
 
