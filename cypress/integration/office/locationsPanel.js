@@ -197,6 +197,14 @@ function officeUserEntersLocations() {
     .clear()
     .type(pickupAddress.postal_code)
     .blur();
+
+  // Make sure delivery address is not required
+  cy
+    .get('label[for="has_delivery_address"]')
+    .parent()
+    .find('[type="radio"][value="no"]')
+    .check({ force: true });
+
   cy
     .get('button')
     .contains('Save')
@@ -205,9 +213,8 @@ function officeUserEntersLocations() {
   // Set Secondary Pickup Address to required.
   cy
     .get('label[for="has_secondary_pickup_address"]')
-    .siblings()
-    .get('[type="radio"]')
-    .first()
+    .parent()
+    .find('[type="radio"][value="yes"]')
     .check({ force: true });
   cy
     .get('input[name="secondary_pickup_address.street_address_1"]')
@@ -252,6 +259,13 @@ function officeUserEntersLocations() {
     .get('button')
     .contains('Save')
     .should('be.enabled');
+
+  // Allow secondary delivery address
+  cy
+    .get('label[for="has_delivery_address"]')
+    .parent()
+    .find('[type="radio"][value="yes"]')
+    .check({ force: true });
 
   cy
     .get('input[name="delivery_address.street_address_1"]')
@@ -303,7 +317,7 @@ function officeUserEntersLocations() {
     .click();
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
 
   cy
     .contains('Locations')
@@ -381,7 +395,7 @@ function officeUserEntersLocations() {
     .click();
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
 
   cy
     .contains('Locations')

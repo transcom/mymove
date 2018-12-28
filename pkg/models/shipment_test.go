@@ -3,6 +3,7 @@ package models_test
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -170,6 +171,29 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Accepted")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
+}
+
+// TestCurrentTransportationServiceProviderID tests that a shipment returns the proper current tsp id
+func (suite *ModelSuite) TestCurrentTransportationServiceProviderID() {
+	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{})
+	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	var emptyUUID uuid.UUID
+
+	suite.Equal(shipment.CurrentTransportationServiceProviderID(), emptyUUID)
+
+	testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+		ShipmentOffer: ShipmentOffer{
+			TransportationServiceProviderID: tsp.ID,
+			ShipmentID:                      shipment.ID,
+		},
+	})
+
+	// CurrentTransportationServiceProviderID looks at the shipment offers on a shipment
+	// Since it doesn't re-fetch the shipment, if the offers have changed
+	// We need to re-fetch the shipment to reload the offers
+	reloadShipment, err := FetchShipmentByTSP(suite.db, tsp.ID, shipment.ID)
+	suite.Nil(err)
+	suite.Equal(tsp.ID, reloadShipment.CurrentTransportationServiceProviderID(), "expected ids to be equal")
 }
 
 // TestShipmentAssignGBLNumber tests that a GBL number is created correctly

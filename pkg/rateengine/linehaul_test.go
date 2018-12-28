@@ -203,3 +203,12 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, cost.LinehaulChargeTotal)
 	}
 }
+
+// TODO: Once the fuel surcharge calculation is in place, add in a proper test for it.
+func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	fuelSurcharge, err := engine.fuelSurchargeComputation()
+	suite.Nil(err)
+	suite.Equal(unit.Cents(0), fuelSurcharge.Fee)
+	suite.Equal(unit.Millicents(0), fuelSurcharge.Rate)
+}

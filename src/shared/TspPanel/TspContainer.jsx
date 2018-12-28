@@ -7,6 +7,7 @@ import TspServiceAgents from './TspServiceAgents';
 import { handleServiceAgents } from 'scenes/TransportationServiceProvider/ducks';
 
 import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
+import { selectTspById } from 'shared/Entities/modules/transportationServiceProviders';
 
 function mapStateToProps(state, props) {
   let serviceAgents = props.serviceAgents;
@@ -21,6 +22,7 @@ function mapStateToProps(state, props) {
   return {
     // reduxForm
     saSchema: getPublicSwaggerDefinition(state, 'ServiceAgent', null),
+    transportationServiceProvider: selectTspById(state, props.transportationServiceProviderId),
     formValues,
     initialValues: {
       origin_service_agent,

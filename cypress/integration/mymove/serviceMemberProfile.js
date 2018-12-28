@@ -61,10 +61,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //duty station
   cy.get('button.next').should('be.disabled');
-  cy
-    .get('.duty-input-box #react-select-2-input')
-    .first()
-    .type('Ft Carson{downarrow}{enter}', { force: true, delay: 150 });
+  cy.selectDutyStation('Ft Carson', 'current_station');
 
   cy.nextPage();
   cy.location().should(loc => {

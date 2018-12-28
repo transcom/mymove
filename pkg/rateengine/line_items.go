@@ -116,5 +116,26 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	}
 	lineItems = append(lineItems, fullUnpack)
 
+	// Fuel Surcharge (16A)
+	fuelSurchargeItem, err := models.FetchTariff400ngItemByCode(db, "16A")
+	if err != nil {
+		return nil, err
+	}
+
+	fsAppliedRate := &cost.LinehaulCostComputation.FuelSurcharge.Rate
+	fuelSurcharge := models.ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Tariff400ngItemID: fuelSurchargeItem.ID,
+		Tariff400ngItem:   fuelSurchargeItem,
+		Location:          models.ShipmentLineItemLocationORIGIN,
+		Quantity1:         bqNetWeight,
+		Quantity2:         unit.BaseQuantityFromInt(cost.LinehaulCostComputation.Mileage),
+		Status:            models.ShipmentLineItemStatusSUBMITTED,
+		AmountCents:       &cost.LinehaulCostComputation.FuelSurcharge.Fee,
+		AppliedRate:       fsAppliedRate,
+		SubmittedDate:     now,
+	}
+	lineItems = append(lineItems, fuelSurcharge)
+
 	return lineItems, nil
 }
