@@ -38,7 +38,7 @@ func hashObjectMd5(buff *aws.WriteAtBuffer) string {
 	return returnMD5String
 }
 
-func downloadAndHash(downloader *s3manager.Downloader, bucket string, item string) (string, error) {
+func downloadAndHash(downloader *s3manager.Downloader, bucket string, objectName string) (string, error) {
 	var hash string
 
 	// Create an in-memory buffer to write the object
@@ -48,7 +48,7 @@ func downloadAndHash(downloader *s3manager.Downloader, bucket string, item strin
 	_, err := downloader.Download(buff,
 		&s3.GetObjectInput{
 			Bucket: aws.String(bucket),
-			Key:    aws.String(item),
+			Key:    aws.String(objectName),
 		})
 	if err != nil {
 		return hash, err
@@ -84,6 +84,9 @@ func main() {
 		"transcom-ppp-app-prod-us-west-2",
 	}
 
+	hashCompare := map[string]map[string]string{}
+
+	var wg sync.WaitGroup
 	for _, bucket := range bucketNames {
 		resp, err := s3Service.ListObjects(&s3.ListObjectsInput{
 			Bucket: aws.String(bucket),
@@ -94,17 +97,23 @@ func main() {
 		}
 
 		// Download and hash all objects concurrently for this bucket
-		var wg sync.WaitGroup
 		for _, item := range resp.Contents {
+			key := *item.Key
+			if _, ok := hashCompare[key]; !ok {
+				hashCompare[key] = map[string]string{}
+			}
 			wg.Add(1)
-			go func(downloader *s3manager.Downloader, bucket string, objectName string) {
+			go func(downloader *s3manager.Downloader, bucket string, objectName string, compare map[string]map[string]string) {
 				hash, err := downloadAndHash(downloader, bucket, objectName)
+				compare[objectName][bucket] = hash
 				if err != nil {
 					exitError("Unable to download or hash file", err)
 				}
 				fmt.Println(bucket, objectName, hash)
-			}(downloader, bucket, *item.Key)
+			}(downloader, bucket, key, hashCompare)
 		}
-		wg.Wait()
 	}
+	wg.Wait()
+
+	fmt.Println(hashCompare)
 }
