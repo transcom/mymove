@@ -9,10 +9,15 @@ let PremoveSurveyForm = props => {
 
   return (
     <form className="infoPanel-wizard" onSubmit={handleSubmit}>
-      <div className="infoPanel-wizard-header">PM Survey</div>
+      <div className="infoPanel-wizard-header">Pre-move Survey</div>
       <div className="editable-panel-column">
         <div className="column-subhead">Dates</div>
-        <SwaggerField fieldName="pm_survey_conducted_date" title="PM survey conducted" swagger={schema} required />
+        <SwaggerField
+          fieldName="pm_survey_conducted_date"
+          title="Pre-move survey conducted"
+          swagger={schema}
+          required
+        />
         <SwaggerField fieldName="pm_survey_method" swagger={schema} required />
         <SwaggerField
           fieldName="pm_survey_planned_pack_date"
