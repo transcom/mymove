@@ -1440,24 +1440,23 @@ definitions:
     description: The stages in the lifecycle of a Shipment
     example: IN_PROGRESS
     enum: &SHIPMENTSTATUS
+      - DRAFT
+      - SUBMITTED
       - AWARDED
       - ACCEPTED
       - APPROVED
-      - REJECTED
-      - IN_PROGRESS
       - IN_TRANSIT
       - DELIVERED
       - COMPLETED
-      - CANCELED
     x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
       AWARDED: Awarded
       ACCEPTED: Accepted
-      REJECTED: Rejected
-      IN_PROGRESS: In Progress
+      APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
       COMPLETED: Completed
-      CANCELED: Canceled
   TransportPayload:
     type: object
     properties:
