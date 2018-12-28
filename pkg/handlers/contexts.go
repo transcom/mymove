@@ -2,15 +2,18 @@ package handlers
 
 import (
 	"context"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 // HandlerContext provides access to all the contextual references needed by individual handlers
@@ -35,6 +38,7 @@ type HandlerContext interface {
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
+	RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder
 }
 
 // A single handlerContext is passed to each handler
@@ -74,10 +78,16 @@ func (hctx *handlerContext) HoneyZapLogger() *hnyzap.Logger {
 	return &hnyzap.Logger{Logger: hctx.logger}
 }
 
-// HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
+// RespondAndTraceError uses Honeycomb to trace errors and then passes response to the standard ResponseForError
 func (hctx *handlerContext) RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder {
 	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
 	return ResponseForError(hctx.Logger(), err)
+}
+
+// RespondAndTraceVErrors uses Honeycomb to trace errors and then passes response to the standard ResponseForVErrors
+func (hctx *handlerContext) RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder {
+	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
+	return ResponseForVErrors(hctx.Logger(), verrs, err)
 }
 
 // FileStorer returns the storage to use in the current context
