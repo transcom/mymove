@@ -172,16 +172,6 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) ([]edisegme
 
 func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
-	/* for bx
-	if shipment.TransportationServiceProviderID == nil {
-		return "", errors.New("Shipment is missing TSP ID")
-	}
-	var tsp models.TransportationServiceProvider
-	err := db.Find(&tsp, shipment.TransportationServiceProviderID)
-	if err != nil {
-		return "", err
-	}
-	*/
 
 	name := ""
 	if shipment.ServiceMember.LastName != nil {

@@ -103,7 +103,7 @@ export class DutyStationSearchBox extends Component {
           )}
           <p>{this.props.title || defaultTitle}</p>
           <AsyncSelect
-            className="duty-input-box"
+            className={`duty-input-box ${this.props.input.name}`}
             cacheOptions
             getOptionLabel={getOptionName}
             getOptionValue={getOptionName}
