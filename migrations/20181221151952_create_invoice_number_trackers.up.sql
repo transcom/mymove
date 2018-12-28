@@ -69,13 +69,15 @@ DO
 
                 -- Update baseline invoice number.
                 UPDATE invoices
-                SET invoice_number = base_invoice_number
+                SET invoice_number = base_invoice_number,
+                    updated_at     = now()
                 WHERE id = current_invoice_id;
               ELSE
                 -- Set subsequent invoice numbers to the baseline number suffixed by "-01", "-02", etc.
 
                 UPDATE invoices
-                SET invoice_number = base_invoice_number || '-' || to_char(invoice_count, 'fm00')
+                SET invoice_number = base_invoice_number || '-' || to_char(invoice_count, 'fm00'),
+                    updated_at     = now()
                 WHERE id = current_invoice_id;
               END IF;
 
