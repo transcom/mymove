@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/edi/gex/test"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -542,11 +541,7 @@ func main() {
 	handlerContext.SetFileStorer(storer)
 
 	var gexRequester gex.SenderToGex
-	if v.GetBool("really-send-gex-request") == true {
-		gexRequester = gex.ActualGexSend{}
-	} else {
-		gexRequester = test.GexTestSend{}
-	}
+	gexRequester = gex.SendGex{ReallySendGexRequest: v.GetBool("really-send-gex-request")}
 	handlerContext.SetGexSender(gexRequester)
 
 	rbs, err := initRealTimeBrokerService(v, logger)
