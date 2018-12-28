@@ -18,6 +18,7 @@ DO
       shipment_two_digit_year VARCHAR(2);
       base_invoice_number     VARCHAR(255);
       new_sequence_number     INT;
+      target_invoice_number   VARCHAR(255);
     BEGIN
 
       -- Get all distinct shipment IDs currently associated with invoices, ordered by earliest invoice creation.
@@ -66,20 +67,17 @@ DO
                    RETURNING sequence_number INTO new_sequence_number;
 
                 base_invoice_number := scac || shipment_two_digit_year || to_char(new_sequence_number, 'fm0000');
-
-                -- Update baseline invoice number.
-                UPDATE invoices
-                SET invoice_number = base_invoice_number,
-                    updated_at     = now()
-                WHERE id = current_invoice_id;
+                target_invoice_number := base_invoice_number;
               ELSE
                 -- Set subsequent invoice numbers to the baseline number suffixed by "-01", "-02", etc.
-
-                UPDATE invoices
-                SET invoice_number = base_invoice_number || '-' || to_char(invoice_count, 'fm00'),
-                    updated_at     = now()
-                WHERE id = current_invoice_id;
+                target_invoice_number := base_invoice_number || '-' || to_char(invoice_count, 'fm00');
               END IF;
+
+              -- Update the invoice_number for this invoice to the target number determined above.
+              UPDATE invoices
+              SET invoice_number = target_invoice_number,
+                  updated_at     = now()
+              WHERE id = current_invoice_id;
 
               invoice_count := invoice_count + 1;
 
