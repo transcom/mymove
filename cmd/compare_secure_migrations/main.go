@@ -1,12 +1,12 @@
 package main
 
 import (
-	"crypto/md5"
+	"crypto/md5" // #nosec
 	"encoding/hex"
 	"fmt"
-	"io"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -26,58 +26,38 @@ func exitError(msg string, err error) {
 	os.Exit(1)
 }
 
-func hashFileMd5(filePath string) (string, error) {
-	//Initialize variable returnMD5String now in case an error has to be returned
-	var returnMD5String string
+func hashObjectMd5(buff *aws.WriteAtBuffer) string {
 
-	//Open the passed argument and check for any error
-	file, err := os.Open(filePath)
-	if err != nil {
-		return returnMD5String, err
-	}
+	// Sum the bytes in the buffer
+	// #nosec
+	hashInBytes := md5.Sum(buff.Bytes())
 
-	//Tell the program to call the following function when the current function returns
-	defer file.Close()
+	// Convert the bytes to a string
+	returnMD5String := hex.EncodeToString(hashInBytes[:16])
 
-	//Open a new hash interface to write to
-	hash := md5.New()
-
-	//Copy the file in the hash interface and check for any error
-	if _, err := io.Copy(hash, file); err != nil {
-		return returnMD5String, err
-	}
-
-	//Get the 16 bytes hash
-	hashInBytes := hash.Sum(nil)[:16]
-
-	//Convert the bytes to a string
-	returnMD5String = hex.EncodeToString(hashInBytes)
-
-	return returnMD5String, nil
-
+	return returnMD5String
 }
 
-func download(downloader *s3manager.Downloader, bucket string, item string) {
-	file, err := os.Create("deleteme.tmp")
-	if err != nil {
-		exitError("Unable to open file %q, %v", err)
-	}
-	defer file.Close()
+func downloadAndHash(downloader *s3manager.Downloader, bucket string, item string) (string, error) {
+	var hash string
 
-	numBytes, err := downloader.Download(file,
+	// Create an in-memory buffer to write the object
+	buff := &aws.WriteAtBuffer{}
+
+	// Download the object to the buffer
+	_, err := downloader.Download(buff,
 		&s3.GetObjectInput{
 			Bucket: aws.String(bucket),
 			Key:    aws.String(item),
 		})
 	if err != nil {
-		exitError("Unable to download item %v", err)
+		return hash, err
 	}
 
-	hash, err := hashFileMd5("deleteme.tmp")
-	if err != nil {
-		exitError("Unable to hash file", err)
-	}
-	fmt.Println("Downloaded", item, numBytes, "bytes", hash, "hash")
+	// Calculate the hash for the object
+	hash = hashObjectMd5(buff)
+
+	return hash, err
 }
 
 func main() {
@@ -113,8 +93,18 @@ func main() {
 			exitError("Failed to List Objects", err)
 		}
 
+		// Download and hash all objects concurrently for this bucket
+		var wg sync.WaitGroup
 		for _, item := range resp.Contents {
-			download(downloader, bucket, *item.Key)
+			wg.Add(1)
+			go func(downloader *s3manager.Downloader, bucket string, objectName string) {
+				hash, err := downloadAndHash(downloader, bucket, objectName)
+				if err != nil {
+					exitError("Unable to download or hash file", err)
+				}
+				fmt.Println(bucket, objectName, hash)
+			}(downloader, bucket, *item.Key)
 		}
+		wg.Wait()
 	}
 }
