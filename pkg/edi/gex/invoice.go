@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -29,9 +30,14 @@ func (s SendGex) SendRequest(edi string, transactionName string) (resp *http.Res
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
 	edi = strings.TrimSpace(edi) + "\n"
 
+	URL := s.URL
+	hasSlash, _ := regexp.MatchString("(.*/$)", URL)
+	if !hasSlash {
+		URL = URL + "/"
+	}
 	request, err := http.NewRequest(
 		"POST",
-		s.URL+transactionName,
+		URL+transactionName,
 		strings.NewReader(edi),
 	)
 	if err != nil {
