@@ -52,5 +52,10 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 
 // MakeDefaultPPM makes a PPM with default values
 func MakeDefaultPPM(db *pop.Connection) models.PersonallyProcuredMove {
-	return MakePPM(db, Assertions{})
+	return MakePPM(db, Assertions{
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+	})
 }

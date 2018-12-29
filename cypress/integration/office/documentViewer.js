@@ -192,10 +192,7 @@ describe('The document viewer', function() {
       log: true,
     });
 
-    cy
-      .get('a[title="Home"]')
-      .first()
-      .click();
+    cy.visit('/');
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/queues\/new/);
