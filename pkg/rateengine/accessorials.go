@@ -28,8 +28,10 @@ var tariff400ngItemPricing = map[string]pricer{
 	"28B": newBasicQuantityPricer(),
 	"28C": newBasicQuantityPricer(),
 
-	// Key west service charge
-	"35A": newFlatRatePricer(),
+	// Third Party Service (TPS) charge
+	"35A": newBasicQuantityPricer(),
+	// Key West service charge
+	"35B": newFlatRatePricer(),
 
 	// Crating - subject to a minimum charge of 4 cu. ft.
 	"105B": newMinimumQuantityPricer(4),
@@ -131,7 +133,10 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	} else if itemCode == "185B" {
 		rateCents = serviceArea.SIT185BRateCents
 	} else if itemCode == "226A" {
-		// 226A is Misc charge, which has a rate of $1 per unit of quantity entered
+		// 226A is Misc charge, allow user to enter dollar amount as quantity
+		rateCents = unit.Cents(100)
+	} else if itemCode == "35A" {
+		// 35A is a Third Party Service (TPS) charge, allow user to enter dollar amount as quantity
 		rateCents = unit.Cents(100)
 	} else {
 		// Most rates should be in the tariff400ngItemRates table though
