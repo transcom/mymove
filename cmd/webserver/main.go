@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
 	"strconv"
@@ -625,7 +626,15 @@ func main() {
 	handlerContext.SetFileStorer(storer)
 
 	var gexRequester gex.SenderToGex
-	gexRequester = gex.SendGex{ReallySendGexRequest: v.GetBool("really-send-gex-request")}
+	if v.GetBool("really-send-gex-request") {
+		gexRequester = gex.SendGex{URL: "https://gexweba.daas.dla.mil/msg_data/submit/"}
+	} else {
+		// this spins up a local test server
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		gexRequester = gex.SendGex{URL: server.URL}
+	}
 	handlerContext.SetGexSender(gexRequester)
 
 	rbs, err := initRealTimeBrokerService(v, logger)
