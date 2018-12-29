@@ -14,6 +14,16 @@ All of the commands in this section assume that `test_db` is setup properly. Thi
 $ make db_test_reset
 ```
 
+## Run Acceptance Tests
+
+If you're adding a feature that requires new or modified configuration, it's a good idea to run acceptance tests against our environments before you merge into master.  You can run acceptance tests against an environment with:
+
+```console
+$ TEST_ACC_ENV=experimental make webserver_test
+```
+
+This command will first load the variables from the `config/env/*.env` file and then run `chamber exec` to pull the environments from AWS.  You can run acceptance tests for the database and honeycomb through environment variables with `TEST_ACC_DATABASE=1` and `TEST_ACC_HONEYCOMB=1`.
+
 ### Run All Tests in a Single Package
 
 ```console

@@ -282,7 +282,7 @@ func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
 	honeycombDataset := v.GetString("honeycomb-dataset")
 	honeycombServiceName := v.GetString("service-name")
 
-	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 {
+	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 && len(honeycombServiceName) > 0 {
 		logger.Debug("Honeycomb Integration enabled",
 			zap.String("honeycomb-api-host", honeycombAPIHost),
 			zap.String("honeycomb-dataset", honeycombDataset))
@@ -378,6 +378,41 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 
 func checkConfig(v *viper.Viper) error {
 
+	err := checkProtocols(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkHosts(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkPorts(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkCSRF(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkEmail(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkStorage(v)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkProtocols(v *viper.Viper) error {
+
 	protocolVars := []string{
 		"login-gov-callback-protocol",
 		"http-sddc-protocol",
@@ -389,6 +424,10 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkHosts(v *viper.Viper) error {
 	invalidChars := ":/\\ \t\n\v\f\r"
 
 	hostVars := []string{
@@ -410,6 +449,10 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkPorts(v *viper.Viper) error {
 	portVars := []string{
 		"mutual-tls-port",
 		"tls-port",
@@ -424,6 +467,11 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkCSRF(v *viper.Viper) error {
+
 	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
 	if err != nil {
 		return errors.Wrap(err, "Error decoding CSRF Auth Key")
@@ -432,6 +480,10 @@ func checkConfig(v *viper.Viper) error {
 		return errors.New("CSRF Auth Key is not 32 bytes. Auth Key length: " + strconv.Itoa(len(csrfAuthKey)))
 	}
 
+	return nil
+}
+
+func checkEmail(v *viper.Viper) error {
 	emailBackend := v.GetString("email-backend")
 	if !stringSliceContains([]string{"local", "ses"}, emailBackend) {
 		return fmt.Errorf("invalid email-backend %s, expecting local or ses", emailBackend)
@@ -444,6 +496,11 @@ func checkConfig(v *viper.Viper) error {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
 		}
 	}
+
+	return nil
+}
+
+func checkStorage(v *viper.Viper) error {
 
 	storageBackend := v.GetString("storage-backend")
 	if !stringSliceContains([]string{"local", "s3"}, storageBackend) {
