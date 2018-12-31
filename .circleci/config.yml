@@ -240,6 +240,28 @@ jobs:
             - ~/.cache/pre-commit
       - announce_failure
 
+  # `acceptance_tests` runs acceptance tests for the webserver against a local environment.
+  acceptance_tests:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Run make server_generate
+          command: make server_generate
+      - run:
+          name: Run acceptance tests
+          command: make webserver_test
+          environment:
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+      - announce_failure
+
   # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests_mymove:
     executor: mymove_medium
@@ -268,6 +290,8 @@ jobs:
       - store_test_results:
           path: cypress/results
       - announce_failure
+
+  # `integration_tests_office` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests_office:
     executor: mymove_medium
     steps:
@@ -295,6 +319,8 @@ jobs:
       - store_test_results:
           path: cypress/results
       - announce_failure
+
+  # `integration_tests_tsp` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests_tsp:
     executor: mymove_medium
     steps:
@@ -564,10 +590,16 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
+      - acceptance_tests:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+
       - integration_tests_mymove:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           #filters:
           #  branches:
@@ -577,6 +609,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           #filters:
           #  branches:
@@ -586,6 +619,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           #filters:
           #  branches:
@@ -617,6 +651,7 @@ workflows:
             - pre_test
             - client_test
             - server_test
+            - acceptance_tests
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
@@ -646,6 +681,7 @@ workflows:
             - build_app
             - build_tools
             - build_migrations
+            - acceptance_tests
             - integration_tests_mymove
             - integration_tests_office
             - integration_tests_tsp
