@@ -33,9 +33,7 @@ func hashObjectMd5(buff *aws.WriteAtBuffer) string {
 	hashInBytes := md5.Sum(buff.Bytes())
 
 	// Convert the bytes to a string
-	returnMD5String := hex.EncodeToString(hashInBytes[:16])
-
-	return returnMD5String
+	return hex.EncodeToString(hashInBytes[:16])
 }
 
 func downloadAndHash(downloader *s3manager.Downloader, bucket string, objectName string) (string, error) {
