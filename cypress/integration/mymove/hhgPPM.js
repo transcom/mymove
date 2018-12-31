@@ -25,30 +25,12 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberVerifiesContactInfoWasEdited();
     serviceMemberEditsBackupContactInfoSection();
     serviceMemberVerifiesBackupContactInfoWasEdited();
-    serviceMemberEditsHHGMoveDates();
     serviceMemberEditsPPMDatesAndLocations();
     serviceMemberVerifiesPPMDatesAndLocationsEdited();
     serviceMemberEditsPPMWeight();
     serviceMemberVerifiesPPMWeightsEdited();
   });
 });
-
-function serviceMemberEditsHHGMoveDates() {
-  cy
-    .get('.ppm-container .edit-section-link')
-    .eq(0)
-    .click();
-  // TODO: Currently does not support changing move dates for 2019. Add test to edit dates ewhen fixed
-
-  cy
-    .get('button')
-    .contains('Save')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit/);
-  });
-}
 
 function serviceMemberVerifiesHHGPPMSummary() {
   cy.location().should(loc => {
