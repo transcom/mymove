@@ -203,8 +203,8 @@ Et voilà: TSPPs!
 
 ## Create Secure Migrations
 
-You will have to create a secure migration for this data import. Two files will need to be created.
-The file that contains the real data, and a local migration (dummy file for dev). Follow the instructions
+You will have to create a secure migration for this data import. Two files will need to be created,
+the file that contains the real data and a local migration (dummy file for dev). Follow the instructions
 at [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations)
 
 ### Some tips for creating the dummy file
