@@ -18,9 +18,9 @@ export class PreApprovalTable extends PureComponent {
   };
   render() {
     const { shipmentLineItems, isActionable, onEdit, onApproval, onDelete } = this.props;
+    // If there are no shipment line items, don't show the table at all.
     return (
       <div className="pre-approval-panel-table-cont">
-        // If there are no shipment line items, don't show the table at all.
         {shipmentLineItems.length > 0 && (
           <table cellSpacing={0}>
             <tbody>
