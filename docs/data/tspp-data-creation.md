@@ -201,6 +201,64 @@ Run this in your terminal to dump the contents of the `transportation_service_pr
 
 Et voilà: TSPPs!
 
+## Create Secure Migrations
+
+You will have to create a secure migration for this data import. Two files will need to be created.
+The file that contains the real data, and a local migration (dummy file for dev). Follow the instructions
+at [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations)
+
+### Some tips for creating the dummy file
+
+You will need to scrub the data that is in the dummy file. The fields: `linehaul_rate`, `sit_rate`, and `best_value_score`
+are company competition sensitive data and needs to scrubbed.
+
+The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
+
+The following SQL can be used to do the above mentioned:
+
+* Truncate the table transportation_service_provider_performances:
+
+```sql
+TRUNCATE transportation_service_provider_performances CASCADE;
+```
+
+* Load the file created from the `pg_dump`:
+
+```sh
+bin/psql < tspp_data_dump.pgsql
+```
+
+* Reduce the number of TSPs to two (2) TSPs per TDL:
+
+```sql
+DELETE FROM transportation_service_provider_performances
+WHERE id not in (
+      SELECT id  FROM
+          (SELECT id, traffic_distribution_list_id, transportation_service_provider_id, performance_period_start, ROW_NUMBER() OVER
+            (PARTITION BY (traffic_distribution_list_id, performance_period_start, performance_period_end)) rn
+           FROM transportation_service_provider_performances
+          ) tmp WHERE (rn = 1 OR rn = 2)
+    );
+```
+
+* Scrub the data:
+
+```sql
+UPDATE transportation_service_provider_performances
+SET linehaul_rate=random(),
+    sit_rate=random(),
+    best_value_score=random_between(60,70);
+```
+
+* Run the `pg_dump` again to capture the new local migration file:
+
+```sql
+pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > local_migration_tspp_data_dump.pgsql
+```
+
+Complete the steps from [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations) to
+submit both migration files.
+
 ## Data Validation
 
 The following SQL statements can be used to verify that the above process has been completed successfully. Some numbers may be slightly off
