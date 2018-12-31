@@ -18,6 +18,9 @@ describe('TSP user interacts with pre approval request panel', function() {
   it('TSP user deletes pre approval request', function() {
     tspUserDeletesPreApprovalRequest();
   });
+  it('TSP user sees empty pre approval panel', function() {
+    tspUserViewsNoPreApprovalRequestTableWhenEmpty();
+  });
 });
 
 function tspUserCreatesPreApprovalRequest() {
@@ -86,4 +89,22 @@ function tspUserDeletesPreApprovalRequest() {
     .get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
+}
+
+function tspUserViewsNoPreApprovalRequestTableWhenEmpty() {
+  // Open new shipments queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // Find shipment and open it
+  cy
+    .get('div')
+    .contains('DATESP')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+  cy.get('.pre-approval-panel-table-cont').should('not.contain', 'Code');
 }
