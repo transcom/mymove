@@ -98,15 +98,11 @@ function mapDispatchToProps(dispatch, ownProps) {
     onDidMount: function() {
       dispatch(getShipment(getShipmentLabel, shipmentID));
     },
-    updateShipment: function(values, shipment) {
+    updateShipment: function(values) {
       dispatch(updateShipment(updateShipmentLabel, shipmentID, values)).then(function(action) {
         if (!action.error) {
           const moveID = Object.values(action.entities.shipments)[0].move_id;
-          if (shipment.status !== 'DRAFT') {
-            dispatch(push(`/moves/${moveID}/edit`));
-          } else {
-            dispatch(push(`/moves/${moveID}/review`));
-          }
+          dispatch(push(`/moves/${moveID}/review`));
         }
       });
     },
@@ -120,7 +116,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
   return Object.assign({}, stateProps, dispatchProps, ownProps, {
     updateShipment: function(event) {
       event.preventDefault();
-      dispatchProps.updateShipment(stateProps.formValues, stateProps.shipment);
+      dispatchProps.updateShipment(stateProps.formValues);
     },
     returnToReview: function(event) {
       event.preventDefault();
