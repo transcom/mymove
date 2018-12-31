@@ -324,7 +324,9 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_init: db_test_reset db_test_migrate db_e2e_up
+
+db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up
 
 db_e2e_reset: db_e2e_init
 	@echo "\033[0;31mUse 'make db_e2e_init' instead please\033[0m"
@@ -371,6 +373,6 @@ clean:
 .PHONY: db_dev_run db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
 .PHONY: db_test_run db_test_create db_test_reset db_test_migrate db_test_e2e_populate
 .PHONY: db_test_run_docker db_test_create_docker db_test_reset_docker db_test_migrations_build db_test_migrate_docker
-.PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_reset
+.PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_init_docker db_e2e_reset
 .PHONY: e2e_test e2e_test_docker e2e_clean
 .PHONY: clean pretty
