@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5" // #nosec
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -130,5 +131,13 @@ func main() {
 				fmt.Println("\t", bucket, "\t", hash)
 			}
 		}
+	}
+
+	// Print the errors and use exit code as length of list
+	if len(errs) > 0 {
+		for _, err := range errs {
+			fmt.Println(err)
+		}
+		os.Exit(len(errs))
 	}
 }
