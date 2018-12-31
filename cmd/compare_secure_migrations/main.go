@@ -17,7 +17,8 @@ import (
 )
 
 func initFlags(flag *pflag.FlagSet) {
-	flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
+	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
+	flag.Int64("max-object-size", 10, "The maximum size of files to download in MB")
 }
 
 func hashObjectMd5(buff *aws.WriteAtBuffer) string {
@@ -62,6 +63,8 @@ func main() {
 	var wg sync.WaitGroup
 	var errs []error
 
+	maxObjectSize := v.GetInt64("max-object-size")
+
 	for _, bucket := range bucketNames {
 		resp, err := s3Service.ListObjects(&s3.ListObjectsInput{
 			Bucket: aws.String(bucket),
@@ -75,9 +78,8 @@ func main() {
 		for _, item := range resp.Contents {
 			key := *item.Key
 
-			// Ignore directories and huge migrations
-			// TODO: Make size configurable
-			if *item.Size == 0 || *item.Size >= 10*1024*1024 {
+			// Ignore directories and migrations larger than maxObjectSize
+			if *item.Size == 0 || *item.Size >= maxObjectSize*1024*1024 {
 				fmt.Println("SKIP", bucket, key, "size", *item.Size, "bytes")
 				continue
 			}
