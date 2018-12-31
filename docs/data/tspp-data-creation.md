@@ -8,6 +8,9 @@ Before you begin this process, convert discount rate Excel files or txt files to
 >
 > `\copy` is a simpler way of getting this into the db because it requires less in the way of user permissions (unlike the `COPY` command). Use your absolute path for where you stored those CSV files.
 
+Note: If you wish to view existing data from production, use the command `bin/run-prod-migrations`. The local development `dev-db`
+does not contain the full set of data. You should not need to run the command `bin/run-prod-migrations` to complete the steps outlined here.
+
 ## Verify Input Files
 
 Check that the files you are about to import have roughly the correct number of lines in them:
@@ -29,6 +32,30 @@ Check that the files you are about to import have roughly the correct number of 
 565674   2018 Code D NonPeak Rates.txt
 565674   2018 Code D Peak Rates.txt
 ```
+
+### TDL Performance Dates vs TSP Rate Dates
+
+Note that Rates overlap Performance Periods. You may get a new set of TDLs and will have to use existing (Non)Peak Rates.
+E.g., To load the performance data for `Performance Period 1` 2019 the 2018 `* NonPeak Rates.txt` files were used.
+
+Rate Cycle:
+Peak: 5/15 to 9/30
+
+Performance Periods
+1: 1/1   to  5/14
+2: 5/15  to  7/31
+3: 8/1   to  9/30
+4: 10/1  to  12/31
+
++--------------------------------------------------------------------------------------------+-----------------------------+
+| 2018                                                                                       | 2019                        |
++--------------------------------------------------------------------------------------------+-----------------------------+
+| Rate Cycle Rate - Non Peak (2017)     | Rate Cycle Rate - Peak (2018)    | Rate Cycle Rate - Non Peak (2018)          |  |
++---------------------------------------+----------------------------------+--------------------------------------------+--+
+| Perf Period 1                         | Perf Period 2    | Perf Period 3 | Perf Period 4   | Perf Period 1            |  |
++------------------------------------------+---------------+---------------+-----------------+-----------------------------+
+| Jan    | Feb    | Mar    | Apr    | May  | Jun   | Jul   | Aug   | Sept  | Oct | Nov | Dec | Jan | Feb | Mar | Apr | May |
++--------+--------+--------+--------+------+-------+-------+-------+-------+-----+-----+-----+-----+-----+-----+-----+-----+
 
 ## Load TSP Discount Rates
 
