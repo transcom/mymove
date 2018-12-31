@@ -38,6 +38,7 @@ Check that the files you are about to import have roughly the correct number of 
 Note that Rates overlap Performance Periods. You may get a new set of TDLs and will have to use existing (Non)Peak Rates.
 E.g., To load the performance data for `Performance Period 1` 2019 the 2018 `* NonPeak Rates.txt` files were used.
 
+```sh
 Rate Cycle:
 Peak: 5/15 to 9/30
 
@@ -56,6 +57,7 @@ Performance Periods
 +------------------------------------------+---------------+---------------+-----------------+-----------------------------+
 | Jan    | Feb    | Mar    | Apr    | May  | Jun   | Jul   | Aug   | Sept  | Oct | Nov | Dec | Jan | Feb | Mar | Apr | May |
 +--------+--------+--------+--------+------+-------+-------+-------+-------+-----+-----+-----+-----+-----+-----+-----+-----+
+```
 
 ## Load TSP Discount Rates
 
