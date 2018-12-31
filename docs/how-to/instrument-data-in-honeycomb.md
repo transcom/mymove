@@ -58,6 +58,11 @@ Logs from Zap can also be included as part of the traces sent to Honeycomb. For 
 
 Note: Honeycomb supports bool, numbers and strings, so passing more complex types like zap.Object will result in values being set to "unsupported field type".
 
+A typical use case is to use this along with standard error response code.  For instance, instead of using
+`ResponseForErrors` you can use `h.RespondAndTraceError` and provide a message and additional parameters to trace with.
+Similarly, validation errors can be captured via `h.RespondAndTraceVErrors` instead of using the standard
+`ResponseForVErrors`.
+
 ## What Fields Should be Added to Honeycomb
 
 _Do_:

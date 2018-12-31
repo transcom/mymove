@@ -183,6 +183,8 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				NewDutyStation:   newDutyStation,
 				Status:           orderStatus,
 				OrdersTypeDetail: &ordTypeDetHHGPermit,
+				HasDependents:    true,
+				SpouseHasProGear: true,
 			},
 			Move: models.Move{
 				SelectedMoveType: &selectedMoveType,
