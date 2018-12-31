@@ -116,16 +116,17 @@ func main() {
 
 	wg.Wait()
 
+	// Compare hashses and print differences
 	for migration, v := range hashCompare {
-		if !(v[bucketNames[0]] == v[bucketNames[1]] && v[bucketNames[1]] == v[bucketNames[2]]) {
+		if v[bucketNames[0]] == v[bucketNames[1]] && v[bucketNames[1]] == v[bucketNames[2]] {
+			fmt.Println("Migration:", migration)
+			fmt.Println("\t", "Hash:", v[bucketNames[0]])
+		} else {
 			fmt.Println("Migration:", migration)
 			for _, bucket := range bucketNames {
 				hash := v[bucket]
 				fmt.Println("\t", bucket, "\t", hash)
 			}
-		} else {
-			fmt.Println("Migration:", migration)
-			fmt.Println("\t", "Hash:", v[bucketNames[0]])
 		}
 	}
 }
