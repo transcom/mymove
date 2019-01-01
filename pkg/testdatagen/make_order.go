@@ -48,6 +48,8 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	TAC := "F8E1"
 	SAC := "SAC"
 	departmentIndicator := "AIR_FORCE"
+	hasDependents := assertions.Order.HasDependents || false
+	spouseHasProGear := assertions.Order.SpouseHasProGear || false
 
 	order := models.Order{
 		ServiceMember:       sm,
@@ -60,8 +62,8 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		ReportByDate:        time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
 		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
 		OrdersNumber:        &ordersNumber,
-		HasDependents:       true,
-		SpouseHasProGear:    true,
+		HasDependents:       hasDependents,
+		SpouseHasProGear:    spouseHasProGear,
 		Status:              models.OrderStatusDRAFT,
 		TAC:                 &TAC,
 		SAC:                 &SAC,

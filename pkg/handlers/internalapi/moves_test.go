@@ -296,6 +296,8 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 			ReportByDate:     time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
+			HasDependents:    true,
+			SpouseHasProGear: true,
 		},
 	})
 

@@ -4,11 +4,18 @@ describe('TSP User Checks Customer Info Panel', function() {
     cy.signIntoTSP();
   });
   it('tsp user sees customer info', function() {
-    tspUserViewsCustomerInfo();
+    tspUserOpensAShipment('BACON1');
+    tspUserViewsCustomerContactInfo();
+    tspUserViewsBackupContactInfo();
+    tspUserViewsEntitlementInfo({ weight: '8,000', progear: '2,000', spouse: '500' });
+  });
+  it('tsp user sees customer info', function() {
+    tspUserOpensAShipment('NDNSPG');
+    tspUserViewsEntitlementInfo({ weight: '5,000', progear: '2,000', spouse: '0' });
   });
 });
 
-function tspUserOpensAShipment() {
+function tspUserOpensAShipment(shipment) {
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -17,7 +24,7 @@ function tspUserOpensAShipment() {
   // Find a shipment and open it
   cy
     .get('div')
-    .contains('BACON1')
+    .contains(shipment)
     .dblclick();
 
   cy.location().should(loc => {
@@ -64,20 +71,13 @@ function tspUserViewsBackupContactInfo() {
     .and('match', /mailto:email@example.com/);
 }
 
-function tspUserViewsEntitlementInfo() {
+function tspUserViewsEntitlementInfo({ weight, progear, spouse }) {
   // Check Entitlements is bolded
   cy.get('.customer-info').contains('b', 'Entitlements');
 
   // Check the hhg entitlements
-  cy.get('.customer-info').contains('8,000 lbs');
+  cy.get('.customer-info').contains(`${weight} lbs`);
 
   // Check for pro-gear and spouse pro-gear
-  cy.get('.customer-info').contains('Pro-gear: 2,000 lbs / Spouse: 500 ');
-}
-
-function tspUserViewsCustomerInfo() {
-  tspUserOpensAShipment();
-  tspUserViewsCustomerContactInfo();
-  tspUserViewsBackupContactInfo();
-  tspUserViewsEntitlementInfo();
+  cy.get('.customer-info').contains(`Pro-gear: ${progear} lbs / Spouse: ${spouse} lbs`);
 }
