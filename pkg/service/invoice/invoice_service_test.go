@@ -1,16 +1,17 @@
 package invoice
 
 import (
-	"github.com/go-openapi/swag"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 	"log"
 	"testing"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type InvoiceServiceSuite struct {

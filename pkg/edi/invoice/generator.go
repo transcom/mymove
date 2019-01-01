@@ -3,13 +3,13 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
-	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"

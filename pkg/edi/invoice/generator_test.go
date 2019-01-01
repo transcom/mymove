@@ -3,8 +3,6 @@ package ediinvoice_test
 import (
 	"flag"
 	"fmt"
-	"github.com/go-openapi/swag"
-	"github.com/transcom/mymove/pkg/service/invoice"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,6 +11,7 @@ import (
 	"time"
 
 	"github.com/facebookgo/clock"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -21,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/service/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )

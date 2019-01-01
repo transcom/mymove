@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/models"
 	"log"
 	"os"
 
@@ -13,7 +11,9 @@ import (
 	"github.com/namsral/flag"
 
 	"github.com/transcom/mymove/pkg/edi"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/service/invoice"
 )
 

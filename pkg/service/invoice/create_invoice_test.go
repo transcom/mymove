@@ -2,10 +2,12 @@ package invoice
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/facebookgo/clock"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"time"
 )
 
 func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {

@@ -5,6 +5,7 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

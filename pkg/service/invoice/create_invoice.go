@@ -2,13 +2,15 @@ package invoice
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/models"
-	"strings"
-	"time"
 )
 
 // CreateInvoice is a service object to create new invoices from Shipment
