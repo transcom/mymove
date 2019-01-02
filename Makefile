@@ -302,13 +302,19 @@ db_test_reset: db_destroy db_test_run
 db_test_reset_docker: db_destroy db_test_run_docker
 
 db_e2e_up:
+	@echo "Truncate the test database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	@echo "Populate the test database..."
+	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
+
+db_e2e_up_docker:
 	@echo "Truncate the test database with docker command..."
 	docker run \
 		--link="$(DB_DOCKER_CONTAINER):database" \
 		--rm \
 		--entrypoint psql \
 		e2e_migrations:latest \
-		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable 'TRUNCATE users CASCADE;'
+		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the test database with docker command..."
 	docker run \
 		-t \
@@ -323,7 +329,9 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_init: db_test_reset db_test_migrate db_e2e_up
+
+db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 
 db_e2e_reset: db_e2e_init
 	@echo "\033[0;31mUse 'make db_e2e_init' instead please\033[0m"
@@ -370,6 +378,6 @@ clean:
 .PHONY: db_dev_run db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
 .PHONY: db_test_run db_test_create db_test_reset db_test_migrate db_test_e2e_populate
 .PHONY: db_test_run_docker db_test_create_docker db_test_reset_docker db_test_migrations_build db_test_migrate_docker
-.PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_reset
+.PHONY: db_populate_e2e db_e2e_up db_e2e_up_docker db_e2e_init db_e2e_init_docker db_e2e_reset
 .PHONY: e2e_test e2e_test_docker e2e_clean
 .PHONY: clean pretty
