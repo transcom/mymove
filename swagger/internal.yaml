@@ -3206,7 +3206,7 @@ paths:
         403:
           description: not authorized to send this invoice
         409:
-          description: the shipment is not in a state to be invoiced
+          description: the shipment cannot be invoiced becuase of a data conflict
           schema:
             $ref: '#/definitions/Invoice'
         500:
