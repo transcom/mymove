@@ -27,7 +27,7 @@ fi
 docker system info >> /dev/null
 
 # Begin setup
-make e2e_clean client_build db_e2e_init server_build_linux
+make e2e_clean client_build db_e2e_init_docker server_build_linux
 
 # Build the docker container
 docker build --tag e2e:latest .
