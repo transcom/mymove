@@ -246,10 +246,9 @@ db_dev_run: db_run db_dev_create
 db_dev_reset: db_destroy db_dev_run
 
 db_dev_migrate: server_deps
-	@echo "Migrating the dev database..."
+	@echo "Migrating the ${DB_NAME} database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=dev_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_create:
@@ -279,7 +278,7 @@ db_test_migrate: server_deps
 	@echo "Migrating the test database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		DB_NAME=test_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_migrate_docker: db_test_migrations_build
