@@ -42,6 +42,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
+import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 
 import {
   loadMoveDependencies,
@@ -114,6 +115,7 @@ const HHGTabContent = props => {
         title="TSP & Servicing Agents"
         shipment={props.officeShipment}
         serviceAgents={props.serviceAgents}
+        transportationServiceProviderId={props.shipment.transportation_service_provider_id}
       />
       {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
       {has(props, 'officeShipment.id') && (
@@ -142,16 +144,21 @@ class MoveInfo extends Component {
 
   componentDidUpdate(prevProps) {
     if (get(this.props, 'officeShipment.id') !== get(prevProps, 'officeShipment.id')) {
-      this.props.getPublicShipment('Shipments.getPublicShipment', this.props.officeShipment.id);
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.officeShipment.id);
-      this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.officeShipment.id);
-      this.props.loadShipmentDependencies(this.props.officeShipment.id);
+      this.getAllShipmentInfo(this.props.officeShipment.id);
     }
   }
 
   componentWillUnmount() {
     this.props.resetMove();
   }
+
+  getAllShipmentInfo = shipmentId => {
+    this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+    this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
+    this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
+    this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+    this.props.loadShipmentDependencies(shipmentId);
+  };
 
   approveBasics = () => {
     this.props.approveBasics(this.props.match.params.moveId);
@@ -496,6 +503,7 @@ const mapDispatchToProps = dispatch =>
       getAllShipmentLineItems,
       getAllInvoices,
       resetMove,
+      getTspForShipment,
     },
     dispatch,
   );

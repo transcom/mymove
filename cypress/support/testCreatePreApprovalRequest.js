@@ -10,14 +10,11 @@ export function fillAndSavePreApprovalRequest() {
   cy
     .get('.tariff400-select #react-select-2-input')
     .first()
-    .type('Linehaul Transportation{downarrow}{enter}', { force: true, delay: 150 });
+    .type('Linehaul Transportation{downarrow}{enter}', { force: true, delay: 75 });
   cy.get('.tariff400__single-value').should('not.exist');
 
   //  Enter details in form and create pre approval request
-  cy
-    .get('.tariff400-select #react-select-2-input')
-    .first()
-    .type('{selectall}{backspace}Article{downarrow}{enter}', { force: true, delay: 150 });
+  cy.selectTariff400ngItem('Article: Motorcycle');
 
   cy.get('select[name="location"]').select('ORIGIN');
 

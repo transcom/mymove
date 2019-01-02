@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,15 +16,21 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
-	"github.com/honeycombio/beeline-go"
+	"github.com/gorilla/csrf"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"goji.io/pat"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -38,9 +45,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
-	"goji.io"
-	"goji.io/pat"
+	goji "goji.io"
 )
 
 // GitCommit is empty unless set as a build flag
@@ -73,6 +78,23 @@ type errInvalidHost struct {
 
 func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
+}
+
+type errInvalidRegion struct {
+	Region string
+}
+
+func (e *errInvalidRegion) Error() string {
+	return fmt.Sprintf("invalid region %s", e.Region)
+}
+
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
 }
 
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
@@ -131,7 +153,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 
-	flag.String("http-my-server-name", "localhost", "Hostname according to environment.")
+	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
@@ -189,7 +211,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// EDI Invoice Config
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 
-	flag.String("storage-backend", "filesystem", "Storage backend to use, either filesystem or s3.")
+	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
@@ -212,6 +234,9 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Int("db-port", 5432, "Database Port")
 	flag.String("db-user", "postgres", "Database Username")
 	flag.String("db-password", "", "Database Password")
+
+	// CSRF Protection
+	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 }
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
@@ -257,7 +282,7 @@ func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
 	honeycombDataset := v.GetString("honeycomb-dataset")
 	honeycombServiceName := v.GetString("service-name")
 
-	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 {
+	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 && len(honeycombServiceName) > 0 {
 		logger.Debug("Honeycomb Integration enabled",
 			zap.String("honeycomb-api-host", honeycombAPIHost),
 			zap.String("honeycomb-dataset", honeycombDataset))
@@ -339,11 +364,54 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 		return nil, err
 	}
 
+	// Check the connection
+	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	err = db.Ping()
+	if err != nil {
+		logger.Warn("Failed to ping DB connection", zap.Error(err))
+		return connection, err
+	}
+
 	// Return the open connection
 	return connection, nil
 }
 
 func checkConfig(v *viper.Viper) error {
+
+	err := checkProtocols(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkHosts(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkPorts(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkCSRF(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkEmail(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkStorage(v)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkProtocols(v *viper.Viper) error {
 
 	protocolVars := []string{
 		"login-gov-callback-protocol",
@@ -356,6 +424,10 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkHosts(v *viper.Viper) error {
 	invalidChars := ":/\\ \t\n\v\f\r"
 
 	hostVars := []string{
@@ -377,6 +449,10 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkPorts(v *viper.Viper) error {
 	portVars := []string{
 		"mutual-tls-port",
 		"tls-port",
@@ -388,6 +464,62 @@ func checkConfig(v *viper.Viper) error {
 	for _, c := range portVars {
 		if p := v.GetInt(c); p <= 0 || p > 65535 {
 			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
+		}
+	}
+
+	return nil
+}
+
+func checkCSRF(v *viper.Viper) error {
+
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		return errors.Wrap(err, "Error decoding CSRF Auth Key")
+	}
+	if len(csrfAuthKey) != 32 {
+		return errors.New("CSRF Auth Key is not 32 bytes. Auth Key length: " + strconv.Itoa(len(csrfAuthKey)))
+	}
+
+	return nil
+}
+
+func checkEmail(v *viper.Viper) error {
+	emailBackend := v.GetString("email-backend")
+	if !stringSliceContains([]string{"local", "ses"}, emailBackend) {
+		return fmt.Errorf("invalid email-backend %s, expecting local or ses", emailBackend)
+	}
+
+	if emailBackend == "ses" {
+		// SES is only available in 3 regions: us-east-1, us-west-2, and eu-west-1
+		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
+		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+	}
+
+	return nil
+}
+
+func checkStorage(v *viper.Viper) error {
+
+	storageBackend := v.GetString("storage-backend")
+	if !stringSliceContains([]string{"local", "s3"}, storageBackend) {
+		return fmt.Errorf("invalid storage-backend %s, expecting local or s3", storageBackend)
+	}
+
+	if storageBackend == "s3" {
+		regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.S3ServiceID)
+		if !ok {
+			return fmt.Errorf("could not find regions for service %s", endpoints.S3ServiceID)
+		}
+
+		r := v.GetString("aws-s3-region")
+		if len(r) == 0 {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
+		}
+
+		if _, ok := regions[r]; !ok {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
 		}
 	}
 
@@ -406,6 +538,7 @@ func main() {
 	v.AutomaticEnv()
 
 	env := v.GetString("env")
+	isDevOrTest := env == "development" || env == "test"
 
 	logger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
@@ -447,7 +580,14 @@ func main() {
 	// Create a connection to the DB
 	dbConnection, err := initDatabase(v, logger)
 	if err != nil {
-		logger.Fatal("Connecting to DB", zap.Error(err))
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Connecting to DB", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up but we
+			// can proceed (this avoids a failure loop when deploying containers).
+			logger.Warn("Starting server without DB connection")
+		}
 	}
 
 	myHostname := v.GetString("http-my-server-name")
@@ -472,6 +612,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
@@ -619,6 +760,15 @@ func main() {
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
 
+	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
+	}
+	logger.Info("Enabling CSRF protection")
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(maskedCSRFMiddleware)
+
 	// Sends build variables to honeycomb
 	if len(gitBranch) > 0 && len(gitCommit) > 0 {
 		root.Use(func(next http.Handler) http.Handler {
@@ -663,7 +813,7 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
-	if env == "development" || env == "test" {
+	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)

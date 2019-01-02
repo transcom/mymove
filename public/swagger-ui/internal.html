@@ -69,12 +69,26 @@
 
 <script src="/swagger-ui/swagger-ui-bundle.js"> </script>
 <script src="/swagger-ui/swagger-ui-standalone-preset.js"> </script>
+<script src="/swagger-ui/js.cookie.js"></script>
 <script>
 window.onload = function() {
+  // Intercept the request to add csrf token
+  const requestInterceptor = req => {
+    if (!req.loadSpec) {
+      const token = Cookies.get('masked_gorilla_csrf');
+      if (token) {
+        req.headers['X-CSRF-Token'] = token;
+      } else {
+        console.warn('Unable to retrieve CSRF Token from cookie');
+      }
+    }
+    return req;
+  };
 
   // Build a system
   const ui = SwaggerUIBundle({
     url: "/internal/swagger.yaml",
+    requestInterceptor: requestInterceptor,
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [

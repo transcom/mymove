@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 
 import { loadEntitlements } from './ducks';
+import { formatWeight } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -11,16 +12,16 @@ import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 function renderEntitlements(entitlements) {
-  const weightEntitlement = get(entitlements, 'weight', '0').toLocaleString();
-  const proGearEntitlement = get(entitlements, 'pro_gear', '0').toLocaleString();
-  const spouseProGearEntitlement = get(entitlements, 'pro_gear_spouse', '0').toLocaleString();
+  const weightEntitlement = formatWeight(get(entitlements, 'weight', '0'));
+  const proGearEntitlement = formatWeight(get(entitlements, 'pro_gear', '0'));
+  const spouseProGearEntitlement = formatWeight(get(entitlements, 'pro_gear_spouse', '0'));
 
   return (
     <React.Fragment>
       <b>Entitlements</b>
       <br />
-      {weightEntitlement} lbs <br />
-      Pro-gear: {proGearEntitlement} lbs / Spouse: {spouseProGearEntitlement} <br />
+      {weightEntitlement} <br />
+      Pro-gear: {proGearEntitlement} / Spouse: {spouseProGearEntitlement} <br />
     </React.Fragment>
   );
 }
