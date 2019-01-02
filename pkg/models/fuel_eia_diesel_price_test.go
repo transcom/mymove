@@ -24,6 +24,21 @@ func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
 
 	suite.Nil(err, "Error writing to the db.")
 	suite.False(verrs.HasAny(), "Error validating model")
+
+	// Bad baseline rate (not between 0-100)
+	newFuelPrice = models.FuelEIADieselPrice{
+		ID:                          id,
+		PubDate:                     now,
+		RateStartDate:               now,
+		RateEndDate:                 now.AddDate(0, 1, -1),
+		EIAPricePerGallonMillicents: 320700,
+		BaselineRate:                102,
+	}
+
+	verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
+
+	suite.Nil(err, "Error writing to the db.")
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) TestEmptyFuelEIADieselPriceInstantiation() {
@@ -97,7 +112,7 @@ func (suite *ModelSuite) TestBadDatesFuelEIADieselPriceInstantiation() {
 	}
 
 	verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
-	suite.EqualError(err, "pq: conflicting key value violates exclusion constraint \"fuel_eia_diesel_prices_daterange_excl\"")
+	suite.EqualError(err, "pq: conflicting key value violates exclusion constraint \"no_overlapping_rates\"")
 	suite.Empty(verrs.Error())
 
 }
