@@ -36,8 +36,8 @@ type HandlerContext interface {
 	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
-	GexSender() gex.SenderToGex
-	SetGexSender(gexSender gex.SenderToGex)
+	GexSender() gex.SendToGex
+	SetGexSender(gexSender gex.SendToGex)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
@@ -56,7 +56,7 @@ type handlerContext struct {
 	iwsRealTimeBrokerService iws.RealTimeBrokerService
 	sendProductionInvoice    bool
 	dpsAuthParams            dpsauth.Params
-	senderToGex              gex.SenderToGex
+	senderToGex              gex.SendToGex
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -162,11 +162,11 @@ func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool)
 	hctx.sendProductionInvoice = sendProductionInvoice
 }
 
-func (hctx *handlerContext) GexSender() gex.SenderToGex {
+func (hctx *handlerContext) GexSender() gex.SendToGex {
 	return hctx.senderToGex
 }
 
-func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SenderToGex) {
+func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SendToGex) {
 	hctx.senderToGex = sendGexRequest
 }
 

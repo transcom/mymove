@@ -35,22 +35,19 @@ func TestGexSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func (suite *GexSuite) TestGexSend_SendRequest_OK() {
+func (suite *GexSuite) TestGexSend_SendRequest() {
 	ediString := ""
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	resp, _ := SendGex{mockServer.URL}.SendRequest(ediString, "test_transaction")
+	resp, _ := SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
-}
 
-func (suite *GexSuite) TestGexSend_SendRequest_Bad() {
-	ediString := ""
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	resp, _ := SendGex{mockServer.URL}.SendRequest(ediString, "test_transaction")
-	expectedStatus := http.StatusInternalServerError
+	resp, _ = SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+	expectedStatus = http.StatusInternalServerError
 	suite.Equal(expectedStatus, resp.StatusCode)
 }

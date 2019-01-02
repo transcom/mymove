@@ -17,16 +17,16 @@ import (
 // gexRequestTimeout is how long to wait on Gex request before timing out (30 seconds).
 const gexRequestTimeout = time.Duration(30) * time.Second
 
-// SenderToGex is an interface for sending and receiving a request
-type SenderToGex interface {
+// SendToGex is an interface for sending and receiving a request
+type SendToGex interface {
 	SendRequest(edi string, transactionName string) (resp *http.Response, err error)
 }
 
-// SendGex represents a struct to contain an actual gex request function
-type SendGex struct{ URL string }
+// SendToGexHTTP represents a struct to contain an actual gex request function
+type SendToGexHTTP struct{ URL string }
 
-// SendRequest sends an edi file string as a POST to the gex api
-func (s SendGex) SendRequest(edi string, transactionName string) (resp *http.Response, err error) {
+// Call sends an edi file string as a POST to the gex api
+func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Response, err error) {
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
 	edi = strings.TrimSpace(edi) + "\n"
 
@@ -48,7 +48,7 @@ func (s SendGex) SendRequest(edi string, transactionName string) (resp *http.Res
 	// our client certificate for the proxy in front of the GEX server.
 	request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
 
-	config, err := GetTLSConfig()
+	config, err := getTLSConfig()
 	if err != nil {
 		return resp, errors.Wrap(err, "Creating TLS config")
 	}
@@ -63,8 +63,8 @@ func (s SendGex) SendRequest(edi string, transactionName string) (resp *http.Res
 	return resp, err
 }
 
-// GetTLSConfig gets the configuration certs for the GEX connection
-func GetTLSConfig() (*tls.Config, error) {
+// getTLSConfig gets the configuration certs for the GEX connection
+func getTLSConfig() (*tls.Config, error) {
 	clientCA := os.Getenv("MOVE_MIL_DOD_CA_CERT")
 	clientCert := os.Getenv("MOVE_MIL_DOD_TLS_CERT")
 	clientKey := os.Getenv("MOVE_MIL_DOD_TLS_KEY")
