@@ -213,6 +213,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// EDI Invoice Config
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 	flag.Bool("really-send-gex-request", false, "Flag (bool) to send the actual gex request v. stubbed request")
+	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
@@ -503,6 +504,16 @@ func checkEmail(v *viper.Viper) error {
 	return nil
 }
 
+func checkGEXUrl(v *viper.Viper) error {
+	gexURL := v.GetString("gex-url")
+	if !stringSliceContains([]string{"https://gexweba.daas.dla.mil/msg_data/submit/", ""}, gexURL) {
+		return fmt.Errorf("invalid gexUrl %s, expecting "+
+			"https://gexweba.daas.dla.mil/msg_data/submit/ or an empty string", gexURL)
+	}
+
+	return nil
+}
+
 func checkStorage(v *viper.Viper) error {
 
 	storageBackend := v.GetString("storage-backend")
@@ -682,15 +693,16 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
-	var gexRequester gex.SenderToGex
-	if v.GetBool("really-send-gex-request") {
-		gexRequester = gex.SendGex{URL: "https://gexweba.daas.dla.mil/msg_data/submit/"}
-	} else {
+	var gexRequester gex.SendToGex
+	gexURL := v.GetString("gex-url")
+	if gexURL == "" {
 		// this spins up a local test server
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
-		gexRequester = gex.SendGex{URL: server.URL}
+		gexRequester = gex.SendToGexHTTP{URL: server.URL}
+	} else {
+		gexRequester = gex.SendToGexHTTP{URL: v.GetString("gex-url")}
 	}
 	handlerContext.SetGexSender(gexRequester)
 

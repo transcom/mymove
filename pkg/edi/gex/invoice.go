@@ -19,7 +19,7 @@ const gexRequestTimeout = time.Duration(30) * time.Second
 
 // SendToGex is an interface for sending and receiving a request
 type SendToGex interface {
-	SendRequest(edi string, transactionName string) (resp *http.Response, err error)
+	Call(edi string, transactionName string) (resp *http.Response, err error)
 }
 
 // SendToGexHTTP represents a struct to contain an actual gex request function
