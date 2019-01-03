@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
+import moment from 'moment';
 
 import Alert from 'shared/Alert';
 import './InvoicePanel.css';
@@ -16,12 +17,15 @@ class InvoicePaymentAlert extends PureComponent {
       let invoiceStatus = get(status, 'error.response.response.body.status');
       let aproverFirstName = get(status, 'error.response.response.body.approver_first_name');
       let aproverLastName = get(status, 'error.response.response.body.approver_last_name');
+      let invoiceDate = moment(get(status, 'error.response.response.body.invoiced_date'));
       if (httpResCode === 409 && invoiceStatus === 'SUBMITTED') {
         paymentAlert = (
           <div>
-            <Alert type="success" heading="Success!">
+            <Alert type="success" heading="Already approved">
               <span className="warning--header">
-                Counselor {aproverFirstName} {aproverLastName} already approved this invoice.
+                {aproverFirstName} {aproverLastName} approved this invoice on [{invoiceDate.format('DD-MMM-YYYY')}] at [{invoiceDate.format(
+                  'kk:mm',
+                )}].
               </span>
             </Alert>
           </div>
@@ -29,10 +33,10 @@ class InvoicePaymentAlert extends PureComponent {
       } else if (httpResCode === 409 && (invoiceStatus === 'IN_PROCESS' || invoiceStatus === 'DRAFT')) {
         paymentAlert = (
           <div>
-            <Alert type="success" heading="Success!">
+            <Alert type="success" heading="Already submitted">
               <span className="warning--header">
-                Counselor {aproverFirstName} {aproverLastName} already submitted this invoice. Please reload your screen
-                to see updated information.
+                {aproverFirstName} {aproverLastName} submitted this invoice on [{invoiceDate.format('DD-MMM-YYYY')}] at
+                [{invoiceDate.format('kk:mm')}].
               </span>
             </Alert>
           </div>
