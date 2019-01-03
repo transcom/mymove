@@ -495,7 +495,6 @@ jobs:
     executor: mymove_small
     steps:
       - checkout
-      # Comment out the following line if you are intentionally overriding to deploy an older version of master.
       - halt_workflow_if_older_sha
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
