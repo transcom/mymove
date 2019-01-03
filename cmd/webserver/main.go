@@ -212,7 +212,6 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// EDI Invoice Config
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
-	flag.Bool("really-send-gex-request", false, "Flag (bool) to send the actual gex request v. stubbed request")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")

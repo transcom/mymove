@@ -155,10 +155,6 @@
       "value": ".sddc.army.mil"
     },
     {
-      "name": "REALLY_SEND_GEX_REQUEST",
-      "value": "{{ .REALLY_SEND_GEX_REQUEST }}"
-    },
-    {
       "name": "GEX_URL",
       "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
     }
