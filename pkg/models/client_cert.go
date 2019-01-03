@@ -42,13 +42,13 @@ func (c *ClientCert) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error
 
 // ClientCertExists checks that a client certificate is known to the system
 func ClientCertExists(db *pop.Connection, sha256Digest string) (bool, error) {
-	return db.Eager().Where("sha256_digest = ?", sha256Digest).Exists(&ClientCert{})
+	return db.Eager().Where("sha256_digest = $1", sha256Digest).Exists(&ClientCert{})
 }
 
 // FetchClientCert fetches and validates a client certificate by digest
 func FetchClientCert(db *pop.Connection, sha256Digest string) (*ClientCert, error) {
 	var cert ClientCert
-	err := db.Eager().Where("sha256_digest = ?", sha256Digest).First(&cert)
+	err := db.Eager().Where("sha256_digest = $1", sha256Digest).First(&cert)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
