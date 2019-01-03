@@ -6,6 +6,8 @@ describe('Office user looks at the invoice tab to view unbilled line items', () 
   it('there are no unbilled line items', checkNoUnbilledLineItems);
 
   it('there are unbilled line items', checkExistUnbilledLineItems);
+
+  it('the confirmation dialogue appears', checkConfirmationDialogue);
 });
 
 function checkNoUnbilledLineItems() {
@@ -42,4 +44,33 @@ function checkExistUnbilledLineItems() {
           cy.wrap(cell).should('not.have.text', '');
         });
     });
+}
+
+function checkConfirmationDialogue() {
+  // Open the shipments tab.
+  cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+
+  cy.get('.invoice-panel').within(() => {
+    cy
+      .get('button')
+      .first()
+      .click();
+
+    cy
+      .get('.usa-button-primary')
+      .first()
+      .should('have.text', 'Approve');
+
+    cy
+      .get('.usa-button-secondary')
+      .first()
+      .should('have.text', 'Cancel');
+
+    cy
+      .get('.usa-button-secondary')
+      .first()
+      .click();
+
+    cy.get('button').should('have.text', 'Approve Payment');
+  });
 }
