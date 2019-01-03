@@ -247,6 +247,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
 	/*
+	 * Service member with a ppm move that has requested payment
+	 */
+	email = "ppmpayment@request.ed"
+	uuidStr = "beccca28-6e15-40cc-8692-261cae0d4b14"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	plannedMoveDate := time.Now()
+	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	ppm3 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("3c24bab5-fd13-4057-a321-befb97d90c43"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Payment Requested"),
+			Edipi:         models.StringPointer("7617033988"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &moveTypeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("d6b8980d-6f88-41be-9ae2-1abcbd2574bc"),
+			Locator: "PAYMNT",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &plannedMoveDate,
+		},
+		Uploader: loader,
+	})
+	ppm3.Move.Submit()
+	ppm3.Move.Approve()
+	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
+	ppm3.Move.PersonallyProcuredMoves[0].Submit()
+	ppm3.Move.PersonallyProcuredMoves[0].Approve()
+	ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(db, &ppm3.Move)
+
+	/*
 	 * A PPM move that has been canceled.
 	 */
 	email = "ppm-canceled@example.com"
