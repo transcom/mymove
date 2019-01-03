@@ -22,9 +22,6 @@ describe('office user interacts with pre approval request panel', function() {
   it('office user deletes pre approval request', function() {
     officeUserDeletesPreApprovalRequest();
   });
-  it('office user sees empty pre approval panel', function() {
-    officeUserViewsNoPreApprovalRequestTableWhenEmpty();
-  });
 });
 
 function officeUserCreatesPreApprovalRequest() {
@@ -161,33 +158,4 @@ function officeUserDeletesPreApprovalRequest() {
     .get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
-}
-
-function officeUserViewsNoPreApprovalRequestTableWhenEmpty() {
-  // Open new moves queue
-  cy.visit('/queues/all');
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/all/);
-  });
-
-  // Find move and open it
-  cy
-    .get('div')
-    .contains('RLKBEM')
-    .dblclick();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  // Click on HHG tab
-  cy
-    .get('span')
-    .contains('HHG')
-    .click();
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
-  });
-
-  cy.get('.pre-approval-panel-table-cont').should('not.contain', 'Code');
 }
