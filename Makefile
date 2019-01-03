@@ -162,17 +162,33 @@ tsp_run: build_tools db_dev_run
 
 build: server_build build_tools client_build
 
-server_test: server_deps server_generate db_test_run db_test_reset db_test_migrate
+# webserver_test runs a few acceptance tests against a local or remote environment.
+# This can help identify potential errors before deploying a container.
+webserver_test: server_generate
+ifndef TEST_ACC_ENV
+	@echo "Running acceptance tests for webserver using local environment."
+	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+else
+	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
+	aws-vault exec $$AWS_PROFILE -- \
+	chamber exec app-$$TEST_ACC_ENV -- \
+	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+endif
+
+server_test: server_deps server_generate db_test_reset db_test_migrate
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_all: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_all: server_deps server_generate db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_coverage: server_deps server_generate db_dev_reset db_dev_migrate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -199,7 +215,7 @@ e2e_clean:
 	docker rm -f e2e_migrations || true
 
 db_run:
-	@echo "Starting the local dev database..."
+	@echo "Starting the local docker database container..."
 	# The version of the postgres container should match production as closely
 	# as possible.
 	# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
@@ -212,33 +228,38 @@ db_run:
 			postgres:10.5
 
 db_destroy:
-	@echo "Destroying the local dev database..."
+ifndef CIRCLECI
+	@echo "Destroying the local docker database container..."
 	docker rm -f $(DB_DOCKER_CONTAINER) || \
-		echo "No dev database"
+		echo "No database container"
+else
+	@echo "Relying on CircleCI's database setup to destroy the DB."
+endif
 
 db_dev_create:
+	@echo "Create the dev database..."
 	DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db || true
 
 db_dev_run: db_run db_dev_create
 
-db_dev_reset:
-	dropdb -p 5432 -h localhost -U postgres --if-exists dev_db
-	createdb -p 5432 -h localhost -U postgres dev_db
+db_dev_reset: db_destroy db_dev_run
 
 db_dev_migrate: server_deps
+	@echo "Migrating the ${DB_NAME} database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=dev_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_create:
+	@echo "Create the test database..."
 	DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres test_db || true
 
 db_test_run: db_run db_test_create
 
 db_test_create_docker:
+	@echo "Create the test database with docker command..."
 	DB_NAME=postgres bin/wait-for-db-docker && \
 		docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db || true
 
@@ -246,18 +267,22 @@ db_test_run_docker: db_run db_test_create_docker
 
 db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp: server_deps_linux server_generate_linux
+	@echo "Build required binaries for the docker migration container..."
 	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda ./vendor/github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
+	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
 db_test_migrate: server_deps
+	@echo "Migrating the test database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		DB_NAME=test_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_migrate_docker: db_test_migrations_build
+	@echo "Migrating the test database with docker command..."
 	DB_NAME=test_db bin/wait-for-db-docker
 	docker run \
 		-t \
@@ -272,25 +297,25 @@ db_test_migrate_docker: db_test_migrations_build
 		e2e_migrations:latest \
 		migrate -c /migrate/database.yml -p /migrate/migrations up
 
-db_test_reset:
-ifndef CIRCLECI
-	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
-	createdb -p 5432 -h localhost -U postgres test_db
-else
-	@echo "Relying on CircleCI's test database setup."
-endif
+db_test_reset: db_destroy db_test_run
 
-db_test_reset_docker:
-	docker exec $(DB_DOCKER_CONTAINER) dropdb -p 5432 -h localhost -U postgres --if-exists test_db
-	docker exec $(DB_DOCKER_CONTAINER) createdb -p 5432 -h localhost -U postgres test_db
+db_test_reset_docker: db_destroy db_test_run_docker
 
 db_e2e_up:
+	@echo "Truncate the test database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	@echo "Populate the test database..."
+	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
+
+db_e2e_up_docker:
+	@echo "Truncate the test database with docker command..."
 	docker run \
 		--link="$(DB_DOCKER_CONTAINER):database" \
 		--rm \
 		--entrypoint psql \
 		e2e_migrations:latest \
-		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable 'TRUNCATE users CASCADE;'
+		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	@echo "Populate the test database with docker command..."
 	docker run \
 		-t \
 		-e DB_NAME=test_db \
@@ -304,15 +329,19 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: db_test_run_docker db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_init: db_test_reset db_test_migrate db_e2e_up
+
+db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 
 db_e2e_reset: db_e2e_init
 	@echo "\033[0;31mUse 'make db_e2e_init' instead please\033[0m"
 
-db_dev_e2e_populate: db_dev_create db_dev_reset db_dev_migrate build_tools
+db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools
+	@echo "Populate the dev database with docker command..."
 	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
 
-db_test_e2e_populate: db_test_run_docker db_test_reset_docker db_test_migrate_docker build_tools
+db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools
+	@echo "Populate the test database with docker command..."
 	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
 
 # Backwards compatibility
@@ -341,7 +370,7 @@ clean:
 	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
-.PHONY: server_run_standalone server_run server_run_default server_test
+.PHONY: server_run_standalone server_run server_run_default server_test webserver_test
 .PHONY: go_deps_update server_go_bindata
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
@@ -349,6 +378,6 @@ clean:
 .PHONY: db_dev_run db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
 .PHONY: db_test_run db_test_create db_test_reset db_test_migrate db_test_e2e_populate
 .PHONY: db_test_run_docker db_test_create_docker db_test_reset_docker db_test_migrations_build db_test_migrate_docker
-.PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_reset
-.PHONY: e2e_test e2e_test_ci e2e_test_docker e2e_test_docker_ci e2e_clean
+.PHONY: db_populate_e2e db_e2e_up db_e2e_up_docker db_e2e_init db_e2e_init_docker db_e2e_reset
+.PHONY: e2e_test e2e_test_docker e2e_clean
 .PHONY: clean pretty

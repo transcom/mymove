@@ -2041,6 +2041,7 @@ definitions:
       - DRAFT
       - SUBMITTED
       - AWARDED
+      - ACCEPTED
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
@@ -2049,6 +2050,7 @@ definitions:
       DRAFT: Draft
       SUBMITTED: Submitted
       AWARDED: Awarded
+      ACCEPTED: Accepted
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
