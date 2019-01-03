@@ -23,7 +23,7 @@ import UnbilledTable from 'shared/Invoice/UnbilledTable';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
 import InvoicePaymentAlert from './InvoicePaymentAlert';
 import { isError, isLoading, isSuccess } from 'shared/constants';
-import { getLastError } from 'shared/swagger/selectors';
+import { getLastError } from 'shared/Swagger/selectors';
 
 import './InvoicePanel.css';
 
