@@ -43,20 +43,16 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	resp, err := SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
-	if err != nil {
-		errors.Wrap(err, "MockServer request unsuccessful")
-	}
+	resp, _ := SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
 
 	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	resp, err = SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
-	if err != nil {
-		errors.Wrap(err, "MockServer request unsuccessful")
-	}
+	resp, _ = SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+
 	expectedStatus = http.StatusInternalServerError
 	suite.Equal(expectedStatus, resp.StatusCode)
 }
