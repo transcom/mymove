@@ -26,7 +26,12 @@ func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessage
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+	})
 	sm := move.Orders.ServiceMember
 
 	// Make associated lookup table records.
@@ -236,7 +241,12 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 }
 
 func (suite *HandlerSuite) TestSetShipmentDates() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+	})
 	sm := move.Orders.ServiceMember
 	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
 		Shipment: models.Shipment{

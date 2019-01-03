@@ -8,6 +8,9 @@ Before you begin this process, convert discount rate Excel files or txt files to
 >
 > `\copy` is a simpler way of getting this into the db because it requires less in the way of user permissions (unlike the `COPY` command). Use your absolute path for where you stored those CSV files.
 
+Note: If you wish to view existing data from production, use the command `bin/run-prod-migrations`. The local development `dev-db`
+does not contain the full set of data. You should not need to run the command `bin/run-prod-migrations` to complete the steps outlined here.
+
 ## Verify Input Files
 
 Check that the files you are about to import have roughly the correct number of lines in them:
@@ -28,6 +31,32 @@ Check that the files you are about to import have roughly the correct number of 
 496593   2018 Code 2 Peak Rates.txt
 565674   2018 Code D NonPeak Rates.txt
 565674   2018 Code D Peak Rates.txt
+```
+
+### TDL Performance Dates vs TSP Rate Dates
+
+Note that Rates overlap Performance Periods. You may get a new set of TDLs and will have to use existing (Non)Peak Rates.
+E.g., To load the performance data for `Performance Period 1` 2019 the 2018 `* NonPeak Rates.txt` files were used.
+
+```text
+Rate Cycle:
+Peak: 5/15 to 9/30
+
+Performance Periods
+1: 1/1   to  5/14
+2: 5/15  to  7/31
+3: 8/1   to  9/30
+4: 10/1  to  12/31
+
++--------------------------------------------------------------------------------------------+-----------------------------+
+| 2018                                                                                       | 2019                        |
++--------------------------------------------------------------------------------------------+-----------------------------+
+| Rate Cycle Rate - Non Peak (2017)     | Rate Cycle Rate - Peak (2018)    | Rate Cycle Rate - Non Peak (2018)          |  |
++---------------------------------------+----------------------------------+--------------------------------------------+--+
+| Perf Period 1                         | Perf Period 2    | Perf Period 3 | Perf Period 4   | Perf Period 1            |  |
++------------------------------------------+---------------+---------------+-----------------+-----------------------------+
+| Jan    | Feb    | Mar    | Apr    | May  | Jun   | Jul   | Aug   | Sept  | Oct | Nov | Dec | Jan | Feb | Mar | Apr | May |
++--------+--------+--------+--------+------+-------+-------+-------+-------+-----+-----+-----+-----+-----+-----+-----+-----+
 ```
 
 ## Load TSP Discount Rates
@@ -275,4 +304,76 @@ SELECT CONCAT(((bucket -1) * 100)::text, '-', (bucket * 100)::text) as rows, cou
  1400-1500 |    59
  1500-1600 |   545
 (12 rows)
+
+-- Spot check the data by picking a row from the TDL and TSP text/CSV files and verifying the data:
+
+SELECT source_rate_area, destination_region, code_of_service, performance_period_start, performance_period_end,
+       best_value_score, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate, standard_carrier_alpha_code,
+       tdl.created_at
+FROM traffic_distribution_lists AS tdl
+LEFT JOIN transportation_service_provider_performances on tdl.id = transportation_service_provider_performances.traffic_distribution_list_id
+LEFT JOIN transportation_service_providers on transportation_service_provider_performances.transportation_service_provider_id = transportation_service_providers.id
+WHERE performance_period_start='2019-01-01' and performance_period_end='2019-05-14'
+  AND standard_carrier_alpha_code='ABCD'
+  AND destination_region='14' AND source_rate_area='US11'
+  AND code_of_service='D';
+
 ```
+
+## Create Secure Migrations
+
+You will have to create a secure migration for this data import. Two files will need to be created,
+the file that contains the real data and a local migration (dummy file for dev). Follow the instructions
+at [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations)
+
+### Some tips for creating the dummy file
+
+You will need to scrub the data that is in the dummy file. The fields: `linehaul_rate`, `sit_rate`, and `best_value_score`
+are company competition sensitive data and needs to scrubbed.
+
+The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
+
+The following SQL can be used to do the above mentioned:
+
+* Truncate the table transportation_service_provider_performances:
+
+```sql
+TRUNCATE transportation_service_provider_performances CASCADE;
+```
+
+* Load the file created from the `pg_dump`:
+
+```sh
+bin/psql < tspp_data_dump.pgsql
+```
+
+* Reduce the number of TSPs to two (2) TSPs per TDL:
+
+```sql
+DELETE FROM transportation_service_provider_performances
+WHERE id not in (
+      SELECT id  FROM
+          (SELECT id, traffic_distribution_list_id, transportation_service_provider_id, performance_period_start, ROW_NUMBER() OVER
+            (PARTITION BY (traffic_distribution_list_id, performance_period_start, performance_period_end)) rn
+           FROM transportation_service_provider_performances
+          ) tmp WHERE (rn = 1 OR rn = 2)
+    );
+```
+
+* Scrub the data:
+
+```sql
+UPDATE transportation_service_provider_performances
+SET linehaul_rate=random(),
+    sit_rate=random(),
+    best_value_score=random_between(60,70);
+```
+
+* Run the `pg_dump` again to capture the new local migration file:
+
+```sql
+pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > local_migration_tspp_data_dump.pgsql
+```
+
+Complete the steps from [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations) to
+submit both migration files.
