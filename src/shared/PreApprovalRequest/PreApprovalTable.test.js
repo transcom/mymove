@@ -39,6 +39,21 @@ describe('PreApprovalTable tests', () => {
       expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
     });
   });
+  describe('When no shipmentLineItems exist', () => {
+    it('does not show the table', () => {
+      wrapper = shallow(
+        <PreApprovalTable
+          shipmentLineItems={[]}
+          isActionable={true}
+          onEdit={onEdit}
+          onDelete={onEdit}
+          onApproval={onEdit}
+        />,
+      );
+      expect(wrapper.exists('div.pre-approval-panel-table-cont')).toBe(true);
+      expect(wrapper.exists('table')).toBe(false);
+    });
+  });
   describe('When a request is being acted upon', () => {
     it('is the only request that is actionable', () => {
       const onActivation = jest.fn();
