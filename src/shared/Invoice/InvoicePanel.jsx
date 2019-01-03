@@ -12,7 +12,13 @@ import {
   getAllShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { selectSortedInvoices, createInvoice, createInvoiceLabel } from 'shared/Entities/modules/invoices';
+import {
+  selectSortedInvoices,
+  createInvoice,
+  createInvoiceLabel,
+  getShipmentInvoicesLabel,
+  getAllInvoices,
+} from 'shared/Entities/modules/invoices';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import UnbilledTable from 'shared/Invoice/UnbilledTable';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
@@ -22,9 +28,18 @@ import './InvoicePanel.css';
 
 export class InvoicePanel extends PureComponent {
   approvePayment = () => {
-    return this.props.createInvoice(createInvoiceLabel, this.props.shipmentId).then(() => {
-      return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
-    });
+    return this.props
+      .createInvoice(createInvoiceLabel, this.props.shipmentId)
+      .then(() => {
+        return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+      })
+      .catch(err => {
+        let httpResCode = get(err, 'response.status');
+        if (httpResCode === 409) {
+          this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.shipmentId);
+          return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+        }
+      });
   };
 
   render() {
@@ -81,6 +96,6 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createInvoice, getAllShipmentLineItems }, dispatch);
+  return bindActionCreators({ createInvoice, getAllShipmentLineItems, getAllInvoices }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);
