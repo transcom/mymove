@@ -26,7 +26,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	// EDI parser will fail silently
 	transactionBody = strings.TrimSpace(transactionBody) + "\n"
 
-	resp, err := h.GexSender().SendRequest(transactionBody, transactionName)
+	resp, err := h.GexSender().Call(transactionBody, transactionName)
 	if err != nil {
 		h.Logger().Error("Sending Invoice to Gex", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()

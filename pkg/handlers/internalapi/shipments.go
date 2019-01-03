@@ -526,7 +526,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	resp, err := h.GexSender().SendRequest(invoice858CString, transactionName)
+	resp, err := h.GexSender().Call(invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

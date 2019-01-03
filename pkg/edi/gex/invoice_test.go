@@ -37,11 +37,12 @@ func TestGexSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func (suite *GexSuite) TestGexSend_SendRequest() {
+func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	ediString := ""
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
+
 	resp, err := SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
 	if err != nil {
 		errors.Wrap(err, "MockServer request unsuccessful")
