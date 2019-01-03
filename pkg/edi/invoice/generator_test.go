@@ -82,9 +82,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		// We need to determine the SCAC/year so that we can reset the invoice sequence number to test
 		// against the golden EDI.
 		scac := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
-		loc, err := time.LoadLocation(models.InvoiceTimeZone)
-		suite.NoError(err)
-		year := shipment.CreatedAt.In(loc).Year()
+		year := shipment.CreatedAt.UTC().Year()
 		err = testdatagen.ResetInvoiceNumber(suite.db, scac, year)
 		suite.NoError(err)
 

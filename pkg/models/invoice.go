@@ -26,9 +26,6 @@ const (
 	InvoiceStatusSUBMISSIONFAILURE InvoiceStatus = "SUBMISSION_FAILURE"
 )
 
-// InvoiceTimeZone is the time zone we are using for invoice-related dates/times.
-const InvoiceTimeZone = "America/Los_Angeles"
-
 // Invoice is a collection of line item charges to be sent for payment
 type Invoice struct {
 	ID                uuid.UUID         `json:"id" db:"id"`

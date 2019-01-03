@@ -3,7 +3,6 @@ package invoice
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
@@ -65,12 +64,7 @@ func (c CreateInvoice) createInvoiceNumber(shipment models.Shipment) (string, er
 	acceptedOffer := acceptedOffers[0]
 
 	scac := acceptedOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
-
-	loc, err := time.LoadLocation(models.InvoiceTimeZone)
-	if err != nil {
-		return "", err
-	}
-	year := shipment.CreatedAt.In(loc).Year()
+	year := shipment.CreatedAt.UTC().Year()
 
 	invoiceNumber, err := c.generateBaseInvoiceNumber(scac, year)
 	if err != nil {

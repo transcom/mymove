@@ -3,7 +3,6 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
-	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
@@ -76,11 +75,7 @@ func (invoice Invoice858C) EDIString() (string, error) {
 
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
-	loc, err := time.LoadLocation(models.InvoiceTimeZone)
-	if err != nil {
-		return Invoice858C{}, err
-	}
-	currentTime := clock.Now().In(loc)
+	currentTime := clock.Now().UTC()
 
 	interchangeControlNumber, err := sequence.NextVal(db, ICNSequenceName)
 	if err != nil {

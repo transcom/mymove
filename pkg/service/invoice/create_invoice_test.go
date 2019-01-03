@@ -2,7 +2,6 @@ package invoice
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/facebookgo/clock"
 
@@ -31,15 +30,12 @@ func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
 func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
-	loc, err := time.LoadLocation(models.InvoiceTimeZone)
-	suite.NoError(err)
-
 	// Both shipments from the helper should have the same SCAC and year.
 	shipment1 := helperShipment(suite)
 	shipment2 := helperShipment(suite)
 
 	scac := shipment1.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
-	year := shipment1.CreatedAt.In(loc).Year()
+	year := shipment1.CreatedAt.UTC().Year()
 
 	var invoiceNumberTestCases = []struct {
 		shipment              models.Shipment
@@ -49,7 +45,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 		{shipment2, fmt.Sprintf("%s%d%04d", scac, year%100, 2)},
 	}
 
-	err = testdatagen.ResetInvoiceNumber(suite.db, scac, year)
+	err := testdatagen.ResetInvoiceNumber(suite.db, scac, year)
 	suite.NoError(err)
 
 	createInvoice := CreateInvoice{
@@ -70,13 +66,10 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
-	loc, err := time.LoadLocation(models.InvoiceTimeZone)
-	suite.NoError(err)
-
 	shipment := helperShipment(suite)
 
 	scac := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
-	year := shipment.CreatedAt.In(loc).Year()
+	year := shipment.CreatedAt.UTC().Year()
 
 	baselineInvoiceNumber := fmt.Sprintf("%s%d%04d", scac, year%100, 1)
 
@@ -86,7 +79,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
 		expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s-%02d", baselineInvoiceNumber, i))
 	}
 
-	err = testdatagen.ResetInvoiceNumber(suite.db, scac, year)
+	err := testdatagen.ResetInvoiceNumber(suite.db, scac, year)
 	suite.NoError(err)
 
 	createInvoice := CreateInvoice{
