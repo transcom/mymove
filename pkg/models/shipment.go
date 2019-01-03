@@ -648,35 +648,6 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	return saveShipmentAndOffer(db, shipment, shipmentOffer)
 }
 
-// RejectShipmentForTSP accepts a shipment and shipment_offer
-func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, rejectionReason string) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
-
-	// Get the Shipment and Shipment Offer
-	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
-	if err != nil {
-		return shipment, nil, nil, err
-	}
-
-	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	// Move the shipment back to Submitted and Reject the shipment offer.
-	err = shipment.Reject()
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	err = shipmentOffer.Reject(rejectionReason)
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	return saveShipmentAndOffer(db, shipment, shipmentOffer)
-
-}
-
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
 func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
