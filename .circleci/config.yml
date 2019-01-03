@@ -595,9 +595,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          filters:
+            branches:
+              ignore: cg_162931822_build_chamber_and_soda_separately
 
       - integration_tests_office:
           requires:
@@ -605,9 +605,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          filters:
+            branches:
+              ignore: cg_162931822_build_chamber_and_soda_separately
 
       - integration_tests_tsp:
           requires:
@@ -615,9 +615,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          filters:
+            branches:
+              ignore: cg_162931822_build_chamber_and_soda_separately
 
       - client_test:
           requires:
@@ -651,21 +651,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder
+              only: cg_162931822_build_chamber_and_soda_separately
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder
+              only: cg_162931822_build_chamber_and_soda_separately
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder
+              only: cg_162931822_build_chamber_and_soda_separately
 
       - check_circle_against_staging_sha:
           requires:
