@@ -23,9 +23,8 @@ class InvoicePaymentAlert extends PureComponent {
           <div>
             <Alert type="success" heading="Already approved">
               <span className="warning--header">
-                {aproverFirstName} {aproverLastName} approved this invoice on [{invoiceDate.format('DD-MMM-YYYY')}] at [{invoiceDate.format(
-                  'kk:mm',
-                )}].
+                {aproverFirstName} {aproverLastName} approved this invoice on {invoiceDate.format('DD-MMM-YYYY')} at{' '}
+                {invoiceDate.format('kk:mm')}.
               </span>
             </Alert>
           </div>
@@ -35,8 +34,8 @@ class InvoicePaymentAlert extends PureComponent {
           <div>
             <Alert type="success" heading="Already submitted">
               <span className="warning--header">
-                {aproverFirstName} {aproverLastName} submitted this invoice on [{invoiceDate.format('DD-MMM-YYYY')}] at
-                [{invoiceDate.format('kk:mm')}].
+                {aproverFirstName} {aproverLastName} submitted this invoice on {invoiceDate.format('DD-MMM-YYYY')} at{' '}
+                {invoiceDate.format('kk:mm')}.
               </span>
             </Alert>
           </div>
