@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/facebookgo/clock"
@@ -55,26 +56,23 @@ func main() {
 		log.Fatal(verrs)
 	}
 
-	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, clock.New())
-	if err != nil {
-		log.Fatal(err)
+	resp, err := processInvoice(db, shipment, invoiceModel, sendToGex, transactionName)
+	if resp != nil {
+		fmt.Printf("status code: %v\n", resp.StatusCode)
 	}
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+}
 
-	if *sendToGex == true {
-		fmt.Println("Sending to GEX. . .")
-		invoice858CString, err := invoice858C.EDIString()
-		if err != nil {
-			log.Fatal(err)
-		}
-		resp, err := gex.SendInvoiceToGex(invoice858CString, *transactionName)
-		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
-
-		if resp.StatusCode != 200 {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex *bool, transactionName *string) (resp *http.Response, err error) {
+	defer func() {
+		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed
 			invoiceModel.Status = models.InvoiceStatusSUBMISSIONFAILURE
-			verrs, err := db.ValidateAndSave(&invoiceModel)
-			if err != nil {
-				log.Fatal(err)
+			verrs, deferErr := db.ValidateAndSave(&invoiceModel)
+			if deferErr != nil {
+				log.Fatal(deferErr)
 			}
 			if verrs.HasAny() {
 				log.Fatal(verrs)
@@ -82,16 +80,31 @@ func main() {
 		} else {
 			// Update invoice record as submitted
 			shipmentLineItems := shipment.ShipmentLineItems
-			verrs, err = invoice.UpdateInvoiceSubmitted{DB: db}.Call(&invoiceModel, shipmentLineItems)
-			if err != nil {
-				log.Fatal(err)
+			verrs, deferErr := invoice.UpdateInvoiceSubmitted{DB: db}.Call(&invoiceModel, shipmentLineItems)
+			if deferErr != nil {
+				log.Fatal(deferErr)
 			}
 			if verrs.HasAny() {
 				log.Fatal(verrs)
 			}
 		}
-	} else {
-		ediWriter := edi.NewWriter(os.Stdout)
-		ediWriter.WriteAll(invoice858C.Segments())
+	}()
+
+	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, clock.New())
+	if err != nil {
+		return nil, err
 	}
+
+	if *sendToGex == true {
+		fmt.Println("Sending to GEX. . .")
+		invoice858CString, err := invoice858C.EDIString()
+		if err != nil {
+			return nil, err
+		}
+		return gex.SendInvoiceToGex(invoice858CString, *transactionName)
+	}
+
+	ediWriter := edi.NewWriter(os.Stdout)
+	err = ediWriter.WriteAll(invoice858C.Segments())
+	return nil, err
 }
