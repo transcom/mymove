@@ -1321,14 +1321,6 @@ definitions:
     required:
       - role
       - company
-  RejectShipment:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
-    required:
-      - reason
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
@@ -2604,43 +2596,6 @@ paths:
           description: shipment line item not found
         500:
           description: internal server error
-  /shipments/{shipmentId}/reject:
-    post:
-      summary: Rejects an awarded shipment
-      description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
-      operationId: rejectShipment
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - name: payload
-          in: body
-          description: reason for refusing award
-          required: true
-          schema:
-            $ref: '#/definitions/RejectShipment'
-      responses:
-        200:
-          description: returns updated (rejected) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to reject this shipment
-        409:
-          description: the shipment is not in a state to be rejected
-          schema:
-            $ref: '#/definitions/Shipment'
-        500:
-          description: server error
   /tsps:
     get:
       summary: List all TSPs
