@@ -42,9 +42,7 @@ describe('Invoice Payment Component tests', () => {
           />,
         );
         expect(wrapper.find('.warning--header').text()).toEqual(
-          `Leo Spaceman approved this invoice on [${momentDate.format('DD-MMM-YYYY')}] at [${momentDate.format(
-            'kk:mm',
-          )}].`,
+          `Leo Spaceman approved this invoice on ${momentDate.format('DD-MMM-YYYY')} at ${momentDate.format('kk:mm')}.`,
         );
       });
     });
@@ -71,9 +69,9 @@ describe('Invoice Payment Component tests', () => {
           />,
         );
         expect(wrapper.find('.warning--header').text()).toEqual(
-          `Leo Spaceman submitted this invoice on [${momentDate.format('DD-MMM-YYYY')}] at [${momentDate.format(
+          `Leo Spaceman submitted this invoice on ${momentDate.format('DD-MMM-YYYY')} at ${momentDate.format(
             'kk:mm',
-          )}].`,
+          )}.`,
         );
       });
     });
@@ -100,9 +98,9 @@ describe('Invoice Payment Component tests', () => {
           />,
         );
         expect(wrapper.find('.warning--header').text()).toEqual(
-          `Leo Spaceman submitted this invoice on [${momentDate.format('DD-MMM-YYYY')}] at [${momentDate.format(
+          `Leo Spaceman submitted this invoice on ${momentDate.format('DD-MMM-YYYY')} at ${momentDate.format(
             'kk:mm',
-          )}].`,
+          )}.`,
         );
       });
     });
