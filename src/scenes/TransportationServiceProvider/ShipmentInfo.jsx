@@ -13,7 +13,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
-import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   getAllShipmentDocuments,
@@ -44,7 +43,6 @@ import {
   completePmSurvey,
   patchShipment,
   acceptShipment,
-  rejectShipment,
   transportShipment,
   deliverShipment,
   handleServiceAgents,
@@ -72,10 +70,6 @@ const attachmentsErrorMessages = {
 };
 
 class AcceptShipmentPanel extends Component {
-  rejectShipment = reason => {
-    this.props.rejectShipment(reason);
-  };
-
   acceptShipment = () => {
     this.props.acceptShipment();
   };
@@ -86,13 +80,6 @@ class AcceptShipmentPanel extends Component {
         <button className="usa-button-primary" onClick={this.acceptShipment}>
           Accept Shipment
         </button>
-        <ConfirmWithReasonButton
-          buttonTitle="Reject Shipment"
-          reasonPrompt="Why are you rejecting this shipment?"
-          warningPrompt="Are you sure you want to reject this shipment?"
-          onConfirm={this.rejectShipment}
-          buttonDisabled={true}
-        />
       </div>
     );
   }
@@ -161,12 +148,6 @@ class ShipmentInfo extends Component {
 
   generateGBL = () => {
     return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
-  };
-
-  rejectShipment = reason => {
-    return this.props.rejectShipment(this.props.shipment.id, reason).then(() => {
-      this.setState({ redirectToHome: true });
-    });
   };
 
   enterPreMoveSurvey = values => {
@@ -339,11 +320,7 @@ class ShipmentInfo extends Component {
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
               {awarded && (
-                <AcceptShipmentPanel
-                  acceptShipment={this.acceptShipment}
-                  rejectShipment={this.rejectShipment}
-                  shipmentStatus={this.props.shipment.status}
-                />
+                <AcceptShipmentPanel acceptShipment={this.acceptShipment} shipmentStatus={this.props.shipment.status} />
               )}
 
               {generateGBLError && (
@@ -501,7 +478,6 @@ const mapDispatchToProps = dispatch =>
       patchShipment,
       acceptShipment,
       generateGBL,
-      rejectShipment,
       handleServiceAgents,
       transportShipment,
       deliverShipment,
