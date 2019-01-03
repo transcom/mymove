@@ -35,10 +35,11 @@ func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
 		BaselineRate:                102,
 	}
 
-	verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
+	expErrors := map[string][]string{
+		"baseline_rate": {"102 is not less than 101."},
+	}
 
-	suite.Nil(err, "Error writing to the db.")
-	suite.False(verrs.HasAny(), "Error validating model")
+	suite.verifyValidationErrors(&newFuelPrice, expErrors)
 }
 
 func (suite *ModelSuite) TestEmptyFuelEIADieselPriceInstantiation() {
@@ -49,7 +50,6 @@ func (suite *ModelSuite) TestEmptyFuelEIADieselPriceInstantiation() {
 		"rate_start_date":                   {"RateStartDate can not be blank."},
 		"rate_end_date":                     {"RateEndDate can not be blank."},
 		"e_i_a_price_per_gallon_millicents": {"0 is not greater than 0."},
-		"baseline_rate":                     {"0 is not greater than 0."},
 	}
 	suite.verifyValidationErrors(&newFuelPrice, expErrors)
 }
