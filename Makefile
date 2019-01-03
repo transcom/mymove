@@ -178,17 +178,17 @@ else
 	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
 endif
 
-server_test: server_deps server_generate db_test_run db_test_reset db_test_migrate
+server_test: server_deps server_generate db_test_reset db_test_migrate
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_all: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_all: server_deps server_generate db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_coverage: server_deps server_generate db_dev_reset db_dev_migrate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -246,10 +246,9 @@ db_dev_run: db_run db_dev_create
 db_dev_reset: db_destroy db_dev_run
 
 db_dev_migrate: server_deps
-	@echo "Migrating the dev database..."
+	@echo "Migrating the ${DB_NAME} database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=dev_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_create:
@@ -279,7 +278,7 @@ db_test_migrate: server_deps
 	@echo "Migrating the test database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		DB_NAME=test_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_migrate_docker: db_test_migrations_build
@@ -303,13 +302,19 @@ db_test_reset: db_destroy db_test_run
 db_test_reset_docker: db_destroy db_test_run_docker
 
 db_e2e_up:
+	@echo "Truncate the test database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	@echo "Populate the test database..."
+	bin/generate-test-data -named-scenario="e2e_basic" -env="test"
+
+db_e2e_up_docker:
 	@echo "Truncate the test database with docker command..."
 	docker run \
 		--link="$(DB_DOCKER_CONTAINER):database" \
 		--rm \
 		--entrypoint psql \
 		e2e_migrations:latest \
-		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable 'TRUNCATE users CASCADE;'
+		postgres://postgres:$(PGPASSWORD)@database:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the test database with docker command..."
 	docker run \
 		-t \
@@ -324,7 +329,9 @@ db_e2e_up:
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
 
-db_e2e_init: db_test_reset_docker db_test_migrate_docker db_e2e_up
+db_e2e_init: db_test_reset db_test_migrate db_e2e_up
+
+db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 
 db_e2e_reset: db_e2e_init
 	@echo "\033[0;31mUse 'make db_e2e_init' instead please\033[0m"
@@ -371,6 +378,6 @@ clean:
 .PHONY: db_dev_run db_dev_create db_dev_reset db_dev_migrate db_dev_e2e_populate
 .PHONY: db_test_run db_test_create db_test_reset db_test_migrate db_test_e2e_populate
 .PHONY: db_test_run_docker db_test_create_docker db_test_reset_docker db_test_migrations_build db_test_migrate_docker
-.PHONY: db_populate_e2e db_e2e_up db_e2e_init db_e2e_reset
+.PHONY: db_populate_e2e db_e2e_up db_e2e_up_docker db_e2e_init db_e2e_init_docker db_e2e_reset
 .PHONY: e2e_test e2e_test_docker e2e_clean
 .PHONY: clean pretty
