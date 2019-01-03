@@ -1,13 +1,15 @@
 package gex
 
 import (
-	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 )
 
 type GexSuite struct {
@@ -40,14 +42,20 @@ func (suite *GexSuite) TestGexSend_SendRequest() {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	resp, _ := SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+	resp, err := SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+	if err != nil {
+		errors.Wrap(err, "MockServer request unsuccessful")
+	}
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
 
 	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	resp, _ = SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+	resp, err = SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+	if err != nil {
+		errors.Wrap(err, "MockServer request unsuccessful")
+	}
 	expectedStatus = http.StatusInternalServerError
 	suite.Equal(expectedStatus, resp.StatusCode)
 }

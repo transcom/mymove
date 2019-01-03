@@ -2,7 +2,6 @@ package gex
 
 import (
 	"crypto/tls"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
