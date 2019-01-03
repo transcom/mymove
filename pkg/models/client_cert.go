@@ -46,9 +46,9 @@ func ClientCertExists(db *pop.Connection, sha256Digest string) (bool, error) {
 }
 
 // FetchClientCert fetches and validates a client certificate by digest
-func FetchClientCert(db *pop.Connection, sha256Digest [32]byte) (*ClientCert, error) {
+func FetchClientCert(db *pop.Connection, sha256Digest string) (*ClientCert, error) {
 	var cert ClientCert
-	err := db.Eager().Find(&cert, sha256Digest)
+	err := db.Eager().Where("sha256_digest = ?", sha256Digest).First(&cert)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound

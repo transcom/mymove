@@ -38,14 +38,13 @@ type TLSCert struct {
 // Server represents an http or https listening server. HTTPS listeners support
 // requiring client authentication with a provided CA.
 type Server struct {
-	CaCertPool            *x509.CertPool
-	ClientAuthType        tls.ClientAuthType
-	HTTPHandler           http.Handler
-	ListenAddress         string
-	Logger                *zap.Logger
-	Port                  int
-	TLSCerts              []TLSCert
-	VerifyPeerCertificate func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error
+	CaCertPool     *x509.CertPool
+	ClientAuthType tls.ClientAuthType
+	HTTPHandler    http.Handler
+	ListenAddress  string
+	Logger         *zap.Logger
+	Port           int
+	TLSCerts       []TLSCert
 }
 
 // addr generates an address:port string to be used in defining an http.Server
@@ -134,7 +133,6 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 		MinVersion:               tls.VersionTLS12,
 		NextProtos:               []string{"h2"},
 		PreferServerCipherSuites: true,
-		VerifyPeerCertificate:    s.VerifyPeerCertificate,
 	}
 
 	// Map certificates with the CommonName / DNSNames to support
