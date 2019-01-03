@@ -17,3 +17,8 @@ export const isTspSite = hostname.startsWith('tsp') || '';
 export const titleCase = str => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
+
+// These constants are used to track network requests using component state
+export const isError = 'REQUEST_ERROR';
+export const isLoading = 'REQUEST_LOADING';
+export const isSuccess = 'REQUEST_SUCCESS';
