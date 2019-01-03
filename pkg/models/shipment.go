@@ -266,10 +266,14 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	// 2) destination_region: Find using the postal code of the destination duty station.
 	// 3) code_of_service: For now, always assume "D".
 
-	// The pickup address is an optional field, so return if we don't have it.  We don't consider
-	// this an error condition since the database allows it (maybe we're in draft mode?).
 	if s.PickupAddressID == nil {
-		return nil, nil
+		// If we're in draft mode, it's OK to not have a pickup address yet.
+		if s.Status == ShipmentStatusDRAFT {
+			return nil, nil
+		}
+
+		// Any other mode should have a pickup address already specified.
+		return nil, errors.Errorf("No pickup address for shipment in %s status", s.Status)
 	}
 
 	// Pickup address postal code -> source rate area.
@@ -642,35 +646,6 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	}
 
 	return saveShipmentAndOffer(db, shipment, shipmentOffer)
-}
-
-// RejectShipmentForTSP accepts a shipment and shipment_offer
-func RejectShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID, rejectionReason string) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
-
-	// Get the Shipment and Shipment Offer
-	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
-	if err != nil {
-		return shipment, nil, nil, err
-	}
-
-	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	// Move the shipment back to Submitted and Reject the shipment offer.
-	err = shipment.Reject()
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	err = shipmentOffer.Reject(rejectionReason)
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	return saveShipmentAndOffer(db, shipment, shipmentOffer)
-
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.

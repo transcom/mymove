@@ -1,5 +1,6 @@
-.ppm-size-content h3 {
-  margin-bottom: 3rem;
+.ppm-size-content h2 {
+  margin-bottom: 1em;
+  margin-top: 1em;
   font-weight: bold;
   font-size: 2.5rem;
 }

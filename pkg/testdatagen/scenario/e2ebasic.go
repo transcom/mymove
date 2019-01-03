@@ -301,6 +301,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("8893308161"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
 			Locator: "BLABLA",
@@ -348,6 +352,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			PersonalEmail: models.StringPointer(email),
 			DutyStationID: &fortGordon.ID,
 			DutyStation:   fortGordon,
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
@@ -437,6 +445,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("Submitted"),
 			Edipi:         models.StringPointer("4444567890"),
 			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("56b8ef45-8145-487b-9b59-0e30d0d465fa"),
@@ -1667,7 +1679,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		Order: models.Order{
-			IssueDate: time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			HasDependents:    true,
+			SpouseHasProGear: true,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("115f14f2-c982-4a54-a293-78935b61305d"),
@@ -1872,6 +1886,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg32 := offer32.Shipment
 	hhg32.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg32.Move)
+
+	/*
+	 * Service member with awarded shipment with no dependents and no spouse progear
+	 */
+	email = "nodepdents@nospousepro.gear"
+
+	offer33 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("9a292af8-0e2e-4140-8bd2-165aa24d5071")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("9672cf74-bbe6-4cb2-97c8-f4c342d310a1"),
+			FirstName:     models.StringPointer("No Dependents"),
+			LastName:      models.StringPointer("No Spouse Progear"),
+			Edipi:         models.StringPointer("4444567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("3f8db9d7-db14-4f5c-a50b-0ae67ca3a225"),
+			Locator:          "NDNSPG",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("89a1fe5a-0735-4d9f-8637-f1ec34081827"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:   models.ShipmentStatusAWARDED,
+			BookDate: &nowTime,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg33 := offer33.Shipment
+	hhg33.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg33.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM

@@ -34,8 +34,13 @@ const DatesDisplay = props => {
   return (
     <Fragment>
       <div className="editable-panel-column">
-        <div className="column-subhead">PM Survey</div>
-        <PanelSwaggerField title="PM survey conducted" fieldName="pm_survey_conducted_date" required {...fieldProps} />
+        <div className="column-subhead">Pre-move Survey</div>
+        <PanelSwaggerField
+          title="Pre-move survey conducted"
+          fieldName="pm_survey_conducted_date"
+          required
+          {...fieldProps}
+        />
         <PanelSwaggerField title="Survey Method" fieldName="pm_survey_method" required {...fieldProps} />
         <div className="column-subhead">Packing</div>
         <PanelSwaggerField fieldName="original_pack_date" title="Original" required {...fieldProps} />
@@ -70,7 +75,7 @@ const DatesEdit = props => {
     <Fragment>
       <FormSection name="dates">
         <div className="editable-panel-column">
-          <div className="column-head">PM Survey</div>
+          <div className="column-head">Pre-move Survey</div>
           <SwaggerField fieldName="pm_survey_conducted_date" swagger={schema} />
           <SwaggerField fieldName="pm_survey_method" swagger={schema} />
           <div className="column-head">Packing</div>

@@ -13,7 +13,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/awardqueue"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -233,53 +232,6 @@ func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) mi
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewAcceptShipmentOK().WithPayload(sp)
-}
-
-// RejectShipmentHandler allows a TSP to refuse a particular shipment
-type RejectShipmentHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) middleware.Responder {
-	// set reason, set thing
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	ctx := params.HTTPRequest.Context()
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
-	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
-	// See original commits in https://github.com/transcom/mymove/pull/802
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
-		return shipmentop.NewRejectShipmentForbidden()
-	}
-
-	// Reject the shipment
-	shipment, shipmentOffer, verrs, err := models.RejectShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, *params.Payload.Reason)
-	if err != nil || verrs.HasAny() {
-		if err == models.ErrFetchNotFound {
-			h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
-			return shipmentop.NewRejectShipmentBadRequest()
-		} else if err == models.ErrInvalidTransition {
-			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment, got invalid transition",
-				zap.Error(err),
-				zap.String("shipment_status", string(shipment.Status)))
-			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment offer, got invalid transition",
-				zap.Error(err),
-				zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
-			return shipmentop.NewRejectShipmentConflict()
-		} else {
-			h.Logger().Error("Unknown Error", zap.Error(err))
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-	}
-
-	go awardqueue.NewAwardQueue(h.DB(), h.HoneyZapLogger()).Run(ctx)
-
-	sp := payloadForShipmentModel(*shipment)
-	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
 }
 
 // TransportShipmentHandler allows a TSP to start transporting a particular shipment

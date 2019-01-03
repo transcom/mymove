@@ -14,12 +14,11 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/edi/invoice"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
 )
 
 func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
@@ -499,6 +498,20 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
+	//for now we limit a shipment to 1 invoice
+	//if invoices exists and at least one is either in process or has succeeded then return 409
+	existingInvoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	for _, invoice := range existingInvoices {
+		//if an invoice has started, is in process or has been submitted successfully then throw err
+		if invoice.Status != models.InvoiceStatusSUBMISSIONFAILURE {
+			payload := payloadForInvoiceModel(&invoice)
+			return shipmentop.NewCreateAndSendHHGInvoiceConflict().WithPayload(payload)
+		}
+	}
+
 	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
@@ -511,15 +524,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
-	// Run rate engine on shipment --> returns CostByShipment Struct
-	costByShipment, err := engine.HandleRunOnShipment(shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
 	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(costByShipment.Shipment, h.DB(), h.SendProductionInvoice(), clock.New())
+	invoice858C, err := ediinvoice.Generate858C(shipment, h.DB(), h.SendProductionInvoice(), clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
