@@ -12,11 +12,18 @@ import {
   getAllShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { selectSortedInvoices, createInvoice, createInvoiceLabel } from 'shared/Entities/modules/invoices';
+import {
+  selectSortedInvoices,
+  createInvoice,
+  createInvoiceLabel,
+  getShipmentInvoicesLabel,
+  getAllInvoices,
+} from 'shared/Entities/modules/invoices';
 import UnbilledTable from 'shared/Invoice/UnbilledTable';
 import InvoiceTable from 'shared/Invoice/InvoiceTable';
 import InvoicePaymentAlert from './InvoicePaymentAlert';
 import { isError, isLoading, isSuccess } from 'shared/constants';
+import { getLastError } from 'shared/swagger/selectors';
 
 import './InvoicePanel.css';
 
@@ -33,12 +40,17 @@ export class InvoicePanel extends PureComponent {
     this.setState({ createInvoiceRequestStatus: isLoading });
     return this.props
       .createInvoice(createInvoiceLabel, this.props.shipmentId)
-      .then(result => {
+      .then(() => {
         this.setState({ createInvoiceRequestStatus: isSuccess });
-        this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+        return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
       })
-      .catch(() => {
+      .catch(err => {
         this.setState({ createInvoiceRequestStatus: isError });
+        let httpResCode = get(err, 'response.status');
+        if (httpResCode === 409) {
+          this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.shipmentId);
+          return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+        }
       });
   };
 
@@ -50,7 +62,10 @@ export class InvoicePanel extends PureComponent {
     return (
       <div className="invoice-panel">
         <BasicPanel title="Invoicing">
-          <InvoicePaymentAlert createInvoiceStatus={this.state.createInvoiceRequestStatus} />
+          <InvoicePaymentAlert
+            createInvoiceStatus={this.state.createInvoiceRequestStatus}
+            invoiceError={this.props.lastInvoiceError}
+          />
 
           {hasUnbilled && (
             <UnbilledTable
@@ -91,10 +106,11 @@ const mapStateToProps = (state, ownProps) => {
     unbilledShipmentLineItems: isShipmentDelivered ? selectUnbilledShipmentLineItems(state, ownProps.shipmentId) : [],
     unbilledLineItemsTotal: isShipmentDelivered ? selectTotalFromUnbilledLineItems(state, ownProps.shipmentId) : 0,
     isShipmentDelivered: isShipmentDelivered,
+    lastInvoiceError: getLastError(state, createInvoiceLabel),
   };
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createInvoice, getAllShipmentLineItems }, dispatch);
+  return bindActionCreators({ createInvoice, getAllShipmentLineItems, getAllInvoices }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);
