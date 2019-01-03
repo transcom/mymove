@@ -72,7 +72,7 @@ func (c CreateInvoice) createInvoiceNumber(shipment models.Shipment) (string, er
 	}
 	year := shipment.CreatedAt.In(loc).Year()
 
-	invoiceNumber, err := generateBaseInvoiceNumber(c.DB, scac, year)
+	invoiceNumber, err := c.generateBaseInvoiceNumber(scac, year)
 	if err != nil {
 		return "", errors.Wrap(err, "Could not generate invoice number")
 	}
@@ -81,7 +81,7 @@ func (c CreateInvoice) createInvoiceNumber(shipment models.Shipment) (string, er
 }
 
 // generateBaseInvoiceNumber creates a new base invoice number (the first for a shipment) for a given SCAC/year.
-func generateBaseInvoiceNumber(db *pop.Connection, scac string, year int) (string, error) {
+func (c CreateInvoice) generateBaseInvoiceNumber(scac string, year int) (string, error) {
 	if len(scac) == 0 {
 		return "", errors.New("SCAC cannot be nil or empty string")
 	}
@@ -101,7 +101,7 @@ func generateBaseInvoiceNumber(db *pop.Connection, scac string, year int) (strin
 		RETURNING sequence_number
 	`
 
-	err := db.RawQuery(sql, scac, year).First(&sequenceNumber)
+	err := c.DB.RawQuery(sql, scac, year).First(&sequenceNumber)
 	if err != nil {
 		return "", errors.Wrapf(err, "Error when incrementing invoice sequence number for %s/%d", scac, year)
 	}
