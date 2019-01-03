@@ -257,7 +257,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	plannedMoveDate := time.Now()
+	// Date picked essentialy at random, but needs to be within TestYear
+	plannedMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm3 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
