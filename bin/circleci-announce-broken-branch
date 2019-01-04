@@ -74,9 +74,9 @@ echo "Pager Duty Payload:"
 echo "$pd_payload"
 echo
 
-# curl -XPOST \
-#   -H "Authorization: Token token=$PD_AUTH_TOKEN" \
-#   -H "Accept: application/vnd.pagerduty+json;version=2" \
-#   -H "Content-Type: application/json" \
-#   --data "$pd_payload" \
-#   "https://events.pagerduty.com/v2/enqueue"
+curl -XPOST \
+  -H "Authorization: Token token=$PD_AUTH_TOKEN" \
+  -H "Accept: application/vnd.pagerduty+json;version=2" \
+  -H "Content-Type: application/json" \
+  --data "$pd_payload" \
+  "https://events.pagerduty.com/v2/enqueue"

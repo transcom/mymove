@@ -39,7 +39,7 @@ commands:
       - run:
           name: Announce failure
           command: |
-            [[ $CIRCLE_BRANCH = cg_162974053_improve_slack_failure_message ]] || exit 0
+            [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
   halt_workflow_if_older_sha:
@@ -406,7 +406,6 @@ jobs:
     executor: mymove_small
     steps:
       - checkout
-      - run: exit 1
       - restore_cache:
           keys:
             - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
