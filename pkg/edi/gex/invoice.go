@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -24,15 +23,17 @@ type SendToGex interface {
 }
 
 // SendToGexHTTP represents a struct to contain an actual gex request function
-type SendToGexHTTP struct{ URL string }
+type SendToGexHTTP struct {
+	URL          string
+	IsTrueGexURL bool
+}
 
 // Call sends an edi file string as a POST to the gex api
 func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Response, err error) {
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
 	edi = strings.TrimSpace(edi) + "\n"
 	URL := s.URL
-	isMockRequest, _ := regexp.MatchString("(^http:/.*)", URL) // the true URL is https
-	if !isMockRequest {
+	if s.IsTrueGexURL {
 		URL = filepath.Join(s.URL, transactionName)
 	}
 	request, err := http.NewRequest(

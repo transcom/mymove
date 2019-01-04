@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 )
@@ -42,15 +43,20 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	resp, _ := SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
-
+	resp, err := SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false}.Call(ediString, "test_transaction")
+	if resp != nil || err != nil {
+		errors.Wrap(err, "Failed mock request")
+	}
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
 
 	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	resp, _ = SendToGexHTTP{mockServer.URL}.Call(ediString, "test_transaction")
+	resp, _ = SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false}.Call(ediString, "test_transaction")
+	if resp != nil || err != nil {
+		errors.Wrap(err, "Failed mock request")
+	}
 
 	expectedStatus = http.StatusInternalServerError
 	suite.Equal(expectedStatus, resp.StatusCode)

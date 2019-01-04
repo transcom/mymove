@@ -50,7 +50,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		resp, err := gex.SendToGexHTTP{URL: "https://gexweba.daas.dla.mil/msg_data/submit/"}.Call(invoice858CString, *transactionName)
+		resp, err := gex.SendToGexHTTP{URL: "https://gexweba.daas.dla.mil/msg_data/submit/", IsTrueGexURL: true}.Call(invoice858CString, *transactionName)
 		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
 	} else {
 		ediWriter := edi.NewWriter(os.Stdout)

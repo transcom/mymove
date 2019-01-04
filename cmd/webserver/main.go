@@ -699,9 +699,9 @@ func main() {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
-		gexRequester = gex.SendToGexHTTP{URL: server.URL}
+		gexRequester = gex.SendToGexHTTP{URL: server.URL, IsTrueGexURL: false}
 	} else {
-		gexRequester = gex.SendToGexHTTP{URL: v.GetString("gex-url")}
+		gexRequester = gex.SendToGexHTTP{URL: v.GetString("gex-url"), IsTrueGexURL: true}
 	}
 	handlerContext.SetGexSender(gexRequester)
 

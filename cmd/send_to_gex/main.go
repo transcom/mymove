@@ -36,7 +36,7 @@ func main() {
 	ediString = strings.TrimSpace(ediString) + "\n"
 
 	fmt.Println(ediString)
-	resp, err := gex.SendToGexHTTP{URL: "https://gexweba.daas.dla.mil/msg_data/submit/"}.Call(ediString, *transactionName)
+	resp, err := gex.SendToGexHTTP{URL: "https://gexweba.daas.dla.mil/msg_data/submit/", IsTrueGexURL: true}.Call(ediString, *transactionName)
 
 	fmt.Println("Sending to GEX. . .")
 	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
