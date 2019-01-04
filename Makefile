@@ -215,6 +215,9 @@ e2e_clean:
 	docker rm -f e2e_migrations || true
 
 db_run:
+ifndef CIRCLECI
+	brew services stop postgresql 2> /dev/null || true
+endif
 	@echo "Starting the local docker database container..."
 	# The version of the postgres container should match production as closely
 	# as possible.
