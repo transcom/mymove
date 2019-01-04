@@ -34,6 +34,12 @@ cat <<EOM
 }
 EOM
 )
+
+echo
+echo "Slack Payload:"
+echo "$slack_payload"
+echo
+
 curl -X POST --data-urlencode payload="$slack_payload" "$SLACK_WEBHOOK_URL"
 
 #####
@@ -61,6 +67,8 @@ cat <<EOM
 EOM
 )
 
+echo
+echo "Pager Duty Payload:"
 echo "$pd_payload"
 echo
 
