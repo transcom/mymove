@@ -434,6 +434,7 @@ const ppmSummaryStatusComponents = {
   SUBMITTED: SubmittedPpmMoveSummary,
   APPROVED: ApprovedMoveSummary,
   CANCELED: CanceledMoveSummary,
+  PAYMENT_REQUESTED: ApprovedMoveSummary,
 };
 
 const hhgSummaryStatusComponents = {
