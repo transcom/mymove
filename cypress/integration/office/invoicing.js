@@ -65,6 +65,7 @@ function checkApproveButton() {
     .within(() => {
       cy.get('button').should('not.exist');
     });
+}
 
 function checkConfirmationDialogue() {
   // Open the shipments tab.
