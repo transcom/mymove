@@ -10,9 +10,10 @@ message="The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE
 #####
 ## Announce in Slack channel
 #####
-color="#ffa500"
+# 'color' can be any hex code or the key words 'good', 'warning', or 'danger'
+color="warning"
 if [[ $CIRCLE_JOB == *"deploy"* ]]; then
-  color="#ff0000"
+  color="danger"
 fi
 
 slack_payload=$(
