@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/service/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -67,6 +68,40 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
 	})
+
+	suite.T().Run("invoiceNumber is provided and found in EDI", func(t *testing.T) {
+		// Note that we just test for an invoice number of at least length 9 here that's set in the right place
+		// in the EDI segments; we have other tests in the create invoice service that check the specific format.
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
+		suite.NoError(err)
+
+		// Find the N9 segment we're interested in.
+		foundIt := false
+		for _, segment := range generatedTransactions.Shipment {
+			n9, ok := segment.(*edisegment.N9)
+			if ok && n9.ReferenceIdentificationQualifier == "CN" {
+				suite.True(len(n9.ReferenceIdentification) >= 9, "Invoice number was not at least length 9")
+				foundIt = true
+				break
+			}
+		}
+		suite.True(foundIt, "Could not find N9 segment for invoice number")
+	})
+
+	suite.T().Run("valid invoiceNumber is not provided, so error occurs", func(t *testing.T) {
+		// Try a zero-struct invoice.
+		invoiceModel := models.Invoice{}
+		_, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
+		suite.Error(err)
+
+		// Try an invoice with an invoice number that's too short.
+		invoiceModel = helperShipmentInvoice(suite, shipment)
+		invoiceModel.InvoiceNumber = "XX18123"
+		_, err = ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
+		suite.Error(err)
+	})
 }
 
 func (suite *InvoiceSuite) TestEDIString() {
@@ -83,7 +118,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		// against the golden EDI.
 		scac := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
 		year := shipment.CreatedAt.UTC().Year()
-		err = testdatagen.ResetInvoiceNumber(suite.db, scac, year)
+		err = testdatagen.ResetInvoiceSequenceNumber(suite.db, scac, year)
 		suite.NoError(err)
 
 		invoiceModel := helperShipmentInvoice(suite, shipment)

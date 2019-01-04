@@ -53,8 +53,8 @@ func MakeDefaultInvoice(db *pop.Connection) models.Invoice {
 	return MakeInvoice(db, Assertions{})
 }
 
-// ResetInvoiceNumber resets the invoice number for a given SCAC/year.
-func ResetInvoiceNumber(db *pop.Connection, scac string, year int) error {
+// ResetInvoiceSequenceNumber resets the invoice sequence number for a given SCAC/year.
+func ResetInvoiceSequenceNumber(db *pop.Connection, scac string, year int) error {
 	if len(scac) == 0 {
 		return errors.New("SCAC cannot be nil or empty string")
 	}
@@ -65,4 +65,26 @@ func ResetInvoiceNumber(db *pop.Connection, scac string, year int) error {
 
 	sql := `DELETE FROM invoice_number_trackers WHERE standard_carrier_alpha_code = $1 AND year = $2`
 	return db.RawQuery(sql, scac, year).Exec()
+}
+
+// SetInvoiceSequenceNumber sets the invoice sequence number for a given SCAC/year.
+func SetInvoiceSequenceNumber(db *pop.Connection, scac string, year int, sequenceNumber int) error {
+	if len(scac) == 0 {
+		return errors.New("SCAC cannot be nil or empty string")
+	}
+
+	if year <= 0 {
+		return errors.Errorf("Year (%d) must be non-negative", year)
+	}
+
+	sql := `INSERT INTO invoice_number_trackers as trackers (standard_carrier_alpha_code, year, sequence_number)
+			VALUES ($1, $2, $3)
+		ON CONFLICT (standard_carrier_alpha_code, year)
+		DO
+			UPDATE
+				SET sequence_number = $3
+				WHERE trackers.standard_carrier_alpha_code = $1 AND trackers.year = $2
+	`
+
+	return db.RawQuery(sql, scac, year, sequenceNumber).Exec()
 }

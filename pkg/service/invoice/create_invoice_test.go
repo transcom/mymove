@@ -2,6 +2,8 @@ package invoice
 
 import (
 	"fmt"
+	"testing"
+	"time"
 
 	"github.com/facebookgo/clock"
 
@@ -30,23 +32,17 @@ func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
 func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
-	// Both shipments from the helper should have the same SCAC and year.
-	shipment1 := helperShipment(suite)
-	shipment2 := helperShipment(suite)
-
-	scac := shipment1.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
-	year := shipment1.CreatedAt.UTC().Year()
-
 	var invoiceNumberTestCases = []struct {
-		shipment              models.Shipment
+		name                  string
+		scac                  string
+		createdYear           int
 		expectedInvoiceNumber string
 	}{
-		{shipment1, fmt.Sprintf("%s%d%04d", scac, year%100, 1)},
-		{shipment2, fmt.Sprintf("%s%d%04d", scac, year%100, 2)},
+		{"first invoice number for a SCAC/year", "DLXM", 2018, "DLXM180001"},
+		{"second invoice number for a SCAC/year", "DLXM", 2018, "DLXM180002"},
+		{"same SCAC, different year", "DLXM", 2019, "DLXM190001"},
+		{"different SCAC, same year", "ECHF", 2019, "ECHF190001"},
 	}
-
-	err := testdatagen.ResetInvoiceNumber(suite.db, scac, year)
-	suite.NoError(err)
 
 	createInvoice := CreateInvoice{
 		DB:    suite.db,
@@ -54,13 +50,35 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 	}
 
 	for _, testCase := range invoiceNumberTestCases {
-		var invoice models.Invoice
-		verrs, err := createInvoice.Call(officeUser, &invoice, testCase.shipment)
-		suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
+		suite.T().Run(testCase.name, func(t *testing.T) {
+			shipment := helperShipmentUsingScac(suite, testCase.scac)
+
+			// NOTE: Hard-coding the CreatedAt on the shipment to an explicit date (we can't force it
+			// as it gets overwritten by Pop) so we can control the test cases.
+			shipment.CreatedAt = time.Date(testCase.createdYear, 7, 1, 0, 0, 0, 0, time.UTC)
+
+			var invoice models.Invoice
+			verrs, err := createInvoice.Call(officeUser, &invoice, shipment)
+			suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
+			suite.NoError(err)
+
+			suite.Equal(testCase.expectedInvoiceNumber, invoice.InvoiceNumber)
+		})
+	}
+
+	suite.T().Run("test maximum sequence number", func(t *testing.T) {
+		// Test that flipping over from 9999 causes an error.
+		shipment := helperShipmentUsingScac(suite, "SLVS")
+		year := shipment.CreatedAt.UTC().Year()
+
+		err := testdatagen.SetInvoiceSequenceNumber(suite.db, "SLVS", year, 9999)
 		suite.NoError(err)
 
-		suite.Equal(testCase.expectedInvoiceNumber, invoice.InvoiceNumber)
-	}
+		var invoice models.Invoice
+		verrs, err := createInvoice.Call(officeUser, &invoice, shipment)
+		suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
+		suite.Error(err)
+	})
 }
 
 func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
@@ -78,9 +96,6 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
 	for i := 1; i <= 2; i++ {
 		expectedInvoiceNumbers = append(expectedInvoiceNumbers, fmt.Sprintf("%s-%02d", baselineInvoiceNumber, i))
 	}
-
-	err := testdatagen.ResetInvoiceNumber(suite.db, scac, year)
-	suite.NoError(err)
 
 	createInvoice := CreateInvoice{
 		DB:    suite.db,

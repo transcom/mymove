@@ -234,6 +234,11 @@ func getHeadingSegments(db *pop.Connection, shipment models.Shipment, invoiceMod
 	if invoiceModel.ID == uuid.Nil {
 		return nil, errors.New("Invalid invoice model for shipment")
 	}
+	if len(invoiceModel.InvoiceNumber) < 8 {
+		// Note that a SCAC can be 2 to 4 letters long, so the minimum invoice number
+		// length should be 2 (SCAC) + 2 (two-digit year) + 4 (sequence number).
+		return nil, errors.Errorf("Invalid invoice number (%s)", invoiceModel.InvoiceNumber)
+	}
 
 	return []edisegment.Segment{
 		&edisegment.BX{

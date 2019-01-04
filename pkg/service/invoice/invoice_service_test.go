@@ -53,6 +53,10 @@ func (suite *InvoiceServiceSuite) mustSave(model interface{}) {
 }
 
 func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
+	return helperShipmentUsingScac(suite, "ABCD")
+}
+
+func helperShipmentUsingScac(suite *InvoiceServiceSuite, scac string) models.Shipment {
 	var weight unit.Pound
 	weight = 2000
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
@@ -65,7 +69,6 @@ func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
-	scac := "ABCD"
 	supplierID := scac + "1234" //scac + payee code -- ABCD1234
 
 	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{

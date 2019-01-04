@@ -22,7 +22,7 @@ type CreateInvoice struct {
 func (c CreateInvoice) Call(approver models.OfficeUser, invoice *models.Invoice, shipment models.Shipment) (*validate.Errors, error) {
 	invoiceNumber, err := c.createInvoiceNumber(shipment)
 	if err != nil {
-		return nil, errors.Wrap(err, "Could not create invoice number")
+		return validate.NewErrors(), errors.Wrap(err, "Could not create invoice number")
 	}
 
 	*invoice = models.Invoice{
@@ -38,9 +38,15 @@ func (c CreateInvoice) Call(approver models.OfficeUser, invoice *models.Invoice,
 }
 
 // createInvoiceNumber creates a new invoice number for a given shipment.
+// The format is <SCAC><YY><dddd>[-<nn>] where:
+//   * <SCAC> is the 2-to-4 letter Standard Carrier Alpha Code for the shipment's associated TSP.
+//   * <YY> is the 2-digit year when the shipment was originally created.
+//   * <dddd> is a 4-digit incrementing sequence number starting at 1 for a given SCAC and year combination.
+//   * -<nn> is a 2-digit number used on the second and subsequent invoices for the same shipment.  The first
+//       invoice number for a shipment has no suffix; the second has "-01", the third has "-02", etc.
 func (c CreateInvoice) createInvoiceNumber(shipment models.Shipment) (string, error) {
-	// If we have existing invoices, then get the existing base invoice number and add the appropriate suffix,
-	// then go ahead and return it.
+	// If we have existing invoices, then get the existing base invoice number (the part before any "-", if present)
+	// and add the appropriate suffix, then go ahead and return it.
 	invoices, err := models.FetchInvoicesForShipment(c.DB, shipment.ID)
 	if err != nil {
 		return "", err
@@ -75,6 +81,7 @@ func (c CreateInvoice) createInvoiceNumber(shipment models.Shipment) (string, er
 }
 
 // generateBaseInvoiceNumber creates a new base invoice number (the first for a shipment) for a given SCAC/year.
+// See comments on createInvoiceNumber above for a description of the format.
 func (c CreateInvoice) generateBaseInvoiceNumber(scac string, year int) (string, error) {
 	if len(scac) == 0 {
 		return "", errors.New("SCAC cannot be nil or empty string")
