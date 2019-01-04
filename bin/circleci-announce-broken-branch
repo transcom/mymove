@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-GIT_TEXT=$(git --no-pager show --format=format:'%s')
+# Get git diff from last commit and escape double quotes
+GIT_TEXT=$(git --no-pager show --format=format:'%s' | sed 's/"/\\"/g')
 NOW=$(date '+%s')
 NOW_ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
