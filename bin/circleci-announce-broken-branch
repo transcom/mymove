@@ -4,8 +4,8 @@ set -euo pipefail
 NOW=$(date '+%s')
 NOW_ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-title="CircleCI $CIRCLE_BRANCH branch failure"
-pretext="$CIRCLE_JOB #$CIRCLE_BUILD_NUM"
+pretext="CircleCI $CIRCLE_BRANCH branch failure!"
+title="CircleCI build #$CIRCLE_BUILD_NUM failed on job $CIRCLE_JOB"
 message="The $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE_JOB! Contact $CIRCLE_USERNAME for more information."
 
 #####
@@ -54,7 +54,7 @@ cat <<EOM
   "payload": {
     "summary": "$message",
     "timestamp": "$NOW_ISO8601",
-    "source": "$title for $pretext",
+    "source": "$pretext $title",
     "severity": "info",
     "class": "cicd failure"
   },
