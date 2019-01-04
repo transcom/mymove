@@ -19,6 +19,12 @@ describe('testing landing pages', function() {
     ppmApproved('1842091b-b9a0-4d4a-ba22-1e2f38f26317');
   });
 
+  // PPM: PAYMENT_REQUESTED
+  it('tests PPM that has requested payment', function() {
+    // ppmpayment@request.ed
+    ppmPaymentRequested('beccca28-6e15-40cc-8692-261cae0d4b14');
+  });
+
   // PPM: COMPLETED
   // Not seeing a path to a COMPLETED PPM move at this time.
 
@@ -97,6 +103,14 @@ function ppmApproved(userId) {
   cy.contains('Move your own stuff (PPM)');
   cy.contains('Next Step: Get ready to move');
   cy.contains('Next Step: Request payment');
+  cy.logout();
+}
+
+function ppmPaymentRequested(userId) {
+  cy.signInAsUser(userId);
+  cy.contains('Move your own stuff (PPM)');
+  cy.contains('Your payment is in review');
+  cy.contains('You will receive a notification from your destination PPPO office when it has been reviewed.');
   cy.logout();
 }
 
