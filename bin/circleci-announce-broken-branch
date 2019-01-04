@@ -13,6 +13,7 @@ message="The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE
 #####
 # 'color' can be any hex code or the key words 'good', 'warning', or 'danger'
 color="warning"
+CIRCLE_JOB=deploy_fake_cgilmer
 if [[ $CIRCLE_JOB == *"deploy"* ]]; then
   color="danger"
 fi
