@@ -1,19 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
-# Get git diff from last commit and escape double quotes
-GIT_TEXT=$(git --no-pager show --format=format:'%s' | sed 's/"/\\"/g')
 NOW=$(date '+%s')
 NOW_ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-message="The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE_JOB! Contact $CIRCLE_USERNAME for more information."
+title="CircleCI $CIRCLE_BRANCH branch failure"
+pretext="$CIRCLE_JOB #$CIRCLE_BUILD_NUM"
+message="The $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE_JOB! Contact $CIRCLE_USERNAME for more information."
 
 #####
 ## Announce in Slack channel
 #####
 # 'color' can be any hex code or the key words 'good', 'warning', or 'danger'
 color="warning"
-CIRCLE_JOB=deploy_fake_cgilmer
 if [[ $CIRCLE_JOB == *"deploy"* ]]; then
   color="danger"
 fi
@@ -26,10 +25,11 @@ cat <<EOM
         {
             "fallback": "$message $CIRCLE_BUILD_URL",
             "color": "$color",
-            "pretext": "$message",
-            "title": "CircleCI job $CIRCLE_JOB #$CIRCLE_BUILD_NUM",
+            "pretext": "$pretext",
+            "author_name": "$CIRCLE_USERNAME",
+            "title": "$title",
             "title_link": "$CIRCLE_BUILD_URL",
-            "text": "$GIT_TEXT",
+            "text": "$message",
             "ts": $NOW
         }
     ]
@@ -54,7 +54,7 @@ cat <<EOM
   "payload": {
     "summary": "$message",
     "timestamp": "$NOW_ISO8601",
-    "source": "CircleCI job $CIRCLE_JOB #$CIRCLE_BUILD_NUM",
+    "source": "$title for $pretext",
     "severity": "info",
     "class": "cicd failure"
   },
