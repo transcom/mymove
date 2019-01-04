@@ -5,115 +5,118 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"testing"
 	"time"
 )
 
 func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
-	now := time.Now()
-	id := uuid.Must(uuid.NewV4())
-	newFuelPrice := models.FuelEIADieselPrice{
-		ID:                          id,
-		PubDate:                     now,
-		RateStartDate:               now,
-		RateEndDate:                 now.AddDate(0, 1, -1),
-		EIAPricePerGallonMillicents: 320700,
-		BaselineRate:                6,
+	testCases := map[string]struct {
+		fuelEIADP    models.FuelEIADieselPrice
+		expectedErrs map[string][]string
+	}{
+		"Successful Create": {
+			fuelEIADP: models.FuelEIADieselPrice{
+				ID:                          uuid.Must(uuid.NewV4()),
+				PubDate:                     time.Now(),
+				RateStartDate:               time.Now(),
+				RateEndDate:                 time.Now().AddDate(0, 1, -1),
+				EIAPricePerGallonMillicents: 320700,
+				BaselineRate:                6,
+			},
+			expectedErrs: nil,
+		},
+
+		"Empty Fields": {
+			fuelEIADP: models.FuelEIADieselPrice{},
+			expectedErrs: map[string][]string{
+				"pub_date":                          {"PubDate can not be blank."},
+				"rate_start_date":                   {"RateStartDate can not be blank."},
+				"rate_end_date":                     {"RateEndDate can not be blank."},
+				"e_i_a_price_per_gallon_millicents": {"0 is not greater than 0."},
+			},
+		},
+
+		"Bad baseline rate": {
+			fuelEIADP: models.FuelEIADieselPrice{
+				ID:                          uuid.Must(uuid.NewV4()),
+				PubDate:                     time.Now(),
+				RateStartDate:               time.Now(),
+				RateEndDate:                 time.Now(),
+				EIAPricePerGallonMillicents: 320700,
+				BaselineRate:                102,
+			},
+			expectedErrs: map[string][]string{
+				"baseline_rate": {"102 is not less than 101."},
+			},
+		},
+
+		"Bad RateEndDate": {
+			fuelEIADP: models.FuelEIADieselPrice{
+				ID:                          uuid.Must(uuid.NewV4()),
+				PubDate:                     time.Now(),
+				RateStartDate:               time.Now(),
+				RateEndDate:                 time.Now().AddDate(0, -1, 0),
+				EIAPricePerGallonMillicents: 320700,
+				BaselineRate:                6,
+			},
+			expectedErrs: map[string][]string{
+				"rate_end_date": {"RateEndDate must be after RateStartDate."},
+			},
+		},
 	}
 
-	verrs, err := suite.db.ValidateAndCreate(&newFuelPrice)
-
-	suite.Nil(err, "Error writing to the db.")
-	suite.False(verrs.HasAny(), "Error validating model")
-
-	// Bad baseline rate (not between 0-100)
-	newFuelPrice = models.FuelEIADieselPrice{
-		ID:                          id,
-		PubDate:                     now,
-		RateStartDate:               now,
-		RateEndDate:                 now.AddDate(0, 1, -1),
-		EIAPricePerGallonMillicents: 320700,
-		BaselineRate:                102,
+	for name, test := range testCases {
+		suite.T().Run(name, func(t *testing.T) {
+			suite.verifyValidationErrors(&test.fuelEIADP, test.expectedErrs)
+		})
 	}
 
-	expErrors := map[string][]string{
-		"baseline_rate": {"102 is not less than 101."},
-	}
-
-	suite.verifyValidationErrors(&newFuelPrice, expErrors)
 }
 
-func (suite *ModelSuite) TestEmptyFuelEIADieselPriceInstantiation() {
-	newFuelPrice := models.FuelEIADieselPrice{}
-
-	expErrors := map[string][]string{
-		"pub_date":                          {"PubDate can not be blank."},
-		"rate_start_date":                   {"RateStartDate can not be blank."},
-		"rate_end_date":                     {"RateEndDate can not be blank."},
-		"e_i_a_price_per_gallon_millicents": {"0 is not greater than 0."},
-	}
-	suite.verifyValidationErrors(&newFuelPrice, expErrors)
-}
-
-func (suite *ModelSuite) TestBadDatesFuelEIADieselPriceInstantiation() {
+func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 	now := time.Now()
 	id := uuid.Must(uuid.NewV4())
 
-	// Test for bad start and end dates within the same record
-	newFuelPrice := models.FuelEIADieselPrice{
-		ID:                          id,
-		PubDate:                     now,
-		RateStartDate:               now,
-		RateEndDate:                 now.AddDate(0, -1, 0),
-		EIAPricePerGallonMillicents: 320700,
-		BaselineRate:                6,
-	}
+	suite.T().Run("Overlapping Dates Constraint Test", func(t *testing.T) {
 
-	expErrors := map[string][]string{
-		"rate_end_date": {"RateEndDate must be after RateStartDate."},
-	}
+		// Test for overalapping start and end dates
+		newFuelPrice := models.FuelEIADieselPrice{
+			ID:                          id,
+			PubDate:                     now,
+			RateStartDate:               time.Date(2017, time.November, 15, 0, 0, 0, 0, time.UTC),
+			RateEndDate:                 time.Date(2017, time.December, 14, 0, 0, 0, 0, time.UTC),
+			EIAPricePerGallonMillicents: 320700,
+			BaselineRate:                6,
+		}
+		verrs, err := suite.db.ValidateAndCreate(&newFuelPrice)
 
-	suite.verifyValidationErrors(&newFuelPrice, expErrors)
+		id = uuid.Must(uuid.NewV4())
+		newFuelPrice = models.FuelEIADieselPrice{
+			ID:                          id,
+			PubDate:                     now,
+			RateStartDate:               time.Date(2017, time.December, 15, 0, 0, 0, 0, time.UTC),
+			RateEndDate:                 time.Date(2018, time.January, 14, 0, 0, 0, 0, time.UTC),
+			EIAPricePerGallonMillicents: 320700,
+			BaselineRate:                6,
+		}
+		verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
 
-	// Clear expected errors
-	expErrors = map[string][]string{}
+		// Overlapping record should cause en error
+		id = uuid.Must(uuid.NewV4())
+		newFuelPrice = models.FuelEIADieselPrice{
+			ID:                          id,
+			PubDate:                     now,
+			RateStartDate:               time.Date(2017, time.December, 20, 0, 0, 0, 0, time.UTC),
+			RateEndDate:                 time.Date(2018, time.January, 14, 0, 0, 0, 0, time.UTC),
+			EIAPricePerGallonMillicents: 320700,
+			BaselineRate:                6,
+		}
 
-	id = uuid.Must(uuid.NewV4())
-	// Test for overalapping start and end dates
-	newFuelPrice = models.FuelEIADieselPrice{
-		ID:                          id,
-		PubDate:                     now,
-		RateStartDate:               time.Date(2017, time.November, 15, 0, 0, 0, 0, time.UTC),
-		RateEndDate:                 time.Date(2017, time.December, 14, 0, 0, 0, 0, time.UTC),
-		EIAPricePerGallonMillicents: 320700,
-		BaselineRate:                6,
-	}
-	verrs, err := suite.db.ValidateAndCreate(&newFuelPrice)
+		verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
+		suite.EqualError(err, "pq: conflicting key value violates exclusion constraint \"no_overlapping_rates\"")
+		suite.Empty(verrs.Error())
 
-	id = uuid.Must(uuid.NewV4())
-	newFuelPrice = models.FuelEIADieselPrice{
-		ID:                          id,
-		PubDate:                     now,
-		RateStartDate:               time.Date(2017, time.December, 15, 0, 0, 0, 0, time.UTC),
-		RateEndDate:                 time.Date(2018, time.January, 14, 0, 0, 0, 0, time.UTC),
-		EIAPricePerGallonMillicents: 320700,
-		BaselineRate:                6,
-	}
-	verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
-
-	// Overlapping record should cause en error
-	id = uuid.Must(uuid.NewV4())
-	newFuelPrice = models.FuelEIADieselPrice{
-		ID:                          id,
-		PubDate:                     now,
-		RateStartDate:               time.Date(2017, time.December, 20, 0, 0, 0, 0, time.UTC),
-		RateEndDate:                 time.Date(2018, time.January, 14, 0, 0, 0, 0, time.UTC),
-		EIAPricePerGallonMillicents: 320700,
-		BaselineRate:                6,
-	}
-
-	verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
-	suite.EqualError(err, "pq: conflicting key value violates exclusion constraint \"no_overlapping_rates\"")
-	suite.Empty(verrs.Error())
+	})
 
 }
 
