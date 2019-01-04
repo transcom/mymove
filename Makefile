@@ -90,14 +90,22 @@ go_deps: go_version .go_deps.stamp
 	bin/check_gopath.sh
 	dep ensure -vendor-only
 
-server_deps: check_hosts go_deps .server_deps.stamp
+build_chamber: go_deps .build_chamber.stamp
+.build_chamber.stamp:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber ./vendor/github.com/segmentio/chamber
+	touch .build_chamber.stamp
+
+build_soda: go_deps .build_soda.stamp
+.build_soda.stamp:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
+	touch .build_soda.stamp
+
+server_deps: check_hosts go_deps build_chamber build_soda .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber ./vendor/github.com/segmentio/chamber
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin ./vendor/github.com/codegangsta/gin
-	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_deps_linux: go_deps .server_deps_linux.stamp
@@ -375,6 +383,7 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
 .PHONY: server_run_standalone server_run server_run_default server_test webserver_test
 .PHONY: go_deps_update server_go_bindata
+.PHONY: build_chamber build_soda
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
 .PHONY: db_run db_destroy
