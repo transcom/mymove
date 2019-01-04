@@ -5,19 +5,26 @@ GIT_TEXT=$(git --no-pager show --format=format:'%s')
 NOW=$(date '+%s')
 NOW_ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
+message="The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE_JOB! Contact $CIRCLE_USERNAME for more information."
+
 #####
 ## Announce in Slack channel
 #####
+color="#ffa500"
+if [[ $CIRCLE_JOB == *"deploy"* ]]; then
+  color="#ff0000"
+fi
+
 slack_payload=$(
 cat <<EOM
 {
     "channel": "#dp3-engineering",
     "attachments": [
         {
-            "fallback": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken: $CIRCLE_BUILD_URL",
-            "color": "#ff0000",
-            "pretext": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken!",
-            "title": "CircleCI job #$CIRCLE_BUILD_NUM",
+            "fallback": "$message $CIRCLE_BUILD_URL",
+            "color": "$color",
+            "pretext": "$message",
+            "title": "CircleCI job $CIRCLE_JOB #$CIRCLE_BUILD_NUM",
             "title_link": "$CIRCLE_BUILD_URL",
             "text": "$GIT_TEXT",
             "ts": $NOW
@@ -36,14 +43,14 @@ pd_payload=$(
 cat <<EOM
 {
   "payload": {
-    "summary": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken",
+    "summary": "$message",
     "timestamp": "$NOW_ISO8601",
-    "source": "CircleCI job #$CIRCLE_BUILD_NUM",
+    "source": "CircleCI job $CIRCLE_JOB #$CIRCLE_BUILD_NUM",
     "severity": "info",
     "class": "cicd failure"
   },
   "routing_key": "$PD_ROUTING_KEY",
-  "dedup_key": "circle-$CIRCLE_BUILD_NUM",
+  "dedup_key": "circle-$CIRCLE_WORKFLOW_ID",
   "links": [{
     "href": "$CIRCLE_BUILD_URL",
     "text": "CircleCI Build URL"
