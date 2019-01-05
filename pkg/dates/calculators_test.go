@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type testCase struct {
@@ -125,7 +126,7 @@ func (suite *DatesSuite) TestNextValidMoveDate() {
 }
 
 type DatesSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	db     *pop.Connection
 	logger *hnyzap.Logger
 }

@@ -58,7 +58,7 @@ func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
 }
 
 type DeliverPriceShipmentSuite struct {
-	testingsuite.LocalTestSuite
+	testingsuite.BaseTestSuite
 	db     *pop.Connection
 	logger *zap.Logger
 }

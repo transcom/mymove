@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/testingsuite"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
@@ -770,7 +772,7 @@ func equalSlice(a []int, b []int) bool {
 }
 
 type AwardQueueSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	db     *pop.Connection
 	logger *hnyzap.Logger
 }

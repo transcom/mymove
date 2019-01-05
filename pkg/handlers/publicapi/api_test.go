@@ -14,12 +14,12 @@ import (
 
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
-	handlers.BaseTestSuite
+	handlers.BaseHandlerTestSuite
 }
 
 // SetupTest sets up the test suite by preparing the DB
 func (suite *HandlerSuite) SetupTest() {
-	suite.TestDB().TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 // AfterTest completes tests by trying to close open files
@@ -43,10 +43,9 @@ func TestHandlerSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	hs := &HandlerSuite{}
-	hs.SetTestDB(db)
-	hs.SetTestLogger(logger)
-	hs.SetTestNotificationSender(notifications.NewStubNotificationSender(logger))
+	hs := &HandlerSuite{
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(db, logger, notifications.NewStubNotificationSender(logger)),
+	}
 
 	suite.Run(t, hs)
 }

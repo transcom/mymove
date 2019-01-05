@@ -26,17 +26,17 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []ShipmentStatus{ShipmentStatusDELIVERED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	shipment := shipments[0]
 
 	authedTspUser := tspUsers[0]
-	unverifiedTspUser := testdatagen.MakeDefaultTspUser(suite.db)
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	unverifiedTspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Invoice tied to a shipment of authed tsp user
-	invoice := testdatagen.MakeInvoice(suite.db, testdatagen.Assertions{
+	invoice := testdatagen.MakeInvoice(suite.DB(), testdatagen.Assertions{
 		Invoice: Invoice{
 			ShipmentID: shipment.ID,
 		},
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	}
 
 	// Then: invoice is returned
-	extantInvoice, err := FetchInvoice(suite.db, session, invoice.ID)
+	extantInvoice, err := FetchInvoice(suite.DB(), session, invoice.ID)
 	suite.Nil(err)
 	if suite.NoError(err) {
 		suite.Equal(extantInvoice.ID, invoice.ID)
@@ -62,7 +62,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 		TspUserID:       unverifiedTspUser.ID,
 	}
 	// Then: fetch forbidden returned
-	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
+	extantInvoice, err = FetchInvoice(suite.DB(), session, invoice.ID)
 	suite.Equal("FETCH_FORBIDDEN", err.Error())
 
 	// When: authed TSP tries to access
@@ -72,7 +72,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 		TspUserID:       authedTspUser.ID,
 	}
 	// Then: invoice is returned
-	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
+	extantInvoice, err = FetchInvoice(suite.DB(), session, invoice.ID)
 	suite.Nil(err)
 	if suite.NoError(err) {
 		suite.Equal(extantInvoice.ID, invoice.ID)
@@ -84,17 +84,17 @@ func (suite *ModelSuite) TestFetchInvoice() {
 		ServiceMemberID: authedTspUser.ID,
 	}
 	// Then: Fetch Forbidden returned
-	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
+	extantInvoice, err = FetchInvoice(suite.DB(), session, invoice.ID)
 	suite.Equal("FETCH_FORBIDDEN", err.Error())
 
 }
 
 func (suite *ModelSuite) TestFetchInvoicesForShipment() {
-	invoice1 := testdatagen.MakeDefaultInvoice(suite.db)
-	testdatagen.MakeDefaultInvoice(suite.db)
+	invoice1 := testdatagen.MakeDefaultInvoice(suite.DB())
+	testdatagen.MakeDefaultInvoice(suite.DB())
 
 	// Then: invoice is returned
-	extantInvoices, err := FetchInvoicesForShipment(suite.db, invoice1.ShipmentID)
+	extantInvoices, err := FetchInvoicesForShipment(suite.DB(), invoice1.ShipmentID)
 	if suite.NoError(err) {
 		suite.Len(extantInvoices, 1)
 		suite.Equal(extantInvoices[0].ID, invoice1.ID)

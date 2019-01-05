@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"context"
+
 	. "github.com/transcom/mymove/pkg/models"
 )
 
@@ -28,7 +29,7 @@ func (suite *ModelSuite) TestSSNEncryption() {
 		t.Error("A different SSN should not match the hash")
 	}
 
-	suite.mustSave(mySSN)
+	suite.MustSave(mySSN)
 }
 
 func (suite *ModelSuite) TestSSNFormat() {
@@ -103,7 +104,7 @@ func (suite *ModelSuite) TestRawSSNNotAllowed() {
 			EncryptedHash: sneakySSN,
 		}
 
-		verrs, err := suite.db.ValidateAndCreate(&mySSN)
+		verrs, err := suite.DB().ValidateAndCreate(&mySSN)
 		if !verrs.HasAny() {
 			t.Error("It should not be possible to save an SSN to the db.")
 		}

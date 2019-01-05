@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/magiconair/properties/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
@@ -30,7 +31,7 @@ func (suite *SequenceSuite) TestNextVal() {
 }
 
 type SequenceSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	db     *pop.Connection
 	logger *zap.Logger
 }

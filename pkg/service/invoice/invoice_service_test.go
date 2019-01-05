@@ -6,11 +6,12 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
 type InvoiceServiceSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	db     *pop.Connection
 	logger *zap.Logger
 }

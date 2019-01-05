@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	dpsAuthParams := dpsauth.Params{
 		SDDCProtocol:   "http",
 		SDDCHostname:   "testhost",
@@ -25,7 +25,7 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 	handler := DPSAuthGetCookieURLHandler{context}
 
 	// Normal service member (not a DPS user) happy path
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	request := httptest.NewRequest("POST", "/dps_auth/cookie_url", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 	suite.True(ok)
 
 	// Make the service member a DPS user, should no longer get a permission error when setting params
-	testdatagen.MakeDpsUser(suite.TestDB(), testdatagen.Assertions{User: serviceMember.User})
+	testdatagen.MakeDpsUser(suite.DB(), testdatagen.Assertions{User: serviceMember.User})
 	request = suite.AuthenticateRequest(request, serviceMember)
 	params.HTTPRequest = request
 	response = handler.Handle(params)

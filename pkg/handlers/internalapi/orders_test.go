@@ -15,8 +15,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	sm := testdatagen.MakeDefaultServiceMember(suite.TestDB())
-	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.TestDB())
+	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
+	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
 
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateRequest(req, sm)
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 	createHandler := CreateOrdersHandler{context}
 
@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.TestDB())
+	order := testdatagen.MakeDefaultOrder(suite.DB())
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler{context}
 
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.TestDB())
+	order := testdatagen.MakeDefaultOrder(suite.DB())
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)
@@ -132,7 +132,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetFileStorer(fakeS3)
 	updateHandler := UpdateOrdersHandler{context}
 

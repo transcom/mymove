@@ -11,10 +11,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type NotificationSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	db     *pop.Connection
 	logger *zap.Logger
 }

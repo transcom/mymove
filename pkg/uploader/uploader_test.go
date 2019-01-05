@@ -15,11 +15,12 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type UploaderSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	db           *pop.Connection
 	logger       *zap.Logger
 	storer       storage.FileStorer

@@ -3,12 +3,13 @@ package ediinvoice_test
 import (
 	"flag"
 	"fmt"
-	"github.com/go-openapi/swag"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/go-openapi/swag"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
@@ -20,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -40,10 +42,10 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 	for _, testCase := range icnTestCases {
 		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
-			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
+			err := sequence.SetVal(suite.DB(), ediinvoice.ICNSequenceName, testCase.initial)
 			suite.NoError(err, "error setting sequence value")
 
-			generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
+			generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.DB(), false, clock.NewMock())
 
 			suite.NoError(err)
 			if suite.NoError(err) {
@@ -56,7 +58,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	}
 
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.DB(), false, clock.NewMock())
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
@@ -65,11 +67,11 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
-		err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, 1)
+		err := sequence.SetVal(suite.DB(), ediinvoice.ICNSequenceName, 1)
 		suite.NoError(err, "error setting sequence value")
 		shipment := helperShipment(suite)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.DB(), false, clock.NewMock())
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
@@ -91,19 +93,19 @@ func (suite *InvoiceSuite) TestEDIString() {
 func helperShipment(suite *InvoiceSuite) models.Shipment {
 	var weight unit.Pound
 	weight = 2000
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			NetWeight: &weight,
 		},
 	})
-	err := shipment.AssignGBLNumber(suite.db)
-	suite.mustSave(&shipment)
+	err := shipment.AssignGBLNumber(suite.DB())
+	suite.MustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
 	scac := "ABCD"
 	supplierID := scac + "1234" //scac + payee code -- ABCD1234
-	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.DB(), testdatagen.Assertions{
 		ShipmentOffer: models.ShipmentOffer{
 			Shipment: shipment,
 			Accepted: swag.Bool(true),
@@ -155,13 +157,13 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 			location = models.ShipmentLineItemLocationNEITHER
 		}
 
-		item := testdatagen.MakeTariff400ngItem(suite.db, testdatagen.Assertions{
+		item := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 			Tariff400ngItem: models.Tariff400ngItem{
 				Code:             code,
 				MeasurementUnit1: measurementUnit1,
 			},
 		})
-		lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+		lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
 				Shipment:          shipment,
 				Tariff400ngItemID: item.ID,
@@ -188,26 +190,12 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 }
 
 type InvoiceSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
 func (suite *InvoiceSuite) SetupTest() {
-	suite.db.TruncateAll()
-}
-
-func (suite *InvoiceSuite) mustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
-	}
-	if verrs.HasAny() {
-		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
-	}
+	suite.DB().TruncateAll()
 }
 
 func TestInvoiceSuite(t *testing.T) {
@@ -221,7 +209,10 @@ func TestInvoiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
-	hs := &InvoiceSuite{db: db, logger: logger}
+	hs := &InvoiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		logger:       logger,
+	}
 	suite.Run(t, hs)
 }
 

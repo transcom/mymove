@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
-	unknownUser := testdatagen.MakeDefaultUser(suite.TestDB())
+	unknownUser := testdatagen.MakeDefaultUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateUserRequest(req, unknownUser)
@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 
@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.TestDB(), testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
-	sm := testdatagen.MakeExtendedServiceMember(suite.TestDB(), testdatagen.Assertions{
+	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
 		},
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 

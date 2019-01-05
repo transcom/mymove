@@ -4,7 +4,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/gobuffalo/pop"
@@ -14,32 +13,19 @@ import (
 	"go.uber.org/zap"
 
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type PaperworkSuite struct {
-	suite.Suite
-	db           *pop.Connection
+	testingsuite.PopTestSuite
 	logger       *zap.Logger
 	uploader     *uploader.Uploader
 	filesToClose []afero.File
 }
 
 func (suite *PaperworkSuite) SetupTest() {
-	suite.db.TruncateAll()
-}
-
-func (suite *PaperworkSuite) mustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
-	}
-	if verrs.HasAny() {
-		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
-	}
+	suite.DB().TruncateAll()
 }
 
 func (suite *PaperworkSuite) AfterTest() {
@@ -73,18 +59,6 @@ func (suite *PaperworkSuite) openLocalFile(path string, fs *afero.Afero) (afero.
 	return outputFile, nil
 }
 
-func (suite *PaperworkSuite) FatalNil(err error, messages ...string) {
-	t := suite.T()
-	t.Helper()
-	if err != nil {
-		if len(messages) > 0 {
-			t.Fatalf("%s: %s", strings.Join(messages, ","), err.Error())
-		} else {
-			t.Fatal(err.Error())
-		}
-	}
-}
-
 func TestPaperworkSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
@@ -100,9 +74,9 @@ func TestPaperworkSuite(t *testing.T) {
 	storer := storageTest.NewFakeS3Storage(true)
 
 	hs := &PaperworkSuite{
-		db:       db,
-		logger:   logger,
-		uploader: uploader.NewUploader(db, logger, storer),
+		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		logger:       logger,
+		uploader:     uploader.NewUploader(db, logger, storer),
 	}
 
 	suite.Run(t, hs)
