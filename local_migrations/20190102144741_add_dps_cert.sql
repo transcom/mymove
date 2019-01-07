@@ -2,4 +2,4 @@
 -- This will be run on development environments. It should mirror what you
 -- intend to apply on production, but do not include any sensitive data.
 
-INSERT INTO public.client_certs VALUES ('320c9dc085725aaa925ad1ab00261dc393264a78705bd6d5fc1c37bc33f285dd', 'C=US, ST=IL, L=Belleville, O=Not USTRANSCOM, OU=Not Defense Personal Property System, CN=localhost', true, false, now(), now());
+INSERT INTO public.client_certs VALUES (uuid_generate_v4(), '320c9dc085725aaa925ad1ab00261dc393264a78705bd6d5fc1c37bc33f285dd', 'C=US, ST=IL, L=Belleville, O=Not USTRANSCOM, OU=Not Defense Personal Property System, CN=localhost', true, false, now(), now());

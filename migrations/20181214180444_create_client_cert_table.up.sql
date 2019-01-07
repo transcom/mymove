@@ -1,5 +1,6 @@
 CREATE TABLE client_certs (
-    sha256_digest char(64) PRIMARY KEY,
+	id uuid PRIMARY KEY,
+    sha256_digest char(64),
     subject text,
 	allow_dps_auth_api boolean DEFAULT false,
 	allow_orders_api boolean DEFAULT false,
