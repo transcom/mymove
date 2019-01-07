@@ -34,8 +34,13 @@ case "$environment" in
     ;;
 esac
 
-# Queue values: all, hhg_accepted, hhg_delivered, hhg_completed
 queue="${2:-hhg_delivered}"
+
+# Ensure JQ is available
+if ! command -v jq &> /dev/null; then
+  echo "error: jq not installed, install with 'brew install jq'" 1>&2
+  exit 1
+fi
 
 # A place to store the user's JWT for use in making API calls
 session_file=$(mktemp)
