@@ -22,7 +22,7 @@ If you're adding a feature that requires new or modified configuration, it's a g
 $ TEST_ACC_ENV=experimental make webserver_test
 ```
 
-This command will first load the variables from the `config/env/*.env` file and then run `chamber exec` to pull the environments from AWS.  You can run acceptance tests for the database and honeycomb through environment variables with `TEST_ACC_DATABASE=1` and `TEST_ACC_HONEYCOMB=1`.
+This command will first load the variables from the `config/env/*.env` file and then run `chamber exec` to pull the environments from AWS.  You can run acceptance tests for the database, DOD certificates, honeycomb through environment variables with `TEST_ACC_DATABASE=1`, `TEST_ACC_DOD_CERTIFICATES=1`, and `TEST_ACC_HONEYCOMB=1`, respectively.
 
 ### Run All Tests in a Single Package
 

@@ -106,6 +106,12 @@ func (suite *webServerSuite) TestConfigStorage() {
 }
 
 func (suite *webServerSuite) TestDODCertificates() {
+
+	if os.Getenv("TEST_ACC_DOD_CERTIFICATES") != "1" {
+		suite.logger.Info("Skipping TestDODCertificates")
+		return
+	}
+
 	_, _, err := initDODCertificates(suite.viper, suite.logger)
 	suite.Nil(err)
 }
