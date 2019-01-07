@@ -211,6 +211,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("here-maps-app-code", "", "HERE maps App API code")
 
 	// EDI Invoice Config
+	flag.String("gex-basic-auth-username", "", "GEX api auth username")
+	flag.String("gex-basic-auth-password", "", "GEX api auth password")
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
@@ -411,6 +413,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkGEX(v)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -503,11 +510,20 @@ func checkEmail(v *viper.Viper) error {
 	return nil
 }
 
-func checkGEXUrl(v *viper.Viper) error {
+func checkGEX(v *viper.Viper) error {
 	gexURL := v.GetString("gex-url")
-	if !stringSliceContains([]string{"https://gexweba.daas.dla.mil/msg_data/submit/", ""}, gexURL) {
+	if len(gexURL) > 0 && gexURL != "https://gexweba.daas.dla.mil/msg_data/submit/" {
 		return fmt.Errorf("invalid gexUrl %s, expecting "+
 			"https://gexweba.daas.dla.mil/msg_data/submit/ or an empty string", gexURL)
+	}
+
+	if len(gexURL) > 0 {
+		if len(v.GetString("gex-basic-auth-username")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_USERNAME is missing")
+		}
+		if len(v.GetString("gex-basic-auth-password")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_PASSWORD is missing")
+		}
 	}
 
 	return nil
@@ -694,14 +710,26 @@ func main() {
 
 	var gexRequester gex.SendToGex
 	gexURL := v.GetString("gex-url")
-	if gexURL == "" {
+	if len(gexURL) == 0 {
 		// this spins up a local test server
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
-		gexRequester = gex.SendToGexHTTP{URL: server.URL, IsTrueGexURL: false}
+		gexRequester = gex.SendToGexHTTP{
+			URL:          server.URL,
+			IsTrueGexURL: false,
+			//TLSConfig: ,
+			GEXBasicAuthUsername: "",
+			GEXBasicAuthPassword: "",
+		}
 	} else {
-		gexRequester = gex.SendToGexHTTP{URL: v.GetString("gex-url"), IsTrueGexURL: true}
+		gexRequester = gex.SendToGexHTTP{
+			URL:          v.GetString("gex-url"),
+			IsTrueGexURL: true,
+			//TLSConfig: ,
+			GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
+			GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
+		}
 	}
 	handlerContext.SetGexSender(gexRequester)
 

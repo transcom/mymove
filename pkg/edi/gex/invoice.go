@@ -27,6 +27,9 @@ type SendToGex interface {
 type SendToGexHTTP struct {
 	URL          string
 	IsTrueGexURL bool
+	//TLSConfig *tls.Config
+	GEXBasicAuthUsername string
+	GEXBasicAuthPassword string
 }
 
 // Call sends an edi file string as a POST to the gex api
