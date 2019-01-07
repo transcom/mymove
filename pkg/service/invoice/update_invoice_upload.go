@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -75,7 +76,7 @@ func (u UpdateInvoiceUpload) Call(invoice *models.Invoice, upload *models.Upload
 		if err != nil {
 			return verrs, errors.Wrap(err, "Could not save Invoice for UpdateInvoiceUpload -- remove upload")
 		}
-		err = u.deleteUpload(invoice.Upload)
+		err = u.deleteUpload(deleteUpload)
 		if err != nil {
 			// Save err if delete Upload fails. I don't think we care to bail out if trying to save the new Upload
 			// to the Invoice

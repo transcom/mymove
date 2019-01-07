@@ -1,6 +1,11 @@
 package ediinvoice_test
 
 import (
+	"io/ioutil"
+	"log"
+	"path/filepath"
+	"testing"
+
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/auth"
@@ -10,10 +15,6 @@ import (
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"go.uber.org/zap"
-	"io/ioutil"
-	"log"
-	"path/filepath"
-	"testing"
 )
 
 type StoreInvoiceSuite struct {

@@ -1,12 +1,13 @@
 package uploader_test
 
 import (
-	"github.com/pkg/errors"
 	"io"
 	"log"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/pop"
 	"github.com/spf13/afero"

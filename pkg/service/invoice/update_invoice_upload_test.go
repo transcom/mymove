@@ -2,6 +2,10 @@ package invoice
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"path"
+
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
@@ -12,9 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
-	"io"
-	"os"
-	"path"
 )
 
 func (suite *InvoiceServiceSuite) openLocalFile(path string) (afero.File, error) {
