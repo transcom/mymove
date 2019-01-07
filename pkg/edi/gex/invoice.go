@@ -2,6 +2,7 @@ package gex
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -36,11 +37,13 @@ func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Resp
 	if s.IsTrueGexURL {
 		URL = filepath.Join(s.URL, transactionName)
 	}
+	fmt.Println("^^^^^^^ URL inside SendToGexHTTP: ", URL)
 	request, err := http.NewRequest(
 		"POST",
 		URL,
 		strings.NewReader(edi),
 	)
+	fmt.Println("!!!!##@@ request: ", request)
 	if err != nil {
 		return resp, errors.Wrap(err, "Creating GEX POST request")
 	}
