@@ -4,6 +4,8 @@ import { get } from 'lodash';
 import moment from 'moment';
 
 import Alert from 'shared/Alert';
+import { isError, isLoading, isSuccess } from 'shared/constants';
+
 import './InvoicePanel.css';
 
 class InvoicePaymentAlert extends PureComponent {
@@ -11,21 +13,20 @@ class InvoicePaymentAlert extends PureComponent {
     let paymentAlert;
     const status = this.props.createInvoiceStatus;
 
-    if (status.error) {
+    if (status === isError) {
       //handle 409 status: shipment invoice already processed
-      let httpResCode = get(status, 'error.response.status');
-      let invoiceStatus = get(status, 'error.response.response.body.status');
-      let aproverFirstName = get(status, 'error.response.response.body.approver_first_name');
-      let aproverLastName = get(status, 'error.response.response.body.approver_last_name');
-      let invoiceDate = moment(get(status, 'error.response.response.body.invoiced_date'));
+      let httpResCode = get(this.props.lastInvoiceError, 'response.status');
+      let invoiceStatus = get(this.props.lastInvoiceError, 'response.response.body.status');
+      let aproverFirstName = get(this.props.lastInvoiceError, 'response.response.body.approver_first_name');
+      let aproverLastName = get(this.props.lastInvoiceError, 'response.response.body.approver_last_name');
+      let invoiceDate = moment(get(this.props.lastInvoiceError, 'response.response.body.invoiced_date'));
       if (httpResCode === 409 && invoiceStatus === 'SUBMITTED') {
         paymentAlert = (
           <div>
             <Alert type="success" heading="Already approved">
               <span className="warning--header">
-                {aproverFirstName} {aproverLastName} approved this invoice on [{invoiceDate.format('DD-MMM-YYYY')}] at [{invoiceDate.format(
-                  'kk:mm',
-                )}].
+                {aproverFirstName} {aproverLastName} approved this invoice on {invoiceDate.format('DD-MMM-YYYY')} at{' '}
+                {invoiceDate.format('kk:mm')}.
               </span>
             </Alert>
           </div>
@@ -35,8 +36,8 @@ class InvoicePaymentAlert extends PureComponent {
           <div>
             <Alert type="success" heading="Already submitted">
               <span className="warning--header">
-                {aproverFirstName} {aproverLastName} submitted this invoice on [{invoiceDate.format('DD-MMM-YYYY')}] at
-                [{invoiceDate.format('kk:mm')}].
+                {aproverFirstName} {aproverLastName} submitted this invoice on {invoiceDate.format('DD-MMM-YYYY')} at{' '}
+                {invoiceDate.format('kk:mm')}.
               </span>
             </Alert>
           </div>
@@ -48,13 +49,13 @@ class InvoicePaymentAlert extends PureComponent {
           </Alert>
         );
       }
-    } else if (status.isLoading) {
+    } else if (status === isLoading) {
       paymentAlert = (
         <Alert type="loading" heading="Creating invoice">
           <span className="warning--header">Sending information to USBank/Syncada.</span>
         </Alert>
       );
-    } else if (status.isSuccess) {
+    } else if (status === isSuccess) {
       paymentAlert = (
         <div>
           <Alert type="success" heading="Success!">
@@ -69,7 +70,8 @@ class InvoicePaymentAlert extends PureComponent {
 }
 
 InvoicePaymentAlert.propTypes = {
-  createInvoiceStatus: PropTypes.object,
+  createInvoiceStatus: PropTypes.string,
+  lastInvoiceError: PropTypes.object,
 };
 
 export default InvoicePaymentAlert;
