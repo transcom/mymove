@@ -45,12 +45,11 @@ function milmove_api() {
 
     session_token=$(cat "$session_file")
 
-    cookie="_ga=GA1.2.1373234207.1534894929; _gorilla_csrf=MTU0Njg4NjgwNnxJbTlxYmpGSllucERlazQ1VjNobVNFODJWbkJsVjBSbU1VOUVkRU5xYXprM1F6aFBVR1JSTVRoclZrazlJZ289fBwW-3mD5f0s--zXie3X_00PIsczWPyW-H2-yscbvkcU; session_token=${session_token}; masked_gorilla_csrf=MQIQx3WrJJaLVkb5Ie2LLhFLidlfZZnu+bVRoHlO5eyTO+XmyWnoSd2TtzfIt9V2Jr6x4h3r1pXydt7VdDJ0vg=="
+    cookie="session_token=${session_token};"
 
     json=$(curl -s "${url}" \
          -H 'dnt: 1' \
          -H 'accept-encoding: gzip, deflate, br' \
-         -H 'x-csrf-token: MQIQx3WrJJaLVkb5Ie2LLhFLidlfZZnu+bVRoHlO5eyTO+XmyWnoSd2TtzfIt9V2Jr6x4h3r1pXydt7VdDJ0vg==' \
          -H 'accept-language: en-US,en;q=0.9' \
          -H 'user-agent: curl; bin/find-invoices' \
          -H 'accept: */*' \
