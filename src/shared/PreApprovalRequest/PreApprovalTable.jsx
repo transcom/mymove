@@ -18,38 +18,41 @@ export class PreApprovalTable extends PureComponent {
   };
   render() {
     const { shipmentLineItems, isActionable, onEdit, onApproval, onDelete } = this.props;
+    // If there are no shipment line items, don't show the table at all.
     return (
       <div className="pre-approval-panel-table-cont">
-        <table cellSpacing={0}>
-          <tbody>
-            <tr>
-              <th>Code</th>
-              <th>Item</th>
-              <th>Loc</th>
-              <th>Base quantity</th>
-              <th>Notes</th>
-              <th>Submitted</th>
-              <th>Status</th>
-              <th>&nbsp;</th>
-            </tr>
-            {shipmentLineItems.map(row => {
-              let requestIsActionable =
-                isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
-              return (
-                <PreApprovalRequest
-                  key={row.id}
-                  shipmentLineItem={row}
-                  onEdit={onEdit}
-                  onApproval={onApproval}
-                  onDelete={onDelete}
-                  isActive={this.isRequestActive(row.id)}
-                  isActionable={requestIsActionable}
-                  tariff400ngItems={this.props.tariff400ngItems}
-                />
-              );
-            })}
-          </tbody>
-        </table>
+        {shipmentLineItems.length > 0 && (
+          <table cellSpacing={0}>
+            <tbody>
+              <tr>
+                <th>Code</th>
+                <th>Item</th>
+                <th>Loc</th>
+                <th>Base quantity</th>
+                <th>Notes</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>&nbsp;</th>
+              </tr>
+              {shipmentLineItems.map(row => {
+                let requestIsActionable =
+                  isActionable && (this.state.actionRequestId === null || this.state.actionRequestId === row.id);
+                return (
+                  <PreApprovalRequest
+                    key={row.id}
+                    shipmentLineItem={row}
+                    onEdit={onEdit}
+                    onApproval={onApproval}
+                    onDelete={onDelete}
+                    isActive={this.isRequestActive(row.id)}
+                    isActionable={requestIsActionable}
+                    tariff400ngItems={this.props.tariff400ngItems}
+                  />
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     );
   }

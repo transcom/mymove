@@ -1441,6 +1441,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/endpoints",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/aws/aws-sdk-go/service/ses",
@@ -1475,6 +1476,7 @@
     "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
+    "github.com/jmoiron/sqlx",
     "github.com/jung-kurt/gofpdf",
     "github.com/magiconair/properties/assert",
     "github.com/markbates/goth",
