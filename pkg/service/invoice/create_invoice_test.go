@@ -36,12 +36,14 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 		name                  string
 		scac                  string
 		createdYear           int
+		startSequenceNumber   int // <= 0 indicates to not reset.
 		expectedInvoiceNumber string
 	}{
-		{"first invoice number for a SCAC/year", "DLXM", 2018, "DLXM180001"},
-		{"second invoice number for a SCAC/year", "DLXM", 2018, "DLXM180002"},
-		{"same SCAC, different year", "DLXM", 2019, "DLXM190001"},
-		{"different SCAC, same year", "ECHF", 2019, "ECHF190001"},
+		{"first invoice number for a SCAC/year", "DLXM", 2018, 0, "DLXM180001"},
+		{"second invoice number for a SCAC/year", "DLXM", 2018, 0, "DLXM180002"},
+		{"same SCAC, different year", "DLXM", 2019, 0, "DLXM190001"},
+		{"different SCAC, same year", "ECHF", 2019, 0, "ECHF190001"},
+		{"max 4-digit sequence number", "SLVS", 2019, 9999, "SLVS1910000"},
 	}
 
 	createInvoice := CreateInvoice{
@@ -57,6 +59,12 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 			// as it gets overwritten by Pop) so we can control the test cases.
 			shipment.CreatedAt = time.Date(testCase.createdYear, 7, 1, 0, 0, 0, 0, time.UTC)
 
+			// Reset sequence number if needed.
+			if testCase.startSequenceNumber > 0 {
+				err := testdatagen.SetInvoiceSequenceNumber(suite.db, testCase.scac, testCase.createdYear, testCase.startSequenceNumber)
+				suite.NoError(err)
+			}
+
 			var invoice models.Invoice
 			verrs, err := createInvoice.Call(officeUser, &invoice, shipment)
 			suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
@@ -65,20 +73,6 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 			suite.Equal(testCase.expectedInvoiceNumber, invoice.InvoiceNumber)
 		})
 	}
-
-	suite.T().Run("test maximum sequence number", func(t *testing.T) {
-		// Test that flipping over from 9999 causes an error.
-		shipment := helperShipmentUsingScac(suite, "SLVS")
-		year := shipment.CreatedAt.UTC().Year()
-
-		err := testdatagen.SetInvoiceSequenceNumber(suite.db, "SLVS", year, 9999)
-		suite.NoError(err)
-
-		var invoice models.Invoice
-		verrs, err := createInvoice.Call(officeUser, &invoice, shipment)
-		suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
-		suite.Error(err)
-	})
 }
 
 func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
