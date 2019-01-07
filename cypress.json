@@ -1,7 +1,10 @@
 {
-  "baseUrl": "http://localhost:4000",
-  "reporter": "junit",
+  "baseUrl": "http://milmovelocal:4000",
+  "reporter": "mocha-multi-reporters",
   "reporterOptions": {
-    "mochaFile": "cypress/results/test-report-junit.[hash].xml"
-  }
+    "configFile": "mocha-reporter-config.json"
+  },
+  "viewportWidth": 1440,
+  "viewportHeight": 900,
+  "videoUploadOnPasses": false
 }

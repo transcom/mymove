@@ -45,7 +45,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{context}
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{context}
 
-	internalAPI.MovesCreateMoveHandler = CreateMoveHandler{context}
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{context}
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{context}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{context}
@@ -80,7 +79,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
 	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
 	internalAPI.ShipmentsCompleteHHGHandler = CompleteHHGHandler{context}
-	internalAPI.ShipmentsSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
+	internalAPI.ShipmentsCreateAndSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}

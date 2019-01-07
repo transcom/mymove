@@ -24,9 +24,10 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Database](#setup-database)
   * [Setup: Server](#setup-server)
-  * [Setup: Client](#setup-client)
-  * [Setup: Office/admin client](#setup-officeadmin-client)
-  * [Setup: TSP/admin client](#setup-tspadmin-client)
+  * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
+  * [Setup: OfficeLocal client](#setup-officelocal-client)
+  * [Setup: TSPLocal client](#setup-tsplocal-client)
+  * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
@@ -35,7 +36,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Testing](#testing)
   * [Logging](#logging)
   * [Database](#database)
-    * [Dev Commands](#dev-commands)
+    * [Dev DB Commands](#dev-db-commands)
+    * [Test DB Commands](#test-db-commands)
     * [Migrations](#migrations)
   * [Environment Variables](#environment-variables)
   * [Documentation](#documentation)
@@ -43,6 +45,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
+    * [Development Machine Timezone Issues](#development-machine-timezone-issues)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -57,7 +60,6 @@ As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Ed
 The client application (i.e. website) makes outbound requests to the following domains in its normal operation. If you have a firewall in place, it will need to be configured to allow outbound access to them for the application to operate.
 
 * S3 for document downloads; exact domains TBD.
-* New Relic for browser performance monitoring; specifically `bam.nr-data.net` and `js-agent.newrelic.*`. [More info and IPs are listed here](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/networks#agents).
 * Honeycomb for server-side debugging and observability. Currently being tested in staging and experimental environments.
 
 ## Development
@@ -120,6 +122,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
 
 1. `./bin/prereqs`
+1. `make db_dev_run`
 1. `make db_dev_migrate`
 1. `make server_run`
 1. `make client_build`
@@ -127,9 +130,9 @@ The following commands will get mymove running on your machine for the first tim
 
 ### Setup: Prerequisites
 
-* Install Go version 1.11 with Homebrew. Make sure you do not have other installations.
-  * `brew install go@1.11`
-  * If a later Go version exists, Brew will warn you that "go@1.11 is keg-only, which means it was not symlinked". If that happens, add the following to your bash config: `export PATH="/usr/local/opt/go@1.11/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
+* Install Go version 1.11.4 with Homebrew. Make sure you do not have other installations.
+  * `brew install go@1.11.4`
+  * If a later Go version exists, Brew will warn you that "go@1.11.4 is keg-only, which means it was not symlinked". If that happens, add the following to your bash config: `export PATH="/usr/local/opt/go@1.11.4/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
@@ -141,7 +144,9 @@ The following commands will get mymove running on your machine for the first tim
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_migrate`: Creates a PostgreSQL docker container if you haven't made one yet and runs all existing database migrations, which do things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+1. `make db_dev_run`: Creates a PostgreSQL docker container if you haven't made one yet
+
+1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
 You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 You can validate that your test database is running by running `bin/psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
@@ -156,8 +161,10 @@ In rare cases, you may want to run the server standalone, in which case you can 
 
 Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
 
-### Setup: Client
+### Setup: MilMoveLocal Client
 
+1. add the following line to /etc/hosts
+    `127.0.0.1 milmovelocal`
 1. `make client_build` (if setting up for first time)
 1. `make client_run`
 
@@ -167,7 +174,7 @@ If both the server and client are running, you should be able to view the Swagge
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
-### Setup: Office/admin client
+### Setup: OfficeLocal client
 
 1. add the following line to /etc/hosts
     `127.0.0.1 officelocal`
@@ -177,7 +184,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 3. `make office_client_run`
 4. Login with the email used above to access the office
 
-### Setup: TSP/admin client
+### Setup: TSPLocal client
 
 1. add the following line to /etc/hosts
     `127.0.0.1 tsplocal`
@@ -187,6 +194,12 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
+
+### Setup: DPS user
+
+1. Ensure that you have a login.gov test account
+    * `make build_tools` to build the tools
+    * run `bin/make-dps-user -email <email>` to set up a DPS user associated with that email address
 
 ### Setup: Orders Gateway
 
@@ -265,14 +278,38 @@ If you need to see some output during the development process (say, for debuggin
 
 * Read [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely) to prevent SQL injections! *
 
-#### Dev Commands
+A few commands exist for starting and stopping the DB docker container:
+
+* `make db_run`: Starts the DB docker container if one doesn't already exist
+* `make db_destroy`: Stops and removes the DB docker container
+
+#### Dev DB Commands
 
 There are a few handy targets in the Makefile to help you interact with the dev database:
 
 * `make db_dev_run`: Initializes a new database if it does not exist and runs it, or starts the previously initialized Docker container if it has been stopped.
+* `make db_dev_create`: Waits to connect to the DB and will create a DB if one doesn't already exist (run usually as part of `db_dev_run`).
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
-* `make db_dev_migrate_down`: reverts the most recently applied migration by running the down migration
+* `make db_dev_e2e_populate`: Populate data with data used to run e2e tests
+
+#### Test DB Commands
+
+The Dev Commands are used to talk to the dev DB.  If you were working with the test DB you would use these commands:
+
+* `make db_test_run`
+* `make db_test_create`
+* `make db_test_reset`
+* `make db_test_migrate`
+* `make db_test_e2e_populate`
+
+The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:
+
+* `make db_test_run_docker`
+* `make db_test_create_docker`
+* `make db_test_reset_docker`
+* `make db_test_migrate_docker`
+* `make db_test_e2e_populate_docker`
 
 #### Migrations
 
@@ -280,8 +317,7 @@ To add new regular and/or secure migrations, see the [database development guide
 
 Running migrations in local development:
 
-1. Use `make db_dev_migrate` to run migrations against your local dev environment.
-1. Use `make db_dev_migrate_down` to revert the most recently applied migration. This is useful while you are developing a migration but should not be necessary otherwise.
+Use `make db_dev_migrate` to run migrations against your local dev environment.
 
 Running migrations on Staging / Production:
 
@@ -369,3 +405,16 @@ Migrator: problem creating schema migrations: couldn't start a new transaction: 
 ```
 
 You can check this by typing `ps aux | grep postgres` or `brew services list` and looking for existing processes. In the case of homebrew you can run `brew services stop postgresql` to stop the service and prevent it from running at startup.
+
+#### Development Machine Timezone Issues
+
+If you are experiencing problems like redux forms that are 'dirty' when they shouldn't be on your local environment, it may be due to a mismatch
+of your local dev machine's timezone and the assumption of UTC made by the local database. A detailed example of this sort of issue can be found in
+[this story](https://www.pivotaltracker.com/n/projects/2136865/stories/160975609). A workaround for this is to set the TZ environment variable
+in Mac OS for the context of your running app. This can be done by adding the following to `.envrc.local`:
+
+```bash
+export TZ="UTC"
+```
+
+Doing so will set the timezone environment variable to UTC utilizing the same localized context as your other `.envrc.local` settings.

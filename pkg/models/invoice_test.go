@@ -11,6 +11,7 @@ func (suite *ModelSuite) TestInvoiceValidations() {
 
 	expErrors := map[string][]string{
 		"status":         {"Status can not be blank."},
+		"approver_id":    {"ApproverID can not be blank."},
 		"invoice_number": {"InvoiceNumber can not be blank."},
 		"invoiced_date":  {"InvoicedDate can not be blank."},
 		"shipment_id":    {"ShipmentID can not be blank."},
@@ -86,4 +87,16 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	extantInvoice, err = FetchInvoice(suite.db, session, invoice.ID)
 	suite.Equal("FETCH_FORBIDDEN", err.Error())
 
+}
+
+func (suite *ModelSuite) TestFetchInvoicesForShipment() {
+	invoice1 := testdatagen.MakeDefaultInvoice(suite.db)
+	testdatagen.MakeDefaultInvoice(suite.db)
+
+	// Then: invoice is returned
+	extantInvoices, err := FetchInvoicesForShipment(suite.db, invoice1.ShipmentID)
+	if suite.NoError(err) {
+		suite.Len(extantInvoices, 1)
+		suite.Equal(extantInvoices[0].ID, invoice1.ID)
+	}
 }

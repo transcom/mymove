@@ -190,13 +190,24 @@ func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipme
 	}
 
 	for i := 0; i < len(items); i++ {
-		feeAndRate, err := re.ComputeShipmentLineItemCharge(items[i])
+		err := re.PricePreapprovalRequest(&items[i])
 		if err != nil {
 			return []models.ShipmentLineItem{}, err
 		}
-		items[i].AmountCents = &feeAndRate.Fee
-		items[i].AppliedRate = &feeAndRate.Rate
 	}
 
 	return items, nil
+}
+
+// PricePreapprovalRequest computes price for given pre-approval requests and populates amount_cents field and applied_rate on those models
+func (re *RateEngine) PricePreapprovalRequest(shipmentLineItem *models.ShipmentLineItem) error {
+
+	feeAndRate, err := re.ComputeShipmentLineItemCharge(*shipmentLineItem)
+	if err != nil {
+		return err
+	}
+	shipmentLineItem.AmountCents = &feeAndRate.Fee
+	shipmentLineItem.AppliedRate = &feeAndRate.Rate
+
+	return nil
 }

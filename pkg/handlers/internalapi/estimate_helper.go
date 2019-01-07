@@ -48,7 +48,7 @@ func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, originZip string, 
 		return lhDiscount, sitDiscount, err
 	}
 
-	logger.Info("Couldn't find Discount for COS D or 2.",
+	logger.Error("Couldn't find Discount for COS D or 2.",
 		zap.String("origin_zip", originZip),
 		zap.String("destination_zip", destZip),
 		zap.Time("move_date", moveDate),

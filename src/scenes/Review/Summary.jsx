@@ -9,6 +9,7 @@ import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { getMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
+import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
@@ -48,14 +49,22 @@ export class Summary extends Component {
       serviceMember,
       entitlement,
       isHHGPPMComboMove,
+      match,
     } = this.props;
 
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
     const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
+    // isReviewPage being false is the same thing as being in the /edit route
+    const isReviewPage = rootAddressWithMoveId === match.url;
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
     const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
+
+    const showPPMShipmentSummary =
+      (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
+    const showHHGShipmentSummary =
+      (currentShipment && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
 
     return (
       <Fragment>
@@ -77,30 +86,24 @@ export class Summary extends Component {
             </Alert>
           )}
 
-        {!isHHGPPMComboMove && (
-          <ServiceMemberSummary
-            orders={currentOrders}
-            backupContacts={currentBackupContacts}
-            serviceMember={serviceMember}
-            schemaRank={schemaRank}
-            schemaAffiliation={schemaAffiliation}
-            schemaOrdersType={schemaOrdersType}
-            moveIsApproved={moveIsApproved}
-            editOrdersPath={editOrdersPath}
-          />
+        <ServiceMemberSummary
+          orders={currentOrders}
+          backupContacts={currentBackupContacts}
+          serviceMember={serviceMember}
+          schemaRank={schemaRank}
+          schemaAffiliation={schemaAffiliation}
+          schemaOrdersType={schemaOrdersType}
+          moveIsApproved={moveIsApproved}
+          editOrdersPath={editOrdersPath}
+        />
+
+        {showHHGShipmentSummary && (
+          <HHGShipmentSummary shipment={currentShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
         )}
 
-        {currentPpm && (
+        {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
         )}
-        {currentShipment &&
-          !isHHGPPMComboMove && (
-            <HHGShipmentSummary
-              shipment={currentShipment}
-              movePath={rootAddressWithMoveId}
-              entitlements={entitlement}
-            />
-          )}
         {moveIsApproved &&
           !isHHGPPMComboMove && (
             <div className="approved-edit-warning">
@@ -129,7 +132,7 @@ Summary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   return {
-    currentPpm: state.ppm.currentPpm,
+    currentPpm: getPPM(state),
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),

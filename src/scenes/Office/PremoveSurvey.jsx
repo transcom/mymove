@@ -199,7 +199,12 @@ const SurveyDisplay = props => {
         />
       </div>
       <div className="editable-panel-3-column">
-        <PanelSwaggerField title="PM survey conducted" fieldName="pm_survey_conducted_date" required {...fieldProps} />
+        <PanelSwaggerField
+          title="Pre-move survey conducted"
+          fieldName="pm_survey_conducted_date"
+          required
+          {...fieldProps}
+        />
         <PanelSwaggerField title="Survey Method" fieldName="pm_survey_method" required {...fieldProps} />
         <PanelSwaggerField title="Notes" fieldName="pm_survey_notes" className="notes" {...fieldProps} />
       </div>
@@ -223,7 +228,12 @@ const SurveyEdit = props => {
           <SwaggerField fieldName="pm_survey_progear_weight_estimate" swagger={schema} />
           <SwaggerField fieldName="pm_survey_spouse_progear_weight_estimate" swagger={schema} />
         </div>
-        <SwaggerField fieldName="pm_survey_conducted_date" title="PM survey conducted" swagger={schema} required />
+        <SwaggerField
+          fieldName="pm_survey_conducted_date"
+          title="Pre-move survey conducted"
+          swagger={schema}
+          required
+        />
         <SwaggerField fieldName="pm_survey_method" swagger={schema} required />
         <SwaggerField fieldName="pm_survey_notes" title="Notes about dates" swagger={schema} />
       </FormSection>

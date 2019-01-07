@@ -18,6 +18,7 @@ type LinehaulCostComputation struct {
 	ShorthaulCharge           unit.Cents
 	LinehaulChargeTotal       unit.Cents
 	Mileage                   int
+	FuelSurcharge             FeeAndRate
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -99,6 +100,10 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine shorthaul charge")
 	}
+	cost.FuelSurcharge, err = re.fuelSurchargeComputation()
+	if err != nil {
+		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
+	}
 
 	cost.LinehaulChargeTotal = cost.BaseLinehaul +
 		cost.OriginLinehaulFactor +
@@ -110,7 +115,14 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 		zap.Int("linehaul", cost.BaseLinehaul.Int()),
 		zap.Int("origin lh factor", cost.OriginLinehaulFactor.Int()),
 		zap.Int("destination lh factor", cost.DestinationLinehaulFactor.Int()),
-		zap.Int("shorthaul", cost.ShorthaulCharge.Int()))
+		zap.Int("shorthaul", cost.ShorthaulCharge.Int()),
+	)
 
 	return cost, err
+}
+
+// Calculate the fuel surcharge and return the result
+// TODO: Fill this in with the actual formula for the fuel surcharge. Returning 0 as a stub/placeholder right now.
+func (re *RateEngine) fuelSurchargeComputation() (fuelSurcharge FeeAndRate, err error) {
+	return FeeAndRate{Fee: unit.Cents(0), Rate: unit.Millicents(0)}, err
 }

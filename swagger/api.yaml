@@ -232,6 +232,10 @@ definitions:
       requires_pre_approval:
         type: boolean
         title: Requires pre-approval
+  Invoices:
+    type: array
+    items:
+      $ref: '#/definitions/Invoice'
   Invoice:
     type: object
     properties:
@@ -239,8 +243,18 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         $ref: '#/definitions/InvoiceStatus'
+      approver_first_name:
+        type: string
+        example: 'Janine'
+      approver_last_name:
+        type: string
+        example: 'Smith'
       invoiced_date:
         type: string
         title: Invoiced date
@@ -248,12 +262,6 @@ definitions:
       invoice_number:
         type: string
         example: '12432'
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
   ShipmentLineItems:
     type: array
     items:
@@ -304,6 +312,11 @@ definitions:
         example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       status:
         $ref: '#/definitions/ShipmentLineItemStatus'
+      invoice_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       amount_cents:
         type: integer
         format: cents
@@ -319,6 +332,7 @@ definitions:
         type: string
         title: Approved Date
         format: date-time
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -599,9 +613,11 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+        default: false
       spouse_has_pro_gear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+        default: false
       status:
         $ref: '#/definitions/MoveStatus'
       locator:
@@ -1112,6 +1128,10 @@ definitions:
         x-nullable: true
         x-formatting: weight
         title: Tare
+      pm_survey_completed_at:
+        type: string
+        format: date-time
+        x-nullable: true
       pm_survey_conducted_date:
         type: string
         format: date
@@ -1174,6 +1194,11 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
+      transportation_service_provider_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
   TransportationServiceProvider:
     type: object
     properties:
@@ -1186,6 +1211,7 @@ definitions:
         type: string
         example: '51980581983'
         x-nullable: true
+        title: SCAC
       enrolled:
         type: boolean
         default: false
@@ -1193,6 +1219,7 @@ definitions:
         type: string
         example: 'EXTRA Good TSP'
         x-nullable: true
+        title: Name
       poc_general_name:
         type: string
         example: 'Jon Bon Jovi'
@@ -1306,14 +1333,6 @@ definitions:
     required:
       - role
       - company
-  RejectShipment:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
-    required:
-      - reason
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
@@ -1427,24 +1446,23 @@ definitions:
     description: The stages in the lifecycle of a Shipment
     example: IN_PROGRESS
     enum: &SHIPMENTSTATUS
+      - DRAFT
+      - SUBMITTED
       - AWARDED
       - ACCEPTED
       - APPROVED
-      - REJECTED
-      - IN_PROGRESS
       - IN_TRANSIT
       - DELIVERED
       - COMPLETED
-      - CANCELED
     x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
       AWARDED: Awarded
       ACCEPTED: Accepted
-      REJECTED: Rejected
-      IN_PROGRESS: In Progress
+      APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
       COMPLETED: Completed
-      CANCELED: Canceled
   TransportPayload:
     type: object
     properties:
@@ -2141,6 +2159,62 @@ paths:
           description: no service agent found with that UUID
         500:
           description: server error
+  /shipments/{shipmentId}/transportation_service_provider:
+    get:
+      summary: Gets transportation service provider for shipment
+      description: Allows a user to retrieve the transportation service provider for a shipment.
+      operationId: getTransportationServiceProvider
+      tags:
+        - transportation_service_provider
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns a Transporation Service Provider
+          schema:
+            $ref: '#/definitions/TransportationServiceProvider'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
+        422:
+          description: cannot process request with given information
+        500:
+          description: server error
+  /shipment/{shipmentId}/completePmSurvey:
+    post:
+      summary: Completes a pre-move survey on a shipment
+      description: Sets the pre-move survey as completed. Completion date will be recorded on shipment.
+      operationId: completePmSurvey
+      tags:
+      - shipments
+      parameters:
+      - name: shipmentId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the move
+      responses:
+        200:
+          description: returns updated shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to complete this pre-move survey
+        500:
+          description: server error
   /shipments/{shipmentId}/accept:
     post:
       summary: Accepts an awarded shipment
@@ -2239,7 +2313,7 @@ paths:
         403:
           description: not authorized to accept this shipment
         409:
-          description: the shipment is not in a state to be accepted
+          description: the shipment is not in a state to be delivered
           schema:
             $ref: '#/definitions/Shipment'
         500:
@@ -2355,6 +2429,33 @@ paths:
           description: User not permitted to get invoice for this shipment
         404:
           description: Invoice UUID not found in system
+        500:
+          description: server error
+  /shipments/{shipmentId}/invoices:
+    get:
+      summary: Retrieve invoices associated with a shipment
+      description: Gets a list of all invoices associated with a shipment.
+      operationId: getShipmentInvoices
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: list of invoices associated with shipment
+          schema:
+            $ref: '#/definitions/Invoices'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of invoices for this shipment
+        404:
+          description: Shipment UUID not found in system
         500:
           description: server error
   /shipments/{shipmentId}/accessorials:
@@ -2507,43 +2608,6 @@ paths:
           description: shipment line item not found
         500:
           description: internal server error
-  /shipments/{shipmentId}/reject:
-    post:
-      summary: Rejects an awarded shipment
-      description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
-      operationId: rejectShipment
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - name: payload
-          in: body
-          description: reason for refusing award
-          required: true
-          schema:
-            $ref: '#/definitions/RejectShipment'
-      responses:
-        200:
-          description: returns updated (rejected) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to reject this shipment
-        409:
-          description: the shipment is not in a state to be rejected
-          schema:
-            $ref: '#/definitions/Shipment'
-        500:
-          description: server error
   /tsps:
     get:
       summary: List all TSPs

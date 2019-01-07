@@ -1,4 +1,5 @@
 import * as mime from 'mime-types';
+import { milmoveAppName, officeAppName, tspAppName } from './constants';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -28,39 +29,127 @@ import * as mime from 'mime-types';
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  cy.request('POST', 'devlocal-auth/new').then(() => cy.visit('/'));
-  //  cy.contains('Local Sign In').click();
-  //  cy.contains('Login as New User').click();
+  // make sure we log out first before sign in
+  cy.logout();
+
+  cy.visit('/devlocal-auth/login');
+  // should have both our csrf cookie tokens now
+  cy.getCookie('_gorilla_csrf').should('exist');
+  cy.getCookie('masked_gorilla_csrf').should('exist');
+  cy.get('button[data-hook="new-user-login"]').click();
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  Cypress.config('baseUrl', 'http://localhost:4000');
+  cy.setupBaseUrl(milmoveAppName);
   cy.signInAsUser(userId);
 });
 Cypress.Commands.add('signIntoOffice', () => {
-  Cypress.config('baseUrl', 'http://officelocal:4000');
+  cy.setupBaseUrl(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
 });
 Cypress.Commands.add('signIntoTSP', () => {
-  Cypress.config('baseUrl', 'http://tsplocal:4000');
+  cy.setupBaseUrl(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 Cypress.Commands.add('signInAsUser', userId => {
-  cy
-    .request({
-      method: 'POST',
-      url: '/devlocal-auth/login',
-      form: true,
-      body: { id: userId },
-    })
-    .then(() => cy.visit('/'));
+  // make sure we log out first before sign in
+  cy.logout();
+
+  cy.visit('/devlocal-auth/login');
+  // should have both our csrf cookie tokens now
+  cy.getCookie('_gorilla_csrf').should('exist');
+  cy.getCookie('masked_gorilla_csrf').should('exist');
+  cy.get('button[value="' + userId + '"]').click();
 });
 
+// Reloads the page but makes an attempt to wait for the loading screen to disappear
+Cypress.Commands.add('patientReload', () => {
+  cy.reload();
+  cy.get('h2[data-name="loading-placeholder"]').should('not.exist', { timeout: 10000 });
+});
+
+Cypress.Commands.add(
+  'signInAsUserPostRequest',
+  (
+    signInAs,
+    userId,
+    expectedStatusCode = 200,
+    expectedRespBody = null,
+    sendGorillaCSRF = true,
+    sendMaskedGorillaCSRF = true,
+  ) => {
+    // setup baseurl
+    cy.setupBaseUrl(signInAs);
+
+    // request use to log in
+    let sendRequest = maskedCSRFToken => {
+      cy
+        .request({
+          url: '/devlocal-auth/login',
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': maskedCSRFToken,
+          },
+          body: {
+            id: userId,
+          },
+          form: true,
+          failOnStatusCode: false,
+        })
+        .then(resp => {
+          cy.visit('/');
+          // Default status code to check is 200
+          expect(resp.status).to.eq(expectedStatusCode);
+          // check response body if needed
+          if (expectedRespBody) {
+            expect(resp.body).to.eq(expectedRespBody);
+          }
+        });
+    };
+
+    // make sure we log out first before sign in
+    cy.logout();
+    // GET landing page to get csrf cookies
+    cy.request('/');
+
+    // Clear out cookies if we don't want to send in request
+    if (!sendGorillaCSRF) {
+      cy.clearCookie('_gorilla_csrf');
+      // Don't include cookie in request header
+      cy.getCookie('_gorilla_csrf').should('not.exist');
+    } else {
+      // Include cookie in request header
+      cy.getCookie('_gorilla_csrf').should('exist');
+    }
+
+    if (!sendMaskedGorillaCSRF) {
+      // Clear out the masked CSRF token
+      cy.clearCookie('masked_gorilla_csrf');
+      // Send request without masked token
+      cy
+        .getCookie('masked_gorilla_csrf')
+        .should('not.exist')
+        .then(() => {
+          // null token will omit the 'X-CSRF-HEADER' from request
+          sendRequest();
+        });
+    } else {
+      // Send request with masked token
+      cy
+        .getCookie('masked_gorilla_csrf')
+        .should('exist')
+        .then(cookie => {
+          sendRequest(cookie.value);
+        });
+    }
+  },
+);
+
 Cypress.Commands.add('logout', () => {
-  cy
-    .request('/auth/logout')
-    .its('status')
-    .should('equal', 200);
+  // The session cookie wasn't being cleared out after doing a get request even though the Set-Cookie
+  // header was present. Switching to cy.visit() fixed the problem, but it's not clear why this worked.
+  // Seems like others using Cypress have similar issues: https://github.com/cypress-io/cypress/issues/781
+  cy.visit('/auth/logout');
 });
 
 Cypress.Commands.add('nextPage', () => {
@@ -105,4 +194,50 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
         return cy.get(selector).trigger('drop', event);
       });
   });
+});
+
+function genericSelect(inputData, fieldName, classSelector) {
+  // fieldName is passed as a classname to the react-select component, so select for it if provided
+  if (fieldName) {
+    classSelector = `${classSelector}.${fieldName}`;
+  }
+  cy
+    .get(`${classSelector} input[type="text"]`)
+    .first()
+    .type(`{selectall}{backspace}${inputData}`, { force: true, delay: 75 });
+
+  // Click on the first presented option
+  cy
+    .get(classSelector)
+    .find('div[role="option"]')
+    .first()
+    .click();
+}
+
+Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
+  let classSelector = '.duty-input-box';
+  genericSelect(stationName, fieldName, classSelector);
+});
+
+Cypress.Commands.add('selectTariff400ngItem', itemName => {
+  let classSelector = '.tariff400-select';
+  let fieldName = 'tariff400ng_item';
+  genericSelect(itemName, fieldName, classSelector);
+});
+
+Cypress.Commands.add('setupBaseUrl', appname => {
+  // setup baseurl
+  switch (appname) {
+    case milmoveAppName:
+      Cypress.config('baseUrl', 'http://milmovelocal:4000');
+      break;
+    case officeAppName:
+      Cypress.config('baseUrl', 'http://officelocal:4000');
+      break;
+    case tspAppName:
+      Cypress.config('baseUrl', 'http://tsplocal:4000');
+      break;
+    default:
+      break;
+  }
 });

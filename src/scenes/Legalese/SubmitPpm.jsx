@@ -5,6 +5,7 @@ import { getFormValues } from 'redux-form';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { loadCertificationText, signAndSubmitPpm } from './ducks';
+import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 
 const formName = 'signature-form';
 
@@ -18,6 +19,7 @@ function mapStateToProps(state) {
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
     selectedMoveType: get(state.moves.currentMove, 'selected_move_type', null),
     ppmId: get(state, 'ppm.currentPpm.id'),
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
   };
 }
 

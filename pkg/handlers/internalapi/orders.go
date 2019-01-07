@@ -1,10 +1,12 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -61,6 +63,10 @@ type CreateOrdersHandler struct {
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	payload := params.CreateOrders
@@ -69,7 +75,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -78,7 +84,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	dutyStation, err := models.FetchDutyStation(h.DB(), stationID)
+	dutyStation, err := models.FetchDutyStation(ctx, h.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -149,6 +155,10 @@ type UpdateOrdersHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
@@ -165,7 +175,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	dutyStation, err := models.FetchDutyStation(h.DB(), stationID)
+	dutyStation, err := models.FetchDutyStation(ctx, h.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

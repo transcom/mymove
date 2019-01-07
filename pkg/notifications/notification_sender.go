@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"bytes"
+	"context"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,7 +14,7 @@ import (
 )
 
 type notification interface {
-	emails() ([]emailContent, error)
+	emails(ctx context.Context) ([]emailContent, error)
 }
 
 type emailContent struct {
@@ -26,7 +27,7 @@ type emailContent struct {
 
 // NotificationSender is an interface for sending notifications
 type NotificationSender interface {
-	SendNotification(notification) error
+	SendNotification(ctx context.Context, notification notification) error
 }
 
 // NotificationSendingContext provides context to a notification sender
@@ -44,8 +45,8 @@ func NewNotificationSender(svc sesiface.SESAPI, logger *zap.Logger) Notification
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-func (n NotificationSendingContext) SendNotification(notification notification) error {
-	emails, err := notification.emails()
+func (n NotificationSendingContext) SendNotification(ctx context.Context, notification notification) error {
+	emails, err := notification.emails(ctx)
 	if err != nil {
 		return err
 	}

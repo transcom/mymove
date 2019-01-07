@@ -172,8 +172,9 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	initialWeight := swag.Int64(4100)
 	newWeight := swag.Int64(4105)
 
-	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
-	newMoveDate := time.Now()
+	// Date picked essentialy at random, but needs to be within TestYear
+	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
 
 	hasAdditionalPostalCode := swag.Bool(true)
 	newHasAdditionalPostalCode := swag.Bool(false)
@@ -205,6 +206,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		DaysInStorage:              daysInStorage,
 		Status:                     models.PPMStatusDRAFT,
 		AdvanceWorksheet:           newAdvanceWorksheet,
+		AdvanceWorksheetID:         &newAdvanceWorksheet.ID,
 	}
 	suite.MustSave(&ppm1)
 
@@ -253,7 +255,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 
 	weight := swag.Int64(4100)
 
-	moveDate := time.Now()
+	// Date picked essentialy at random, but needs to be within TestYear
+	moveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 
 	pickupPostalCode := swag.String("32168")
 	destinationPostalCode := swag.String("29401")
@@ -325,8 +328,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
-	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
-	newMoveDate := time.Now()
+
+	// Date picked essentialy at random, but needs to be within TestYear
+	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
 
 	user2 := testdatagen.MakeDefaultServiceMember(suite.TestDB())
 	move := testdatagen.MakeDefaultMove(suite.TestDB())

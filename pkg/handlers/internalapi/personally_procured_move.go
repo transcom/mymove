@@ -27,6 +27,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
 		ID:                            handlers.FmtUUID(personallyProcuredMove.ID),
+		MoveID:                        *handlers.FmtUUID(personallyProcuredMove.MoveID),
 		CreatedAt:                     handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
 		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
 		Size:                          personallyProcuredMove.Size,

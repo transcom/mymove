@@ -1,5 +1,5 @@
 import { get, head, pick } from 'lodash';
-import { CreateMove, UpdateMove, GetMove, SubmitMoveForApproval } from './api.js';
+import { UpdateMove, GetMove, SubmitMoveForApproval } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';
 
@@ -19,16 +19,6 @@ export const SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(submitF
 // Action creation
 export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
-}
-
-export function createMove(ordersId, movePayload = {}) {
-  return function(dispatch) {
-    const action = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
-    dispatch(action.start());
-    return CreateMove(ordersId, movePayload)
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.failure(error)));
-  };
 }
 
 export function updateMove(moveId, moveType) {

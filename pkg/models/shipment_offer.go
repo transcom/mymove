@@ -115,3 +115,48 @@ func FetchShipmentOfferByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uui
 
 	return &shipmentOffers[0], err
 }
+
+// Accepted returns the accepted shipment offers from a slice of shipment offers.
+func (so *ShipmentOffers) Accepted() (ShipmentOffers, error) {
+	var acceptedOffers ShipmentOffers
+	for _, offer := range *so {
+		if offer.Accepted != nil && *offer.Accepted == true {
+			acceptedOffers = append(acceptedOffers, offer)
+
+			if offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID == uuid.Nil {
+				return nil, errors.Errorf("Accepted shipment offer is missing Transportation Service Provider")
+			}
+
+			if offer.TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode == "" {
+				return nil, errors.Errorf("Accepted shipment offer TSP is missing SCAC for TSP ID: %s\n",
+					offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID.String())
+			}
+
+			if offer.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID == nil ||
+				*(offer.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID) == "" {
+				return nil, errors.Errorf("Accepted shipment offer TSP is missing SupplierID for TSP ID: %s\n",
+					offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID.String())
+			}
+		}
+	}
+
+	return acceptedOffers, nil
+}
+
+// SCAC return TransportationServiceProvider's SCAC from the ShipmentOffer
+func (so *ShipmentOffer) SCAC() (string, error) {
+	scac := so.TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
+	if scac == "" {
+		return "", errors.New("SCAC for TSP is missing with TSP ID: " + so.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
+	}
+	return scac, nil
+}
+
+// SupplierID return TransportationServiceProvider's SupplierID from the ShipmentOffer
+func (so *ShipmentOffer) SupplierID() (*string, error) {
+	supplierID := so.TransportationServiceProviderPerformance.TransportationServiceProvider.SupplierID
+	if supplierID == nil {
+		return nil, errors.New("SupplierID for TSP is missing with TSP ID " + so.TransportationServiceProviderPerformance.TransportationServiceProviderID.String())
+	}
+	return supplierID, nil
+}

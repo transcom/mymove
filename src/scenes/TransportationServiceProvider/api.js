@@ -45,16 +45,6 @@ export async function AcceptShipment(shipmentId) {
   return response.body;
 }
 
-export async function RejectShipment(shipmentId, reason) {
-  const client = await getPublicClient();
-  const response = await client.apis.shipments.rejectShipment({
-    shipmentId: shipmentId,
-    payload: { reason },
-  });
-  checkResponse(response, 'failed to accept shipment due to server error');
-  return response.body;
-}
-
 export async function TransportShipment(shipmentId, payload) {
   const client = await getPublicClient();
   const payloadDef = client.spec.definitions.TransportPayload;
@@ -85,6 +75,15 @@ export async function PatchShipment(shipmentId, shipment) {
     update: formatPayload(shipment, payloadDef),
   });
   checkResponse(response, 'failed to load shipment due to server error');
+  return response.body;
+}
+
+export async function CompletePmSurvey(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.completePmSurvey({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to complete pre-move survey due to server error');
   return response.body;
 }
 

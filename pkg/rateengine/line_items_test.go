@@ -18,15 +18,17 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	// Refetching shipments from database to get all needed eagerly fetched relationships.
 	dbShipment, err := models.FetchShipmentByTSP(suite.db, tspUser.TransportationServiceProviderID, shipment.ID)
-	suite.NoError(err)
+	suite.FatalNoError(err)
 
 	shipmentCost, err := engine.HandleRunOnShipment(*dbShipment)
-	suite.NoError(err)
+	suite.FatalNoError(err)
 
 	lineItems, err := CreateBaseShipmentLineItems(suite.db, shipmentCost)
-	suite.NoError(err)
+	suite.FatalNoError(err)
 
-	suite.Len(lineItems, 4)
+	// There are 6 Base Shipment line items:
+	// origin fee, destination fee, linehaul, pack, unpack, fuel surcharge
+	suite.Len(lineItems, 6)
 
 	itemLHS := suite.findLineItem(lineItems, "LHS")
 	if itemLHS != nil {
@@ -45,7 +47,17 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	item105A := suite.findLineItem(lineItems, "105A")
 	if item105A != nil {
-		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(97930), unit.Millicents(4431000))
+		suite.validateLineItemFields(*item105A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(88625), unit.Millicents(4431000))
+	}
+
+	item105C := suite.findLineItem(lineItems, "105C")
+	if item105C != nil {
+		suite.validateLineItemFields(*item105C, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(9305), unit.Millicents(465280))
+	}
+
+	item16A := suite.findLineItem(lineItems, "16A")
+	if item105C != nil {
+		suite.validateLineItemFields(*item16A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(0), unit.Millicents(0))
 	}
 }
 

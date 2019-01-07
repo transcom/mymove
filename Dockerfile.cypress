@@ -1,0 +1,9 @@
+FROM cypress/base:10
+RUN yarn add cypress@~3.1.0 mocha mocha-multi-reporters mocha-junit-reporter
+
+COPY cypress/ /cypress
+COPY cypress.json /cypress.json
+COPY mocha-reporter-config.json /mocha-reporter-config.json
+
+ENTRYPOINT ["/node_modules/.bin/cypress"]
+CMD ["run"]

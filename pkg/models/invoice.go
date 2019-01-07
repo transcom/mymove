@@ -9,7 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
-	// "github.com/transcom/mymove/pkg/models"
 )
 
 // InvoiceStatus represents the status of an invoice
@@ -28,15 +27,21 @@ const (
 
 // Invoice is a collection of line item charges to be sent for payment
 type Invoice struct {
-	ID            uuid.UUID     `json:"id" db:"id"`
-	Status        InvoiceStatus `json:"status" db:"status"`
-	InvoiceNumber string        `json:"invoice_number" db:"invoice_number"`
-	InvoicedDate  time.Time     `json:"invoiced_date" db:"invoiced_date"`
-	ShipmentID    uuid.UUID     `json:"shipment_id" db:"shipment_id"`
-	Shipment      Shipment      `belongs_to:"shipments"`
-	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
+	ID                uuid.UUID         `json:"id" db:"id"`
+	ApproverID        uuid.UUID         `json:"approver_id" db:"approver_id"`
+	Approver          OfficeUser        `belongs_to:"office_user"`
+	Status            InvoiceStatus     `json:"status" db:"status"`
+	InvoiceNumber     string            `json:"invoice_number" db:"invoice_number"`
+	InvoicedDate      time.Time         `json:"invoiced_date" db:"invoiced_date"`
+	ShipmentID        uuid.UUID         `json:"shipment_id" db:"shipment_id"`
+	Shipment          Shipment          `belongs_to:"shipments"`
+	ShipmentLineItems ShipmentLineItems `has_many:"shipment_line_items"`
+	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
+	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
 }
+
+// Invoices is an array of invoices
+type Invoices []Invoice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -46,6 +51,7 @@ func (i *Invoice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: i.InvoiceNumber, Name: "InvoiceNumber"},
 		&validators.TimeIsPresent{Field: i.InvoicedDate, Name: "InvoicedDate"},
 		&validators.UUIDIsPresent{Field: i.ShipmentID, Name: "ShipmentID"},
+		&validators.UUIDIsPresent{Field: i.ApproverID, Name: "ApproverID"},
 	), nil
 }
 
@@ -74,4 +80,11 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 	}
 
 	return &invoice, nil
+}
+
+// FetchInvoicesForShipment fetches all the invoices for a given shipment
+func FetchInvoicesForShipment(db *pop.Connection, shipmentID uuid.UUID) (Invoices, error) {
+	var invoices []Invoice
+	err := db.Where("shipment_id = ?", shipmentID).Eager("Approver").All(&invoices)
+	return invoices, err
 }

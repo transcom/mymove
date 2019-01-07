@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"context"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -19,6 +20,8 @@ func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
 }
 
 func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
+	ctx := context.Background()
+
 	t := suite.T()
 	// Given: a user and a service member
 	user1 := User{
@@ -65,7 +68,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	serviceMember.EmailIsPreferred = &emailPreferred
 
 	newSsn := SocialSecurityNumber{}
-	newSsn.SetEncryptedHash("555-55-5555")
+	newSsn.SetEncryptedHash(ctx, "555-55-5555")
 	suite.mustSave(&newSsn)
 	serviceMember.SocialSecurityNumber = &newSsn
 	serviceMember.SocialSecurityNumberID = &newSsn.ID
@@ -91,6 +94,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 }
 
 func (suite *ModelSuite) TestFetchServiceMemberForUser() {
+	ctx := context.Background()
 	user1 := testdatagen.MakeDefaultUser(suite.db)
 	user2 := testdatagen.MakeDefaultUser(suite.db)
 
@@ -111,7 +115,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 		UserID:          user1.ID,
 		ServiceMemberID: sm.ID,
 	}
-	goodSm, err := FetchServiceMemberForUser(suite.db, session, sm.ID)
+	goodSm, err := FetchServiceMemberForUser(ctx, suite.db, session, sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
@@ -119,7 +123,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 
 	// Wrong ServiceMember
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchServiceMemberForUser(suite.db, session, wrongID)
+	_, err = FetchServiceMemberForUser(ctx, suite.db, session, wrongID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}
@@ -127,7 +131,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 	// User is forbidden from fetching order
 	session.UserID = user2.ID
 	session.ServiceMemberID = uuid.Nil
-	_, err = FetchServiceMemberForUser(suite.db, session, sm.ID)
+	_, err = FetchServiceMemberForUser(ctx, suite.db, session, sm.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}

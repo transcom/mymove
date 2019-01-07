@@ -20,6 +20,29 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
+func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsNotPresent() {
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	shipmentPayload := payloadForShipmentModel(shipment)
+	suite.Equal(shipmentPayload.TransportationServiceProviderID, strfmt.UUID(""))
+}
+
+func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsPresent() {
+	tsp := testdatagen.MakeTSP(suite.TestDB(), testdatagen.Assertions{})
+	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	testdatagen.MakeShipmentOffer(suite.TestDB(), testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tsp.ID,
+			ShipmentID:                      shipment.ID,
+		},
+	})
+	reloadShipment, err := models.FetchShipmentByTSP(suite.TestDB(), tsp.ID, shipment.ID)
+	suite.Nil(err)
+
+	shipmentPayload := payloadForShipmentModel(*reloadShipment)
+	expectedTspID := *handlers.FmtUUID(tsp.ID)
+	suite.Equal(shipmentPayload.TransportationServiceProviderID, expectedTspID)
+}
+
 func (suite *HandlerSuite) TestGetShipmentHandler() {
 	numTspUsers := 1
 	numShipments := 1
@@ -632,48 +655,6 @@ func (suite *HandlerSuite) TestAcceptShipmentHandler() {
 	suite.Equal("ACCEPTED", string(okResponse.Payload.Status))
 }
 
-// TestRejectShipmentHandler tests the api endpoint that rejects a shipment
-func (suite *HandlerSuite) TestRejectShipmentHandler() {
-	numTspUsers := 1
-	numShipments := 1
-	numShipmentOfferSplit := []int{1}
-	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
-	suite.NoError(err)
-
-	tspUser := tspUsers[0]
-	shipment := shipments[0]
-
-	// Handler to Test
-	handler := RejectShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-
-	// Test query with first user
-	path := fmt.Sprintf("/shipments/%s/reject", shipment.ID.String())
-	req := httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	reason := "To Test Rejection"
-	body := apimessages.RejectShipment{
-		Reason: &reason,
-	}
-	params := shipmentop.RejectShipmentParams{
-		HTTPRequest: req,
-		ShipmentID:  *handlers.FmtUUID(shipment.ID),
-		Payload:     &body,
-	}
-
-	response := handler.Handle(params)
-	suite.Assertions.IsType(&shipmentop.RejectShipmentOK{}, response)
-	okResponse := response.(*shipmentop.RejectShipmentOK)
-	suite.Equal("SUBMITTED", string(okResponse.Payload.Status))
-
-	shipmentOffer, err := models.FetchShipmentOfferByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
-	suite.NoError(err)
-
-	suite.Equal(false, *shipmentOffer.Accepted)
-	suite.Equal(reason, *shipmentOffer.RejectionReason)
-
-}
-
 // TestTransportShipmentHandler tests the api endpoint that transports a shipment
 func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	numTspUsers := 1
@@ -693,8 +674,8 @@ func (suite *HandlerSuite) TestTransportShipmentHandler() {
 	path := fmt.Sprintf("/shipments/%s/transport", shipment.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	actualPackDate := testdatagen.Now
-	actualPickupDate := testdatagen.NowPlusTwoDays
+	actualPackDate := shipment.BookDate.AddDate(0, 0, 1)
+	actualPickupDate := actualPackDate.AddDate(0, 0, 1)
 
 	body := apimessages.TransportPayload{
 		ActualPackDate:   handlers.FmtDatePtr(&actualPackDate),
@@ -773,10 +754,109 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// The details of the line items are tested in the rateengine package.  We just
 	// check the count here.
-	suite.Len(addedLineItems, 5)
+	suite.Len(addedLineItems, 7)
 
 	updatedPreApproval, err := models.FetchShipmentLineItemByID(suite.TestDB(), &preApproval.ID)
 	if suite.NoError(err) {
 		suite.NotNil(updatedPreApproval.AmountCents)
+	}
+}
+
+// TestCompletePmSurveyHandler tests the api endpoint that saves a shipment's Pm Survey
+func (suite *HandlerSuite) TestCompletePmSurveyHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// Handler to Test
+	handler := CompletePmSurveyHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	// Test query with first user
+	path := fmt.Sprintf("/shipments/%s/completePmSurvey", shipment.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	params := shipmentop.CompletePmSurveyParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.CompletePmSurveyOK{}, response)
+}
+
+// TestGetShipmentInvoicesHandler tests the api endpoint that saves a shipment's Pm Survey
+func (suite *HandlerSuite) TestGetShipmentInvoicesHandler() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	// Given 2 invoices
+	testdatagen.MakeInvoice(suite.TestDB(), testdatagen.Assertions{
+		Invoice: models.Invoice{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+		},
+	})
+	testdatagen.MakeInvoice(suite.TestDB(), testdatagen.Assertions{
+		Invoice: models.Invoice{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+		},
+	})
+
+	// Handler to Test
+	handler := GetShipmentInvoicesHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := fmt.Sprintf("/shipments/%s/invoices", shipment.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+
+	// An unauthorized TSP user should be forbidden
+	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+	req = suite.AuthenticateTspRequest(req, otherTspUser)
+	params := shipmentop.GetShipmentInvoicesParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&shipmentop.GetShipmentInvoicesForbidden{}, response)
+
+	// A valid TSP user should retrieve invoices
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = shipmentop.GetShipmentInvoicesParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+
+	response = handler.Handle(params)
+	if suite.Assertions.IsType(&shipmentop.GetShipmentInvoicesOK{}, response) {
+		okResponse := response.(*shipmentop.GetShipmentInvoicesOK)
+		suite.Len(okResponse.Payload, 2)
+	}
+
+	// A valid office user should retrieve invoices
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	params = shipmentop.GetShipmentInvoicesParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(shipment.ID),
+	}
+
+	response = handler.Handle(params)
+	if suite.Assertions.IsType(&shipmentop.GetShipmentInvoicesOK{}, response) {
+		okResponse := response.(*shipmentop.GetShipmentInvoicesOK)
+		suite.Len(okResponse.Payload, 2)
 	}
 }

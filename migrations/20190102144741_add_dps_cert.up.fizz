@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190102144741_add_dps_cert.sql")

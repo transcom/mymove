@@ -11,6 +11,10 @@
   border-spacing: 2px;
 }
 
+.pre-approval-panel-table-cont {
+  width: 90%;
+}
+
 /* Custom widths for columns in the preapproval request table */
 /*Code */
 .pre-approval-panel table > tbody > tr > th:nth-child(1) {

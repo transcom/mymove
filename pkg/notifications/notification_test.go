@@ -1,6 +1,7 @@
 package notifications
 
 import (
+	"context"
 	"log"
 	"testing"
 
@@ -27,6 +28,7 @@ func (n testNotification) emails() ([]emailContent, error) {
 }
 
 func (suite *NotificationSuite) TestMoveApproved() {
+	ctx := context.Background()
 	t := suite.T()
 
 	approver := testdatagen.MakeDefaultUser(suite.db)
@@ -41,7 +43,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 		},
 	}
 
-	emails, err := notification.emails()
+	emails, err := notification.emails(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,6 +59,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 }
 
 func (suite *NotificationSuite) TestMoveSubmitted() {
+	ctx := context.Background()
 	t := suite.T()
 
 	move := testdatagen.MakeDefaultMove(suite.db)
@@ -70,7 +73,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 		},
 	}
 
-	emails, err := notification.emails()
+	emails, err := notification.emails(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

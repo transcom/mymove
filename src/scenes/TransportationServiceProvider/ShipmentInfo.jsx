@@ -13,7 +13,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
-import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   getAllShipmentDocuments,
@@ -31,6 +30,8 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
+import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -39,9 +40,9 @@ import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import {
   loadShipmentDependencies,
+  completePmSurvey,
   patchShipment,
   acceptShipment,
-  rejectShipment,
   transportShipment,
   deliverShipment,
   handleServiceAgents,
@@ -69,10 +70,6 @@ const attachmentsErrorMessages = {
 };
 
 class AcceptShipmentPanel extends Component {
-  rejectShipment = reason => {
-    this.props.rejectShipment(reason);
-  };
-
   acceptShipment = () => {
     this.props.acceptShipment();
   };
@@ -83,13 +80,6 @@ class AcceptShipmentPanel extends Component {
         <button className="usa-button-primary" onClick={this.acceptShipment}>
           Accept Shipment
         </button>
-        <ConfirmWithReasonButton
-          buttonTitle="Reject Shipment"
-          reasonPrompt="Why are you rejecting this shipment?"
-          warningPrompt="Are you sure you want to reject this shipment?"
-          onConfirm={this.rejectShipment}
-          buttonDisabled={true}
-        />
       </div>
     );
   }
@@ -123,7 +113,7 @@ const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFor
 
 // Action Buttons Conditions
 const hasOriginServiceAgent = (serviceAgents = []) => serviceAgents.some(agent => agent.role === 'ORIGIN');
-const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_planned_pack_date;
+const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_completed_at;
 
 class ShipmentInfo extends Component {
   constructor(props) {
@@ -137,17 +127,19 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadShipmentDependencies(this.props.match.params.shipmentId).catch(err => {
-      this.props.history.replace('/');
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if ((!prevProps.shipment.id && this.props.shipment.id) || prevProps.shipment.id !== this.props.shipment.id) {
-      this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, this.props.shipment.id);
-      this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
-    }
+    this.props
+      .loadShipmentDependencies(this.props.match.params.shipmentId)
+      .then(() => {
+        const shipmentId = this.props.shipment.id;
+        this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+        this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
+        this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+        this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
+        this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+      })
+      .catch(err => {
+        this.props.history.replace('/');
+      });
   }
 
   acceptShipment = () => {
@@ -158,13 +150,13 @@ class ShipmentInfo extends Component {
     return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
   };
 
-  rejectShipment = reason => {
-    return this.props.rejectShipment(this.props.shipment.id, reason).then(() => {
-      this.setState({ redirectToHome: true });
+  enterPreMoveSurvey = values => {
+    this.props.patchShipment(this.props.shipment.id, values).then(() => {
+      if (this.props.shipment.pm_survey_completed_at === undefined) {
+        this.props.completePmSurvey(this.props.shipment.id);
+      }
     });
   };
-
-  enterPreMoveSurvey = values => this.props.patchShipment(this.props.shipment.id, values);
 
   editServiceAgents = values => {
     values['destination_service_agent']['role'] = 'DESTINATION';
@@ -203,16 +195,10 @@ class ShipmentInfo extends Component {
     const inTransit = shipment.status === 'IN_TRANSIT';
     const delivered = shipment.status === 'DELIVERED';
     const completed = shipment.status === 'COMPLETED';
-    const pmSurveyComplete = Boolean(
-      shipment.pm_survey_conducted_date &&
-        shipment.pm_survey_method &&
-        shipment.pm_survey_planned_pack_date &&
-        shipment.pm_survey_planned_pickup_date &&
-        shipment.pm_survey_planned_delivery_date &&
-        shipment.pm_survey_weight_estimate,
-    );
+    const pmSurveyComplete = Boolean(shipment.pm_survey_completed_at);
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
-    const canEnterPreMoveSurvey = approved && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
+    const canEnterPreMoveSurvey =
+      (accepted || approved) && hasOriginServiceAgent(serviceAgents) && !hasPreMoveSurvey(shipment);
     const canEnterPackAndPickup = approved && gblGenerated;
 
     // Some statuses are directly related to the shipment status and some to combo states
@@ -334,11 +320,7 @@ class ShipmentInfo extends Component {
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
               {awarded && (
-                <AcceptShipmentPanel
-                  acceptShipment={this.acceptShipment}
-                  rejectShipment={this.rejectShipment}
-                  shipmentStatus={this.props.shipment.status}
-                />
+                <AcceptShipmentPanel acceptShipment={this.acceptShipment} shipmentStatus={this.props.shipment.status} />
               )}
 
               {generateGBLError && (
@@ -365,11 +347,10 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {approved &&
-                pmSurveyComplete &&
+              {pmSurveyComplete &&
                 !gblGenerated && (
                   <div>
-                    <button onClick={this.generateGBL} disabled={generateGBLInProgress}>
+                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
                       Generate the GBL
                     </button>
                   </div>
@@ -420,6 +401,7 @@ class ShipmentInfo extends Component {
                     title="TSP & Servicing Agents"
                     shipment={this.props.shipment}
                     serviceAgents={this.props.serviceAgents}
+                    transportationServiceProviderId={this.props.shipment.transportation_service_provider_id}
                   />
                 </div>
               )}
@@ -492,16 +474,18 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadShipmentDependencies,
+      completePmSurvey,
       patchShipment,
       acceptShipment,
       generateGBL,
-      rejectShipment,
       handleServiceAgents,
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      getAllInvoices,
+      getTspForShipment,
     },
     dispatch,
   );

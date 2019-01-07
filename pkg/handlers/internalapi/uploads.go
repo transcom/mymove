@@ -2,11 +2,13 @@ package internalapi
 
 import (
 	"io"
+	"reflect"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -37,6 +39,9 @@ type CreateUploadHandler struct {
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	file, ok := params.File.(*runtime.File)
 	if !ok {
 		h.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
@@ -57,7 +62,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		}
 
 		// Fetch document to ensure user has access to it
-		document, docErr := models.FetchDocument(h.DB(), session, documentID)
+		document, docErr := models.FetchDocument(ctx, h.DB(), session, documentID)
 		if docErr != nil {
 			return handlers.ResponseForError(h.Logger(), docErr)
 		}
@@ -99,10 +104,14 @@ type DeleteUploadHandler struct {
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	upload, err := models.FetchUpload(h.DB(), session, uploadID)
+	upload, err := models.FetchUpload(ctx, h.DB(), session, uploadID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -122,13 +131,17 @@ type DeleteUploadsHandler struct {
 
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
 
 	for _, uploadID := range params.UploadIds {
 		uuid, _ := uuid.FromString(uploadID.String())
-		upload, err := models.FetchUpload(h.DB(), session, uuid)
+		upload, err := models.FetchUpload(ctx, h.DB(), session, uuid)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}

@@ -114,6 +114,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 
 		// pre-move survey
 		PmSurveyConductedDate:               nil,
+		PmSurveyCompletedAt:                 nil,
 		PmSurveyPlannedPackDate:             nil,
 		PmSurveyPlannedPickupDate:           nil,
 		PmSurveyPlannedDeliveryDate:         nil,

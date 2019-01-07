@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path"
 	"reflect"
@@ -25,6 +26,7 @@ type Assertions struct {
 	BlackoutDate                             models.BlackoutDate
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
+	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
@@ -110,6 +112,18 @@ func mergeModels(dst, src interface{}) {
 	noErr(
 		mergo.Merge(dst, src, mergo.WithOverride, mergo.WithTransformers(customTransformer{})),
 	)
+}
+
+// Source chars for random string
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
+// Returns a random alphanumeric string of specified length
+func makeRandomString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }
 
 func fixture(name string) afero.File {

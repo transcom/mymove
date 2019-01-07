@@ -13,13 +13,13 @@ import (
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/awardqueue"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
+	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -71,6 +71,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
+		PmSurveyCompletedAt:                 handlers.FmtDateTimePtr(s.PmSurveyCompletedAt),
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(s.PmSurveyPlannedPackDate),
 		PmSurveyPlannedPickupDate:           handlers.FmtDatePtr(s.PmSurveyPlannedPickupDate),
 		PmSurveyPlannedDeliveryDate:         handlers.FmtDatePtr(s.PmSurveyPlannedDeliveryDate),
@@ -79,6 +80,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+	}
+	tspID := s.CurrentTransportationServiceProviderID()
+	if tspID != uuid.Nil {
+		shipmentpayload.TransportationServiceProviderID = *handlers.FmtUUID(tspID)
 	}
 	return shipmentpayload
 }
@@ -150,6 +155,45 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 	return shipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
+// GetShipmentInvoicesHandler returns all invoices for a shipment
+type GetShipmentInvoicesHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle accepts the shipment ID - returns list of associated invoices
+func (h GetShipmentInvoicesHandler) Handle(params shipmentop.GetShipmentInvoicesParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	if !session.IsOfficeUser() {
+		// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+		// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+		// See original commits in https://github.com/transcom/mymove/pull/802
+		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewGetShipmentInvoicesForbidden()
+		}
+
+		// Make sure TSP has access to this shipment
+		_, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+		if err != nil {
+			h.Logger().Error("DB Query", zap.Error(err))
+			return shipmentop.NewGetShipmentInvoicesForbidden()
+		}
+	}
+
+	invoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewGetShipmentInvoicesBadRequest()
+	}
+
+	payload := payloadForInvoiceModels(invoices)
+	return shipmentop.NewGetShipmentInvoicesOK().WithPayload(payload)
+}
+
 // AcceptShipmentHandler allows a TSP to accept a particular shipment
 type AcceptShipmentHandler struct {
 	handlers.HandlerContext
@@ -188,53 +232,6 @@ func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) mi
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewAcceptShipmentOK().WithPayload(sp)
-}
-
-// RejectShipmentHandler allows a TSP to refuse a particular shipment
-type RejectShipmentHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) middleware.Responder {
-	// set reason, set thing
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	ctx := params.HTTPRequest.Context()
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
-	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
-	// See original commits in https://github.com/transcom/mymove/pull/802
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
-		return shipmentop.NewRejectShipmentForbidden()
-	}
-
-	// Reject the shipment
-	shipment, shipmentOffer, verrs, err := models.RejectShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, *params.Payload.Reason)
-	if err != nil || verrs.HasAny() {
-		if err == models.ErrFetchNotFound {
-			h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
-			return shipmentop.NewRejectShipmentBadRequest()
-		} else if err == models.ErrInvalidTransition {
-			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment, got invalid transition",
-				zap.Error(err),
-				zap.String("shipment_status", string(shipment.Status)))
-			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment offer, got invalid transition",
-				zap.Error(err),
-				zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
-			return shipmentop.NewRejectShipmentConflict()
-		} else {
-			h.Logger().Error("Unknown Error", zap.Error(err))
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-	}
-
-	go awardqueue.NewAwardQueue(h.DB(), h.HoneyZapLogger()).Run(ctx)
-
-	sp := payloadForShipmentModel(*shipment)
-	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
 }
 
 // TransportShipmentHandler allows a TSP to start transporting a particular shipment
@@ -322,39 +319,58 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	}
 
 	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
-
-	err = shipment.Deliver(actualDeliveryDate)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
-	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 
-	shipmentCost, err := engine.HandleRunOnShipment(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
+	verrs, err := shipmentservice.DeliverAndPriceShipment{
+		DB:     h.DB(),
+		Engine: engine,
+	}.Call(actualDeliveryDate, shipment)
 
-	lineItems, err := rateengine.CreateBaseShipmentLineItems(h.DB(), shipmentCost)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	// When the shipment is delivered we should also price existing approved pre-approval requests
-	preApprovals, err := engine.PricePreapprovalRequestsForShipment(*shipment)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	verrs, err := shipment.SaveShipmentAndLineItems(h.DB(), append(lineItems, preApprovals...))
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
+}
+
+// CompletePmSurveyHandler completes a pre-move survey for a particular shipment
+type CompletePmSurveyHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle completes a pre-moves survey - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h CompletePmSurveyHandler) Handle(params shipmentop.CompletePmSurveyParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewCompletePmSurveyForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return shipmentop.NewCompletePmSurveyBadRequest()
+	}
+
+	pmSurveyCompletedAt := time.Now()
+
+	shipment.PmSurveyCompletedAt = &pmSurveyCompletedAt
+	verrs, err := models.SaveShipment(h.DB(), shipment)
+
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	sp := payloadForShipmentModel(*shipment)
+	return shipmentop.NewCompletePmSurveyOK().WithPayload(sp)
 }
 
 func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Shipment) {

@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,15 +16,21 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
-	"github.com/honeycombio/beeline-go"
+	"github.com/gorilla/csrf"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"goji.io/pat"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -38,10 +45,13 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
-	"goji.io"
-	"goji.io/pat"
+	goji "goji.io"
 )
+
+// GitCommit is empty unless set as a build flag
+// See https://blog.alexellis.io/inject-build-time-vars-golang/
+var gitBranch string
+var gitCommit string
 
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
@@ -68,6 +78,23 @@ type errInvalidHost struct {
 
 func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
+}
+
+type errInvalidRegion struct {
+	Region string
+}
+
+func (e *errInvalidRegion) Error() string {
+	return fmt.Sprintf("invalid region %s", e.Region)
+}
+
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
 }
 
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
@@ -126,7 +153,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 
-	flag.String("http-my-server-name", "localhost", "Hostname according to environment.")
+	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
@@ -151,6 +178,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
 	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
 
+	flag.String("devlocal-ca", "", "Path to PEM-encoded devlocal CA certificate, enabled in development and test builds")
 	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String("move-mil-dod-tls-cert", "", "The DoD-signed TLS certificate for various move.mil services.")
@@ -184,16 +212,12 @@ func initFlags(flag *pflag.FlagSet) {
 	// EDI Invoice Config
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 
-	flag.String("storage-backend", "filesystem", "Storage backend to use, either filesystem or s3.")
+	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
 	flag.String("aws-s3-key-namespace", "", "Key prefix for all objects written to S3")
 	flag.String("aws-ses-region", "", "AWS region used for SES")
-
-	// New Relic Config
-	flag.String("new-relic-application-id", "", "App ID for New Relic Browser")
-	flag.String("new-relic-license-key", "", "License key for New Relic Browser")
 
 	// Honeycomb Config
 	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
@@ -211,6 +235,9 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Int("db-port", 5432, "Database Port")
 	flag.String("db-user", "postgres", "Database Username")
 	flag.String("db-password", "", "Database Password")
+
+	// CSRF Protection
+	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 }
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
@@ -256,7 +283,7 @@ func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
 	honeycombDataset := v.GetString("honeycomb-dataset")
 	honeycombServiceName := v.GetString("service-name")
 
-	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 {
+	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 && len(honeycombServiceName) > 0 {
 		logger.Debug("Honeycomb Integration enabled",
 			zap.String("honeycomb-api-host", honeycombAPIHost),
 			zap.String("honeycomb-dataset", honeycombDataset))
@@ -338,11 +365,54 @@ func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 		return nil, err
 	}
 
+	// Check the connection
+	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	err = db.Ping()
+	if err != nil {
+		logger.Warn("Failed to ping DB connection", zap.Error(err))
+		return connection, err
+	}
+
 	// Return the open connection
 	return connection, nil
 }
 
 func checkConfig(v *viper.Viper) error {
+
+	err := checkProtocols(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkHosts(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkPorts(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkCSRF(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkEmail(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkStorage(v)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkProtocols(v *viper.Viper) error {
 
 	protocolVars := []string{
 		"login-gov-callback-protocol",
@@ -355,6 +425,10 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkHosts(v *viper.Viper) error {
 	invalidChars := ":/\\ \t\n\v\f\r"
 
 	hostVars := []string{
@@ -376,6 +450,10 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkPorts(v *viper.Viper) error {
 	portVars := []string{
 		"mutual-tls-port",
 		"tls-port",
@@ -387,6 +465,62 @@ func checkConfig(v *viper.Viper) error {
 	for _, c := range portVars {
 		if p := v.GetInt(c); p <= 0 || p > 65535 {
 			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
+		}
+	}
+
+	return nil
+}
+
+func checkCSRF(v *viper.Viper) error {
+
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		return errors.Wrap(err, "Error decoding CSRF Auth Key")
+	}
+	if len(csrfAuthKey) != 32 {
+		return errors.New("CSRF Auth Key is not 32 bytes. Auth Key length: " + strconv.Itoa(len(csrfAuthKey)))
+	}
+
+	return nil
+}
+
+func checkEmail(v *viper.Viper) error {
+	emailBackend := v.GetString("email-backend")
+	if !stringSliceContains([]string{"local", "ses"}, emailBackend) {
+		return fmt.Errorf("invalid email-backend %s, expecting local or ses", emailBackend)
+	}
+
+	if emailBackend == "ses" {
+		// SES is only available in 3 regions: us-east-1, us-west-2, and eu-west-1
+		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
+		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+	}
+
+	return nil
+}
+
+func checkStorage(v *viper.Viper) error {
+
+	storageBackend := v.GetString("storage-backend")
+	if !stringSliceContains([]string{"local", "s3"}, storageBackend) {
+		return fmt.Errorf("invalid storage-backend %s, expecting local or s3", storageBackend)
+	}
+
+	if storageBackend == "s3" {
+		regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.S3ServiceID)
+		if !ok {
+			return fmt.Errorf("could not find regions for service %s", endpoints.S3ServiceID)
+		}
+
+		r := v.GetString("aws-s3-region")
+		if len(r) == 0 {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
+		}
+
+		if _, ok := regions[r]; !ok {
+			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
 		}
 	}
 
@@ -405,12 +539,17 @@ func main() {
 	v.AutomaticEnv()
 
 	env := v.GetString("env")
+	isDevOrTest := env == "development" || env == "test"
 
 	logger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
+
+	logger.Debug("Build Variables",
+		zap.String("git.branch", gitBranch),
+		zap.String("git.commit", gitCommit))
 
 	err = checkConfig(v)
 	if err != nil {
@@ -442,7 +581,14 @@ func main() {
 	// Create a connection to the DB
 	dbConnection, err := initDatabase(v, logger)
 	if err != nil {
-		logger.Fatal("Connecting to DB", zap.Error(err))
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Connecting to DB", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up but we
+			// can proceed (this avoids a failure loop when deploying containers).
+			logger.Warn("Starting server without DB connection")
+		}
 	}
 
 	myHostname := v.GetString("http-my-server-name")
@@ -467,8 +613,10 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
@@ -563,7 +711,20 @@ func main() {
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
-	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
+		err := dbConnection.RawQuery("SELECT 1;").Exec()
+		if err != nil {
+			logger.Error("Failed database health check", zap.Error(err))
+		}
+		err = json.NewEncoder(w).Encode(map[string]interface{}{
+			"gitBranch": gitBranch,
+			"gitCommit": gitCommit,
+			"database":  err == nil,
+		})
+		if err != nil {
+			logger.Error("Failed encoding health check response", zap.Error(err))
+		}
+	})
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.Get("/static/*"), clientHandler)
@@ -575,6 +736,7 @@ func main() {
 	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-orders-server-name"))
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
+	ordersMux.Use(clientCertMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
 	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
@@ -584,6 +746,7 @@ func main() {
 	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-dps-server-name"))
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
+	dpsMux.Use(clientCertMiddleware)
 	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
 	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
@@ -599,7 +762,29 @@ func main() {
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
-	root.Use(logging.LogRequestMiddleware)
+	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+
+	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
+	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	if err != nil {
+		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
+	}
+	logger.Info("Enabling CSRF protection")
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(maskedCSRFMiddleware)
+
+	// Sends build variables to honeycomb
+	if len(gitBranch) > 0 && len(gitCommit) > 0 {
+		root.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				ctx, span := beeline.StartSpan(r.Context(), "BuildVariablesMiddleware")
+				defer span.Send()
+				span.AddTraceField("git.branch", gitBranch)
+				span.AddTraceField("git.commit", gitCommit)
+				next.ServeHTTP(w, r.WithContext(ctx))
+			})
+		})
+	}
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
@@ -632,13 +817,25 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
-	if env == "development" || env == "test" {
+	moveMilCerts, caCertPool, err := initDODCertificates(v, logger)
+	if err != nil {
+		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
+	}
+
+	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
 		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+
+		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
+		if err != nil {
+			logger.Error("No devlocal CA path defined")
+		} else {
+			caCertPool.AppendCertsFromPEM(devlocalCa)
+		}
 	}
 
 	if storageBackend == "filesystem" {
@@ -648,7 +845,7 @@ func main() {
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,
-	root.HandleFunc(pat.Get("/*"), indexHandler(build, v.GetString("new-relic-application-id"), v.GetString("new-relic-license-key"), logger))
+	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
 
 	var httpHandler http.Handler
 	if useHoneycomb {
@@ -658,11 +855,6 @@ func main() {
 	}
 
 	errChan := make(chan error)
-
-	moveMilCerts, dodCACertPool, err := initDODCertificates(v, logger)
-	if err != nil {
-		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
-	}
 
 	listenInterface := v.GetString("interface")
 
@@ -692,7 +884,7 @@ func main() {
 		mutualTLSServer := server.Server{
 			// Ensure that any DoD-signed client certificate can be validated,
 			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:     dodCACertPool,
+			CaCertPool:     caCertPool,
 			ClientAuthType: tls.RequireAndVerifyClientCert,
 			ListenAddress:  listenInterface,
 			HTTPHandler:    httpHandler,
@@ -713,21 +905,8 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 	}
 }
 
-// indexHandler injects New Relic client code and credentials into index.html
-// and returns a handler that will serve the resulting content
-func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, logger *zap.Logger) http.HandlerFunc {
-	data := map[string]string{
-		"NewRelicApplicationID": newRelicApplicationID,
-		"NewRelicLicenseKey":    newRelicLicenseKey,
-	}
-	newRelicTemplate, err := template.ParseFiles(path.Join(buildDir, "new_relic.html"))
-	if err != nil {
-		logger.Fatal("could not load new_relic.html template: run make client_build", zap.Error(err))
-	}
-	newRelicHTML := bytes.NewBuffer([]byte{})
-	if err := newRelicTemplate.Execute(newRelicHTML, data); err != nil {
-		logger.Fatal("could not render new_relic.html template", zap.Error(err))
-	}
+// indexHandler returns a handler that will serve the resulting content
+func indexHandler(buildDir string, logger *zap.Logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
 	// #nosec - indexPath does not come from user input
@@ -735,7 +914,6 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 	if err != nil {
 		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
 	}
-	mergedHTML := bytes.Replace(indexHTML, []byte(`<script type="new-relic-placeholder"></script>`), newRelicHTML.Bytes(), 1)
 
 	stat, err := os.Stat(indexPath)
 	if err != nil {
@@ -743,6 +921,6 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(mergedHTML))
+		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(indexHTML))
 	}
 }

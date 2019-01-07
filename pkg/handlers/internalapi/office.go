@@ -1,8 +1,11 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -66,6 +69,10 @@ type CancelMoveHandler struct {
 
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewCancelMoveForbidden()
@@ -93,6 +100,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	err = h.NotificationSender().SendNotification(
+		ctx,
 		notifications.NewMoveCanceled(h.DB(), h.Logger(), session, moveID),
 	)
 
@@ -115,6 +123,10 @@ type ApprovePPMHandler struct {
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewApprovePPMForbidden()
@@ -140,6 +152,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	}
 
 	err = h.NotificationSender().SendNotification(
+		ctx,
 		notifications.NewMoveApproved(h.DB(), h.Logger(), session, moveID),
 	)
 	if err != nil {

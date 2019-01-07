@@ -312,6 +312,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
@@ -473,11 +477,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
-  CreateMovePayload:
-    type: object
-    properties:
-      selected_move_type:
-        $ref: '#/definitions/SelectedMoveType'
   MovePayload:
     type: object
     properties:
@@ -1020,6 +1019,51 @@ definitions:
       backup_mailing_address:
         $ref: '#/definitions/Address'
         title: Backup Mailing Address
+  Invoice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/InvoiceStatus'
+      approver_first_name:
+        type: string
+        example: 'Janine'
+      approver_last_name:
+        type: string
+        example: 'Smith'
+      invoiced_date:
+        type: string
+        title: Invoiced date
+        format: date-time
+      invoice_number:
+        type: string
+        example: '12432'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  InvoiceStatus:
+    type: string
+    title: Status
+    enum:
+      - DRAFT
+      - IN_PROCESS
+      - SUBMITTED
+      - SUBMISSION_FAILURE
+    x-display-value:
+      DRAFT: Draft
+      IN_PROCESS: In Process
+      SUBMITTED: Submitted
+      SUBMISSION_FAILURE: Submission Failure
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1615,6 +1659,10 @@ definitions:
         title: Spouse's Pro-Gear
         x-nullable: true
         x-formatting: weight
+      pm_survey_completed_at:
+        type: string
+        format: date-time
+        x-nullable: true
       pm_survey_conducted_date:
         type: string
         format: date
@@ -2005,6 +2053,7 @@ definitions:
       - DRAFT
       - SUBMITTED
       - AWARDED
+      - ACCEPTED
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
@@ -2013,6 +2062,7 @@ definitions:
       DRAFT: Draft
       SUBMITTED: Submitted
       AWARDED: Awarded
+      ACCEPTED: Accepted
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
@@ -2207,10 +2257,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      current_duty_station_id:
-        type: string
-        format: uuid
-        example: c53a4180-65aa-42ec-a945-5fd21dec0538
       orders_number:
         type: string
         title: Orders Number
@@ -2514,6 +2560,10 @@ paths:
             $ref: '#/definitions/IndexIssuesPayload'
         400:
           description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
@@ -2620,69 +2670,6 @@ paths:
           description: order is not found
         500:
           description: internal server error
-    patch:
-      summary: Updates orders information
-      description: All fields sent in this request will be set on the orders referenced
-      operationId: patchOrders
-      tags:
-        - orders
-      parameters:
-        - in: path
-          name: ordersId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the orders model
-        - in: body
-          name: patchOrders
-          required: true
-          schema:
-            $ref: '#/definitions/CreateUpdateOrders'
-      responses:
-        200:
-          description: updated instance of orders
-          schema:
-            $ref: '#/definitions/Orders'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: internal server error
-  /orders/{ordersId}/moves:
-    post:
-      summary: Creates a move tied to service member orders
-      description: Creates an instance of a move tied to a service member's orders
-      operationId: createMove
-      tags:
-        - moves
-      parameters:
-        - in: path
-          name: ordersId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the order
-        - in: body
-          name: createMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateMovePayload'
-      responses:
-        201:
-          description: created instance of move
-          schema:
-            $ref: '#/definitions/MovePayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized to sign for this move
   /moves:
     get:
       summary: List all moves for a set of orders
@@ -3207,9 +3194,9 @@ paths:
           description: server error
   /shipments/{shipmentId}/invoice:
     post:
-      summary: Sends an invoice to Syncada through GEX
+      summary: Creates an invoice to send to Syncada through GEX
       description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
-      operationId: sendHHGInvoice
+      operationId: createAndSendHHGInvoice
       tags:
         - shipments
       parameters:
@@ -3222,6 +3209,8 @@ paths:
       responses:
         200:
           description: invoice was submitted successfully
+          schema:
+            $ref: '#/definitions/Invoice'
         400:
           description: invalid request
         401:
@@ -3229,9 +3218,9 @@ paths:
         403:
           description: not authorized to send this invoice
         409:
-          description: the shipment is not in a state to be invoiced
+          description: the shipment cannot be invoiced becuase of a data conflict
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/Invoice'
         500:
           description: server error
   /reimbursement/{reimbursementId}/approve:
@@ -4226,5 +4215,7 @@ paths:
             $ref: '#/definitions/DPSAuthCookieURLPayload'
         400:
           description: invalid request
+        403:
+          description: user is not authorized
         500:
           description: internal server error

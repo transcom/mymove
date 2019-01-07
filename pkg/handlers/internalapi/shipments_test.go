@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,7 +26,12 @@ func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessage
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+	})
 	sm := move.Orders.ServiceMember
 
 	// Make associated lookup table records.
@@ -237,7 +241,12 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 }
 
 func (suite *HandlerSuite) TestSetShipmentDates() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+	})
 	sm := move.Orders.ServiceMember
 	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
@@ -339,28 +348,38 @@ func (suite *HandlerSuite) TestCompleteHHGHandler() {
 	suite.Equal("COMPLETED", string(okResponse.Payload.Status))
 }
 
-//func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
-//	// Given: an office User
-//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
-//
-//	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{})
-//	suite.MustSave(&shipment)
-//
-//	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
-//
-//	path := "/shipments/shipment_id/invoice"
-//	req := httptest.NewRequest("POST", path, nil)
-//	req = suite.AuthenticateOfficeRequest(req, officeUser)
-//
-//	params := shipmentop.SendHHGInvoiceParams{
-//		HTTPRequest: req,
-//		ShipmentID:  strfmt.UUID(shipment.ID.String()),
-//	}
-//
-//	// assert we got back the OK response
-//	response := handler.Handle(params)
-//	suite.Equal(shipmentop.NewSendHHGInvoiceOK(), response)
-//}
+/*
+func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
+	// Given: an office User
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+
+	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{})
+	suite.MustSave(&shipment)
+
+	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+
+	path := "/shipments/shipment_id/invoice"
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := shipmentop.SendHHGInvoiceParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	// assert we got back the OK response
+	response := handler.Handle(params)
+	suite.Equal(shipmentop.NewSendHHGInvoiceOK(), response)
+
+    // check that invoices were saved and have submitted status
+	var invoices []models.Invoice
+		suite.NoError(suite.TestDB().All(&invoices)) // needs to filter on ID that was saved
+		suite.NotEmpty(invoices)
+		for _, invoice := range invoices {
+		suite.Equal(models.InvoiceStatusSUBMITTED, invoice.Status)
+	}
+}
+*/
 
 func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 	// Given: an office User
@@ -393,12 +412,12 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
-	params := shipmentop.SendHHGInvoiceParams{
+	params := shipmentop.CreateAndSendHHGInvoiceParams{
 		HTTPRequest: req,
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
 	// assert we got back the conflict response
 	response := handler.Handle(params)
-	suite.Equal(shipmentop.NewSendHHGInvoiceConflict(), response)
+	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), response)
 }

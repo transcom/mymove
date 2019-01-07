@@ -20,9 +20,6 @@ const (
 	ShipmentLineItemStatusSUBMITTED ShipmentLineItemStatus = "SUBMITTED"
 	// ShipmentLineItemStatusAPPROVED captures enum value "APPROVED"
 	ShipmentLineItemStatusAPPROVED ShipmentLineItemStatus = "APPROVED"
-	// ShipmentLineItemStatusINVOICED captures enum value "INVOICED"
-	ShipmentLineItemStatusINVOICED ShipmentLineItemStatus = "INVOICED"
-
 	// ShipmentLineItemLocationORIGIN captures enum value "ORIGIN"
 	ShipmentLineItemLocationORIGIN ShipmentLineItemLocation = "ORIGIN"
 	// ShipmentLineItemLocationDESTINATION captures enum value "DESTINATION"
@@ -50,6 +47,7 @@ type ShipmentLineItem struct {
 	Notes         string                 `json:"notes" db:"notes"`
 	Status        ShipmentLineItemStatus `json:"status" db:"status"`
 	InvoiceID     *uuid.UUID             `json:"invoice_id" db:"invoice_id"`
+	Invoice       Invoice                `belongs_to:"invoices"`
 	AmountCents   *unit.Cents            `json:"amount_cents" db:"amount_cents"`
 	AppliedRate   *unit.Millicents       `json:"applied_rate" db:"applied_rate"`
 	SubmittedDate time.Time              `json:"submitted_date" db:"submitted_date"`
@@ -123,7 +121,8 @@ func FetchShipmentLineItemByID(dbConnection *pop.Connection, shipmentLineItemID 
 // Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state.
 func (s *ShipmentLineItem) Approve() error {
 	if s.Status != ShipmentLineItemStatusSUBMITTED {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+		var logMsg = "func Approve(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
+		return errors.Wrap(ErrInvalidTransition, logMsg)
 	}
 	s.Status = ShipmentLineItemStatusAPPROVED
 	s.ApprovedDate = time.Now()

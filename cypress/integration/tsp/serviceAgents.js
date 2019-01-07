@@ -4,6 +4,7 @@ import {
   userCancelsServiceAgent,
   userInputsServiceAgent,
   userSavesServiceAgent,
+  userVerifiesTspAssigned,
 } from '../../support/testTspServiceAgents';
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
 
@@ -36,11 +37,13 @@ describe('TSP User enters and updates Service Agents', function() {
   });
   it('tsp user updates origin and destination service agents', function() {
     tspUserEntersServiceAgent();
+    userVerifiesTspAssigned();
     userClearsServiceAgent('Origin');
     userInputsServiceAgent('OriginUpdate');
     userClearsServiceAgent('Destination');
     userInputsServiceAgent('DestinationUpdate');
     userSavesServiceAgent('OriginUpdate');
+    userVerifiesTspAssigned();
   });
   it('tsp user accepts a shipment', function() {
     tspUserAcceptsShipment();
@@ -166,6 +169,8 @@ function tspUserClicksAssignServiceAgent(locator) {
     .get('button')
     .contains('Assign servicing agents')
     .click();
+
+  cy.get('.infoPanel-wizard-header').contains('Assign servicing agents');
 }
 
 function tspUserVerifiesServiceAgentAssigned() {

@@ -31,21 +31,23 @@ func main() {
 		log.Fatal(errors.New("error reading template file"))
 	}
 
-	// Read contents of variables file into vars
-	vars, err := ioutil.ReadFile(variablesFile)
-	if err != nil {
-		log.Fatal(errors.New("error reading variables file"))
-	}
-
 	ctx := map[string]string{}
 
-	// Adds variables from file into context
-	for _, x := range strings.Split(string(vars), "\n") {
-		// If a line is empty or starts with #, then skip.
-		if len(x) > 0 && x[0] != '#' {
-			// Split each line on the first equals sign into [name, value]
-			pair := strings.SplitAfterN(x, "=", 2)
-			ctx[pair[0][0:len(pair[0])-1]] = pair[1]
+	if len(variablesFile) > 0 {
+		// Read contents of variables file into vars
+		vars, err := ioutil.ReadFile(variablesFile)
+		if err != nil {
+			log.Fatal(errors.New("error reading variables file"))
+		}
+
+		// Adds variables from file into context
+		for _, x := range strings.Split(string(vars), "\n") {
+			// If a line is empty or starts with #, then skip.
+			if len(x) > 0 && x[0] != '#' {
+				// Split each line on the first equals sign into [name, value]
+				pair := strings.SplitAfterN(x, "=", 2)
+				ctx[pair[0][0:len(pair[0])-1]] = pair[1]
+			}
 		}
 	}
 

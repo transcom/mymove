@@ -36,10 +36,11 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
 	publicAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
-	publicAPI.ShipmentsRejectShipmentHandler = RejectShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
 	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
+	publicAPI.ShipmentsGetShipmentInvoicesHandler = GetShipmentInvoicesHandler{context}
 
+	publicAPI.ShipmentsCompletePmSurveyHandler = CompletePmSurveyHandler{context}
 	publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{context}
 
 	// Accessorials
@@ -58,6 +59,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ServiceAgentsPatchServiceAgentHandler = PatchServiceAgentHandler{context}
 
 	// TSPs
+	publicAPI.TransportationServiceProviderGetTransportationServiceProviderHandler = GetTransportationServiceProviderHandler{context}
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
 

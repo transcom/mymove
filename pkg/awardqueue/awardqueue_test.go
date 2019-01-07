@@ -340,11 +340,14 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 		},
 	})
 
+	var scac = "NPEK"
+	var supplierID = scac + "1234" // scac + payee code
 	// Make a TSP in the same TDL, but that is NOT enrolled
 	tdl := *shipment.TrafficDistributionList
 	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: "NPEK",
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID, //NPEK1234
 			Enrolled:                 false,
 		},
 	})
@@ -568,23 +571,32 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
-	sm := testdatagen.MakeDefaultServiceMember(suite.db)
 
+	sm := testdatagen.MakeDefaultServiceMember(suite.db)
 	twoMonths, _ := time.ParseDuration("2 months")
 	twoMonthsLater := testdatagen.PerformancePeriodStart.Add(twoMonths)
 
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-
 	// Make Peak TSP and Shipment
-	tspPeak := testdatagen.MakeDefaultTSP(suite.db)
+	shipmentPeak := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{
+			ActualPickupDate:    &testdatagen.DateInsidePeakRateCycle,
+			RequestedPickupDate: &testdatagen.DateInsidePeakRateCycle,
+			ActualDeliveryDate:  &twoMonthsLater,
+			BookDate:            &testdatagen.PerformancePeriodStart,
+			Status:              models.ShipmentStatusSUBMITTED,
+			ServiceMemberID:     sm.ID,
+			ServiceMember:       sm,
+		},
+	})
 
+	tspPeak := testdatagen.MakeDefaultTSP(suite.db)
 	tspPerfPeak := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
 		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
 		RateCycleStart:                  testdatagen.PeakRateCycleStart,
 		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
 		TransportationServiceProviderID: tspPeak.ID,
-		TrafficDistributionListID:       tdl.ID,
+		TrafficDistributionListID:       shipmentPeak.TrafficDistributionList.ID,
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  100,
 		OfferCount:                      0,
@@ -594,27 +606,25 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		t.Error(err)
 	}
 
-	shipmentPeak := models.Shipment{
-		TrafficDistributionListID: &tdl.ID,
-		ActualPickupDate:          &testdatagen.DateInsidePeakRateCycle,
-		RequestedPickupDate:       &testdatagen.DateInsidePeakRateCycle,
-		ActualDeliveryDate:        &twoMonthsLater,
-		BookDate:                  &testdatagen.PerformancePeriodStart,
-		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
-		Market:                    &testdatagen.DefaultMarket,
-		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
-		Status:                    models.ShipmentStatusSUBMITTED,
-		ServiceMemberID:           sm.ID,
-	}
-	_, err = suite.db.ValidateAndSave(&shipmentPeak)
-	if err != nil {
-		t.Error(err)
-	}
-
 	// Make Non-Peak TSP and Shipment
+	shipmentNonPeak := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{
+			ActualPickupDate:    &testdatagen.DateInsideNonPeakRateCycle,
+			RequestedPickupDate: &testdatagen.DateInsideNonPeakRateCycle,
+			ActualDeliveryDate:  &twoMonthsLater,
+			BookDate:            &testdatagen.PerformancePeriodStart,
+			Status:              models.ShipmentStatusSUBMITTED,
+			ServiceMemberID:     sm.ID,
+			ServiceMember:       sm,
+		},
+	})
+
+	var scac = "NPEK"
+	var supplierID = scac + "1234" // scac + payee code
 	tspNonPeak := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: "NPEK",
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID, // NPEK1234
 			Enrolled:                 true,
 		},
 	})
@@ -624,29 +634,12 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		RateCycleStart:                  testdatagen.NonPeakRateCycleStart,
 		RateCycleEnd:                    testdatagen.NonPeakRateCycleEnd,
 		TransportationServiceProviderID: tspNonPeak.ID,
-		TrafficDistributionListID:       tdl.ID,
+		TrafficDistributionListID:       shipmentNonPeak.TrafficDistributionList.ID,
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  100,
 		OfferCount:                      0,
 	}
 	_, err = suite.db.ValidateAndSave(&tspPerfNonPeak)
-	if err != nil {
-		t.Error(err)
-	}
-
-	shipmentNonPeak := models.Shipment{
-		TrafficDistributionListID: &tdl.ID,
-		ActualPickupDate:          &testdatagen.DateInsideNonPeakRateCycle,
-		RequestedPickupDate:       &testdatagen.DateInsideNonPeakRateCycle,
-		ActualDeliveryDate:        &twoMonthsLater,
-		BookDate:                  &testdatagen.PerformancePeriodStart,
-		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
-		Market:                    &testdatagen.DefaultMarket,
-		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
-		Status:                    models.ShipmentStatusSUBMITTED,
-		ServiceMemberID:           sm.ID,
-	}
-	_, err = suite.db.ValidateAndSave(&shipmentNonPeak)
 	if err != nil {
 		t.Error(err)
 	}
@@ -696,6 +689,42 @@ func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceP
 	if expectedCount != tspPerformance.OfferCount {
 		t.Errorf("Wrong OfferCount for TSP: expected %d, got %d", expectedCount, tspPerformance.OfferCount)
 	}
+}
+
+func (suite *AwardQueueSuite) Test_validateShipmentForAward() {
+	t := suite.T()
+	t.Helper()
+
+	// A default shipment, which has all valid fields on it
+	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	err := validateShipmentForAward(shipment)
+	suite.Nil(err)
+
+	// A shipment with a nil TDL ID
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.TrafficDistributionListID = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
+
+	// A shipment with a nil BookDate
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.BookDate = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
+
+	// A shipment with a nil RequestedPickupDate
+	shipment = testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+		Shipment: models.Shipment{},
+	})
+	shipment.RequestedPickupDate = nil
+	err = validateShipmentForAward(shipment)
+	suite.NotNil(err)
 }
 
 func (suite *AwardQueueSuite) Test_waitForLock() {

@@ -127,14 +127,6 @@
       "value": "{{ .HONEYCOMB_DATASET }}"
     },
     {
-      "name": "NEW_RELIC_APPLICATION_ID",
-      "value": "{{ .NEW_RELIC_APPLICATION_ID }}"
-    },
-    {
-      "name": "NEW_RELIC_LICENSE_KEY",
-      "value": "{{ .NEW_RELIC_LICENSE_KEY }}"
-    },
-    {
       "name": "DOD_CA_PACKAGE",
       "value": "/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b"
     },

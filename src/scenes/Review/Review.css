@@ -2,13 +2,18 @@
   margin-top: 1.5rem;
 }
 
+.review-title > h2 {
+  margin-top: 1.5em;
+}
+
 .review-content {
   border-top: 1px solid black;
   padding-bottom: 2.5rem;
 }
 
 .review-section {
-  padding-top: 1.5rem;
+  padding-left: 1.5rem;
+  padding-bottom: 1rem;
 }
 
 .review-section .notice {

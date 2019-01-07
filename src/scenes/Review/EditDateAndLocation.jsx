@@ -14,11 +14,21 @@ import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+import { isHHGPPMComboMove } from '../Moves/Ppm/ducks';
 
 const sitEstimateDebounceTime = 300;
 
 let EditDateAndLocationForm = props => {
-  const { handleSubmit, currentOrders, getSitEstimate, schema, valid, sitReimbursement, submitting } = props;
+  const {
+    handleSubmit,
+    currentOrders,
+    getSitEstimate,
+    schema,
+    valid,
+    sitReimbursement,
+    submitting,
+    isHHGPPMComboMove,
+  } = props;
   return (
     <form onSubmit={handleSubmit}>
       <h1 className="sm-heading"> Edit PPM Dates & Locations </h1>
@@ -46,7 +56,7 @@ let EditDateAndLocationForm = props => {
         The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
         {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
       </span>
-      <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
+      {!isHHGPPMComboMove && <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />}
       {get(props, 'formValues.has_sit', false) && (
         <Fragment>
           <SwaggerField
@@ -123,7 +133,7 @@ class EditDateAndLocation extends Component {
   }
 
   render() {
-    const { initialValues, schema, formValues, sitReimbursement, currentOrders, error } = this.props;
+    const { initialValues, schema, formValues, sitReimbursement, currentOrders, error, isHHGPPMComboMove } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -144,6 +154,7 @@ class EditDateAndLocation extends Component {
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
             createOrUpdatePpm={createOrUpdatePpm}
+            isHHGPPMComboMove={isHHGPPMComboMove}
           />
         </div>
       </div>
@@ -167,6 +178,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   props.initialValues = props.currentPpm

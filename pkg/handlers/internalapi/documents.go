@@ -1,10 +1,13 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/honeycombio/beeline-go"
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -40,6 +43,9 @@ type CreateDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
@@ -48,7 +54,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -81,6 +87,10 @@ type ShowDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
@@ -88,7 +98,7 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	document, err := models.FetchDocument(h.DB(), session, documentID)
+	document, err := models.FetchDocument(ctx, h.DB(), session, documentID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
