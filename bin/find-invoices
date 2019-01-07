@@ -52,7 +52,7 @@ function milmove_api() {
          -H 'accept-encoding: gzip, deflate, br' \
          -H 'x-csrf-token: MQIQx3WrJJaLVkb5Ie2LLhFLidlfZZnu+bVRoHlO5eyTO+XmyWnoSd2TtzfIt9V2Jr6x4h3r1pXydt7VdDJ0vg==' \
          -H 'accept-language: en-US,en;q=0.9' \
-         -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36' \
+         -H 'user-agent: curl; bin/find-invoices' \
          -H 'accept: */*' \
          -H "cookie: $cookie" \
          --compressed)
