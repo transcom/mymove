@@ -1,0 +1,13 @@
+sql("CREATE TABLE public.fuel_eia_diesel_prices (
+    id uuid NOT NULL,
+    pub_date date NOT NULL,
+    rate_start_date date NOT NULL,
+    rate_end_date date NOT NULL,
+    eia_price_per_gallon_millicents integer NOT NULL,
+    baseline_rate integer NOT NULL,
+    CHECK(baseline_rate > -1),
+    CHECK(baseline_rate < 101),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    CONSTRAINT no_overlapping_rates EXCLUDE using gist (daterange(rate_start_date,rate_end_date,'[]') WITH &&)
+);")
