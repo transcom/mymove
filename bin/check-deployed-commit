@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+HOSTS=$1
+TARGET_COMMIT=$2
+
+# shellcheck disable=SC2001
+for host in $(echo "$HOSTS" | sed "s/,/ /g")
+do
+    DEPLOYED_COMMIT=$(curl "https://${host}/health" | jq -r .gitCommit)
+    if [[ "$DEPLOYED_COMMIT" != "$TARGET_COMMIT" ]]; then
+      echo "On host $host, the commit returned from the health check does not match what we expected to have deployed. Found: $DEPLOYED_COMMIT, Expected: $TARGET_COMMIT."
+      exit 1
+    fi
+done
