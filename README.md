@@ -159,13 +159,7 @@ If you are stuck on this step you may need to see the section on Troubleshooting
 
 In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
-Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project:
-
-1. Add the package to the import statement of a Go file.
-1. `make clean`
-1. `make server_generate`
-1. `dep check` (to verify what's missing.) If it looks reasonable then...
-1. `dep ensure`
+Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
 
 ### Setup: MilMoveLocal Client
 
