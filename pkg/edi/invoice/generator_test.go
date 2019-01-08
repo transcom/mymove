@@ -3,14 +3,15 @@ package ediinvoice_test
 import (
 	"flag"
 	"fmt"
-	"github.com/go-openapi/swag"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/facebookgo/clock"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -18,7 +19,9 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/service/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -43,7 +46,9 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 			err := sequence.SetVal(suite.db, ediinvoice.ICNSequenceName, testCase.initial)
 			suite.NoError(err, "error setting sequence value")
 
-			generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
+			invoiceModel := helperShipmentInvoice(suite, shipment)
+
+			generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
 
 			suite.NoError(err)
 			if suite.NoError(err) {
@@ -56,10 +61,33 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	}
 
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
+	})
+
+	suite.T().Run("invoiceNumber is provided and found in EDI", func(t *testing.T) {
+		// Note that we just test for an invoice number of at least length 8 here that's set in the right place
+		// in the EDI segments; we have other tests in the create invoice service that check the specific format.
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
+		suite.NoError(err)
+
+		// Find the N9 segment we're interested in.
+		foundIt := false
+		for _, segment := range generatedTransactions.Shipment {
+			n9, ok := segment.(*edisegment.N9)
+			if ok && n9.ReferenceIdentificationQualifier == "CN" {
+				suite.True(len(n9.ReferenceIdentification) >= 8, "Invoice number was not at least length 8")
+				foundIt = true
+				break
+			}
+		}
+		suite.True(foundIt, "Could not find N9 segment for invoice number")
 	})
 }
 
@@ -69,7 +97,20 @@ func (suite *InvoiceSuite) TestEDIString() {
 		suite.NoError(err, "error setting sequence value")
 		shipment := helperShipment(suite)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, suite.db, false, clock.NewMock())
+		// NOTE: Hard-coding the CreatedAt on the shipment to an explicit date (we can't force it
+		// as it gets overwritten by Pop) so we can set the golden EDI accordingly.
+		shipment.CreatedAt = time.Date(2018, 7, 1, 0, 0, 0, 0, time.UTC)
+
+		// We need to determine the SCAC/year so that we can reset the invoice sequence number to test
+		// against the golden EDI.
+		scac := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
+		year := shipment.CreatedAt.UTC().Year()
+		err = testdatagen.ResetInvoiceSequenceNumber(suite.db, scac, year)
+		suite.NoError(err)
+
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
@@ -103,14 +144,29 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	// Create an accepted shipment offer and the associated TSP.
 	scac := "ABCD"
 	supplierID := scac + "1234" //scac + payee code -- ABCD1234
-	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
-		ShipmentOffer: models.ShipmentOffer{
-			Shipment: shipment,
-			Accepted: swag.Bool(true),
-		},
+
+	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
 			StandardCarrierAlphaCode: scac,
 			SupplierID:               &supplierID,
+		},
+	})
+
+	tspp := testdatagen.MakeTSPPerformance(suite.db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+		},
+	})
+
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			Shipment:                                   shipment,
+			Accepted:                                   swag.Bool(true),
+			TransportationServiceProvider:              tsp,
+			TransportationServiceProviderID:            tsp.ID,
+			TransportationServiceProviderPerformance:   tspp,
+			TransportationServiceProviderPerformanceID: tspp.ID,
 		},
 	})
 	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
@@ -178,6 +234,17 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	shipment.ShipmentLineItems = lineItems
 
 	return shipment
+}
+
+func helperShipmentInvoice(suite *InvoiceSuite, shipment models.Shipment) models.Invoice {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+
+	var invoiceModel models.Invoice
+	verrs, err := invoice.CreateInvoice{DB: suite.db, Clock: clock.NewMock()}.Call(officeUser, &invoiceModel, shipment)
+	suite.NoError(err, "error when creating invoice")
+	suite.Empty(verrs.Errors, "validation errors when creating invoice")
+
+	return invoiceModel
 }
 
 func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
