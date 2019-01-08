@@ -19,22 +19,22 @@ type UpdateInvoiceUpload struct {
 
 // saveInvoice using DB Transaction
 func (u UpdateInvoiceUpload) saveInvoice(invoice *models.Invoice) error {
-	txErr := u.DB.Transaction(func(tx *pop.Connection) error {
-		verrs, err := tx.ValidateAndSave(invoice)
-		if err != nil || verrs.HasAny() {
-			var dbError string
-			if err != nil {
-				dbError = err.Error()
-			}
-			if verrs.HasAny() {
-				dbError = dbError + verrs.Error()
-			}
-			return errors.Wrap(err, "error saving invoice")
-		}
-		return nil
-	})
+	if invoice == nil {
+		return errors.New("Invoice is nil")
+	}
 
-	return txErr
+	verrs, err := u.DB.ValidateAndSave(invoice)
+	if err != nil || verrs.HasAny() {
+		var dbError string
+		if err != nil {
+			dbError = err.Error()
+		}
+		if verrs.HasAny() {
+			dbError = dbError + verrs.Error()
+		}
+		return errors.Wrapf(err, "error saving invoice with ID: "+invoice.ID.String())
+	}
+	return nil
 }
 
 // deleteUpload deletes an existing Upload
