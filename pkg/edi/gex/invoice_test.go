@@ -49,7 +49,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 		GEXBasicAuthPassword: ""}.Call(ediString, "test_transaction")
 	fmt.Println("####### resp: ", resp)
 	if resp == nil || err != nil {
-		errors.Wrap(err, "Failed mock request")
+		suite.T().Fatal(err, "Failed mock request")
 	}
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
@@ -57,9 +57,9 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	resp, _ = SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false}.Call(ediString, "test_transaction")
+	resp, err = SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false}.Call(ediString, "test_transaction")
 	if resp == nil || err != nil {
-		errors.Wrap(err, "Failed mock request")
+		suite.T().Fatal(err, "Failed mock request")
 	}
 
 	expectedStatus = http.StatusInternalServerError
