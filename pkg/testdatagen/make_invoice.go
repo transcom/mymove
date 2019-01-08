@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -24,7 +25,9 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 
 	invoiceNumber := assertions.Invoice.InvoiceNumber
 	if invoiceNumber == "" {
-		invoiceNumber = string(10000 + rand.Intn(89999))
+		scac := "ABCD"
+		year := shipment.CreatedAt.UTC().Year()
+		invoiceNumber = fmt.Sprintf("%s%d%04d", scac, year%100, 1+rand.Intn(9999))
 	}
 
 	// filled in dummy data

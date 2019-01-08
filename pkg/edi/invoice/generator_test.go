@@ -70,7 +70,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	})
 
 	suite.T().Run("invoiceNumber is provided and found in EDI", func(t *testing.T) {
-		// Note that we just test for an invoice number of at least length 9 here that's set in the right place
+		// Note that we just test for an invoice number of at least length 8 here that's set in the right place
 		// in the EDI segments; we have other tests in the create invoice service that check the specific format.
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
@@ -82,25 +82,12 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		for _, segment := range generatedTransactions.Shipment {
 			n9, ok := segment.(*edisegment.N9)
 			if ok && n9.ReferenceIdentificationQualifier == "CN" {
-				suite.True(len(n9.ReferenceIdentification) >= 9, "Invoice number was not at least length 9")
+				suite.True(len(n9.ReferenceIdentification) >= 8, "Invoice number was not at least length 8")
 				foundIt = true
 				break
 			}
 		}
 		suite.True(foundIt, "Could not find N9 segment for invoice number")
-	})
-
-	suite.T().Run("valid invoiceNumber is not provided, so error occurs", func(t *testing.T) {
-		// Try a zero-struct invoice.
-		invoiceModel := models.Invoice{}
-		_, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
-		suite.Error(err)
-
-		// Try an invoice with an invoice number that's too short.
-		invoiceModel = helperShipmentInvoice(suite, shipment)
-		invoiceModel.InvoiceNumber = "XX18123"
-		_, err = ediinvoice.Generate858C(shipment, invoiceModel, suite.db, false, clock.NewMock())
-		suite.Error(err)
 	})
 }
 
