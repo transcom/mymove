@@ -47,7 +47,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	fmt.Println("$$$$$$$$$ mocServer.URL: ", mockServer.URL)
 	resp, err := SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false}.Call(ediString, "test_transaction")
 	fmt.Println("####### resp: ", resp)
-	if resp != nil || err != nil {
+	if resp == nil || err != nil {
 		errors.Wrap(err, "Failed mock request")
 	}
 	expectedStatus := http.StatusOK
@@ -57,7 +57,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	resp, _ = SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false}.Call(ediString, "test_transaction")
-	if resp != nil || err != nil {
+	if resp == nil || err != nil {
 		errors.Wrap(err, "Failed mock request")
 	}
 

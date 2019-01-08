@@ -53,7 +53,7 @@ func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Resp
 
 	// We need to provide basic auth credentials for the GEX server, as well as
 	// our client certificate for the proxy in front of the GEX server.
-	request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
+	request.SetBasicAuth(s.GEXBasicAuthUsername, s.GEXBasicAuthPassword)
 
 	config, err := getTLSConfig()
 	if err != nil {
