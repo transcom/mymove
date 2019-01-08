@@ -45,6 +45,10 @@ export function fillInvalidPreApprovalRequest() {
     .first()
     .type('Linehaul Transportation{downarrow}{enter}', { force: true, delay: 75 });
   cy.get('.tariff400__single-value').should('not.exist');
+  cy
+    .get('.cancel-link')
+    .contains('Cancel')
+    .click();
 }
 
 export function editPreApprovalRequest() {
