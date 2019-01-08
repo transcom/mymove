@@ -47,7 +47,16 @@ func (h SetCookieHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	cookie.Name = claims.CookieName
 	cookie.Domain = h.cookieDomain
 	cookie.Path = "/"
-	w.Header().Set("Set-Cookie", cookie.String())
+	http.SetCookie(w, cookie)
+
+	roleCookie := http.Cookie{
+		Domain:  h.cookieDomain,
+		Expires: cookie.Expires,
+		Name:    "DPSETAROLE",
+		Path:    "/",
+		Value:   "dodcustomer",
+	}
+	http.SetCookie(w, &roleCookie)
 
 	http.Redirect(w, r, claims.DPSRedirectURL, http.StatusSeeOther)
 }
