@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -12,13 +13,9 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 )
 
-type fakeModel struct {
-	FieldName string
-}
-
 func noErr(err error) {
 	if err != nil {
-		log.Panic("oops ", err)
+		log.Panic(err)
 	}
 }
 
@@ -30,6 +27,7 @@ func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	shipmentID := flag.String("shipment", "", "The shipment ID to generate a shipment summary worksheet for")
+	debug := flag.Bool("debug", false, "show field debug output")
 	flag.Parse()
 
 	// DB connection
@@ -62,17 +60,22 @@ func main() {
 	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
 	noErr(err)
 
-	// Uncomment the below line if you want to draw borders around and labels within field boxes.
 	// This is very useful for getting field positioning right initially
-	form.Debug()
+	if *debug {
+		form.Debug()
+	}
 
 	// Populate form fields with provided data
 	err = form.DrawData(data)
 	noErr(err)
 
-	output, _ := os.Create("shipment-summary-test-output.pdf")
+	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))
+
+	output, err := os.Create(filename)
+	noErr(err)
+
 	err = form.Output(output)
 	noErr(err)
 
-	fmt.Println("done!")
+	fmt.Printf("wrote PDF to %s\n", filename)
 }

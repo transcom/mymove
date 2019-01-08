@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -18,7 +19,7 @@ type fakeModel struct {
 
 func noErr(err error) {
 	if err != nil {
-		log.Panic("oops ", err)
+		log.Panic(err)
 	}
 }
 
@@ -30,6 +31,7 @@ func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	shipmentID := flag.String("shipment", "", "The shipment ID to generate 1203 form for")
+	debug := flag.Bool("debug", false, "show field debug output")
 	flag.Parse()
 
 	// DB connection
@@ -43,7 +45,7 @@ func main() {
 	}
 
 	if *shipmentID == "" {
-		log.Fatal("Usage: paperwork -shipment <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+		log.Fatal("Usage: generate_1203_form -shipment <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
 
 	formLayout := paperwork.Form1203Layout
@@ -62,17 +64,22 @@ func main() {
 	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
 	noErr(err)
 
-	// Uncomment the below line if you want to draw borders around and labels within field boxes.
 	// This is very useful for getting field positioning right initially
-	// form.Debug()
+	if *debug {
+		form.Debug()
+	}
 
 	// Populate form fields with provided data
 	err = form.DrawData(gbl)
 	noErr(err)
 
-	output, _ := os.Create("./cmd/generate_1203_form/test-output.pdf")
+	filename := fmt.Sprintf("form-1203-%s.pdf", time.Now().Format(time.RFC3339))
+
+	output, err := os.Create(filename)
+	noErr(err)
+
 	err = form.Output(output)
 	noErr(err)
 
-	fmt.Println("done!")
+	fmt.Printf("wrote PDF to %s\n", filename)
 }
