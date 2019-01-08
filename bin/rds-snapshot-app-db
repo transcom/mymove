@@ -14,15 +14,15 @@ set -u
 
 readonly environment=$1
 
-readonly db_instance_identifer=app-$environment
-readonly db_snapshot_identifer=$db_instance_identifer-$(date +%s)
+readonly db_instance_identifier=app-$environment
+readonly db_snapshot_identifier=$db_instance_identifier-$(date +%s)
 readonly tags=("Key=Environment,Value=$environment" "Key=Tool,Value=$(basename "$0")")
 
-echo "Wait for concurrent database snapshots for ${db_instance_identifer} to complete before continuing ..."
-time aws rds wait db-snapshot-completed --db-instance-identifier "$db_instance_identifer"
+echo "Wait for concurrent database snapshots for ${db_instance_identifier} to complete before continuing ..."
+time aws rds wait db-snapshot-completed --db-instance-identifier "$db_instance_identifier"
 
-echo "Create database snapshot for ${db_instance_identifer} with identifier ${db_snapshot_identifer}"
-aws rds create-db-snapshot --db-instance-identifier "$db_instance_identifer" --db-snapshot-identifier "$db_snapshot_identifer" --tags "${tags[@]}"
+echo "Create database snapshot for ${db_instance_identifier} with identifier ${db_snapshot_identifier}"
+aws rds create-db-snapshot --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
 
-echo "Wait for concurrent database snapshots for ${db_instance_identifer} to complete before continuing ..."
-time aws rds wait db-snapshot-completed --db-snapshot-identifier "$db_snapshot_identifer"
+echo "Wait for concurrent database snapshots for ${db_instance_identifier} to complete before continuing ..."
+time aws rds wait db-snapshot-completed --db-snapshot-identifier "$db_snapshot_identifier"
