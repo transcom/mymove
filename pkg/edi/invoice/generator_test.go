@@ -238,7 +238,7 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 }
 
 func helperShipmentInvoice(suite *InvoiceSuite, shipment models.Shipment) models.Invoice {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	var invoiceModel models.Invoice
 	verrs, err := invoice.CreateInvoice{DB: suite.DB(), Clock: clock.NewMock()}.Call(officeUser, &invoiceModel, shipment)

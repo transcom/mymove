@@ -7,7 +7,7 @@ import (
 )
 
 func (suite *ModelSuite) TestInvoiceValidations() {
-	validInvoice := testdatagen.MakeDefaultInvoice(suite.db)
+	validInvoice := testdatagen.MakeDefaultInvoice(suite.DB())
 	expErrors := map[string][]string{}
 	suite.verifyValidationErrors(&validInvoice, expErrors)
 
