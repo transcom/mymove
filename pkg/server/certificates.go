@@ -3,7 +3,7 @@ package server
 import (
 	"crypto/x509"
 
-	"github.com/fullsailor/pkcs7"
+	"go.mozilla.org/pkcs7"
 )
 
 // LoadCertPoolFromPkcs7Package reads the certificates in a DER-encoded PKCS7

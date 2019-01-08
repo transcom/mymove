@@ -19,3 +19,7 @@ required = [
  [[constraint]]
   name = "github.com/trussworks/pdfcpu"
   branch = "afero"
+
+[[constraint]]
+  branch = "master"
+  name = "go.mozilla.org/pkcs7"
