@@ -107,9 +107,9 @@ func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64) FieldPo
 
 // FormFiller is a fillable pdf form
 type FormFiller struct {
-	pdf       *gofpdf.Fpdf
-	fields    map[string]FieldPos
-	useBorder bool
+	pdf    *gofpdf.Fpdf
+	fields map[string]FieldPos
+	debug  bool
 }
 
 // NewTemplateForm turns a template image and fields mapping into a FormFiller instance
@@ -138,23 +138,40 @@ func NewTemplateForm(templateImage io.ReadSeeker, fields map[string]FieldPos) (F
 	newForm := FormFiller{
 		pdf:    pdf,
 		fields: fields,
+		debug:  false,
 	}
 
 	return newForm, pdf.Error()
 }
 
-// UseBorders draws boxes around each form field
-func (f *FormFiller) UseBorders() {
-	f.useBorder = true
+// Debug draws boxes around each form field and overlays the
+// fields name on the right.
+func (f *FormFiller) Debug() {
+	f.debug = true
+}
+
+// DrawDebugOverlay draws a red bordered box and overlays the field's name on the right.
+func (f *FormFiller) DrawDebugOverlay(xPos, yPos, width, lineHeight float64, label string) {
+	dr, dg, db := f.pdf.GetDrawColor()
+	f.pdf.SetDrawColor(255, 0, 0)
+
+	tr, tg, tb := f.pdf.GetTextColor()
+	f.pdf.SetTextColor(255, 0, 0)
+
+	fs, _ := f.pdf.GetFontSize()
+	f.pdf.SetFontSize(4)
+
+	f.pdf.MoveTo(xPos, yPos)
+	f.pdf.CellFormat(width, lineHeight, label, "1", 0, "R", false, 0, "")
+
+	// Restore settings
+	f.pdf.SetTextColor(tr, tg, tb)
+	f.pdf.SetDrawColor(dr, dg, db)
+	f.pdf.SetFontSize(fs)
 }
 
 // DrawData draws the provided data set onto the form using the fields mapping
 func (f *FormFiller) DrawData(data interface{}) error {
-	borderStr := ""
-	if f.useBorder {
-		borderStr = "1"
-	}
-
 	r := reflect.ValueOf(data)
 	for k := range f.fields {
 		fieldVal := reflect.Indirect(r).FieldByName(k)
@@ -213,7 +230,12 @@ func (f *FormFiller) DrawData(data interface{}) error {
 			tempLineHeight = *formField.lineHeight
 		}
 
-		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, borderStr, "", false)
+		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, "", "", false)
+
+		// Draw a red-bordered box with the display value's key to the right
+		if f.debug {
+			f.DrawDebugOverlay(formField.xPos, formField.yPos, formField.width, tempLineHeight, k)
+		}
 	}
 
 	return f.pdf.Error()

@@ -62,9 +62,9 @@ func main() {
 	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
 	noErr(err)
 
-	// Uncomment the below line if you want to draw borders around field boxes, very useful
-	// for getting field positioning right initially
-	// form.UseBorders()
+	// Uncomment the below line if you want to draw borders around and labels within field boxes.
+	// This is very useful for getting field positioning right initially
+	// form.Debug()
 
 	// Populate form fields with provided data
 	err = form.DrawData(gbl)
