@@ -21,6 +21,7 @@ let ServiceAgentForm = props => {
             values: originValues,
           }}
           saRole="Origin"
+          columnSize="editable-panel-column"
         />
       </FormSection>
       <FormSection name="destination_service_agent">
@@ -30,6 +31,7 @@ let ServiceAgentForm = props => {
             values: destinationValues,
           }}
           saRole="Destination"
+          columnSize="editable-panel-column"
         />
       </FormSection>
 

@@ -270,3 +270,12 @@
   animation-fill-mode: forwards;
   animation-duration: 2s;
 }
+
+.optional-destination-agent-question {
+  margin-top: 3rem;
+}
+
+label.inline_radio {
+	margin-top: 1px;
+	margin-bottom: 1px;
+}

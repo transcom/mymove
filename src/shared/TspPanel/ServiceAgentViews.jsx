@@ -24,10 +24,10 @@ ServiceAgentDisplay.propTypes = {
   }),
 };
 
-export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
+export const ServiceAgentEdit = ({ serviceAgentProps, saRole, columnSize }) => {
   return (
     <Fragment>
-      <div className="editable-panel-3-column">
+      <div className={columnSize}>
         <span className="column-subhead">{saRole} agent</span>
         <SwaggerField fieldName="company" required {...serviceAgentProps} />
         <SwaggerField fieldName="email" required {...serviceAgentProps} />
@@ -53,11 +53,12 @@ export class OptionalServiceAgentEdit extends Component {
   }
 
   render() {
-    const { serviceAgentProps, saRole } = this.props;
+    const { serviceAgentProps, saRole, columnSize } = this.props;
     return (
       <Fragment>
-        <div className="editable-panel-3-column">
+        <div className={columnSize}>
           <span className="column-subhead">{saRole} agent</span>
+          <p className="optional-destination-agent-question">Have you assigned a destination servicing agent yet?</p>
           <YesNoBoolean value={this.state.showOptionalServiceAgent} onChange={this.setShowOptionalServiceAgent} />
           {this.state.showOptionalServiceAgent && (
             <div>
