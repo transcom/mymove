@@ -60,8 +60,9 @@ func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Resp
 		return resp, errors.Wrap(err, "Creating TLS config")
 	}
 	tr := &http.Transport{TLSClientConfig: config}
-
+	fmt.Println("$#@#@#$ before: ", time.Now())
 	client := &http.Client{Transport: tr, Timeout: gexRequestTimeout}
+	fmt.Println("$#@#@#$ after: ", time.Now())
 	resp, err = client.Do(request)
 	if err != nil {
 		return resp, errors.Wrap(err, "Sending GEX POST request")
