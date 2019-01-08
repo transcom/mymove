@@ -1,0 +1,6 @@
+sql("INSERT INTO public.fuel_eia_diesel_prices (id, pub_date, rate_start_date, rate_end_date, eia_price_per_gallon_millicents, baseline_rate, created_at, updated_at)
+     VALUES
+     ('6c16cbf5-04ad-11e9-955d-acde48001122', '2018-12-03', '2018-12-15', '2019-01-14', 320700, 6, now(), now()),
+     ('71b32ffa-04ad-11e9-baf4-acde48001122', '2018-11-05', '2018-11-15', '2018-12-14', 333800, 7, now(), now()),
+     ('722aad14-04ad-11e9-92df-acde48001122', '2018-10-01', '2018-10-15', '2018-11-14', 331300, 7, now(), now()),
+     ('72da9e17-04ad-11e9-b643-acde48001122', '2018-09-03', '2018-09-15', '2018-10-14', 325200, 6, now(), now());")

@@ -90,6 +90,14 @@ func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %s", e.Region)
 }
 
+type errInvalidPKCS7 struct {
+	Path string
+}
+
+func (e *errInvalidPKCS7) Error() string {
+	return fmt.Sprintf("invalid DER encoded PKCS7 package: %s", e.Path)
+}
+
 func stringSliceContains(stringSlice []string, value string) bool {
 	for _, x := range stringSlice {
 		if value == x {
@@ -244,31 +252,58 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 }
 
-func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
+func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
-	moveMilCerts := []server.TLSCert{
-		server.TLSCert{
-			//Append move.mil cert with CA certificate chain
-			CertPEMBlock: bytes.Join([][]byte{
-				[]byte(v.GetString("move-mil-dod-tls-cert")),
-				[]byte(v.GetString("move-mil-dod-ca-cert"))},
-				[]byte("\n"),
-			),
-			KeyPEMBlock: []byte(v.GetString("move-mil-dod-tls-key")),
-		},
+	tlsCert := v.GetString("move-mil-dod-tls-cert")
+	if len(tlsCert) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-cert")
 	}
 
-	pkcs7Package, err := ioutil.ReadFile(v.GetString("dod-ca-package")) // #nosec
+	caCert := v.GetString("move-mil-dod-ca-cert")
+	if len(caCert) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-ca-cert")
+	}
+
+	//Append move.mil cert with CA certificate chain
+	cert := bytes.Join(
+		[][]byte{
+			[]byte(tlsCert),
+			[]byte(caCert),
+		},
+		[]byte("\n"),
+	)
+
+	key := []byte(v.GetString("move-mil-dod-tls-key"))
+	if len(key) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-key")
+	}
+
+	keyPair, err := tls.X509KeyPair(cert, key)
 	if err != nil {
-		return moveMilCerts, nil, errors.Wrap(err, "Failed to read DoD CA certificate package")
+		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD keypair for server")
+	}
+
+	pathToPackage := v.GetString("dod-ca-package")
+	if len(pathToPackage) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", "dod-ca-package"))
+	}
+
+	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
+	if err != nil {
+		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", "dod-ca-package"))
+	}
+
+	if len(pkcs7Package) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", "dod-ca-package"))
 	}
 
 	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
 	if err != nil {
-		return moveMilCerts, dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
+		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
 	}
 
-	return moveMilCerts, dodCACertPool, nil
+	return []tls.Certificate{keyPair}, dodCACertPool, nil
+
 }
 
 func initRoutePlanner(v *viper.Viper, logger *zap.Logger) route.Planner {
@@ -898,6 +933,9 @@ func main() {
 	if err != nil {
 		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
+
+	logger.Debug("Server DOD Key Pair Loaded")
+	logger.Debug("DOD Certificate Authorities", zap.Any("subjects", dodCACertPool.Subjects()))
 
 	listenInterface := v.GetString("interface")
 
