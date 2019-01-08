@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { reduxForm, FormSection } from 'redux-form';
 
-import { ServiceAgentEdit } from 'shared/TspPanel/ServiceAgentViews';
+import { ServiceAgentEdit, OptionalServiceAgentEdit } from 'shared/TspPanel/ServiceAgentViews';
 
 let ServiceAgentForm = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
@@ -24,7 +24,13 @@ let ServiceAgentForm = props => {
         />
       </FormSection>
       <FormSection name="destination_service_agent">
-        <ServiceAgentEdit serviceAgentProps={{ swagger: schema, values: destinationValues }} saRole="Destination" />
+        <OptionalServiceAgentEdit
+          serviceAgentProps={{
+            swagger: schema,
+            values: destinationValues,
+          }}
+          saRole="Destination"
+        />
       </FormSection>
 
       <div className="infoPanel-wizard-actions-container">

@@ -193,6 +193,15 @@
   font-weight: bold;
 }
 
+.infoPanel-wizard .infoPanel-wizard-form-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.infoPanel-wizard-form-container .infoPanel-wizard-column {
+  flex-direction: column;
+}
+
 .infoPanel-wizard .infoPanel-wizard-cancel {
   text-decoration: none;
   cursor: pointer;

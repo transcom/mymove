@@ -1,8 +1,9 @@
-import React, { Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 
 export const ServiceAgentDisplay = ({ serviceAgentProps, saRole }) => {
   return (
@@ -35,6 +36,41 @@ export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
     </Fragment>
   );
 };
+
+export class OptionalServiceAgentEdit extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      showOptionalServiceAgent: false,
+    };
+
+    this.setShowOptionalServiceAgent = this.setShowOptionalServiceAgent.bind(this);
+  }
+
+  setShowOptionalServiceAgent(show) {
+    this.setState({ showOptionalServiceAgent: show });
+  }
+
+  render() {
+    const { serviceAgentProps, saRole } = this.props;
+    return (
+      <Fragment>
+        <div className="editable-panel-3-column">
+          <span className="column-subhead">{saRole} agent</span>
+          <YesNoBoolean value={this.state.showOptionalServiceAgent} onChange={this.setShowOptionalServiceAgent} />
+          {this.state.showOptionalServiceAgent && (
+            <div>
+              <SwaggerField fieldName="company" required {...serviceAgentProps} />
+              <SwaggerField fieldName="email" required {...serviceAgentProps} />
+              <SwaggerField fieldName="phone_number" required {...serviceAgentProps} />
+            </div>
+          )}
+        </div>
+      </Fragment>
+    );
+  }
+}
 
 export const TransportationServiceProviderDisplay = ({ tsp }) => {
   const { name, standard_carrier_alpha_code, poc_general_email, poc_general_phone } = tsp;
