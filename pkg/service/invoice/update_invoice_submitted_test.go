@@ -5,13 +5,20 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	suite.T().Run("invoice updates", func(t *testing.T) {
-		shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
+		shipment := helperShipment(suite)
+		shipmentLineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment: shipment,
+			},
+		})
+
 		suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 		invoice := helperCreateInvoice(suite, shipmentLineItem.Shipment)
 
@@ -29,7 +36,13 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	})
 
 	suite.T().Run("error when save fails", func(t *testing.T) {
-		shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
+		shipment := helperShipment(suite)
+		shipmentLineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment: shipment,
+			},
+		})
+
 		suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 		invoice := helperCreateInvoice(suite, shipmentLineItem.Shipment)
 
@@ -47,7 +60,13 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	})
 
 	suite.T().Run("transaction rolls back", func(t *testing.T) {
-		shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
+		shipment := helperShipment(suite)
+		shipmentLineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment: shipment,
+			},
+		})
+
 		suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 		invoice := helperCreateInvoice(suite, shipmentLineItem.Shipment)
 
