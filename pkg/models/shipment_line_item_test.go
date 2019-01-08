@@ -105,3 +105,20 @@ func (suite *ModelSuite) TestApproveShipmentLineItemFails() {
 
 	suite.Error(err)
 }
+
+func (suite *ModelSuite) TestDestroyInvoicedShipmentLineItemFails() {
+	// Given: An invoice ShipmentLineItem with an invoice ID
+	invoice := testdatagen.MakeDefaultInvoice(suite.db)
+	lineItem := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Status:    models.ShipmentLineItemStatusAPPROVED,
+			InvoiceID: &invoice.ID,
+		},
+	})
+
+	// When: The line item is destroyed
+	err := suite.db.Destroy(&lineItem)
+
+	// Then: The destroy action fails
+	suite.EqualError(err, models.ErrDestroyForbidden.Error())
+}
