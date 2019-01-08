@@ -189,7 +189,7 @@ function officeUserApprovesMoveAndVerifiesPPM() {
     .should('be.enabled');
 
   // Open new moves queue
-  cy.visit('/');
+  cy.patientVisit('/');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });

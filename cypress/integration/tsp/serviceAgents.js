@@ -145,7 +145,7 @@ function tspUserAcceptsShipment() {
 }
 
 function tspUserClicksAssignServiceAgent(locator) {
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
 
   // Find shipment and open it
   cy
