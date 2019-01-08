@@ -858,7 +858,7 @@ func main() {
 	}
 
 	logger.Debug("Server DOD Key Pair Loaded")
-	logger.Debug("DOD Certificate Authorities", zap.Any("subjects", dodCACertPool.Subjects()))
+	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", caCertPool.Subjects()))
 
 	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
