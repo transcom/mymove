@@ -1,3 +1,4 @@
+/* global cy */
 describe('Office user looks at the invoice tab to view unbilled line items', () => {
   beforeEach(() => {
     cy.signIntoOffice();

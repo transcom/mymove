@@ -1,4 +1,3 @@
-import { testPremoveSurvey } from '../../support/testPremoveSurvey';
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
 
 /* global cy */

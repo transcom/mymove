@@ -1,5 +1,5 @@
 import { fileUploadTimeout } from '../../support/constants';
-/* global cy, Cypress */
+/* global cy */
 
 describe('The document viewer', function() {
   beforeEach(() => {

@@ -1,4 +1,6 @@
-/* global cy, Cypress */
+import { tspAppName } from '../../support/constants';
+
+/* global cy */
 describe('TSP User Navigating the App', function() {
   it('unauthorized user tries to access an authorized route', function() {
     unauthorizedTspUserGoesToAuthorizedRoute();
@@ -12,7 +14,7 @@ describe('TSP User Navigating the App', function() {
 });
 
 function unauthorizedTspUserGoesToAuthorizedRoute() {
-  Cypress.config('baseUrl', 'http://tsplocal:4000');
+  cy.setupBaseUrl(tspAppName);
   cy.logout();
   cy.visit('/queues/new');
   cy.contains('Welcome to tsp.move.mil');

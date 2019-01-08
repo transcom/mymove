@@ -1,6 +1,6 @@
 import { fileUploadTimeout, officeAppName } from '../../support/constants';
 
-/* global cy, Cypress */
+/* global cy */
 describe('The document viewer', function() {
   describe('When not logged in', function() {
     beforeEach(() => {

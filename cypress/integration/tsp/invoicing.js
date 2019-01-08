@@ -1,3 +1,4 @@
+/* global cy */
 describe('TSP user looks at the invoice panel to view unbilled line items', () => {
   beforeEach(() => {
     cy.signIntoTSP();

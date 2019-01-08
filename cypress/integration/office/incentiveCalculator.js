@@ -1,4 +1,4 @@
-/* global cy, */
+/* global cy */
 describe('office user uses incentive calculator', () => {
   beforeEach(() => {
     cy.signIntoOffice();
