@@ -126,13 +126,12 @@ func (suite *DatesSuite) TestNextValidMoveDate() {
 }
 
 type DatesSuite struct {
-	testingsuite.BaseTestSuite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *hnyzap.Logger
 }
 
 func (suite *DatesSuite) SetupTest() {
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 func TestDatesSuite(t *testing.T) {
@@ -149,8 +148,8 @@ func TestDatesSuite(t *testing.T) {
 	}
 
 	hs := &DatesSuite{
-		db:     db,
-		logger: &hnyzap.Logger{Logger: logger},
+		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		logger:       &hnyzap.Logger{Logger: logger},
 	}
 	suite.Run(t, hs)
 }

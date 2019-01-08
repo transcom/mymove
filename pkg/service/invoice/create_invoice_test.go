@@ -7,10 +7,10 @@ import (
 )
 
 func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 	createInvoice := CreateInvoice{
-		DB:    suite.db,
+		DB:    suite.DB(),
 		Clock: clock.NewMock(),
 	}
 	var invoice models.Invoice

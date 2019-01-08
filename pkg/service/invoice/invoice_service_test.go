@@ -11,13 +11,12 @@ import (
 )
 
 type InvoiceServiceSuite struct {
-	testingsuite.BaseTestSuite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
 func (suite *InvoiceServiceSuite) SetupTest() {
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 func TestInvoiceSuite(t *testing.T) {
@@ -31,6 +30,9 @@ func TestInvoiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
-	hs := &InvoiceServiceSuite{db: db, logger: logger}
+	hs := &InvoiceServiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		logger:       logger,
+	}
 	suite.Run(t, hs)
 }

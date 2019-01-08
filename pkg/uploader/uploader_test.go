@@ -20,8 +20,7 @@ import (
 )
 
 type UploaderSuite struct {
-	testingsuite.BaseTestSuite
-	db           *pop.Connection
+	testingsuite.PopTestSuite
 	logger       *zap.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
@@ -31,7 +30,7 @@ type UploaderSuite struct {
 func (suite *UploaderSuite) SetupTest() {
 	var fs = afero.NewMemMapFs()
 	suite.fs = &afero.Afero{Fs: fs}
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
@@ -94,18 +93,18 @@ func TestUploaderSuite(t *testing.T) {
 	}
 
 	hs := &UploaderSuite{
-		db:     db,
-		logger: logger,
-		storer: storageTest.NewFakeS3Storage(true),
+		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		logger:       logger,
+		storer:       storageTest.NewFakeS3Storage(true),
 	}
 
 	suite.Run(t, hs)
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFile() {
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
 	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
@@ -116,9 +115,9 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("empty.pdf")
 
 	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
