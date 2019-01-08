@@ -1,12 +1,14 @@
 package models_test
 
 import (
-	"github.com/gobuffalo/uuid"
+	"testing"
+	"time"
+
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
-	"testing"
-	"time"
 )
 
 func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
