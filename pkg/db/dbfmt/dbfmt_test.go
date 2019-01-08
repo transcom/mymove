@@ -1,12 +1,10 @@
 package dbfmt
 
 import (
-	"log"
 	"reflect"
 	"sort"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,15 +20,8 @@ func (suite *DBFmtSuite) SetupTest() {
 }
 
 func TestDBFmtSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hs := &DBFmtSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 	}
 	suite.Run(t, hs)
 }

@@ -7,7 +7,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -80,20 +79,13 @@ func (suite *UploaderSuite) closeFile(file afero.File) {
 }
 
 func TestUploaderSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	hs := &UploaderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
 		storer:       storageTest.NewFakeS3Storage(true),
 	}

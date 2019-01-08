@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -28,9 +27,9 @@ type BaseHandlerTestSuite struct {
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(db *pop.Connection, logger *zap.Logger, sender notifications.NotificationSender) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
-		PopTestSuite:       testingsuite.NewPopTestSuite(db),
+		PopTestSuite:       testingsuite.NewPopTestSuite(),
 		logger:             logger,
 		notificationSender: sender,
 	}

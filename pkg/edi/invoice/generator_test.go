@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,7 +11,6 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/facebookgo/clock"
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -199,18 +197,11 @@ func (suite *InvoiceSuite) SetupTest() {
 }
 
 func TestInvoiceSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
 	hs := &InvoiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

@@ -1,10 +1,8 @@
 package shipment
 
 import (
-	"log"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -66,18 +64,11 @@ func (suite *DeliverPriceShipmentSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 func TestUpdateInvoiceSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
 	hs := &DeliverPriceShipmentSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

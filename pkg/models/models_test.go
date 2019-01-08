@@ -1,12 +1,10 @@
 package models_test
 
 import (
-	"log"
 	"reflect"
 	"sort"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,19 +18,6 @@ type ModelSuite struct {
 func (suite *ModelSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
-
-// func (suite *ModelSuite) MustSave(model interface{}) {
-// 	t := suite.T()
-// 	t.Helper()
-
-// 	verrs, err := suite.DB().ValidateAndSave(model)
-// 	if err != nil {
-// 		log.Panic(err)
-// 	}
-// 	if verrs.Count() > 0 {
-// 		t.Fatalf("errors encountered saving %v: %v", model, verrs)
-// 	}
-// }
 
 func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, exp map[string][]string) {
 	t := suite.T()
@@ -77,14 +62,7 @@ func (suite *ModelSuite) noValidationErrors(verrs *validate.Errors, err error) b
 }
 
 func TestModelSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite(db)}
+	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite()}
 	suite.Run(t, hs)
 }
 

@@ -2,10 +2,8 @@ package notifications
 
 import (
 	"context"
-	"log"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -98,17 +96,10 @@ func (suite *NotificationSuite) GetTestEmailContent() emailContent {
 }
 
 func TestNotificationSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, _ := zap.NewDevelopment()
 
 	s := &NotificationSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
 	}
 	suite.Run(t, s)

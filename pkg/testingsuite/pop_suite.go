@@ -1,6 +1,10 @@
 package testingsuite
 
 import (
+	"log"
+	"path/filepath"
+	"runtime"
+
 	"github.com/gobuffalo/pop"
 )
 
@@ -11,7 +15,18 @@ type PopTestSuite struct {
 }
 
 // NewPopTestSuite returns a new PopTestSuite
-func NewPopTestSuite(db *pop.Connection) PopTestSuite {
+func NewPopTestSuite() PopTestSuite {
+	// Find root path of testingsuite package
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+
+	configLocation := filepath.Join(basepath, "../../config")
+	pop.AddLookupPaths(configLocation)
+	db, err := pop.Connect("test")
+	if err != nil {
+		log.Panic(err)
+	}
+
 	return PopTestSuite{db: db}
 }
 

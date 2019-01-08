@@ -781,20 +781,13 @@ func (suite *AwardQueueSuite) SetupTest() {
 }
 
 func TestAwardQueueSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	hs := &AwardQueueSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       &hnyzap.Logger{Logger: logger},
 	}
 	suite.Run(t, hs)

@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -135,20 +134,13 @@ func (suite *DatesSuite) SetupTest() {
 }
 
 func TestDatesSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	hs := &DatesSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       &hnyzap.Logger{Logger: logger},
 	}
 	suite.Run(t, hs)

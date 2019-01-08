@@ -6,7 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
@@ -60,23 +59,17 @@ func (suite *PaperworkSuite) openLocalFile(path string, fs *afero.Afero) (afero.
 }
 
 func TestPaperworkSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 	storer := storageTest.NewFakeS3Storage(true)
 
+	popSuite := testingsuite.NewPopTestSuite()
 	hs := &PaperworkSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: popSuite,
 		logger:       logger,
-		uploader:     uploader.NewUploader(db, logger, storer),
+		uploader:     uploader.NewUploader(popSuite.DB(), logger, storer),
 	}
 
 	suite.Run(t, hs)

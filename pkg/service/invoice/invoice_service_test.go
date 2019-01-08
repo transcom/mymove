@@ -1,10 +1,8 @@
 package invoice
 
 import (
-	"log"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
@@ -20,18 +18,11 @@ func (suite *InvoiceServiceSuite) SetupTest() {
 }
 
 func TestInvoiceSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
 	hs := &InvoiceServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

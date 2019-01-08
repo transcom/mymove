@@ -1,10 +1,8 @@
 package rateengine
 
 import (
-	"log"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -130,19 +128,12 @@ func (suite *RateEngineSuite) SetupTest() {
 }
 
 func TestRateEngineSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Use a no-op logger during testing
 	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner(1234)
 
 	hs := &RateEngineSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(db),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
 		planner:      planner,
 	}
