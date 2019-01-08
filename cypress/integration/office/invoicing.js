@@ -14,7 +14,7 @@ describe('Office user looks at the invoice tab to view unbilled line items', () 
 
 function checkNoUnbilledLineItems() {
   // Open the shipments tab.
-  cy.visit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
+  cy.patientVisit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
 
   // The invoice table should be empty.
   cy
@@ -25,7 +25,7 @@ function checkNoUnbilledLineItems() {
 
 function checkExistUnbilledLineItems() {
   // Open the shipments tab.
-  cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+  cy.patientVisit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
 
   // The invoice table should display the unbilled line items.
   cy
@@ -50,13 +50,13 @@ function checkExistUnbilledLineItems() {
 
 function checkApproveButton() {
   // Open the shipments tab.
-  cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+  cy.patientVisit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
 
   // The invoice tab should have a button with the correct text.
   cy.get('.invoice-panel-header-cont button').should('have.text', 'Approve Payment');
 
   // Open shipments tab of move with no unbilled line items.
-  cy.visit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
+  cy.patientVisit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
 
   // The invoice tab should not have a button.
   cy.get('.invoice-panel-header-cont button').should('not.exist');
@@ -64,7 +64,7 @@ function checkApproveButton() {
 
 function checkConfirmationDialogue() {
   // Open the shipments tab.
-  cy.visit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+  cy.patientVisit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
 
   cy.get('.invoice-panel').within(() => {
     cy

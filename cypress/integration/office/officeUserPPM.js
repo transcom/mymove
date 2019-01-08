@@ -89,7 +89,7 @@ function officeUserVerifiesOrders() {
   cy.get('span').contains('FP-TP');
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
   cy
     .get('button')
     .contains('Approve PPM')
@@ -146,7 +146,7 @@ function officeUserVerifiesAccounting() {
   cy.get('span').contains('N002214CSW32Y9');
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
   cy
     .get('button')
     .contains('Approve PPM')
