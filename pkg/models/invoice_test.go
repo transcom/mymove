@@ -7,17 +7,19 @@ import (
 )
 
 func (suite *ModelSuite) TestInvoiceValidations() {
-	invoice := &Invoice{}
+	validInvoice := testdatagen.MakeDefaultInvoice(suite.db)
+	expErrors := map[string][]string{}
+	suite.verifyValidationErrors(&validInvoice, expErrors)
 
-	expErrors := map[string][]string{
+	invalidInvoice := &Invoice{}
+	expErrors = map[string][]string{
 		"status":         {"Status can not be blank."},
 		"approver_id":    {"ApproverID can not be blank."},
-		"invoice_number": {"InvoiceNumber can not be blank."},
+		"invoice_number": {"InvoiceNumber not in range(8, 255)"},
 		"invoiced_date":  {"InvoicedDate can not be blank."},
 		"shipment_id":    {"ShipmentID can not be blank."},
 	}
-
-	suite.verifyValidationErrors(invoice, expErrors)
+	suite.verifyValidationErrors(invalidInvoice, expErrors)
 }
 
 func (suite *ModelSuite) TestFetchInvoice() {

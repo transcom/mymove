@@ -3,9 +3,14 @@ package invoice
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type InvoiceServiceSuite struct {
@@ -26,4 +31,52 @@ func TestInvoiceSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
+}
+
+func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
+	return helperShipmentUsingScac(suite, "ABCD")
+}
+
+func helperShipmentUsingScac(suite *InvoiceServiceSuite, scac string) models.Shipment {
+	var weight unit.Pound
+	weight = 2000
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			NetWeight: &weight,
+		},
+	})
+	err := shipment.AssignGBLNumber(suite.DB())
+	suite.MustSave(&shipment)
+	suite.NoError(err, "could not assign GBLNumber")
+
+	// Create an accepted shipment offer and the associated TSP.
+	supplierID := scac + "1234" //scac + payee code -- ABCD1234
+
+	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID,
+		},
+	})
+
+	tspp := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+		},
+	})
+
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.DB(), testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			Shipment:                                   shipment,
+			Accepted:                                   swag.Bool(true),
+			TransportationServiceProvider:              tsp,
+			TransportationServiceProviderID:            tsp.ID,
+			TransportationServiceProviderPerformance:   tspp,
+			TransportationServiceProviderPerformanceID: tspp.ID,
+		},
+	})
+	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
+
+	return shipment
 }
