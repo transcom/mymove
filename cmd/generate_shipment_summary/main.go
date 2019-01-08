@@ -77,5 +77,5 @@ func main() {
 	err = form.Output(output)
 	noErr(err)
 
-	fmt.Printf("wrote PDF to %s\n", filename)
+	fmt.Println(filename)
 }
