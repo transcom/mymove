@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -62,6 +62,7 @@ type ServiceMember struct {
 	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            DutyStation               `belongs_to:"duty_stations"`
+	Title                  *string                   `json:"title" db:"title"`
 }
 
 // ServiceMembers is not required by pop and may be deleted

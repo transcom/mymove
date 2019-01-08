@@ -30,6 +30,18 @@ const (
 	OrderStatusCANCELED OrderStatus = "CANCELED"
 )
 
+// TourType indicates whether dependents are included in the Tour of Duty
+type TourType string
+
+const (
+	// TourTypeAccompanied means that dependents are authorized to travel with the service member
+	TourTypeAccompanied TourType = "accompanied"
+	// TourTypeUnaccompanied means that dependents are not authorized to travel with the service member
+	TourTypeUnaccompanied TourType = "unaccompanied"
+	// TourTypeUnaccompaniedDependentsRestricted captures enum value "unaccompanied-dependents-restricted"
+	TourTypeUnaccompaniedDependentsRestricted TourType = "unaccompanied-dependents-restricted"
+)
+
 // Order is a set of orders received by a service member
 type Order struct {
 	ID                  uuid.UUID                          `json:"id" db:"id"`
@@ -55,6 +67,32 @@ type Order struct {
 	TAC                 *string                            `json:"tac" db:"tac"`
 	SAC                 *string                            `json:"sac" db:"sac"`
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
+	SharedID            uuid.UUID                          `json:"sharedId" db:"sharedId"`
+	IsElectronic        bool                               `json:"isElectronic" db:"isElectronic"`
+	SeqNum              int                                `json:"seqNum" db:"seqNum"`
+	NoCostMove          bool                               `json:"noCostMove" db:"noCostMove"`
+	TdyEnRoute          bool                               `json:"tdyEnRoute" db:"tdyEnRoute"`
+	TourType            TourType                           `json:"tourType" db:"tourType"`
+	ReportNoEarlierThan time.Time                          `json:"reportNoEarlierThan" db:"reportNoEarlierThan"`
+	HhgSDN              *string                            `json:"hhgSdn" db:"hhgSdn"`
+	HhgLOA              *string                            `json:"hhgLoa" db:"hhgLoa"`
+	NtsTAC              *string                            `json:"ntsTac" db:"ntsTac"`
+	NtsSDN              *string                            `json:"ntsSdn" db:"ntsSdn"`
+	NtsLOA              *string                            `json:"ntsLoa" db:"ntsLoa"`
+	PovShipmentTAC      *string                            `json:"povShipmentTac" db:"povShipmentTac"`
+	PovShipmentSDN      *string                            `json:"povShipmentSdn" db:"povShipmentSdn"`
+	PovShipmentLOA      *string                            `json:"povShipmentLoa" db:"povShipmentLoa"`
+	PovStorageTAC       *string                            `json:"povStorageTac" db:"povStorageTac"`
+	PovStorageSDN       *string                            `json:"povStorageSdn" db:"povStorageSdn"`
+	PovStorageLOA       *string                            `json:"povStorageLoa" db:"povStorageLoa"`
+	UbTAC               *string                            `json:"ubTac" db:"ubTac"`
+	UbSDN               *string                            `json:"ubSdn" db:"ubSdn"`
+	UbLOA               *string                            `json:"ubLoa" db:"ubLoa"`
+	LosingUnitID        uuid.UUID                          `json:"losing_unit_id" db:"losing_unit_id"`
+	LosingUnit          Unit                               `belongs_to:"units"`
+	GainingUnitID       uuid.UUID                          `json:"gaining_unit_id" db:"gaining_unit_id"`
+	GainingUnit         Unit                               `belongs_to:"units"`
+	Comments            *string                            `json:"comments" db:"comments"`
 }
 
 // Orders is not required by pop and may be deleted
