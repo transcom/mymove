@@ -12,7 +12,7 @@ describe('office user interacts with pre approval request panel', function() {
     cy.signIntoOffice();
   });
   it('office user creates pre approval request', function() {
-    officeUserCreatesPreApprovalRequest();
+    officeUserCannotAddInvalidPreApprovalRequest();
   });
   it('office user edits pre approval request', function() {
     officeUserEditsPreApprovalRequest();
@@ -39,7 +39,7 @@ function officeUserIterateThroughAllPARS() {
   // Find move and open it
   cy
     .get('div')
-    .contains('RLKBEM')
+    .contains('DOOB')
     .dblclick();
 
   cy.location().should(loc => {
@@ -94,12 +94,33 @@ function officeUserIterateThroughAllPARS() {
     //add a pre approval request first
     fillAndSavePreApprovalRequest(PAR);
 
+    // wait a second for ui to catch up
+    cy.wait(1000);
+
     // Verify data has been saved in the UI
     cy.get('td').contains(PAR);
+
+    //approve PAR
+    cy.get('[data-test=approve-request]').click({ multiple: true });
   });
+
+  //invoice shipment
+  cy
+    .get('button')
+    .contains('Approve Payment')
+    .click()
+    .then(() => {
+      cy
+        .get('button')
+        .contains('Approve')
+        .click()
+        .then(() => {
+          expect(cy.get('.invoice-panel').contains('Success!'));
+        });
+    });
 }
 
-function officeUserCreatesPreApprovalRequest() {
+function officeUserCannotAddInvalidPreApprovalRequest() {
   // Open new moves queue
   cy.patientVisit('/queues/all');
   cy.location().should(loc => {
@@ -129,9 +150,6 @@ function officeUserCreatesPreApprovalRequest() {
   cy.get('span').contains('2,000');
 
   fillInvalidPreApprovalRequest();
-  fillAndSavePreApprovalRequest('Article: Motorcycle');
-  // Verify data has been saved in the UI
-  cy.get('td').contains('Bulky Article: Motorcycle/Rec vehicle');
 }
 function officeUserEditsPreApprovalRequest() {
   // Open new moves queue
