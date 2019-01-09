@@ -5,7 +5,7 @@ describe('office user uses storage reimbursement calculator', () => {
   });
   it('finds calculator and executes it', () => {
     // Open move ppm tab
-    cy.visit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc8/ppm');
+    cy.patientVisit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc8/ppm');
     // Click on PPM tab
     cy.get('.storage-calc').within(() => {
       cy
