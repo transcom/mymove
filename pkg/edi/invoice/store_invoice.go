@@ -47,7 +47,13 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 		verrs.Add(validators.GenerateKey("Sync EDI file Failed for file: "+ediTmpFile), err.Error())
 	}
 
+	// Create Upload'r
 	loader := uploader.NewUploader(db, logger, *storer)
+
+	// Delete of previous upload, if it exist
+	err = invoiceop.UpdateInvoiceUpload{DB: db, Uploader: loader}.DeleteUpload(invoice)
+
+	// Create and save Upload to s3
 	upload, verrs2, err := loader.CreateUploadNoDocument(userID, &f)
 	verrs.Append(verrs2)
 	if err != nil {

@@ -147,16 +147,8 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 
 	up := uploader.NewUploader(suite.db, suite.logger, *storer)
 
-	// Add first upload to invoice
+	// Add upload to invoice
 	verrs, err := UpdateInvoiceUpload{DB: suite.db, Uploader: up}.Call(invoice, upload)
-	suite.Nil(err)
-	suite.Empty(verrs.Error())
-	suite.Equal(upload.ID, *invoice.UploadID)
-
-	// Add second upload to invoice -- will force delete of previous upload
-	upload = suite.helperCreateUpload(storer)
-	suite.NotNil(upload)
-	verrs, err = UpdateInvoiceUpload{DB: suite.db, Uploader: up}.Call(invoice, upload)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
 	suite.Equal(upload.ID, *invoice.UploadID)
@@ -168,4 +160,13 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	suite.NotNil(fetchInvoice.UploadID)
 	suite.NotNil(fetchInvoice.Upload)
 	suite.Equal(upload.ID, *(fetchInvoice).UploadID)
+
+	// Delete upload
+	upload = suite.helperCreateUpload(storer)
+	suite.NotNil(upload)
+	err = UpdateInvoiceUpload{DB: suite.db, Uploader: up}.DeleteUpload(invoice)
+	suite.Nil(err)
+	suite.Empty(verrs.Error())
+	suite.Nil(invoice.UploadID)
+	suite.Nil(invoice.Upload)
 }
