@@ -30,6 +30,7 @@ import (
 )
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go -shipmentID <UUID> --approver <email>
+// Must use a shipment that is delivered, but not yet approved for payment (that does not already have a submitted invoice)
 func main() {
 	flag := pflag.CommandLine
 	flag.String("shipmentID", "", "The ID of the shipment to invoice")
