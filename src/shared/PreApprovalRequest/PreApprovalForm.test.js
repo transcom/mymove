@@ -96,7 +96,7 @@ beforeEach(() => {
 
 it('renders without crashing', () => {
   // eslint-disable-next-line
-  expect(wrapper.exists('div.usa-grid')).toBe(true);
+  expect(wrapper.exists('div.usa-grid-full')).toBe(true);
   // Check that it renders swagger field content
   expect(wrapper.find('.half-width').length).toBe(6);
 });
