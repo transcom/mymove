@@ -77,7 +77,7 @@ if [[ $exit_code = "0" ]]; then
 fi
 
 # announce task run failure
-echo "Task $task_arn failed! See "
+echo "Task $task_arn failed!"
 echo
 aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
 echo
