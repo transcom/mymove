@@ -60,7 +60,7 @@ export class PreApprovalForm extends Component {
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
-        <div className="usa-grid">
+        <div className="usa-grid-full">
           <div className="usa-width-one-third">
             <div className="tariff400-select">
               <Field
