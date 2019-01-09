@@ -1,7 +1,6 @@
 package gex
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
