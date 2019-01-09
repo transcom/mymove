@@ -1,4 +1,3 @@
-import { testPremoveSurvey } from '../../support/testPremoveSurvey';
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
 
 /* global cy */
@@ -66,7 +65,7 @@ function tspUserEntersADeliveryDate() {
 }
 
 function tspUserVisitsAnInTransitShipment(locator) {
-  cy.visit('/queues/in_transit');
+  cy.patientVisit('/queues/in_transit');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
@@ -146,7 +145,7 @@ function tspUserPacksShipment() {
   cy.get('div.actual_pack_date').contains('10');
 }
 function tspUserEntersPackAndPickUpInfo() {
-  cy.visit('/queues/new');
+  cy.patientVisit('/queues/new');
 
   // Open approved shipments queue
   cy

@@ -291,7 +291,7 @@ function tspUserEntersLocations() {
     .click();
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
 
   cy
     .contains('Locations')
@@ -369,7 +369,7 @@ function tspUserEntersLocations() {
     .click();
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
 
   cy
     .contains('Locations')

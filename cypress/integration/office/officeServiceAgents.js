@@ -42,7 +42,7 @@ describe('office user can view service agents', function() {
 
 function officeUserOpensHhgPanelForMove(moveLocator) {
   // Open all moves queue
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });

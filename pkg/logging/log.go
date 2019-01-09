@@ -36,7 +36,7 @@ func Config(env string, debugLogging bool) (*zap.Logger, error) {
 func LogRequestMiddleware(gitBranch string, gitCommit string) func(inner http.Handler) http.Handler {
 	return func(inner http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			var protocol, officeUserID, serviceMemberID, userID string
+			var protocol, tspUserID, officeUserID, serviceMemberID, userID string
 
 			if r.TLS == nil {
 				protocol = "http"
@@ -56,6 +56,10 @@ func LogRequestMiddleware(gitBranch string, gitCommit string) func(inner http.Ha
 				officeUserID = session.OfficeUserID.String()
 			}
 
+			if session.IsTspUser() {
+				tspUserID = session.TspUserID.String()
+			}
+
 			metrics := httpsnoop.CaptureMetrics(inner, w, r)
 			zap.L().Info("Request",
 				zap.String("git-branch", gitBranch),
@@ -66,6 +70,7 @@ func LogRequestMiddleware(gitBranch string, gitCommit string) func(inner http.Ha
 				zap.String("host", r.Host),
 				zap.String("method", r.Method),
 				zap.String("office-user-id", officeUserID),
+				zap.String("tsp-user-id", tspUserID),
 				zap.String("protocol", protocol),
 				zap.String("protocol-version", r.Proto),
 				zap.String("referer", r.Header.Get("referer")),

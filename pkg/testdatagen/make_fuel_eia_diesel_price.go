@@ -1,11 +1,13 @@
 package testdatagen
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
-	"time"
 )
 
 func getFuelDefaultPrices() []unit.Millicents {

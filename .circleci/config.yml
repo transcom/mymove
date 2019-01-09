@@ -70,6 +70,9 @@ commands:
       - run:
           name: Health Check
           command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
+      - run:
+          name: Check deployed commits
+          command: bin/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1"
       - announce_failure
   deploy_app_client_tls_steps:
     parameters:
