@@ -42,11 +42,8 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	fmt.Println("!!!!!!!! mockServer: ", mockServer)
-	fmt.Println("$$$$$$$$$ mocServer.URL: ", mockServer.URL)
 	resp, err := SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false, GEXBasicAuthUsername: "",
 		GEXBasicAuthPassword: ""}.Call(ediString, "test_transaction")
-	fmt.Println("####### resp: ", resp)
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
