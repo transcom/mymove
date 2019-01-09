@@ -209,7 +209,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	}
 }
 
-// TODO: Once the fuel surcharge calculation is in place, add in a proper test for it.
 func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 

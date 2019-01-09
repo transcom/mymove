@@ -133,6 +133,6 @@ func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents) (fu
 	}
 	fuelSurchargePercentage := float64(fuelEIADieselPrice.BaselineRate) / 100
 	fee := totalLinehaulCost.MultiplyFloat64(fuelSurchargePercentage)
-	// Not sure what to do with the Rate portion of this right now. The 'rate' in this case
+
 	return FeeAndRate{Fee: unit.Cents(fee), Rate: fuelEIADieselPrice.EIAPricePerGallonMillicents}, err
 }
