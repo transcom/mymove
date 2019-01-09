@@ -32,11 +32,10 @@ import (
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go -shipmentID <UUID> --approver <email>
 func main() {
-	shipmentIDString := flag.String("shipmentID", "", "The ID of the shipment to invoice")
-	approverEmail := flag.String("approver", "", "The office approver e-mail")
-	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-	sendToGex := flag.Bool("gex", false, "Choose to send the file to gex")
-	transactionName := flag.String("transactionName", "test", "The required name sent in the url of the gex api request")
+	flag.String("shipmentID", "", "The ID of the shipment to invoice")
+	flag.String("approver", "", "The office approver e-mail")
+	flag.Bool("gex", false, "Choose to send the file to gex")
+	flag.String("transactionName", "test", "The required name sent in the url of the gex api request")
 
 	flag := pflag.CommandLine
 	// EDI Invoice Config
@@ -62,25 +61,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-
-	if *shipmentIDString == "" || *approverEmail == "" {
+	shipmentIDString := v.GetString("shipmentID")
+	approverEmail := v.GetString("approver")
+	sendToGex := v.GetBool("gex")
+	transactionName := v.GetString("transaction-name")
+	if shipmentIDString == "" || approverEmail == "" {
 		log.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --shipmentID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --approver <officeuser1@example.com> --gex false")
 	}
 
-	db, err := pop.Connect(*env)
+	db, err := pop.Connect("development")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	shipmentID := uuid.Must(uuid.FromString(*shipmentIDString))
+	shipmentID := uuid.Must(uuid.FromString(shipmentIDString))
 	shipment, err := invoice.FetchShipmentForInvoice{DB: db}.Call(shipmentID)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	approver, err := models.FetchOfficeUserByEmail(db, *approverEmail)
+	approver, err := models.FetchOfficeUserByEmail(db, approverEmail)
 	if err != nil {
-		log.Fatalf("Could not fetch office user with e-mail %s: %v", *approverEmail, err)
+		log.Fatalf("Could not fetch office user with e-mail %s: %v", approverEmail, err)
 	}
 
 	var invoiceModel models.Invoice
@@ -102,7 +104,7 @@ func main() {
 		GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
 	}
 
-	resp, err := processInvoice(db, shipment, invoiceModel, sendToGex, transactionName, sendToGexHTTP)
+	resp, err := processInvoice(db, shipment, invoiceModel, &sendToGex, &transactionName, sendToGexHTTP)
 	if resp != nil {
 		fmt.Printf("status code: %v\n", resp.StatusCode)
 	}
