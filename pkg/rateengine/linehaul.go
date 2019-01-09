@@ -1,7 +1,6 @@
 package rateengine
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -125,7 +124,6 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 
 // Calculate the fuel surcharge and return the result
 func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents) (fuelSurcharge FeeAndRate, err error) {
-	fmt.Println(totalLinehaulCost)
 	fuelEIADieselPrice := models.FuelEIADieselPrice{}
 	err1 := re.db.Last(&fuelEIADieselPrice)
 	if err1 != nil {
