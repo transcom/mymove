@@ -79,9 +79,11 @@ fi
 # announce task run failure
 echo "Task $task_arn failed!"
 echo
-aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
-echo
+# Show logs first because if they don't exist they throw a confusing error and because the error we
+# actually care about is in the ecs task description
 show_logs "$task_arn"
 echo
-echo "If the log stream does not exist check the task description above for 'stoppedReason'"
+echo "If the log stream does not exist check the task description below for 'tasks[].stoppedReason'"
+echo
+aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
 exit 1
