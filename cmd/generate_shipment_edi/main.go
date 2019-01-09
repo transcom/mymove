@@ -14,7 +14,6 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/namsral/flag"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -32,12 +31,11 @@ import (
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go -shipmentID <UUID> --approver <email>
 func main() {
+	flag := pflag.CommandLine
 	flag.String("shipmentID", "", "The ID of the shipment to invoice")
 	flag.String("approver", "", "The office approver e-mail")
 	flag.Bool("gex", false, "Choose to send the file to gex")
-	flag.String("transactionName", "test", "The required name sent in the url of the gex api request")
 
-	flag := pflag.CommandLine
 	// EDI Invoice Config
 	flag.String("gex-basic-auth-username", "", "GEX api auth username")
 	flag.String("gex-basic-auth-password", "", "GEX api auth password")
@@ -96,6 +94,7 @@ func main() {
 
 	certificates, rootCAs, err := initDODCertificates(v, logger)
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+
 	sendToGexHTTP := gex.SendToGexHTTP{
 		URL:                  v.GetString("gex-url"),
 		IsTrueGexURL:         true,
