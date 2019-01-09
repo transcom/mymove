@@ -67,13 +67,6 @@ function tspUserGeneratesGBL() {
     .contains(gblButtonText)
     .should('be.enabled');
 
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
-  });
-
-  // If clicked too soon, there's a server error
-  cy.wait(500);
-
   cy.get('.documents').should('not.contain', 'Government Bill Of Lading');
 
   cy
