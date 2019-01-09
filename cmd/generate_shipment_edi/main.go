@@ -95,7 +95,7 @@ func main() {
 	certificates, rootCAs, err := initDODCertificates(v, logger)
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	sendToGexHTTP := gex.SendToGexHTTP{
-		URL:                  "https://gexweba.daas.dla.mil/msg_data/submit/",
+		URL:                  v.GetString("gex-url"),
 		IsTrueGexURL:         true,
 		TLSConfig:            tlsConfig,
 		GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
