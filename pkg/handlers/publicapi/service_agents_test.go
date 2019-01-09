@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestTspUserIndexServiceAgentsHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestTspUserIndexServiceAgentsHandler() {
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	handler := IndexServiceAgentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := IndexServiceAgentsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&serviceagentop.IndexServiceAgentsOK{}, response)
@@ -48,10 +48,10 @@ func (suite *HandlerSuite) TestOfficeUserIndexServiceAgentsHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	shipment := shipments[0]
 
 	// And: the context contains the auth values
@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestOfficeUserIndexServiceAgentsHandler() {
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	handler := IndexServiceAgentsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := IndexServiceAgentsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&serviceagentop.IndexServiceAgentsOK{}, response)
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	numShipments := 3
 	numShipmentOfferSplit := []int{3}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -106,7 +106,7 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 		HTTPRequest:  req,
 	}
 
-	handler := CreateServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateServiceAgentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&serviceagentop.CreateServiceAgentOK{}, response)
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestCreateServiceAgentHandlerAllValues() {
 	suite.Equal(*newServiceAgent.PhoneIsPreferred, *okResponse.Payload.PhoneIsPreferred)
 	suite.Equal(*newServiceAgent.Notes, *okResponse.Payload.Notes)
 
-	count, err := suite.TestDB().Where("shipment_id=$1", shipment.ID).Count(&models.ServiceAgent{})
+	count, err := suite.DB().Where("shipment_id=$1", shipment.ID).Count(&models.ServiceAgent{})
 	suite.Nil(err, "could not count service agents")
 	// Test data generator will create 2 service agents by default for AWARDED shipments.  This test creates the third.
 	suite.Equal(3, count)
@@ -130,12 +130,12 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
-	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandler() {
 	}
 
 	// And: patch service agent is returned
-	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -177,12 +177,12 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPOC() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
-	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPOC() {
 	}
 
 	// And: patch service agent is returned
-	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -221,12 +221,12 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyEmail() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
-	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
@@ -245,7 +245,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyEmail() {
 	}
 
 	// And: patch service agent is returned
-	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -265,12 +265,12 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPhoneNumber() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
-	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyPhoneNumber() {
 	}
 
 	// And: patch service agent is returned
-	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -309,12 +309,12 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyNotes() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
-	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	serviceAgent := serviceAgents[0]
 
 	// And: the context contains the auth values
@@ -333,7 +333,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerOnlyNotes() {
 	}
 
 	// And: patch service agent is returned
-	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -353,15 +353,15 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerWrongTSP() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusACCEPTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
-	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.TestDB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	serviceAgents, _ := models.FetchServiceAgentsByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	serviceAgent := serviceAgents[0]
 
-	otherTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+	otherTspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/shipments/shipmentId/service_agents/serviceAgentsId", nil)
@@ -382,7 +382,7 @@ func (suite *HandlerSuite) TestPatchServiceAgentHandlerWrongTSP() {
 	}
 
 	// And: patch service agent is returned
-	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchServiceAgentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 400 status code

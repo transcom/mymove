@@ -23,7 +23,7 @@ describe('TSP User generates GBL', function() {
 function tspUserCannotGenerateGBL() {
   const gblButtonText = 'Generate the GBL';
 
-  cy.visit('/queues/accepted');
+  cy.patientVisit('/queues/accepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
@@ -47,7 +47,7 @@ function tspUserGeneratesGBL() {
   const gblButtonText = 'Generate the GBL';
 
   // Open approved shipments queue
-  cy.visit('/queues/approved');
+  cy.patientVisit('/queues/approved');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/approved/);
   });
@@ -107,7 +107,7 @@ function tspUserGeneratesGBL() {
 
 function tspUserViewsGBL() {
   // Open approved shipments queue
-  cy.visit('/queues/approved');
+  cy.patientVisit('/queues/approved');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/approved/);
   });

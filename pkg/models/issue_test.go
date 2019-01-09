@@ -16,7 +16,7 @@ func (suite *ModelSuite) TestOptionalProperty() {
 		ReporterName: &reporterName,
 	}
 
-	if err := suite.db.Create(&hasReporter); err != nil {
+	if err := suite.DB().Create(&hasReporter); err != nil {
 		t.Fatal("Didn't write it to the db")
 	}
 
@@ -32,7 +32,7 @@ func (suite *ModelSuite) TestOptionalProperty() {
 		Description: "This describes an issue without a reporter",
 	}
 
-	if err := suite.db.Create(&sansReporter); err != nil {
+	if err := suite.DB().Create(&sansReporter); err != nil {
 		t.Fatal("Didn't write sans to the db")
 	}
 

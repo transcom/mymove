@@ -25,8 +25,8 @@ func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
 
 func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 	// When: There is a move, shipment, and move document of type GBL
-	tspUser := testdatagen.MakeDefaultTspUser(suite.db)
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 
 	sm := shipment.Move.Orders.ServiceMember
 
@@ -55,9 +55,9 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 		},
 	}
 
-	testdatagen.MakeMoveDocument(suite.db, assertions)
-	testdatagen.MakeMoveDocument(suite.db, assertions)
-	testdatagen.MakeShipmentOffer(suite.db, assertions)
+	testdatagen.MakeMoveDocument(suite.DB(), assertions)
+	testdatagen.MakeMoveDocument(suite.DB(), assertions)
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
 	// When: the logged in user is a TSP user
 	session := &auth.Session{
 		ApplicationName: auth.TspApp,
@@ -65,7 +65,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 		TspUserID:       tspUser.ID,
 	}
 
-	moveDocs, err := FetchMoveDocumentsByTypeForShipment(suite.db, session, MoveDocumentTypeGOVBILLOFLADING, shipment.ID)
+	moveDocs, err := FetchMoveDocumentsByTypeForShipment(suite.DB(), session, MoveDocumentTypeGOVBILLOFLADING, shipment.ID)
 
 	if suite.NoError(err) {
 		suite.Equal(2, len(moveDocs))
@@ -78,7 +78,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 	}
 
 	// When: a document doesn't exist
-	nonExistantDocs, err := FetchMoveDocumentsByTypeForShipment(suite.db, session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
+	nonExistantDocs, err := FetchMoveDocumentsByTypeForShipment(suite.DB(), session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
 	// Then: No docs should be returned
 	if suite.NoError(err) {
 		suite.Equal(0, len(nonExistantDocs))
@@ -89,14 +89,14 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 		UserID:          sm.UserID,
 		TspUserID:       sm.ID,
 	}
-	_, err = FetchMoveDocumentsByTypeForShipment(suite.db, session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
+	_, err = FetchMoveDocumentsByTypeForShipment(suite.DB(), session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
 	// Then: FetchForbiddenError should be returned
 	suite.Equal("FETCH_NOT_FOUND", err.Error())
 }
 
 func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	// When: There is a move, ppm, move document and 2 expense docs
-	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
 
 	assertions := testdatagen.Assertions{
@@ -113,8 +113,8 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 		},
 	}
 
-	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
-	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
 
 	// User is authorized to fetch move doc
 	session := &auth.Session{
@@ -123,7 +123,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 		ServiceMemberID: sm.ID,
 	}
 
-	moveDocs, err := FetchApprovedMovingExpenseDocuments(suite.db, session, ppm.Move.PersonallyProcuredMoves[0].ID)
+	moveDocs, err := FetchApprovedMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID)
 
 	if suite.NoError(err) {
 		suite.Equal(2, len(moveDocs))
@@ -138,18 +138,18 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	// When: the user is not authorized to fetch movedocs
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchApprovedMovingExpenseDocuments(suite.db, session, ppm.Move.PersonallyProcuredMoves[0].ID)
+	_, err = FetchApprovedMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 
 	// When: the logged in user is an office user
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session.UserID = *officeUser.UserID
 	session.OfficeUserID = officeUser.ID
 	session.ApplicationName = auth.OfficeApp
 
-	moveDocsOffice, err := FetchApprovedMovingExpenseDocuments(suite.db, session, ppm.Move.PersonallyProcuredMoves[0].ID)
+	moveDocsOffice, err := FetchApprovedMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID)
 	if suite.NoError(err) {
 		for _, moveDoc := range moveDocsOffice {
 			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
@@ -161,10 +161,10 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 
 func (suite *ModelSuite) TestFetchMoveDocument() {
 	// When: there is a move and move document
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
 
-	moveDocument := testdatagen.MakeMoveDocument(suite.db, testdatagen.Assertions{
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID: move.ID,
 			Move:   move,
@@ -181,7 +181,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 		ServiceMemberID: sm.ID,
 	}
 
-	moveDoc, err := FetchMoveDocument(suite.db, session, moveDocument.ID)
+	moveDoc, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	if suite.NoError(err) {
 		suite.Equal(moveDocument.MoveID, moveDoc.MoveID)
 	}
@@ -189,19 +189,19 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	// When: the user is not authorized to fetch movedoc
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchMoveDocument(suite.db, session, moveDocument.ID)
+	_, err = FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 
 	// When: the logged in user is an office user
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session.UserID = *officeUser.UserID
 	session.OfficeUserID = officeUser.ID
 	session.ApplicationName = auth.OfficeApp
 
 	// Then: move document is returned
-	moveDocOfficeUser, err := FetchMoveDocument(suite.db, session, moveDocument.ID)
+	moveDocOfficeUser, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	if suite.NoError(err) {
 		suite.Equal(moveDocOfficeUser.MoveID, moveDoc.MoveID)
 	}
@@ -209,10 +209,10 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 
 func (suite *ModelSuite) TestMoveDocumentStatuses() {
 	// When: there is a move and move document
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
 
-	moveDocument := testdatagen.MakeMoveDocument(suite.db, testdatagen.Assertions{
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID: move.ID,
 			Move:   move,

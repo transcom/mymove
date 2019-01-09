@@ -8,7 +8,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	mileage, err := engine.determineMileage("39574", "33633")
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
@@ -21,7 +21,7 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 
 func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
 	expected := unit.Cents(128000)
 
@@ -47,8 +47,8 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 		EffectiveDateUpper: testdatagen.NonPeakRateCycleEnd,
 	}
 
-	suite.mustSave(&newBaseLinehaul)
-	suite.mustSave(&otherBaseLinehaul)
+	suite.MustSave(&newBaseLinehaul)
+	suite.MustSave(&otherBaseLinehaul)
 
 	mileage := 3200
 	weight := unit.Pound(3900)
@@ -65,7 +65,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
 	// Load fake data
 	originZip3 := models.Tariff400ngZip3{
@@ -76,7 +76,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&originZip3)
+	suite.MustSave(&originZip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -89,7 +89,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&serviceArea)
+	suite.MustSave(&serviceArea)
 
 	linehaulFactor, err := engine.linehaulFactors(60, "395", testdatagen.RateEngineDate)
 	if err != nil {
@@ -103,7 +103,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 
 func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	mileage := 799
 	cwt := unit.CWT(40)
 	rate := unit.Cents(5656)
@@ -115,7 +115,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&sh)
+	suite.MustSave(&sh)
 
 	shc, _ := engine.shorthaulCharge(mileage, cwt, testdatagen.DateInsidePeakRateCycle)
 	if shc != rate {
@@ -125,7 +125,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	weight := unit.Pound(2000)
 	expected := unit.Cents(11462)
 	zip3Austin := "787"
@@ -144,7 +144,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&newBaseLinehaul)
+	suite.MustSave(&newBaseLinehaul)
 
 	// Create Service Area entries for Zip3s
 	zipAustin := models.Tariff400ngZip3{
@@ -155,7 +155,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		RateArea:      "US1",
 		Region:        "1",
 	}
-	suite.mustSave(&zipAustin)
+	suite.MustSave(&zipAustin)
 
 	zipSanFrancisco := models.Tariff400ngZip3{
 		Zip3:          zip3SanFrancisco,
@@ -165,7 +165,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		RateArea:      "US2",
 		Region:        "2",
 	}
-	suite.mustSave(&zipSanFrancisco)
+	suite.MustSave(&zipSanFrancisco)
 
 	// Create fees for service areas
 	sa1 := models.Tariff400ngServiceArea{
@@ -179,7 +179,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&sa1)
+	suite.MustSave(&sa1)
 
 	sa2 := models.Tariff400ngServiceArea{
 		Name:               "SF",
@@ -192,7 +192,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&sa2)
+	suite.MustSave(&sa2)
 
 	cost, err := engine.linehaulChargeComputation(
 		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle)
@@ -206,7 +206,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 
 // TODO: Once the fuel surcharge calculation is in place, add in a proper test for it.
 func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	fuelSurcharge, err := engine.fuelSurchargeComputation()
 	suite.Nil(err)
 	suite.Equal(unit.Cents(0), fuelSurcharge.Fee)

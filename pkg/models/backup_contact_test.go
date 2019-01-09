@@ -11,7 +11,7 @@ import (
 func (suite *ModelSuite) Test_BackupContactCreate() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	newContact := models.BackupContact{
 		ServiceMemberID: serviceMember.ID,
@@ -21,7 +21,7 @@ func (suite *ModelSuite) Test_BackupContactCreate() {
 		Permission:      models.BackupContactPermissionEDIT,
 	}
 
-	verrs, err := suite.db.ValidateAndCreate(&newContact)
+	verrs, err := suite.DB().ValidateAndCreate(&newContact)
 
 	if err != nil {
 		fmt.Println(err)
@@ -48,8 +48,8 @@ func (suite *ModelSuite) Test_BackupContactValidations() {
 func (suite *ModelSuite) Test_FetchBackupContact() {
 	t := suite.T()
 
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
-	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	backupContact := models.BackupContact{
 		ServiceMemberID: serviceMember1.ID,
@@ -57,21 +57,21 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 		Email:           "email@example.com",
 		Permission:      models.BackupContactPermissionEDIT,
 	}
-	suite.mustSave(&backupContact)
+	suite.MustSave(&backupContact)
 
 	session := &auth.Session{
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
 		ApplicationName: auth.MyApp,
 	}
-	shouldSucceed, err := models.FetchBackupContact(suite.db, session, backupContact.ID)
+	shouldSucceed, err := models.FetchBackupContact(suite.DB(), session, backupContact.ID)
 	if err != nil || backupContact.ID != shouldSucceed.ID {
 		t.Errorf("failed retrieving own backup contact: %v", err)
 	}
 
 	session.UserID = serviceMember2.UserID
 	session.ServiceMemberID = serviceMember2.ID
-	_, err = models.FetchBackupContact(suite.db, session, backupContact.ID)
+	_, err = models.FetchBackupContact(suite.DB(), session, backupContact.ID)
 	if err == nil {
 		t.Error("should have failed getting other user's contact")
 	}

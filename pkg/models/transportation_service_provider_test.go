@@ -24,7 +24,7 @@ func CreateTestTsp(suite *ModelSuite) TransportationServiceProvider {
 		PocClaimsEmail:           &pocClaimsEmail,
 		PocClaimsPhone:           &pocClaimsPhone,
 	}
-	suite.mustSave(&tsp)
+	suite.MustSave(&tsp)
 	return tsp
 }
 

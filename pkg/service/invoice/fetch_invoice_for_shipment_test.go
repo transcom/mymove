@@ -50,11 +50,11 @@ var tvs = []testValues{
 func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 	for _, tv := range tvs {
 		suite.T().Run(tv.name, func(t *testing.T) {
-			shipment := testdatagen.MakeDefaultShipment(suite.db)
-			lineItem := helperSetupLineItem(shipment, tv, suite.db)
+			shipment := testdatagen.MakeDefaultShipment(suite.DB())
+			lineItem := helperSetupLineItem(shipment, tv, suite.DB())
 			suite.NotEqual(models.ShipmentLineItem{}.ID, lineItem.ID)
 
-			f := FetchShipmentForInvoice{suite.db}
+			f := FetchShipmentForInvoice{suite.DB()}
 			actualShipment, err := f.Call(shipment.ID)
 			suite.NoError(err)
 
@@ -66,12 +66,12 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 	}
 
 	suite.T().Run("multiple line items", func(t *testing.T) {
-		shipment := testdatagen.MakeDefaultShipment(suite.db)
+		shipment := testdatagen.MakeDefaultShipment(suite.DB())
 		for _, tv := range tvs {
-			helperSetupLineItem(shipment, tv, suite.db)
+			helperSetupLineItem(shipment, tv, suite.DB())
 		}
 
-		f := FetchShipmentForInvoice{suite.db}
+		f := FetchShipmentForInvoice{suite.DB()}
 		actualShipment, err := f.Call(shipment.ID)
 		suite.NoError(err)
 
@@ -79,10 +79,10 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 	})
 
 	suite.T().Run("tariff item association", func(t *testing.T) {
-		shipment := testdatagen.MakeDefaultShipment(suite.db)
-		tariffItem := testdatagen.MakeDefaultTariff400ngItem(suite.db)
+		shipment := testdatagen.MakeDefaultShipment(suite.DB())
+		tariffItem := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 		suite.NotEqual(tariffItem.ID, models.Tariff400ngItem{}.ID)
-		testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+		testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
 				Shipment:        shipment,
 				ShipmentID:      shipment.ID,
@@ -91,7 +91,7 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 			},
 		})
 
-		f := FetchShipmentForInvoice{suite.db}
+		f := FetchShipmentForInvoice{suite.DB()}
 		actualShipment, err := f.Call(shipment.ID)
 		suite.NoError(err)
 

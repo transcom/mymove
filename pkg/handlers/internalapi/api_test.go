@@ -4,7 +4,6 @@ import (
 	"log"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -14,12 +13,12 @@ import (
 
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
-	handlers.BaseTestSuite
+	handlers.BaseHandlerTestSuite
 }
 
 // SetupTest sets up the test suite by preparing the DB
 func (suite *HandlerSuite) SetupTest() {
-	suite.TestDB().TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 // AfterTest completes tests by trying to close open files
@@ -31,22 +30,14 @@ func (suite *HandlerSuite) AfterTest() {
 
 // TestHandlerSuite creates our test suite
 func TestHandlerSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	hs := &HandlerSuite{}
-	hs.SetTestDB(db)
-	hs.SetTestLogger(logger)
-	hs.SetTestNotificationSender(notifications.NewStubNotificationSender(logger))
+	hs := &HandlerSuite{
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender(logger)),
+	}
 
 	suite.Run(t, hs)
 }
