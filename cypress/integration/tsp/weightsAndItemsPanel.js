@@ -1,5 +1,3 @@
-import { selectPreMoveSurveyPanel, fillAndSavePremoveSurvey } from '../../support/testPremoveSurvey';
-
 /* global cy */
 describe('TSP Interacts With the Weights & Items Panel', function() {
   beforeEach(() => {

@@ -58,7 +58,7 @@ function officeUserViewsMoves() {
 
 function officeUserViewsDeliveredShipment() {
   // Open new moves queue
-  cy.visit('/queues/hhg_delivered');
+  cy.patientVisit('/queues/hhg_delivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
@@ -85,7 +85,7 @@ function officeUserViewsDeliveredShipment() {
 
 function officeUserViewsCompletedShipment() {
   // Open new moves queue
-  cy.visit('/queues/hhg_completed');
+  cy.patientVisit('/queues/hhg_completed');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
   });
@@ -112,7 +112,7 @@ function officeUserViewsCompletedShipment() {
 
 function officeUserViewsAcceptedShipment() {
   // Open new moves queue
-  cy.visit('/queues/hhg_accepted');
+  cy.patientVisit('/queues/hhg_accepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
@@ -139,7 +139,7 @@ function officeUserViewsAcceptedShipment() {
 
 function officeUserApprovesOnlyBasicsHHG() {
   // Open accepted hhg queue
-  cy.visit('/queues/new');
+  cy.patientVisit('/queues/new');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
@@ -203,7 +203,7 @@ function officeUserApprovesOnlyBasicsHHG() {
 
 function officeUserApprovesHHG() {
   // Open accepted hhg queue
-  cy.visit('/queues/hhg_accepted');
+  cy.patientVisit('/queues/hhg_accepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
@@ -267,7 +267,7 @@ function officeUserApprovesHHG() {
 
 function officeUserCompletesHHG() {
   // Open delivered hhg queue
-  cy.visit('/queues/hhg_delivered');
+  cy.patientVisit('/queues/hhg_delivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
@@ -313,7 +313,7 @@ function officeUserCompletesHHG() {
 
 function officeUserApprovePaymentInvoice() {
   // Open completed hhg queue
-  cy.visit('/queues/hhg_delivered');
+  cy.patientVisit('/queues/hhg_delivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });

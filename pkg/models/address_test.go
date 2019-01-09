@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		PostalCode:     "90210",
 	}
 
-	verrs, err := suite.db.ValidateAndCreate(&newAddress)
+	verrs, err := suite.DB().ValidateAndCreate(&newAddress)
 
 	suite.Nil(err, "Error writing to the db.")
 	suite.False(verrs.HasAny(), "Error validating model")

@@ -1,10 +1,8 @@
 package rateengine
 
 import (
-	"log"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -17,7 +15,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
 		BasepointCity: "Saucier",
@@ -26,7 +24,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&originZip3)
+	suite.MustSave(&originZip3)
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -40,7 +38,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&originServiceArea)
+	suite.MustSave(&originServiceArea)
 
 	destinationZip3 := models.Tariff400ngZip3{
 		Zip3:          "336",
@@ -50,7 +48,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		RateArea:      "US4964400",
 		Region:        "13",
 	}
-	suite.mustSave(&destinationZip3)
+	suite.MustSave(&destinationZip3)
 
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Tampa, FL",
@@ -64,7 +62,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		SIT185BRateCents:   unit.Cents(222),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&destinationServiceArea)
+	suite.MustSave(&destinationServiceArea)
 
 	fullPackRate := models.Tariff400ngFullPackRate{
 		Schedule:           1,
@@ -74,7 +72,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fullPackRate)
+	suite.MustSave(&fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
@@ -82,7 +80,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fullUnpackRate)
+	suite.MustSave(&fullUnpackRate)
 
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1,
@@ -94,7 +92,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&newBaseLinehaul)
+	suite.MustSave(&newBaseLinehaul)
 
 	shorthaul := models.Tariff400ngShorthaulRate{
 		CwtMilesLower:      1,
@@ -103,7 +101,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&shorthaul)
+	suite.MustSave(&shorthaul)
 
 	// 139698 +20000
 	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate,
@@ -120,41 +118,24 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 }
 
 type RateEngineSuite struct {
-	testingsuite.LocalTestSuite
-	db      *pop.Connection
+	testingsuite.PopTestSuite
 	logger  *zap.Logger
 	planner route.Planner
 }
 
 func (suite *RateEngineSuite) SetupTest() {
-	suite.db.TruncateAll()
-}
-
-func (suite *RateEngineSuite) mustSave(model interface{}) {
-	t := suite.T()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		t.Fatalf("error: %s", err)
-		log.Panic(err)
-	}
-	if verrs.Count() > 0 {
-		t.Fatalf("errors encountered saving %v: %v", model, verrs)
-	}
+	suite.DB().TruncateAll()
 }
 
 func TestRateEngineSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Use a no-op logger during testing
 	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner(1234)
 
-	hs := &RateEngineSuite{db: db, logger: logger, planner: planner}
+	hs := &RateEngineSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+		logger:       logger,
+		planner:      planner,
+	}
 	suite.Run(t, hs)
 }

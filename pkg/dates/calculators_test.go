@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type testCase struct {
@@ -125,31 +125,23 @@ func (suite *DatesSuite) TestNextValidMoveDate() {
 }
 
 type DatesSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *hnyzap.Logger
 }
 
 func (suite *DatesSuite) SetupTest() {
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 func TestDatesSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	hs := &DatesSuite{
-		db:     db,
-		logger: &hnyzap.Logger{Logger: logger},
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+		logger:       &hnyzap.Logger{Logger: logger},
 	}
 	suite.Run(t, hs)
 }

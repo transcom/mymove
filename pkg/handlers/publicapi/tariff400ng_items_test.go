@@ -22,20 +22,20 @@ func (suite *HandlerSuite) getTariff400ngItemsParams(tspUser models.TspUser, req
 
 func (suite *HandlerSuite) TestGetTariff400ngItemsHandler() {
 	// Does not require pre-approval
-	testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
+	testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 	// Does require pre-approval
-	item2 := testdatagen.MakeTariff400ngItem(suite.TestDB(), testdatagen.Assertions{
+	item2 := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
 			Code:                "9000",
 			RequiresPreApproval: true,
 		},
 	})
 
-	tspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 
 	// Test that only pre-approval items are returned
 	requireParams := suite.getTariff400ngItemsParams(tspUser, true)
-	handler := GetTariff400ngItemsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := GetTariff400ngItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(requireParams)
 
 	// Then: expect a 200 status code
@@ -48,7 +48,7 @@ func (suite *HandlerSuite) TestGetTariff400ngItemsHandler() {
 
 	// Test that all items are returned
 	requireParams = suite.getTariff400ngItemsParams(tspUser, false)
-	handler = GetTariff400ngItemsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler = GetTariff400ngItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(requireParams)
 
 	// Then: expect a 200 status code

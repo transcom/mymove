@@ -18,7 +18,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
-  cy.reload();
+  cy.patientReload();
 
   cy.get('div.pm_survey_conducted_date').contains('20-Jul-18');
   cy.get('div.pm_survey_method').contains('Phone');
@@ -51,7 +51,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
-  cy.reload();
+  cy.patientReload();
 
   cy.get('div.original_pack_date').contains('11-May-18');
   cy.get('div.pm_survey_planned_pack_date').contains('01-Aug-18');
@@ -85,7 +85,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
-  cy.reload();
+  cy.patientReload();
 
   cy.get('div.requested_pickup_date').contains('15-May-18');
   cy.get('div.pm_survey_planned_pickup_date').contains('02-Aug-18');
@@ -118,7 +118,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
-  cy.reload();
+  cy.patientReload();
 
   cy.get('div.original_delivery_date').contains('21-May-18');
   cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
@@ -149,7 +149,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
-  cy.reload();
+  cy.patientReload();
 
   cy.get('div.pm_survey_notes').contains('Notes notes notes for dates');
 }
@@ -221,7 +221,7 @@ export function userEntersAndRemovesDates() {
     .contains('Save')
     .click();
 
-  cy.reload();
+  cy.patientReload();
 
   cy.get('div.pm_survey_conducted_date').contains('20-Jul-18');
   cy.get('div.pm_survey_method').contains('Phone');
@@ -310,7 +310,7 @@ export function userEntersAndRemovesDates() {
     .contains('Save')
     .click();
 
-  cy.reload();
+  cy.patientReload();
 
   cy.get('div.pm_survey_conducted_date').contains('missing');
   cy.get('div.original_pack_date').contains('11-May-18');
