@@ -743,6 +743,9 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
+	// Set the GexSender() and SendToGexHTTP fields
+	certificates, rootCAs, err := initDODCertificates(v, logger)
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	var gexRequester gex.SendToGex
 	gexURL := v.GetString("gex-url")
 	if len(gexURL) == 0 {
@@ -751,17 +754,17 @@ func main() {
 			w.WriteHeader(http.StatusOK)
 		}))
 		gexRequester = gex.SendToGexHTTP{
-			URL:          server.URL,
-			IsTrueGexURL: false,
-			//TLSConfig: ,
+			URL:                  server.URL,
+			IsTrueGexURL:         false,
+			TLSConfig:            &tls.Config{},
 			GEXBasicAuthUsername: "",
 			GEXBasicAuthPassword: "",
 		}
 	} else {
 		gexRequester = gex.SendToGexHTTP{
-			URL:          v.GetString("gex-url"),
-			IsTrueGexURL: true,
-			//TLSConfig: ,
+			URL:                  v.GetString("gex-url"),
+			IsTrueGexURL:         true,
+			TLSConfig:            tlsConfig,
 			GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
 			GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
 		}

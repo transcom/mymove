@@ -25,9 +25,9 @@ type SendToGex interface {
 
 // SendToGexHTTP represents a struct to contain an actual gex request function
 type SendToGexHTTP struct {
-	URL          string
-	IsTrueGexURL bool
-	//TLSConfig *tls.Config
+	URL                  string
+	IsTrueGexURL         bool
+	TLSConfig            *tls.Config
 	GEXBasicAuthUsername string
 	GEXBasicAuthPassword string
 }
@@ -55,14 +55,8 @@ func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Resp
 	// our client certificate for the proxy in front of the GEX server.
 	request.SetBasicAuth(s.GEXBasicAuthUsername, s.GEXBasicAuthPassword)
 
-	config, err := getTLSConfig()
-	if err != nil {
-		return resp, errors.Wrap(err, "Creating TLS config")
-	}
-	tr := &http.Transport{TLSClientConfig: config}
-	fmt.Println("$#@#@#$ before: ", time.Now())
+	tr := &http.Transport{TLSClientConfig: s.TLSConfig}
 	client := &http.Client{Transport: tr, Timeout: gexRequestTimeout}
-	fmt.Println("$#@#@#$ after: ", time.Now())
 	resp, err = client.Do(request)
 	if err != nil {
 		return resp, errors.Wrap(err, "Sending GEX POST request")
