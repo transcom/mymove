@@ -7,11 +7,12 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
 type PlannerSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	logger *zap.Logger
 }
 

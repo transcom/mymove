@@ -131,13 +131,13 @@ func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&newBaseLinehaul)
+	suite.MustSave(&newBaseLinehaul)
 
 	goodDistance := 3200
 	goodWeight := unit.Pound(6000)
 
 	// Test the best case
-	rate, err := FetchBaseLinehaulRate(suite.db, goodDistance, goodWeight, testdatagen.DateInsidePeakRateCycle)
+	rate, err := FetchBaseLinehaulRate(suite.DB(), goodDistance, goodWeight, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("Something went wrong with saving the test object: %s\n", err)
 	}
@@ -146,37 +146,37 @@ func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 	}
 
 	// Test inclusivity of EffectiveDateLower
-	rate, err = FetchBaseLinehaulRate(suite.db, goodDistance, goodWeight, testdatagen.PeakRateCycleStart)
+	rate, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, goodWeight, testdatagen.PeakRateCycleStart)
 	if err != nil {
 		t.Errorf("EffectiveDateLower is incorrectly exlusive: %s", err)
 	}
 
 	// Test exclusivity of EffectiveDateUpper
-	rate, err = FetchBaseLinehaulRate(suite.db, goodDistance, goodWeight, testdatagen.PeakRateCycleEnd)
+	rate, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, goodWeight, testdatagen.PeakRateCycleEnd)
 	if err == nil && rate == mySpecificRate {
 		t.Errorf("EffectiveDateUpper is incorrectly inclusive.")
 	}
 
 	// Test inclusivity of DistanceMilesLower
-	rate, err = FetchBaseLinehaulRate(suite.db, distanceLower, goodWeight, testdatagen.DateInsidePeakRateCycle)
+	rate, err = FetchBaseLinehaulRate(suite.DB(), distanceLower, goodWeight, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Errorf("DistanceMilesLower is incorrectly exlusive: %s", err)
 	}
 
 	// Test exclusivity of DistanceMilesUpper
-	rate, err = FetchBaseLinehaulRate(suite.db, distanceUpper, goodWeight, testdatagen.DateInsidePeakRateCycle)
+	rate, err = FetchBaseLinehaulRate(suite.DB(), distanceUpper, goodWeight, testdatagen.DateInsidePeakRateCycle)
 	if err == nil && rate == mySpecificRate {
 		t.Errorf("DistanceMilesUpper is incorrectly inclusive.")
 	}
 
 	// Test inclusivity of WeightLbsLower
-	rate, err = FetchBaseLinehaulRate(suite.db, goodDistance, weightLbsLower, testdatagen.DateInsidePeakRateCycle)
+	rate, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, weightLbsLower, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Errorf("WeightLbsLower is incorrectly exlusive: %s", err)
 	}
 
 	// Test exclusivity of WeightLbsUpper
-	rate, err = FetchBaseLinehaulRate(suite.db, goodDistance, weightLbsUpper, testdatagen.DateInsidePeakRateCycle)
+	rate, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, weightLbsUpper, testdatagen.DateInsidePeakRateCycle)
 	if err == nil && rate == mySpecificRate {
 		t.Errorf("DistanceMilesUpper is incorrectly inclusive.")
 	}

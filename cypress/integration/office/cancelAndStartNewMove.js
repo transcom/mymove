@@ -4,7 +4,7 @@ describe('office user finds the move', () => {
     cy.signIntoOffice();
 
     // Open the move
-    cy.visit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc9/ppm');
+    cy.patientVisit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc9/ppm');
 
     // Find the Cancel Move button
     cy

@@ -12,14 +12,14 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	t := suite.T()
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	market1 := "dHHG"
 	sourceGBLOC := "KKFA"
-	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+	testdatagen.MakeBlackoutDate(suite.DB(), testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
 			TransportationServiceProviderID: tsp.ID,
 			StartBlackoutDate:               blackoutStartDate,
@@ -30,7 +30,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 		},
 	})
 
-	shipmentDomesticMarket := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipmentDomesticMarket := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ActualPickupDate: &pickupDate,
 			BookDate:         &testdatagen.DateInsidePerformancePeriod,
@@ -38,7 +38,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 		},
 	})
 
-	shipmentInternationalMarket := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipmentInternationalMarket := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ActualPickupDate: &pickupDate,
 			BookDate:         &testdatagen.DateInsidePerformancePeriod,
@@ -46,14 +46,14 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 		},
 	})
 
-	fetchWithDomesticMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentDomesticMarket)
+	fetchWithDomesticMarket, err := FetchTSPBlackoutDates(suite.DB(), tsp.ID, shipmentDomesticMarket)
 	if err != nil {
 		t.Errorf("Error fetching blackout dates.")
 	} else if len(fetchWithDomesticMarket) == 0 {
 		t.Errorf("Blackout dates query should have returned one result but returned zero instead.")
 	}
 
-	fetchWithInternationalMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentInternationalMarket)
+	fetchWithInternationalMarket, err := FetchTSPBlackoutDates(suite.DB(), tsp.ID, shipmentInternationalMarket)
 	if err != nil {
 		t.Errorf("Error fetching blackout dates.")
 	} else if len(fetchWithInternationalMarket) == 0 {
@@ -66,8 +66,8 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	t := suite.T()
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
@@ -76,7 +76,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	destinationGBLOC1 := "HAFC"
 	sourceGBLOC2 := "KKNO"
 	destinationGBLOC2 := "HANO"
-	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+	testdatagen.MakeBlackoutDate(suite.DB(), testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
 			TransportationServiceProviderID: tsp.ID,
 			StartBlackoutDate:               blackoutStartDate,
@@ -87,7 +87,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 		},
 	})
 
-	shipmentInGBLOC1 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipmentInGBLOC1 := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ActualPickupDate: &pickupDate,
 			SourceGBLOC:      &sourceGBLOC1,
@@ -98,7 +98,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 		},
 	})
 
-	shipmentInGBLOC2 := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipmentInGBLOC2 := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ActualPickupDate: &pickupDate,
 			SourceGBLOC:      &sourceGBLOC2,
@@ -108,14 +108,14 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 		},
 	})
 
-	fetchWithMatchingGBLOC, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentInGBLOC1)
+	fetchWithMatchingGBLOC, err := FetchTSPBlackoutDates(suite.DB(), tsp.ID, shipmentInGBLOC1)
 	if err != nil {
 		t.Errorf("Error fetching blackout dates.")
 	} else if len(fetchWithMatchingGBLOC) != 1 {
 		t.Errorf("Blackout dates query should have returned one result but returned zero instead.")
 	}
 
-	fetchWithMismatchedGBLOC, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentInGBLOC2)
+	fetchWithMismatchedGBLOC, err := FetchTSPBlackoutDates(suite.DB(), tsp.ID, shipmentInGBLOC2)
 	if err != nil {
 		t.Errorf("Error fetching blackout dates: %s.", err)
 	} else if len(fetchWithMismatchedGBLOC) != 0 {

@@ -7,6 +7,7 @@
 * [Go](#go)
   * [Acronyms](#acronyms)
   * [Style and Conventions](#style-and-conventions)
+  * [Importing Dependencies](#importing-dependencies)
   * [Querying the Database Safely](#querying-the-database-safely)
   * [`models.Fetch*` functions](#modelsfetch-functions)
   * [Logging](#logging)
@@ -84,6 +85,16 @@ Beyond what is described above, the following contain additional insights into h
 * [What's in a name?](https://talks.golang.org/2014/names.slide#1) (how to name things in Go)
 * [Go best practices, six years in](https://peter.bourgon.org/go-best-practices-2016/)
 * [A theory of modern Go](https://peter.bourgon.org/blog/2017/06/09/theory-of-modern-go.html)
+
+### Importing Dependencies
+
+Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project:
+
+1. Add the package to the import statement of a Go file.
+1. `make clean`
+1. `make server_generate`
+1. `dep check` (to verify what's missing.) If it looks reasonable then...
+1. `dep ensure`
 
 ### Querying the Database Safely
 

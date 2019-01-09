@@ -18,7 +18,7 @@ func (suite *ModelSuite) TestUserCreation() {
 		LoginGovEmail: userEmail,
 	}
 
-	if verrs, err := suite.db.ValidateAndCreate(&newUser); err != nil || verrs.HasAny() {
+	if verrs, err := suite.DB().ValidateAndCreate(&newUser); err != nil || verrs.HasAny() {
 		t.Fatal("Didn't create user in db.")
 	}
 
@@ -59,8 +59,8 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 		LoginGovEmail: userEmail,
 	}
 
-	suite.db.Create(&newUser)
-	err := suite.db.Create(&sameUser)
+	suite.DB().Create(&newUser)
+	err := suite.DB().Create(&sameUser)
 
 	if err.Error() != `pq: duplicate key value violates unique constraint "constraint_name"` {
 		t.Fatal("Db should have errored on unique constraint for UUID")
@@ -73,12 +73,12 @@ func (suite *ModelSuite) TestCreateUser() {
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
 	const badUUID = "39xnfc92-0506-4bef-8b57-e39519f42dc2"
 
-	sally, err := CreateUser(suite.db, goodUUID, testEmail)
+	sally, err := CreateUser(suite.DB(), goodUUID, testEmail)
 	suite.Nil(err, "No error for good create")
 	suite.Equal(expectedEmail, sally.LoginGovEmail, "should convert email to lower case")
 	suite.NotEqual(sally.ID, uuid.Nil)
 
-	fail, err := CreateUser(suite.db, expectedEmail, badUUID)
+	fail, err := CreateUser(suite.DB(), expectedEmail, badUUID)
 	suite.NotNil(err, "should get and error from bad uuid")
 	suite.Nil(fail, "no user with bad uuid")
 }
@@ -87,12 +87,12 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
 
 	// First check that it all works with no record
-	identity, err := FetchUserIdentity(suite.db, goodUUID)
+	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
-	alice := testdatagen.MakeDefaultUser(suite.db)
-	identity, err = FetchUserIdentity(suite.db, alice.LoginGovUUID.String())
+	alice := testdatagen.MakeDefaultUser(suite.DB())
+	identity, err = FetchUserIdentity(suite.DB(), alice.LoginGovUUID.String())
 	suite.Nil(err, "loading sally's identity")
 	suite.NotNil(identity)
 	suite.Equal(alice.ID, identity.ID)
@@ -101,8 +101,8 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.OfficeUserID)
 	suite.Nil(identity.TspUserID)
 
-	bob := testdatagen.MakeDefaultServiceMember(suite.db)
-	identity, err = FetchUserIdentity(suite.db, bob.User.LoginGovUUID.String())
+	bob := testdatagen.MakeDefaultServiceMember(suite.DB())
+	identity, err = FetchUserIdentity(suite.DB(), bob.User.LoginGovUUID.String())
 	suite.Nil(err, "loading bob's identity")
 	suite.NotNil(identity)
 	suite.Equal(bob.UserID, identity.ID)
@@ -111,8 +111,8 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.OfficeUserID)
 	suite.Nil(identity.TspUserID)
 
-	carol := testdatagen.MakeDefaultOfficeUser(suite.db)
-	identity, err = FetchUserIdentity(suite.db, carol.User.LoginGovUUID.String())
+	carol := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	identity, err = FetchUserIdentity(suite.DB(), carol.User.LoginGovUUID.String())
 	suite.Nil(err, "loading carol's identity")
 	suite.NotNil(identity)
 	suite.Equal(*carol.UserID, identity.ID)
@@ -121,8 +121,8 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(carol.ID, *identity.OfficeUserID)
 	suite.Nil(identity.TspUserID)
 
-	danielle := testdatagen.MakeDefaultTspUser(suite.db)
-	identity, err = FetchUserIdentity(suite.db, danielle.User.LoginGovUUID.String())
+	danielle := testdatagen.MakeDefaultTspUser(suite.DB())
+	identity, err = FetchUserIdentity(suite.DB(), danielle.User.LoginGovUUID.String())
 	suite.Nil(err, "loading danielle's identity")
 	suite.NotNil(identity)
 	suite.Equal(*danielle.UserID, identity.ID)

@@ -12,7 +12,7 @@ describe('office user interacts with premove survey', function() {
 
 function officeUserEntersPreMoveSurvey() {
   // Open new moves queue
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });

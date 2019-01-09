@@ -40,7 +40,7 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         {props.orders.orders_number ? (
-          <PanelField title="Orders Number">
+          <PanelField title="Orders Number" className="orders_number">
             <Link to={`/moves/${props.move.id}/orders`} target="_blank">
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
@@ -48,7 +48,7 @@ const OrdersDisplay = props => {
             </Link>
           </PanelField>
         ) : (
-          <PanelField title="Orders Number" className="missing">
+          <PanelField title="Orders Number" className="missing orders_number">
             missing
             <Link to={`/moves/${props.move.id}/orders`} target="_blank">
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />

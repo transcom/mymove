@@ -176,11 +176,11 @@ webserver_test: server_generate
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 \
 	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
+	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
 	aws-vault exec $$AWS_PROFILE -- \
 	chamber exec app-$$TEST_ACC_ENV -- \
 	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null

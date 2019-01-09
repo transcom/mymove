@@ -93,12 +93,12 @@ func (suite *ModelSuite) Test_GetRateCycle() {
 func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, mps, 0, .2, .1)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
+	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, nil, mps, 0, .2, .1)
 
 	// Increment offer count twice
-	performance, err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
+	performance, err := IncrementTSPPerformanceOfferCount(suite.DB(), perf.ID)
 	if err != nil {
 		t.Fatalf("Could not increment offer_count: %v", err)
 	}
@@ -106,7 +106,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 		t.Errorf("Wrong OfferCount returned: expected %d, got %d", 1, performance.OfferCount)
 	}
 
-	performance, err = IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
+	performance, err = IncrementTSPPerformanceOfferCount(suite.DB(), perf.ID)
 	if err != nil {
 		t.Fatalf("Could not increment offer_count: %v", err)
 	}
@@ -115,7 +115,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	}
 
 	performance = TransportationServiceProviderPerformance{}
-	if err := suite.db.Find(&performance, perf.ID); err != nil {
+	if err := suite.DB().Find(&performance, perf.ID); err != nil {
 		t.Fatalf("could not find perf: %v", err)
 	}
 
@@ -127,22 +127,22 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			CodeOfService: "2",
 		},
 	})
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, mps, 0, .2, .3)
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
+	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, nil, mps, 0, .2, .3)
 	band := 1
 
-	err := AssignQualityBandToTSPPerformance(context.Background(), suite.db, band, perf.ID)
+	err := AssignQualityBandToTSPPerformance(context.Background(), suite.DB(), band, perf.ID)
 	if err != nil {
 		t.Fatalf("Did not update quality band: %v", err)
 	}
 
 	performance := TransportationServiceProviderPerformance{}
-	if err := suite.db.Find(&performance, perf.ID); err != nil {
+	if err := suite.DB().Find(&performance, perf.ID); err != nil {
 		t.Fatalf("could not find perf: %v", err)
 	}
 
@@ -158,7 +158,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	tspsToMake := 5
 
 	// Make a TDL to contain our tests
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			CodeOfService: "2",
 		},
@@ -166,12 +166,12 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
-		tsp := testdatagen.MakeDefaultTSP(suite.db)
-		testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp, tdl, nil, 15, 0, .5, .6)
+		tsp := testdatagen.MakeDefaultTSP(suite.DB())
+		testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, nil, 15, 0, .5, .6)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
-	mpsTSP := testdatagen.MakeDefaultTSP(suite.db)
-	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, mpsTSP, tdl, nil, mps-1, 0, .2, .9)
+	mpsTSP := testdatagen.MakeDefaultTSP(suite.DB())
+	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), mpsTSP, tdl, nil, mps-1, 0, .2, .9)
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -182,7 +182,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	}
 
 	// Fetch TSPs in TDL
-	tspsbb, err := FetchTSPPerformancesForQualityBandAssignment(suite.db, perfGroup, mps)
+	tspsbb, err := FetchTSPPerformancesForQualityBandAssignment(suite.DB(), perfGroup, mps)
 
 	// Then: Expect to find TSPs in TDL
 	if err != nil {
@@ -200,17 +200,17 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
+	tsp1 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp2 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp3 := testdatagen.MakeDefaultTSP(suite.DB())
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0, .4, .4)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0, .4, .4)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, swag.Int(1), mps+1, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, swag.Int(1), mps+3, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp3, tdl, swag.Int(1), mps+2, 0, .4, .4)
 
-	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod,
+	tspp, err := NextTSPPerformanceInQualityBand(suite.DB(), tdl.ID, 1, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
 
 	if err != nil {
@@ -383,20 +383,20 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 // order for the Award Queue operation.
 func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	t := suite.T()
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp4 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp5 := testdatagen.MakeDefaultTSP(suite.db)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
+	tsp1 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp2 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp3 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp4 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp5 := testdatagen.MakeDefaultTSP(suite.DB())
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0, .2, .2)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0, .1, .1)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp3, tdl, swag.Int(2), mps+3, 0, .2, .2)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp4, tdl, swag.Int(3), mps+2, 0, .1, .1)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp5, tdl, swag.Int(4), mps+1, 0, .1, .1)
 
-	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, testdatagen.DateInsidePerformancePeriod,
+	tsps, err := GatherNextEligibleTSPPerformances(suite.DB(), tdl.ID, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp3.ID, tsp4.ID, tsp5.ID}
 
@@ -423,14 +423,14 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp3 := testdatagen.MakeDefaultTSP(suite.db)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
+	tsp1 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp2 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp3 := testdatagen.MakeDefaultTSP(suite.DB())
 	// What matter is the BVS score order; offer count has no influence.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, nil, 90, 0, .5, .5)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, nil, 50, 1, .3, .9)
-	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp3, tdl, nil, 15, 1, .1, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, nil, 90, 0, .5, .5)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, nil, 50, 1, .3, .9)
+	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp3, tdl, nil, 15, 1, .1, .3)
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -440,7 +440,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 		RateCycleEnd:              lastTSPP.RateCycleEnd,
 	}
 
-	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.db, perfGroup, mps)
+	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.DB(), perfGroup, mps)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -463,12 +463,12 @@ func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
-	tsp1 := testdatagen.MakeDefaultTSP(suite.db)
-	tsp2 := testdatagen.MakeDefaultTSP(suite.db)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
+	tsp1 := testdatagen.MakeDefaultTSP(suite.DB())
+	tsp2 := testdatagen.MakeDefaultTSP(suite.DB())
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp1, tdl, nil, mps+1, 0, .3, .4)
-	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.db, tsp2, tdl, nil, mps-1, 1, .9, .7)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, nil, mps+1, 0, .3, .4)
+	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, nil, mps-1, 1, .9, .7)
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -478,7 +478,7 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 		RateCycleEnd:              lastTSPP.RateCycleEnd,
 	}
 
-	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.db, perfGroup, mps)
+	tsps, err := FetchTSPPerformancesForQualityBandAssignment(suite.DB(), perfGroup, mps)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -494,15 +494,15 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 	t := suite.T()
 
-	foundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	foundTDL := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US14",
 			DestinationRegion: "3",
 			CodeOfService:     "2",
 		},
 	})
-	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	foundTSPP, err := testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
+	foundTSP := testdatagen.MakeDefaultTSP(suite.DB())
+	foundTSPP, err := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
 	if err != nil {
 		t.Errorf("Failed to MakeTSPPerformance for found TSPP: %v", err)
 	}
@@ -514,17 +514,17 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 		RateCycleEnd:              foundTSPP.RateCycleEnd,
 	}
 
-	notFoundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	notFoundTDL := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US14",
 			DestinationRegion: "5",
 			CodeOfService:     "2",
 		},
 	})
-	notFoundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
+	notFoundTSP := testdatagen.MakeDefaultTSP(suite.DB())
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
 
-	unenrolledTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	unenrolledTDL := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US14",
 			DestinationRegion: "4",
@@ -532,14 +532,14 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 		},
 	})
 
-	unenrolledTSP := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
+	unenrolledTSP := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProvider: TransportationServiceProvider{
 			Enrolled: false,
 		},
 	})
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, unenrolledTSP, unenrolledTDL, nil, float64(mps+1), 0, .4, .3)
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), unenrolledTSP, unenrolledTDL, nil, float64(mps+1), 0, .4, .3)
 
-	perfGroups, err := FetchUnbandedTSPPerformanceGroups(suite.db)
+	perfGroups, err := FetchUnbandedTSPPerformanceGroups(suite.DB())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -564,17 +564,17 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US68",
 			DestinationRegion: "5",
 			CodeOfService:     "2",
 		},
 	}) // Victoria, TX to Salina, KS
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
 
-	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
-	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.MustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
+	suite.MustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	pp2Start := date(testdatagen.TestYear, time.August, 1)
 	pp2End := date(testdatagen.TestYear, time.September, 30)
@@ -593,7 +593,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
-	suite.mustSave(&tspPerformance)
+	suite.MustSave(&tspPerformance)
 
 	lowerTSPPerformance := TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
@@ -607,7 +607,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(52.0),
 	}
-	suite.mustSave(&lowerTSPPerformance)
+	suite.MustSave(&lowerTSPPerformance)
 
 	otherPerformancePeriodTSPPerformance := TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          pp2Start,
@@ -621,9 +621,9 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(53.0),
 	}
-	suite.mustSave(&otherPerformancePeriodTSPPerformance)
+	suite.MustSave(&otherPerformancePeriodTSPPerformance)
 
-	discountRate, sitRate, err := FetchDiscountRates(suite.db, "77901", "67401", "2", moveDate)
+	discountRate, sitRate, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", moveDate)
 	if err != nil {
 		t.Fatalf("Failed to find tsp performance: %s", err)
 	}
@@ -646,17 +646,17 @@ func date(year int, month time.Month, day int) time.Time {
 func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US68",
 			DestinationRegion: "5",
 			CodeOfService:     "2",
 		},
 	}) // Victoria, TX to Salina, KS
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
 
-	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
-	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+	suite.MustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
+	suite.MustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	ppStart := testdatagen.PerformancePeriodStart
 	ppEnd := testdatagen.PerformancePeriodEnd
@@ -673,21 +673,21 @@ func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
-	suite.mustSave(&tspPerformance)
+	suite.MustSave(&tspPerformance)
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", ppEnd); err != nil {
+	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd); err != nil {
 		t.Fatalf("Failed to find tsp performance for last day in performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", ppStart); err != nil {
+	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart); err != nil {
 		t.Fatalf("Failed to find tsp performance for first day in performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", ppStart.Add(time.Hour*-24)); err == nil {
+	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart.Add(time.Hour*-24)); err == nil {
 		t.Fatalf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.db, "77901", "67401", "2", ppEnd.Add(time.Hour*24)); err == nil {
+	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd.Add(time.Hour*24)); err == nil {
 		t.Fatalf("Should not have found a TSPP for the first day following a performance period: %s", err)
 	}
 }
