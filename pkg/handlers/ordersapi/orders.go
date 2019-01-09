@@ -15,7 +15,7 @@ type GetOrdersHandler struct {
 // Handle simply returns a NotImplementedError
 func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if !clientCert.AllowOrdersAPI {
+	if clientCert == nil || !clientCert.AllowOrdersAPI {
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return ordersoperations.NewGetOrdersUnauthorized()
 	}
@@ -31,7 +31,7 @@ type IndexOrdersHandler struct {
 // Handle simply returns a NotImplementedError
 func (h IndexOrdersHandler) Handle(params ordersoperations.IndexOrdersParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if !clientCert.AllowOrdersAPI {
+	if clientCert == nil || !clientCert.AllowOrdersAPI {
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return ordersoperations.NewIndexOrdersUnauthorized()
 	}
@@ -47,7 +47,7 @@ type PostRevisionHandler struct {
 // Handle simply returns a NotImplementedError
 func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if !clientCert.AllowOrdersAPI {
+	if clientCert == nil || !clientCert.AllowOrdersAPI {
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return ordersoperations.NewPostRevisionUnauthorized()
 	}
@@ -63,7 +63,7 @@ type PostRevisionToOrdersHandler struct {
 // Handle simply returns a NotImplementedError
 func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevisionToOrdersParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if !clientCert.AllowOrdersAPI {
+	if clientCert == nil || !clientCert.AllowOrdersAPI {
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return ordersoperations.NewPostRevisionToOrdersUnauthorized()
 	}

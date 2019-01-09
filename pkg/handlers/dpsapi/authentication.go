@@ -34,7 +34,7 @@ var affiliationMap = map[models.ServiceMemberAffiliation]dpsmessages.Affiliation
 // Handle returns user information given an encrypted token
 func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if !clientCert.AllowDpsAuthAPI {
+	if clientCert == nil || !clientCert.AllowDpsAuthAPI {
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return dps.NewGetUserUnauthorized()
 	}
