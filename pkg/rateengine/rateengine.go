@@ -87,7 +87,7 @@ func (re *RateEngine) ComputePPM(
 	}
 
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date, lhDiscount)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
@@ -167,7 +167,7 @@ func (re *RateEngine) ComputeShipment(
 	}
 
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date, lhDiscount)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return

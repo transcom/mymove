@@ -1,6 +1,7 @@
 package rateengine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -74,7 +75,7 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time)
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + [SH]
-func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (cost LinehaulCostComputation, err error) {
+func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, discountRate unit.DiscountRate) (cost LinehaulCostComputation, err error) {
 	cwt := weight.ToCWT()
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
@@ -100,15 +101,16 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine shorthaul charge")
 	}
-	cost.FuelSurcharge, err = re.fuelSurchargeComputation()
-	if err != nil {
-		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
-	}
 
 	cost.LinehaulChargeTotal = cost.BaseLinehaul +
 		cost.OriginLinehaulFactor +
 		cost.DestinationLinehaulFactor +
 		cost.ShorthaulCharge
+
+	cost.FuelSurcharge, err = re.fuelSurchargeComputation(discountRate.Apply(cost.LinehaulChargeTotal))
+	if err != nil {
+		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
+	}
 
 	re.logger.Info("Linehaul charge total calculated",
 		zap.Int("linehaul total", cost.LinehaulChargeTotal.Int()),
@@ -122,7 +124,15 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 }
 
 // Calculate the fuel surcharge and return the result
-// TODO: Fill this in with the actual formula for the fuel surcharge. Returning 0 as a stub/placeholder right now.
-func (re *RateEngine) fuelSurchargeComputation() (fuelSurcharge FeeAndRate, err error) {
-	return FeeAndRate{Fee: unit.Cents(0), Rate: unit.Millicents(0)}, err
+func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents) (fuelSurcharge FeeAndRate, err error) {
+	fmt.Println(totalLinehaulCost)
+	fuelEIADieselPrice := models.FuelEIADieselPrice{}
+	err1 := re.db.Last(&fuelEIADieselPrice)
+	if err1 != nil {
+		re.logger.Error(err1.Error())
+	}
+	fuelSurchargePercentage := float64(fuelEIADieselPrice.BaselineRate) / 100
+	fee := totalLinehaulCost.MultiplyFloat64(fuelSurchargePercentage)
+	// Not sure what to do with the Rate portion of this right now. The 'rate' in this case
+	return FeeAndRate{Fee: unit.Cents(fee), Rate: unit.Millicents(0)}, err
 }

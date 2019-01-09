@@ -3,6 +3,7 @@ package rateengine
 import (
 	"log"
 	"testing"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
@@ -104,6 +105,10 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&shorthaul)
+
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.db, time.Now(), assertions)
 
 	// 139698 +20000
 	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate,

@@ -4,6 +4,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"time"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
@@ -133,6 +134,10 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	zip3SanFrancisco := "941"
 	zip5SanFrancisco := "94103"
 
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.db, time.Now(), assertions)
+
 	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1,
@@ -195,7 +200,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	suite.mustSave(&sa2)
 
 	cost, err := engine.linehaulChargeComputation(
-		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle)
+		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle, 0)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
@@ -207,8 +212,14 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 // TODO: Once the fuel surcharge calculation is in place, add in a proper test for it.
 func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-	fuelSurcharge, err := engine.fuelSurchargeComputation()
+
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.db, time.Now(), assertions)
+
+	fuelSurcharge, err := engine.fuelSurchargeComputation(unit.Cents(12000))
+
 	suite.Nil(err)
-	suite.Equal(unit.Cents(0), fuelSurcharge.Fee)
+	suite.Equal(unit.Cents(720), fuelSurcharge.Fee)
 	suite.Equal(unit.Millicents(0), fuelSurcharge.Rate)
 }

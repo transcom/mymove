@@ -5,6 +5,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"time"
 )
 
 func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
@@ -15,6 +16,10 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
+
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.db, time.Now(), assertions)
 
 	// Refetching shipments from database to get all needed eagerly fetched relationships.
 	dbShipment, err := models.FetchShipmentByTSP(suite.db, tspUser.TransportationServiceProviderID, shipment.ID)
@@ -57,7 +62,7 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	item16A := suite.findLineItem(lineItems, "16A")
 	if item105C != nil {
-		suite.validateLineItemFields(*item16A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(0), unit.Millicents(0))
+		suite.validateLineItemFields(*item16A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(15651), unit.Millicents(0))
 	}
 }
 
