@@ -17,16 +17,16 @@ func (suite *ModelSuite) Test_FetchClientCert() {
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
 	}
-	suite.mustSave(&certNew)
+	suite.MustSave(&certNew)
 
-	cert, err := models.FetchClientCert(suite.db, digest)
+	cert, err := models.FetchClientCert(suite.DB(), digest)
 	suite.Nil(err)
 	suite.Equal(cert.Sha256Digest, digest)
 	suite.Equal(cert.Subject, subject)
 }
 
 func (suite *ModelSuite) Test_FetchClientCertNotFound() {
-	cert, err := models.FetchClientCert(suite.db, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	cert, err := models.FetchClientCert(suite.DB(), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 	suite.Nil(cert)
 	suite.Equal(models.ErrFetchNotFound, err)
 }
