@@ -22,14 +22,14 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 func (suite *ModelSuite) Test_FetchTDL() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US28",
 			DestinationRegion: "4",
 			CodeOfService:     "2",
 		},
 	})
-	fetchedTDL, err := FetchTDL(suite.db, "US28", "4", "2")
+	fetchedTDL, err := FetchTDL(suite.DB(), "US28", "4", "2")
 	if err != nil {
 		t.Errorf("Something went wrong fetching the test object: %s\n", err)
 	}
@@ -42,17 +42,17 @@ func (suite *ModelSuite) Test_FetchTDL() {
 func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 	t := suite.T()
 
-	foundTDL := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	foundTDL := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US28",
 			DestinationRegion: "4",
 			CodeOfService:     "2",
 		},
 	})
-	foundTSP := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
+	foundTSP := testdatagen.MakeDefaultTSP(suite.DB())
+	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
 
-	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
+	fetchedTDL, err := FetchOrCreateTDL(suite.DB(), "US28", "4", "2")
 	if err != nil {
 		t.Errorf("Didn't return expected TDL: %v", fetchedTDL)
 	}
@@ -61,7 +61,7 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 		t.Errorf("Got wrong TDL; expected: %s, got: %s", foundTDL.ID, fetchedTDL.ID)
 	}
 
-	_, err = FetchOrCreateTDL(suite.db, "US23", "1", "2")
+	_, err = FetchOrCreateTDL(suite.DB(), "US23", "1", "2")
 	if err != nil {
 		t.Errorf("Something went wrong creating the test objects: %s\n", err)
 	}
@@ -72,7 +72,7 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 		FROM
 			traffic_distribution_lists;`
 
-	err = suite.db.RawQuery(sql).All(&tdls)
+	err = suite.DB().RawQuery(sql).All(&tdls)
 
 	if err != nil {
 		t.Errorf("Something went wrong fetching the test objects: %s\n", err)
@@ -85,14 +85,14 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 func (suite *ModelSuite) Test_TDLUniqueChannelCOS() {
 	t := suite.T()
 
-	tdl := testdatagen.MakeTDL(suite.db, testdatagen.Assertions{
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
 			SourceRateArea:    "US28",
 			DestinationRegion: "4",
 			CodeOfService:     "2",
 		},
 	})
-	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
+	fetchedTDL, err := FetchOrCreateTDL(suite.DB(), "US28", "4", "2")
 	if err != nil {
 		t.Errorf("Something went wrong fetching the test object: %s\n", err)
 	}

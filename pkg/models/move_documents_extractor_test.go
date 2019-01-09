@@ -7,7 +7,7 @@ import (
 
 func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 	// When: there is a move and move document
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
 
 	assertions := testdatagen.Assertions{
@@ -21,10 +21,10 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 		},
 	}
 
-	testdatagen.MakeMoveDocument(suite.db, assertions)
-	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
+	testdatagen.MakeMoveDocument(suite.DB(), assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
 
-	docs, err := move.FetchAllMoveDocumentsForMove(suite.db)
+	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB())
 	if suite.NoError(err) {
 		suite.Len(docs, 2)
 	}

@@ -6,10 +6,10 @@ import (
 )
 
 func (suite *ModelSuite) TestFetchTariff400ngItems() {
-	tariff400ngItem := testdatagen.MakeDefaultTariff400ngItem(suite.db)
+	tariff400ngItem := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 
 	//Do
-	accs, err := models.FetchTariff400ngItems(suite.db, false)
+	accs, err := models.FetchTariff400ngItems(suite.DB(), false)
 
 	//Test
 	suite.NoError(err)
@@ -18,9 +18,9 @@ func (suite *ModelSuite) TestFetchTariff400ngItems() {
 }
 
 func (suite *ModelSuite) TestFetchTariff400ngItemByCode() {
-	tariff400ngItem := testdatagen.MakeDefaultTariff400ngItem(suite.db)
+	tariff400ngItem := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 
-	fetchedItem, err := models.FetchTariff400ngItemByCode(suite.db, tariff400ngItem.Code)
+	fetchedItem, err := models.FetchTariff400ngItemByCode(suite.DB(), tariff400ngItem.Code)
 
 	//Test
 	suite.NoError(err)

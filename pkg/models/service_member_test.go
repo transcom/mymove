@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"context"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -28,7 +29,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "whoever@example.com",
 	}
-	verrs, err := suite.db.ValidateAndCreate(&user1)
+	verrs, err := suite.DB().ValidateAndCreate(&user1)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
@@ -41,9 +42,9 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	lastName := "sally"
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
-	fakeAddress := testdatagen.MakeDefaultAddress(suite.db)
-	fakeBackupAddress := testdatagen.MakeDefaultAddress(suite.db)
-	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
+	fakeAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	fakeBackupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
 
 	serviceMember := ServiceMember{
 		UserID:                 user1.ID,
@@ -69,11 +70,11 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 
 	newSsn := SocialSecurityNumber{}
 	newSsn.SetEncryptedHash(ctx, "555-55-5555")
-	suite.mustSave(&newSsn)
+	suite.MustSave(&newSsn)
 	serviceMember.SocialSecurityNumber = &newSsn
 	serviceMember.SocialSecurityNumberID = &newSsn.ID
 
-	suite.mustSave(&serviceMember)
+	suite.MustSave(&serviceMember)
 
 	contactAssertions := testdatagen.Assertions{
 		BackupContact: BackupContact{
@@ -81,9 +82,9 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 			ServiceMemberID: serviceMember.ID,
 		},
 	}
-	testdatagen.MakeBackupContact(suite.db, contactAssertions)
+	testdatagen.MakeBackupContact(suite.DB(), contactAssertions)
 
-	if err = suite.db.Load(&serviceMember); err != nil {
+	if err = suite.DB().Load(&serviceMember); err != nil {
 		t.Errorf("Could not load BackupContacts for serviceMember: %v", err)
 	}
 
@@ -95,11 +96,11 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 
 func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 	ctx := context.Background()
-	user1 := testdatagen.MakeDefaultUser(suite.db)
-	user2 := testdatagen.MakeDefaultUser(suite.db)
+	user1 := testdatagen.MakeDefaultUser(suite.DB())
+	user2 := testdatagen.MakeDefaultUser(suite.DB())
 
 	firstName := "Oliver"
-	resAddress := testdatagen.MakeDefaultAddress(suite.db)
+	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	sm := ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,
@@ -107,7 +108,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 		ResidentialAddressID: &resAddress.ID,
 		ResidentialAddress:   &resAddress,
 	}
-	suite.mustSave(&sm)
+	suite.MustSave(&sm)
 
 	// User is authorized to fetch service member
 	session := &auth.Session{
@@ -115,7 +116,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 		UserID:          user1.ID,
 		ServiceMemberID: sm.ID,
 	}
-	goodSm, err := FetchServiceMemberForUser(ctx, suite.db, session, sm.ID)
+	goodSm, err := FetchServiceMemberForUser(ctx, suite.DB(), session, sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
@@ -123,7 +124,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 
 	// Wrong ServiceMember
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchServiceMemberForUser(ctx, suite.db, session, wrongID)
+	_, err = FetchServiceMemberForUser(ctx, suite.DB(), session, wrongID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}
@@ -131,17 +132,17 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 	// User is forbidden from fetching order
 	session.UserID = user2.ID
 	session.ServiceMemberID = uuid.Nil
-	_, err = FetchServiceMemberForUser(ctx, suite.db, session, sm.ID)
+	_, err = FetchServiceMemberForUser(ctx, suite.DB(), session, sm.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 }
 
 func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
-	user1 := testdatagen.MakeDefaultUser(suite.db)
+	user1 := testdatagen.MakeDefaultUser(suite.DB())
 
 	firstName := "Nino"
-	resAddress := testdatagen.MakeDefaultAddress(suite.db)
+	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	sm := ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,
@@ -149,9 +150,9 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 		ResidentialAddressID: &resAddress.ID,
 		ResidentialAddress:   &resAddress,
 	}
-	suite.mustSave(&sm)
+	suite.MustSave(&sm)
 
-	goodSm, err := FetchServiceMember(suite.db, sm.ID)
+	goodSm, err := FetchServiceMember(suite.DB(), sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddressID, goodSm.ResidentialAddressID)
