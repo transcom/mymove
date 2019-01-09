@@ -65,7 +65,18 @@ Cypress.Commands.add('signInAsUser', userId => {
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
 Cypress.Commands.add('patientReload', () => {
   cy.reload();
-  cy.get('h2[data-name="loading-placeholder"]').should('not.exist', { timeout: 10000 });
+  cy.waitForLoadingScreen(10000);
+});
+
+// Visits a given URL but makes an attempt to wait for the loading screen to disappear
+Cypress.Commands.add('patientVisit', url => {
+  cy.visit(url);
+  cy.waitForLoadingScreen(10000);
+});
+
+// Waits for the loading screen to disappear for a given amount of milliseconds
+Cypress.Commands.add('waitForLoadingScreen', ms => {
+  cy.get('h2[data-name="loading-placeholder"]', { timeout: ms }).should('not.exist');
 });
 
 Cypress.Commands.add(

@@ -58,7 +58,7 @@ describe('testing CSRF protection updating move info', function() {
 
     cy.wait(100);
 
-    cy.reload();
+    cy.patientReload();
 
     cy.contains('CSRF Test');
   });

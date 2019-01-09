@@ -76,7 +76,7 @@ export function testPremoveSurvey() {
   cy.get('span').contains('4,000 lbs');
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
 
   cy
     .get('div.pm_survey_planned_delivery_date')
