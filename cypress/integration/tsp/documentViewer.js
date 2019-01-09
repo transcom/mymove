@@ -1,5 +1,5 @@
 import { fileUploadTimeout } from '../../support/constants';
-/* global cy, Cypress */
+/* global cy */
 
 describe('The document viewer', function() {
   beforeEach(() => {
@@ -8,7 +8,7 @@ describe('The document viewer', function() {
   });
 
   it('has a new document links', () => {
-    cy.visit('/');
+    cy.patientVisit('/');
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -43,7 +43,7 @@ describe('The document viewer', function() {
 
   it('shows current shipment docs after viewing a shipment with no docs', () => {
     // Find a shipment with no docs
-    cy.visit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870', {
+    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870', {
       log: true,
     });
 
@@ -53,7 +53,7 @@ describe('The document viewer', function() {
       .should('have.attr', 'href')
       .and('match', /^\/shipments\/[^/]+\/documents\/new/);
 
-    cy.visit('/queues/approved/', {
+    cy.patientVisit('/queues/approved/', {
       log: true,
     });
 
@@ -74,7 +74,7 @@ describe('The document viewer', function() {
   });
 
   it('can upload a new document', () => {
-    cy.visit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new', {
+    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new', {
       log: true,
     });
 
@@ -93,7 +93,7 @@ describe('The document viewer', function() {
   });
 
   it('can navigate to the shipment info page and show line item info', () => {
-    cy.visit('/shipments/67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9/documents/new', {
+    cy.patientVisit('/shipments/67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9/documents/new', {
       log: true,
     });
 

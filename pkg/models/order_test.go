@@ -28,10 +28,10 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
 
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
-	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -43,7 +43,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.mustSave(&uploadedOrder)
+	suite.MustSave(&uploadedOrder)
 
 	SAC := "N002214CSW32Y9"
 	ordersNumber := "FD4534JFJ"
@@ -70,7 +70,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		SAC:                 &SAC,
 		DepartmentIndicator: &deptIndicator,
 	}
-	suite.mustSave(&order)
+	suite.MustSave(&order)
 
 	// User is authorized to fetch order
 	session := &auth.Session{
@@ -78,7 +78,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
 	}
-	goodOrder, err := FetchOrderForUser(suite.db, session, order.ID)
+	goodOrder, err := FetchOrderForUser(suite.DB(), session, order.ID)
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -90,14 +90,14 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	// Wrong Order ID
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchOrderForUser(suite.db, session, wrongID)
+	_, err = FetchOrderForUser(suite.DB(), session, wrongID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}
 	// User is forbidden from fetching order
 	session.UserID = serviceMember2.UserID
 	session.ServiceMemberID = serviceMember2.ID
-	_, err = FetchOrderForUser(suite.db, session, order.ID)
+	_, err = FetchOrderForUser(suite.DB(), session, order.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
@@ -105,9 +105,9 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
 
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -119,7 +119,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.mustSave(&uploadedOrder)
+	suite.MustSave(&uploadedOrder)
 	order := Order{
 		ServiceMemberID:     serviceMember1.ID,
 		ServiceMember:       serviceMember1,
@@ -136,10 +136,10 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		TAC:                 &TAC,
 		DepartmentIndicator: &deptIndicator,
 	}
-	suite.mustSave(&order)
+	suite.MustSave(&order)
 
 	// No session
-	goodOrder, err := FetchOrder(suite.db, order.ID)
+	goodOrder, err := FetchOrder(suite.DB(), order.ID)
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -151,9 +151,9 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -165,7 +165,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.mustSave(&uploadedOrder)
+	suite.MustSave(&uploadedOrder)
 	order := Order{
 		ServiceMemberID:     serviceMember1.ID,
 		ServiceMember:       serviceMember1,
@@ -182,7 +182,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 		TAC:                 &TAC,
 		DepartmentIndicator: &deptIndicator,
 	}
-	suite.mustSave(&order)
+	suite.MustSave(&order)
 
 	// Submit Orders
 	err := order.Submit()
@@ -196,9 +196,9 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 }
 
 func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -210,7 +210,7 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.mustSave(&uploadedOrder)
+	suite.MustSave(&uploadedOrder)
 	orders := Order{
 		ServiceMemberID:     serviceMember1.ID,
 		ServiceMember:       serviceMember1,
@@ -227,14 +227,14 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 		TAC:                 &TAC,
 		DepartmentIndicator: &deptIndicator,
 	}
-	suite.mustSave(&orders)
+	suite.MustSave(&orders)
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
-	suite.mustSave(move)
+	suite.MustSave(move)
 
 	err = move.Submit()
 	suite.Nil(err)

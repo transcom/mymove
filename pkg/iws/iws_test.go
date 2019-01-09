@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
 type iwsSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	logger *zap.Logger
 }
 

@@ -93,9 +93,9 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fpr)
+	suite.MustSave(&fpr)
 
-	rate, err := FetchTariff400ngFullPackRateCents(suite.db, weight, schedule, testdatagen.DateInsidePeakRateCycle)
+	rate, err := FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("Unable to query full pack rate: %v", err)
 	}
@@ -104,25 +104,25 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 	}
 
 	// Test inclusivity of effective_date_lower
-	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weight, schedule, testdatagen.PeakRateCycleStart)
+	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.PeakRateCycleStart)
 	if err != nil {
 		t.Errorf("EffectiveDateUpper is incorrectly exlusive: %s", err)
 	}
 
 	// Test exclusivity of effective_date_upper
-	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weight, schedule, testdatagen.PeakRateCycleEnd)
+	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.PeakRateCycleEnd)
 	if err == nil && rate == rateExpected {
 		t.Errorf("EffectiveDateUpper is incorrectly inclusive.")
 	}
 
 	// Test inclusivity of weight_lbs_lower
-	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weightLower, schedule, testdatagen.DateInsidePeakRateCycle)
+	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weightLower, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Errorf("WeightLbsLower is incorrectly exclusive: %s", err)
 	}
 
 	// Test exclusivity of weight_lbs_upper
-	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weightUpper, schedule, testdatagen.DateInsidePeakRateCycle)
+	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weightUpper, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err == nil && rate == rateExpected {
 		t.Errorf("WeightLbsUpper is incorrectly inclusive.")
 	}

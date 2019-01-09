@@ -25,57 +25,37 @@ The `devlocal` CA is trusted by the system in development and test environments.
 
 ### Creating new certificates and signing them using the `devlocal` CA
 
-To get a new certificate signed by the `devlocal` CA, the easiest technique is
-to have `openssl` generate the key, cert, and certificate signing request in a
-single pass. First, make a text file with the certificate details, like this `example.txt`:
+To get a new certificate signed by the `devlocal` CA, the easiest way is to use
+the `bin/generate-devlocal-cert.sh` script. Here's an example of running that script
+to get a key pair named `partner.cer` and `partner.key` with the subject `/C=US/ST=DC/L=Washington/O=Partner/OU=Application/CN=partner.mil`.
 
 ```text
-[req]
-default_bits = 2048
-prompt = no
-default_md = sha256
-req_extensions = req_ext
-distinguished_name = dn
-
-[dn]
-C=US
-ST=IL
-L=Belleville
-O=Not USTRANSCOM
-OU=Not The Real Thing
-CN=localhost
-
-[req_ext]
+$ bin/generate-devlocal-cert.sh -o Partner -u Application -n partner.mil -f partner
+Generating a 2048 bit RSA private key
+.............................+++
+........................+++
+writing new private key to '/Users/me/go/src/github.com/transcom/mymove/partner.key'
+-----
+Signature ok
+subject=/C=US/ST=DC/L=Washington/O=Partner/OU=Application/CN=partner.mil
+Getting CA Private Key
+SHA256 digest: 21d45ee839ef3416b361d25acc3aa6437cde87e04bfd98619cdc3ec8d47faee7
 ```
-
-Then, from within this directory, run
-
-```text
-$ openssl req -nodes -new -config example.txt -keyout example.key -out example.csr
-```
-
-That gives you the private key and the CSR. Finally, get the signed cert:
-
-```text
-$ openssl x509 -req -in example.csr -CA devlocal-ca.pem -CAkey devlocal-ca.key -CAcreateserial -out example.cer -days 3652 -sha256
-```
-
-The resulting `example.cer` certificate is now signed by the `devlocal` CA, valid for 10 years.
 
 ## Adding certificates to the database
 
-Client Certificates are known to the system by their `SHA-256` digest hashes. To
-get the hash for a cert, run the following (or tell the partner to run it):
+Client Certificates are known to the system by their `SHA-256` digest hashes.
+`bin/generate-devlocal-cert.sh` provides that (and the certificate's subject)
+in its output, but if you need to do it to an existing certificate, run:
 
 ```text
 $ openssl x509 -outform der -in example.cer | openssl dgst -sha256
 ```
 
-For human readability, the row in the database also stores the certificate's
-subject. To get that, run:
+For human readability, the table also stores the certificate's subject. To get that, run:
 
 ```text
-$ openssl x509 -noout -subject -in example.cer | sed -e 's/subject= \///g;s/\//, /g'
+$ openssl x509 -noout -subject -in example.cer
 ```
 
-(That `sed` script removes the prefix "subject= /" from `openssl`'s output and converts the subject's "/" characters to more readable commas.)
+The certificates live in the `client_certs` table.

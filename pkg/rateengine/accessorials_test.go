@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *RateEngineSuite) createShipmentWithServiceArea(assertions testdatagen.Assertions) models.Shipment {
-	shipment := testdatagen.MakeShipment(suite.db, assertions)
+	shipment := testdatagen.MakeShipment(suite.DB(), assertions)
 
 	zip3 := models.Tariff400ngZip3{
 		Zip3:          Zip5ToZip3(shipment.PickupAddress.PostalCode),
@@ -19,7 +19,7 @@ func (suite *RateEngineSuite) createShipmentWithServiceArea(assertions testdatag
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&zip3)
+	suite.MustSave(&zip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -33,7 +33,7 @@ func (suite *RateEngineSuite) createShipmentWithServiceArea(assertions testdatag
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&serviceArea)
+	suite.MustSave(&serviceArea)
 
 	return shipment
 }
@@ -48,7 +48,7 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 			NetWeight: &netWeight,
 		},
 	})
-	item := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+	item := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Quantity1: unit.BaseQuantity(50000),
 			Shipment:  shipment,
@@ -61,14 +61,14 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 		},
 	})
 
-	testdatagen.MakeTariff400ngItemRate(suite.db, testdatagen.Assertions{
+	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
 			Code:      itemCode,
 			RateCents: rateCents,
 		},
 	})
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	computedPriceAndRate, err := engine.ComputeShipmentLineItemCharge(item)
 
 	if suite.NoError(err) {
@@ -88,7 +88,7 @@ func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 	})
 
 	for code := range tariff400ngItemPricing {
-		item := testdatagen.MakeShipmentLineItem(suite.db, testdatagen.Assertions{
+		item := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
 				Quantity1: unit.BaseQuantityFromInt(1),
 				Shipment:  shipment,
@@ -106,14 +106,14 @@ func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 			rateCode = newCode
 		}
 
-		testdatagen.MakeTariff400ngItemRate(suite.db, testdatagen.Assertions{
+		testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
 			Tariff400ngItemRate: models.Tariff400ngItemRate{
 				Code:      rateCode,
 				RateCents: rateCents,
 			},
 		})
 
-		engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+		engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 		_, err := engine.ComputeShipmentLineItemCharge(item)
 
 		// Make sure we don't error
@@ -127,7 +127,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 	codes := []string{"105B", "120A", "130A"}
 	var shipment models.Shipment
 	for _, code := range codes {
-		item := testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+		item := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
 				Status: models.ShipmentLineItemStatusAPPROVED,
 			},
@@ -139,7 +139,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 		shipment = item.Shipment
 	}
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	pricedItems, err := engine.PricePreapprovalRequestsForShipment(shipment)
 
 	// There should be no error
@@ -154,7 +154,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 
 func (suite *RateEngineSuite) TestPricePreapprovalRequest() {
 
-	item := testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+	item := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Status: models.ShipmentLineItemStatusSUBMITTED,
 		},
@@ -164,7 +164,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequest() {
 		},
 	})
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 	err := engine.PricePreapprovalRequest(&item)
 
 	if suite.NoError(err) {

@@ -31,7 +31,9 @@ export default function PPMShipmentSummary(props) {
         <p className="heading">
           Dates & Locations
           <span className="edit-section-link">
-            <Link to={editDateAndLocationAddress}>Edit</Link>
+            <Link data-cy="edit-ppm-dates" to={editDateAndLocationAddress}>
+              Edit
+            </Link>
           </span>
         </p>
 
@@ -69,7 +71,9 @@ export default function PPMShipmentSummary(props) {
         <p className="heading">
           Weight
           <span className="edit-section-link">
-            <Link to={editWeightAddress}>Edit</Link>
+            <Link data-cy="edit-ppm-weight" to={editWeightAddress}>
+              Edit
+            </Link>
           </span>
         </p>
 
