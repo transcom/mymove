@@ -33,6 +33,7 @@ show_logs() {
     local arn=$1
     local task_id
     task_id=$(echo "$arn" | grep -Eo ':task/([[:alnum:]-]+)$' | cut -d / -f 2)
+    echo
     echo "Attempting to get CloudWatch logs for ${arn}:"
     aws logs get-log-events --log-group-name "ecs-tasks-$cluster" --log-stream-name "$log_prefix/$container_name/$task_id" --query 'events[].message' || true
     echo
@@ -64,14 +65,21 @@ echo "Running task definition $task_definition_arn ..."
 task_arn=$(aws ecs run-task --launch-type FARGATE --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
 readonly task_arn
 check_arn "$task_arn"
+echo
 echo "Wait for tasks to stop for ${task_arn}"
 time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
+
+# Show logs immediately after wait because if they don't exist they throw a confusing error
+# If there is an error it will be in the ecs task description
+show_logs "$task_arn"
+echo
+aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
 
 echo
 echo "Check for successful deploy of ${task_arn}"
 exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --query 'tasks[].containers[].exitCode' --output text)
+
 if [[ $exit_code = "0" ]]; then
-    show_logs "$task_arn"
     echo "Task $task_arn finished."
     exit 0
 fi
@@ -79,11 +87,5 @@ fi
 # announce task run failure
 echo "Task $task_arn failed!"
 echo
-# Show logs first because if they don't exist they throw a confusing error and because the error we
-# actually care about is in the ecs task description
-show_logs "$task_arn"
-echo
-echo "If the log stream does not exist check the task description below for 'tasks[].stoppedReason'"
-echo
-aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
+echo "If the log stream does not exist check the task description above for 'tasks[].stoppedReason'"
 exit 1
