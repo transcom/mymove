@@ -20,7 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/server"
 )
 
-// Call this from command line with go run cmd/send_to_gex/main.go -edi <filepath>
+// Call this from command line with go run cmd/send_to_gex/main.go --edi <filepath>
 func main() {
 	flag := pflag.CommandLine
 	// EDI Invoice Config
@@ -70,6 +70,9 @@ func main() {
 	fmt.Println(ediString)
 
 	certificates, rootCAs, err := initDODCertificates(v, logger)
+	if err != nil {
+		log.Fatal("Error in getting tls certs", err)
+	}
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	resp, err := gex.SendToGexHTTP{
 		URL:                  v.GetString("gex-url"),
