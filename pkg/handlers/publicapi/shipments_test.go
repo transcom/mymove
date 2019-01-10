@@ -725,6 +725,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 		},
 	})
 
+	// Make sure there's a FuelEIADieselPrice to use
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), time.Now(), assertions)
+
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(1044))

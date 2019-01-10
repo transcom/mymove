@@ -74,7 +74,7 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time)
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + [SH]
-func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, discountRate unit.DiscountRate) (cost LinehaulCostComputation, err error) {
+func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, pickupDate time.Time, bookDate time.Time, discountRate unit.DiscountRate) (cost LinehaulCostComputation, err error) {
 	cwt := weight.ToCWT()
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
@@ -84,19 +84,19 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 	}
 	cost.Mileage = mileage
 
-	cost.BaseLinehaul, err = re.baseLinehaul(mileage, weight, date)
+	cost.BaseLinehaul, err = re.baseLinehaul(mileage, weight, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine base linehaul charge")
 	}
-	cost.OriginLinehaulFactor, err = re.linehaulFactors(cwt, originZip3, date)
+	cost.OriginLinehaulFactor, err = re.linehaulFactors(cwt, originZip3, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine origin linehaul factor")
 	}
-	cost.DestinationLinehaulFactor, err = re.linehaulFactors(cwt, destinationZip3, date)
+	cost.DestinationLinehaulFactor, err = re.linehaulFactors(cwt, destinationZip3, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine destination linehaul factor")
 	}
-	cost.ShorthaulCharge, err = re.shorthaulCharge(mileage, cwt, date)
+	cost.ShorthaulCharge, err = re.shorthaulCharge(mileage, cwt, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine shorthaul charge")
 	}
@@ -106,7 +106,7 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 		cost.DestinationLinehaulFactor +
 		cost.ShorthaulCharge
 
-	cost.FuelSurcharge, err = re.fuelSurchargeComputation(discountRate.Apply(cost.LinehaulChargeTotal))
+	cost.FuelSurcharge, err = re.fuelSurchargeComputation(discountRate.Apply(cost.LinehaulChargeTotal), bookDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
 	}
@@ -123,12 +123,28 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 }
 
 // Calculate the fuel surcharge and return the result
-func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents) (fuelSurcharge FeeAndRate, err error) {
-	fuelEIADieselPrice := models.FuelEIADieselPrice{}
-	err1 := re.db.Last(&fuelEIADieselPrice)
+func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents, bookDate time.Time) (fuelSurcharge FeeAndRate, err error) {
+	fuelEIADieselPriceSlice := []models.FuelEIADieselPrice{}
+
+	// If we get a zero date, this means its a PPM move, which doesn't use this, but does use the lineHaulComputation method that calls this one.
+	// So we'll return the zero struct.
+	if bookDate.IsZero() {
+		return FeeAndRate{Fee: 0, Rate: 0}, nil
+	}
+
+	re.db.Where("rate_start_date > (?) and rate_end_date < (?)", bookDate)
+	err1 := re.db.All(&fuelEIADieselPriceSlice)
 	if err1 != nil {
 		re.logger.Error(err1.Error())
 	}
+
+	// We expect to only retrieve one value from the FuelEIADieselPrice table. There should be only one valid date range for a given bookDate.
+	// If we get more than one, something is wrong.
+	if len(fuelEIADieselPriceSlice) > 1 {
+		re.logger.Error("Got back multiple values from FuelEIADieselPrice when we should have only gotten one.")
+	}
+
+	fuelEIADieselPrice := fuelEIADieselPriceSlice[0]
 	fuelSurchargePercentage := float64(fuelEIADieselPrice.BaselineRate) / 100
 	fee := totalLinehaulCost.MultiplyFloat64(fuelSurchargePercentage)
 

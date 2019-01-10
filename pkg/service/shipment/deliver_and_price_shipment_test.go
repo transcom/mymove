@@ -2,6 +2,7 @@ package shipment
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
@@ -33,6 +34,11 @@ func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
 			RequiresPreApproval: true,
 		},
 	})
+
+	// Make sure there's a FuelEIADieselPrice
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), time.Now(), assertions)
 
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
 	planner := route.NewTestingPlanner(1100)

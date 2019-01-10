@@ -200,7 +200,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	suite.MustSave(&sa2)
 
 	cost, err := engine.linehaulChargeComputation(
-		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle, 0)
+		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle, time.Now(), 0)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
@@ -216,7 +216,7 @@ func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 	assertions.FuelEIADieselPrice.BaselineRate = 6
 	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), time.Now(), assertions)
 
-	fuelSurcharge, err := engine.fuelSurchargeComputation(unit.Cents(12000))
+	fuelSurcharge, err := engine.fuelSurchargeComputation(unit.Cents(12000), time.Now())
 
 	suite.Nil(err)
 	suite.Equal(unit.Cents(720), fuelSurcharge.Fee)

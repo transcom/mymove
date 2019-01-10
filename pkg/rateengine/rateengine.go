@@ -87,7 +87,7 @@ func (re *RateEngine) ComputePPM(
 	}
 
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date, lhDiscount)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date, time.Time{}, lhDiscount)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
@@ -154,7 +154,8 @@ func (re *RateEngine) ComputeShipment(
 	weight unit.Pound,
 	originZip5 string,
 	destinationZip5 string,
-	date time.Time,
+	pickupDate time.Time,
+	bookDate time.Time,
 	daysInSIT int,
 	lhDiscount unit.DiscountRate,
 	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
@@ -167,14 +168,14 @@ func (re *RateEngine) ComputeShipment(
 	}
 
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date, lhDiscount)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate, bookDate, lhDiscount)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
 	}
 
 	// Non linehaul charges
-	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate)
 	if err != nil {
 		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
 		return
@@ -197,7 +198,7 @@ func (re *RateEngine) ComputeShipment(
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
 	destinationZip3 := Zip5ToZip3(destinationZip5)
-	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, pickupDate, true)
 	if err != nil {
 		re.logger.Info("Can't calculate sit")
 		return
@@ -205,7 +206,7 @@ func (re *RateEngine) ComputeShipment(
 	sitFee := sitDiscount.Apply(sit)
 
 	/// Max SIT
-	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
+	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, pickupDate, true)
 	if err != nil {
 		re.logger.Info("Can't calculate max sit")
 		return
@@ -291,6 +292,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 		shipment.PickupAddress.PostalCode,
 		shipment.Move.Orders.NewDutyStation.Address.PostalCode,
 		time.Time(*shipment.ActualPickupDate),
+		time.Time(*shipment.BookDate),
 		daysInSIT, // We don't want any SIT charges
 		lhDiscount,
 		sitDiscount,
