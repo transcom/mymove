@@ -10,7 +10,7 @@ set -eu -o pipefail
 export SECURE_MIGRATION_SOURCE=s3
 export AWS_S3_BUCKET_NAME=transcom-ppp-app-prod-us-west-2
 export PSQL_SSL_MODE=disable
-export DB_NAME="dev_db"
+export DB_NAME="${PROD_MIGRATION_DB_NAME:-prod_migrations}"
 
 function proceed() {
   proceed_message=${1:-"proceed"}

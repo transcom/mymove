@@ -11,6 +11,10 @@ describe('office user interacts with pre approval request panel', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
+
+  // THIS TEST IS MEANT TO BE RUN AS ONE OFF AND ONLY IN DEV MACHINE
+  // PLEASE DO NOT DELETE OR REMOVE THE SKIP
+  // THE GOAL OF THIS TEST IS DATA VALIDATIONS FOR PROD DATA
   it.skip('office user iterates through every pre approval request', () => {
     officeUserIterateThroughAllPARS();
   });
