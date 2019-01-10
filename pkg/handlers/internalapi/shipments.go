@@ -1,19 +1,22 @@
 package internalapi
 
 import (
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
-	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -524,11 +527,59 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(shipment, invoice, h.DB(), h.SendProductionInvoice(), clock.New())
+	_, verrs, err = h.processInvoice(shipment, invoice)
+	// Separating these because we may have an original error we don't want to get masked by later verrs.
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+	if verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	payload := payloadForInvoiceModel(&invoice)
+
+	return shipmentop.NewCreateAndSendHHGInvoiceOK().WithPayload(payload)
+}
+
+func (h ShipmentInvoiceHandler) processInvoice(shipment models.Shipment, invoice models.Invoice) (resp *http.Response, verrs *validate.Errors, err error) {
+	defer func() {
+		if err != nil || (resp != nil && resp.StatusCode != 200) {
+			// Trying to be careful not to lose any error context along the way, so wrapping as needed.
+			if resp != nil && resp.StatusCode != 200 {
+				errorFormat := "Invoice POST request to GEX failed with status code %d"
+				if err != nil {
+					err = errors.Wrapf(err, errorFormat, resp.StatusCode)
+				} else {
+					err = errors.Errorf(errorFormat, resp.StatusCode)
+				}
+			}
+
+			// Update invoice record as failed
+			invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
+			var deferErr error
+			verrs, deferErr = h.DB().ValidateAndSave(&invoice)
+			if deferErr != nil {
+				errorMsg := "Failed to update invoice records to failed state"
+				if err != nil {
+					err = errors.Wrap(err, errorMsg)
+				} else {
+					err = errors.New(errorMsg)
+				}
+			}
+		} else {
+			// Update invoice record as submitted
+			verrs, err = invoiceop.UpdateInvoiceSubmitted{DB: h.DB()}.Call(&invoice, shipment.ShipmentLineItems)
+		}
+	}()
+
+	verrs = validate.NewErrors()
+
+	// pass value into generator --> edi string
+	invoice858C, err := ediinvoice.Generate858C(shipment, invoice, h.DB(), h.SendProductionInvoice(), clock.New())
+	if err != nil {
+		return
+	}
+
 	// to use for demo visual
 	// should this have a flag or be taken out?
 	ediWriter := edi.NewWriter(os.Stdout)
@@ -538,36 +589,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	transactionName := "placeholder"
 	invoice858CString, err := invoice858C.EDIString()
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return
 	}
-	resp, err := gex.SendInvoiceToGex(invoice858CString, transactionName)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	// get response from gex --> use status as status for this invoice call
-	if resp.StatusCode != 200 {
-		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", resp.StatusCode))
-		// Update invoice record as failed
-		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
-		verrs, err := h.DB().ValidateAndSave(&invoice)
-		if verrs.HasAny() {
-			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
-		}
-		if err != nil {
-			h.Logger().Error("Failed to update invoice records to failed state", zap.Error(err))
-		}
-		return shipmentop.NewCreateAndSendHHGInvoiceInternalServerError()
-	}
-
-	// Update invoice record as submitted
-	shipmentLineItems := shipment.ShipmentLineItems
-	verrs, err = invoiceop.UpdateInvoiceSubmitted{DB: h.DB()}.Call(&invoice, shipmentLineItems)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-
-	payload := payloadForInvoiceModel(&invoice)
-
-	return shipmentop.NewCreateAndSendHHGInvoiceOK().WithPayload(payload)
+	resp, err = gex.SendInvoiceToGex(invoice858CString, transactionName)
+	return
 }
