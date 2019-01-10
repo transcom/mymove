@@ -9,3 +9,11 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"ServiceMemberName": FormField(45, 38, 105, floatPtr(10), nil),
 	},
 }
+
+// ShipmentSummaryPage2Layout specifies the layout and template of a
+// Shipment Summary Worksheet
+var ShipmentSummaryPage2Layout = FormLayout{
+	TemplateImagePath: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page2.png",
+
+	FieldsLayout: map[string]FieldPos{},
+}

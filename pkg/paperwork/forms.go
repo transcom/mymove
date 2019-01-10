@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jung-kurt/gofpdf"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -107,41 +108,54 @@ func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64) FieldPo
 
 // FormFiller is a fillable pdf form
 type FormFiller struct {
-	pdf    *gofpdf.Fpdf
-	fields map[string]FieldPos
-	debug  bool
+	pdf   *gofpdf.Fpdf
+	debug bool
 }
 
-// NewTemplateForm turns a template image and fields mapping into a FormFiller instance
-func NewTemplateForm(templateImage io.ReadSeeker, fields map[string]FieldPos) (FormFiller, error) {
+// NewFormFiller turns a template image and fields mapping into a FormFiller instance
+func NewFormFiller() *FormFiller {
+	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
+	pdf.SetMargins(0, 0, 0)
+	pdf.SetFont(fontFamily, fontStyle, fontSize)
+
+	return &FormFiller{
+		debug: false,
+		pdf:   pdf,
+	}
+}
+
+// AppendPage adds a page to a PDF
+func (f *FormFiller) AppendPage(templateImage io.ReadSeeker, fields map[string]FieldPos, data interface{}) error {
+
+	f.pdf.AddPage()
+
 	// Determine image type
 	_, format, err := image.DecodeConfig(templateImage)
 	if err != nil {
-		return FormFiller{}, err
+		return errors.Wrap(err, "could not decode image config")
 	}
 	templateImage.Seek(0, io.SeekStart)
-
-	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
-	pdf.SetMargins(0, 0, 0)
-	pdf.AddPage()
 
 	// Use provided image as document background
 	opt := gofpdf.ImageOptions{
 		ImageType: format,
 		ReadDpi:   true,
 	}
-	pdf.RegisterImageOptionsReader("form_template", opt, templateImage)
-	pdf.Image("form_template", imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, format, imageLink, imageLinkURL)
 
-	pdf.SetFont(fontFamily, fontStyle, fontSize)
+	// TODO need a different image name here probably
+	f.pdf.RegisterImageOptionsReader("form_template", opt, templateImage)
+	f.pdf.Image("form_template", imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, format, imageLink, imageLinkURL)
 
-	newForm := FormFiller{
-		pdf:    pdf,
-		fields: fields,
-		debug:  false,
+	err = f.drawData(fields, data)
+	if err != nil {
+		return err
 	}
 
-	return newForm, pdf.Error()
+	if f.pdf.Error() != nil {
+		return errors.Wrap(f.pdf.Error(), "error creating PDF")
+	}
+
+	return nil
 }
 
 // Debug draws boxes around each form field and overlays the
@@ -151,7 +165,7 @@ func (f *FormFiller) Debug() {
 }
 
 // DrawDebugOverlay draws a red bordered box and overlays the field's name on the right.
-func (f *FormFiller) DrawDebugOverlay(xPos, yPos, width, lineHeight float64, label string) {
+func (f *FormFiller) drawDebugOverlay(xPos, yPos, width, lineHeight float64, label string) {
 	dr, dg, db := f.pdf.GetDrawColor()
 	f.pdf.SetDrawColor(255, 0, 0)
 
@@ -171,13 +185,13 @@ func (f *FormFiller) DrawDebugOverlay(xPos, yPos, width, lineHeight float64, lab
 }
 
 // DrawData draws the provided data set onto the form using the fields mapping
-func (f *FormFiller) DrawData(data interface{}) error {
+func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) error {
 	r := reflect.ValueOf(data)
-	for k := range f.fields {
+	for k := range fields {
 		fieldVal := reflect.Indirect(r).FieldByName(k)
 		val := fieldVal.Interface()
 
-		formField := f.fields[k]
+		formField := fields[k]
 		f.pdf.MoveTo(formField.xPos, formField.yPos)
 
 		// Turn value into a display string depending on type, will need
@@ -234,7 +248,7 @@ func (f *FormFiller) DrawData(data interface{}) error {
 
 		// Draw a red-bordered box with the display value's key to the right
 		if f.debug {
-			f.DrawDebugOverlay(formField.xPos, formField.yPos, formField.width, tempLineHeight, k)
+			f.drawDebugOverlay(formField.xPos, formField.yPos, formField.width, tempLineHeight, k)
 		}
 	}
 

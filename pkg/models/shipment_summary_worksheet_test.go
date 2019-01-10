@@ -5,7 +5,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetExtractor() {
+func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetFormValues() {
 	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
 		Shipment: models.Shipment{},
 		ServiceMember: models.ServiceMember{
@@ -15,8 +15,8 @@ func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetExtractor() {
 			Suffix:     models.StringPointer("Jr."),
 		},
 	})
-	sswe, err := models.FetchShipmentSummaryWorksheetExtractor(suite.db, shipment.ID)
+	sswPage1, _, err := models.FetchShipmentSummaryWorksheetFormValues(suite.db, shipment.ID)
 	suite.NoError(err)
 
-	suite.Equal("Jenkins Jr., Marcus Joseph", sswe.ServiceMemberName)
+	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 }

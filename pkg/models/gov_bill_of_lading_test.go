@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
+func (suite *ModelSuite) TestFetchGovBillOfLadingFormValues() {
 	SourceTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.db)
 	DestinationTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.db)
 
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 		},
 	})
 
-	gbl, err := models.FetchGovBillOfLadingExtractor(suite.db, shipment.ID)
+	gbl, err := models.FetchGovBillOfLadingFormValues(suite.db, shipment.ID)
 
 	suite.NoError(err)
 

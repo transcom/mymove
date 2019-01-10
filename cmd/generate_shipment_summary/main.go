@@ -44,29 +44,37 @@ func main() {
 		log.Fatal("Usage: generate_shipment_summary -shipment <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
 
-	formLayout := paperwork.ShipmentSummaryPage1Layout
-
-	f, err := os.Open(formLayout.TemplateImagePath)
-	noErr(err)
-	defer f.Close()
-
 	// Define the data here that you want to populate the form with. Data will only be populated
 	// in the form if the field name exist BOTH in the fields map and your data below
 	parsedID := uuid.Must(uuid.FromString(*shipmentID))
-	data, err := models.FetchShipmentSummaryWorksheetExtractor(db, parsedID)
-	noErr(err)
 
 	// Build our form with a template image and field placement
-	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
-	noErr(err)
+	formFiller := paperwork.NewFormFiller()
 
 	// This is very useful for getting field positioning right initially
 	if *debug {
-		form.Debug()
+		formFiller.Debug()
 	}
 
-	// Populate form fields with provided data
-	err = form.DrawData(data)
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, parsedID)
+	noErr(err)
+
+	// page 1
+	page1Layout := paperwork.ShipmentSummaryPage1Layout
+	page1Template, err := os.Open(page1Layout.TemplateImagePath)
+	noErr(err)
+	defer page1Template.Close()
+
+	err = formFiller.AppendPage(page1Template, page1Layout.FieldsLayout, page1Data)
+	noErr(err)
+
+	// page 2
+	page2Layout := paperwork.ShipmentSummaryPage2Layout
+	page2Template, err := os.Open(page1Layout.TemplateImagePath)
+	noErr(err)
+	defer page2Template.Close()
+
+	err = formFiller.AppendPage(page2Template, page2Layout.FieldsLayout, page2Data)
 	noErr(err)
 
 	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))
@@ -74,7 +82,7 @@ func main() {
 	output, err := os.Create(filename)
 	noErr(err)
 
-	err = form.Output(output)
+	err = formFiller.Output(output)
 	noErr(err)
 
 	fmt.Println(filename)
