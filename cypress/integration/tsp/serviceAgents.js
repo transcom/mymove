@@ -156,11 +156,7 @@ function tspUserAcceptsShipment() {
 }
 
 function tspUserClicksAssignServiceAgent(locator) {
-<<<<<<< HEAD
-  cy.patientVisit('/queues/all');
-=======
-  cy.visit('/queues/accepted');
->>>>>>> Adds optional destination service agent to wizard
+  cy.patientVisit('/queues/accepted');
 
   // Find shipment and open it
   cy
