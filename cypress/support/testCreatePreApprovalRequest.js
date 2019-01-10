@@ -29,8 +29,7 @@ export function fillAndSavePreApprovalRequest(item) {
   cy
     .get('button')
     .contains('Save & Close')
-    .click()
-    .wait('@accessorialsCheck');
+    .click();
 }
 
 export function fillInvalidPreApprovalRequest() {

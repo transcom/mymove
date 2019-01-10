@@ -59,7 +59,9 @@ class InvoicePaymentAlert extends PureComponent {
       paymentAlert = (
         <div>
           <Alert type="success" heading="Success!">
-            <span className="warning--header">The invoice has been created and will be paid soon.</span>
+            <span className="warning--header" data-cy="invoice success message">
+              The invoice has been created and will be paid soon.
+            </span>
           </Alert>
         </div>
       );

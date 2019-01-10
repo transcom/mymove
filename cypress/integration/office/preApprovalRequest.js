@@ -11,31 +11,26 @@ describe('office user interacts with pre approval request panel', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  // it('office user creates pre approval request', function() {
-  //   officeUserCannotAddInvalidPreApprovalRequest();
-  // });
-  // it('office user edits pre approval request', function() {
-  //   officeUserEditsPreApprovalRequest();
-  // });
-  // it('office user approves pre approval request', function() {
-  //   officeUserApprovesPreApprovalRequest();
-  // });
-  // it('office user deletes pre approval request', function() {
-  //   officeUserDeletesPreApprovalRequest();
-  // });
-
-  it('office user iterates through every pre approval request', () => {
-    officeUserIterateThroughAllPARS();
+  it('office user creates pre approval request', function() {
+    officeUserCannotAddInvalidPreApprovalRequest();
+  });
+  it('office user creates pre approval request', function() {
+    officeUserCreatesPreApprovalRequest();
+  });
+  it('office user edits pre approval request', function() {
+    officeUserEditsPreApprovalRequest();
+  });
+  it('office user approves pre approval request', function() {
+    officeUserApprovesPreApprovalRequest();
+  });
+  it('office user deletes pre approval request', function() {
+    officeUserDeletesPreApprovalRequest();
   });
 });
 
-function officeUserIterateThroughAllPARS() {
-  cy.server();
-  cy.route('POST', '/api/v1/shipments/*/accessorials').as('accessorialsCheck');
-  // http://officelocal:4000/api/v1/shipments/accessorials/6059936d-2c15-43b8-afc5-eaa94b2b4072/approve
-
+function officeUserCreatesPreApprovalRequest() {
   // Open new moves queue
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -43,7 +38,7 @@ function officeUserIterateThroughAllPARS() {
   // Find move and open it
   cy
     .get('div')
-    .contains('DOOB')
+    .contains('RLKBEM')
     .dblclick();
 
   cy.location().should(loc => {
@@ -59,63 +54,12 @@ function officeUserIterateThroughAllPARS() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
-  let PARS = [
-    '4A',
-    '4B',
-    // '28A',
-    // '28B',
-    // '28C',
-    // '35A',
-    // '105B',
-    // '105D',
-    // '105E',
-    // '120A',
-    // '120B',
-    // '120C',
-    // '120D',
-    // '120E',
-    // '120F',
-    // '125A',
-    // '125B',
-    // '125C',
-    // '125D',
-    // '130A',
-    // '130B',
-    // '130C',
-    // '130D',
-    // '130E',
-    // '130F',
-    // '130G',
-    // '130H',
-    // '130I',
-    // '130J',
-    // '175A',
-    // '225A',
-    // '225B',
-    // '226A',
-  ];
-  PARS.forEach(par => {
-    //add a pre approval request first
-    fillAndSavePreApprovalRequest(par);
+  // Verify that the Estimates section contains expected data
+  cy.get('span').contains('2,000');
 
-    cy.get('[data-cy=' + par + ']').should('contain', par);
-    cy.get('[data-test=approve-request]').click({ multiple: true });
-  });
-
-  //invoice shipment
-  cy
-    .get('button')
-    .contains('Approve Payment')
-    .click()
-    .then(() => {
-      cy
-        .get('button')
-        .contains('Approve')
-        .click()
-        .then(() => {
-          expect(cy.get('.invoice-panel').contains('Success!'));
-        });
-    });
+  fillAndSavePreApprovalRequest('130B');
+  // Verify data has been saved in the UI
+  cy.get('td').contains('Bulky Article: Motorcycle/Rec vehicle');
 }
 
 function officeUserCannotAddInvalidPreApprovalRequest() {
