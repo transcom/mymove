@@ -108,7 +108,7 @@ export class PreApprovalRequest extends Component {
       const deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
       return (
         <Fragment>
-          <tr key={row.id} className={deleteActiveClass}>
+          <tr key={row.id} className={deleteActiveClass} data-cy={row.tariff400ng_item.code}>
             <td align="left">{row.tariff400ng_item.code}</td>
             <td align="left">{row.tariff400ng_item.item}</td>
             <td align="left"> {row.location[0]} </td>

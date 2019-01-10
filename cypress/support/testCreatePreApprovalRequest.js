@@ -14,12 +14,12 @@ export function fillAndSavePreApprovalRequest(item) {
   cy
     .get('input[name="quantity_1"]')
     .first()
-    .type('2', { force: true, delay: 150 });
+    .type('2');
 
   cy
     .get('textarea[name="notes"]')
     .first()
-    .type('notes notes', { force: true, delay: 150 });
+    .type('notes notes');
 
   cy
     .get('button')
@@ -29,7 +29,8 @@ export function fillAndSavePreApprovalRequest(item) {
   cy
     .get('button')
     .contains('Save & Close')
-    .click();
+    .click()
+    .wait('@accessorialsCheck');
 }
 
 export function fillInvalidPreApprovalRequest() {

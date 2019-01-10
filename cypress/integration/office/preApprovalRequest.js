@@ -30,6 +30,10 @@ describe('office user interacts with pre approval request panel', function() {
 });
 
 function officeUserIterateThroughAllPARS() {
+  cy.server();
+  cy.route('POST', '/api/v1/shipments/*/accessorials').as('accessorialsCheck');
+  // http://officelocal:4000/api/v1/shipments/accessorials/6059936d-2c15-43b8-afc5-eaa94b2b4072/approve
+
   // Open new moves queue
   cy.visit('/queues/all');
   cy.location().should(loc => {
@@ -58,49 +62,43 @@ function officeUserIterateThroughAllPARS() {
   let PARS = [
     '4A',
     '4B',
-    '28A',
-    '28B',
-    '28C',
-    '35A',
-    '105B',
-    '105D',
-    '105E',
-    '120A',
-    '120B',
-    '120C',
-    '120D',
-    '120E',
-    '120F',
-    '125A',
-    '125B',
-    '125C',
-    '125D',
-    '130A',
-    '130B',
-    '130C',
-    '130D',
-    '130E',
-    '130F',
-    '130G',
-    '130H',
-    '130I',
-    '130J',
-    '175A',
-    '225A',
-    '225B',
-    '226A',
+    // '28A',
+    // '28B',
+    // '28C',
+    // '35A',
+    // '105B',
+    // '105D',
+    // '105E',
+    // '120A',
+    // '120B',
+    // '120C',
+    // '120D',
+    // '120E',
+    // '120F',
+    // '125A',
+    // '125B',
+    // '125C',
+    // '125D',
+    // '130A',
+    // '130B',
+    // '130C',
+    // '130D',
+    // '130E',
+    // '130F',
+    // '130G',
+    // '130H',
+    // '130I',
+    // '130J',
+    // '175A',
+    // '225A',
+    // '225B',
+    // '226A',
   ];
-  PARS.forEach(PAR => {
+  PARS.forEach(par => {
     //add a pre approval request first
-    fillAndSavePreApprovalRequest(PAR);
+    fillAndSavePreApprovalRequest(par);
 
-    // wait a second for ui to catch up
-    cy.wait(1000);
-
-    // Verify data has been saved in the UI
-    cy.get('td').contains(PAR);
-
-    //approve PAR
+    cy.get('[data-cy=' + par + ']').should('contain', par);
     cy.get('[data-test=approve-request]').click({ multiple: true });
   });
 
