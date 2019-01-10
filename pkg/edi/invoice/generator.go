@@ -434,9 +434,11 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 
 // MakeL1Segment builds L1 segment based on shipment lineitem input.
 func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
-
+	// This value is used so that Syncada displays the proper charge value
+	// The true rate applied in the rateengine calculations is found in the db under shipment_line_items.applied_rate
+	proxyRate := 0
 	return &edisegment.L1{
-		FreightRate:              lineItem.AppliedRate.ToDollarFloat(),
+		FreightRate:              float64(proxyRate),
 		RateValueQualifier:       rateValueQualifier,
 		Charge:                   lineItem.AmountCents.ToDollarFloat(),
 		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
