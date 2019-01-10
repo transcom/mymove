@@ -2,12 +2,14 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/unit"
-	"time"
 )
 
 // FuelEIADieselPrice used to hold data from the SDDC Fuel Surcharge information

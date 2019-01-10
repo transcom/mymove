@@ -17,17 +17,17 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	shipment := shipments[0]
 
 	authedTspUser := tspUsers[0]
-	unverifiedTspUser := testdatagen.MakeDefaultTspUser(suite.TestDB())
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	unverifiedTspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Invoice tied to a shipment of authed tsp user
-	invoice := testdatagen.MakeInvoice(suite.TestDB(), testdatagen.Assertions{
+	invoice := testdatagen.MakeInvoice(suite.DB(), testdatagen.Assertions{
 		Invoice: models.Invoice{
 			ShipmentID: shipment.ID,
 		},
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 	}
 
 	// And: get invoice is hit
-	handler := GetInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := GetInvoiceHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect 403 forbidden
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 	params.HTTPRequest = req
 
 	// And: get invoice is hit
-	handler = GetInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler = GetInvoiceHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
 
 	// Then: Invoice is returned
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 	params.HTTPRequest = req
 
 	// And: get invoice is hit
-	handler = GetInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler = GetInvoiceHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
 
 	// Then: Invoice is returned

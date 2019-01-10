@@ -19,13 +19,13 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	shipment := shipments[0]
 	tspUser := tspUsers[0]
 
-	upload := testdatagen.MakeUpload(suite.TestDB(), testdatagen.Assertions{
+	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
 		Upload: models.Upload{
 			UploaderID: *tspUser.UserID,
 		},
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 		ShipmentID:                       strfmt.UUID(shipment.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler{context}
@@ -64,11 +64,11 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	// Make sure the Upload was associated to the new document
 	createdDocumentID := createdPayload.Document.ID
 	var fetchedUpload models.Upload
-	suite.TestDB().Find(&fetchedUpload, upload.ID)
+	suite.DB().Find(&fetchedUpload, upload.ID)
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Next try the wrong user
-	wrongUser := testdatagen.MakeTspUser(suite.TestDB(), testdatagen.Assertions{
+	wrongUser := testdatagen.MakeTspUser(suite.DB(), testdatagen.Assertions{
 		TspUser: models.TspUser{
 			Email: "unauthorized@example.com",
 		},
@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 			LoginGovEmail: "unauthorized@example.com",
 		},
 	})
-	// wrongUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	// wrongUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 	request = suite.AuthenticateTspRequest(request, wrongUser)
 	newMoveDocParams.HTTPRequest = request
 

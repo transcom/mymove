@@ -19,7 +19,7 @@ func CreateTestShippingOffice(suite *ModelSuite) TransportationOffice {
 		City:           "Springfield",
 		State:          "AK",
 		PostalCode:     "99515"}
-	suite.mustSave(&address)
+	suite.MustSave(&address)
 	office := TransportationOffice{
 		Name:      "JPSO Supreme",
 		AddressID: address.ID,
@@ -28,14 +28,14 @@ func CreateTestShippingOffice(suite *ModelSuite) TransportationOffice {
 		Longitude: -149.9212882,
 		Hours:     StringPointer("0900-1800 Mon-Sat"),
 	}
-	suite.mustSave(&office)
+	suite.MustSave(&office)
 	return office
 }
 
 func (suite *ModelSuite) Test_BasicShippingOffice() {
 	office := CreateTestShippingOffice(suite)
 	var loadedOffice TransportationOffice
-	suite.db.Eager().Find(&loadedOffice, office.ID)
+	suite.DB().Eager().Find(&loadedOffice, office.ID)
 	suite.Equal(office.ID, loadedOffice.ID)
 	suite.Equal(office.AddressID, loadedOffice.Address.ID)
 }
@@ -47,7 +47,7 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 		City:           "Sitka",
 		State:          "AK",
 		PostalCode:     "99835"}
-	suite.mustSave(&ppoAddress)
+	suite.MustSave(&ppoAddress)
 	ppo := TransportationOffice{
 		Name:             "Best PPO of the North",
 		ShippingOfficeID: &jppso.ID,
@@ -57,9 +57,9 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 		Longitude:        -135.332707,
 		Services:         StringPointer("Moose Shipping, Personal Goods"),
 	}
-	suite.mustSave(&ppo)
+	suite.MustSave(&ppo)
 	var loadedOffice TransportationOffice
-	suite.db.Eager().Find(&loadedOffice, ppo.ID)
+	suite.DB().Eager().Find(&loadedOffice, ppo.ID)
 	suite.Equal(ppo.ID, loadedOffice.ID)
 	suite.Equal(jppso.ID, loadedOffice.ShippingOffice.ID)
 }

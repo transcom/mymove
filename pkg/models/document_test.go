@@ -8,13 +8,13 @@ import (
 func (suite *ModelSuite) Test_DocumentCreate() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	document := models.Document{
 		ServiceMemberID: serviceMember.ID,
 	}
 
-	verrs, err := suite.db.ValidateAndSave(&document)
+	verrs, err := suite.DB().ValidateAndSave(&document)
 
 	if err != nil {
 		t.Fatalf("could not save Document: %v", err)

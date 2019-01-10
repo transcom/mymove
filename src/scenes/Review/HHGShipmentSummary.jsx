@@ -35,7 +35,9 @@ export default function HHGShipmentSummary(props) {
             Move Dates
             <span className="edit-section-link">
               {' '}
-              <Link to={editDatePath}>Edit</Link>
+              <Link data-cy="edit-move" to={editDatePath}>
+                Edit
+              </Link>
             </span>
           </p>
 

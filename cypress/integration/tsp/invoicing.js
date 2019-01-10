@@ -1,3 +1,4 @@
+/* global cy */
 describe('TSP user looks at the invoice panel to view unbilled line items', () => {
   beforeEach(() => {
     cy.signIntoTSP();
@@ -10,7 +11,7 @@ describe('TSP user looks at the invoice panel to view unbilled line items', () =
 
 function checkNoUnbilledLineItems() {
   // Open the shipment with no unbilled line items.
-  cy.visit('/shipments/0851706a-997f-46fb-84e4-2525a444ade0');
+  cy.patientVisit('/shipments/0851706a-997f-46fb-84e4-2525a444ade0');
 
   // The invoice table should be empty.
   cy
@@ -21,7 +22,7 @@ function checkNoUnbilledLineItems() {
 
 function checkExistUnbilledLineItems() {
   // Open the shipment with unbilled line items.
-  cy.visit('shipments/67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9');
+  cy.patientVisit('shipments/67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9');
 
   // The invoice table should display the unbilled line items.
   cy

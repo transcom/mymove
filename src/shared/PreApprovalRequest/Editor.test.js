@@ -57,7 +57,7 @@ describe('given an Editor', () => {
       expect(cancel.mock.calls.length).toBe(1);
     });
     it('buttons are disabled', () => {
-      expect(wrapper.find('button.button-primary').prop('disabled')).toBeTruthy();
+      expect(wrapper.find('button.usa-button-primary').prop('disabled')).toBeTruthy();
     });
   });
   describe('when the form is enabled', () => {
@@ -87,10 +87,10 @@ describe('given an Editor', () => {
       expect(cancel.mock.calls.length).toBe(1);
     });
     it('buttons are enabled', () => {
-      expect(wrapper.find('button.button-primary').prop('disabled')).toBe(false);
+      expect(wrapper.find('button.usa-button-primary').prop('disabled')).toBe(false);
     });
     it('clicking save calls saveEdit', () => {
-      wrapper.find('button.button-primary').simulate('click');
+      wrapper.find('button.usa-button-primary').simulate('click');
       expect(submit.mock.calls.length).toBe(1);
     });
   });

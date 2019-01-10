@@ -1,4 +1,6 @@
-/* global cy, Cypress */
+import { tspAppName } from '../../support/constants';
+
+/* global cy */
 describe('TSP User Navigating the App', function() {
   it('unauthorized user tries to access an authorized route', function() {
     unauthorizedTspUserGoesToAuthorizedRoute();
@@ -12,9 +14,9 @@ describe('TSP User Navigating the App', function() {
 });
 
 function unauthorizedTspUserGoesToAuthorizedRoute() {
-  Cypress.config('baseUrl', 'http://tsplocal:4000');
+  cy.setupBaseUrl(tspAppName);
   cy.logout();
-  cy.visit('/queues/new');
+  cy.patientVisit('/queues/new');
   cy.contains('Welcome to tsp.move.mil');
   cy.contains('Sign In');
 }
@@ -27,7 +29,7 @@ function tspUserViewsInvalidShipment() {
   });
 
   // visit an invalid url
-  cy.visit('/shipments/some-invalid-uuid');
+  cy.patientVisit('/shipments/some-invalid-uuid');
 
   // redirected to the queues page due to invalid shipment
   cy.location().should(loc => {
@@ -44,7 +46,7 @@ function tspUserNavigatesToInvalidRoute() {
   });
 
   // visits an invalid url
-  cy.visit('/i-do-not-exist');
+  cy.patientVisit('/i-do-not-exist');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);

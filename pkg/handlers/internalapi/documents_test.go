@@ -18,7 +18,7 @@ import (
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	req = suite.AuthenticateRequest(req, serviceMember)
 	params.HTTPRequest = req
 
-	handler := CreateDocumentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateDocumentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	document := models.Document{}
-	err := suite.TestDB().Find(&document, documentPayload.ID)
+	err := suite.DB().Find(&document, documentPayload.ID)
 	if err != nil {
 		t.Errorf("Couldn't find expected document.")
 	}
@@ -60,12 +60,12 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 func (suite *HandlerSuite) TestShowDocumentHandler() {
 	t := suite.T()
 
-	upload := testdatagen.MakeDefaultUpload(suite.TestDB())
+	upload := testdatagen.MakeDefaultUpload(suite.DB())
 
 	documentID := upload.DocumentID
 	var document models.Document
 
-	err := suite.TestDB().Eager("ServiceMember.User").Find(&document, documentID)
+	err := suite.DB().Eager("ServiceMember.User").Find(&document, documentID)
 	if err != nil {
 		t.Fatalf("could not load document: %s", err)
 	}
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	req = suite.AuthenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := ShowDocumentHandler{context}

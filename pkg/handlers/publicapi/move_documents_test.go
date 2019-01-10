@@ -19,14 +19,14 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	shipment := shipments[0]
 	tspUser := tspUsers[0]
 	move := shipment.Move
 
-	moveDocument := testdatagen.MakeMoveDocument(suite.TestDB(), testdatagen.Assertions{
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:     move.ID,
 			Move:       move,
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{context}
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	}
 
 	// Next try the wrong user
-	wrongUser := testdatagen.MakeTspUser(suite.TestDB(), testdatagen.Assertions{
+	wrongUser := testdatagen.MakeTspUser(suite.DB(), testdatagen.Assertions{
 		TspUser: models.TspUser{
 			Email: "unauthorized@example.com",
 		},
@@ -85,7 +85,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	shipment := shipments[0]
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	move := shipment.Move
 	sm := shipment.Move.Orders.ServiceMember
 
-	moveDocument := testdatagen.MakeMoveDocument(suite.TestDB(), testdatagen.Assertions{
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:     move.ID,
 			Move:       move,
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		ShipmentID:         strfmt.UUID(shipment.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
 
 	// Next try the wrong user
-	wrongUser := testdatagen.MakeTspUser(suite.TestDB(), testdatagen.Assertions{
+	wrongUser := testdatagen.MakeTspUser(suite.DB(), testdatagen.Assertions{
 		TspUser: models.TspUser{
 			Email: "unauthorized@example.com",
 		},

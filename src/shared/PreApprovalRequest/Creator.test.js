@@ -52,8 +52,8 @@ describe('given a Creator', () => {
     });
     it('buttons are disabled', () => {
       wrapper.find('a').simulate('click');
-      expect(wrapper.find('button.button-primary').prop('disabled')).toBeTruthy();
-      expect(wrapper.find('button.button-secondary').prop('disabled')).toBeTruthy();
+      expect(wrapper.find('button.usa-button-primary').prop('disabled')).toBeTruthy();
+      expect(wrapper.find('button.usa-button-secondary').prop('disabled')).toBeTruthy();
     });
   });
   describe('when the form is enabled', () => {
@@ -91,19 +91,19 @@ describe('given a Creator', () => {
         expect(wrapper.exists('div.pre-approval-panel-modal')).toBe(false);
       });
       it('buttons are enabled', () => {
-        expect(wrapper.find('button.button-secondary').prop('disabled')).toBe(false);
-        expect(wrapper.find('button.button-primary').prop('disabled')).toBe(false);
+        expect(wrapper.find('button.usa-button-secondary').prop('disabled')).toBe(false);
+        expect(wrapper.find('button.usa-button-primary').prop('disabled')).toBe(false);
       });
       it('clicking save & add another calls submitForm', () => {
-        wrapper.find('button.button-secondary').simulate('click');
+        wrapper.find('button.usa-button-secondary').simulate('click');
         expect(submit.mock.calls.length).toBe(1);
       });
       it('clicking save & close calls submitForm', () => {
-        wrapper.find('button.button-primary').simulate('click');
+        wrapper.find('button.usa-button-primary').simulate('click');
         expect(submit.mock.calls.length).toBe(1);
       });
       it('after submission of click and add another, the form is cleared', () => {
-        wrapper.find('button.button-secondary').simulate('click');
+        wrapper.find('button.usa-button-secondary').simulate('click');
         //redux-form will be sending this prop
         wrapper.setProps({ hasSubmitSucceeded: true }, () => {
           expect(clear.mock.calls.length).toBe(1);
@@ -111,7 +111,7 @@ describe('given a Creator', () => {
         });
       });
       it('after submission of click and close, the form is closed', () => {
-        wrapper.find('button.button-primary').simulate('click');
+        wrapper.find('button.usa-button-primary').simulate('click');
         //redux-form will be sending this prop
         wrapper.setProps({ hasSubmitSucceeded: true }, () => {
           expect(wrapper.state().showForm).toBe(false);

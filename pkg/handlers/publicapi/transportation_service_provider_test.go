@@ -17,7 +17,7 @@ func (suite *HandlerSuite) TestGetTransportationServiceProviderHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestGetTransportationServiceProviderHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetTransportationServiceProviderHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := GetTransportationServiceProviderHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

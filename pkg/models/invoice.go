@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 )
 
@@ -50,7 +51,9 @@ type Invoices []Invoice
 func (i *Invoice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(i.Status), Name: "Status"},
-		&validators.StringIsPresent{Field: i.InvoiceNumber, Name: "InvoiceNumber"},
+		// Note that a SCAC can be 2 to 4 letters long, so the minimum invoice number
+		// length should be 2 (SCAC) + 2 (two-digit year) + 4 (sequence number).
+		&validators.StringLengthInRange{Field: i.InvoiceNumber, Name: "InvoiceNumber", Min: 8, Max: 255},
 		&validators.TimeIsPresent{Field: i.InvoicedDate, Name: "InvoicedDate"},
 		&validators.UUIDIsPresent{Field: i.ShipmentID, Name: "ShipmentID"},
 		&validators.UUIDIsPresent{Field: i.ApproverID, Name: "ApproverID"},

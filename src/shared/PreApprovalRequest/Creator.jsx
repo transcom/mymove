@@ -48,7 +48,7 @@ export class Creator extends Component {
         <div className="pre-approval-panel-modal">
           <div className="title">Add a request</div>
           <PreApprovalForm tariff400ngItems={this.props.tariff400ngItems} onSubmit={this.onSubmit} />
-          <div className="usa-grid">
+          <div className="usa-grid-full">
             <div className="usa-width-one-half">
               <p className="cancel-link">
                 <a className="usa-button-secondary" onClick={this.closeForm}>
@@ -59,13 +59,17 @@ export class Creator extends Component {
 
             <div className="usa-width-one-half align-right">
               <button
-                className="button button-secondary"
+                className="button usa-button-secondary"
                 disabled={!this.props.formEnabled}
                 onClick={this.saveAndClear}
               >
                 Save &amp; Add Another
               </button>
-              <button className="button button-primary" disabled={!this.props.formEnabled} onClick={this.saveAndClose}>
+              <button
+                className="button usa-button-primary"
+                disabled={!this.props.formEnabled}
+                onClick={this.saveAndClose}
+              >
                 Save &amp; Close
               </button>
             </div>

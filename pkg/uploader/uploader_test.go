@@ -7,9 +7,8 @@ import (
 	"path"
 	"testing"
 
+  "github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
-
-	"github.com/gobuffalo/pop"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -17,12 +16,12 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type UploaderSuite struct {
-	suite.Suite
-	db           *pop.Connection
+	testingsuite.PopTestSuite
 	logger       *zap.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
@@ -32,7 +31,7 @@ type UploaderSuite struct {
 func (suite *UploaderSuite) SetupTest() {
 	var fs = afero.NewMemMapFs()
 	suite.fs = &afero.Afero{Fs: fs}
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
@@ -82,31 +81,24 @@ func (suite *UploaderSuite) closeFile(file afero.File) {
 }
 
 func TestUploaderSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	hs := &UploaderSuite{
-		db:     db,
-		logger: logger,
-		storer: storageTest.NewFakeS3Storage(true),
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+		logger:       logger,
+		storer:       storageTest.NewFakeS3Storage(true),
 	}
 
 	suite.Run(t, hs)
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFile() {
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
 	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
@@ -117,9 +109,9 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("empty.pdf")
 
 	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)

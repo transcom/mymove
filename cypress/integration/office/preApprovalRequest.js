@@ -26,7 +26,7 @@ describe('office user interacts with pre approval request panel', function() {
 
 function officeUserCreatesPreApprovalRequest() {
   // Open new moves queue
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -59,7 +59,7 @@ function officeUserCreatesPreApprovalRequest() {
 }
 function officeUserEditsPreApprovalRequest() {
   // Open new moves queue
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -93,7 +93,7 @@ function officeUserEditsPreApprovalRequest() {
 
 function officeUserApprovesPreApprovalRequest() {
   // Open new moves queue
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -126,7 +126,7 @@ function officeUserApprovesPreApprovalRequest() {
 
 function officeUserDeletesPreApprovalRequest() {
   // Open new moves queue
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
