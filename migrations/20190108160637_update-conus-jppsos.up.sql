@@ -1,3 +1,6 @@
+-- The CHAT gbloc has been taken over by CNNQ
+UPDATE transportation_offices
+		SET GBLOC = 'CNNQ' WHERE gbloc='CHAT'
 
 --Add JOINT PERS PROP SHIPPING OFFICE - MA transportation offices and addresses
 INSERT INTO addresses
@@ -206,7 +209,3 @@ VALUES
 --Update all PPPOs with relating gbloc
 UPDATE transportation_offices
 		SET shipping_office_id = '3a0c2b9d-3ed6-4371-93e0-b0ceccf88bff' WHERE gbloc='MLNQ' AND id <> '3a0c2b9d-3ed6-4371-93e0-b0ceccf88bff';
-
--- The CHAT gbloc has been taken over by CNNQ
-UPDATE transportation_offices
-		SET GBLOC = 'CNNQ' WHERE gbloc='CHAT'
