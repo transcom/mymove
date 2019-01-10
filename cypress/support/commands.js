@@ -243,7 +243,7 @@ Cypress.Commands.add('setupBaseUrl', appname => {
       Cypress.config('baseUrl', 'http://milmovelocal:4000');
       break;
     case officeAppName:
-      Cypress.config('baseUrl', 'http://officelocal:4000');
+      Cypress.config('baseUrl', 'http://officelocal:3000');
       break;
     case tspAppName:
       Cypress.config('baseUrl', 'http://tsplocal:4000');

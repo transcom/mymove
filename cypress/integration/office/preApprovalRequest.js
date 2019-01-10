@@ -11,18 +11,18 @@ describe('office user interacts with pre approval request panel', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  it('office user creates pre approval request', function() {
-    officeUserCannotAddInvalidPreApprovalRequest();
-  });
-  it('office user edits pre approval request', function() {
-    officeUserEditsPreApprovalRequest();
-  });
-  it('office user approves pre approval request', function() {
-    officeUserApprovesPreApprovalRequest();
-  });
-  it('office user deletes pre approval request', function() {
-    officeUserDeletesPreApprovalRequest();
-  });
+  // it('office user creates pre approval request', function() {
+  //   officeUserCannotAddInvalidPreApprovalRequest();
+  // });
+  // it('office user edits pre approval request', function() {
+  //   officeUserEditsPreApprovalRequest();
+  // });
+  // it('office user approves pre approval request', function() {
+  //   officeUserApprovesPreApprovalRequest();
+  // });
+  // it('office user deletes pre approval request', function() {
+  //   officeUserDeletesPreApprovalRequest();
+  // });
 
   it('office user iterates through every pre approval request', () => {
     officeUserIterateThroughAllPARS();
