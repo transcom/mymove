@@ -186,6 +186,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
 	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
 
+	flag.String("devlocal-ca", "", "Path to PEM-encoded devlocal CA certificate, enabled in development and test builds")
 	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String("move-mil-dod-tls-cert", "", "The DoD-signed TLS certificate for various move.mil services.")
@@ -650,6 +651,7 @@ func main() {
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
@@ -769,6 +771,7 @@ func main() {
 	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-orders-server-name"))
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
+	ordersMux.Use(clientCertMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
 	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
@@ -778,6 +781,7 @@ func main() {
 	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-dps-server-name"))
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
+	dpsMux.Use(clientCertMiddleware)
 	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
 	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
@@ -848,6 +852,14 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
+	moveMilCerts, caCertPool, err := initDODCertificates(v, logger)
+	if err != nil {
+		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
+	}
+
+	logger.Debug("Server DOD Key Pair Loaded")
+	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", caCertPool.Subjects()))
+
 	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
@@ -855,6 +867,13 @@ func main() {
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
 		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+
+		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
+		if err != nil {
+			logger.Error("No devlocal CA path defined")
+		} else {
+			caCertPool.AppendCertsFromPEM(devlocalCa)
+		}
 	}
 
 	if storageBackend == "filesystem" {
@@ -874,14 +893,6 @@ func main() {
 	}
 
 	errChan := make(chan error)
-
-	moveMilCerts, dodCACertPool, err := initDODCertificates(v, logger)
-	if err != nil {
-		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
-	}
-
-	logger.Debug("Server DOD Key Pair Loaded")
-	logger.Debug("DOD Certificate Authorities", zap.Any("subjects", dodCACertPool.Subjects()))
 
 	listenInterface := v.GetString("interface")
 
@@ -911,7 +922,7 @@ func main() {
 		mutualTLSServer := server.Server{
 			// Ensure that any DoD-signed client certificate can be validated,
 			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:     dodCACertPool,
+			CaCertPool:     caCertPool,
 			ClientAuthType: tls.RequireAndVerifyClientCert,
 			ListenAddress:  listenInterface,
 			HTTPHandler:    httpHandler,

@@ -60,8 +60,8 @@ export class PreApprovalForm extends Component {
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
-        <div className="usa-grid">
-          <div className="usa-width-one-half">
+        <div className="usa-grid-full">
+          <div className="usa-width-one-third">
             <div className="tariff400-select">
               <Field
                 name="tariff400ng_item"
@@ -73,10 +73,12 @@ export class PreApprovalForm extends Component {
             {/* TODO andrea - set schema location enum array to tariff400ng_item selected location value */}
             <SwaggerField
               fieldName="location"
-              className="one-third-width rounded"
+              className="rounded"
               swagger={this.props.ship_line_item_schema}
               required
             />
+          </div>
+          <div className="usa-width-one-third">
             <SwaggerField
               fieldName="quantity_1"
               className="half-width"
@@ -101,7 +103,7 @@ export class PreApprovalForm extends Component {
               </ul>
             </div>
           </div>
-          <div className="usa-width-one-half">
+          <div className="usa-width-one-third">
             <SwaggerField
               fieldName="notes"
               className="three-quarter-width"
