@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -250,34 +251,63 @@ func initFlags(flag *pflag.FlagSet) {
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
+	// https://tools.ietf.org/html/rfc7468#section-2
+	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
+	re := regexp.MustCompile("(?s)([-]{5}BEGIN CERTIFICATE[-]{5})(\\s*)(.+?)(\\s*)([-]{5}END CERTIFICATE[-]{5})")
+
+	certFormat := "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----"
+
 	tlsCert := v.GetString("move-mil-dod-tls-cert")
 	if len(tlsCert) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-cert")
 	}
+
+	tlsCertMatches := re.FindAllStringSubmatch(tlsCert, -1)
+	if len(tlsCertMatches) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
+	}
+	if len(tlsCertMatches) > 1 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s has too many certificate PEM blocks", "move-mil-dod-tls-cert")
+	}
+
+	tlsCerts := make([]string, 0, len(tlsCertMatches))
+	for _, m := range tlsCertMatches {
+		tlsCerts = append(tlsCerts, fmt.Sprintf(certFormat, m[3]))
+	}
+
+	logger.Info("certitficate chain from move-mil-dod-tls-cert parsed", zap.Any("count", len(tlsCerts)))
 
 	caCert := v.GetString("move-mil-dod-ca-cert")
 	if len(caCert) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-ca-cert")
 	}
 
-	//Append move.mil cert with CA certificate chain
-	cert := bytes.Join(
-		[][]byte{
-			[]byte(tlsCert),
-			[]byte(caCert),
-		},
-		[]byte("\n"),
-	)
+	caCertMatches := re.FindAllStringSubmatch(caCert, -1)
+	if len(caCertMatches) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
+	}
 
-	key := []byte(v.GetString("move-mil-dod-tls-key"))
+	caCerts := make([]string, 0, len(caCertMatches))
+	for _, m := range caCertMatches {
+		caCerts = append(caCerts, fmt.Sprintf(certFormat, m[3]))
+	}
+
+	logger.Info("certitficate chain from move-mil-dod-ca-cert parsed", zap.Any("count", len(caCerts)))
+
+	//Append move.mil cert with intermediate CA to create a validate certificate chain
+	cert := strings.Join(append(append(make([]string, 0), tlsCerts...), caCerts...), "\n")
+
+	key := v.GetString("move-mil-dod-tls-key")
 	if len(key) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-key")
 	}
 
-	keyPair, err := tls.X509KeyPair(cert, key)
+	keyPair, err := tls.X509KeyPair([]byte(cert), []byte(key))
 	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD keypair for server")
+		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD x509 keypair for server")
 	}
+
+	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
 
 	pathToPackage := v.GetString("dod-ca-package")
 	if len(pathToPackage) == 0 {
