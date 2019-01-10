@@ -132,7 +132,7 @@ func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents, boo
 		return FeeAndRate{Fee: 0, Rate: 0}, nil
 	}
 
-	re.db.Where("rate_start_date > (?) and rate_end_date < (?)", bookDate)
+	re.db.Where("rate_start_date >= (?) and rate_end_date <= (?)", bookDate)
 	err1 := re.db.All(&fuelEIADieselPriceSlice)
 	if err1 != nil {
 		re.logger.Error(err1.Error())
