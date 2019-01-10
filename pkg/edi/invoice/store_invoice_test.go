@@ -103,7 +103,22 @@ func (suite *StoreInvoiceSuite) TestStoreInvoice858C() {
 	invoice, officeUser := helperInvoice(suite)
 	invoiceString := helperExpectedEDIString(suite, "expected_invoice.edi.golden")
 	fs := suite.helperFileStorer()
+
 	verrs, err := ediinvoice.StoreInvoice858C(invoiceString, invoice, &fs, suite.logger, *officeUser.UserID, suite.db)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
+
+	// When: office user tries to access
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *officeUser.UserID,
+		OfficeUserID:    officeUser.ID,
+	}
+
+	// Fetch invoice and verify upload is set
+	invoice, err = models.FetchInvoice(suite.db, session, invoice.ID)
+	suite.Nil(err)
+	suite.NotNil(invoice)
+	suite.NotNil(invoice.Upload)
+	suite.NotNil(invoice.UploadID)
 }

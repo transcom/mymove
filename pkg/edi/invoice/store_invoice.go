@@ -51,7 +51,17 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 	loader := uploader.NewUploader(db, logger, *storer)
 
 	// Delete of previous upload, if it exist
+	// If Delete of Upload fails, ignoring this error because we still have a new Upload that needs to be saved
+	// to the Invoice
 	err = invoiceop.UpdateInvoiceUpload{DB: db, Uploader: loader}.DeleteUpload(invoice)
+	if err != nil {
+		logStr := ""
+		if invoice != nil && invoice.UploadID != nil {
+			logStr = invoice.UploadID.String()
+		}
+		logger.Info("Errors encountered for while deleting previous Upload:"+logStr,
+			zap.Any("verrors", verrs.Error()))
+	}
 
 	// Create and save Upload to s3
 	upload, verrs2, err := loader.CreateUploadNoDocument(userID, &f)
