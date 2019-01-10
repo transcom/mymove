@@ -7,7 +7,6 @@ import (
 	"path"
 	"testing"
 
-  "github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
@@ -129,10 +128,10 @@ func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {
 }
 
 func (suite *UploaderSuite) TestCreateUploadNoDocument() {
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
 
-	up := uploader.NewUploader(suite.db, suite.logger, suite.storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 	fixtureFileInfo, err := file.Stat()
 	suite.Nil(err)
