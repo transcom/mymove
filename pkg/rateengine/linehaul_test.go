@@ -136,7 +136,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
-	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), time.Now(), assertions)
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), testdatagen.RateEngineDate, assertions)
 
 	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
@@ -200,7 +200,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	suite.MustSave(&sa2)
 
 	cost, err := engine.linehaulChargeComputation(
-		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle, time.Now(), 0)
+		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle, testdatagen.RateEngineDate, 0)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
@@ -214,7 +214,7 @@ func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
-	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), time.Now(), assertions)
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), testdatagen.RateEngineDate, assertions)
 
 	fuelSurcharge, err := engine.fuelSurchargeComputation(unit.Cents(12000), time.Now())
 
