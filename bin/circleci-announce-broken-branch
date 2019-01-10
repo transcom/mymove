@@ -59,7 +59,7 @@ cat <<EOM
     "class": "cicd failure"
   },
   "routing_key": "$PD_ROUTING_KEY",
-  "dedup_key": "circle-$CIRCLE_WORKFLOW_ID",
+  "dedup_key": "circle-$CIRCLE_JOB",
   "links": [{
     "href": "$CIRCLE_BUILD_URL",
     "text": "CircleCI Build URL"
