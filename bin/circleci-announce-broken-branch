@@ -45,6 +45,13 @@ echo
 curl -X POST --data-urlencode payload="$slack_payload" "$SLACK_WEBHOOK_URL"
 
 #####
+## Exit and do nothing else unless a deploy job
+#####
+if [[ $CIRCLE_JOB != *"deploy"* ]]; then
+  exit 0
+fi
+
+#####
 ## Page the on-call via PagerDuty
 #####
 
