@@ -3,6 +3,8 @@ package publicapi
 import (
 	"bytes"
 	"fmt"
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/assets"
 	"net/http"
 	"time"
 
@@ -12,7 +14,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -20,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
+	paperworkservice "github.com/transcom/mymove/pkg/service/paperwork"
 	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
@@ -577,7 +579,8 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 
 	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+	tspUserID := session.TspUserID
+	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), tspUserID, shipmentID)
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
@@ -603,6 +606,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if orders.IsCompleteForGBL() != true {
 		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"), http.StatusExpectationFailed)
 	}
+	//-------- START ----------
 
 	// Create PDF for GBL
 	gbl, err := models.FetchGovBillOfLadingFormValues(h.DB(), shipmentID)
@@ -613,44 +617,23 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 	formLayout := paperwork.Form1203Layout
 
-	// Read in bytes from Asset pkg
-	data, err := assets.Asset(formLayout.TemplateImagePath)
-	if err != nil {
-		h.Logger().Error("Error reading template file", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
+	file, err := paperworkservice.CreateForm{
+		FileStorer: h.FileStorer(),
+	}.Call(gbl, formLayout, gbl.GBLNumber1, "GBL")
 
-	templateBuffer := bytes.NewReader(data)
-	formFiller := paperwork.NewFormFiller()
-
-	// Populate form fields with GBL data
-	err = formFiller.AppendPage(templateBuffer, formLayout.FieldsLayout, gbl)
 	if err != nil {
-		h.Logger().Error("Failure writing GBL data to form.", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
-
-	// Read the incoming data into a temporary afero.File for consumption
-	aFile, err := h.FileStorer().TempFileSystem().Create(gbl.GBLNumber1)
-	if err != nil {
-		h.Logger().Error("Error creating a new afero file for GBL form.", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
-
-	err = formFiller.Output(aFile)
-	if err != nil {
-		h.Logger().Error("Failure exporting GBL form to file.", zap.Error(err))
+		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, file)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	uploads := []models.Upload{*upload}
-
+	//-------- END ----------
 	// Create GBL move document associated to the shipment
 	doc, verrs, err := shipment.Move.CreateMoveDocument(h.DB(),
 		uploads,
