@@ -16,7 +16,7 @@ If you are looking to understand choices made in this project, see the list of [
 
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
-* [Run One Off Data Validation Scripts](how-to/data-validation-tests.md#how-to-run-one-off-data-validation-scripts)
+* [Run One Off Data Validation (Cypress) Tests](how-to/data-validation-tests.md#how-to-run-one-off-data-validation-cypress-tests)
 * [Instrument Data in Honeycomb](how-to/instrument-data-in-honeycomb.md#how-to-instrument-data-in-honeycomb)
 * [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
 * [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)
