@@ -1,6 +1,6 @@
 -- The CHAT gbloc has been taken over by CNNQ
 UPDATE transportation_offices
-		SET GBLOC = 'CNNQ' WHERE gbloc='CHAT'
+		SET GBLOC = 'CNNQ' WHERE gbloc='CHAT';
 
 --Add JOINT PERS PROP SHIPPING OFFICE - MA transportation offices and addresses
 INSERT INTO addresses
