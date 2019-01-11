@@ -2039,6 +2039,63 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 	})
 	ppm.Move.Submit()
 	models.SaveMoveDependencies(db, &ppm.Move)
+
+	email2 := "hhgwithppm@approve.shipment"
+	userID2 := uuid.Must(uuid.FromString("144f63c5-676f-4c36-a849-5588bd60c33f"))
+	moveID2 := uuid.FromStringOrNil("27266e89-df79-4469-8843-05b45741a818")
+	smID2 := uuid.FromStringOrNil("f753c28f-5da4-4924-9955-dba90b1b3011")
+
+	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userID2,
+			LoginGovEmail: email2,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            smID2,
+			FirstName:     models.StringPointer("HHGPPM"),
+			LastName:      models.StringPointer("ApproveShipment"),
+			Edipi:         models.StringPointer("4224567890"),
+			PersonalEmail: models.StringPointer(email2),
+		},
+		Order: models.Order{
+			IssueDate: time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+		},
+		Move: models.Move{
+			ID:               moveID2,
+			Locator:          "COMBO2",
+			SelectedMoveType: &selectedMoveTypeHHGPPM,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("ceb40c74-41a4-48cd-a53b-f7f5a81c7ebc"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			HasDeliveryAddress: true,
+			GBLNumber:          models.StringPointer("LKNQ7123456"),
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	ppm2 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: smID2,
+		},
+		Move: models.Move{
+			ID: moveID2,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+			MoveID:          moveID2,
+		},
+		Uploader: loader,
+	})
+	ppm2.Move.Submit()
+	models.SaveMoveDependencies(db, &ppm2.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize, has, isEmpty, includes } from 'lodash';
+import { get, capitalize, has, includes } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
@@ -216,8 +216,9 @@ class MoveInfo extends Component {
     const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
-    const isPPM = !isEmpty(this.props.officePPM);
-    const isHHG = !isEmpty(this.props.officeHHG);
+    const isPPM = move.selected_move_type === 'PPM';
+    const isHHG = move.selected_move_type === 'HHG';
+    const isHHGPPM = move.selected_move_type === 'HHG_PPM';
     const pathnames = this.props.location.pathname.split('/');
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
@@ -296,13 +297,13 @@ class MoveInfo extends Component {
                   {capitalize(move.status)}
                 </span>
               </NavTab>
-              {isPPM && (
+              {(isPPM || isHHGPPM) && (
                 <NavTab to="/ppm">
                   <span className="title">PPM</span>
                   {this.renderPPMTabStatus()}
                 </NavTab>
               )}
-              {isHHG && (
+              {(isHHG || isHHGPPM) && (
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
@@ -355,7 +356,8 @@ class MoveInfo extends Component {
                 Approve Basics
                 {moveApproved && check}
               </button>
-              {isPPM ? (
+
+              {(isPPM || isHHGPPM) && (
                 <button
                   className={`${ppmApproved ? 'btn__approve--green' : ''}`}
                   onClick={this.approvePPM}
@@ -364,7 +366,8 @@ class MoveInfo extends Component {
                   Approve PPM
                   {ppmApproved && check}
                 </button>
-              ) : (
+              )}
+              {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgApproved ? 'btn__approve--green' : ''}`}
                   onClick={this.approveHHG}
@@ -381,7 +384,7 @@ class MoveInfo extends Component {
                   {hhgApproved && check}
                 </button>
               )}
-              {isHHG && (
+              {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
                   onClick={this.completeHHG}
