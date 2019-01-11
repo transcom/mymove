@@ -39,7 +39,7 @@ commands:
       - run:
           name: Announce failure
           command: |
-            [[ $CIRCLE_BRANCH = sb_dont_alert_pd_on_test_failures ]] || exit 0
+            [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
   halt_workflow_if_older_sha:
@@ -263,7 +263,6 @@ jobs:
           environment:
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
-      - run: exit 1
       - announce_failure
 
   # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
