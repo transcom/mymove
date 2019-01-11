@@ -2,7 +2,7 @@
 
 **User Story:** Story [#162096596](https://www.pivotaltracker.com/story/show/162096596)
 
-We want to be able to protect our application against [Cross-Site Request Forgery (CSRF)](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)) attacks. While CSRF is no longer in the [OWASP top ten list] of security risks, our application does not use a full fledge Golang framework that includes CSRF protection. Therefore, we added protection to address the vulnerability.
+We want to be able to protect our application against [Cross-Site Request Forgery (CSRF)](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)) attacks. While CSRF is no longer in the [OWASP top ten list](https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project) of security risks, our application does not use a full fledge Golang framework that includes CSRF protection. Therefore, we added protection to address the vulnerability.
 
 ## Decision Drivers
 
