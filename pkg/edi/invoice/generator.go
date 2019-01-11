@@ -442,12 +442,11 @@ func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
 	// If their calculation outputs something greater than or equal to what we got, the line item shows up 0 (?!).
 	// Communication with USBank and Transcom were unsuccessful in uncovering why this happens or how to resolve it,
 	// so this is a workaround so that the line-item total values will show up in Syncada invoices as we submitted them.
-	proxyRate := 0
+	proxyRate := 0.0
 	return &edisegment.L1{
-		FreightRate:              float64(proxyRate),
+		FreightRate:              proxyRate,
 		RateValueQualifier:       rateValueQualifier,
 		Charge:                   lineItem.AmountCents.ToDollarFloat(),
 		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
 	}
-
 }
