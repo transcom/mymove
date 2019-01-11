@@ -747,6 +747,9 @@ func main() {
 
 	// Set the GexSender() and SendToGexHTTP fields
 	certificates, rootCAs, err := initDODCertificates(v, logger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		log.Fatal("Error in getting tls certs", err)
+	}
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	var gexRequester gex.SendToGex
 	gexURL := v.GetString("gex-url")

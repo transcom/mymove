@@ -94,6 +94,9 @@ func main() {
 	}
 
 	certificates, rootCAs, err := initDODCertificates(v, logger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		log.Fatal("Error in getting tls certs", err)
+	}
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	url := v.GetString("gex-url")
 	if len(url) == 0 {
@@ -154,7 +157,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 		}
 		resp, err := gexSender.Call(invoice858CString, *transactionName)
 		if resp == nil || err != nil {
-			log.Fatal("cannot be nil or have error", err)
+			log.Fatal("Gex Sender had no response", err)
 		}
 
 		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
