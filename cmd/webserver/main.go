@@ -7,9 +7,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
 	"strconv"
@@ -218,7 +220,10 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("here-maps-app-code", "", "HERE maps App API code")
 
 	// EDI Invoice Config
+	flag.String("gex-basic-auth-username", "", "GEX api auth username")
+	flag.String("gex-basic-auth-password", "", "GEX api auth password")
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
@@ -444,6 +449,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkGEX(v)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -530,6 +540,25 @@ func checkEmail(v *viper.Viper) error {
 		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
 		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+	}
+
+	return nil
+}
+
+func checkGEX(v *viper.Viper) error {
+	gexURL := v.GetString("gex-url")
+	if len(gexURL) > 0 && gexURL != "https://gexweba.daas.dla.mil/msg_data/submit/" {
+		return fmt.Errorf("invalid gexUrl %s, expecting "+
+			"https://gexweba.daas.dla.mil/msg_data/submit/ or an empty string", gexURL)
+	}
+
+	if len(gexURL) > 0 {
+		if len(v.GetString("gex-basic-auth-username")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_USERNAME is missing")
+		}
+		if len(v.GetString("gex-basic-auth-password")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_PASSWORD is missing")
 		}
 	}
 
@@ -715,6 +744,37 @@ func main() {
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
+
+	// Set the GexSender() and SendToGexHTTP fields
+	certificates, rootCAs, err := initDODCertificates(v, logger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		log.Fatal("Error in getting tls certs", err)
+	}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	var gexRequester gex.SendToGex
+	gexURL := v.GetString("gex-url")
+	if len(gexURL) == 0 {
+		// this spins up a local test server
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		gexRequester = gex.SendToGexHTTP{
+			URL:                  server.URL,
+			IsTrueGexURL:         false,
+			TLSConfig:            &tls.Config{},
+			GEXBasicAuthUsername: "",
+			GEXBasicAuthPassword: "",
+		}
+	} else {
+		gexRequester = gex.SendToGexHTTP{
+			URL:                  v.GetString("gex-url"),
+			IsTrueGexURL:         true,
+			TLSConfig:            tlsConfig,
+			GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
+			GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
+		}
+	}
+	handlerContext.SetGexSender(gexRequester)
 
 	rbs, err := initRealTimeBrokerService(v, logger)
 	if err != nil {

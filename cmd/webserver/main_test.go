@@ -101,6 +101,10 @@ func (suite *webServerSuite) TestConfigEmail() {
 	suite.Nil(checkEmail(suite.viper))
 }
 
+func (suite *webServerSuite) TestConfigGEX() {
+	suite.Nil(checkGEX(suite.viper))
+}
+
 func (suite *webServerSuite) TestConfigStorage() {
 	suite.Nil(checkStorage(suite.viper))
 }

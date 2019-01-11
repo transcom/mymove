@@ -15,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -591,6 +590,6 @@ func (h ShipmentInvoiceHandler) processInvoice(shipment models.Shipment, invoice
 	if err != nil {
 		return
 	}
-	resp, err = gex.SendInvoiceToGex(invoice858CString, transactionName)
+	resp, err = h.GexSender().Call(invoice858CString, transactionName)
 	return
 }

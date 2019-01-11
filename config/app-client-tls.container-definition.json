@@ -133,6 +133,10 @@
     {
       "name": "IWS_RBS_HOST",
       "value": "{{ .IWS_RBS_HOST }}"
+    },
+    {
+      "name": "GEX_URL",
+      "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
     }
   ],
   "logConfiguration": {

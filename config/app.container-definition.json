@@ -153,6 +153,10 @@
     {
       "name": "DPS_COOKIE_DOMAIN",
       "value": ".sddc.army.mil"
+    },
+    {
+      "name": "GEX_URL",
+      "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
     }
   ],
   "logConfiguration": {

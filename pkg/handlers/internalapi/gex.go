@@ -7,7 +7,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/edi/gex"
 	gexop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/gex"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,7 +26,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	// EDI parser will fail silently
 	transactionBody = strings.TrimSpace(transactionBody) + "\n"
 
-	resp, err := gex.SendInvoiceToGex(transactionBody, transactionName)
+	resp, err := h.GexSender().Call(transactionBody, transactionName)
 	if err != nil {
 		h.Logger().Error("Sending Invoice to Gex", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
