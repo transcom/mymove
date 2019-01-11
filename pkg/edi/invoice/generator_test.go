@@ -335,7 +335,7 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 
 			// Test L1Segment
 			l1Segment := ediinvoice.MakeL1Segment(lineItem)
-			expectedFreightRate := lineItem.AppliedRate.ToDollarFloat()
+			expectedFreightRate := 0.00
 
 			suite.Equal(expectedFreightRate, l1Segment.FreightRate)
 			suite.Equal("RC", l1Segment.RateValueQualifier)
