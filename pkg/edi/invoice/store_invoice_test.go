@@ -2,7 +2,6 @@ package ediinvoice_test
 
 import (
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"testing"
 
@@ -14,36 +13,32 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
 type StoreInvoiceSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *zap.Logger
 	storer storage.FileStorer
 }
 
 // SetupTest
 func (suite *StoreInvoiceSuite) SetupTest() {
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 // TestStoreInvoiceSuite
 func TestStoreInvoiceSuite(t *testing.T) {
 	configLocation := "../../../config"
 	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
 
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	hs := &StoreInvoiceSuite{db: db, logger: logger, storer: fakeS3}
+	hs := &StoreInvoiceSuite{PopTestSuite: testingsuite.NewPopTestSuite(), logger: logger, storer: fakeS3}
 	suite.Run(t, hs)
 }
 
@@ -58,15 +53,15 @@ func helperInvoice(suite *StoreInvoiceSuite) (*models.Invoice, *models.OfficeUse
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	shipment := shipments[0]
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Invoice tied to a shipment of authed tsp user
-	invoice := testdatagen.MakeInvoice(suite.db, testdatagen.Assertions{
+	invoice := testdatagen.MakeInvoice(suite.DB(), testdatagen.Assertions{
 		Invoice: models.Invoice{
 			ShipmentID: shipment.ID,
 			Approver:   officeUser,
@@ -82,7 +77,7 @@ func helperInvoice(suite *StoreInvoiceSuite) (*models.Invoice, *models.OfficeUse
 	}
 
 	// Then: invoice is returned
-	extantInvoice, err := models.FetchInvoice(suite.db, session, invoice.ID)
+	extantInvoice, err := models.FetchInvoice(suite.DB(), session, invoice.ID)
 	suite.Nil(err)
 	if suite.NoError(err) {
 		suite.Equal(extantInvoice.ID, invoice.ID)
@@ -104,7 +99,7 @@ func (suite *StoreInvoiceSuite) TestStoreInvoice858C() {
 	invoiceString := helperExpectedEDIString(suite, "expected_invoice.edi.golden")
 	fs := suite.helperFileStorer()
 
-	verrs, err := ediinvoice.StoreInvoice858C(invoiceString, invoice, &fs, suite.logger, *officeUser.UserID, suite.db)
+	verrs, err := ediinvoice.StoreInvoice858C(invoiceString, invoice, &fs, suite.logger, *officeUser.UserID, suite.DB())
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
 
@@ -116,7 +111,7 @@ func (suite *StoreInvoiceSuite) TestStoreInvoice858C() {
 	}
 
 	// Fetch invoice and verify upload is set
-	invoice, err = models.FetchInvoice(suite.db, session, invoice.ID)
+	invoice, err = models.FetchInvoice(suite.DB(), session, invoice.ID)
 	suite.Nil(err)
 	suite.NotNil(invoice)
 	suite.NotNil(invoice.Upload)

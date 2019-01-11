@@ -103,8 +103,7 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 
 // CreateUploadNoDocument stores Upload but does not create a Document
 func (u *Uploader) CreateUploadNoDocument(userID uuid.UUID, aFile *afero.File) (*models.Upload, *validate.Errors, error) {
-	upload, verrs, err := u.CreateUpload(nil, userID, *aFile)
-	return upload, verrs, err
+	return u.CreateUpload(nil, userID, *aFile)
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.

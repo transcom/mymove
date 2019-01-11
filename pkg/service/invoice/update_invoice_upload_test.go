@@ -3,17 +3,22 @@ package invoice
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path"
 
 	"github.com/facebookgo/clock"
-	"github.com/gobuffalo/uuid"
+	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
 )
@@ -60,9 +65,9 @@ func (suite *InvoiceServiceSuite) fixture(name string) afero.File {
 }
 
 func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
-	up := uploader.NewUploader(suite.db, suite.logger, *storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, *storer)
 
 	// Create file to use for upload
 	file := suite.fixture("test.pdf")
@@ -87,32 +92,128 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	return upload
 }
 
-func (suite *InvoiceServiceSuite) helperCreateInvoice() *models.Invoice {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
-	shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
-	suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
-
-	createInvoice := CreateInvoice{
-		suite.db,
-		clock.NewMock(),
+func (suite *InvoiceServiceSuite) helperShipment() models.Shipment {
+	var weight unit.Pound
+	weight = 2000
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			NetWeight: &weight,
+		},
+	})
+	err := shipment.AssignGBLNumber(suite.DB())
+	//TODO: mustSave(db, shipment)
+	if err != nil {
+		log.Fatalf("could not assign GBLNumber: %v", err)
 	}
-	var invoice models.Invoice
-	verrs, err := createInvoice.Call(officeUser, &invoice, shipmentLineItem.Shipment)
-	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
-	suite.NoError(err)
-	updateInvoicesSubmitted := UpdateInvoiceSubmitted{
-		DB: suite.db,
+
+	// Create an accepted shipment offer and the associated TSP.
+	scac := "ABCD"
+	supplierID := scac + "1234" //scac + payee code -- ABCD1234
+
+	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			StandardCarrierAlphaCode: scac,
+			SupplierID:               &supplierID,
+		},
+	})
+
+	tspp := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+		},
+	})
+
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.DB(), testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			Shipment:                                   shipment,
+			Accepted:                                   swag.Bool(true),
+			TransportationServiceProvider:              tsp,
+			TransportationServiceProviderID:            tsp.ID,
+			TransportationServiceProviderPerformance:   tspp,
+			TransportationServiceProviderPerformanceID: tspp.ID,
+		},
+	})
+	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
+
+	// Create some shipment line items.
+	var lineItems []models.ShipmentLineItem
+	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B", "46A"}
+	amountCents := unit.Cents(12325)
+
+	for _, code := range codes {
+		appliedRate := unit.Millicents(2537234)
+		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
+		var location models.ShipmentLineItemLocation
+
+		switch code {
+		case "LHS":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+			appliedRate = 0
+		case "16A":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+		case "105B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitCUBICFOOT
+
+		case "130B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitEACH
+
+		case "125B":
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
+
+		default:
+			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
+		}
+
+		// default location created in testdatagen shipmentLineItem is DESTINATION
+		if code == "135A" || code == "105A" {
+			location = models.ShipmentLineItemLocationORIGIN
+		}
+		if code == "135B" {
+			location = models.ShipmentLineItemLocationDESTINATION
+		}
+		if code == "LHS" || code == "46A" {
+			location = models.ShipmentLineItemLocationNEITHER
+		}
+
+		item := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+			Tariff400ngItem: models.Tariff400ngItem{
+				Code:             code,
+				MeasurementUnit1: measurementUnit1,
+			},
+		})
+		lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment:          shipment,
+				Tariff400ngItemID: item.ID,
+				Tariff400ngItem:   item,
+				Quantity1:         unit.BaseQuantityFromInt(2000),
+				AppliedRate:       &appliedRate,
+				AmountCents:       &amountCents,
+				Location:          location,
+			},
+		})
+
+		lineItems = append(lineItems, lineItem)
 	}
-	shipmentLineItems := models.ShipmentLineItems{shipmentLineItem}
+	shipment.ShipmentLineItems = lineItems
 
-	verrs, err = updateInvoicesSubmitted.Call(&invoice, shipmentLineItems)
-	suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
-	suite.NoError(err)
+	return shipment
+}
 
-	suite.Equal(models.InvoiceStatusSUBMITTED, invoice.Status)
-	suite.Equal(invoice.ID, *shipmentLineItems[0].InvoiceID)
+func (suite *InvoiceServiceSuite) helperShipmentInvoice(shipment models.Shipment) *models.Invoice {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	return &invoice
+	var invoiceModel models.Invoice
+	verrs, err := CreateInvoice{DB: suite.DB(), Clock: clock.NewMock()}.Call(officeUser, &invoiceModel, shipment)
+	if err != nil {
+		log.Fatalf("error when creating invoice: %v", err)
+	}
+	if verrs.HasAny() {
+		log.Fatalf("validation errors when creating invoice: %s", verrs.String())
+	}
+
+	return &invoiceModel
 }
 
 func (suite *InvoiceServiceSuite) helperCreateFileStorer() *storage.FileStorer {
@@ -124,7 +225,7 @@ func (suite *InvoiceServiceSuite) helperCreateFileStorer() *storage.FileStorer {
 
 func (suite *InvoiceServiceSuite) helperFetchInvoice(invoiceID uuid.UUID) (*models.Invoice, error) {
 	var invoice models.Invoice
-	err := suite.db.Eager().Find(&invoice, invoiceID)
+	err := suite.DB().Eager().Find(&invoice, invoiceID)
 	if err != nil {
 		fmt.Print(err.Error())
 		if errors.Cause(err).Error() == "sql: no rows in result set" {
@@ -140,15 +241,16 @@ func (suite *InvoiceServiceSuite) helperFetchInvoice(invoiceID uuid.UUID) (*mode
 // TestUpdateInvoiceUploadCall Test the Service UpdateInvoiceUpload{}.Call() function
 func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	storer := suite.helperCreateFileStorer()
-	invoice := suite.helperCreateInvoice()
+	shipment := suite.helperShipment()
+	invoice := suite.helperShipmentInvoice(shipment)
 	suite.NotNil(invoice)
 	upload := suite.helperCreateUpload(storer)
 	suite.NotNil(upload)
 
-	up := uploader.NewUploader(suite.db, suite.logger, *storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, *storer)
 
 	// Add upload to invoice
-	verrs, err := UpdateInvoiceUpload{DB: suite.db, Uploader: up}.Call(invoice, upload)
+	verrs, err := UpdateInvoiceUpload{DB: suite.DB(), Uploader: up}.Call(invoice, upload)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
 	suite.Equal(upload.ID, *invoice.UploadID)
@@ -164,7 +266,7 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	// Delete upload
 	upload = suite.helperCreateUpload(storer)
 	suite.NotNil(upload)
-	err = UpdateInvoiceUpload{DB: suite.db, Uploader: up}.DeleteUpload(invoice)
+	err = UpdateInvoiceUpload{DB: suite.DB(), Uploader: up}.DeleteUpload(invoice)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
 	suite.Nil(invoice.UploadID)

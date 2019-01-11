@@ -150,6 +150,7 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 
 	outputFile, err := suite.helperNewTempFile()
 	suite.Nil(err)
+	defer outputFile.Close()
 
 	written, err := io.Copy(outputFile, download)
 	suite.Nil(err)

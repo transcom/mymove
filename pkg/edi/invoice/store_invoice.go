@@ -5,16 +5,17 @@ import (
 	"path"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
-	"go.uber.org/zap"
 )
 
 // StoreInvoice858C stores the EDI/Invoice to S3
