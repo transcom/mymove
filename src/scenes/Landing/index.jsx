@@ -15,6 +15,7 @@ import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
@@ -105,7 +106,7 @@ export class Landing extends Component {
     } = this.props;
     return (
       <div className="usa-grid">
-        {loggedInUserIsLoading && <span> Loading... </span>}
+        {loggedInUserIsLoading && <LoadingPlaceholder />}
         {!isLoggedIn && <SignIn />}
         {loggedInUserSuccess && (
           <Fragment>

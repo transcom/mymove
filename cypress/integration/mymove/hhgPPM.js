@@ -332,7 +332,7 @@ function serviceMemberCancelsAddPPMToHHG() {
     .click();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\//);
+    expect(loc.pathname).to.match(/^\/$/);
   });
 }
 
