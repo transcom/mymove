@@ -2044,6 +2044,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 	userID2 := uuid.Must(uuid.FromString("144f63c5-676f-4c36-a849-5588bd60c33f"))
 	moveID2 := uuid.FromStringOrNil("27266e89-df79-4469-8843-05b45741a818")
 	smID2 := uuid.FromStringOrNil("f753c28f-5da4-4924-9955-dba90b1b3011")
+	ordersTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
 
 	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
@@ -2058,12 +2059,14 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PersonalEmail: models.StringPointer(email2),
 		},
 		Order: models.Order{
-			IssueDate: time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			OrdersTypeDetail: &ordersTypeDetail,
 		},
 		Move: models.Move{
 			ID:               moveID2,
 			Locator:          "COMBO2",
 			SelectedMoveType: &selectedMoveTypeHHGPPM,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("ceb40c74-41a4-48cd-a53b-f7f5a81c7ebc"),
@@ -2072,7 +2075,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status:             models.ShipmentStatusAWARDED,
+			Status:             models.ShipmentStatusACCEPTED,
 			HasDeliveryAddress: true,
 			GBLNumber:          models.StringPointer("LKNQ7123456"),
 		},

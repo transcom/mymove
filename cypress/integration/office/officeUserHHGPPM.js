@@ -3,34 +3,67 @@ describe('office user finds the shipment', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
-  it('office user views hhg moves in queue new moves', function() {
+  it('office user approves shipment', function() {
+    officeUserVisitsAllMovesQueue();
     officeUserViewsMove();
+    officeUserVisitsPPMTab();
+    officeUserVisitsHHGTab();
+    officeUserApprovesShipment();
   });
 });
 
-function officeUserViewsMove() {}
-function officeUserViewsMoves() {
-  // Open new moves queue
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+function officeUserApprovesShipment() {
+  const ApproveShipmentButton = cy.get('button').contains('Approve Shipment');
 
+  ApproveShipmentButton.should('be.enabled');
+
+  ApproveShipmentButton.click();
+
+  ApproveShipmentButton.should('be.disabled');
+
+  cy.get('.status').contains('Approved');
+}
+
+function officeUserVisitsAllMovesQueue() {
+  cy.patientVisit('/queues/all');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/all/);
+  });
+}
+
+function officeUserVisitsPPMTab() {
+  // navtab
+  cy
+    .get('a')
+    .contains('PPM')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
+  });
+}
+
+function officeUserVisitsHHGTab() {
+  // navtab
+  cy
+    .get('a')
+    .contains('HHG')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+}
+
+function officeUserViewsMove() {
   // Find move (generated in e2ebasic.go) and open it
   cy
     .get('div')
-    .contains('RLKBEM')
+    .contains('COMBO2')
     .dblclick();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  cy
-    .get('a')
-    .contains('HHG')
-    .click(); // navtab
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 }
