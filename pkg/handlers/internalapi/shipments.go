@@ -8,17 +8,16 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
 )
 
 func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
@@ -498,6 +497,20 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
 	}
 
+	//for now we limit a shipment to 1 invoice
+	//if invoices exists and at least one is either in process or has succeeded then return 409
+	existingInvoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	for _, invoice := range existingInvoices {
+		//if an invoice has started, is in process or has been submitted successfully then throw err
+		if invoice.Status != models.InvoiceStatusSUBMISSIONFAILURE {
+			payload := payloadForInvoiceModel(&invoice)
+			return shipmentop.NewCreateAndSendHHGInvoiceConflict().WithPayload(payload)
+		}
+	}
+
 	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
@@ -511,7 +524,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	}
 
 	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(shipment, h.DB(), h.SendProductionInvoice(), clock.New())
+	invoice858C, err := ediinvoice.Generate858C(shipment, invoice, h.DB(), h.SendProductionInvoice(), clock.New())
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -526,7 +539,8 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	resp, err := gex.SendInvoiceToGex(invoice858CString, transactionName)
+
+	resp, err := h.GexSender().Call(invoice858CString, transactionName)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

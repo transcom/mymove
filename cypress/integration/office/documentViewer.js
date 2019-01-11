@@ -1,6 +1,6 @@
 import { fileUploadTimeout, officeAppName } from '../../support/constants';
 
-/* global cy, Cypress */
+/* global cy */
 describe('The document viewer', function() {
   describe('When not logged in', function() {
     beforeEach(() => {
@@ -9,7 +9,7 @@ describe('The document viewer', function() {
       cy.clearCookies();
     });
     it('shows page not found', function() {
-      cy.visit('/moves/foo/documents');
+      cy.patientVisit('/moves/foo/documents');
       cy.contains('Welcome');
       cy.contains('Sign In');
     });
@@ -21,17 +21,17 @@ describe('The document viewer', function() {
       cy.signIntoOffice(false);
     });
     it('produces error when move cannot be found', () => {
-      cy.visit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
+      cy.patientVisit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
       cy.contains('An error occurred'); //todo: we want better messages when we are making custom call
     });
     it('loads basic information about the move', () => {
-      cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('In Progress, PPM');
       cy.contains('GBXYUI');
       cy.contains('1617033988');
     });
     it('can upload a new document', () => {
-      cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('input[name="title"]').type('super secret info document');
@@ -46,7 +46,7 @@ describe('The document viewer', function() {
         .click();
     });
     it('shows the newly uploaded document in the document list tab', () => {
-      cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('All Documents (1)');
       cy.contains('super secret info document');
       cy
@@ -56,7 +56,7 @@ describe('The document viewer', function() {
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
     });
     it('can upload an expense document', () => {
-      cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('select[name="move_document_type"]').select('Expense');
@@ -74,7 +74,7 @@ describe('The document viewer', function() {
         .click();
     });
     it('can select and update newly-uploaded expense document', () => {
-      cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
       cy
         .get('.pad-ns')
@@ -104,7 +104,7 @@ describe('The document viewer', function() {
       cy.contains('GTCC');
     });
     it('can update expense document to other doc type', () => {
-      cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
       cy
         .get('.pad-ns')
@@ -133,7 +133,7 @@ describe('The document viewer', function() {
         .should('not.exist');
     });
     it('can update other document type back to expense type', () => {
-      cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
       cy
         .get('.pad-ns')
@@ -163,7 +163,7 @@ describe('The document viewer', function() {
       cy.contains('GTCC');
     });
     it('can upload documents to an HHG move', () => {
-      cy.visit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');
+      cy.patientVisit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');
 
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
@@ -195,11 +195,11 @@ describe('The document viewer', function() {
       cy.contains('All Documents (2)');
     });
     it('can navigate to the shipment info page and show line item info', () => {
-      cy.visit('/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/documents/new', {
+      cy.patientVisit('/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/documents/new', {
         log: true,
       });
 
-      cy.visit('/');
+      cy.patientVisit('/');
 
       cy.location().should(loc => {
         expect(loc.pathname).to.match(/^\/queues\/new/);

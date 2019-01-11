@@ -4,19 +4,26 @@ import (
 	"testing"
 
 	"github.com/facebookgo/clock"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	suite.T().Run("invoice updates", func(t *testing.T) {
-		shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
-		suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
+		shipment := helperShipment(suite)
+		shipmentLineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment: shipment,
+			},
+		})
+
+		suite.DB().Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 		invoice := helperCreateInvoice(suite, shipmentLineItem.Shipment)
 
 		updateInvoicesSubmitted := UpdateInvoiceSubmitted{
-			DB: suite.db,
+			DB: suite.DB(),
 		}
 		shipmentLineItems := models.ShipmentLineItems{shipmentLineItem}
 
@@ -29,8 +36,14 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	})
 
 	suite.T().Run("error when save fails", func(t *testing.T) {
-		shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
-		suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
+		shipment := helperShipment(suite)
+		shipmentLineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment: shipment,
+			},
+		})
+
+		suite.DB().Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 		invoice := helperCreateInvoice(suite, shipmentLineItem.Shipment)
 
 		fakeUUID, err := uuid.NewV4()
@@ -38,7 +51,7 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 		invoice.ShipmentID = fakeUUID
 
 		updateInvoicesSubmitted := UpdateInvoiceSubmitted{
-			DB: suite.db,
+			DB: suite.DB(),
 		}
 		verrs, err := updateInvoicesSubmitted.Call(invoice, models.ShipmentLineItems{})
 
@@ -47,12 +60,18 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 	})
 
 	suite.T().Run("transaction rolls back", func(t *testing.T) {
-		shipmentLineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
-		suite.db.Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
+		shipment := helperShipment(suite)
+		shipmentLineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Shipment: shipment,
+			},
+		})
+
+		suite.DB().Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 		invoice := helperCreateInvoice(suite, shipmentLineItem.Shipment)
 
 		updateInvoicesSubmitted := UpdateInvoiceSubmitted{
-			DB: suite.db,
+			DB: suite.DB(),
 		}
 		fakeUUID, err := uuid.NewV4()
 		shipmentLineItem.ShipmentID = fakeUUID // create foreign key constraint error
@@ -62,18 +81,18 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 		suite.Empty(verrs.Errors) // Using Errors instead of HasAny for more descriptive output
 		suite.Error(err)
 
-		suite.db.Reload(invoice)
+		suite.DB().Reload(invoice)
 		suite.Equal(models.InvoiceStatusINPROCESS, invoice.Status)
-		suite.db.Reload(&shipmentLineItem)
+		suite.DB().Reload(&shipmentLineItem)
 		suite.Nil(shipmentLineItem.InvoiceID)
 	})
 }
 
 func helperCreateInvoice(suite *InvoiceServiceSuite, shipment models.Shipment) *models.Invoice {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	createInvoice := CreateInvoice{
-		suite.db,
+		suite.DB(),
 		clock.NewMock(),
 	}
 	var invoice models.Invoice

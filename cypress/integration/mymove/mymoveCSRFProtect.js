@@ -36,8 +36,6 @@ describe('testing CSRF protection updating user profile', function() {
 
     cy.visit('/moves/review/edit-profile');
 
-    cy.wait(500);
-
     // update info
     cy
       .get('input[name="middle_name"]')
@@ -48,7 +46,9 @@ describe('testing CSRF protection updating user profile', function() {
     // save info
     cy.get('button[type="submit"]').click();
 
-    cy.wait(500);
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/$/);
+    });
 
     // reload page
     cy.visit('/moves/review/edit-profile');
@@ -63,8 +63,6 @@ describe('testing CSRF protection updating user profile', function() {
     cy.signIntoMyMoveAsUser(userId);
 
     cy.visit('/moves/review/edit-profile');
-
-    cy.wait(500);
 
     // update info
     cy

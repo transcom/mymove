@@ -15,23 +15,23 @@ func (suite *ModelSuite) TestFindDutyStations() {
 		State:          "state",
 		PostalCode:     "12345",
 	}
-	suite.mustSave(&address)
+	suite.MustSave(&address)
 
 	station1 := models.DutyStation{
 		Name:        "First Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.mustSave(&station1)
+	suite.MustSave(&station1)
 
 	station2 := models.DutyStation{
 		Name:        "Second Station",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
-	suite.mustSave(&station2)
+	suite.MustSave(&station2)
 
-	stations, err := models.FindDutyStations(suite.db, "first")
+	stations, err := models.FindDutyStations(suite.DB(), "first")
 	if err != nil {
 		t.Errorf("Find duty stations error: %v", err)
 	}
@@ -62,9 +62,9 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 }
 func (suite *ModelSuite) Test_FetchDutyStationTransportationOffice() {
 	t := suite.T()
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
 
-	office, err := models.FetchDutyStationTransportationOffice(suite.db, dutyStation.ID)
+	office, err := models.FetchDutyStationTransportationOffice(suite.DB(), dutyStation.ID)
 	if err != nil {
 		t.Errorf("Find transportation office error: %v", err)
 	}

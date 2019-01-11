@@ -1,7 +1,9 @@
-/* global cy, Cypress */
+/* global cy */
+import { tspAppName } from '../../support/constants';
+
 describe('TSP Home Page', function() {
   beforeEach(() => {
-    Cypress.config('baseUrl', 'http://tsplocal:4000');
+    cy.setupBaseUrl(tspAppName);
   });
   it('successfully loads when not logged in', function() {
     tspUserLogsOut();
@@ -15,7 +17,7 @@ describe('TSP Home Page', function() {
 function tspUserLogsOut() {
   // Logs out any users
   cy.logout();
-  cy.visit('/');
+  cy.patientVisit('/');
 }
 
 function tspUserIsOnSignInPage() {

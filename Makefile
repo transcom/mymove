@@ -90,14 +90,22 @@ go_deps: go_version .go_deps.stamp
 	bin/check_gopath.sh
 	dep ensure -vendor-only
 
-server_deps: check_hosts go_deps .server_deps.stamp
+build_chamber: go_deps .build_chamber.stamp
+.build_chamber.stamp:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber ./vendor/github.com/segmentio/chamber
+	touch .build_chamber.stamp
+
+build_soda: go_deps .build_soda.stamp
+.build_soda.stamp:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
+	touch .build_soda.stamp
+
+server_deps: check_hosts go_deps build_chamber build_soda .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber ./vendor/github.com/segmentio/chamber
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin ./vendor/github.com/codegangsta/gin
-	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_deps_linux: go_deps .server_deps_linux.stamp
@@ -168,27 +176,27 @@ webserver_test: server_generate
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 \
 	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
+	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
 	aws-vault exec $$AWS_PROFILE -- \
 	chamber exec app-$$TEST_ACC_ENV -- \
 	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
 endif
 
-server_test: server_deps server_generate db_test_run db_test_reset db_test_migrate
+server_test: server_deps server_generate db_test_reset db_test_migrate
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_all: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_all: server_deps server_generate db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_dev_run db_dev_reset db_dev_migrate
+server_test_coverage: server_deps server_generate db_dev_reset db_dev_migrate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -215,6 +223,9 @@ e2e_clean:
 	docker rm -f e2e_migrations || true
 
 db_run:
+ifndef CIRCLECI
+	brew services stop postgresql 2> /dev/null || true
+endif
 	@echo "Starting the local docker database container..."
 	# The version of the postgres container should match production as closely
 	# as possible.
@@ -246,10 +257,9 @@ db_dev_run: db_run db_dev_create
 db_dev_reset: db_destroy db_dev_run
 
 db_dev_migrate: server_deps
-	@echo "Migrating the dev database..."
+	@echo "Migrating the ${DB_NAME} database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=dev_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_create:
@@ -279,7 +289,7 @@ db_test_migrate: server_deps
 	@echo "Migrating the test database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
-		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		DB_NAME=test_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
 
 db_test_migrate_docker: db_test_migrations_build
@@ -373,6 +383,7 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
 .PHONY: server_run_standalone server_run server_run_default server_test webserver_test
 .PHONY: go_deps_update server_go_bindata
+.PHONY: build_chamber build_soda
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
 .PHONY: db_run db_destroy

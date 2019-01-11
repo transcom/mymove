@@ -11,7 +11,7 @@ func (suite *ModelSuite) Test_DpsUserCreate() {
 		LoginGovEmail: "test@example.com",
 	}
 
-	verrs, err := suite.db.ValidateAndSave(&dpsUser)
+	verrs, err := suite.DB().ValidateAndSave(&dpsUser)
 
 	if err != nil {
 		t.Fatalf("could not save DPS user: %v", err)
