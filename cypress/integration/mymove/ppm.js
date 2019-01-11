@@ -77,7 +77,7 @@ describe('completing the ppm flow', function() {
     cy.nextPage();
 
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\//);
+      expect(loc.pathname).to.match(/^\/$/);
     });
 
     cy.contains('Success');
