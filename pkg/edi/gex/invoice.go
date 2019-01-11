@@ -2,8 +2,9 @@ package gex
 
 import (
 	"crypto/tls"
+	"log"
 	"net/http"
-	"path/filepath"
+	"net/url"
 	"strings"
 	"time"
 
@@ -34,9 +35,16 @@ func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Resp
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
 	edi = strings.TrimSpace(edi) + "\n"
 	URL := s.URL
-	if s.IsTrueGexURL {
-		URL = filepath.Join(s.URL, transactionName)
+	parsedURL, err := url.Parse(URL)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	if s.IsTrueGexURL {
+		parsedURL.Path = parsedURL.Path + transactionName
+		URL = parsedURL.String()
+	}
+
 	request, err := http.NewRequest(
 		"POST",
 		URL,

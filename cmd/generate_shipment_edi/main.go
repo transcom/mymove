@@ -95,9 +95,12 @@ func main() {
 
 	certificates, rootCAs, err := initDODCertificates(v, logger)
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
-
+	url := v.GetString("gex-url")
+	if len(url) == 0 {
+		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
+	}
 	sendToGexHTTP := gex.SendToGexHTTP{
-		URL:                  v.GetString("gex-url"),
+		URL:                  url,
 		IsTrueGexURL:         true,
 		TLSConfig:            tlsConfig,
 		GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
@@ -150,6 +153,10 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 			return nil, err
 		}
 		resp, err := gexSender.Call(invoice858CString, *transactionName)
+		if resp == nil || err != nil {
+			log.Fatal("cannot be nil or have error", err)
+		}
+
 		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
 	}
 	ediWriter := edi.NewWriter(os.Stdout)

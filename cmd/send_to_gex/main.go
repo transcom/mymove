@@ -70,17 +70,25 @@ func main() {
 	fmt.Println(ediString)
 
 	certificates, rootCAs, err := initDODCertificates(v, logger)
-	if err != nil {
+	if certificates == nil || rootCAs == nil || err != nil {
 		log.Fatal("Error in getting tls certs", err)
 	}
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	url := v.GetString("gex-url")
+	if len(url) == 0 {
+		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
+	}
+
 	resp, err := gex.SendToGexHTTP{
-		URL:                  v.GetString("gex-url"),
+		URL:                  url,
 		IsTrueGexURL:         true,
 		TLSConfig:            tlsConfig,
 		GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
 		GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
 	}.Call(ediString, v.GetString("transaction-name"))
+	if resp == nil || err != nil {
+		log.Fatal("Cannot be nil or Error sending POST request", err)
+	}
 
 	fmt.Println("Sending to GEX. . .")
 	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
