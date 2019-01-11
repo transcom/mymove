@@ -434,8 +434,14 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 
 // MakeL1Segment builds L1 segment based on shipment lineitem input.
 func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
-	// This value is used so that Syncada displays the proper charge value
-	// The true rate applied in the rateengine calculations is found in the db under shipment_line_items.applied_rate
+	// The rate used in the L102 value (FreightRate) will be sent as 0.00 in order to avoid an issue where Syncada
+	// does validations that create inaccurate representation of the invoice.
+	// The true rate applied in the rateengine calculations is recorded in the db under shipment_line_items.applied_rate
+	// TLDR: When Syncada receives the file, they do their own calculation (rate X weight in most cases)
+	// and compare it to the total (Charge, L104) that we gave them (calculated on the rate engine).
+	// If their calculation outputs something greater than or equal to what we got, the line item shows up 0 (?!).
+	// Communication with USBank and Transcom were unsuccessful in uncovering why this happens or how to resolve it,
+	// so this is a workaround so that the line-item total values will show up in Syncada invoices as we submitted them.
 	proxyRate := 0
 	return &edisegment.L1{
 		FreightRate:              float64(proxyRate),
