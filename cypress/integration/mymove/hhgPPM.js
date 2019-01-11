@@ -365,7 +365,7 @@ function serviceMemberFillsInDatesAndLocations() {
 
   cy.get('input[name="pickup_postal_code"]').should('have.value', '90210');
 
-  cy.get('input[name="destination_postal_code"]').should('have.value', '50309');
+  cy.get('input[name="destination_postal_code"]').should('have.value', '30813');
 
   cy.nextPage();
 }
