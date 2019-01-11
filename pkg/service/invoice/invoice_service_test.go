@@ -1,12 +1,11 @@
 package invoice
 
 import (
-	"log"
 	"testing"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -15,41 +14,23 @@ import (
 )
 
 type InvoiceServiceSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
 func (suite *InvoiceServiceSuite) SetupTest() {
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 func TestInvoiceSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
-	hs := &InvoiceServiceSuite{db: db, logger: logger}
+	hs := &InvoiceServiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+		logger:       logger,
+	}
 	suite.Run(t, hs)
-}
-
-func (suite *InvoiceServiceSuite) mustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
-	}
-	if verrs.HasAny() {
-		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
-	}
 }
 
 func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
@@ -59,33 +40,33 @@ func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
 func helperShipmentUsingScac(suite *InvoiceServiceSuite, scac string) models.Shipment {
 	var weight unit.Pound
 	weight = 2000
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			NetWeight: &weight,
 		},
 	})
-	err := shipment.AssignGBLNumber(suite.db)
-	suite.mustSave(&shipment)
+	err := shipment.AssignGBLNumber(suite.DB())
+	suite.MustSave(&shipment)
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
 	supplierID := scac + "1234" //scac + payee code -- ABCD1234
 
-	tsp := testdatagen.MakeTSP(suite.db, testdatagen.Assertions{
+	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
 			StandardCarrierAlphaCode: scac,
 			SupplierID:               &supplierID,
 		},
 	})
 
-	tspp := testdatagen.MakeTSPPerformance(suite.db, testdatagen.Assertions{
+	tspp := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,
 		},
 	})
 
-	shipmentOffer := testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.DB(), testdatagen.Assertions{
 		ShipmentOffer: models.ShipmentOffer{
 			Shipment:                                   shipment,
 			Accepted:                                   swag.Bool(true),

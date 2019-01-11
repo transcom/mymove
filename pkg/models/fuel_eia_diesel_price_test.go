@@ -1,12 +1,14 @@
 package models_test
 
 import (
-	"github.com/gobuffalo/uuid"
+	"testing"
+	"time"
+
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
-	"testing"
-	"time"
 )
 
 func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
@@ -88,7 +90,7 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 			EIAPricePerGallonMillicents: 320700,
 			BaselineRate:                6,
 		}
-		verrs, err := suite.db.ValidateAndCreate(&newFuelPrice)
+		verrs, err := suite.DB().ValidateAndCreate(&newFuelPrice)
 
 		id = uuid.Must(uuid.NewV4())
 		newFuelPrice = models.FuelEIADieselPrice{
@@ -99,7 +101,7 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 			EIAPricePerGallonMillicents: 320700,
 			BaselineRate:                6,
 		}
-		verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
+		verrs, err = suite.DB().ValidateAndCreate(&newFuelPrice)
 
 		// Overlapping record should cause en error
 		id = uuid.Must(uuid.NewV4())
@@ -112,7 +114,7 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 			BaselineRate:                6,
 		}
 
-		verrs, err = suite.db.ValidateAndCreate(&newFuelPrice)
+		verrs, err = suite.DB().ValidateAndCreate(&newFuelPrice)
 		suite.EqualError(err, "pq: conflicting key value violates exclusion constraint \"no_overlapping_rates\"")
 		suite.Empty(verrs.Error())
 
@@ -124,13 +126,13 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 // Can change the dates for start and end ranges and
 // can create a default baseline and price to use via assertions
 func (suite *ModelSuite) TestMakeFuelEIADieselPrices() {
-	testdatagen.MakeFuelEIADieselPrices(suite.db, testdatagen.Assertions{})
-	// or call testdatagen.MakeDefaultFuelEIADieselPrices(suite.db)
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), testdatagen.Assertions{})
+	// or call testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
 	// to change the date range:
 	//     assertions testdatagen.Assertions{}
 	//     assertions.assertions.FuelEIADieselPrice.RateStartDate = time.Date(testdatagen.TestYear-1, time.July, 15, 0, 0, 0, 0, time.UTC)
 	//     assertions.assertions.FuelEIADieselPrice.RateEndDate = time.Date(testdatagen.TestYear+1, time.July, 14, 0, 0, 0, 0, time.UTC)
-	//     testdatagen.MakeFuelEIADieselPrices(suite.db, assertions)
+	//     testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 }
 
 // Create 1 record for the shipment date provided and use assertions
@@ -141,11 +143,11 @@ func (suite *ModelSuite) TestMakeFuelEIADieselPriceForDate() {
 	assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents = unit.Millicents(695700)
 	shipmentDate := assertions.FuelEIADieselPrice.RateStartDate.AddDate(0, 0, 10)
 
-	testdatagen.MakeFuelEIADieselPriceForDate(suite.db, shipmentDate, assertions)
+	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), shipmentDate, assertions)
 }
 
 // Create 1 record for the shipment date provided
 func (suite *ModelSuite) TestMakeDefaultFuelEIADieselPriceForDate() {
 	shipmentDate := time.Now()
-	testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.db, shipmentDate)
+	testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 }

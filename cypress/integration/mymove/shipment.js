@@ -1,4 +1,4 @@
-/* global cy, Cypress*/
+/* global cy, Cypress */
 
 describe('completing the hhg flow', function() {
   beforeEach(() => {

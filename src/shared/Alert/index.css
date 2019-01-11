@@ -19,6 +19,10 @@
   align-items: center;
 }
 
+.usa-alert-heading {
+  display: inline;
+}
+
 .usa-alert-loading {
   background-color: #e1f3f8;
 }
@@ -27,6 +31,15 @@
   margin-right: 2em;
 }
 
+.remove-icon {
+  position: absolute;
+  right: 2em;
+}
+
 .usa-alert-loading::before {
   background-color: #02bfe7;
+}
+
+.actionable.actionable-secondary {
+  color: #999999;
 }

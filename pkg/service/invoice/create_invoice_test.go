@@ -12,11 +12,11 @@ import (
 )
 
 func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	shipment := helperShipment(suite)
 
 	createInvoice := CreateInvoice{
-		DB:    suite.db,
+		DB:    suite.DB(),
 		Clock: clock.NewMock(),
 	}
 
@@ -30,7 +30,7 @@ func (suite *InvoiceServiceSuite) TestCreateInvoicesCall() {
 }
 
 func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	var invoiceNumberTestCases = []struct {
 		name                  string
@@ -47,7 +47,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 	}
 
 	createInvoice := CreateInvoice{
-		DB:    suite.db,
+		DB:    suite.DB(),
 		Clock: clock.NewMock(),
 	}
 
@@ -61,7 +61,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 
 			// Reset sequence number if needed.
 			if testCase.startSequenceNumber > 0 {
-				err := testdatagen.SetInvoiceSequenceNumber(suite.db, testCase.scac, testCase.createdYear, testCase.startSequenceNumber)
+				err := testdatagen.SetInvoiceSequenceNumber(suite.DB(), testCase.scac, testCase.createdYear, testCase.startSequenceNumber)
 				suite.NoError(err)
 			}
 
@@ -76,7 +76,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersOnePerShipment() {
 }
 
 func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	shipment := helperShipment(suite)
 
@@ -92,7 +92,7 @@ func (suite *InvoiceServiceSuite) TestInvoiceNumbersMultipleInvoices() {
 	}
 
 	createInvoice := CreateInvoice{
-		DB:    suite.db,
+		DB:    suite.DB(),
 		Clock: clock.NewMock(),
 	}
 

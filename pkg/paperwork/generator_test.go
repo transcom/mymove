@@ -31,11 +31,11 @@ func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string
 }
 
 func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
-	order := testdatagen.MakeDefaultOrder(suite.db)
+	order := testdatagen.MakeDefaultOrder(suite.DB())
 
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
 	suite.FatalNil(err)
 
 	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
@@ -54,19 +54,19 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Nil(err)
 
-	err = suite.db.Load(&document, "Uploads")
+	err = suite.DB().Load(&document, "Uploads")
 	suite.FatalNil(err)
 	suite.Equal(3, len(document.Uploads))
 
 	order.UploadedOrders = document
 	order.UploadedOrdersID = document.ID
-	suite.mustSave(&order)
+	suite.MustSave(&order)
 
 	return generator, order
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages() {
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
 	suite.FatalNil(err)
 
 	images := []inputFile{
@@ -113,7 +113,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
 	suite.FatalNil(err)
 
 	images := []inputFile{

@@ -26,7 +26,7 @@ func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessage
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			HasDependents:    true,
 			SpouseHasProGear: true,
@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	sm := move.Orders.ServiceMember
 
 	// Make associated lookup table records.
-	testdatagen.FetchOrMakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeTariff400ngZip3(suite.DB(), testdatagen.Assertions{
 		Tariff400ngZip3: models.Tariff400ngZip3{
 			Zip3:          "012",
 			BasepointCity: "Pittsfield",
@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 		},
 	})
 
-	testdatagen.MakeTDL(suite.TestDB(), testdatagen.Assertions{
+	testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: models.TrafficDistributionList{
 			SourceRateArea:    "US14",
 			DestinationRegion: "9",
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 		HTTPRequest: req,
 	}
 
-	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	planner := route.NewTestingPlanner(2000)
 	handler.SetPlanner(planner)
 
@@ -118,13 +118,13 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	expectedOriginalPackDate := time.Date(testdatagen.TestYear, time.September, 27, 0, 0, 0, 0, time.UTC)
 	suite.EqualValues(time.Time(*createShipmentPayload.OriginalPackDate), expectedOriginalPackDate, "OriginalPackDate was not updated")
 
-	count, err := suite.TestDB().Where("move_id=$1", move.ID).Count(&models.Shipment{})
+	count, err := suite.DB().Where("move_id=$1", move.ID).Count(&models.Shipment{})
 	suite.Nil(err, "could not count shipments")
 	suite.Equal(1, count)
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
 	req := httptest.NewRequest("POST", "/moves/move_id/shipment", nil)
@@ -137,13 +137,13 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 		HTTPRequest: req,
 	}
 
-	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
 
-	count, err := suite.TestDB().Where("move_id=$1", move.ID).Count(&models.Shipment{})
+	count, err := suite.DB().Where("move_id=$1", move.ID).Count(&models.Shipment{})
 	suite.Nil(err, "could not count shipments")
 	suite.Equal(1, count)
 
@@ -171,10 +171,10 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 }
 
 func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
 
-	addressPayload := testdatagen.MakeDefaultAddress(suite.TestDB())
+	addressPayload := testdatagen.MakeDefaultAddress(suite.DB())
 
 	shipment1 := models.Shipment{
 		MoveID:                       move.ID,
@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	req = suite.AuthenticateRequest(req, sm)
 
 	// Make associated lookup table records.
-	testdatagen.FetchOrMakeTariff400ngZip3(suite.TestDB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeTariff400ngZip3(suite.DB(), testdatagen.Assertions{
 		Tariff400ngZip3: models.Tariff400ngZip3{
 			Zip3:          "321",
 			BasepointCity: "Crescent City",
@@ -224,7 +224,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 		Shipment:    &payload,
 	}
 
-	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(patchShipmentParams)
 
 	// assert we got back the 200 response
@@ -241,14 +241,14 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 }
 
 func (suite *HandlerSuite) TestSetShipmentDates() {
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			HasDependents:    true,
 			SpouseHasProGear: true,
 		},
 	})
 	sm := move.Orders.ServiceMember
-	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			Move:   move,
 			MoveID: move.ID,
@@ -270,7 +270,7 @@ func (suite *HandlerSuite) TestSetShipmentDates() {
 	}
 
 	planner := route.NewTestingPlanner(2000)
-	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(planner)
 
 	response := handler.Handle(patchShipmentParams)
@@ -290,17 +290,17 @@ func (suite *HandlerSuite) TestSetShipmentDates() {
 
 func (suite *HandlerSuite) TestApproveHHGHandler() {
 	// Given: an office User
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	shipmentAssertions := testdatagen.Assertions{
 		Shipment: models.Shipment{
 			Status: "ACCEPTED",
 		},
 	}
-	shipment := testdatagen.MakeShipment(suite.TestDB(), shipmentAssertions)
+	shipment := testdatagen.MakeShipment(suite.DB(), shipmentAssertions)
 	suite.MustSave(&shipment)
 
-	handler := ApproveHHGHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveHHGHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	path := "/shipments/shipment_id/approve"
 	req := httptest.NewRequest("POST", path, nil)
@@ -320,17 +320,17 @@ func (suite *HandlerSuite) TestApproveHHGHandler() {
 
 func (suite *HandlerSuite) TestCompleteHHGHandler() {
 	// Given: an office User
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	shipmentAssertions := testdatagen.Assertions{
 		Shipment: models.Shipment{
 			Status: "DELIVERED",
 		},
 	}
-	shipment := testdatagen.MakeShipment(suite.TestDB(), shipmentAssertions)
+	shipment := testdatagen.MakeShipment(suite.DB(), shipmentAssertions)
 	suite.MustSave(&shipment)
 
-	handler := CompleteHHGHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CompleteHHGHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	path := "/shipments/shipment_id/complete"
 	req := httptest.NewRequest("POST", path, nil)
@@ -351,12 +351,12 @@ func (suite *HandlerSuite) TestCompleteHHGHandler() {
 /*
 func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
 	// Given: an office User
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{})
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{})
 	suite.MustSave(&shipment)
 
-	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	path := "/shipments/shipment_id/invoice"
 	req := httptest.NewRequest("POST", path, nil)
@@ -373,7 +373,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
 
     // check that invoices were saved and have submitted status
 	var invoices []models.Invoice
-		suite.NoError(suite.TestDB().All(&invoices)) // needs to filter on ID that was saved
+		suite.NoError(suite.DB().All(&invoices)) // needs to filter on ID that was saved
 		suite.NotEmpty(invoices)
 		for _, invoice := range invoices {
 		suite.Equal(models.InvoiceStatusSUBMITTED, invoice.Status)
@@ -383,9 +383,9 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
 
 func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 	// Given: an office User
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	shipment := testdatagen.MakeShipment(suite.TestDB(), testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			Status:                       "DRAFT",
 			EstimatedPackDays:            swag.Int64(2),
@@ -398,7 +398,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 			SpouseProgearWeightEstimate:  handlers.PoundPtrFromInt64Ptr(swag.Int64(120)),
 		},
 	})
-	shipmentOffer := testdatagen.MakeShipmentOffer(suite.TestDB(), testdatagen.Assertions{
+	shipmentOffer := testdatagen.MakeShipmentOffer(suite.DB(), testdatagen.Assertions{
 		ShipmentOffer: models.ShipmentOffer{
 			ShipmentID: shipment.ID,
 		},
@@ -406,7 +406,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 	suite.MustSave(&shipment)
 	suite.MustSave(&shipmentOffer)
 
-	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	path := "/shipments/shipment_id/invoice"
 	req := httptest.NewRequest("POST", path, nil)

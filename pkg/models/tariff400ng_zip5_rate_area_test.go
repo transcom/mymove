@@ -30,5 +30,5 @@ func (suite *ModelSuite) Test_Zip5RateAreaCreateAndSave() {
 		RateArea: "US13",
 	}
 
-	suite.mustSave(&validZip5RateArea)
+	suite.MustSave(&validZip5RateArea)
 }

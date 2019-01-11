@@ -6,13 +6,13 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// LocalTestSuite is a suite for testing
-type LocalTestSuite struct {
+// BaseTestSuite is a suite for testing
+type BaseTestSuite struct {
 	suite.Suite
 }
 
 // FatalNil ends a test if an object is not nil
-func (suite *LocalTestSuite) FatalNil(object interface{}, messages ...string) {
+func (suite *BaseTestSuite) FatalNil(object interface{}, messages ...string) {
 	t := suite.T()
 	t.Helper()
 	if !suite.Nil(object) {
@@ -25,7 +25,7 @@ func (suite *LocalTestSuite) FatalNil(object interface{}, messages ...string) {
 }
 
 // FatalNoError ends a test if an error is not nil
-func (suite *LocalTestSuite) FatalNoError(err error, messages ...string) {
+func (suite *BaseTestSuite) FatalNoError(err error, messages ...string) {
 	t := suite.T()
 	t.Helper()
 	if !suite.NoError(err) {
@@ -38,7 +38,7 @@ func (suite *LocalTestSuite) FatalNoError(err error, messages ...string) {
 }
 
 // FatalFalse ends a test if a value is not false
-func (suite *LocalTestSuite) FatalFalse(b bool, messages ...string) {
+func (suite *BaseTestSuite) FatalFalse(b bool, messages ...string) {
 	t := suite.T()
 	t.Helper()
 	if !suite.False(b) {

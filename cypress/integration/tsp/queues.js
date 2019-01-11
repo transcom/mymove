@@ -64,7 +64,7 @@ function tspUserViewsNewShipments() {
 
 function tspUserViewsInTransitShipments() {
   // Open in transit shipments queue
-  cy.visit('/queues/in_transit');
+  cy.patientVisit('/queues/in_transit');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
   });
@@ -90,7 +90,7 @@ function tspUserViewsInTransitShipments() {
 
 function tspUserViewsDeliveredShipments() {
   // Open delivered shipments queue
-  cy.visit('/queues/delivered');
+  cy.patientVisit('/queues/delivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/delivered/);
   });

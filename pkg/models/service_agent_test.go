@@ -20,15 +20,15 @@ func (suite *ModelSuite) Test_ServiceAgentValidations() {
 // Test_FetchServiceAgentsOnShipment tests that a shipment's service agents are returned when we fetch.
 func (suite *ModelSuite) Test_FetchServiceAgentsOnShipment() {
 	t := suite.T()
-	shipment := testdatagen.MakeDefaultShipment(suite.db)
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 	// Make 2 Service Agents on a shipment
-	testdatagen.MakeServiceAgent(suite.db, testdatagen.Assertions{
+	testdatagen.MakeServiceAgent(suite.DB(), testdatagen.Assertions{
 		ServiceAgent: ServiceAgent{
 			ShipmentID: shipment.ID,
 			Shipment:   &shipment,
 		},
 	})
-	testdatagen.MakeServiceAgent(suite.db, testdatagen.Assertions{
+	testdatagen.MakeServiceAgent(suite.DB(), testdatagen.Assertions{
 		ServiceAgent: ServiceAgent{
 			Role:       RoleDESTINATION,
 			ShipmentID: shipment.ID,
@@ -36,9 +36,9 @@ func (suite *ModelSuite) Test_FetchServiceAgentsOnShipment() {
 		},
 	})
 	// And 1 Service Agent on a different shipment
-	testdatagen.MakeDefaultServiceAgent(suite.db)
+	testdatagen.MakeDefaultServiceAgent(suite.DB())
 
-	serviceAgents, err := FetchServiceAgentsOnShipment(suite.db, shipment.ID)
+	serviceAgents, err := FetchServiceAgentsOnShipment(suite.DB(), shipment.ID)
 
 	// Expect 2 service agents returned
 	if err != nil {
