@@ -3520,6 +3520,36 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
+  /moves/{moveId}/shipment_summary_worksheet:
+    get:
+      summary: Returns Shipment Summary Worksheet
+      description: Generates pre-filled PDF using data already collected
+      operationId: showShipmentSummaryWorksheet
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      produces:
+        - application/pdf
+      responses:
+        200:
+          description: Pre-filled worksheet PDF
+          schema:
+            format: binary
+            type: file
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
     post:
       summary: Creates PPM attachments PDF

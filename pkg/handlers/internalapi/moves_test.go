@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"bytes"
 	"fmt"
 	"net/http/httptest"
 	"time"
@@ -389,4 +390,30 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	// Then: expect a forbidden response
 	suite.CheckResponseForbidden(response)
 
+}
+
+func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
+	move := testdatagen.MakeDefaultMove(suite.TestDB())
+
+	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	params := moveop.ShowShipmentSummaryWorksheetParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+
+	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+
+	handler := ShowShipmentSummaryWorksheetHandler{context}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&moveop.ShowShipmentSummaryWorksheetOK{}, response)
+	okResponse := response.(*moveop.ShowShipmentSummaryWorksheetOK)
+
+	// check that the payload wasn't empty
+	buf := new(bytes.Buffer)
+	bytesRead, err := buf.ReadFrom(okResponse.Payload)
+	suite.NoError(err)
+	suite.Equal(bytesRead, int64(346893))
 }
