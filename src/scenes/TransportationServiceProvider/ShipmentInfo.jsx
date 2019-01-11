@@ -395,7 +395,6 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
 
                   <TspContainer
                     title="TSP & Servicing Agents"
@@ -403,6 +402,8 @@ class ShipmentInfo extends Component {
                     serviceAgents={this.props.serviceAgents}
                     transportationServiceProviderId={this.props.shipment.transportation_service_provider_id}
                   />
+
+                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
                 </div>
               )}
             </div>
