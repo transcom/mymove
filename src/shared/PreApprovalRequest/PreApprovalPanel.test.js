@@ -1,13 +1,12 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 
 import { PreApprovalPanel } from './PreApprovalPanel';
 
 describe('PreApprovalPanel tests', () => {
-  let wrapper, icons;
-  const onEdit = jest.fn();
+  let wrapper;
   const shipmentLineItems = [
     {
       id: 'sldkjf',

@@ -59,6 +59,15 @@ type ShipmentLineItem struct {
 // ShipmentLineItems is not required by pop and may be deleted
 type ShipmentLineItems []ShipmentLineItem
 
+// BeforeDestroy verifies that a ShipmentLineItem is in a state to be destroyed
+func (s *ShipmentLineItem) BeforeDestroy(tx *pop.Connection) error {
+	if s.InvoiceID != nil {
+		return ErrDestroyForbidden
+	}
+
+	return nil
+}
+
 // FetchLineItemsByShipmentID returns a list of line items by shipment_id
 func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.UUID) ([]ShipmentLineItem, error) {
 	var err error

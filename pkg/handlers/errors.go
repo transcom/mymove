@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/transcom/mymove/pkg/route"
 	"net/http"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -88,6 +89,9 @@ func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidTransition:
 		skipLogger.Debug("invalid transition", zap.Error(err))
+		return newErrResponse(http.StatusBadRequest, err)
+	case models.ErrDestroyForbidden:
+		skipLogger.Debug("invalid deletion", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
 		skipLogger.Error("unexpected error", zap.Error(err))
