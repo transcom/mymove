@@ -7,5 +7,6 @@ To validate rate for Pre Approval Requests follow these steps:
 3. Setup cypress: ```npx cypress open```
 4. Remove ```skip``` from ```PreApprovalFull.js``` file so tests can be run
 5. Search and select ```PreApprovalFull.js``` to run the data validation test. You should be able to invoice with all pre approval requests
+6. **PII data purging** please make sure you remove all data from your dev db by running this command: ```db_dev_reset```
 
 Expect all PAR's to be accepted and invoiced. If one or more PAR's fail to be accepted or invoiced you might be missing data for that PAR.
