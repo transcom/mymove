@@ -114,6 +114,9 @@ export class PreApprovalForm extends Component {
 
   filterLocations() {
     const lineItemLocations = this.props.ship_line_item_schema.properties.location;
+    if (!lineItemLocations.enum) {
+      return [];
+    }
     const lineItemLocationMap = lineItemLocations.enum.map(lineItemLocation => {
       return {
         value: lineItemLocation,
