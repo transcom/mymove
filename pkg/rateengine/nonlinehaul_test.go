@@ -8,7 +8,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -18,7 +18,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&originZip3)
+	suite.MustSave(&originZip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -31,7 +31,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&serviceArea)
+	suite.MustSave(&serviceArea)
 
 	feeAndRate, err := engine.serviceFeeCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
@@ -52,7 +52,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -62,7 +62,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&originZip3)
+	suite.MustSave(&originZip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -76,7 +76,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&serviceArea)
+	suite.MustSave(&serviceArea)
 
 	fullPackRate := models.Tariff400ngFullPackRate{
 		Schedule:           1,
@@ -86,7 +86,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fullPackRate)
+	suite.MustSave(&fullPackRate)
 
 	feeAndRate, err := engine.fullPackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
@@ -105,7 +105,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 
 func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -115,7 +115,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&originZip3)
+	suite.MustSave(&originZip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -129,7 +129,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&serviceArea)
+	suite.MustSave(&serviceArea)
 
 	fullPackRate := models.Tariff400ngFullPackRate{
 		Schedule:           1,
@@ -139,7 +139,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fullPackRate)
+	suite.MustSave(&fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
@@ -147,7 +147,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fullUnpackRate)
+	suite.MustSave(&fullUnpackRate)
 
 	feeAndRate, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
@@ -167,7 +167,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 
 func (suite *RateEngineSuite) Test_SITCharge() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
 	cwt := unit.CWT(10)
 	daysInSIT := 4
@@ -183,7 +183,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&z)
+	suite.MustSave(&z)
 
 	sa := models.Tariff400ngServiceArea{
 		Name:               "Tampa, FL",
@@ -197,7 +197,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 		SIT185BRateCents:   sit185BRate,
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&sa)
+	suite.MustSave(&sa)
 
 	// Test PPM SIT charges
 	charge, err := engine.SitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, true)
@@ -224,7 +224,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -234,7 +234,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		RateArea:      "US48",
 		Region:        "11",
 	}
-	suite.mustSave(&originZip3)
+	suite.MustSave(&originZip3)
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -248,7 +248,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&originServiceArea)
+	suite.MustSave(&originServiceArea)
 
 	destinationZip3 := models.Tariff400ngZip3{
 		Zip3:          "336",
@@ -258,7 +258,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		RateArea:      "US4964400",
 		Region:        "13",
 	}
-	suite.mustSave(&destinationZip3)
+	suite.MustSave(&destinationZip3)
 
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Tampa, FL",
@@ -272,7 +272,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
-	suite.mustSave(&destinationServiceArea)
+	suite.MustSave(&destinationServiceArea)
 
 	fullPackRate := models.Tariff400ngFullPackRate{
 		Schedule:           1,
@@ -282,7 +282,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fullPackRate)
+	suite.MustSave(&fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
@@ -290,7 +290,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fullUnpackRate)
+	suite.MustSave(&fullUnpackRate)
 
 	cost, err := engine.nonLinehaulChargeComputation(
 		unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle)

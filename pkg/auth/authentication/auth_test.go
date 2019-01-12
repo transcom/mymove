@@ -1,10 +1,6 @@
 package authentication
 
 import (
-	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -13,46 +9,33 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type AuthSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
 func (suite *AuthSuite) SetupTest() {
-	suite.db.TruncateAll()
-}
-
-func (suite *AuthSuite) mustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() > 0 {
-		t.Fatalf("errors encountered saving %v: %v", model, verrs)
-	}
+	suite.DB().TruncateAll()
 }
 
 func TestAuthSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
-	hs := &AuthSuite{db: db, logger: logger}
+	hs := &AuthSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+		logger:       logger,
+	}
 	suite.Run(t, hs)
 }
 
@@ -122,7 +105,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
 	}
-	suite.mustSave(&user)
+	suite.MustSave(&user)
 
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/moves", nil)

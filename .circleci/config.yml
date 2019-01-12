@@ -70,6 +70,9 @@ commands:
       - run:
           name: Health Check
           command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
+      - run:
+          name: Check deployed commits
+          command: bin/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1"
       - announce_failure
   deploy_app_client_tls_steps:
     parameters:
@@ -434,8 +437,7 @@ jobs:
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      # TODO (dynamike): Move the building chamber binary into the Makefile
-      - run: go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
+      - run: make build_chamber
       - run: make build
       - build_tag_push:
           dockerfile: Dockerfile
@@ -453,12 +455,7 @@ jobs:
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      # TODO (pjdufour-truss): Move the building of soda and chamber binaries into the Makefile
-      - run:
-          name: Build Chamber and Soda
-          command: |
-            go build -o bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
-            go build -o bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
+      - run: make build_chamber build_soda
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
@@ -601,9 +598,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
+          # filters:
           #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          #    ignore: placeholder_branch_name
 
       - integration_tests_office:
           requires:
@@ -611,9 +608,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - integration_tests_tsp:
           requires:
@@ -621,9 +618,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
-          #filters:
-          #  branches:
-          #    ignore: YOUR BRANCH NAME HERE
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -657,21 +654,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder
+              only: placeholder_branch_name
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder
+              only: placeholder_branch_name
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder
+              only: placeholder_branch_name
 
       - check_circle_against_staging_sha:
           requires:

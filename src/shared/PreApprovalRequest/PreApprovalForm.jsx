@@ -135,8 +135,8 @@ export class PreApprovalForm extends Component {
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
-        <div className="usa-grid">
-          <div className="usa-width-one-half">
+        <div className="usa-grid-full">
+          <div className="usa-width-one-third">
             <div className="tariff400-select">
               <Field
                 name="tariff400ng_item"
@@ -154,6 +154,8 @@ export class PreApprovalForm extends Component {
                 className={'one-third-width rounded'}
               />
             </div>
+          </div>
+          <div className="usa-width-one-third">
             <SwaggerField
               fieldName="quantity_1"
               className="half-width"
@@ -178,7 +180,7 @@ export class PreApprovalForm extends Component {
               </ul>
             </div>
           </div>
-          <div className="usa-width-one-half">
+          <div className="usa-width-one-third">
             <SwaggerField
               fieldName="notes"
               className="three-quarter-width"

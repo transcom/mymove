@@ -138,7 +138,7 @@ function tspUserVerifiesPreMoveSurveyEntered() {
 }
 
 function tspUserGoesToShipment(queue, locator) {
-  cy.visit(queue);
+  cy.patientVisit(queue);
 
   // Find shipment and open it
   cy

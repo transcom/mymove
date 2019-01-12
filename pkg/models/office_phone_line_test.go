@@ -21,7 +21,7 @@ func (suite *ModelSuite) Test_BasicOfficePhoneLine() {
 		Type:                   "voice",
 	}
 
-	suite.mustSave(&infoLine)
+	suite.MustSave(&infoLine)
 	suite.False(infoLine.IsDsnNumber)
 
 	faxLine := OfficePhoneLine{
@@ -32,10 +32,10 @@ func (suite *ModelSuite) Test_BasicOfficePhoneLine() {
 		IsDsnNumber:            true,
 	}
 
-	suite.mustSave(&faxLine)
+	suite.MustSave(&faxLine)
 	suite.True(faxLine.IsDsnNumber)
 	var loadedOffice TransportationOffice
-	err := suite.db.Eager().Find(&loadedOffice, office.ID)
+	err := suite.DB().Eager().Find(&loadedOffice, office.ID)
 	suite.Nil(err, "loading office with phone lines")
 	suite.Equal(2, len(loadedOffice.PhoneLines))
 }

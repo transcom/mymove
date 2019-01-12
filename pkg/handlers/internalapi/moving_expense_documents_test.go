@@ -16,10 +16,10 @@ import (
 
 func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
 
-	upload := testdatagen.MakeUpload(suite.TestDB(), testdatagen.Assertions{
+	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
 		Upload: models.Upload{
 			UploaderID: sm.UserID,
 		},
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateMovingExpenseDocumentHandler{context}
@@ -61,14 +61,14 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	// Make sure the Upload was associated to the new document
 	createdDocumentID := createdPayload.Document.ID
 	var fetchedUpload models.Upload
-	suite.TestDB().Find(&fetchedUpload, upload.ID)
+	suite.DB().Find(&fetchedUpload, upload.ID)
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Check that the status is correct
 	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
 
 	// Next try the wrong user
-	wrongUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	wrongUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 	request = suite.AuthenticateRequest(request, wrongUser)
 	newMovingExpenseDocParams.HTTPRequest = request
 

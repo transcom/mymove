@@ -10,12 +10,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
 type serverSuite struct {
 	logger *zap.Logger
-	suite.Suite
+	testingsuite.BaseTestSuite
 	httpHandler http.Handler
 }
 
@@ -45,17 +46,20 @@ func (suite *serverSuite) readFile(filename string) []byte {
 }
 
 func (suite *serverSuite) TestParseSingleTLSCert() {
-	tlsCert := TLSCert{
-		CertPEMBlock: suite.readFile("localhost.pem"),
-		KeyPEMBlock:  suite.readFile("localhost.key"),
-	}
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+
+	suite.Nil(err)
+
 	httpsServer := Server{
 		ClientAuthType: tls.NoClientCert,
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
 		Port:           8443,
-		TLSCerts:       []TLSCert{tlsCert},
+		TLSCerts:       []tls.Certificate{keyPair},
 	}
 
 	tlsConfig, err := httpsServer.tlsConfig()
@@ -65,35 +69,27 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 }
 
 func (suite *serverSuite) TestParseBadTLSCert() {
-	tlsCert1 := TLSCert{
-		CertPEMBlock: suite.readFile("localhost-bad.pem"),
-		KeyPEMBlock:  suite.readFile("localhost.key"),
-	}
 
-	httpsServer := Server{
-		ClientAuthType: tls.NoClientCert,
-		ListenAddress:  "127.0.0.1",
-		HTTPHandler:    suite.httpHandler,
-		Logger:         suite.logger,
-		Port:           8443,
-		TLSCerts:       []TLSCert{tlsCert1},
-	}
+	_, err := tls.X509KeyPair(
+		suite.readFile("localhost-bad.pem"),
+		suite.readFile("localhost.key"))
 
-	tlsConfig, err := httpsServer.tlsConfig()
 	suite.NotNil(err)
-	suite.Nil(tlsConfig)
 }
 
 func (suite *serverSuite) TestParseMultipleTLSCerts() {
-	tlsLocalhost := TLSCert{
-		CertPEMBlock: suite.readFile("localhost.pem"),
-		KeyPEMBlock:  suite.readFile("localhost.key"),
-	}
 
-	tlsOfficelocal := TLSCert{
-		CertPEMBlock: suite.readFile("officelocal.pem"),
-		KeyPEMBlock:  suite.readFile("officelocal.key"),
-	}
+	keyPairLocalhost, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+
+	suite.Nil(err)
+
+	keyPairOffice, err := tls.X509KeyPair(
+		suite.readFile("officelocal.pem"),
+		suite.readFile("officelocal.key"))
+
+	suite.Nil(err)
 
 	httpsServer := Server{
 		ClientAuthType: tls.NoClientCert,
@@ -101,9 +97,9 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
 		Port:           8443,
-		TLSCerts: []TLSCert{
-			tlsLocalhost,
-			tlsOfficelocal},
+		TLSCerts: []tls.Certificate{
+			keyPairLocalhost,
+			keyPairOffice},
 	}
 
 	tlsConfig, err := httpsServer.tlsConfig()
@@ -114,10 +110,13 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 }
 
 func (suite *serverSuite) TestTLSConfigWithClientAuth() {
-	tlsCert := TLSCert{
-		CertPEMBlock: suite.readFile("localhost.pem"),
-		KeyPEMBlock:  suite.readFile("localhost.key"),
-	}
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+
+	suite.Nil(err)
+
 	caFile := suite.readFile("ca.pem")
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caFile)
@@ -129,36 +128,42 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
 		Port:           8443,
-		TLSCerts:       []TLSCert{tlsCert},
+		TLSCerts:       []tls.Certificate{keyPair},
 	}
 
-	_, err := httpsServer.tlsConfig()
+	_, err = httpsServer.tlsConfig()
 	suite.Nil(err)
 }
 
 func (suite *serverSuite) TestTLSConfigWithMissingCA() {
-	tlsCert := TLSCert{
-		CertPEMBlock: suite.readFile("localhost.pem"),
-		KeyPEMBlock:  suite.readFile("localhost.key"),
-	}
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+
+	suite.Nil(err)
+
 	httpsServer := Server{
 		ClientAuthType: tls.RequireAndVerifyClientCert,
 		ListenAddress:  "127.0.0.1",
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
 		Port:           8443,
-		TLSCerts:       []TLSCert{tlsCert},
+		TLSCerts:       []tls.Certificate{keyPair},
 	}
 
-	_, err := httpsServer.tlsConfig()
+	_, err = httpsServer.tlsConfig()
 	suite.Equal(ErrMissingCACert, err)
 }
 
 func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
-	tlsCert := TLSCert{
-		CertPEMBlock: suite.readFile("localhost.pem"),
-		KeyPEMBlock:  suite.readFile("localhost.key"),
-	}
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+
+	suite.Nil(err)
+
 	caFile := suite.readFile("localhost-bad.pem")
 	caCertPool := x509.NewCertPool()
 	certOk := caCertPool.AppendCertsFromPEM(caFile)
@@ -171,10 +176,10 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 		HTTPHandler:    suite.httpHandler,
 		Logger:         suite.logger,
 		Port:           8443,
-		TLSCerts:       []TLSCert{tlsCert},
+		TLSCerts:       []tls.Certificate{keyPair},
 	}
 
-	_, err := httpsServer.tlsConfig()
+	_, err = httpsServer.tlsConfig()
 	suite.Equal(ErrMissingCACert, err)
 }
 

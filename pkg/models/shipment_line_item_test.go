@@ -9,13 +9,13 @@ import (
 
 func (suite *ModelSuite) TestFetchLineItem() {
 	//Setup
-	lineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
+	lineItem := testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 	//make more items that don't relate to the first
-	testdatagen.MakeDefaultShipmentLineItem(suite.db)
-	testdatagen.MakeDefaultShipmentLineItem(suite.db)
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	//Do
-	accs, err := models.FetchLineItemsByShipmentID(suite.db, &lineItem.ShipmentID)
+	accs, err := models.FetchLineItemsByShipmentID(suite.DB(), &lineItem.ShipmentID)
 
 	if suite.NoError(err) {
 		//Test
@@ -29,11 +29,11 @@ func (suite *ModelSuite) TestFetchLineItem() {
 }
 
 func (suite *ModelSuite) TestFetchApprovedPreapprovalRequestsByShipment() {
-	shipment, err := testdatagen.MakeShipmentForPricing(suite.db, testdatagen.Assertions{})
+	shipment, err := testdatagen.MakeShipmentForPricing(suite.DB(), testdatagen.Assertions{})
 	suite.FatalNoError(err)
 
 	// Given: An approved pre-approval line item
-	lineItem := testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+	lineItem := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Shipment:   shipment,
 			ShipmentID: shipment.ID,
@@ -44,7 +44,7 @@ func (suite *ModelSuite) TestFetchApprovedPreapprovalRequestsByShipment() {
 		},
 	})
 
-	returnedItems, err := models.FetchApprovedPreapprovalRequestsByShipment(suite.db, shipment)
+	returnedItems, err := models.FetchApprovedPreapprovalRequestsByShipment(suite.DB(), shipment)
 
 	if suite.NoError(err) && suite.Len(returnedItems, 1) {
 		// We should get back the line item
@@ -58,9 +58,9 @@ func (suite *ModelSuite) TestFetchApprovedPreapprovalRequestsByShipment() {
 
 func (suite *ModelSuite) TestFetchShipmentLineItemByID() {
 	// Given: A shipment line item
-	lineItem := testdatagen.MakeDefaultShipmentLineItem(suite.db)
+	lineItem := testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
-	fetchedItem, err := models.FetchShipmentLineItemByID(suite.db, &lineItem.ID)
+	fetchedItem, err := models.FetchShipmentLineItemByID(suite.DB(), &lineItem.ID)
 
 	if suite.NoError(err) {
 		suite.Equal(lineItem.ID, fetchedItem.ID)
@@ -73,7 +73,7 @@ func (suite *ModelSuite) TestFetchShipmentLineItemByID() {
 
 func (suite *ModelSuite) TestApproveShipmentLineItem() {
 	// Given: A submitted pre-approval request
-	lineItem := testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+	lineItem := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Status: models.ShipmentLineItemStatusSUBMITTED,
 		},
@@ -92,7 +92,7 @@ func (suite *ModelSuite) TestApproveShipmentLineItem() {
 
 func (suite *ModelSuite) TestApproveShipmentLineItemFails() {
 	// Given: An approved pre-approval request
-	lineItem := testdatagen.MakeCompleteShipmentLineItem(suite.db, testdatagen.Assertions{
+	lineItem := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Status: models.ShipmentLineItemStatusAPPROVED,
 		},
@@ -104,4 +104,21 @@ func (suite *ModelSuite) TestApproveShipmentLineItemFails() {
 	err := lineItem.Approve()
 
 	suite.Error(err)
+}
+
+func (suite *ModelSuite) TestDestroyInvoicedShipmentLineItemFails() {
+	// Given: An invoice ShipmentLineItem with an invoice ID
+	invoice := testdatagen.MakeDefaultInvoice(suite.DB())
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Status:    models.ShipmentLineItemStatusAPPROVED,
+			InvoiceID: &invoice.ID,
+		},
+	})
+
+	// When: The line item is destroyed
+	err := suite.DB().Destroy(&lineItem)
+
+	// Then: The destroy action fails
+	suite.EqualError(err, models.ErrDestroyForbidden.Error())
 }
