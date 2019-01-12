@@ -45,7 +45,7 @@ export class Tariff400ngItemSearch extends Component {
           getOptionValue={getOptionValue}
           value={this.props.input.value || null}
           onChange={this.localOnChange}
-          placeholder="Select an item..."
+          placeholder="Enter code or item"
           className={`tariff400-select ${this.props.input.name}`}
           classNamePrefix="tariff400"
           filterOption={filterOption}
@@ -56,7 +56,82 @@ export class Tariff400ngItemSearch extends Component {
   }
 }
 
+export class LocationSearch extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  componentDidMount() {
+    if (this.props.options.length === 1) {
+      this.props.input.onChange(this.props.options[0].value);
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.props.options.length === 1) {
+      this.props.input.onChange(this.props.options[0].value);
+    }
+  }
+
+  render() {
+    let content;
+    if (this.props.options.length === 0) {
+      content = null;
+    } else if (this.props.options.length === 1) {
+      content = this.props.options[0].label;
+    } else {
+      content = (
+        <Fragment>
+          <Select
+            options={this.props.options}
+            getOptionLabel={option => option.label}
+            getOptionValue={option => option.value}
+            value={this.props.input.value || null}
+            onChange={this.props.input.onChange}
+            placeholder="Select a location..."
+            className={`location-select ${this.props.input.name} ${this.props.className}`}
+            classNamePrefix="location"
+            filterOption={filterOption}
+            defaultValue={this.props.meta.initial || null}
+            isSearchable={false}
+          />
+        </Fragment>
+      );
+    }
+    return (
+      <Fragment>
+        <label className="usa-input-label">{this.props.title}</label>
+        {content}
+      </Fragment>
+    );
+  }
+}
 export class PreApprovalForm extends Component {
+  constructor(props) {
+    super(props);
+    this.filterLocations = this.filterLocations.bind(this);
+  }
+
+  filterLocations() {
+    const lineItemLocations = this.props.ship_line_item_schema.properties.location;
+    const lineItemLocationMap = lineItemLocations.enum.map(lineItemLocation => {
+      return {
+        value: lineItemLocation,
+        label: lineItemLocations['x-display-value'][lineItemLocation],
+      };
+    });
+    // Choose location options based on tariff400ng choice.
+    if (this.props.tariff400ngItemLocation === 'EITHER') {
+      return lineItemLocationMap.filter(lineItemLocationObject => {
+        return lineItemLocationObject.value === 'ORIGIN' || lineItemLocationObject.value === 'DESTINATION';
+      });
+    } else {
+      return lineItemLocationMap.filter(lineItemLocationObject => {
+        return lineItemLocationObject.value === this.props.tariff400ngItemLocation;
+      });
+    }
+  }
+
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
@@ -134,6 +209,7 @@ PreApprovalForm = reduxForm({
 function mapStateToProps(state, props) {
   return {
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
+    tariff400ngItemLocation: get(state, 'form.preapproval_request_form.values.tariff400ng_item.location'),
   };
 }
 
