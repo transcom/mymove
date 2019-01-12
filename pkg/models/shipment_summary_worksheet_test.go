@@ -6,7 +6,7 @@ import (
 )
 
 func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetFormValues() {
-	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName:  models.StringPointer("Marcus"),
 			MiddleName: models.StringPointer("Joseph"),
@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetFormValues() {
 			Suffix:     models.StringPointer("Jr."),
 		},
 	})
-	sswPage1, _, err := models.FetchShipmentSummaryWorksheetFormValues(suite.db, move.ID)
+	sswPage1, _, err := models.FetchShipmentSummaryWorksheetFormValues(suite.DB(), move.ID)
 	suite.NoError(err)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)

@@ -37,3 +37,11 @@ If you have already run tests in the current database, you will need to reset th
 ```console
 $ make db_e2e_reset
 ```
+
+### Run End to End Tests with Docker
+
+To run just the office tests:
+
+```console
+$ SPEC=cypress/integration/office/**/* make e2e_test_docker
+```

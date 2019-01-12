@@ -11,6 +11,7 @@ import { bindActionCreators } from 'redux';
 import Alert from 'shared/Alert';
 import Authorization from 'shared/User/Authorization';
 import Feedback from 'scenes/Feedback';
+import StyleGuide from 'scenes/StyleGuide';
 import Landing from 'scenes/Landing';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Edit from 'scenes/Review/Edit';
@@ -78,6 +79,7 @@ export class AppWrapper extends Component {
                 !props.swaggerError && (
                   <Switch>
                     <Route exact path="/" component={Landing} />
+                    <Route exact path="/sm_style_guide" component={StyleGuide} />
                     <Route path="/submitted" component={SubmittedFeedback} />
                     <Route path="/feedback" component={Feedback} />
                     <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />

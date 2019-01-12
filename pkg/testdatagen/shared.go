@@ -26,6 +26,7 @@ type Assertions struct {
 	BlackoutDate                             models.BlackoutDate
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
+	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument

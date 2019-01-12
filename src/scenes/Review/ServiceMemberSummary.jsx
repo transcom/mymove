@@ -224,7 +224,7 @@ function ServiceMemberSummary(props) {
 
 ServiceMemberSummary.propTypes = {
   backupContacts: PropTypes.array.isRequired,
-  serviceMember: PropTypes.object.isRequired,
+  serviceMember: PropTypes.object,
   schemaRank: PropTypes.object.isRequired,
   schemaAffiliation: PropTypes.object.isRequired,
   schemaOrdersType: PropTypes.object.isRequired,

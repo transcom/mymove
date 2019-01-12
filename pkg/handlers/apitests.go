@@ -9,86 +9,59 @@ import (
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-// BaseTestSuite abstracts the common methods needed for handler tests
-type BaseTestSuite struct {
-	suite.Suite
-	db                 *pop.Connection
+// BaseHandlerTestSuite abstracts the common methods needed for handler tests
+type BaseHandlerTestSuite struct {
+	testingsuite.PopTestSuite
 	logger             *zap.Logger
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
 }
 
-// TestDB returns a POP db connection for the suite
-func (suite *BaseTestSuite) TestDB() *pop.Connection {
-	return suite.db
-}
-
-// SetTestDB sets a POP db connection for the suite
-func (suite *BaseTestSuite) SetTestDB(db *pop.Connection) {
-	suite.db = db
+// NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
+func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender) BaseHandlerTestSuite {
+	return BaseHandlerTestSuite{
+		PopTestSuite:       testingsuite.NewPopTestSuite(),
+		logger:             logger,
+		notificationSender: sender,
+	}
 }
 
 // TestLogger returns the logger to use in the suite
-func (suite *BaseTestSuite) TestLogger() *zap.Logger {
+func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
 	return suite.logger
 }
 
-// SetTestLogger sets the logger to use in the suite
-func (suite *BaseTestSuite) SetTestLogger(logger *zap.Logger) {
-	suite.logger = logger
-}
-
 // TestFilesToClose returns the list of files needed to close at the end of tests
-func (suite *BaseTestSuite) TestFilesToClose() []*runtime.File {
+func (suite *BaseHandlerTestSuite) TestFilesToClose() []*runtime.File {
 	return suite.filesToClose
 }
 
 // SetTestFilesToClose sets the list of files needed to close at the end of tests
-func (suite *BaseTestSuite) SetTestFilesToClose(filesToClose []*runtime.File) {
+func (suite *BaseHandlerTestSuite) SetTestFilesToClose(filesToClose []*runtime.File) {
 	suite.filesToClose = filesToClose
 }
 
 // CloseFile adds a single file to close at the end of tests to the list of files
-func (suite *BaseTestSuite) CloseFile(file *runtime.File) {
+func (suite *BaseHandlerTestSuite) CloseFile(file *runtime.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
 }
 
 // TestNotificationSender returns the notification sender to use in the suite
-func (suite *BaseTestSuite) TestNotificationSender() notifications.NotificationSender {
+func (suite *BaseHandlerTestSuite) TestNotificationSender() notifications.NotificationSender {
 	return suite.notificationSender
 }
 
-// SetTestNotificationSender sets the notification sender to use in the suite
-func (suite *BaseTestSuite) SetTestNotificationSender(notificationSender notifications.NotificationSender) {
-	suite.notificationSender = notificationSender
-}
-
-// MustSave requires saving without errors
-func (suite *BaseTestSuite) MustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
-	}
-	if verrs.HasAny() {
-		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
-	}
-}
-
 // IsNotErrResponse enforces handler does not return an error response
-func (suite *BaseTestSuite) IsNotErrResponse(response middleware.Responder) {
+func (suite *BaseHandlerTestSuite) IsNotErrResponse(response middleware.Responder) {
 	r, ok := response.(*ErrResponse)
 	if ok {
 		suite.logger.Error("Received an unexpected error response from handler: ", zap.Error(r.Err))
@@ -98,7 +71,7 @@ func (suite *BaseTestSuite) IsNotErrResponse(response middleware.Responder) {
 }
 
 // CheckErrorResponse verifies error response is what is expected
-func (suite *BaseTestSuite) CheckErrorResponse(resp middleware.Responder, code int, name string) {
+func (suite *BaseHandlerTestSuite) CheckErrorResponse(resp middleware.Responder, code int, name string) {
 	errResponse, ok := resp.(*ErrResponse)
 	if !ok || errResponse.Code != code {
 		suite.T().Fatalf("Expected %s, Response: %v, Code: %v", name, resp, code)
@@ -107,37 +80,37 @@ func (suite *BaseTestSuite) CheckErrorResponse(resp middleware.Responder, code i
 }
 
 // CheckResponseBadRequest looks at BadRequest errors
-func (suite *BaseTestSuite) CheckResponseBadRequest(resp middleware.Responder) {
+func (suite *BaseHandlerTestSuite) CheckResponseBadRequest(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusBadRequest, "BadRequest")
 }
 
 // CheckResponseUnauthorized looks at Unauthorized errors
-func (suite *BaseTestSuite) CheckResponseUnauthorized(resp middleware.Responder) {
+func (suite *BaseHandlerTestSuite) CheckResponseUnauthorized(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusUnauthorized, "Unauthorized")
 }
 
 // CheckResponseForbidden looks at Forbidden errors
-func (suite *BaseTestSuite) CheckResponseForbidden(resp middleware.Responder) {
+func (suite *BaseHandlerTestSuite) CheckResponseForbidden(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusForbidden, "Forbidden")
 }
 
 // CheckResponseNotFound looks at NotFound errors
-func (suite *BaseTestSuite) CheckResponseNotFound(resp middleware.Responder) {
+func (suite *BaseHandlerTestSuite) CheckResponseNotFound(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusNotFound, "NotFound")
 }
 
 // CheckResponseInternalServerError looks at InternalServerError errors
-func (suite *BaseTestSuite) CheckResponseInternalServerError(resp middleware.Responder) {
+func (suite *BaseHandlerTestSuite) CheckResponseInternalServerError(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusInternalServerError, "InternalServerError")
 }
 
 // CheckResponseTeapot enforces that response come from a Teapot
-func (suite *BaseTestSuite) CheckResponseTeapot(resp middleware.Responder) {
+func (suite *BaseHandlerTestSuite) CheckResponseTeapot(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusTeapot, "Teapot")
 }
 
 // AuthenticateRequest Request authenticated with a service member
-func (suite *BaseTestSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
+func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          serviceMember.UserID,
@@ -145,7 +118,7 @@ func (suite *BaseTestSuite) AuthenticateRequest(req *http.Request, serviceMember
 		ServiceMemberID: serviceMember.ID,
 		Email:           serviceMember.User.LoginGovEmail,
 	}
-	features, err := authentication.GetAllowedFeatures(suite.TestDB(), session)
+	features, err := authentication.GetAllowedFeatures(suite.DB(), session)
 	if err != nil {
 		suite.logger.Fatal("Error determining features user has access to", zap.Error(err))
 	}
@@ -156,7 +129,7 @@ func (suite *BaseTestSuite) AuthenticateRequest(req *http.Request, serviceMember
 }
 
 // AuthenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
-func (suite *BaseTestSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
+func (suite *BaseHandlerTestSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MyApp,
 		UserID:          user.ID,
@@ -167,7 +140,7 @@ func (suite *BaseTestSuite) AuthenticateUserRequest(req *http.Request, user mode
 }
 
 // AuthenticateOfficeRequest authenticates Office users
-func (suite *BaseTestSuite) AuthenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
+func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          *user.UserID,
@@ -179,7 +152,7 @@ func (suite *BaseTestSuite) AuthenticateOfficeRequest(req *http.Request, user mo
 }
 
 // AuthenticateTspRequest authenticates TSP users
-func (suite *BaseTestSuite) AuthenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
+func (suite *BaseHandlerTestSuite) AuthenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          *user.UserID,
@@ -191,7 +164,7 @@ func (suite *BaseTestSuite) AuthenticateTspRequest(req *http.Request, user model
 }
 
 // Fixture allows us to include a fixture like a PDF in the test
-func (suite *BaseTestSuite) Fixture(name string) *runtime.File {
+func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
 	cwd, err := os.Getwd()
 	if err != nil {

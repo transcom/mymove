@@ -22,7 +22,7 @@ import (
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 	// And: a move is patched
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -51,9 +51,9 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
-	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := PatchMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: show Move is queried
-	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -155,9 +155,9 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -168,7 +168,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: Show move is queried
-	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	showHandler := ShowMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
 	suite.CheckResponseForbidden(showResponse)
@@ -177,7 +177,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.TestDB())
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	move := ppm.Move
 
 	// And: the context contains the auth values
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is submitted
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
 	handler := SubmitMoveHandler{context}
 	response := handler.Handle(params)
@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 
 func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 
 	// There is not a way to set a field to nil using testdatagen.Assertions
 	shipment.BookDate = nil
@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 	}
 
 	// And: a move is submitted
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
 	handler := SubmitMoveHandler{context}
 	response := handler.Handle(params)
@@ -243,7 +243,7 @@ func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
-	dutyStationAddress := testdatagen.MakeAddress(suite.TestDB(), testdatagen.Assertions{
+	dutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Fort Gordon",
 			City:           "Augusta",
@@ -253,7 +253,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	dutyStation := testdatagen.MakeDutyStation(suite.TestDB(), testdatagen.Assertions{
+	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
 			Name:        "Fort Sam Houston",
 			Affiliation: internalmessages.AffiliationARMY,
@@ -263,7 +263,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	})
 
 	rank := models.ServiceMemberRankE4
-	serviceMember := testdatagen.MakeServiceMember(suite.TestDB(), testdatagen.Assertions{
+	serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			Rank:          &rank,
 			DutyStationID: &dutyStation.ID,
@@ -271,7 +271,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	newDutyStationAddress := testdatagen.MakeAddress(suite.TestDB(), testdatagen.Assertions{
+	newDutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "n/a",
 			City:           "San Antonio",
@@ -281,7 +281,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	newDutyStation := testdatagen.MakeDutyStation(suite.TestDB(), testdatagen.Assertions{
+	newDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
 			Name:        "Fort Gordon",
 			Affiliation: internalmessages.AffiliationARMY,
@@ -290,7 +290,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	move := testdatagen.MakeMove(suite.TestDB(), testdatagen.Assertions{
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID:  serviceMember.ID,
 			ServiceMember:    serviceMember,
@@ -314,7 +314,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		MoveDate:    moveDate,
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(route.NewTestingPlanner(1125))
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
@@ -366,9 +366,9 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id/", nil)
@@ -381,7 +381,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 		MoveDate:    moveDate,
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(route.NewTestingPlanner(1125))
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
@@ -393,7 +393,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 }
 
 func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
-	move := testdatagen.MakeDefaultMove(suite.TestDB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
@@ -403,7 +403,7 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	handler := ShowShipmentSummaryWorksheetHandler{context}
 	response := handler.Handle(params)

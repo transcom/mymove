@@ -25,12 +25,27 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberVerifiesContactInfoWasEdited();
     serviceMemberEditsBackupContactInfoSection();
     serviceMemberVerifiesBackupContactInfoWasEdited();
+    serviceMemberEditsHHGMoveDates();
     serviceMemberEditsPPMDatesAndLocations();
     serviceMemberVerifiesPPMDatesAndLocationsEdited();
     serviceMemberEditsPPMWeight();
     serviceMemberVerifiesPPMWeightsEdited();
   });
 });
+
+function serviceMemberEditsHHGMoveDates() {
+  cy.get('[data-cy="edit-move"]').click();
+  // TODO: Currently does not support changing move dates for 2019. Add test to edit dates ewhen fixed
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit/);
+  });
+}
 
 function serviceMemberVerifiesHHGPPMSummary() {
   cy.location().should(loc => {
@@ -107,10 +122,7 @@ function serviceMemberVerifiesPPMWeightsEdited() {
 }
 
 function serviceMemberEditsPPMWeight() {
-  cy
-    .get('.ppm-container .edit-section-link')
-    .last()
-    .click();
+  cy.get('[data-cy="edit-ppm-weight"]').click();
 
   typeInInput({ name: 'weight_estimate', value: '1700' });
 
@@ -132,10 +144,7 @@ function serviceMemberVerifiesPPMDatesAndLocationsEdited() {
   });
 }
 function serviceMemberEditsPPMDatesAndLocations() {
-  cy
-    .get('.ppm-container .edit-section-link')
-    .eq(-2)
-    .click();
+  cy.get('[data-cy="edit-ppm-dates"]').click();
 
   typeInInput({ name: 'planned_move_date', value: '5/28/2018' });
   typeInInput({ name: 'pickup_postal_code', value: '91206' });
@@ -323,7 +332,7 @@ function serviceMemberCancelsAddPPMToHHG() {
     .click();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\//);
+    expect(loc.pathname).to.match(/^\/$/);
   });
 }
 

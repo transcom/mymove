@@ -101,11 +101,21 @@ func (suite *webServerSuite) TestConfigEmail() {
 	suite.Nil(checkEmail(suite.viper))
 }
 
+func (suite *webServerSuite) TestConfigGEX() {
+	suite.Nil(checkGEX(suite.viper))
+}
+
 func (suite *webServerSuite) TestConfigStorage() {
 	suite.Nil(checkStorage(suite.viper))
 }
 
 func (suite *webServerSuite) TestDODCertificates() {
+
+	if os.Getenv("TEST_ACC_DOD_CERTIFICATES") != "1" {
+		suite.logger.Info("Skipping TestDODCertificates")
+		return
+	}
+
 	_, _, err := initDODCertificates(suite.viper, suite.logger)
 	suite.Nil(err)
 }

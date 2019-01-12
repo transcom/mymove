@@ -3,12 +3,12 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
-	"go.uber.org/zap"
-	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
@@ -74,12 +74,8 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipment models.Shipment, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
-	loc, err := time.LoadLocation("America/Los_Angeles")
-	if err != nil {
-		return Invoice858C{}, err
-	}
-	currentTime := clock.Now().In(loc)
+func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+	currentTime := clock.Now().UTC()
 
 	interchangeControlNumber, err := sequence.NextVal(db, ICNSequenceName)
 	if err != nil {
@@ -123,7 +119,7 @@ func Generate858C(shipment models.Shipment, db *pop.Connection, sendProductionIn
 		Version:                  "004010",
 	}
 
-	shipmentSegments, err := generate858CShipment(shipment, 1)
+	shipmentSegments, err := generate858CShipment(db, shipment, invoiceModel, 1)
 	if err != nil {
 		return invoice, err
 	}
@@ -141,7 +137,7 @@ func Generate858C(shipment models.Shipment, db *pop.Connection, sendProductionIn
 	return invoice, nil
 }
 
-func generate858CShipment(shipment models.Shipment, sequenceNum int) ([]edisegment.Segment, error) {
+func generate858CShipment(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sequenceNum int) ([]edisegment.Segment, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -150,7 +146,7 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) ([]edisegme
 		},
 	}
 
-	headingSegments, err := getHeadingSegments(shipment, sequenceNum)
+	headingSegments, err := getHeadingSegments(db, shipment, invoiceModel, sequenceNum)
 	if err != nil {
 		return segments, err
 	}
@@ -170,7 +166,7 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) ([]edisegme
 	return segments, nil
 }
 
-func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment.Segment, error) {
+func getHeadingSegments(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sequenceNum int) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
 
 	name := ""
@@ -235,6 +231,10 @@ func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment
 		return segments, err
 	}
 
+	if invoiceModel.ID == uuid.Nil {
+		return nil, errors.New("Invalid invoice model for shipment")
+	}
+
 	return []edisegment.Segment{
 		&edisegment.BX{
 			TransactionSetPurposeCode:    "00", // Original
@@ -249,8 +249,8 @@ func getHeadingSegments(shipment models.Shipment, sequenceNum int) ([]edisegment
 			ReferenceIdentification:          "SC", // Shipment & cost information
 		},
 		&edisegment.N9{
-			ReferenceIdentificationQualifier: "CN",          // Invoice number
-			ReferenceIdentification:          "ABCD00001-1", // TODO: real invoice number
+			ReferenceIdentificationQualifier: "CN", // Invoice number
+			ReferenceIdentification:          invoiceModel.InvoiceNumber,
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "PQ", // Payee code
@@ -434,12 +434,19 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 
 // MakeL1Segment builds L1 segment based on shipment lineitem input.
 func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
-
+	// The rate used in the L102 value (FreightRate) will be sent as 0.00 in order to avoid an issue where Syncada
+	// does validations that create inaccurate representation of the invoice.
+	// The true rate applied in the rateengine calculations is recorded in the db under shipment_line_items.applied_rate
+	// TLDR: When Syncada receives the file, they do their own calculation (rate X weight in most cases)
+	// and compare it to the total (Charge, L104) that we gave them (calculated on the rate engine).
+	// If their calculation outputs something greater than or equal to what we got, the line item shows up 0 (?!).
+	// Communication with USBank and Transcom were unsuccessful in uncovering why this happens or how to resolve it,
+	// so this is a workaround so that the line-item total values will show up in Syncada invoices as we submitted them.
+	proxyRate := 0.0
 	return &edisegment.L1{
-		FreightRate:              lineItem.AppliedRate.ToDollarFloat(),
+		FreightRate:              proxyRate,
 		RateValueQualifier:       rateValueQualifier,
 		Charge:                   lineItem.AmountCents.ToDollarFloat(),
 		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
 	}
-
 }
