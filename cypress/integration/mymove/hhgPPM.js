@@ -108,7 +108,7 @@ function serviceMemberVerifiesHHGPPMSummary() {
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $4,36');
+    expect(text).to.include('Estimated PPM Incentive:  $4,362.66 - 4,821.88');
   });
 }
 
@@ -117,7 +117,7 @@ function serviceMemberVerifiesPPMWeightsEdited() {
     const text = $div.text();
 
     expect(text).to.include('Estimated Weight:  1,700 lbs');
-    expect(text).to.include('Estimated PPM Incentive:  $4,736.63 - 5,235.23');
+    expect(text).to.include('Estimated PPM Incentive:  $4,858.82 - 5,370.28');
   });
 }
 
@@ -126,8 +126,8 @@ function serviceMemberEditsPPMWeight() {
 
   typeInInput({ name: 'weight_estimate', value: '1700' });
 
-  cy.get('strong').contains('$4,736.63 - 5,235.23');
-  cy.get('.subtext').contains('Originally $4,36');
+  cy.get('strong').contains('$4,858.82 - 5,370.28');
+  cy.get('.subtext').contains('Originally $4,362.66 - 4,821.88');
 
   cy
     .get('button')
@@ -137,7 +137,6 @@ function serviceMemberEditsPPMWeight() {
 function serviceMemberVerifiesPPMDatesAndLocationsEdited() {
   cy.get('.ppm-container').should($div => {
     const text = $div.text();
-    console.log(text);
     expect(text).to.include('Move Date: 05/28/2018');
     expect(text).to.include('Pickup ZIP Code:  91206');
     expect(text).to.include('Delivery ZIP Code:  30813');
@@ -439,7 +438,7 @@ function serviceMemberCanReviewMoveSummary() {
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $4,36');
+    expect(text).to.include('Estimated PPM Incentive:  $4,362.66 - 4,821.88');
   });
 
   cy.nextPage();
@@ -489,6 +488,6 @@ function serviceMemberViewsUpdatedHomePage() {
     // PPM information and details
     expect(text).to.include('Next Step: Wait for approval');
     expect(text).to.include('Weight (est.): 150');
-    expect(text).to.include('Incentive (est.): $4,36');
+    expect(text).to.include('Incentive (est.): $4,362.66 - 4,821.88');
   });
 }

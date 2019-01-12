@@ -129,7 +129,7 @@ let EditWeightForm = props => {
               initialValues.incentive_estimate_min !== incentive_estimate_min && (
                 <p className="subtext">
                   Originally{' '}
-                  {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_min)}
+                  {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_max)}
                 </p>
               )}
           </div>
