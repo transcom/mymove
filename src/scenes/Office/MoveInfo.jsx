@@ -380,7 +380,7 @@ class MoveInfo extends Component {
                     currentTab !== 'hhg'
                   }
                 >
-                  Approve Shipments
+                  Approve HHG
                   {hhgApproved && check}
                 </button>
               )}

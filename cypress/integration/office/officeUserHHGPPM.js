@@ -13,7 +13,7 @@ describe('office user finds the shipment', function() {
 });
 
 function officeUserApprovesShipment() {
-  const ApproveShipmentButton = cy.get('button').contains('Approve Shipment');
+  const ApproveShipmentButton = cy.get('button').contains('Approve HHG');
 
   ApproveShipmentButton.should('be.enabled');
 
