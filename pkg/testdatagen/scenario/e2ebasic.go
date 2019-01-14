@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"time"
@@ -2221,9 +2222,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
 	formFiller := paperwork.NewFormFiller()
 	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
@@ -2360,9 +2359,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
 	formFiller := paperwork.NewFormFiller()
 	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)

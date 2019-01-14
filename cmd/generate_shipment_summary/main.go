@@ -70,7 +70,7 @@ func main() {
 
 	// page 2
 	page2Layout := paperwork.ShipmentSummaryPage2Layout
-	page2Template, err := os.Open(page1Layout.TemplateImagePath)
+	page2Template, err := os.Open(page2Layout.TemplateImagePath)
 	noErr(err)
 	defer page2Template.Close()
 
@@ -81,6 +81,7 @@ func main() {
 
 	output, err := os.Create(filename)
 	noErr(err)
+	defer output.Close()
 
 	err = formFiller.Output(output)
 	noErr(err)

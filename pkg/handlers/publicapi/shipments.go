@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"time"
@@ -615,18 +616,12 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		h.Logger().Error("Error reading template file", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
-	f, err := h.FileStorer().FileSystem().Create("something.png")
-	_, err = f.Write(data)
-	if err != nil {
-		h.Logger().Error("Error writing template bytes to file", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
-	f.Seek(0, 0)
 
+	templateBuffer := bytes.NewReader(data)
 	formFiller := paperwork.NewFormFiller()
 
 	// Populate form fields with GBL data
-	err = formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
+	err = formFiller.AppendPage(templateBuffer, formLayout.FieldsLayout, gbl)
 	if err != nil {
 		h.Logger().Error("Failure writing GBL data to form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
