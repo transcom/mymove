@@ -19,10 +19,6 @@ func noErr(err error) {
 	}
 }
 
-func stringPtr(s string) *string {
-	return &s
-}
-
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
