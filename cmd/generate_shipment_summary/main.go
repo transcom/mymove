@@ -26,7 +26,7 @@ func stringPtr(s string) *string {
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-	shipmentID := flag.String("shipment", "", "The shipment ID to generate a shipment summary worksheet for")
+	moveID := flag.String("move", "", "The move ID to generate a shipment summary worksheet for")
 	debug := flag.Bool("debug", false, "show field debug output")
 	flag.Parse()
 
@@ -40,13 +40,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if *shipmentID == "" {
-		log.Fatal("Usage: generate_shipment_summary -shipment <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+	if *moveID == "" {
+		log.Fatal("Usage: generate_shipment_summary -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
 
 	// Define the data here that you want to populate the form with. Data will only be populated
 	// in the form if the field name exist BOTH in the fields map and your data below
-	parsedID := uuid.Must(uuid.FromString(*shipmentID))
+	parsedID := uuid.Must(uuid.FromString(*moveID))
 
 	// Build our form with a template image and field placement
 	formFiller := paperwork.NewFormFiller()
