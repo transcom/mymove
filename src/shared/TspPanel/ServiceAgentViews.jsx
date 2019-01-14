@@ -43,7 +43,9 @@ export class OptionalServiceAgentEdit extends Component {
   };
 
   setShowOptionalServiceAgent(show) {
-    this.setState({ showOptionalServiceAgent: show });
+    this.setState(() => {
+      show;
+    });
   }
 
   render() {
