@@ -10,3 +10,5 @@
 6. **PII data purging** please make sure you remove all data from your dev db by running this command: ```db_dev_reset```
 
 ## Validate expected data and behavior
+
+If test(s) fails, check for bad or invalid data in the database

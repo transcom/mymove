@@ -15,6 +15,7 @@ describe('office user interacts with pre approval request panel', function() {
   // THIS TEST IS MEANT TO BE RUN AS ONE OFF AND ONLY IN DEV MACHINE
   // PLEASE DO NOT DELETE OR REMOVE THE SKIP
   // THE GOAL OF THIS TEST IS DATA VALIDATIONS FOR PROD DATA
+  // TO RUN ONLY THIS TEST, REMOVE `SKIP` AND REPLACE WITH `ONLY`
   it.skip('office user iterates through every pre approval request', () => {
     officeUserIterateThroughAllPARS();
   });
@@ -88,13 +89,14 @@ function officeUserIterateThroughAllPARS() {
   PARS.forEach(par => {
     //add a pre approval request first
     fillAndSavePreApprovalRequest(par);
-    cy.wait('@accessorialsCheck');
 
+    // Verify par is displayed in Pre-Approval Request panel and approve the request
+    cy.wait('@accessorialsCheck');
     cy.get('[data-cy=' + par + ']').should('contain', par);
     cy.get('[data-test=approve-request]').click({ multiple: true });
   });
 
-  //invoice shipment
+  //invoice the shipment and ensure success
   cy
     .get('button')
     .contains('Approve Payment')
