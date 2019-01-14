@@ -253,6 +253,6 @@ Cypress.Commands.add('setupBaseUrl', appname => {
   }
 });
 
-Cypress.on('window:before:load', win => {
-  win.fetch = null;
-});
+// Cypress.on('window:before:load', win => {
+//   win.fetch = null;
+// });
