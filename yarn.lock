@@ -9575,6 +9575,17 @@ react-app-polyfill@^0.1.3:
     raf "3.4.0"
     whatwg-fetch "3.0.0"
 
+react-app-polyfill@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-0.2.0.tgz#60eaf037223b2f3a5671f45e5ac3b418f0b48ad2"
+  integrity sha512-uBfocjRsBNqhTaEywUZ2buzhHbor2jBbnhZY8VUZ7VZ3PXucIPZrPDAAmbclELhvl+x08PbynAGQfMYcBmqZ2w==
+  dependencies:
+    core-js "2.5.7"
+    object-assign "4.1.1"
+    promise "8.0.2"
+    raf "3.4.0"
+    whatwg-fetch "3.0.0"
+
 react-day-picker@^7.1.8:
   version "7.2.4"
   resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.2.4.tgz#3c3bea7aa1910bef7bad17f25ff15cd26a7d1848"

@@ -26,6 +26,7 @@
     "path-to-regexp": "^2.2.0",
     "query-string": "5",
     "react": "^16.2.0",
+    "react-app-polyfill": "^0.2.0",
     "react-day-picker": "^7.1.8",
     "react-dom": "^16.2.0",
     "react-filepond": "^2.0.6",
@@ -106,5 +107,10 @@
     "prettier": "=1.12.1",
     "react-mock-router": "^1.0.15"
   },
-  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"]
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
