@@ -7,6 +7,7 @@ describe('styleguide', function() {
 });
 
 function userVisitsStyleguideRoute() {
-  cy.visit('/sm_style_guide');
-  cy.contains('Placeholder style guide');
+  cy.request('/sm_style_guide').should(response => {
+    expect(response.status).to.eq(200);
+  });
 }
