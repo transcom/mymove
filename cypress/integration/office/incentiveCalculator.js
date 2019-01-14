@@ -4,6 +4,9 @@ describe('office user uses incentive calculator', () => {
     cy.signIntoOffice();
   });
   it('finds calculator and executes it', () => {
+    cy.server();
+    cy.route('GET', '/internal/personally_procured_moves/incentive?*').as('incentiveCalculate');
+
     // Open move ppm tab
     cy.patientVisit('/queues/new/moves/0db80bd6-de75-439e-bf89-deaafa1d0dc8/ppm');
     // Click on PPM tab
@@ -19,6 +22,7 @@ describe('office user uses incentive calculator', () => {
 
       cy.get('[data-cy=calc]').click();
 
+      cy.wait('@incentiveCalculate');
       cy.get('.calculated-result').contains('PPM Incentive');
 
       cy.get('[data-cy=reset]').click();

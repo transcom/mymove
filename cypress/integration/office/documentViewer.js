@@ -31,7 +31,13 @@ describe('The document viewer', function() {
       cy.contains('1617033988');
     });
     it('can upload a new document', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('documentNew');
+      cy.route('POST', '/internal/uploads').as('documentUpload');
+      cy.route('POST', '/internal/moves/*/move_documents').as('documentMove');
+
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+      cy.wait('@documentNew');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('input[name="title"]').type('super secret info document');
@@ -44,6 +50,8 @@ describe('The document viewer', function() {
         .get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
+      cy.wait('@documentUpload');
+      cy.wait('@documentMove');
     });
     it('shows the newly uploaded document in the document list tab', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');

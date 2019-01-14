@@ -111,6 +111,8 @@ describe('office user Completes Locations Panel', function() {
 });
 
 function officeUserEntersLocations() {
+  cy.server();
+  cy.route('PATCH', '/api/v1/shipments/*').as('locationsSave');
   const deliveryAddress = {
     street_1: '500 Something Avenue',
     city: 'Grandfather',
@@ -315,6 +317,7 @@ function officeUserEntersLocations() {
     .get('button')
     .contains('Save')
     .click();
+  cy.wait('@locationsSave');
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
@@ -394,6 +397,7 @@ function officeUserEntersLocations() {
     .contains('Save')
     .click();
 
+  cy.wait('@locationsSave');
   // Refresh browser and make sure changes persist
   cy.patientReload();
 
