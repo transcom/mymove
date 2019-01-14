@@ -14,6 +14,7 @@
     "filepond-plugin-image-exif-orientation": "^1.0.1",
     "filepond-plugin-image-preview": "https://github.com/transcom/filepond-plugin-image-preview",
     "filepond-polyfill": "^1.0.2",
+    "http-proxy-middleware": "^0.19.1",
     "is-mobile": "1.0.0",
     "jest-canvas-mock": "^1.0.2",
     "js-cookie": "^2.2.0",
@@ -71,29 +72,6 @@
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md",
     "lint": "eslint --ext .js --ext .jsx src"
   },
-  "proxy": {
-    "/api": {
-      "target": "http://milmovelocal:8080"
-    },
-    "/internal": {
-      "target": "http://milmovelocal:8080"
-    },
-    "/storage": {
-      "target": "http://milmovelocal:8080"
-    },
-    "/auth": {
-      "target": "http://milmovelocal:8080"
-    },
-    "/devlocal-auth": {
-      "target": "http://milmovelocal:8080"
-    },
-    "/logout": {
-      "target": "http://milmovelocal:8080"
-    },
-    "/downloads": {
-      "target": "http://milmovelocal:8080"
-    }
-  },
   "version": "0.1.0",
   "devDependencies": {
     "adr-log": "^2.1.1",
@@ -107,10 +85,5 @@
     "prettier": "=1.12.1",
     "react-mock-router": "^1.0.15"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"]
 }
