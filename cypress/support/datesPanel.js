@@ -1,6 +1,9 @@
 /* global cy, Cypress*/
 
 export function userEntersDates() {
+  cy.server();
+  cy.route('PATCH', '/api/v1/shipments/*').as('saveDates');
+
   cy
     .get('input[name="dates.pm_survey_conducted_date"]')
     .first()
@@ -18,6 +21,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
+  cy.wait('@saveDates');
   cy.patientReload();
 
   cy.get('div.pm_survey_conducted_date').contains('20-Jul-18');
@@ -51,6 +55,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
+  cy.wait('@saveDates');
   cy.patientReload();
 
   cy.get('div.original_pack_date').contains('11-May-18');
@@ -85,6 +90,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
+  cy.wait('@saveDates');
   cy.patientReload();
 
   cy.get('div.requested_pickup_date').contains('15-May-18');
@@ -118,6 +124,7 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
+  cy.wait('@saveDates');
   cy.patientReload();
 
   cy.get('div.original_delivery_date').contains('21-May-18');
@@ -149,12 +156,15 @@ export function userEntersDates() {
     .contains('Save')
     .click();
 
+  cy.wait('@saveDates');
   cy.patientReload();
 
   cy.get('div.pm_survey_notes').contains('Notes notes notes for dates');
 }
 
 export function userEntersAndRemovesDates() {
+  cy.server();
+  cy.route('PATCH', '/api/v1/shipments/*').as('saveDates');
   // Enter details in form and save dates
 
   // Conducted Date
@@ -221,6 +231,7 @@ export function userEntersAndRemovesDates() {
     .contains('Save')
     .click();
 
+  cy.wait('@saveDates');
   cy.patientReload();
 
   cy.get('div.pm_survey_conducted_date').contains('20-Jul-18');
@@ -310,6 +321,7 @@ export function userEntersAndRemovesDates() {
     .contains('Save')
     .click();
 
+  cy.wait('@saveDates');
   cy.patientReload();
 
   cy.get('div.pm_survey_conducted_date').contains('missing');
