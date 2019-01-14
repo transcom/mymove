@@ -60,6 +60,7 @@ class PaymentsTable extends Component {
 
   downloadShipmentSummary = () => {
     let moveID = get(this.props, 'move.id');
+    // eslint-disable-next-line
     window.open(`/internal/moves/${moveID}/shipment_summary_worksheet`);
   };
 
