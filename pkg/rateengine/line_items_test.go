@@ -18,7 +18,8 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
-	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), *shipment.BookDate, assertions)
+	assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents = 320700
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// Refetching shipments from database to get all needed eagerly fetched relationships.
 	dbShipment, err := models.FetchShipmentByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)

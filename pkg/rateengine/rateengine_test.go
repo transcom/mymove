@@ -1,11 +1,9 @@
 package rateengine
 
 import (
-	"testing"
-	"time"
-
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
@@ -106,7 +104,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
-	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), time.Time{}, assertions)
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// 139698 +20000
 	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate,

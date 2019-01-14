@@ -36,7 +36,7 @@ func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
 	// Make sure there's a FuelEIADieselPrice
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
-	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), *shipment.BookDate, assertions)
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
 	planner := route.NewTestingPlanner(1100)

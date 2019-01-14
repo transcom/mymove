@@ -74,7 +74,7 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time)
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + [SH]
-func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, pickupDate time.Time, bookDate time.Time, discountRate unit.DiscountRate) (cost LinehaulCostComputation, err error) {
+func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, pickupDate time.Time) (cost LinehaulCostComputation, err error) {
 	cwt := weight.ToCWT()
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
@@ -106,11 +106,6 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 		cost.DestinationLinehaulFactor +
 		cost.ShorthaulCharge
 
-	cost.FuelSurcharge, err = re.fuelSurchargeComputation(discountRate.Apply(cost.LinehaulChargeTotal), bookDate)
-	if err != nil {
-		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
-	}
-
 	re.logger.Info("Linehaul charge total calculated",
 		zap.Int("linehaul total", cost.LinehaulChargeTotal.Int()),
 		zap.Int("linehaul", cost.BaseLinehaul.Int()),
@@ -132,8 +127,11 @@ func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents, boo
 		return FeeAndRate{Fee: 0, Rate: 0}, nil
 	}
 
-	re.db.Where("rate_start_date >= (?) and rate_end_date <= (?)", bookDate)
-	err1 := re.db.All(&fuelEIADieselPriceSlice)
+	// Changing the format of the date to remove the time portion so it plays nicely with db
+	bookDateString := bookDate.Format("2006-01-02")
+
+	query := re.db.Where("rate_start_date <= ?", bookDateString).Where("rate_end_date >= ?", bookDateString)
+	err1 := query.All(&fuelEIADieselPriceSlice)
 	if err1 != nil {
 		re.logger.Error(err1.Error())
 	}

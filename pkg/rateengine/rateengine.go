@@ -29,6 +29,7 @@ type RateEngine struct {
 type CostComputation struct {
 	LinehaulCostComputation
 	NonLinehaulCostComputation
+
 	SITFee unit.Cents
 	SITMax unit.Cents
 	GCC    unit.Cents
@@ -51,6 +52,7 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("DestinationLinehaulFactor", c.DestinationLinehaulFactor.Int())
 	encoder.AddInt("ShorthaulCharge", c.ShorthaulCharge.Int())
 	encoder.AddInt("LinehaulChargeTotal", c.LinehaulChargeTotal.Int())
+	encoder.AddInt("FuelSurcharge", c.FuelSurcharge.Fee.Int())
 
 	encoder.AddInt("OriginServiceFee", c.OriginService.Fee.Int())
 	encoder.AddInt("DestinationServiceFee", c.DestinationService.Fee.Int())
@@ -87,7 +89,7 @@ func (re *RateEngine) ComputePPM(
 	}
 
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date, time.Time{}, lhDiscount)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
@@ -168,7 +170,7 @@ func (re *RateEngine) ComputeShipment(
 	}
 
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate, bookDate, lhDiscount)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
@@ -194,6 +196,14 @@ func (re *RateEngine) ComputeShipment(
 	nonLinehaulCostComputation.DestinationService.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.DestinationService.Rate/1000) * 1000
 	nonLinehaulCostComputation.Pack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Pack.Rate/1000) * 1000
 	nonLinehaulCostComputation.Unpack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Unpack.Rate)
+
+	// Calculate FuelSurcharge (FeeAndRate struct) and log it
+	linehaulCostComputation.FuelSurcharge, err = re.fuelSurchargeComputation(linehaulCostComputation.LinehaulChargeTotal, bookDate)
+	if err != nil {
+		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
+	}
+	re.logger.Info("Fuel Surcharge Calculated",
+		zap.Any("Fee and Rate", linehaulCostComputation.FuelSurcharge))
 
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
@@ -232,7 +242,7 @@ func (re *RateEngine) ComputeShipment(
 	// Finally, scale by prorate factor
 	cost.Scale(prorateFactor)
 
-	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
+	re.logger.Info("ComputeShipment() cost computation", zap.Object("cost", cost))
 
 	return cost, nil
 }
