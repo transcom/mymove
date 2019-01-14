@@ -7,6 +7,7 @@ import (
 	"path"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -116,4 +117,49 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.Equal(err, uploader.ErrZeroLengthFile)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
+}
+
+func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {
+	outputFile, err := suite.fs.TempFile("/tmp/milmoves/", "TestCreateUploadNoDocument")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return outputFile, nil
+}
+
+func (suite *UploaderSuite) TestCreateUploadNoDocument() {
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+	userID := document.ServiceMember.UserID
+
+	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
+	file := suite.fixture("test.pdf")
+	fixtureFileInfo, err := file.Stat()
+	suite.Nil(err)
+
+	// Create file and upload
+	upload, verrs, err := up.CreateUploadNoDocument(userID, &file)
+	suite.Nil(err, "failed to create upload")
+	suite.Empty(verrs.Error(), "verrs returned error")
+	suite.NotNil(upload, "failed to create upload structure")
+	file.Close()
+
+	// Download file and test size
+	download, err := up.Download(upload)
+	suite.Nil(err)
+	defer download.Close()
+
+	outputFile, err := suite.helperNewTempFile()
+	suite.Nil(err)
+	defer outputFile.Close()
+
+	written, err := io.Copy(outputFile, download)
+	suite.Nil(err)
+	suite.NotEqual(0, written)
+
+	info, err := outputFile.Stat()
+	suite.Equal(fixtureFileInfo.Size(), info.Size())
+
+	// Delete file previously uploaded
+	err = up.Storer.Delete(upload.StorageKey)
+	suite.Nil(err)
 }

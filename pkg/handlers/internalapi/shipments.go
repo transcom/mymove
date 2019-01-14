@@ -567,6 +567,16 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
+	// Send invoice to S3 for storage if response from GEX is successful
+	fs := h.FileStorer()
+	verrs, err = ediinvoice.StoreInvoice858C(invoice858CString, &invoice, &fs, h.Logger(), session.UserID, h.DB())
+	if verrs.HasAny() {
+		h.Logger().Error("Failed to store invoice record to s3, with validation errors", zap.Error(verrs))
+	}
+	if err != nil {
+		h.Logger().Error("Failed to store invoice record to s3, with error", zap.Error(err))
+	}
+
 	payload := payloadForInvoiceModel(&invoice)
 
 	return shipmentop.NewCreateAndSendHHGInvoiceOK().WithPayload(payload)
