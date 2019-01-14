@@ -92,13 +92,12 @@ export function handleServiceAgents(shipmentId, serviceAgents) {
 
 export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
   return async function(dispatch, getState) {
-    if (!serviceAgent.company || !serviceAgent.email || !serviceAgent.phone_number) {
+    if (serviceAgent.id) {
+      return dispatch(updateServiceAgent(serviceAgent));
+    } else if (!serviceAgent.company || !serviceAgent.email || !serviceAgent.phone_number) {
       // Don't send the service agent if it's not got enough details
       // Currently, it should only be the destination agent that gets skipped
       return;
-    }
-    if (serviceAgent.id) {
-      return dispatch(updateServiceAgent(serviceAgent));
     } else {
       return dispatch(createServiceAgent(shipmentId, serviceAgent));
     }

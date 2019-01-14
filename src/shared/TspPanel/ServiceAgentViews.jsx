@@ -38,15 +38,9 @@ export const ServiceAgentEdit = ({ serviceAgentProps, saRole, columnSize }) => {
 };
 
 export class OptionalServiceAgentEdit extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      showOptionalServiceAgent: false,
-    };
-
-    this.setShowOptionalServiceAgent = this.setShowOptionalServiceAgent.bind(this);
-  }
+  state = {
+    showOptionalServiceAgent: false,
+  };
 
   setShowOptionalServiceAgent(show) {
     this.setState({ showOptionalServiceAgent: show });
