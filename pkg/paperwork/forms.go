@@ -110,6 +110,7 @@ func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64) FieldPo
 type FormFiller struct {
 	pdf   *gofpdf.Fpdf
 	debug bool
+	pages int
 }
 
 // NewFormFiller turns a template image and fields mapping into a FormFiller instance
@@ -128,6 +129,7 @@ func NewFormFiller() *FormFiller {
 func (f *FormFiller) AppendPage(templateImage io.ReadSeeker, fields map[string]FieldPos, data interface{}) error {
 
 	f.pdf.AddPage()
+	f.pages++
 
 	// Determine image type
 	_, format, err := image.DecodeConfig(templateImage)
@@ -142,9 +144,9 @@ func (f *FormFiller) AppendPage(templateImage io.ReadSeeker, fields map[string]F
 		ReadDpi:   true,
 	}
 
-	// TODO need a different image name here probably
-	f.pdf.RegisterImageOptionsReader("form_template", opt, templateImage)
-	f.pdf.Image("form_template", imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, format, imageLink, imageLinkURL)
+	formTemplate := fmt.Sprintf("form_template_%d", f.pages)
+	f.pdf.RegisterImageOptionsReader(formTemplate, opt, templateImage)
+	f.pdf.Image(formTemplate, imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, format, imageLink, imageLinkURL)
 
 	err = f.drawData(fields, data)
 	if err != nil {
