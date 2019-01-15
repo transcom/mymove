@@ -87,3 +87,6 @@ cypress/results
 
 # SQLEditor
 *.sqs
+
+# Virtualenv
+.venv
