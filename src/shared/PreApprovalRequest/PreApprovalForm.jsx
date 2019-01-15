@@ -71,7 +71,7 @@ export class PreApprovalForm extends Component {
                 tariff400ngItems={this.props.tariff400ngItems}
               />
             </div>
-            {this.props.filteredLocations.length === 1 ? (
+            {this.props.filteredLocations && this.props.filteredLocations.length === 1 ? (
               <Fragment>
                 <input name="location" type="hidden" value={this.props.filteredLocations[0]} />
                 <label htmlFor="location" className="usa-input-label">
