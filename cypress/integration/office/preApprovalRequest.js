@@ -29,8 +29,12 @@ describe('office user interacts with pre approval request panel', function() {
 });
 
 function officeUserCreatesPreApprovalRequest() {
+  cy.server();
+  cy.route('GET', '/internal/queues/all').as('queuesAll');
+  cy.route('POST', '/api/v1/shipments/*/accessorials').as('accessorialsCheck');
   // Open new moves queue
   cy.patientVisit('/queues/all');
+  cy.wait('@queuesAll');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -58,13 +62,17 @@ function officeUserCreatesPreApprovalRequest() {
   cy.get('span').contains('2,000');
 
   fillAndSavePreApprovalRequest('130B');
+  cy.wait('@accessorialsCheck');
   // Verify data has been saved in the UI
   cy.get('td').contains('Bulky Article: Motorcycle/Rec vehicle');
 }
 
 function officeUserCannotAddInvalidPreApprovalRequest() {
+  cy.server();
+  cy.route('GET', '/internal/queues/all').as('queuesAll');
   // Open new moves queue
   cy.patientVisit('/queues/all');
+  cy.wait('@queuesAll');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -94,8 +102,12 @@ function officeUserCannotAddInvalidPreApprovalRequest() {
   fillInvalidPreApprovalRequest();
 }
 function officeUserEditsPreApprovalRequest() {
+  cy.server();
+  cy.route('GET', '/internal/queues/all').as('queuesAll');
+  cy.route('PUT', '/api/v1/shipments/accessorials/*').as('updateClick');
   // Open new moves queue
   cy.patientVisit('/queues/all');
+  cy.wait('@queuesAll');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -124,12 +136,18 @@ function officeUserEditsPreApprovalRequest() {
 
   editPreApprovalRequest();
   // Verify data has been saved in the UI
+  cy.wait('@updateClick');
   cy.get('td').contains('notes notes edited');
 }
 
 function officeUserApprovesPreApprovalRequest() {
+  cy.server();
+  cy.route('GET', '/internal/queues/all').as('queuesAll');
+  cy.route('POST', '/api/v1/shipments/accessorials/*/approve').as('approveClick');
+  // cy.route('PUT', '/api/v1/shipments/accessorials/*').as('updateClick');
   // Open new moves queue
   cy.patientVisit('/queues/all');
+  cy.wait('@queuesAll');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -157,12 +175,17 @@ function officeUserApprovesPreApprovalRequest() {
   cy.get('span').contains('2,000');
 
   approvePreApprovalRequest();
+  cy.wait('@approveClick');
   cy.get('.pre-approval-panel td').contains('Approved');
 }
 
 function officeUserDeletesPreApprovalRequest() {
+  cy.server();
+  cy.route('GET', '/internal/queues/all').as('queuesAll');
+  cy.route('DELETE', '/api/v1/shipments/accessorials/*').as('deleteClick');
   // Open new moves queue
   cy.patientVisit('/queues/all');
+  cy.wait('@queuesAll');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
@@ -190,6 +213,7 @@ function officeUserDeletesPreApprovalRequest() {
   cy.get('span').contains('2,000');
 
   deletePreApprovalRequest();
+  cy.wait('@deleteClick');
   cy
     .get('.pre-approval-panel td')
     .first()

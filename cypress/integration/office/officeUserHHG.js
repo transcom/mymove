@@ -58,11 +58,9 @@ function officeUserViewsMoves() {
 
 function officeUserViewsDeliveredShipment() {
   cy.server();
-  cy.route('GET', '/internal/queues/new').as('queuesNew');
   cy.route('GET', '/internal/queues/hhg_delivered').as('hhgDelivered');
   // Open new moves queue
   cy.patientVisit('/queues/hhg_delivered');
-  cy.wait('@queuesNew');
   cy.wait('@hhgDelivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
@@ -90,11 +88,9 @@ function officeUserViewsDeliveredShipment() {
 
 function officeUserViewsCompletedShipment() {
   cy.server();
-  cy.route('GET', '/internal/queues/new').as('queuesNew');
   cy.route('GET', '/internal/queues/hhg_completed').as('hhgCompleted');
   // Open new moves queue
   cy.patientVisit('/queues/hhg_completed');
-  cy.wait('@queuesNew');
   cy.wait('@hhgCompleted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
@@ -123,11 +119,9 @@ function officeUserViewsCompletedShipment() {
 function officeUserViewsAcceptedShipment() {
   // Open new moves queue
   cy.server();
-  cy.route('GET', '/internal/queues/new').as('queuesNew');
   cy.route('GET', '/internal/queues/hhg_accepted').as('hhgAccepted');
 
   cy.patientVisit('/queues/hhg_accepted');
-  cy.wait('@queuesNew');
   cy.wait('@hhgAccepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
@@ -224,13 +218,11 @@ function officeUserApprovesOnlyBasicsHHG() {
 
 function officeUserApprovesHHG() {
   cy.server();
-  cy.route('GET', '/internal/queues/new').as('queuesNew');
   cy.route('GET', '/internal/queues/hhg_accepted').as('hhgAccepted');
   cy.route('POST', '/internal/moves/*/approve').as('movesApprove');
   cy.route('POST', '/internal/shipments/*/approve').as('shipmentsApprove');
   // Open accepted hhg queue
   cy.patientVisit('/queues/hhg_accepted');
-  cy.wait('@queuesNew');
   cy.wait('@hhgAccepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
@@ -297,12 +289,10 @@ function officeUserApprovesHHG() {
 
 function officeUserCompletesHHG() {
   cy.server();
-  cy.route('GET', '/internal/queues/new').as('queuesNew');
   cy.route('GET', '/internal/queues/hhg_delivered').as('hhgDelivered');
   cy.route('POST', '/internal/shipments/*/complete').as('shipmentsComplete');
   // Open delivered hhg queue
   cy.patientVisit('/queues/hhg_delivered');
-  cy.wait('@queuesNew');
   cy.wait('@hhgDelivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);

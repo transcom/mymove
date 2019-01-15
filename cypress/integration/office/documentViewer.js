@@ -246,9 +246,6 @@ describe('The document viewer', function() {
       cy.server();
       cy.route('GET', '/internal/queues/new').as('queuesNew');
       cy.route('GET', '/internal/queues/hhg_delivered').as('hhgDelivered');
-      cy.route('GET', '/internal/moves/*').as('moves');
-      cy.route('GET', '/internal/moves/*/move_documents').as('moveDocuments');
-      cy.route('GET', '/api/v1/tariff_400ng_items?*').as('tariff400ngItems');
       cy.patientVisit('/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/documents/new', {
         log: true,
       });
@@ -269,9 +266,6 @@ describe('The document viewer', function() {
         .get('div')
         .contains('DOOB')
         .dblclick();
-      cy.wait('@moves');
-      cy.wait('@moveDocuments');
-      cy.wait('@tariff400ngItems');
 
       cy.location().should(loc => {
         expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
