@@ -2,6 +2,7 @@ import { get, includes, reject } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import Select, { createFilter } from 'react-select';
 import { connect } from 'react-redux';
+import { withContext } from 'shared/AppContext';
 import PropTypes from 'prop-types';
 import { reduxForm, Form, Field } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
@@ -17,9 +18,9 @@ const filterOption = createFilter({ ignoreCase: true, stringify });
 const sitCodes = ['17A', '17B', '17C', '17D', '17E', '17F', '17G', '185A', '185B', '210D', '210E'];
 
 // ToDo: move into it's own file
-function getDetailComponent(code) {
+function getDetailComponent(code, robustAccessorial) {
   //todo: detect feature flag and always return default for prod
-  if (code && code.startsWith(105)) return Code105Details;
+  if (code && code.startsWith(105) && robustAccessorial) return Code105Details;
   return DefaultDetails;
 }
 export class Tariff400ngItemSearch extends Component {
@@ -143,7 +144,10 @@ export class PreApprovalForm extends Component {
   }
 
   render() {
-    const DetailComponent = getDetailComponent(this.props.tariff400ng_item_code);
+    const DetailComponent = getDetailComponent(
+      this.props.tariff400ng_item_code,
+      this.props.context.flags.robustAccessorial,
+    );
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
@@ -203,4 +207,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps)(PreApprovalForm);
+export default withContext(connect(mapStateToProps)(PreApprovalForm));
