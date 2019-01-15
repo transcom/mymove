@@ -61,7 +61,7 @@ func main() {
 	// Build our form with a template image and field placement
 	formFiller := paperwork.NewFormFiller()
 
-	gbl, err := models.FetchGovBillOfLadingExtractor(db, parsedID)
+	gbl, err := models.FetchGovBillOfLadingFormValues(db, parsedID)
 	noErr(err)
 
 	// This is very useful for getting field positioning right initially
