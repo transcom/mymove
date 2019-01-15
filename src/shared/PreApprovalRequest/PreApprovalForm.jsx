@@ -7,8 +7,7 @@ import PropTypes from 'prop-types';
 import { reduxForm, Form, Field } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { DefaultDetails } from './DefaultDetails';
-import { Code105Details } from './Code105Details';
+import { getDetailComponent } from './DetailsHelper';
 import './PreApprovalRequest.css';
 
 const getOptionValue = option => (option ? option.id : null);
@@ -17,12 +16,6 @@ const stringify = option => option.label;
 const filterOption = createFilter({ ignoreCase: true, stringify });
 const sitCodes = ['17A', '17B', '17C', '17D', '17E', '17F', '17G', '185A', '185B', '210D', '210E'];
 
-// ToDo: move into it's own file
-function getDetailComponent(code, robustAccessorial) {
-  //todo: detect feature flag and always return default for prod
-  if (code && code.startsWith(105) && robustAccessorial) return Code105Details;
-  return DefaultDetails;
-}
 export class Tariff400ngItemSearch extends Component {
   constructor(props) {
     super(props);
@@ -148,6 +141,7 @@ export class PreApprovalForm extends Component {
       this.props.tariff400ng_item_code,
       this.props.context.flags.robustAccessorial,
     );
+
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
