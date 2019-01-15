@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"bytes"
+	"io/ioutil"
 	"reflect"
 	"time"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/awardqueue"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
@@ -17,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -223,4 +227,68 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	}
 
 	return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
+}
+
+// ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
+type ShowShipmentSummaryWorksheetHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle returns a generated PDF
+func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	_, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), moveID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	formFiller := paperwork.NewFormFiller()
+
+	// page 1
+	page1Layout := paperwork.ShipmentSummaryPage1Layout
+	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
+	if err != nil {
+		h.Logger().Error("Error reading template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
+		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	page1Reader := bytes.NewReader(page1Template)
+	err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
+	if err != nil {
+		h.Logger().Error("Error appending page to PDF", zap.Error(err))
+		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	// page 2
+	page2Layout := paperwork.ShipmentSummaryPage2Layout
+	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
+	if err != nil {
+		h.Logger().Error("Error reading template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
+		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	page2Reader := bytes.NewReader(page2Template)
+	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
+	if err != nil {
+		h.Logger().Error("Error appending page to PDF", zap.Error(err))
+		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	buf := new(bytes.Buffer)
+	err = formFiller.Output(buf)
+	if err != nil {
+		h.Logger().Error("Error writing out PDF", zap.Error(err))
+		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	payload := ioutil.NopCloser(buf)
+	return moveop.NewShowShipmentSummaryWorksheetOK().WithPayload(payload)
 }
