@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { reduxForm, Form, Field } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
 
 import './PreApprovalRequest.css';
 
@@ -56,85 +57,7 @@ export class Tariff400ngItemSearch extends Component {
   }
 }
 
-export class LocationSearch extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidMount() {
-    if (this.props.options.length === 1) {
-      this.props.input.onChange(this.props.options[0].value);
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.props.options.length === 1) {
-      this.props.input.onChange(this.props.options[0].value);
-    }
-  }
-
-  render() {
-    let content;
-    if (this.props.options.length === 0) {
-      content = null;
-    } else if (this.props.options.length === 1) {
-      content = this.props.options[0].label;
-    } else {
-      content = (
-        <Fragment>
-          <Select
-            options={this.props.options}
-            getOptionLabel={option => option.label}
-            getOptionValue={option => option.value}
-            value={this.props.input.value || null}
-            onChange={this.props.input.onChange}
-            placeholder="Select a location..."
-            className={`location-select ${this.props.input.name} ${this.props.className}`}
-            classNamePrefix="location"
-            filterOption={filterOption}
-            defaultValue={this.props.meta.initial || null}
-            isSearchable={false}
-          />
-        </Fragment>
-      );
-    }
-    return (
-      <Fragment>
-        <label className="usa-input-label">{this.props.title}</label>
-        {content}
-      </Fragment>
-    );
-  }
-}
 export class PreApprovalForm extends Component {
-  constructor(props) {
-    super(props);
-    this.filterLocations = this.filterLocations.bind(this);
-  }
-
-  filterLocations() {
-    const lineItemLocations = this.props.ship_line_item_schema.properties.location;
-    if (!lineItemLocations.enum) {
-      return [];
-    }
-    const lineItemLocationMap = lineItemLocations.enum.map(lineItemLocation => {
-      return {
-        value: lineItemLocation,
-        label: lineItemLocations['x-display-value'][lineItemLocation],
-      };
-    });
-    // Choose location options based on tariff400ng choice.
-    if (this.props.tariff400ngItemLocation === 'EITHER') {
-      return lineItemLocationMap.filter(lineItemLocationObject => {
-        return lineItemLocationObject.value === 'ORIGIN' || lineItemLocationObject.value === 'DESTINATION';
-      });
-    } else {
-      return lineItemLocationMap.filter(lineItemLocationObject => {
-        return lineItemLocationObject.value === this.props.tariff400ngItemLocation;
-      });
-    }
-  }
-
   render() {
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
@@ -148,15 +71,27 @@ export class PreApprovalForm extends Component {
                 tariff400ngItems={this.props.tariff400ngItems}
               />
             </div>
-            <div className="location-select rounded">
-              <Field
-                name="location"
-                title="Location"
-                component={LocationSearch}
-                options={this.filterLocations()}
-                className={'one-third-width rounded'}
+            {this.props.filteredLocations.length === 1 ? (
+              <Fragment>
+                <input name="location" type="hidden" value={this.props.filteredLocations[0]} />
+                <label htmlFor="location" className="usa-input-label">
+                  Location
+                </label>
+                {
+                  this.props.ship_line_item_schema.properties.location['x-display-value'][
+                    this.props.filteredLocations[0]
+                  ]
+                }
+              </Fragment>
+            ) : (
+              <SwaggerField
+                fieldName="location"
+                className="rounded"
+                swagger={this.props.ship_line_item_schema}
+                filteredEnumListOverride={this.props.filteredLocations}
+                required
               />
-            </div>
+            )}
           </div>
           <div className="usa-width-one-third">
             <SwaggerField
@@ -211,10 +146,10 @@ PreApprovalForm = reduxForm({
   validate: validateItemSelect,
 })(PreApprovalForm);
 
-function mapStateToProps(state, props) {
+function mapStateToProps(state) {
   return {
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
-    tariff400ngItemLocation: get(state, 'form.preapproval_request_form.values.tariff400ng_item.location'),
+    filteredLocations: selectLocationFromTariff400ngItem(state),
   };
 }
 
