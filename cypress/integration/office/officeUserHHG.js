@@ -57,8 +57,13 @@ function officeUserViewsMoves() {
 }
 
 function officeUserViewsDeliveredShipment() {
+  cy.server();
+  cy.route('GET', '/internal/queues/new').as('queuesNew');
+  cy.route('GET', '/internal/queues/hhg_delivered').as('hhgDelivered');
   // Open new moves queue
   cy.patientVisit('/queues/hhg_delivered');
+  cy.wait('@queuesNew');
+  cy.wait('@hhgDelivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
@@ -84,8 +89,13 @@ function officeUserViewsDeliveredShipment() {
 }
 
 function officeUserViewsCompletedShipment() {
+  cy.server();
+  cy.route('GET', '/internal/queues/new').as('queuesNew');
+  cy.route('GET', '/internal/queues/hhg_completed').as('hhgCompleted');
   // Open new moves queue
   cy.patientVisit('/queues/hhg_completed');
+  cy.wait('@queuesNew');
+  cy.wait('@hhgCompleted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
   });
@@ -112,7 +122,13 @@ function officeUserViewsCompletedShipment() {
 
 function officeUserViewsAcceptedShipment() {
   // Open new moves queue
+  cy.server();
+  cy.route('GET', '/internal/queues/new').as('queuesNew');
+  cy.route('GET', '/internal/queues/hhg_accepted').as('hhgAccepted');
+
   cy.patientVisit('/queues/hhg_accepted');
+  cy.wait('@queuesNew');
+  cy.wait('@hhgAccepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
@@ -138,8 +154,12 @@ function officeUserViewsAcceptedShipment() {
 }
 
 function officeUserApprovesOnlyBasicsHHG() {
+  cy.server();
+  cy.route('GET', '/internal/queues/new').as('queuesNew');
+  cy.route('POST', '/internal/moves/*/approve').as('moveApprove');
   // Open accepted hhg queue
   cy.patientVisit('/queues/new');
+  cy.wait('@queuesNew');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
@@ -159,6 +179,7 @@ function officeUserApprovesOnlyBasicsHHG() {
     .get('button')
     .contains('Approve Basics')
     .click();
+  cy.wait('@moveApprove');
 
   // disabled because not on hhg tab
   cy
@@ -202,8 +223,15 @@ function officeUserApprovesOnlyBasicsHHG() {
 }
 
 function officeUserApprovesHHG() {
+  cy.server();
+  cy.route('GET', '/internal/queues/new').as('queuesNew');
+  cy.route('GET', '/internal/queues/hhg_accepted').as('hhgAccepted');
+  cy.route('POST', '/internal/moves/*/approve').as('movesApprove');
+  cy.route('POST', '/internal/shipments/*/approve').as('shipmentsApprove');
   // Open accepted hhg queue
   cy.patientVisit('/queues/hhg_accepted');
+  cy.wait('@queuesNew');
+  cy.wait('@hhgAccepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
@@ -223,6 +251,7 @@ function officeUserApprovesHHG() {
     .get('button')
     .contains('Approve Basics')
     .click();
+  cy.wait('@movesApprove');
 
   // disabled because not on hhg tab
   cy
@@ -251,6 +280,7 @@ function officeUserApprovesHHG() {
     .get('button')
     .contains('Approve Shipment')
     .click();
+  cy.wait('@shipmentsApprove');
 
   // Disabled because already approved and not delivered
   cy
@@ -266,8 +296,14 @@ function officeUserApprovesHHG() {
 }
 
 function officeUserCompletesHHG() {
+  cy.server();
+  cy.route('GET', '/internal/queues/new').as('queuesNew');
+  cy.route('GET', '/internal/queues/hhg_delivered').as('hhgDelivered');
+  cy.route('POST', '/internal/shipments/*/complete').as('shipmentsComplete');
   // Open delivered hhg queue
   cy.patientVisit('/queues/hhg_delivered');
+  cy.wait('@queuesNew');
+  cy.wait('@hhgDelivered');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
   });
@@ -302,7 +338,7 @@ function officeUserCompletesHHG() {
     .get('button')
     .contains('Complete Shipments')
     .click();
-
+  cy.wait('@shipmentsComplete');
   cy
     .get('button')
     .contains('Approve Shipment')
