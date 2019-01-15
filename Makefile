@@ -153,17 +153,19 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
 build_tools: server_deps server_generate
-	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/rateengine ./cmd/demo/rateengine.go
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
-	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
-	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
+	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
+	go build -i -ldflags "$(LDFLAGS)" -o bin/rateengine ./cmd/demo/rateengine.go
+	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue

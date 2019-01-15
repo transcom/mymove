@@ -59,7 +59,9 @@ class PaymentsTable extends Component {
   };
 
   downloadShipmentSummary = () => {
-    window.open('/downloads/shipment_summary_worksheet.pdf');
+    let moveID = get(this.props, 'move.id');
+    // eslint-disable-next-line
+    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet`);
   };
 
   renderAdvanceAction = () => {

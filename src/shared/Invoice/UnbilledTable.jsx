@@ -88,7 +88,7 @@ UnbilledTable.propTypes = {
   lineItemsTotal: PropTypes.number,
   approvePayment: PropTypes.func,
   allowPayments: PropTypes.bool,
-  createInvoiceStatus: PropTypes.object,
+  createInvoiceStatus: PropTypes.string,
 };
 
 export default UnbilledTable;

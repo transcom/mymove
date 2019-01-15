@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"time"
@@ -1979,6 +1980,45 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg33 := offer33.Shipment
 	hhg33.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg33.Move)
+
+	/*
+	 * Service member with accepted move but needs to be assigned an origin service agent
+	 */
+	email = "hhg@assignorigin.serviceagent"
+	offer34 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("2a14af24-5448-414b-a114-e943d695a371")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("95ca8bc7-2fbd-46f7-871d-ddb3f8472b8d"),
+			FirstName:     models.StringPointer("AssignOrigin"),
+			LastName:      models.StringPointer("ServiceAgent"),
+			Edipi:         models.StringPointer("4444512345"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("5bd2eb88-ca20-4678-8253-04da76db0a52"),
+			Locator:          "ASNORG",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("0a93b301-1b66-4a22-ab0e-027ec19d81d9"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+	hhg34 := offer34.Shipment
+	hhg34.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg34.Move)
+
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -2216,21 +2256,18 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
-	gbl, _ := models.FetchGovBillOfLadingExtractor(db, hhgID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
 	formLayout := paperwork.Form1203Layout
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
-	form, _ := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	// Populate form fields with GBL data
-	form.DrawData(gbl)
 	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
-	form.Output(aFile)
+	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
 	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
@@ -2356,21 +2393,18 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
-	gbl, _ := models.FetchGovBillOfLadingExtractor(db, hhgID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
 	formLayout := paperwork.Form1203Layout
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
-	form, _ := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	// Populate form fields with GBL data
-	form.DrawData(gbl)
 	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
-	form.Output(aFile)
+	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
 	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)

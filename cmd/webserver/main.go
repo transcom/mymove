@@ -819,6 +819,32 @@ func main() {
 		if err != nil {
 			logger.Error("Failed encoding health check response", zap.Error(err))
 		}
+
+		// We are not using request middleware here so logging directly in the check
+		var protocol string
+		if r.TLS == nil {
+			protocol = "http"
+		} else {
+			protocol = "https"
+		}
+		zap.L().Info("Request",
+			zap.String("git-branch", gitBranch),
+			zap.String("git-commit", gitCommit),
+			zap.String("accepted-language", r.Header.Get("accepted-language")),
+			zap.Int64("content-length", r.ContentLength),
+			zap.String("host", r.Host),
+			zap.String("method", r.Method),
+			zap.String("protocol", protocol),
+			zap.String("protocol-version", r.Proto),
+			zap.String("referer", r.Header.Get("referer")),
+			zap.String("source", r.RemoteAddr),
+			zap.String("url", r.URL.String()),
+			zap.String("user-agent", r.UserAgent()),
+			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
+			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
+			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
+			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
+		)
 	})
 
 	// Allow public content through without any auth or app checks

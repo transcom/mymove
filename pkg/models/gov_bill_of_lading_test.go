@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 		},
 	})
 
-	gbl, err := models.FetchGovBillOfLadingExtractor(suite.DB(), shipment.ID)
+	gbl, err := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
 
 	suite.NoError(err)
 
