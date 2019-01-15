@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"time"
@@ -2216,21 +2217,18 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
-	gbl, _ := models.FetchGovBillOfLadingExtractor(db, hhgID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
 	formLayout := paperwork.Form1203Layout
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
-	form, _ := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	// Populate form fields with GBL data
-	form.DrawData(gbl)
 	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
-	form.Output(aFile)
+	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
 	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
@@ -2356,21 +2354,18 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
-	gbl, _ := models.FetchGovBillOfLadingExtractor(db, hhgID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
 	formLayout := paperwork.Form1203Layout
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
-	form, _ := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	// Populate form fields with GBL data
-	form.DrawData(gbl)
 	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
-	form.Output(aFile)
+	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
 	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
