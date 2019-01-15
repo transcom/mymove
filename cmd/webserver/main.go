@@ -272,6 +272,13 @@ func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 
 	tlsCerts := make([]string, 0, len(tlsCertMatches))
 	for _, m := range tlsCertMatches {
+		// each match will include a slice of strings starting with
+		// (0) the full match, then
+		// (1) "-----BEGIN CERTIFICATE-----",
+		// (2) whitespace if any,
+		// (3) base64-encoded certificate data,
+		// (4) whitespace if any, and then
+		// (5) -----END CERTIFICATE-----
 		tlsCerts = append(tlsCerts, fmt.Sprintf(certFormat, m[3]))
 	}
 
@@ -289,6 +296,13 @@ func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 
 	caCerts := make([]string, 0, len(caCertMatches))
 	for _, m := range caCertMatches {
+		// each match will include a slice of strings starting with
+		// (0) the full match, then
+		// (1) "-----BEGIN CERTIFICATE-----",
+		// (2) whitespace if any,
+		// (3) base64-encoded certificate data,
+		// (4) whitespace if any, and then
+		// (5) -----END CERTIFICATE-----
 		caCerts = append(caCerts, fmt.Sprintf(certFormat, m[3]))
 	}
 
