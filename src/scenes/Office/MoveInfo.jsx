@@ -458,12 +458,12 @@ MoveInfo.propTypes = {
 };
 
 const mapStateToProps = state => {
-  const officeMove = get(state, 'office.officeMove', {});
+  const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
 
   return {
     swaggerError: get(state, 'swagger.hasErrored'),
-    officeMove: get(state, 'office.officeMove', {}),
+    officeMove,
     officeShipment: get(state, 'office.officeShipment', {}),
     shipment: get(state, `entities.shipments.${shipmentId}`, {}),
     officeOrders: get(state, 'office.officeOrders', {}),
