@@ -21,23 +21,29 @@ describe('The document viewer', function() {
       cy.signIntoOffice(false);
     });
     it('produces error when move cannot be found', () => {
+      cy.server();
+      cy.route('GET', '/internal/moves/*/move_documents').as('moveDocument');
       cy.patientVisit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
+      cy.wait('@moveDocument');
       cy.contains('An error occurred'); //todo: we want better messages when we are making custom call
     });
     it('loads basic information about the move', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.wait('@queuesNew');
       cy.contains('In Progress, PPM');
       cy.contains('GBXYUI');
       cy.contains('1617033988');
     });
     it('can upload a new document', () => {
       cy.server();
-      cy.route('GET', '/internal/queues/new').as('documentNew');
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
       cy.route('POST', '/internal/uploads').as('documentUpload');
       cy.route('POST', '/internal/moves/*/move_documents').as('documentMove');
 
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.wait('@documentNew');
+      cy.wait('@queuesNew');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('input[name="title"]').type('super secret info document');
@@ -54,7 +60,10 @@ describe('The document viewer', function() {
       cy.wait('@documentMove');
     });
     it('shows the newly uploaded document in the document list tab', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.wait('@queuesNew');
       cy.contains('All Documents (1)');
       cy.contains('super secret info document');
       cy
@@ -64,7 +73,13 @@ describe('The document viewer', function() {
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
     });
     it('can upload an expense document', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
+      cy.route('POST', '/internal/uploads').as('documentUpload');
+      cy.route('POST', '/internal/moves/*/moving_expense_documents').as('movingExpenseDocuments');
+
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+      cy.wait('@queuesNew');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('select[name="move_document_type"]').select('Expense');
@@ -79,10 +94,16 @@ describe('The document viewer', function() {
       cy
         .get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
-        .click();
+        .click()
+        .wait('@documentUpload')
+        .wait('@movingExpenseDocuments');
     });
     it('can select and update newly-uploaded expense document', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
+      cy.route('PUT', '/internal/move_documents/*').as('moveDocument');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.wait('@queuesNew');
       cy.contains('expense document');
       cy
         .get('.pad-ns')
@@ -108,11 +129,15 @@ describe('The document viewer', function() {
         .contains('Save')
         .should('not.be.disabled')
         .click();
-
+      cy.wait('@moveDocument');
       cy.contains('GTCC');
     });
     it('can update expense document to other doc type', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
+      cy.route('PUT', '/internal/move_documents/*').as('moveDocuments');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.wait('@queuesNew');
       cy.contains('expense document');
       cy
         .get('.pad-ns')
@@ -132,6 +157,7 @@ describe('The document viewer', function() {
         .contains('Save')
         .should('not.be.disabled')
         .click();
+      cy.wait('@moveDocuments');
 
       cy.contains('Other document type');
 
@@ -141,7 +167,11 @@ describe('The document viewer', function() {
         .should('not.exist');
     });
     it('can update other document type back to expense type', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
+      cy.route('PUT', '/internal/move_documents/*').as('moveDocuments');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.wait('@queuesNew');
       cy.contains('expense document');
       cy
         .get('.pad-ns')
@@ -166,13 +196,20 @@ describe('The document viewer', function() {
         .should('not.be.disabled')
         .click();
 
+      cy.wait('@moveDocuments');
       cy.contains('Expense');
       cy.contains('4,999.92');
       cy.contains('GTCC');
     });
     it('can upload documents to an HHG move', () => {
-      cy.patientVisit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
+      cy.route('POST', '/internal/uploads').as('documentUpload');
+      cy.route('POST', '/internal/moves/*/moving_expense_documents').as('movingExpenseDocument');
+      cy.route('POST', '/internal/moves/*/move_documents').as('moveDocuments');
 
+      cy.patientVisit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');
+      cy.wait('@queuesNew');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('select[name="move_document_type"]').select('Expense');
@@ -188,9 +225,10 @@ describe('The document viewer', function() {
         .get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
+      cy.wait('@documentUpload');
+      cy.wait('@movingExpenseDocument');
 
       cy.contains('All Documents (1)');
-
       cy.get('select[name="move_document_type"]').select('Weight ticket');
       cy.get('input[name="title"]').type('Wait ticket');
       cy.get('input[name="notes"]').type('wait for this document');
@@ -200,13 +238,21 @@ describe('The document viewer', function() {
         .should('not.be.disabled')
         .click();
 
+      cy.wait('@documentUpload');
+      cy.wait('@moveDocuments');
       cy.contains('All Documents (2)');
     });
     it('can navigate to the shipment info page and show line item info', () => {
+      cy.server();
+      cy.route('GET', '/internal/queues/new').as('queuesNew');
+      cy.route('GET', '/internal/queues/hhg_delivered').as('hhgDelivered');
+      cy.route('GET', '/internal/moves/*').as('moves');
+      cy.route('GET', '/internal/moves/*/move_documents').as('moveDocuments');
+      cy.route('GET', '/api/v1/tariff_400ng_items?*').as('tariff400ngItems');
       cy.patientVisit('/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/documents/new', {
         log: true,
       });
-
+      cy.wait('@queuesNew');
       cy.patientVisit('/');
 
       cy.location().should(loc => {
@@ -217,11 +263,15 @@ describe('The document viewer', function() {
         .get('div')
         .contains('Delivered HHGs')
         .click();
+      cy.wait('@hhgDelivered');
 
       cy
         .get('div')
         .contains('DOOB')
         .dblclick();
+      cy.wait('@moves');
+      cy.wait('@moveDocuments');
+      cy.wait('@tariff400ngItems');
 
       cy.location().should(loc => {
         expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
