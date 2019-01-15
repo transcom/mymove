@@ -2,6 +2,7 @@ import { DefaultDetails } from './DefaultDetails';
 import { Code105Details } from './Code105Details';
 
 export function getDetailComponent(code, robustAccessorial) {
-  if (code && code.startsWith(105) && robustAccessorial) return Code105Details;
+  code = code ? code.toLowerCase() : '';
+  if (code && (code.startsWith('105b') || code.startsWith('105e')) && robustAccessorial) return Code105Details;
   return DefaultDetails;
 }
