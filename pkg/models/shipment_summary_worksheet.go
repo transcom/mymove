@@ -62,7 +62,7 @@ type ShipmentSummaryFormData struct {
 // FetchDataShipmentSummaryWorksFormData fetches the data required for the Shipment Summary Worksheet
 func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID) (data ShipmentSummaryFormData, err error) {
 	ssd := ShipmentSummaryFormData{}
-	reqFields, err := getRequiredFields(err, db, moveID)
+	reqFields, err := getRequiredFields(db, moveID)
 	if err != nil {
 		return ssd, err
 	}
@@ -127,7 +127,8 @@ type requiredFields struct {
 	ServiceMemberRank          string    `db:"rank"`
 }
 
-func getRequiredFields(err error, db *pop.Connection, moveID uuid.UUID) (requiredFields, error) {
+func getRequiredFields(db *pop.Connection, moveID uuid.UUID) (requiredFields, error) {
+	var err error
 	p := requiredFields{}
 	sql := `
 		SELECT orders_id,
