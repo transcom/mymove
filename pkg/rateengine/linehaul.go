@@ -142,6 +142,10 @@ func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents, boo
 		re.logger.Error("Got back multiple values from FuelEIADieselPrice when we should have only gotten one.")
 	}
 
+	if len(fuelEIADieselPriceSlice) == 0 {
+		re.logger.Error("Query failed to find an applicable FuelEIADieselPrice")
+	}
+
 	fuelEIADieselPrice := fuelEIADieselPriceSlice[0]
 	fuelSurchargePercentage := float64(fuelEIADieselPrice.BaselineRate) / 100
 	fee := totalLinehaulCost.MultiplyFloat64(fuelSurchargePercentage)
