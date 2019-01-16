@@ -178,14 +178,16 @@ webserver_test: server_generate
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 \
-	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
-	aws-vault exec $$AWS_PROFILE -- \
-	chamber exec app-$$TEST_ACC_ENV -- \
-	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_CWD=$$(PWD) \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	aws-vault exec $(AWS_PROFILE) -- \
+	chamber exec app-$(TEST_ACC_ENV) -- \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 endif
 
 server_test: server_deps server_generate db_test_reset db_test_migrate
