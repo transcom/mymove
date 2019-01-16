@@ -225,7 +225,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
-	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
+	flag.String("storage-backend", "local", "Storage backend to use, either local, memory or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
@@ -568,8 +568,8 @@ func checkGEX(v *viper.Viper) error {
 func checkStorage(v *viper.Viper) error {
 
 	storageBackend := v.GetString("storage-backend")
-	if !stringSliceContains([]string{"local", "s3"}, storageBackend) {
-		return fmt.Errorf("invalid storage-backend %s, expecting local or s3", storageBackend)
+	if !stringSliceContains([]string{"local", "memory", "s3"}, storageBackend) {
+		return fmt.Errorf("invalid storage-backend %s, expecting local, memory or s3", storageBackend)
 	}
 
 	if storageBackend == "s3" {
@@ -738,6 +738,10 @@ func main() {
 			Region: aws.String(awsS3Region),
 		}))
 		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
+	} else if storageBackend == "memory" {
+		zap.L().Info("Using memory storage backend")
+		fsParams := storage.DefaultMemoryParams(logger)
+		storer = storage.NewMemory(fsParams)
 	} else {
 		zap.L().Info("Using filesystem storage backend")
 		fsParams := storage.DefaultFilesystemParams(logger)

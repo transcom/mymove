@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"path/filepath"
 
@@ -14,24 +13,24 @@ import (
 	"go.uber.org/zap"
 )
 
-// Filesystem is a storage backend that uses the local filesystem. It is intended only
+// Memory is a storage backend that uses an in memory filesystem. It is intended only
 // for use in development to avoid dependency on an external service.
-type Filesystem struct {
+type Memory struct {
 	root    string
 	webRoot string
 	logger  *zap.Logger
 	fs      *afero.Afero
 }
 
-// FilesystemParams contains parameter for instantiating a Filesystem storage backend
-type FilesystemParams struct {
+// MemoryParams contains parameter for instantiating a Memory storage backend
+type MemoryParams struct {
 	root    string
 	webRoot string
 	logger  *zap.Logger
 }
 
-// DefaultFilesystemParams returns default values for FilesystemParams
-func DefaultFilesystemParams(logger *zap.Logger) FilesystemParams {
+// DefaultMemoryParams returns default values for MemoryParams
+func DefaultMemoryParams(logger *zap.Logger) MemoryParams {
 	absTmpPath, err := filepath.Abs("tmp")
 	if err != nil {
 		log.Fatalln(errors.New("could not get absolute path for tmp"))
@@ -39,18 +38,18 @@ func DefaultFilesystemParams(logger *zap.Logger) FilesystemParams {
 	storagePath := path.Join(absTmpPath, "storage")
 	webRoot := "/" + "storage"
 
-	return FilesystemParams{
+	return MemoryParams{
 		root:    storagePath,
 		webRoot: webRoot,
 		logger:  logger,
 	}
 }
 
-// NewFilesystem creates a new Filesystem struct using the provided FilesystemParams
-func NewFilesystem(params FilesystemParams) *Filesystem {
+// NewMemory creates a new Memory struct using the provided MemoryParams
+func NewMemory(params MemoryParams) *Memory {
 	var fs = afero.NewMemMapFs()
 
-	return &Filesystem{
+	return &Memory{
 		root:    params.root,
 		webRoot: params.webRoot,
 		logger:  params.logger,
@@ -59,7 +58,7 @@ func NewFilesystem(params FilesystemParams) *Filesystem {
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+func (fs *Memory) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
 	if key == "" {
 		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
 	}
@@ -67,15 +66,12 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*S
 	joined := filepath.Join(fs.root, key)
 	dir := filepath.Dir(joined)
 
-	/*
-		#nosec - filesystem storage is only used for local development.
-	*/
-	err := os.MkdirAll(dir, 0755)
+	err := fs.fs.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create parent directory")
 	}
 
-	file, err := os.Create(joined)
+	file, err := fs.fs.Create(joined)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open file")
 	}
@@ -89,14 +85,14 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*S
 }
 
 // Delete deletes the file at the specified key
-func (fs *Filesystem) Delete(key string) error {
+func (fs *Memory) Delete(key string) error {
 	joined := filepath.Join(fs.root, key)
 
-	return os.Remove(joined)
+	return fs.fs.Remove(joined)
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 mintes.
-func (fs *Filesystem) PresignedURL(key, contentType string) (string, error) {
+func (fs *Memory) PresignedURL(key, contentType string) (string, error) {
 	values := url.Values{}
 	values.Add("contentType", contentType)
 	url := fs.webRoot + "/" + key + "?" + values.Encode()
@@ -107,20 +103,19 @@ func (fs *Filesystem) PresignedURL(key, contentType string) (string, error) {
 // file is returned.
 //
 // It is the caller's responsibility to delete the tempfile.
-func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
+func (fs *Memory) Fetch(key string) (io.ReadCloser, error) {
 	sourcePath := filepath.Join(fs.root, key)
-	// #nosec
-	return os.Open(sourcePath)
+	return fs.fs.Open(sourcePath)
 }
 
 // FileSystem returns the underlying afero filesystem
-func (fs *Filesystem) FileSystem() *afero.Afero {
+func (fs *Memory) FileSystem() *afero.Afero {
 	return fs.fs
 }
 
-// NewFilesystemHandler returns an Handler that adds a Content-Type header so that
+// NewMemoryHandler returns an Handler that adds a Content-Type header so that
 // files are handled properly by the browser.
-func NewFilesystemHandler(root string) http.HandlerFunc {
+func NewMemoryHandler(root string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		contentType := r.URL.Query().Get("contentType")
 		if contentType != "" {
