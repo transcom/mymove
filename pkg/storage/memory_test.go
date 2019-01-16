@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestPresignedURL(t *testing.T) {
+func TestMemoryPresignedURL(t *testing.T) {
 	logger := zap.NewNop()
 	fsParams := MemoryParams{
 		root:    "/home/username",
