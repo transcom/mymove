@@ -1,39 +1,15 @@
 package models_test
 
 import (
-	"fmt"
+	"time"
+
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"time"
 )
 
-func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetFormValues() {
-	moveID, _ := uuid.NewV4()
-	firstName := "Marcus"
-	middleName := "Joseph"
-	lastName := "Jenkins"
-	suffix := "Jr."
-	fullName := fmt.Sprintf("%s %s, %s %s", lastName, suffix, firstName, middleName)
-	preferredPhoneNumber := "444-555-8888"
-	preferredEmail := "michael+ppm-expansion_1@truss.works"
-	maxSITStorageEntitlementDefault := "90 days per each shipment"
-	dodID := "1234567890"
-	serviceBranch := models.AffiliationAIRFORCE
-	rank := models.ServiceMemberRankE9
-	wtgEntitlements := models.WeightAllotment{
-		TotalWeightSelf:     13000,
-		ProGearWeight:       2000,
-		ProGearWeightSpouse: 500,
-	}
-	totalWeightEntitlement := 15500
-	ordersDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
-	print(ordersDate.Location())
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	ordersNumber := "012345"
-	issuingBranch := string(serviceBranch)
-
+func (suite *ModelSuite) setupTestDutyStations() (currentDutyStation models.DutyStation, newDutyStation models.DutyStation) {
 	fortBraggAssertions := testdatagen.Assertions{
 		Address: models.Address{
 			City:       "Fort Bragg",
@@ -58,43 +34,92 @@ func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetFormValues() {
 	}
 	fortBenning := testdatagen.MakeDutyStation(suite.DB(), fortBenningAssertions)
 
+	return fortBragg, fortBenning
+}
+
+func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
+	moveID, _ := uuid.NewV4()
+	serviceMemberID, _ := uuid.NewV4()
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	fortBragg, fortBenning := suite.setupTestDutyStations()
+	rank := models.ServiceMemberRankE9
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            moveID,
-			FirstName:     models.StringPointer(firstName),
-			MiddleName:    models.StringPointer(middleName),
-			LastName:      models.StringPointer(lastName),
-			Suffix:        models.StringPointer(suffix),
-			Telephone:     models.StringPointer(preferredPhoneNumber),
-			PersonalEmail: models.StringPointer(preferredEmail),
-			Edipi:         models.StringPointer(dodID),
-			Affiliation:   &serviceBranch,
-			Rank:          &rank,
-			DutyStationID: &fortBragg.ID,
+		Move: models.Move{
+			ID: moveID,
 		},
 		Order: models.Order{
-			IssueDate:           ordersDate,
-			OrdersType:          ordersType,
-			OrdersNumber:        models.StringPointer(ordersNumber),
-			NewDutyStationID:    fortBenning.ID,
-			OrdersIssuingAgency: &issuingBranch,
+			OrdersType:       ordersType,
+			NewDutyStationID: fortBenning.ID,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            serviceMemberID,
+			DutyStationID: &fortBragg.ID,
+			Rank:          &rank,
 		},
 	})
-	sswPage1, _, err := models.FetchShipmentSummaryWorksheetFormValues(suite.DB(), move.ID)
+	ssd, err := models.FetchDataShipmentSummaryWorksFormData(suite.DB(), move.ID)
 
 	suite.NoError(err)
-	suite.Equal(fullName, sswPage1.ServiceMemberName)
-	suite.Equal(maxSITStorageEntitlementDefault, sswPage1.MaxSITStorageEntitlement)
-	suite.Equal(preferredPhoneNumber, sswPage1.PreferredPhone)
-	suite.Equal(preferredEmail, sswPage1.PreferredEmail)
-	suite.Equal(dodID, sswPage1.DODId)
+	suite.Equal(move.Orders.ID, ssd.Order.ID)
+	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
+	suite.Equal(fortBragg.ID, ssd.CurrentDutyStation.ID)
+	suite.Equal(fortBenning.ID, ssd.NewDutyStation.ID)
+	rankWtgAllotment := models.GetWeightAllotment(rank)
+	suite.Equal(rankWtgAllotment, ssd.WeightAllotment)
+}
+
+func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
+	fortBragg, fortBenning := suite.setupTestDutyStations()
+	wtgEntitlements := models.WeightAllotment{
+		TotalWeightSelf:     13000,
+		ProGearWeight:       2000,
+		ProGearWeightSpouse: 500,
+	}
+	serviceMemberID, _ := uuid.NewV4()
+	serviceBranch := models.AffiliationAIRFORCE
+	rank := models.ServiceMemberRankE9
+	serviceMember := models.ServiceMember{
+		ID:            serviceMemberID,
+		FirstName:     models.StringPointer("Marcus"),
+		MiddleName:    models.StringPointer("Joseph"),
+		LastName:      models.StringPointer("Jenkins"),
+		Suffix:        models.StringPointer("Jr."),
+		Telephone:     models.StringPointer("444-555-8888"),
+		PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
+		Edipi:         models.StringPointer("1234567890"),
+		Affiliation:   &serviceBranch,
+		Rank:          &rank,
+		DutyStationID: &fortBragg.ID,
+	}
+	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+	order := models.Order{
+		IssueDate:           orderIssueDate,
+		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:        models.StringPointer("012345"),
+		NewDutyStationID:    fortBenning.ID,
+		OrdersIssuingAgency: models.StringPointer(string(serviceBranch)),
+	}
+	ssd := models.ShipmentSummaryFormData{
+		ServiceMember:      serviceMember,
+		Order:              order,
+		CurrentDutyStation: fortBragg,
+		NewDutyStation:     fortBenning,
+		WeightAllotment:    wtgEntitlements,
+	}
+	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
+
+	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
+	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
+	suite.Equal("444-555-8888", sswPage1.PreferredPhone)
+	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
+	suite.Equal("1234567890", sswPage1.DODId)
 	suite.Equal(string(serviceBranch), sswPage1.ServiceBranch)
 	suite.Equal(string(rank), sswPage1.Rank)
 
-	suite.Equal(ordersNumber, sswPage1.OrdersNumber)
-	suite.Equal(issuingBranch, sswPage1.IssuingAgency)
-	suite.True(ordersDate.Equal(sswPage1.OrderIssueDate))
-	suite.Equal(ordersType, sswPage1.OrdersType)
+	suite.Equal("012345", sswPage1.OrdersNumber)
+	suite.Equal(string(serviceBranch), sswPage1.IssuingAgency)
+	suite.True(orderIssueDate.Equal(sswPage1.OrderIssueDate))
+	suite.Equal(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, sswPage1.OrdersType)
 
 	suite.Equal(fortBragg.ID, sswPage1.AuthorizedOrigin.ID)
 	suite.Equal(fortBragg.Address.State, sswPage1.AuthorizedOrigin.Address.State)
@@ -109,5 +134,5 @@ func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetFormValues() {
 	suite.Equal(wtgEntitlements.TotalWeightSelf, sswPage1.WeightAllotment.TotalWeightSelf)
 	suite.Equal(wtgEntitlements.ProGearWeight, sswPage1.WeightAllotment.ProGearWeight)
 	suite.Equal(wtgEntitlements.ProGearWeightSpouse, sswPage1.WeightAllotment.ProGearWeightSpouse)
-	suite.Equal(totalWeightEntitlement, sswPage1.TotalWeightAllotment)
+	suite.Equal(15500, sswPage1.TotalWeightAllotment)
 }

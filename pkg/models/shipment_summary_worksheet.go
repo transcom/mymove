@@ -3,29 +3,29 @@ package models
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"time"
 )
 
-// FetchShipmentSummaryWorksheetFormValues fetches a single ShipmentSummaryWorksheetExtractor for a given Shipment ID
+// FetchShipmentSummaryWorksheetFormValues fetches the pages for the Shipment Summary Worksheet for a given Shipment ID
 func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, moveID uuid.UUID) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
 	var err error
-	var ssfd shipmentSummaryFormData
+	var ssfd ShipmentSummaryFormData
 	var page1 ShipmentSummaryWorksheetPage1Values
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 
-	ssfd, err = fetchDataShipmentSummaryWorksFormData(db, moveID)
+	ssfd, err = FetchDataShipmentSummaryWorksFormData(db, moveID)
 	if err != nil {
 		return page1, page2, err
 	}
-	page1 = formatValuesShipmentSummaryWorksheetFormPage1(ssfd)
+	page1 = FormatValuesShipmentSummaryWorksheetFormPage1(ssfd)
 	return page1, page2, nil
 }
 
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
-// Convert dates to strings in order to avoid automatic formatting within forms.go
 type ShipmentSummaryWorksheetPage1Values struct {
 	ServiceMemberName        string
 	MaxSITStorageEntitlement string
@@ -50,7 +50,8 @@ type ShipmentSummaryWorksheetPage1Values struct {
 type ShipmentSummaryWorksheetPage2Values struct {
 }
 
-type shipmentSummaryFormData struct {
+// ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
+type ShipmentSummaryFormData struct {
 	ServiceMember      ServiceMember
 	Order              Order
 	CurrentDutyStation DutyStation
@@ -58,8 +59,9 @@ type shipmentSummaryFormData struct {
 	WeightAllotment    WeightAllotment
 }
 
-func fetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID) (data shipmentSummaryFormData, err error) {
-	ssd := shipmentSummaryFormData{}
+// FetchDataShipmentSummaryWorksFormData fetches the data required for the Shipment Summary Worksheet
+func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID) (data ShipmentSummaryFormData, err error) {
+	ssd := ShipmentSummaryFormData{}
 	ids, err := getRequiredFields(err, db, moveID)
 	if err != nil {
 		return ssd, err
@@ -72,13 +74,11 @@ func fetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID)
 	if err != nil {
 		return ssd, err
 	}
-	// TODO confirm context
-	ssd.CurrentDutyStation, err = FetchDutyStation(context.Background(), db, ids.ServiceMemberDutyStationID)
+	ssd.CurrentDutyStation, err = FetchDutyStation(context.TODO(), db, ids.ServiceMemberDutyStationID)
 	if err != nil {
 		return ssd, err
 	}
-	// TODO confirm context
-	ssd.NewDutyStation, err = FetchDutyStation(context.Background(), db, ssd.Order.NewDutyStationID)
+	ssd.NewDutyStation, err = FetchDutyStation(context.TODO(), db, ssd.Order.NewDutyStationID)
 	if err != nil {
 		return ssd, err
 	}
@@ -87,18 +87,17 @@ func fetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID)
 	return ssd, nil
 }
 
-func formatValuesShipmentSummaryWorksheetFormPage1(data shipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
+// FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
+func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
 	page1 := ShipmentSummaryWorksheetPage1Values{}
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 
-	// TODO ask about various pointer derefs
 	sm := data.ServiceMember
 	lastName := derefStringTypes(sm.LastName)
 	suffix := derefStringTypes(sm.Suffix)
 	firstName := derefStringTypes(sm.FirstName)
 	middleName := derefStringTypes(sm.MiddleName)
 	fullName := fmt.Sprintf("%s %s, %s %s", lastName, suffix, firstName, middleName)
-
 	page1.ServiceMemberName = fullName
 	page1.PreferredPhone = derefStringTypes(sm.Telephone)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
