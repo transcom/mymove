@@ -1,4 +1,4 @@
-package ediinvoice
+package invoice
 
 import (
 	"io"
@@ -13,14 +13,19 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
-	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-// StoreInvoice858C stores the EDI/Invoice to S3
-func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileStorer,
-	logger *zap.Logger, userID uuid.UUID, db *pop.Connection) (*validate.Errors, error) {
+// StoreInvoice858C is a service object to store an invoice's EDI in S3.
+type StoreInvoice858C struct {
+	DB     *pop.Connection
+	Logger *zap.Logger
+	Storer *storage.FileStorer
+}
+
+// Call stores the EDI/Invoice to S3.
+func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.UUID) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
 
 	// Create path for EDI file
@@ -49,18 +54,18 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 	}
 
 	// Create Upload'r
-	loader := uploader.NewUploader(db, logger, *storer)
+	loader := uploader.NewUploader(s.DB, s.Logger, *s.Storer)
 
 	// Delete of previous upload, if it exist
 	// If Delete of Upload fails, ignoring this error because we still have a new Upload that needs to be saved
 	// to the Invoice
-	err = invoiceop.UpdateInvoiceUpload{DB: db, Uploader: loader}.DeleteUpload(invoice)
+	err = UpdateInvoiceUpload{DB: s.DB, Uploader: loader}.DeleteUpload(invoice)
 	if err != nil {
 		logStr := ""
 		if invoice != nil && invoice.UploadID != nil {
 			logStr = invoice.UploadID.String()
 		}
-		logger.Info("Errors encountered for while deleting previous Upload:"+logStr,
+		s.Logger.Info("Errors encountered for while deleting previous Upload:"+logStr,
 			zap.Any("verrors", verrs.Error()))
 	}
 
@@ -76,14 +81,14 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 	}
 
 	// Save Upload to Invoice
-	verrs2, err = invoiceop.UpdateInvoiceUpload{DB: db, Uploader: loader}.Call(invoice, upload)
+	verrs2, err = UpdateInvoiceUpload{DB: s.DB, Uploader: loader}.Call(invoice, upload)
 	verrs.Append(verrs2)
 	if err != nil {
 		return verrs, errors.New("Failed to save Upload to Invoice: " + invoiceNumber)
 	}
 
 	if verrs.HasAny() {
-		logger.Error("Errors encountered for StoreInvoice858C():",
+		s.Logger.Error("Errors encountered for StoreInvoice858C():",
 			zap.Any("verrors", verrs.Error()))
 	}
 

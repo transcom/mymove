@@ -23,27 +23,30 @@ type ProcessInvoice struct {
 }
 
 // Call processes an invoice by generating the EDI, sending the invoice to GEX, and recording the status.
-func (p ProcessInvoice) Call(invoice *models.Invoice, shipment models.Shipment) (*validate.Errors, error) {
-	if err := p.generateAndSendInvoiceData(invoice, shipment); err != nil {
-		return p.updateInvoiceFailed(invoice, validate.NewErrors(), err)
+func (p ProcessInvoice) Call(invoice *models.Invoice, shipment models.Shipment) (*string, *validate.Errors, error) {
+	ediString, err := p.generateAndSendInvoiceData(invoice, shipment)
+	if err != nil {
+		verrs, err := p.updateInvoiceFailed(invoice, validate.NewErrors(), err)
+		return ediString, verrs, err
 	}
 
 	// Update invoice record as submitted
 	verrs, err := UpdateInvoiceSubmitted{DB: p.DB}.Call(invoice, shipment.ShipmentLineItems)
 	if err != nil || verrs.HasAny() {
 		// Updating as submitted failed, so we need to try to mark it as failed (which could fail too).
-		return p.updateInvoiceFailed(invoice, verrs, err)
+		verrs, err := p.updateInvoiceFailed(invoice, verrs, err)
+		return ediString, verrs, err
 	}
 
 	// If we get here, everything should be good.
-	return validate.NewErrors(), nil
+	return ediString, validate.NewErrors(), nil
 }
 
-func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, shipment models.Shipment) error {
+func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, shipment models.Shipment) (*string, error) {
 	// pass value into generator --> edi string
 	invoice858C, err := ediinvoice.Generate858C(shipment, *invoice, p.DB, p.SendProductionInvoice, clock.New())
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// to use for demo visual
@@ -55,19 +58,19 @@ func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, ship
 	transactionName := "placeholder"
 	invoice858CString, err := invoice858C.EDIString()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	resp, err := p.GexSender.Call(invoice858CString, transactionName)
 	if err != nil {
-		return err
+		return &invoice858CString, err
 	}
 
 	if resp != nil && resp.StatusCode != 200 {
-		return errors.Errorf("Invoice POST request to GEX failed: response status code %d", resp.StatusCode)
+		return &invoice858CString, errors.Errorf("Invoice POST request to GEX failed: response status code %d", resp.StatusCode)
 	}
 
-	return nil
+	return &invoice858CString, nil
 }
 
 func (p ProcessInvoice) updateInvoiceFailed(invoice *models.Invoice, causeVerrs *validate.Errors, cause error) (*validate.Errors, error) {

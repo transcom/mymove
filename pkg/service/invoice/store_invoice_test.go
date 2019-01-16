@@ -1,53 +1,15 @@
-package ediinvoice_test
+package invoice
 
 import (
 	"io/ioutil"
 	"path/filepath"
-	"testing"
 
-	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
-	"go.uber.org/zap"
 )
 
-type StoreInvoiceSuite struct {
-	testingsuite.PopTestSuite
-	logger *zap.Logger
-	storer storage.FileStorer
-}
-
-// SetupTest
-func (suite *StoreInvoiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
-// TestStoreInvoiceSuite
-func TestStoreInvoiceSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-
-	hs := &StoreInvoiceSuite{PopTestSuite: testingsuite.NewPopTestSuite(), logger: logger, storer: fakeS3}
-	suite.Run(t, hs)
-}
-
-// helperFileStorer is a simple setter for storage private field
-func (suite *StoreInvoiceSuite) helperFileStorer() storage.FileStorer {
-	return suite.storer
-}
-
-func helperInvoice(suite *StoreInvoiceSuite) (*models.Invoice, *models.OfficeUser) {
+func helperInvoice(suite *InvoiceServiceSuite) (*models.Invoice, *models.OfficeUser) {
 	// Data setup
 	numTspUsers := 1
 	numShipments := 1
@@ -86,20 +48,25 @@ func helperInvoice(suite *StoreInvoiceSuite) (*models.Invoice, *models.OfficeUse
 	return &invoice, &officeUser
 }
 
-func helperExpectedEDIString(suite *StoreInvoiceSuite, name string) string {
-	path := filepath.Join("testdata", name) // relative path
+func helperExpectedEDIString(suite *InvoiceServiceSuite, name string) string {
+	// TODO: Move this file to somewhere more central (or create one specific to this test).
+	path := filepath.Join("..", "..", "edi", "invoice", "testdata", name) // relative path
 	bytes, err := ioutil.ReadFile(path)
 	suite.NoError(err, "error loading expected EDI fixture")
 	return string(bytes)
 }
 
 // TestStoreInvoice858C tests the store function EDI/Invoice to S3
-func (suite *StoreInvoiceSuite) TestStoreInvoice858C() {
+func (suite *InvoiceServiceSuite) TestStoreInvoice858C() {
 	invoice, officeUser := helperInvoice(suite)
 	invoiceString := helperExpectedEDIString(suite, "expected_invoice.edi.golden")
-	fs := suite.helperFileStorer()
+	fs := suite.storer
 
-	verrs, err := ediinvoice.StoreInvoice858C(invoiceString, invoice, &fs, suite.logger, *officeUser.UserID, suite.DB())
+	verrs, err := StoreInvoice858C{
+		DB:     suite.DB(),
+		Logger: suite.logger,
+		Storer: &fs,
+	}.Call(invoiceString, invoice, *officeUser.UserID)
 	suite.Nil(err)
 	suite.Empty(verrs.Error())
 
