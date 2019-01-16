@@ -974,7 +974,6 @@ definitions:
       market:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true
-        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -1430,6 +1429,7 @@ definitions:
       dHHG: Domestic HHG
       iHHG: International HHG
       iUB: International unaccompanied baggage
+    x-nullable: true
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment

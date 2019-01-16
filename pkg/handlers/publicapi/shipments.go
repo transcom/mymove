@@ -30,7 +30,7 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
 		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
 		GblNumber:        s.GBLNumber,
-		Market:           apimessages.ShipmentMarket(*s.Market),
+		Market:           payloadForMarkets(s.Market),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
