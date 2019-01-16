@@ -28,7 +28,9 @@ func (suite *dpsAuthSuite) SetupSuite() {
 func (suite *dpsAuthSuite) TestCookie() {
 	t := suite.T()
 	userID := uuid.Must(uuid.NewV4()).String()
-	cookie, err := LoginGovIDToCookie(userID)
+	key := os.Getenv("DPS_AUTH_COOKIE_SECRET_KEY")
+	exp := os.Getenv("DPS_COOKIE_EXPIRES_IN_MINUTES")
+	cookie, err := LoginGovIDToCookie(userID, key, exp)
 	if err != nil {
 		t.Error("Error generating cookie value from user ID", err)
 	}

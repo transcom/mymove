@@ -19,14 +19,21 @@ type Claims struct {
 
 // SetCookieHandler handles setting the DPS auth cookie and redirecting to DPS
 type SetCookieHandler struct {
-	logger       *zap.Logger
-	secretKey    string
-	cookieDomain string
+	logger        *zap.Logger
+	secretKey     string
+	cookieDomain  string
+	cookieSecret  []byte
+	cookieExpires int
 }
 
 // NewSetCookieHandler creates a new SetCookieHandler
-func NewSetCookieHandler(logger *zap.Logger, secretKey string, cookieDomain string) SetCookieHandler {
-	return SetCookieHandler{logger: logger, secretKey: secretKey, cookieDomain: cookieDomain}
+func NewSetCookieHandler(logger *zap.Logger, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
+	return SetCookieHandler{
+		logger:        logger,
+		secretKey:     secretKey,
+		cookieDomain:  cookieDomain,
+		cookieSecret:  cookieSecret,
+		cookieExpires: cookieExpires}
 }
 
 func (h SetCookieHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +44,7 @@ func (h SetCookieHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := LoginGovIDToCookie(claims.StandardClaims.Subject)
+	cookie, err := LoginGovIDToCookie(claims.StandardClaims.Subject, h.cookieSecret, h.cookieExpires)
 	if err != nil {
 		h.logger.Error("Converting user ID to cookie value", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
