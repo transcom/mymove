@@ -121,12 +121,6 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents, bookDate time.Time) (fuelSurcharge FeeAndRate, err error) {
 	fuelEIADieselPriceSlice := []models.FuelEIADieselPrice{}
 
-	// If we get a zero date, this means its a PPM move, which doesn't use this, but does use the lineHaulComputation method that calls this one.
-	// So we'll return the zero struct.
-	if bookDate.IsZero() {
-		return FeeAndRate{Fee: 0, Rate: 0}, nil
-	}
-
 	// Changing the format of the date to remove the time portion so it plays nicely with db
 	bookDateString := bookDate.Format("2006-01-02")
 
