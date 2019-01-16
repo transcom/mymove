@@ -159,8 +159,12 @@ class ShipmentInfo extends Component {
   };
 
   editServiceAgents = values => {
-    values['destination_service_agent']['role'] = 'DESTINATION';
-    values['origin_service_agent']['role'] = 'ORIGIN';
+    if (values['destination_service_agent']) {
+      values['destination_service_agent']['role'] = 'DESTINATION';
+    }
+    if (values['origin_service_agent']) {
+      values['origin_service_agent']['role'] = 'ORIGIN';
+    }
     this.props.handleServiceAgents(this.props.shipment.id, values);
   };
 
@@ -395,7 +399,6 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
 
                   <TspContainer
                     title="TSP & Servicing Agents"
@@ -403,6 +406,8 @@ class ShipmentInfo extends Component {
                     serviceAgents={this.props.serviceAgents}
                     transportationServiceProviderId={this.props.shipment.transportation_service_provider_id}
                   />
+
+                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
                 </div>
               )}
             </div>

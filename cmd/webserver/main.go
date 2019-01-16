@@ -7,11 +7,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/transcom/mymove/pkg/edi/gex"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -218,7 +221,10 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("here-maps-app-code", "", "HERE maps App API code")
 
 	// EDI Invoice Config
+	flag.String("gex-basic-auth-username", "", "GEX api auth username")
+	flag.String("gex-basic-auth-password", "", "GEX api auth password")
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
@@ -250,34 +256,77 @@ func initFlags(flag *pflag.FlagSet) {
 
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
+	// https://tools.ietf.org/html/rfc7468#section-2
+	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
+	re := regexp.MustCompile("(?s)([-]{5}BEGIN CERTIFICATE[-]{5})(\\s*)(.+?)(\\s*)([-]{5}END CERTIFICATE[-]{5})")
+
+	certFormat := "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----"
+
 	tlsCert := v.GetString("move-mil-dod-tls-cert")
 	if len(tlsCert) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-cert")
 	}
+
+	tlsCertMatches := re.FindAllStringSubmatch(tlsCert, -1)
+	if len(tlsCertMatches) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
+	}
+	if len(tlsCertMatches) > 1 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s has too many certificate PEM blocks", "move-mil-dod-tls-cert")
+	}
+
+	tlsCerts := make([]string, 0, len(tlsCertMatches))
+	for _, m := range tlsCertMatches {
+		// each match will include a slice of strings starting with
+		// (0) the full match, then
+		// (1) "-----BEGIN CERTIFICATE-----",
+		// (2) whitespace if any,
+		// (3) base64-encoded certificate data,
+		// (4) whitespace if any, and then
+		// (5) -----END CERTIFICATE-----
+		tlsCerts = append(tlsCerts, fmt.Sprintf(certFormat, m[3]))
+	}
+
+	logger.Info("certitficate chain from move-mil-dod-tls-cert parsed", zap.Any("count", len(tlsCerts)))
 
 	caCert := v.GetString("move-mil-dod-ca-cert")
 	if len(caCert) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-ca-cert")
 	}
 
-	//Append move.mil cert with CA certificate chain
-	cert := bytes.Join(
-		[][]byte{
-			[]byte(tlsCert),
-			[]byte(caCert),
-		},
-		[]byte("\n"),
-	)
+	caCertMatches := re.FindAllStringSubmatch(caCert, -1)
+	if len(caCertMatches) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
+	}
 
-	key := []byte(v.GetString("move-mil-dod-tls-key"))
+	caCerts := make([]string, 0, len(caCertMatches))
+	for _, m := range caCertMatches {
+		// each match will include a slice of strings starting with
+		// (0) the full match, then
+		// (1) "-----BEGIN CERTIFICATE-----",
+		// (2) whitespace if any,
+		// (3) base64-encoded certificate data,
+		// (4) whitespace if any, and then
+		// (5) -----END CERTIFICATE-----
+		caCerts = append(caCerts, fmt.Sprintf(certFormat, m[3]))
+	}
+
+	logger.Info("certitficate chain from move-mil-dod-ca-cert parsed", zap.Any("count", len(caCerts)))
+
+	//Append move.mil cert with intermediate CA to create a validate certificate chain
+	cert := strings.Join(append(append(make([]string, 0), tlsCerts...), caCerts...), "\n")
+
+	key := v.GetString("move-mil-dod-tls-key")
 	if len(key) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-key")
 	}
 
-	keyPair, err := tls.X509KeyPair(cert, key)
+	keyPair, err := tls.X509KeyPair([]byte(cert), []byte(key))
 	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD keypair for server")
+		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD x509 keypair for server")
 	}
+
+	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
 
 	pathToPackage := v.GetString("dod-ca-package")
 	if len(pathToPackage) == 0 {
@@ -444,6 +493,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkGEX(v)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -530,6 +584,25 @@ func checkEmail(v *viper.Viper) error {
 		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
 		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+	}
+
+	return nil
+}
+
+func checkGEX(v *viper.Viper) error {
+	gexURL := v.GetString("gex-url")
+	if len(gexURL) > 0 && gexURL != "https://gexweba.daas.dla.mil/msg_data/submit/" {
+		return fmt.Errorf("invalid gexUrl %s, expecting "+
+			"https://gexweba.daas.dla.mil/msg_data/submit/ or an empty string", gexURL)
+	}
+
+	if len(gexURL) > 0 {
+		if len(v.GetString("gex-basic-auth-username")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_USERNAME is missing")
+		}
+		if len(v.GetString("gex-basic-auth-password")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_PASSWORD is missing")
 		}
 	}
 
@@ -716,6 +789,37 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
+	// Set the GexSender() and SendToGexHTTP fields
+	certificates, rootCAs, err := initDODCertificates(v, logger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		log.Fatal("Error in getting tls certs", err)
+	}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	var gexRequester gex.SendToGex
+	gexURL := v.GetString("gex-url")
+	if len(gexURL) == 0 {
+		// this spins up a local test server
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		gexRequester = gex.SendToGexHTTP{
+			URL:                  server.URL,
+			IsTrueGexURL:         false,
+			TLSConfig:            &tls.Config{},
+			GEXBasicAuthUsername: "",
+			GEXBasicAuthPassword: "",
+		}
+	} else {
+		gexRequester = gex.SendToGexHTTP{
+			URL:                  v.GetString("gex-url"),
+			IsTrueGexURL:         true,
+			TLSConfig:            tlsConfig,
+			GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
+			GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
+		}
+	}
+	handlerContext.SetGexSender(gexRequester)
+
 	rbs, err := initRealTimeBrokerService(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
@@ -759,6 +863,32 @@ func main() {
 		if err != nil {
 			logger.Error("Failed encoding health check response", zap.Error(err))
 		}
+
+		// We are not using request middleware here so logging directly in the check
+		var protocol string
+		if r.TLS == nil {
+			protocol = "http"
+		} else {
+			protocol = "https"
+		}
+		zap.L().Info("Request",
+			zap.String("git-branch", gitBranch),
+			zap.String("git-commit", gitCommit),
+			zap.String("accepted-language", r.Header.Get("accepted-language")),
+			zap.Int64("content-length", r.ContentLength),
+			zap.String("host", r.Host),
+			zap.String("method", r.Method),
+			zap.String("protocol", protocol),
+			zap.String("protocol-version", r.Proto),
+			zap.String("referer", r.Header.Get("referer")),
+			zap.String("source", r.RemoteAddr),
+			zap.String("url", r.URL.String()),
+			zap.String("user-agent", r.UserAgent()),
+			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
+			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
+			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
+			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
+		)
 	})
 
 	// Allow public content through without any auth or app checks

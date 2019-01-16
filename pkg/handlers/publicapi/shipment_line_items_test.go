@@ -408,7 +408,7 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemOfficeHandler() {
 	}
 }
 
-func (suite *HandlerSuite) TestDeleteShipmentLineItemForbidden() {
+func (suite *HandlerSuite) TestDeleteShipmentLineItemWithoutPreapprovalForbidden() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
@@ -423,7 +423,6 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemForbidden() {
 			RequiresPreApproval: false,
 		},
 	})
-	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("DELETE", "/shipments", nil)
@@ -440,6 +439,37 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemForbidden() {
 
 	// Then: expect a 403 status code
 	suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemForbidden{}, response)
+}
+
+func (suite *HandlerSuite) TestDeleteShipmentLineItemWithInvoiceBadRequest() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// A ShipmentLineItem tied to an invoice
+	invoice := testdatagen.MakeDefaultInvoice(suite.DB())
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			InvoiceID: &invoice.ID,
+			Status:    models.ShipmentLineItemStatusAPPROVED,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("DELETE", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.DeleteShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(shipAcc1.ID.String()),
+	}
+
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.CheckResponseBadRequest(response)
 }
 
 func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {

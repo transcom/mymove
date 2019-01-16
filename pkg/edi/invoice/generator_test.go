@@ -104,7 +104,8 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		// We need to determine the SCAC/year so that we can reset the invoice sequence number to test
 		// against the golden EDI.
-		scac := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.StandardCarrierAlphaCode
+		scac, err := shipment.ShipmentOffers[0].SCAC()
+		suite.NoError(err)
 		year := shipment.CreatedAt.UTC().Year()
 		err = testdatagen.ResetInvoiceSequenceNumber(suite.DB(), scac, year)
 		suite.NoError(err)
@@ -143,8 +144,8 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
-	scac := "ABCD"
-	supplierID := scac + "1234" //scac + payee code -- ABCD1234
+	scac := "ABBV"
+	supplierID := scac + "2708" //scac + payee code -- ABBV2708
 
 	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
@@ -335,7 +336,7 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 
 			// Test L1Segment
 			l1Segment := ediinvoice.MakeL1Segment(lineItem)
-			expectedFreightRate := lineItem.AppliedRate.ToDollarFloat()
+			expectedFreightRate := 0.00
 
 			suite.Equal(expectedFreightRate, l1Segment.FreightRate)
 			suite.Equal("RC", l1Segment.RateValueQualifier)

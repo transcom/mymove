@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jung-kurt/gofpdf"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -107,60 +108,92 @@ func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64) FieldPo
 
 // FormFiller is a fillable pdf form
 type FormFiller struct {
-	pdf       *gofpdf.Fpdf
-	fields    map[string]FieldPos
-	useBorder bool
+	pdf   *gofpdf.Fpdf
+	debug bool
+	pages int
 }
 
-// NewTemplateForm turns a template image and fields mapping into a FormFiller instance
-func NewTemplateForm(templateImage io.ReadSeeker, fields map[string]FieldPos) (FormFiller, error) {
+// NewFormFiller turns a template image and fields mapping into a FormFiller instance
+func NewFormFiller() *FormFiller {
+	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
+	pdf.SetMargins(0, 0, 0)
+	pdf.SetFont(fontFamily, fontStyle, fontSize)
+
+	return &FormFiller{
+		debug: false,
+		pdf:   pdf,
+	}
+}
+
+// AppendPage adds a page to a PDF
+func (f *FormFiller) AppendPage(templateImage io.ReadSeeker, fields map[string]FieldPos, data interface{}) error {
+
+	f.pdf.AddPage()
+	f.pages++
+
 	// Determine image type
 	_, format, err := image.DecodeConfig(templateImage)
 	if err != nil {
-		return FormFiller{}, err
+		return errors.Wrap(err, "could not decode image config")
 	}
 	templateImage.Seek(0, io.SeekStart)
-
-	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
-	pdf.SetMargins(0, 0, 0)
-	pdf.AddPage()
 
 	// Use provided image as document background
 	opt := gofpdf.ImageOptions{
 		ImageType: format,
 		ReadDpi:   true,
 	}
-	pdf.RegisterImageOptionsReader("form_template", opt, templateImage)
-	pdf.Image("form_template", imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, format, imageLink, imageLinkURL)
 
-	pdf.SetFont(fontFamily, fontStyle, fontSize)
+	formTemplate := fmt.Sprintf("form_template_%d", f.pages)
+	f.pdf.RegisterImageOptionsReader(formTemplate, opt, templateImage)
+	f.pdf.Image(formTemplate, imageXPos, imageYPos, letterWidthMm, letterHeightMm, flow, format, imageLink, imageLinkURL)
 
-	newForm := FormFiller{
-		pdf:    pdf,
-		fields: fields,
+	err = f.drawData(fields, data)
+	if err != nil {
+		return err
 	}
 
-	return newForm, pdf.Error()
+	if f.pdf.Error() != nil {
+		return errors.Wrap(f.pdf.Error(), "error creating PDF")
+	}
+
+	return nil
 }
 
-// UseBorders draws boxes around each form field
-func (f *FormFiller) UseBorders() {
-	f.useBorder = true
+// Debug draws boxes around each form field and overlays the
+// fields name on the right.
+func (f *FormFiller) Debug() {
+	f.debug = true
+}
+
+// DrawDebugOverlay draws a red bordered box and overlays the field's name on the right.
+func (f *FormFiller) drawDebugOverlay(xPos, yPos, width, lineHeight float64, label string) {
+	dr, dg, db := f.pdf.GetDrawColor()
+	f.pdf.SetDrawColor(255, 0, 0)
+
+	tr, tg, tb := f.pdf.GetTextColor()
+	f.pdf.SetTextColor(255, 0, 0)
+
+	fs, _ := f.pdf.GetFontSize()
+	f.pdf.SetFontSize(4)
+
+	f.pdf.MoveTo(xPos, yPos)
+	f.pdf.CellFormat(width, lineHeight, label, "1", 0, "R", false, 0, "")
+
+	// Restore settings
+	f.pdf.SetTextColor(tr, tg, tb)
+	f.pdf.SetDrawColor(dr, dg, db)
+	f.pdf.SetFontSize(fs)
 }
 
 // DrawData draws the provided data set onto the form using the fields mapping
-func (f *FormFiller) DrawData(data interface{}) error {
-	borderStr := ""
-	if f.useBorder {
-		borderStr = "1"
-	}
-
+func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) error {
 	r := reflect.ValueOf(data)
-	for k := range f.fields {
+	for k := range fields {
 		fieldVal := reflect.Indirect(r).FieldByName(k)
 		val := fieldVal.Interface()
 
-		formField := f.fields[k]
+		formField := fields[k]
 		f.pdf.MoveTo(formField.xPos, formField.yPos)
 
 		// Turn value into a display string depending on type, will need
@@ -213,7 +246,12 @@ func (f *FormFiller) DrawData(data interface{}) error {
 			tempLineHeight = *formField.lineHeight
 		}
 
-		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, borderStr, "", false)
+		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, "", "", false)
+
+		// Draw a red-bordered box with the display value's key to the right
+		if f.debug {
+			f.drawDebugOverlay(formField.xPos, formField.yPos, formField.width, tempLineHeight, k)
+		}
 	}
 
 	return f.pdf.Error()
