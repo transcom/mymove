@@ -66,6 +66,7 @@ $DOCKER_RUN \
   --expose="${HTTP_PORT}" \
   --name="${CONTAINER}" \
   --link="db-dev:database" \
+  --read-only \
   --detach \
   --rm \
   ${CONTAINER}:latest
