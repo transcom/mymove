@@ -107,9 +107,9 @@ func (suite *webServerSuite) TestConfigGEX() {
 
 func (suite *webServerSuite) TestSendProductionEDI() {
 
-	// TODO: compare to this function SendProductionInvoice
+	// TODO: compare to this function SendProductionInvoice?
 
-	// TODO: copy from Generate858C tests to generate and EDI and check for P/T indicator
+	// TODO: copy from Generate858C tests to generate an EDI and check for P/T indicator?
 
 	suite.Nil(checkSendProductionEDI(suite.viper))
 }
