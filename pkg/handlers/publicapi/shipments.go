@@ -618,7 +618,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	formLayout := paperwork.Form1203Layout
 
 	file, err := paperworkservice.CreateForm{
-		FileStorer: h.FileStorer(),
+		FileStorer: h.FileStorer().TempFileSystem(),
 	}.Call(gbl, formLayout, gbl.GBLNumber1, "GBL")
 
 	if err != nil {

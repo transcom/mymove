@@ -7,12 +7,16 @@ import (
 	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/storage"
 )
+
+// FileCreator is an interface for FileStorer
+type FileCreator interface {
+	Create(string) (afero.File, error)
+}
 
 // CreateForm is a service object to create a form with data
 type CreateForm struct {
-	FileStorer storage.FileStorer
+	FileStorer FileCreator
 }
 
 // Call creates a form with the given data
@@ -33,7 +37,7 @@ func (c CreateForm) Call(data interface{}, formLayout paperwork.FormLayout, file
 	}
 
 	// Read the incoming data into a temporary afero.File for consumption
-	file, err := c.FileStorer.TempFileSystem().Create(fileName)
+	file, err := c.FileStorer.Create(fileName)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Error creating a new afero file for %s form.", formType))
 	}
