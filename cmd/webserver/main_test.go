@@ -76,7 +76,7 @@ func (suite *webServerSuite) loadContext(variablesFile string) map[string]string
 
 func (suite *webServerSuite) applyContext(ctx map[string]string) {
 	for k, v := range ctx {
-		suite.logger.Info("Overriding " + k)
+		suite.logger.Info("overriding " + k)
 		suite.viper.Set(strings.Replace(strings.ToLower(k), "_", "-", -1), v)
 	}
 }
@@ -112,7 +112,7 @@ func (suite *webServerSuite) TestConfigStorage() {
 func (suite *webServerSuite) TestDODCertificates() {
 
 	if os.Getenv("TEST_ACC_DOD_CERTIFICATES") != "1" {
-		suite.logger.Info("Skipping TestDODCertificates")
+		suite.logger.Info("skipping TestDODCertificates")
 		return
 	}
 
@@ -123,7 +123,7 @@ func (suite *webServerSuite) TestDODCertificates() {
 func (suite *webServerSuite) TestHoneycomb() {
 
 	if os.Getenv("TEST_ACC_HONEYCOMB") != "1" {
-		suite.logger.Info("Skipping TestHoneycomb")
+		suite.logger.Info("skipping TestHoneycomb")
 		return
 	}
 
@@ -134,7 +134,7 @@ func (suite *webServerSuite) TestHoneycomb() {
 func (suite *webServerSuite) TestDatabase() {
 
 	if os.Getenv("TEST_ACC_DATABASE") != "1" {
-		suite.logger.Info("Skipping TestDatabase")
+		suite.logger.Info("skipping TestDatabase")
 		return
 	}
 

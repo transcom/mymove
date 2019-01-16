@@ -1,15 +1,12 @@
 package invoice
 
 import (
-	"os"
-
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -48,11 +45,6 @@ func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, ship
 	if err != nil {
 		return nil, err
 	}
-
-	// to use for demo visual
-	// should this have a flag or be taken out?
-	ediWriter := edi.NewWriter(os.Stdout)
-	ediWriter.WriteAll(invoice858C.Segments())
 
 	// send edi through gex post api
 	transactionName := "placeholder"

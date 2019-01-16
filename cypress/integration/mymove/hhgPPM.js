@@ -427,7 +427,7 @@ function serviceMemberCanReviewMoveSummary() {
     .first()
     .should('contain', 'Move Setup');
   cy.get('.wizard-header .progress-timeline .current').should('contain', 'Review');
-
+  cy.get('h3').should('not.contain', 'Profile and Orders');
   cy.get('h2').should('contain', 'Review Move Details');
 
   cy.get('body').should($div => expect($div.text()).not.to.include('Government moves all of your stuff (HHG)'));

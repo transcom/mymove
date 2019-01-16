@@ -18,4 +18,5 @@ func (suite *ModelSuite) TestFetchShipmentSummaryWorksheetFormValues() {
 	suite.NoError(err)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
+	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
 }

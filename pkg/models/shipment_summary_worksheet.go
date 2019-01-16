@@ -8,7 +8,8 @@ import (
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
 // Convert dates to strings in order to avoid automatic formatting within forms.go
 type ShipmentSummaryWorksheetPage1Values struct {
-	ServiceMemberName string `db:"service_member_name"`
+	ServiceMemberName        string `db:"service_member_name"`
+	MaxSITStorageEntitlement string
 }
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
@@ -27,10 +28,11 @@ func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, moveID uuid.UUI
 				INNER JOIN service_members sm ON o.service_member_id = sm.id
 				WHERE m.id = $1
 				`
-	err := db.RawQuery(sql, moveID).Eager().First(&page1)
+	err := db.RawQuery(sql, moveID).First(&page1)
 	if err != nil {
 		return page1, page2, err
 	}
+	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 
 	return page1, page2, nil
 }
