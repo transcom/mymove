@@ -4,6 +4,7 @@ import { get } from 'lodash';
 import moment from 'moment';
 
 import Alert from 'shared/Alert';
+import { formatDateTime } from 'shared/formatters';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 
 import './InvoicePanel.css';
@@ -20,8 +21,6 @@ class InvoicePaymentAlert extends PureComponent {
       let aproverFirstName = get(this.props.lastInvoiceError, 'response.response.body.approver_first_name');
       let aproverLastName = get(this.props.lastInvoiceError, 'response.response.body.approver_last_name');
       let invoiceDate = moment(get(this.props.lastInvoiceError, 'response.response.body.invoiced_date'));
-      console.log(this.props.lastInvoiceError);
-      debugger;
       if (httpResCode === 409 && invoiceStatus === 'SUBMITTED') {
         paymentAlert = (
           <div>
@@ -38,8 +37,8 @@ class InvoicePaymentAlert extends PureComponent {
           <div>
             <Alert type="success" heading="Already submitted">
               <span className="warning--header">
-                {aproverFirstName} {aproverLastName} submitted this invoice on {invoiceDate.format('DD-MMM-YYYY')} at{' '}
-                {invoiceDate.format('kk:mm')}.
+                A payment request was made by {aproverFirstName} {aproverLastName} at {formatDateTime(invoiceDate)} and
+                is already in process, please refresh this screen for updated details.
               </span>
             </Alert>
           </div>
