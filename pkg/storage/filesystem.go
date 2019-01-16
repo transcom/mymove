@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"path/filepath"
 
@@ -48,7 +47,7 @@ func DefaultFilesystemParams(logger *zap.Logger) FilesystemParams {
 
 // NewFilesystem creates a new Filesystem struct using the provided FilesystemParams
 func NewFilesystem(params FilesystemParams) *Filesystem {
-	var fs = afero.NewMemMapFs()
+	var fs = afero.NewOsFs()
 
 	return &Filesystem{
 		root:    params.root,
@@ -67,15 +66,12 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*S
 	joined := filepath.Join(fs.root, key)
 	dir := filepath.Dir(joined)
 
-	/*
-		#nosec - filesystem storage is only used for local development.
-	*/
-	err := os.MkdirAll(dir, 0755)
+	err := fs.fs.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create parent directory")
 	}
 
-	file, err := os.Create(joined)
+	file, err := fs.fs.Create(joined)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open file")
 	}
@@ -92,7 +88,7 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*S
 func (fs *Filesystem) Delete(key string) error {
 	joined := filepath.Join(fs.root, key)
 
-	return os.Remove(joined)
+	return fs.fs.Remove(joined)
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 mintes.
@@ -109,8 +105,7 @@ func (fs *Filesystem) PresignedURL(key, contentType string) (string, error) {
 // It is the caller's responsibility to delete the tempfile.
 func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 	sourcePath := filepath.Join(fs.root, key)
-	// #nosec
-	return os.Open(sourcePath)
+	return fs.fs.Open(sourcePath)
 }
 
 // FileSystem returns the underlying afero filesystem
