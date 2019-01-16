@@ -528,10 +528,6 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	// to use for demo visual
-	// should this have a flag or be taken out?
-	ediWriter := edi.NewWriter(os.Stdout)
-	ediWriter.WriteAll(invoice858C.Segments())
 
 	// send edi through gex post api
 	transactionName := "placeholder"
