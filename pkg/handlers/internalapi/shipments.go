@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"os"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -11,7 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/edi"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
