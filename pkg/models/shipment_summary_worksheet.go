@@ -62,19 +62,19 @@ type ShipmentSummaryFormData struct {
 // FetchDataShipmentSummaryWorksFormData fetches the data required for the Shipment Summary Worksheet
 func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID) (data ShipmentSummaryFormData, err error) {
 	ssd := ShipmentSummaryFormData{}
-	ids, err := getRequiredFields(err, db, moveID)
+	reqFields, err := getRequiredFields(err, db, moveID)
 	if err != nil {
 		return ssd, err
 	}
-	ssd.Order, err = FetchOrder(db, ids.OrdersID)
+	ssd.Order, err = FetchOrder(db, reqFields.OrdersID)
 	if err != nil {
 		return ssd, err
 	}
-	ssd.ServiceMember, err = FetchServiceMember(db, ids.ServiceMemberID)
+	ssd.ServiceMember, err = FetchServiceMember(db, reqFields.ServiceMemberID)
 	if err != nil {
 		return ssd, err
 	}
-	ssd.CurrentDutyStation, err = FetchDutyStation(context.TODO(), db, ids.ServiceMemberDutyStationID)
+	ssd.CurrentDutyStation, err = FetchDutyStation(context.TODO(), db, reqFields.ServiceMemberDutyStationID)
 	if err != nil {
 		return ssd, err
 	}
@@ -82,7 +82,7 @@ func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID)
 	if err != nil {
 		return ssd, err
 	}
-	rank := ServiceMemberRank(ids.ServiceMemberRank)
+	rank := ServiceMemberRank(reqFields.ServiceMemberRank)
 	ssd.WeightAllotment = GetWeightAllotment(rank)
 	return ssd, nil
 }
