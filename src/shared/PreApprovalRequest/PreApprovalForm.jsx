@@ -59,10 +59,8 @@ export class Tariff400ngItemSearch extends Component {
 
 export class PreApprovalForm extends Component {
   render() {
-    const DetailComponent = getDetailComponent(
-      this.props.tariff400ng_item_code,
-      this.props.context.flags.robustAccessorial,
-    );
+    const robustAccessorial = get(this.props, '.context.flags.robustAccessorial', false);
+    const DetailComponent = getDetailComponent(this.props.tariff400ng_item_code, robustAccessorial);
 
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
