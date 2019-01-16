@@ -20,6 +20,8 @@ class InvoicePaymentAlert extends PureComponent {
       let aproverFirstName = get(this.props.lastInvoiceError, 'response.response.body.approver_first_name');
       let aproverLastName = get(this.props.lastInvoiceError, 'response.response.body.approver_last_name');
       let invoiceDate = moment(get(this.props.lastInvoiceError, 'response.response.body.invoiced_date'));
+      console.log(this.props.lastInvoiceError);
+      debugger;
       if (httpResCode === 409 && invoiceStatus === 'SUBMITTED') {
         paymentAlert = (
           <div>
