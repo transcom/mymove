@@ -178,7 +178,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("dps-redirect-url", "", "DPS url to redirect to")
 	flag.String("dps-cookie-name", "", "Name of the DPS cookie")
 	flag.String("dps-cookie-domain", "sddclocal", "Domain of the DPS cookie")
-	flag.String("dps-auth-cookie-secret-key", "", "DPS auth cookie secret key")
+	flag.String("dps-auth-cookie-secret-key", "", "DPS auth cookie secret key, 32 byte long")
 	flag.Int("dps-cookie-expires-in-minutes", 240, "DPS cookie expiration in minutes")
 
 	// Initialize Swagger
@@ -480,6 +480,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkDPS(v)
+	if err != nil {
+		return err
+	}
+
 	err = checkCSRF(v)
 	if err != nil {
 		return err
@@ -557,6 +562,16 @@ func checkPorts(v *viper.Viper) error {
 		if p := v.GetInt(c); p <= 0 || p > 65535 {
 			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
 		}
+	}
+
+	return nil
+}
+
+func checkDPS(v *viper.Viper) error {
+
+	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	if len(dpsCookieSecret) != 32 {
+		return errors.New("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: " + strconv.Itoa(len(dpsCookieSecret)))
 	}
 
 	return nil
