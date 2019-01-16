@@ -2,9 +2,10 @@ import React, { Fragment } from 'react';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 export const DefaultDetails = props => {
+  const { swagger } = props;
   return (
     <Fragment>
-      <SwaggerField fieldName="quantity_1" className="half-width" swagger={props.ship_line_item_schema} required />
+      <SwaggerField fieldName="quantity_1" className="half-width" swagger={swagger} required />
       <div className="bq-explanation">
         <p>
           Enter numbers only, no symbols or units. <em>Examples:</em>

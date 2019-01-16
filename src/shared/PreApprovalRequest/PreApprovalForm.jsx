@@ -83,7 +83,7 @@ export class PreApprovalForm extends Component {
             />
           </div>
           <div className="usa-width-one-third">
-            <DetailComponent {...this.props} />
+            <DetailComponent swagger={this.props.ship_line_item_schema} />
           </div>
           <div className="usa-width-one-third">
             <SwaggerField
