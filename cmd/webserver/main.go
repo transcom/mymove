@@ -91,6 +91,14 @@ func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %s", e.Region)
 }
 
+type errInvalidDomain struct {
+	Domain string
+}
+
+func (e *errInvalidDomain) Error() string {
+	return fmt.Sprintf("invalid domain %s", e.Domain)
+}
+
 type errInvalidPKCS7 struct {
 	Path string
 }
@@ -232,6 +240,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
 	flag.String("aws-s3-key-namespace", "", "Key prefix for all objects written to S3")
 	flag.String("aws-ses-region", "", "AWS region used for SES")
+	flag.String("aws-ses-domain", "", "Domain used for SES")
 
 	// Honeycomb Config
 	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
@@ -585,6 +594,9 @@ func checkEmail(v *viper.Viper) error {
 		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
 		}
+		if d := v.GetString("aws-ses-domain"); len(d) == 0 {
+			return errors.Wrap(&errInvalidDomain{Domain: d}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
+		}
 	}
 
 	return nil
@@ -743,9 +755,11 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
+		sesDomain := v.GetString("aws-ses-domain")
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, sesDomain, logger))
 	} else {
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(logger))
+		domain := "milmovelocal"
+		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, logger))
 	}
 
 	build := v.GetString("build")
