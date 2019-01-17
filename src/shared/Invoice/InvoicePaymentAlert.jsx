@@ -8,6 +8,7 @@ import { formatDateTime } from 'shared/formatters';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 
 import './InvoicePanel.css';
+import { formatTime, formatDate4DigitYear } from '../formatters';
 
 class InvoicePaymentAlert extends PureComponent {
   render() {
@@ -37,8 +38,9 @@ class InvoicePaymentAlert extends PureComponent {
           <div>
             <Alert type="success" heading="Already submitted">
               <span className="warning--header">
-                A payment request was made by {aproverFirstName} {aproverLastName} at {formatDateTime(invoiceDate)} and
-                is already in process, please refresh this screen for updated details.
+                A payment request was made by {aproverFirstName} {aproverLastName} at {formatTime(invoiceDate)} on{' '}
+                {formatDate4DigitYear(invoiceDate)} andis already in process.<br />
+                Please refresh this screen for updated details.
               </span>
             </Alert>
           </div>

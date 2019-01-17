@@ -16,7 +16,7 @@ class InvoiceTable extends PureComponent {
   render() {
     const tableTitle = (
       <div className="invoice-panel-header-cont">
-        <div className="usa-width-one-half">
+        <div>
           <h5>
             Invoice {this.props.invoice.invoice_number}{' '}
             <span className="detail">
