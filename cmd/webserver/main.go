@@ -91,14 +91,6 @@ func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %s", e.Region)
 }
 
-type errInvalidDomain struct {
-	Domain string
-}
-
-func (e *errInvalidDomain) Error() string {
-	return fmt.Sprintf("invalid domain %s", e.Domain)
-}
-
 type errInvalidPKCS7 struct {
 	Path string
 }
@@ -594,8 +586,8 @@ func checkEmail(v *viper.Viper) error {
 		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
 		}
-		if d := v.GetString("aws-ses-domain"); len(d) == 0 {
-			return errors.Wrap(&errInvalidDomain{Domain: d}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
+		if h := v.GetString("aws-ses-domain"); len(h) == 0 {
+			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
 		}
 	}
 
