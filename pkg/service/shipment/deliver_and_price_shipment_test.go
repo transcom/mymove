@@ -1,8 +1,6 @@
 package shipment
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -10,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+	"testing"
 )
 
 func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
@@ -33,6 +32,11 @@ func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
 			RequiresPreApproval: true,
 		},
 	})
+
+	// Make sure there's a FuelEIADieselPrice
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
 	planner := route.NewTestingPlanner(1100)

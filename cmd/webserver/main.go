@@ -179,6 +179,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("dps-redirect-url", "", "DPS url to redirect to")
 	flag.String("dps-cookie-name", "", "Name of the DPS cookie")
 	flag.String("dps-cookie-domain", "sddclocal", "Domain of the DPS cookie")
+	flag.String("dps-auth-cookie-secret-key", "", "DPS auth cookie secret key, 32 byte long")
+	flag.Int("dps-cookie-expires-in-minutes", 240, "DPS cookie expiration in minutes")
 
 	// Initialize Swagger
 	flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
@@ -233,6 +235,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
 	flag.String("aws-s3-key-namespace", "", "Key prefix for all objects written to S3")
 	flag.String("aws-ses-region", "", "AWS region used for SES")
+	flag.String("aws-ses-domain", "", "Domain used for SES")
 
 	// Honeycomb Config
 	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
@@ -479,6 +482,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkDPS(v)
+	if err != nil {
+		return err
+	}
+
 	err = checkCSRF(v)
 	if err != nil {
 		return err
@@ -561,6 +569,16 @@ func checkPorts(v *viper.Viper) error {
 	return nil
 }
 
+func checkDPS(v *viper.Viper) error {
+
+	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	if len(dpsCookieSecret) != 32 {
+		return errors.New("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: " + strconv.Itoa(len(dpsCookieSecret)))
+	}
+
+	return nil
+}
+
 func checkCSRF(v *viper.Viper) error {
 
 	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
@@ -585,6 +603,9 @@ func checkEmail(v *viper.Viper) error {
 		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
 		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+		if h := v.GetString("aws-ses-domain"); len(h) == 0 {
+			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
 		}
 	}
 
@@ -744,9 +765,11 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
+		sesDomain := v.GetString("aws-ses-domain")
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, sesDomain, logger))
 	} else {
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(logger))
+		domain := "milmovelocal"
+		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, logger))
 	}
 
 	build := v.GetString("build")
@@ -833,6 +856,9 @@ func main() {
 
 	sddcHostname := v.GetString("http-sddc-server-name")
 	dpsAuthSecretKey := v.GetString("dps-auth-secret-key")
+	dpsCookieDomain := v.GetString("dps-cookie-domain")
+	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	dpsCookieExpires := v.GetInt("dps-cookie-expires-in-minutes")
 	handlerContext.SetDPSAuthParams(
 		dpsauth.Params{
 			SDDCProtocol:   v.GetString("http-sddc-protocol"),
@@ -841,6 +867,9 @@ func main() {
 			SecretKey:      dpsAuthSecretKey,
 			DPSRedirectURL: v.GetString("dps-redirect-url"),
 			CookieName:     v.GetString("dps-cookie-name"),
+			CookieDomain:   dpsCookieDomain,
+			CookieSecret:   dpsCookieSecret,
+			CookieExpires:  dpsCookieExpires,
 		},
 	)
 
@@ -927,7 +956,12 @@ func main() {
 	sddcDPSMux.Use(sddcDetectionMiddleware)
 	sddcDPSMux.Use(noCacheMiddleware)
 	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
-	sddcDPSMux.Handle(pat.Get("/set_cookie"), dpsauth.NewSetCookieHandler(logger, dpsAuthSecretKey, v.GetString("dps-cookie-domain")))
+	sddcDPSMux.Handle(pat.Get("/set_cookie"),
+		dpsauth.NewSetCookieHandler(logger,
+			dpsAuthSecretKey,
+			dpsCookieDomain,
+			dpsCookieSecret,
+			dpsCookieExpires))
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
