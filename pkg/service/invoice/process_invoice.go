@@ -71,7 +71,13 @@ func (p ProcessInvoice) updateInvoiceFailed(invoice *models.Invoice, causeVerrs 
 	verrs, err := p.DB.ValidateAndSave(invoice)
 	if err != nil || verrs.HasAny() {
 		verrs.Append(causeVerrs)
-		return verrs, multierror.Append(err, cause)
+		if err != nil {
+			if cause != nil {
+				return verrs, multierror.Append(err, cause)
+			}
+			return verrs, err
+		}
+		return verrs, cause
 	}
 
 	return causeVerrs, cause
