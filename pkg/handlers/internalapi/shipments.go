@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"os"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -11,7 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/edi"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -68,9 +66,9 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 	shipmentPayload := &internalmessages.Shipment{
 		ID:               strfmt.UUID(s.ID.String()),
 		Status:           internalmessages.ShipmentStatus(s.Status),
-		SourceGbloc:      s.SourceGBLOC,
-		DestinationGbloc: s.DestinationGBLOC,
-		Market:           s.Market,
+		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
+		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
+		Market:           payloadForMarkets(s.Market),
 		CodeOfService:    codeOfService,
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
@@ -528,10 +526,6 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	// to use for demo visual
-	// should this have a flag or be taken out?
-	ediWriter := edi.NewWriter(os.Stdout)
-	ediWriter.WriteAll(invoice858C.Segments())
 
 	// send edi through gex post api
 	transactionName := "placeholder"

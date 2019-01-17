@@ -159,8 +159,12 @@ class ShipmentInfo extends Component {
   };
 
   editServiceAgents = values => {
-    values['destination_service_agent']['role'] = 'DESTINATION';
-    values['origin_service_agent']['role'] = 'ORIGIN';
+    if (values['destination_service_agent']) {
+      values['destination_service_agent']['role'] = 'DESTINATION';
+    }
+    if (values['origin_service_agent']) {
+      values['origin_service_agent']['role'] = 'ORIGIN';
+    }
     this.props.handleServiceAgents(this.props.shipment.id, values);
   };
 

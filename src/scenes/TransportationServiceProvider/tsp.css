@@ -193,6 +193,15 @@
   font-weight: bold;
 }
 
+.infoPanel-wizard .infoPanel-wizard-form-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.infoPanel-wizard-form-container .infoPanel-wizard-column {
+  flex-direction: column;
+}
+
 .infoPanel-wizard .infoPanel-wizard-cancel {
   text-decoration: none;
   cursor: pointer;
@@ -260,4 +269,13 @@
   animation: shipmentStatusFade ease-in 1;
   animation-fill-mode: forwards;
   animation-duration: 2s;
+}
+
+.optional-destination-agent-question {
+  margin-top: 3rem;
+}
+
+label.inline_radio {
+	margin-top: 1px;
+	margin-bottom: 1px;
 }

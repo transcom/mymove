@@ -39,8 +39,9 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 		return dps.NewGetUserUnauthorized()
 	}
 
+	dpsParams := h.DPSAuthParams()
 	token := params.Token
-	loginGovID, err := dpsauth.CookieToLoginGovID(token)
+	loginGovID, err := dpsauth.CookieToLoginGovID(token, dpsParams.CookieSecret)
 	if err != nil {
 		h.Logger().Error("Extracting user ID from token", zap.Error(err))
 

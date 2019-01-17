@@ -21,18 +21,20 @@ __snapshots__
 /tmp
 
 # built binaries
-/bin/webserver
-/bin/tsp-award-queue
+/bin/generate-1203-form
+/bin/generate-shipment-summary
 /bin/generate-test-data
-/bin/make-office-user
+/bin/health_checker
+/bin/iws
 /bin/load-office-data
-/bin/make-tsp-user
-/bin/make-dps-user
 /bin/load-user-gen
+/bin/make-dps-user
+/bin/make-office-user
+/bin/make-tsp-user
 /bin/paperwork
 /bin/rateengine
-/bin/iws
-/bin/health_checker
+/bin/tsp-award-queue
+/bin/webserver
 
 /bin/chamber
 /bin/soda

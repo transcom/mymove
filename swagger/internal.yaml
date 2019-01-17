@@ -14,6 +14,25 @@ consumes:
 produces:
   - application/json
 definitions:
+  ShipmentMarket:
+    type: string
+    description: One of the possible 'Markets' for a shipment
+    example: dHHG
+    enum:
+      - dHHG
+      - iHHG
+      - iUB
+    x-display-value:
+      dHHG: Domestic HHG
+      iHHG: International HHG
+      iUB: International unaccompanied baggage
+    x-nullable: true
+  GBLOC:
+    type: string
+    description: Office Codes for Transcom offices originating GBLs
+    pattern: '^[A-Z]{4}$'
+    example: LHNQ
+    x-nullable: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -1458,25 +1477,12 @@ definitions:
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       source_gbloc:
-        type: string
-        pattern: '^[A-Z]{4}$'
-        example: LHNQ
+        $ref: '#/definitions/GBLOC'
         title: Channel
-        format: string
-        x-nullable: true
-        readOnly: true
       destination_gbloc:
-        type: string
-        pattern: '^[A-Z]{4}$'
-        example: LHNQ
-        format: string
-        x-nullable: true
-        readOnly: true
+        $ref: '#/definitions/GBLOC'
       market:
-        type: string
-        x-nullable: true
-        title: Shipment market
-        readOnly: true
+        $ref: '#/definitions/ShipmentMarket'
       code_of_service:
         type: string
         x-nullable: true
@@ -2658,24 +2664,6 @@ paths:
           description: order is not found
         500:
           description: internal server error
-  /moves:
-    get:
-      summary: List all moves for a set of orders
-      description: List all moves for a set of orders
-      operationId: indexMoves
-      tags:
-        - moves
-      responses:
-        200:
-          description: list of moves
-          schema:
-            $ref: '#/definitions/IndexMovesPayload'
-        400:
-          description: invalid request
-        404:
-          description: moves not found for given orders
-        401:
-          description: request requires user authentication
   /moves/{moveId}:
     patch:
       summary: Patches the move
@@ -3512,6 +3500,36 @@ paths:
           description: List of projected move-related dates
           schema:
             $ref: '#/definitions/MoveDatesSummary'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /moves/{moveId}/shipment_summary_worksheet:
+    get:
+      summary: Returns Shipment Summary Worksheet
+      description: Generates pre-filled PDF using data already collected
+      operationId: showShipmentSummaryWorksheet
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      produces:
+        - application/pdf
+      responses:
+        200:
+          description: Pre-filled worksheet PDF
+          schema:
+            format: binary
+            type: file
         400:
           description: invalid request
         401:

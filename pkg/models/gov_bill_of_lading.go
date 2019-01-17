@@ -12,8 +12,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// GovBillOfLadingExtractor is an object representing a GBL form 1203
-type GovBillOfLadingExtractor struct {
+// GovBillOfLadingFormValues is an object representing a GBL form 1203
+type GovBillOfLadingFormValues struct {
 	// GBL Number is in two places on the form
 	GBLNumber1 string `db:"gbl_number_1"`
 	GBLNumber2 string `db:"gbl_number_2"`
@@ -119,9 +119,9 @@ type GovBillOfLadingExtractor struct {
 	CertOfTSPBillingAuthorizedAgentSignature *SignedCertification
 }
 
-// FetchGovBillOfLadingExtractor fetches a single GovBillOfLadingExtractor for a given Shipment ID
-func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (GovBillOfLadingExtractor, error) {
-	var gbl GovBillOfLadingExtractor
+// FetchGovBillOfLadingFormValues fetches a single GovBillOfLadingFormValues for a given Shipment ID
+func FetchGovBillOfLadingFormValues(db *pop.Connection, shipmentID uuid.UUID) (GovBillOfLadingFormValues, error) {
+	var gbl GovBillOfLadingFormValues
 	sql := `SELECT
 				s.gbl_number AS gbl_number_1,
 				s.gbl_number AS gbl_number_2,

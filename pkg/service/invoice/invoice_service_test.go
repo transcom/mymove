@@ -34,7 +34,7 @@ func TestInvoiceSuite(t *testing.T) {
 }
 
 func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
-	return helperShipmentUsingScac(suite, "ABCD")
+	return helperShipmentUsingScac(suite, "ABBV")
 }
 
 func helperShipmentUsingScac(suite *InvoiceServiceSuite, scac string) models.Shipment {
@@ -50,7 +50,7 @@ func helperShipmentUsingScac(suite *InvoiceServiceSuite, scac string) models.Shi
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
-	supplierID := scac + "1234" //scac + payee code -- ABCD1234
+	supplierID := scac + "2708" //scac + payee code -- ABBV2708
 
 	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{

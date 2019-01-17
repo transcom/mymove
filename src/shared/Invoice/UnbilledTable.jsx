@@ -75,7 +75,7 @@ export class UnbilledTable extends PureComponent {
     }
 
     return (
-      <div className="invoice-panel-table-cont">
+      <div className="invoice-panel-table-cont" data-cy="unbilled-table">
         {header}
         {itemsComponent}
       </div>
@@ -88,7 +88,7 @@ UnbilledTable.propTypes = {
   lineItemsTotal: PropTypes.number,
   approvePayment: PropTypes.func,
   allowPayments: PropTypes.bool,
-  createInvoiceStatus: PropTypes.object,
+  createInvoiceStatus: PropTypes.string,
 };
 
 export default UnbilledTable;

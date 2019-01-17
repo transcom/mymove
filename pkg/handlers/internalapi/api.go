@@ -1,10 +1,13 @@
 package internalapi
 
 import (
+	"io"
 	"log"
 	"net/http"
 
 	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -94,5 +97,21 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{context}
 
+	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{context}
+
+	internalAPI.ApplicationPdfProducer = PDFProducer()
+
 	return internalAPI.Serve(nil)
+}
+
+// PDFProducer creates a new PDF producer
+func PDFProducer() runtime.Producer {
+	return runtime.ProducerFunc(func(writer io.Writer, data interface{}) error {
+		rw, ok := data.(io.ReadCloser)
+		if !ok {
+			return errors.Errorf("could not convert %+v to io.ReadCloser", data)
+		}
+		_, err := io.Copy(writer, rw)
+		return err
+	})
 }
