@@ -222,7 +222,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// EDI Invoice Config
 	flag.String("gex-basic-auth-username", "", "GEX api auth username")
 	flag.String("gex-basic-auth-password", "", "GEX api auth password")
-	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")

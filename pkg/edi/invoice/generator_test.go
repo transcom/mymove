@@ -6,10 +6,14 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/facebookgo/clock"
 
@@ -68,6 +72,37 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
+	})
+
+	suite.T().Run("usageIndicator='P'", func(t *testing.T) {
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), true, clock.NewMock())
+
+		suite.NoError(err)
+		suite.Equal("P", generatedTransactions.ISA.UsageIndicator)
+	})
+
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.logger)
+	handlerContext.SetSendProductionInvoice(helperViperSendProductionInvoice())
+	sendProdInvoice := handlerContext.SendProductionInvoice()
+	var usageIndicator string
+	var expectedUsageIndicator string
+	if sendProdInvoice {
+		usageIndicator = "usageIndicator='P'"
+		expectedUsageIndicator = "P"
+	} else {
+		usageIndicator = "usageIndicator='T'"
+		expectedUsageIndicator = "T"
+	}
+
+	suite.T().Run(usageIndicator, func(t *testing.T) {
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), sendProdInvoice, clock.NewMock())
+
+		suite.NoError(err)
+		suite.Equal(expectedUsageIndicator, generatedTransactions.ISA.UsageIndicator)
 	})
 
 	suite.T().Run("invoiceNumber is provided and found in EDI", func(t *testing.T) {
@@ -236,6 +271,16 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	shipment.ShipmentLineItems = lineItems
 
 	return shipment
+}
+
+func helperViperSendProductionInvoice() bool {
+	flag := pflag.CommandLine
+	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
+	v := viper.New()
+	v.BindPFlags(flag)
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	return v.GetBool("send-prod-invoice")
 }
 
 func helperShipmentInvoice(suite *InvoiceSuite, shipment models.Shipment) models.Invoice {
