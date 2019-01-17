@@ -2171,6 +2171,8 @@ definitions:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      moves:
+        $ref: '#/definitions/IndexMovesPayload'
       orders_number:
         type: string
         title: Orders Number
