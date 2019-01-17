@@ -71,45 +71,51 @@ export class PreApprovalForm extends Component {
               />
             </div>
             {/* TODO andrea - set schema location enum array to tariff400ng_item selected location value */}
-            <SwaggerField
-              fieldName="location"
-              className="rounded"
-              swagger={this.props.ship_line_item_schema}
-              required
-            />
+            {this.props.tariff400ngItem && (
+              <SwaggerField
+                fieldName="location"
+                className="rounded"
+                swagger={this.props.ship_line_item_schema}
+                required
+              />
+            )}
           </div>
-          <div className="usa-width-one-third">
-            <SwaggerField
-              fieldName="quantity_1"
-              className="half-width"
-              swagger={this.props.ship_line_item_schema}
-              required
-            />
-            <div className="bq-explanation">
-              <p>
-                Enter numbers only, no symbols or units. <em>Examples:</em>
-              </p>
-              <ul>
-                <li>
-                  Crating: enter "<strong>47.4</strong>" for crate size of 47.4 cu. ft.
-                </li>
-                <li>
-                  {' '}
-                  3rd-party service: enter "<strong>1299.99</strong>" for cost of $1,299.99.
-                </li>
-                <li>
-                  Bulky item: enter "<strong>1</strong>" for a single item.
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="usa-width-one-third">
-            <SwaggerField
-              fieldName="notes"
-              className="three-quarter-width"
-              swagger={this.props.ship_line_item_schema}
-            />
-          </div>
+          {this.props.tariff400ngItem && (
+            <Fragment>
+              <div className="usa-width-one-third">
+                <SwaggerField
+                  fieldName="quantity_1"
+                  className="half-width"
+                  swagger={this.props.ship_line_item_schema}
+                  required
+                />
+                <div className="bq-explanation">
+                  <p>
+                    Enter numbers only, no symbols or units. <em>Examples:</em>
+                  </p>
+                  <ul>
+                    <li>
+                      Crating: enter "<strong>47.4</strong>" for crate size of 47.4 cu. ft.
+                    </li>
+                    <li>
+                      {' '}
+                      3rd-party service: enter "<strong>1299.99</strong>" for cost of $1,299.99.
+                    </li>
+                    <li>
+                      Bulky item: enter "<strong>1</strong>" for a single item.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="usa-width-one-third">
+                <SwaggerField
+                  fieldName="notes"
+                  className="three-quarter-width"
+                  swagger={this.props.ship_line_item_schema}
+                />
+              </div>
+            </Fragment>
+          )}
         </div>
       </Form>
     );
@@ -134,6 +140,7 @@ PreApprovalForm = reduxForm({
 function mapStateToProps(state, props) {
   return {
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
+    tariff400ngItem: get(state, 'form.preapproval_request_form.values.tariff400ng_item'),
   };
 }
 
