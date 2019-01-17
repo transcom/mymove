@@ -81,3 +81,4 @@ cypress/results
 
 # Virtualenv
 .venv
+__pycache__
