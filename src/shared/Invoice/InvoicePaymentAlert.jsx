@@ -4,11 +4,10 @@ import { get } from 'lodash';
 import moment from 'moment';
 
 import Alert from 'shared/Alert';
-import { formatDateTime } from 'shared/formatters';
+import { formatTime, formatDate4DigitYear } from 'shared/formatters';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 
 import './InvoicePanel.css';
-import { formatTime, formatDate4DigitYear } from '../formatters';
 
 class InvoicePaymentAlert extends PureComponent {
   render() {
