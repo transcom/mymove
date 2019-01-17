@@ -2171,8 +2171,6 @@ definitions:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
-      moves:
-        $ref: '#/definitions/IndexMovesPayload'
       orders_number:
         type: string
         title: Orders Number
@@ -2664,24 +2662,6 @@ paths:
           description: order is not found
         500:
           description: internal server error
-  /moves:
-    get:
-      summary: List all moves for a set of orders
-      description: List all moves for a set of orders
-      operationId: indexMoves
-      tags:
-        - moves
-      responses:
-        200:
-          description: list of moves
-          schema:
-            $ref: '#/definitions/IndexMovesPayload'
-        400:
-          description: invalid request
-        404:
-          description: moves not found for given orders
-        401:
-          description: request requires user authentication
   /moves/{moveId}:
     patch:
       summary: Patches the move
