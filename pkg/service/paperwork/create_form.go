@@ -19,6 +19,10 @@ type CreateForm struct {
 	FileStorer FileCreator
 }
 
+//type CreateForm struct {
+//	FileStorer *afero.Afero
+//}
+
 // Call creates a form with the given data
 func (c CreateForm) Call(data interface{}, formLayout paperwork.FormLayout, fileName string, formType string) (afero.File, error) {
 	// Read in bytes from Asset pkg
