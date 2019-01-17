@@ -197,7 +197,9 @@ func (re *RateEngine) ComputeShipment(
 	nonLinehaulCostComputation.Pack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Pack.Rate/1000) * 1000
 	nonLinehaulCostComputation.Unpack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Unpack.Rate)
 
-	// Calculate FuelSurcharge (FeeAndRate struct) and log it
+	// Calculate FuelSurcharge (FeeAndRate struct) and log it.
+	// We've applied the linehaul discount to the linehaulCostComputation.LinehaulChargeTotal object, so we don't need
+	// to worry about applying it again here.
 	linehaulCostComputation.FuelSurcharge, err = re.fuelSurchargeComputation(linehaulCostComputation.LinehaulChargeTotal, bookDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
