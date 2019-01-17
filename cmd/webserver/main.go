@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,7 +16,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
+
+	"github.com/transcom/mymove/pkg/edi/gex"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -805,7 +805,6 @@ func main() {
 	if len(gexURL) == 0 {
 		// this spins up a local test server
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			time.Sleep(6 * time.Second)
 			w.WriteHeader(http.StatusOK)
 		}))
 		gexRequester = gex.SendToGexHTTP{
