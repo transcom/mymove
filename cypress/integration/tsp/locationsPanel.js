@@ -1,41 +1,177 @@
 /* global cy */
+const secondaryPickupAddress = {
+  street_1: '666 Diagon Alley',
+  city: 'London',
+  state: 'NJ',
+  postal_code: '66666-6666',
+};
 describe('TSP User Checks Shipment Locations', function() {
+  const pickUpAddress = {
+    street_1: '123 Any Street',
+    street_2: 'P.O. Box 12345',
+    street_3: 'c/o Some Person',
+    city: 'Beverly Hills',
+    state: 'CA',
+    postal_code: '90210',
+  };
+
+  const deliveryAddress = {
+    street_1: '987 Any Avenue',
+    street_2: 'P.O. Box 9876',
+    street_3: 'c/o Some Person',
+    city: 'Fairfield',
+    state: 'CA',
+    postal_code: '94535',
+  };
+
   beforeEach(() => {
     cy.signIntoTSP();
   });
 
+  before(() => {
+    //reset state
+    // Open new shipments queue
+    cy.signIntoTSP();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/queues\/new/);
+    });
+
+    // Find shipment and open it
+    cy
+      .get('div')
+      .contains('BACON1')
+      .dblclick();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+    });
+
+    cy
+      .get('.editable-panel-header')
+      .contains('Locations')
+      .siblings()
+      .click();
+
+    // Enter details in form and save locations
+    cy
+      .get('input[name="pickup_address.street_address_1"]')
+      .first()
+      .clear()
+      .type(pickUpAddress.street_1)
+      .blur();
+    cy
+      .get('input[name="pickup_address.city"]')
+      .first()
+      .clear()
+      .type(pickUpAddress.city)
+      .blur();
+    cy
+      .get('input[name="pickup_address.state"]')
+      .first()
+      .clear()
+      .type(pickUpAddress.state)
+      .blur();
+    cy
+      .get('input[name="pickup_address.postal_code"]')
+      .first()
+      .clear()
+      .type(pickUpAddress.postal_code)
+      .blur();
+
+    // Set Secondary Pickup Address to required.
+    cy
+      .get('label[for="has_secondary_pickup_address"]')
+      .siblings()
+      .get('[type="radio"]')
+      .first()
+      .check({ force: true });
+    cy
+      .get('input[name="secondary_pickup_address.street_address_1"]')
+      .first()
+      .clear()
+      .type(secondaryPickupAddress.street_1)
+      .blur();
+    cy
+      .get('input[name="secondary_pickup_address.street_address_2"]')
+      .first()
+      .clear();
+    cy
+      .get('input[name="secondary_pickup_address.city"]')
+      .first()
+      .clear()
+      .type(secondaryPickupAddress.city)
+      .blur();
+    cy
+      .get('input[name="secondary_pickup_address.state"]')
+      .first()
+      .clear()
+      .type(secondaryPickupAddress.state)
+      .blur();
+    cy
+      .get('input[name="secondary_pickup_address.postal_code"]')
+      .first()
+      .clear()
+      .type(secondaryPickupAddress.postal_code)
+      .blur();
+    cy
+      .get('button')
+      .contains('Save')
+      .should('be.enabled');
+
+    // Set Secondary Pickup Address to required.
+    cy
+      .get('label[for="has_delivery_address"]')
+      .siblings()
+      .first()
+      .check({ force: true });
+
+    cy
+      .get('input[name="delivery_address.street_address_1"]')
+      .first()
+      .clear()
+      .type(deliveryAddress.street_1)
+      .blur();
+    cy
+      .get('input[name="delivery_address.city"]')
+      .first()
+      .clear()
+      .type(deliveryAddress.city)
+      .blur();
+    cy
+      .get('input[name="delivery_address.state"]')
+      .first()
+      .clear()
+      .type(deliveryAddress.state)
+      .blur();
+    cy
+      .get('input[name="delivery_address.postal_code"]')
+      .first()
+      .clear()
+      .type(deliveryAddress.postal_code)
+      .blur();
+
+    cy
+      .get('button')
+      .contains('Save')
+      .click();
+  });
+
   it('tsp user primary pickup location', function() {
-    const address = {
-      street_1: '123 Any Street',
-      street_2: 'P.O. Box 12345',
-      street_3: 'c/o Some Person',
-      city: 'Beverly Hills',
-      state: 'CA',
-      postal_code: '90210',
-    };
     const expectation = text => {
-      expect(text).to.include(address.street_1);
-      expect(text).to.include(address.street_2);
-      expect(text).to.include(address.street_3);
-      expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
+      expect(text).to.include(pickUpAddress.street_1);
+      expect(text).to.include(pickUpAddress.street_2);
+      expect(text).to.include(pickUpAddress.street_3);
+      expect(text).to.include(`${pickUpAddress.city}, ${pickUpAddress.state} ${pickUpAddress.postal_code}`);
     };
 
     tspUserViewsLocation({ shipmentId: 'BACON1', type: 'Pickup', expectation });
   });
   it('tsp user primary delivery location when delivery address exists', function() {
-    const address = {
-      street_1: '987 Any Avenue',
-      street_2: 'P.O. Box 9876',
-      street_3: 'c/o Some Person',
-      city: 'Fairfield',
-      state: 'CA',
-      postal_code: '94535',
-    };
     const expectation = text => {
-      expect(text).to.include(address.street_1);
-      expect(text).to.include(address.street_2);
-      expect(text).to.include(address.street_3);
-      expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
+      expect(text).to.include(deliveryAddress.street_1);
+      expect(text).to.include(deliveryAddress.street_2);
+      expect(text).to.include(deliveryAddress.street_3);
+      expect(text).to.include(`${deliveryAddress.city}, ${deliveryAddress.state} ${deliveryAddress.postal_code}`);
     };
 
     tspUserViewsLocation({
@@ -115,17 +251,6 @@ function tspUserEntersLocations() {
     city: 'Utopia',
     state: 'MT',
     postal_code: '11111',
-  };
-  const secondaryPickupAddress = {
-    street_1: '666 Diagon Alley',
-    city: 'London',
-    state: 'NJ',
-    postal_code: '66666-6666',
-  };
-  const newDutyStation = {
-    city: 'Des Moines',
-    state: 'IA',
-    postal_code: '50309',
   };
 
   // Open new shipments queue
@@ -382,7 +507,7 @@ function tspUserEntersLocations() {
         .children('.field-value')
         .should($div => {
           const text = $div.text();
-          expect(text).to.include(`${newDutyStation.city}, ${newDutyStation.state} ${newDutyStation.postal_code}`);
+          expect(text).to.include(`${deliveryAddress.city}, ${deliveryAddress.state} ${deliveryAddress.postal_code}`);
         });
     });
 }
