@@ -20,18 +20,25 @@ var ErrZeroLengthFile = errors.New("File has length of 0")
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
 // generating pre-signed URLs for file access, and deleting Uploads.
 type Uploader struct {
-	db     *pop.Connection
-	logger *zap.Logger
-	Storer storage.FileStorer
+	db               *pop.Connection
+	logger           *zap.Logger
+	Storer           storage.FileStorer
+	UploadStorageKey string
 }
 
 // NewUploader creates and returns a new uploader
 func NewUploader(db *pop.Connection, logger *zap.Logger, storer storage.FileStorer) *Uploader {
 	return &Uploader{
-		db:     db,
-		logger: logger,
-		Storer: storer,
+		db:               db,
+		logger:           logger,
+		Storer:           storer,
+		UploadStorageKey: "",
 	}
+}
+
+// SetUploadStorageKey set the Upload.StorageKey member
+func (u *Uploader) SetUploadStorageKey(key string) {
+	u.UploadStorageKey = key
 }
 
 // CreateUpload creates a new Upload by performing validations, storing the specified
@@ -72,6 +79,11 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 		Bytes:       info.Size(),
 		ContentType: contentType,
 		Checksum:    checksum,
+	}
+
+	// Set the Upload.StorageKey if set
+	if u.UploadStorageKey != "" {
+		newUpload.StorageKey = u.UploadStorageKey
 	}
 
 	u.db.Transaction(func(db *pop.Connection) error {

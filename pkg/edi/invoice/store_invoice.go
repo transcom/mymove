@@ -50,6 +50,8 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 
 	// Create Upload'r
 	loader := uploader.NewUploader(db, logger, *storer)
+	// Set Storagekey path for S3
+	loader.SetUploadStorageKey(ediTmpFile)
 
 	// Delete of previous upload, if it exist
 	// If Delete of Upload fails, ignoring this error because we still have a new Upload that needs to be saved
