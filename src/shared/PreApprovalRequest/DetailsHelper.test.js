@@ -1,32 +1,31 @@
-import React from 'react';
-import { shallow } from 'enzyme';
 import { getDetailComponent } from './DetailsHelper';
+import { DefaultDetails } from './DefaultDetails';
+import { Code105Details } from './Code105Details';
 
-let wrapper;
 describe('testing getDetailComponent()', () => {
   describe('returns default details component', () => {
     const DetailComponent = getDetailComponent();
-    wrapper = shallow(<DetailComponent />);
 
     it('renders without crashing', () => {
       // eslint-disable-next-line
-      expect(wrapper.exists('div')).toBe(true);
+      expect(DetailComponent).toBe(DefaultDetails);
     });
   });
 
-  describe('returns 105B/E details component', () => {
-    let DetailComponent = getDetailComponent('105B', true);
-    wrapper = shallow(<DetailComponent />);
-    it('renders 105B details without crashing', () => {
+  describe('returns default details component with feature flag off', () => {
+    //pass in known code item with feature flag off
+    let DetailComponent = getDetailComponent('105', false);
+    it('renders default details without crashing', () => {
       // eslint-disable-next-line
-      expect(wrapper.exists('div')).toBe(true);
+      expect(DetailComponent).toBe(DefaultDetails);
     });
+  });
 
-    DetailComponent = getDetailComponent('105E', true);
-    wrapper = shallow(<DetailComponent />);
-    it('renders 105E details without crashing', () => {
+  describe('returns 105B/E details component with feature flag on', () => {
+    let DetailComponent = getDetailComponent('105', true);
+    it('renders 105 details without crashing', () => {
       // eslint-disable-next-line
-      expect(wrapper.exists('div')).toBe(true);
+      expect(DetailComponent).toBe(Code105Details);
     });
   });
 });
