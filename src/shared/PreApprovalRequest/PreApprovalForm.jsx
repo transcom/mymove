@@ -57,6 +57,30 @@ export class Tariff400ngItemSearch extends Component {
   }
 }
 
+export class LocationSearch extends Component {
+  render() {
+    return this.props.filteredLocations && this.props.filteredLocations.length === 1 ? (
+      <Fragment>
+        <input name="location" type="hidden" value={this.props.filteredLocations[0]} />
+        <label htmlFor="location" className="usa-input-label">
+          Location
+        </label>
+        <div>
+          {this.props.ship_line_item_schema.properties.location['x-display-value'][this.props.filteredLocations[0]]}
+        </div>
+      </Fragment>
+    ) : (
+      <SwaggerField
+        fieldName="location"
+        className="rounded"
+        swagger={this.props.ship_line_item_schema}
+        filteredEnumListOverride={this.props.filteredLocations}
+        required
+      />
+    );
+  }
+}
+
 export class PreApprovalForm extends Component {
   render() {
     return (
@@ -71,27 +95,12 @@ export class PreApprovalForm extends Component {
                 tariff400ngItems={this.props.tariff400ngItems}
               />
             </div>
-            {this.props.filteredLocations && this.props.filteredLocations.length === 1 ? (
-              <Fragment>
-                <input name="location" type="hidden" value={this.props.filteredLocations[0]} />
-                <label htmlFor="location" className="usa-input-label">
-                  Location
-                </label>
-                {
-                  this.props.ship_line_item_schema.properties.location['x-display-value'][
-                    this.props.filteredLocations[0]
-                  ]
-                }
-              </Fragment>
-            ) : (
-              <SwaggerField
-                fieldName="location"
-                className="rounded"
-                swagger={this.props.ship_line_item_schema}
-                filteredEnumListOverride={this.props.filteredLocations}
-                required
+            <div className="location-select">
+              <LocationSearch
+                filteredLocations={this.props.filteredLocations}
+                ship_line_item_schema={this.props.ship_line_item_schema}
               />
-            )}
+            </div>
           </div>
           <div className="usa-width-one-third">
             <SwaggerField
