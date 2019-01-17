@@ -789,11 +789,15 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
-	// Set the GexSender() and SendToGexHTTP fields
 	certificates, rootCAs, err := initDODCertificates(v, logger)
 	if certificates == nil || rootCAs == nil || err != nil {
-		log.Fatal("Error in getting tls certs", err)
+		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
+
+	logger.Debug("Server DOD Key Pair Loaded")
+	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
+
+	// Set the GexSender() and SendToGexHTTP fields
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	var gexRequester gex.SendToGex
 	gexURL := v.GetString("gex-url")
@@ -982,14 +986,6 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
-	moveMilCerts, caCertPool, err := initDODCertificates(v, logger)
-	if err != nil {
-		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
-	}
-
-	logger.Debug("Server DOD Key Pair Loaded")
-	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", caCertPool.Subjects()))
-
 	if isDevOrTest {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
@@ -1002,7 +998,7 @@ func main() {
 		if err != nil {
 			logger.Error("No devlocal CA path defined")
 		} else {
-			caCertPool.AppendCertsFromPEM(devlocalCa)
+			rootCAs.AppendCertsFromPEM(devlocalCa)
 		}
 	}
 
@@ -1043,7 +1039,7 @@ func main() {
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
 			Port:           v.GetInt("tls-port"),
-			TLSCerts:       moveMilCerts,
+			TLSCerts:       certificates,
 		}
 		errChan <- tlsServer.ListenAndServeTLS()
 	}()
@@ -1052,13 +1048,13 @@ func main() {
 		mutualTLSServer := server.Server{
 			// Ensure that any DoD-signed client certificate can be validated,
 			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:     caCertPool,
+			CaCertPool:     rootCAs,
 			ClientAuthType: tls.RequireAndVerifyClientCert,
 			ListenAddress:  listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
 			Port:           v.GetInt("mutual-tls-port"),
-			TLSCerts:       moveMilCerts,
+			TLSCerts:       certificates,
 		}
 		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()

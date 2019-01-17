@@ -597,6 +597,7 @@ definitions:
     description: Office Codes for Transcom offices originating GBLs
     pattern: '^[A-Z]{4}$'
     example: LHNQ
+    x-nullable: true
   IndexShipments:
     type: array
     items:
@@ -973,7 +974,6 @@ definitions:
       market:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true
-        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -1429,6 +1429,7 @@ definitions:
       dHHG: Domestic HHG
       iHHG: International HHG
       iUB: International unaccompanied baggage
+    x-nullable: true
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment

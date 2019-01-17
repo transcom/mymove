@@ -65,9 +65,9 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 	shipmentPayload := &internalmessages.Shipment{
 		ID:               strfmt.UUID(s.ID.String()),
 		Status:           internalmessages.ShipmentStatus(s.Status),
-		SourceGbloc:      s.SourceGBLOC,
-		DestinationGbloc: s.DestinationGBLOC,
-		Market:           s.Market,
+		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
+		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
+		Market:           payloadForMarkets(s.Market),
 		CodeOfService:    codeOfService,
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
