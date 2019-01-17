@@ -102,3 +102,17 @@ export const selectTotalFromInvoicedLineItems = createSelector([selectInvoicesSh
     return acm + item.amount_cents;
   }, 0);
 });
+
+export const selectLocationFromTariff400ngItem = state => {
+  const lineItemLocations = get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}).properties.location;
+  const tariff400ngItemLocation = get(state, 'form.preapproval_request_form.values.tariff400ng_item.location');
+  if (!lineItemLocations.enum) {
+    return [];
+  }
+  // Choose location options based on tariff400ng choice.
+  return lineItemLocations.enum.filter(lineItemLocation => {
+    return tariff400ngItemLocation === 'EITHER'
+      ? lineItemLocation === 'ORIGIN' || lineItemLocation === 'DESTINATION'
+      : lineItemLocation === tariff400ngItemLocation;
+  });
+};
