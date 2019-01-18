@@ -13,6 +13,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -229,7 +230,9 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
-	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
+	flag.String("storage-backend", "local", "Storage backend to use, either local or s3.")
+	flag.String("local-storage-root", "tmp", "Local storage root directory. Default is tmp.")
+	flag.String("local-storage-web-root", "storage", "Local storage web root directory. Default is storage.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
@@ -652,6 +655,11 @@ func checkStorage(v *viper.Viper) error {
 		if _, ok := regions[r]; !ok {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
 		}
+	} else if storageBackend == "local" {
+		localStorageRoot := v.GetString("local-storage-root")
+		if _, err := filepath.Abs(localStorageRoot); err != nil {
+			return fmt.Errorf("could not get absolute path for %s", localStorageRoot)
+		}
 	}
 
 	return nil
@@ -786,6 +794,8 @@ func main() {
 	handlerContext.SetSendProductionInvoice(v.GetBool("send-prod-invoice"))
 
 	storageBackend := v.GetString("storage-backend")
+	localStorageRoot := v.GetString("local-storage-root")
+	localStorageWebRoot := v.GetString("local-storage-web-root")
 
 	var storer storage.FileStorer
 	if storageBackend == "s3" {
@@ -807,8 +817,10 @@ func main() {
 		}))
 		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
 	} else {
-		zap.L().Info("Using filesystem storage backend")
-		fsParams := storage.DefaultFilesystemParams(logger)
+		zap.L().Info("Using local storage backend",
+			zap.String("root", localStorageRoot),
+			zap.String("web root", localStorageWebRoot))
+		fsParams := storage.DefaultFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
@@ -1039,8 +1051,8 @@ func main() {
 
 	if storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler("tmp")
-		root.Handle(pat.Get("/storage/*"), fs)
+		fs := storage.NewFilesystemHandler(localStorageRoot)
+		root.Handle(pat.Get(fmt.Sprintf("/%s/*", localStorageWebRoot)), fs)
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,

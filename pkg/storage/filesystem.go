@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -31,13 +32,13 @@ type FilesystemParams struct {
 }
 
 // DefaultFilesystemParams returns default values for FilesystemParams
-func DefaultFilesystemParams(logger *zap.Logger) FilesystemParams {
-	absTmpPath, err := filepath.Abs("tmp")
+func DefaultFilesystemParams(localStorageRoot string, localStorageWebRoot string, logger *zap.Logger) FilesystemParams {
+	absTmpPath, err := filepath.Abs(localStorageRoot)
 	if err != nil {
-		log.Fatalln(errors.New("could not get absolute path for tmp"))
+		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))
 	}
 	storagePath := path.Join(absTmpPath, "storage")
-	webRoot := "/" + "storage"
+	webRoot := "/" + localStorageWebRoot
 
 	return FilesystemParams{
 		root:    storagePath,
