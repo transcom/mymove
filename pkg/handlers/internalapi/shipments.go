@@ -492,7 +492,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	}
 	if shipment.Status != models.ShipmentStatusDELIVERED && shipment.Status != models.ShipmentStatusCOMPLETED {
 		h.Logger().Error("Shipment status not in delivered state.")
-		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
+		return shipmentop.NewCreateAndSendHHGInvoicePreconditionFailed()
 	}
 
 	//for now we limit a shipment to 1 invoice

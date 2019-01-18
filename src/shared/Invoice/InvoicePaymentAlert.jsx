@@ -4,6 +4,7 @@ import { get } from 'lodash';
 import moment from 'moment';
 
 import Alert from 'shared/Alert';
+import { formatTime, formatDate4DigitYear } from 'shared/formatters';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 
 import './InvoicePanel.css';
@@ -36,8 +37,9 @@ class InvoicePaymentAlert extends PureComponent {
           <div>
             <Alert type="success" heading="Already submitted">
               <span className="warning--header">
-                {aproverFirstName} {aproverLastName} submitted this invoice on {invoiceDate.format('DD-MMM-YYYY')} at{' '}
-                {invoiceDate.format('kk:mm')}.
+                A payment request was made by {aproverFirstName} {aproverLastName} at {formatTime(invoiceDate)} on{' '}
+                {formatDate4DigitYear(invoiceDate)} andis already in process.<br />
+                Please refresh this screen for updated details.
               </span>
             </Alert>
           </div>
