@@ -317,8 +317,10 @@ jobs:
           spec: "cypress/integration/office/**/*"
       - store_artifacts:
           path: cypress/videos
+          destination: office_e2e/videos
       - store_artifacts:
           path: cypress/screenshots
+          destination: office_e2e/screenshots
       - store_test_results:
           path: cypress/results
       - announce_failure
