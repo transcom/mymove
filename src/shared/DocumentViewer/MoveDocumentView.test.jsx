@@ -13,6 +13,21 @@ describe('MoveDocumentView', () => {
 
   it('calls onDidMount when the component mounts', () => {
     const onDidMountSpy = jest.fn();
+    shallow(
+      <MoveDocumentView
+        documentDetailUrlPrefix=""
+        match={{ params: {} }}
+        moveDocument={defaultMoveDocument}
+        moveDocumentSchema={{}}
+        moveDocumentId=""
+        moveDocuments={[]}
+        moveLocator=""
+        newDocumentUrl=""
+        onDidMount={onDidMountSpy}
+        serviceMember={{ name: '', edipi: '' }}
+        uploads={[]}
+      />,
+    );
     expect(onDidMountSpy).toBeCalled();
   });
 
