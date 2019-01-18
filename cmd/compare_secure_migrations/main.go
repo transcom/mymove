@@ -17,8 +17,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 type errInvalidRegion struct {
@@ -114,20 +112,10 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	var loggerConfig zap.Config
-
-	loggerConfig = zap.NewProductionConfig()
-
-	loggerConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-
-	logger, err := loggerConfig.Build()
+	err := checkConfig(v)
 	if err != nil {
-		logger.Fatal("unable to build logger", zap.Error(err))
-	}
-
-	err = checkConfig(v)
-	if err != nil {
-		logger.Fatal("invalid configuration", zap.Error(err))
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	sess := awssession.Must(awssession.NewSession(&aws.Config{
