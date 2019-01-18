@@ -39,9 +39,9 @@ describe('testing CSRF protection updating user profile', function() {
     // update info
     cy
       .get('input[name="middle_name"]')
+      .type(' ') //to work around a bug that doesn't clear input until text value is entered
       .clear()
-      .type('CSRF Test')
-      .blur();
+      .type('CSRF Test');
 
     // save info
     cy.get('button[type="submit"]').click();
