@@ -7,7 +7,7 @@
 #
 ############
 
-version: "2.1"
+version: '2.1'
 
 executors:
   # `mymove_small` and `mymove_medium` use the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
@@ -102,7 +102,7 @@ commands:
         type: string
     steps:
       - run:
-          name: "Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>"
+          name: 'Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>'
           command: |
             docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
@@ -128,26 +128,25 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-              # Env vars needed by the `bin/apply-secure-migrations.sh` script
-              DB_PASSWORD: mysecretpassword
-              DB_USER: postgres
-              DB_HOST: localhost
-              DB_PORT: 5432
-              DB_NAME: test_db
-              # Env vars needed for the webserver to run inside docker
-              SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
-              SECURE_MIGRATION_SOURCE: local
-              LOGIN_GOV_CALLBACK_PROTOCOL: http
-              LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-              LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-              LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
-              LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-              HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
-              HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
-              DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            # Env vars needed by the `bin/apply-secure-migrations.sh` script
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            # Env vars needed for the webserver to run inside docker
+            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
+            SECURE_MIGRATION_SOURCE: local
+            LOGIN_GOV_CALLBACK_PROTOCOL: http
+            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
+            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
+            LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
+            HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
+            DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
 
 jobs:
-
   # `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
   pre_deps_golang:
     executor: mymove_small
@@ -285,11 +284,13 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - e2e_tests:
-          spec: "cypress/integration/mymove/**/*"
+          spec: 'cypress/integration/mymove/**/*'
       - store_artifacts:
           path: cypress/videos
+          destination: videos
       - store_artifacts:
           path: cypress/screenshots
+          destination: screenshots
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -314,13 +315,13 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - e2e_tests:
-          spec: "cypress/integration/office/**/*"
+          spec: 'cypress/integration/office/**/*'
       - store_artifacts:
           path: cypress/videos
-          destination: office_e2e/videos
+          destination: videos
       - store_artifacts:
           path: cypress/screenshots
-          destination: office_e2e/screenshots
+          destination: screenshots
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -345,11 +346,13 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - e2e_tests:
-          spec: "cypress/integration/tsp/**/*"
+          spec: 'cypress/integration/tsp/**/*'
       - store_artifacts:
           path: cypress/videos
+          destination: videos
       - store_artifacts:
           path: cypress/screenshots
+          destination: screenshots
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -468,7 +471,7 @@ jobs:
   deploy_experimental_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "experimental"
+      - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_migrations_steps
 
@@ -476,7 +479,7 @@ jobs:
   deploy_experimental_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "experimental"
+      - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_steps:
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
@@ -485,7 +488,7 @@ jobs:
   deploy_experimental_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "experimental"
+      - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
@@ -500,7 +503,7 @@ jobs:
   deploy_staging_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_migrations_steps
 
@@ -508,7 +511,7 @@ jobs:
   deploy_staging_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_steps:
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
@@ -517,7 +520,7 @@ jobs:
   deploy_staging_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
@@ -526,7 +529,7 @@ jobs:
   deploy_prod_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "prod"
+      - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_migrations_steps
 
@@ -534,7 +537,7 @@ jobs:
   deploy_prod_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "prod"
+      - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_steps:
           health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
@@ -543,7 +546,7 @@ jobs:
   deploy_prod_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "prod"
+      - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
@@ -736,12 +739,11 @@ workflows:
             branches:
               only: master
 
-
   dependency_updater:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
-          cron: "0 12 * * 1"
+          cron: '0 12 * * 1'
           filters:
             branches:
               only: master
