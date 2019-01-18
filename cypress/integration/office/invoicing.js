@@ -81,7 +81,7 @@ function checkConfirmationDialogue() {
     cy
       .get('.usa-button-secondary')
       .first()
-      .should('have.text', 'Blarg');
+      .should('have.text', 'Cancel');
 
     cy
       .get('.usa-button-secondary')
