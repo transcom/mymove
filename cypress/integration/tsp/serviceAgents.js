@@ -49,11 +49,22 @@ describe('TSP User enters and updates Service Agents', function() {
     tspUserAcceptsShipment();
   });
 
+  it('tsp user assigns only origin service agent using action button', function() {
+    tspUserClicksAssignServiceAgent('ASNORG');
+    userInputsServiceAgent('Origin');
+    userSavesServiceAgentsWizard();
+    userVerifiesServiceAgentInfo('Origin');
+    tspUserVerifiesServiceAgentAssigned();
+  });
+
   it('tsp user assigns origin and destination service agents using action button', function() {
     tspUserClicksAssignServiceAgent('ASSIGN');
     userInputsServiceAgent('Origin');
+    userAllowsDestinationAgentBeSelected();
     userInputsServiceAgent('Destination');
     userSavesServiceAgentsWizard();
+    userVerifiesServiceAgentInfo('Origin');
+    userVerifiesServiceAgentInfo('Destination');
     tspUserVerifiesServiceAgentAssigned();
   });
 });
@@ -145,7 +156,7 @@ function tspUserAcceptsShipment() {
 }
 
 function tspUserClicksAssignServiceAgent(locator) {
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/accepted');
 
   // Find shipment and open it
   cy
@@ -178,9 +189,6 @@ function tspUserVerifiesServiceAgentAssigned() {
 }
 
 function userSavesServiceAgentsWizard() {
-  const origin = getFixture('Origin');
-  const destination = getFixture('Destination');
-
   cy
     .get('button')
     .contains('Done')
@@ -190,47 +198,44 @@ function userSavesServiceAgentsWizard() {
     .get('button')
     .contains('Done')
     .click();
+}
 
+function userVerifiesServiceAgentInfo(role) {
+  const agent = getFixture(role);
   // Verify data has been saved in the UI
   cy
     .get('div.company')
     .get('span')
-    .contains(origin.Company);
+    .contains(agent.Company);
   cy
     .get('div.email')
     .get('span')
-    .contains(origin.Email);
+    .contains(agent.Email);
   cy
     .get('div.phone_number')
     .get('span')
-    .contains(origin.Phone);
+    .contains(agent.Phone);
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
 
   cy
     .get('div.company')
     .get('span')
-    .contains(origin.Company);
+    .contains(agent.Company);
   cy
     .get('div.email')
     .get('span')
-    .contains(origin.Email);
+    .contains(agent.Email);
   cy
     .get('div.phone_number')
     .get('span')
-    .contains(origin.Phone);
+    .contains(agent.Phone);
+}
 
+function userAllowsDestinationAgentBeSelected() {
   cy
-    .get('div.company')
-    .get('span')
-    .contains(destination.Company);
-  cy
-    .get('div.email')
-    .get('span')
-    .contains(destination.Email);
-  cy
-    .get('div.phone_number')
-    .get('span')
-    .contains(destination.Phone);
+    .get('[type="radio"]')
+    .first()
+    .check({ force: true });
 }

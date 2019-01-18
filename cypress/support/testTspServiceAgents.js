@@ -131,7 +131,7 @@ export function userSavesServiceAgent(role) {
     .contains(fixture.Phone);
 
   // Refresh browser and make sure changes persist
-  cy.reload();
+  cy.patientReload();
 
   cy
     .get('div.company')

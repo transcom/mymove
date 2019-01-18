@@ -7,6 +7,7 @@
 * [Go](#go)
   * [Acronyms](#acronyms)
   * [Style and Conventions](#style-and-conventions)
+  * [Importing Dependencies](#importing-dependencies)
   * [Querying the Database Safely](#querying-the-database-safely)
   * [`models.Fetch*` functions](#modelsfetch-functions)
   * [Logging](#logging)
@@ -84,6 +85,16 @@ Beyond what is described above, the following contain additional insights into h
 * [What's in a name?](https://talks.golang.org/2014/names.slide#1) (how to name things in Go)
 * [Go best practices, six years in](https://peter.bourgon.org/go-best-practices-2016/)
 * [A theory of modern Go](https://peter.bourgon.org/blog/2017/06/09/theory-of-modern-go.html)
+
+### Importing Dependencies
+
+Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project:
+
+1. Add the package to the import statement of a Go file.
+1. `make clean`
+1. `make server_generate`
+1. `dep check` (to verify what's missing.) If it looks reasonable then...
+1. `dep ensure`
 
 ### Querying the Database Safely
 
@@ -293,7 +304,7 @@ Additional resources:
 
 * [GoDoc](https://godoc.org/) (where you can read the docs for nearly any Go package)
 * Check out the [Go wiki](https://github.com/golang/go/wiki/Learn)
-* _Video_: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
+* Advanced Testing with Go [Video](https://www.youtube.com/watch?v=yszygk1cpEc) and [Article](https://about.sourcegraph.com/go/advanced-testing-in-go) (great overview of useful techniques, useful for all Go programmers)
 * _Book_: [The Go Programming Language](http://www.gopl.io/)
 * _Article_: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
 

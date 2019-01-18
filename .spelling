@@ -393,6 +393,15 @@ officelocal
 OfficeLocal
 TSPLocal
 unexported
+CSS
+Javascript
+mixins
+preprocessors
+css
+scss
+database.md
+transportation_service_provider_performances
+perf
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md
@@ -404,4 +413,6 @@ unexported
  - ./docs/frontend.md
 _Regenerate
  - ./README.md
+transportation_service_provider_performances
+transportation_service_provider_performances
  - ./docs/data/tspp-data-creation.md

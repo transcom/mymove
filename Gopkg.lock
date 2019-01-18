@@ -224,14 +224,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e048ea497a949a07065a2076746a43629df92f2439ae5e2c476d1eb700052fa7"
-  name = "github.com/fullsailor/pkcs7"
-  packages = ["."]
-  pruneopts = ""
-  revision = "8306686428a5fe132eac8cb7c4848af725098bd4"
-
-[[projects]]
-  branch = "master"
   digest = "1:e9ffb9315dce0051beb757d0f0fc25db57c4da654efc4eada4ea109c2d9da815"
   name = "github.com/globalsign/mgo"
   packages = [
@@ -1234,6 +1226,14 @@
   revision = "a0b114877d4caeffbd7f87e3757c17fce570fea7"
 
 [[projects]]
+  branch = "master"
+  digest = "1:6678ceacadc5683147f2391aab89037eb03cdda275919adcaf90e455788b9fba"
+  name = "go.mozilla.org/pkcs7"
+  packages = ["."]
+  pruneopts = ""
+  revision = "3cffc6fbfe837a6fe43e8e336153379a69ef02bd"
+
+[[projects]]
   digest = "1:74f86c458e82e1c4efbab95233e0cf51b7cc02dc03193be9f62cd81224e10401"
   name = "go.uber.org/atomic"
   packages = ["."]
@@ -1441,6 +1441,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/endpoints",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/aws/aws-sdk-go/service/ses",
@@ -1451,7 +1452,6 @@
     "github.com/dustin/go-humanize",
     "github.com/facebookgo/clock",
     "github.com/felixge/httpsnoop",
-    "github.com/fullsailor/pkcs7",
     "github.com/go-gomail/gomail",
     "github.com/go-openapi/errors",
     "github.com/go-openapi/loads",
@@ -1466,6 +1466,7 @@
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/gobuffalo/pop",
     "github.com/gobuffalo/pop/soda",
+    "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/gofrs/uuid",
@@ -1475,6 +1476,7 @@
     "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
+    "github.com/jmoiron/sqlx",
     "github.com/jung-kurt/gofpdf",
     "github.com/magiconair/properties/assert",
     "github.com/markbates/goth",
@@ -1491,6 +1493,7 @@
     "github.com/tealeg/xlsx",
     "github.com/trussworks/pdfcpu/pkg/api",
     "github.com/trussworks/pdfcpu/pkg/pdfcpu",
+    "go.mozilla.org/pkcs7",
     "go.uber.org/zap",
     "go.uber.org/zap/zapcore",
     "goji.io",

@@ -196,10 +196,18 @@ const TSPEdit = props => {
             values: originValues,
           }}
           saRole="Origin"
+          columnSize="editable-panel-3-column"
         />
       </FormSection>
       <FormSection name="destination_service_agent">
-        <ServiceAgentEdit serviceAgentProps={{ swagger: saSchema, values: destinationValues }} saRole="Destination" />
+        <ServiceAgentEdit
+          serviceAgentProps={{
+            swagger: saSchema,
+            values: destinationValues,
+          }}
+          saRole="Destination"
+          columnSize="editable-panel-3-column"
+        />
       </FormSection>
     </Fragment>
   );

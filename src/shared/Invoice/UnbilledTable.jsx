@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { isOfficeSite } from 'shared/constants.js';
 import LineItemTable from 'shared/Invoice/LineItemTable';
 import Alert from 'shared/Alert';
+import { isLoading } from 'shared/constants';
 
 import './InvoicePanel.css';
 
@@ -33,7 +34,7 @@ export class UnbilledTable extends PureComponent {
     const allowPayments =
       this.props.allowPayments &&
       isOfficeSite && //user is an office user
-      !this.props.createInvoiceStatus.isLoading;
+      this.props.createInvoiceStatus !== isLoading;
 
     // Table header, also contains buttons for initiating invoice payment
     let header;
@@ -74,7 +75,7 @@ export class UnbilledTable extends PureComponent {
     }
 
     return (
-      <div className="invoice-panel-table-cont">
+      <div className="invoice-panel-table-cont" data-cy="unbilled-table">
         {header}
         {itemsComponent}
       </div>
@@ -87,7 +88,7 @@ UnbilledTable.propTypes = {
   lineItemsTotal: PropTypes.number,
   approvePayment: PropTypes.func,
   allowPayments: PropTypes.bool,
-  createInvoiceStatus: PropTypes.object,
+  createInvoiceStatus: PropTypes.string,
 };
 
 export default UnbilledTable;

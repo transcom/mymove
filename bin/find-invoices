@@ -1,0 +1,147 @@
+#!/bin/bash
+#
+# This script will use available API endpoints to find invoices in whatever
+# environment you specify.
+#
+# It requires that you supply it with an active JWT. You can obtain your JWT
+# by logging into the appropriate office environment, and inspecting your
+# cookies. You want the contents of the cookie named 'session_token'; it's
+# a very long string.
+#
+# Valid environments: staging, prod, experimental
+# Valid queue names:  all, hhg_delivered, hhg_accepted, hhg_completed
+#
+
+function usage() {
+  echo "usage: $0 [environment; default=staging] [queue; default=hhg_delivered]"
+  exit 1
+}
+
+environment="${1:-staging}"
+case "$environment" in
+  prod)
+    url_env=""
+    ;;
+  staging)
+    url_env="${environment}."
+    ;;
+  experimental)
+    url_env="${environment}."
+    ;;
+  *)
+    echo "error: unknown environment: $1"
+    usage
+    ;;
+esac
+
+queue="${2:-hhg_delivered}"
+
+# Ensure JQ is available
+if ! command -v jq &> /dev/null; then
+  echo "error: jq not installed, install with 'brew install jq'" 1>&2
+  exit 1
+fi
+
+# A place to store the user's JWT for use in making API calls
+session_file=$(mktemp)
+
+function milmove_api() {
+    url="$1"
+
+    session_token=$(cat "$session_file")
+
+    cookie="session_token=${session_token};"
+
+    json=$(curl -s "${url}" \
+         -H 'accept-encoding: gzip, deflate, br' \
+         -H 'accept-language: en-US,en;q=0.9' \
+         -H 'user-agent: curl; bin/find-invoices' \
+         -H 'accept: */*' \
+         -H "cookie: $cookie" \
+         --compressed)
+    ret=$?
+
+    if [[ $ret -ne 0 ]]; then
+      echo "error: curl to url failed: $url" 1>&2
+      exit 1
+    fi
+
+    if [[ "$json" == "Unauthorized" ]]; then
+      echo "Token has expired, please paste in a valid JWT for $environment (input will be hidden):" 1>&2
+      # Prevent terminal from limiting input length
+      stty -icanon
+      read -r -s session_token
+      echo "$session_token" > "$session_file"
+      # Revert terminal setting
+      stty icanon
+
+      # retry command recursively
+      json=$(milmove_api "$url")
+    fi
+
+    echo "$json"
+}
+
+# Given a queue name, get a list of moves
+function get_moves() {
+    queue="$1"
+    json=$(milmove_api "https://office.${url_env}move.mil/internal/queues/${queue}")
+
+    move_ids=$(echo "$json" | jq '.[] | .id')
+    echo "$move_ids"
+}
+
+# Given a Move ID, get a list of shipments
+function get_shipments() {
+    move_id="$1"
+    json=$(milmove_api "https://office.${url_env}move.mil/internal/moves/${move_id}")
+
+    shipments=$(echo "$json" | jq '.shipments')
+
+    echo "$shipments"
+}
+
+# Given a Shipment ID, get invoices
+function get_invoice() {
+    shipment_id="$1"
+    json=$(milmove_api "https://my.${url_env}move.mil/api/v1/shipments/${shipment_id}/invoices")
+
+    echo "$json"
+}
+
+####################
+# Main
+
+move_ids=$(get_moves "$queue")
+
+for move_id_quoted in $move_ids; do
+    move_id=$(echo "$move_id_quoted" | grep -o -e '[^"]\+')
+    echo "Checking move id: $move_id"
+
+    shipments=$(get_shipments "$move_id")
+
+    if [[ "$shipments" == "null" ]]; then
+        echo "    No shipment..."
+        continue
+    fi
+
+    shipment_ids=$(echo "$shipments" | jq '.[] | .id')
+    for shipment_id_quoted in $shipment_ids; do
+        shipment_id=$(echo "$shipment_id_quoted" | grep -o -e '[^"]\+')
+
+        echo "    Checking shipment id ${shipment_id}"
+        invoices=$(get_invoice "$shipment_id")
+
+        if [[ "$invoices" != "[]" ]]; then
+            echo "    Invoices:"
+            OLD_IFS="$IFS"
+            IFS=''
+            echo "$invoices" | jq -C '.[]' | while read -r invoice_line; do
+                echo "        ${invoice_line}"
+            done
+            IFS="$OLD_IFS"
+        fi
+    done
+done
+
+rm "$session_file"

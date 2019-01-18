@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"time"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/awardqueue"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -28,10 +28,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
 		ID:               *handlers.FmtUUID(s.ID),
 		Status:           apimessages.ShipmentStatus(s.Status),
-		SourceGbloc:      apimessages.GBLOC(*s.SourceGBLOC),
-		DestinationGbloc: apimessages.GBLOC(*s.DestinationGBLOC),
+		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
+		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
 		GblNumber:        s.GBLNumber,
-		Market:           apimessages.ShipmentMarket(*s.Market),
+		Market:           payloadForMarkets(s.Market),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
@@ -233,53 +233,6 @@ func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) mi
 
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewAcceptShipmentOK().WithPayload(sp)
-}
-
-// RejectShipmentHandler allows a TSP to refuse a particular shipment
-type RejectShipmentHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h RejectShipmentHandler) Handle(params shipmentop.RejectShipmentParams) middleware.Responder {
-	// set reason, set thing
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	ctx := params.HTTPRequest.Context()
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	// TODO: (cgilmer 2018_08_22) This is an extra query we don't need to run on every request. Put the
-	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
-	// See original commits in https://github.com/transcom/mymove/pull/802
-	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-	if err != nil {
-		h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
-		return shipmentop.NewRejectShipmentForbidden()
-	}
-
-	// Reject the shipment
-	shipment, shipmentOffer, verrs, err := models.RejectShipmentForTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, *params.Payload.Reason)
-	if err != nil || verrs.HasAny() {
-		if err == models.ErrFetchNotFound {
-			h.HoneyZapLogger().TraceError(ctx, "DB Query", zap.Error(err))
-			return shipmentop.NewRejectShipmentBadRequest()
-		} else if err == models.ErrInvalidTransition {
-			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment, got invalid transition",
-				zap.Error(err),
-				zap.String("shipment_status", string(shipment.Status)))
-			h.HoneyZapLogger().TraceInfo(ctx, "Attempted to reject shipment offer, got invalid transition",
-				zap.Error(err),
-				zap.Bool("shipment_offer_accepted", *shipmentOffer.Accepted))
-			return shipmentop.NewRejectShipmentConflict()
-		} else {
-			h.Logger().Error("Unknown Error", zap.Error(err))
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-	}
-
-	go awardqueue.NewAwardQueue(h.DB(), h.HoneyZapLogger()).Run(ctx)
-
-	sp := payloadForShipmentModel(*shipment)
-	return shipmentop.NewRejectShipmentOK().WithPayload(sp)
 }
 
 // TransportShipmentHandler allows a TSP to start transporting a particular shipment
@@ -649,7 +602,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	// Create PDF for GBL
-	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)
+	gbl, err := models.FetchGovBillOfLadingFormValues(h.DB(), shipmentID)
 	if err != nil {
 		// TODO: (andrea) Pass info of exactly what is missing in custom error message
 		h.Logger().Error("Failed retrieving the GBL data.", zap.Error(err))
@@ -663,22 +616,12 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		h.Logger().Error("Error reading template file", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
-	f, err := h.FileStorer().FileSystem().Create("something.png")
-	_, err = f.Write(data)
-	if err != nil {
-		h.Logger().Error("Error writing template bytes to file", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
-	f.Seek(0, 0)
 
-	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
-	if err != nil {
-		h.Logger().Error("Error initializing GBL template form.", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
+	templateBuffer := bytes.NewReader(data)
+	formFiller := paperwork.NewFormFiller()
 
 	// Populate form fields with GBL data
-	err = form.DrawData(gbl)
+	err = formFiller.AppendPage(templateBuffer, formLayout.FieldsLayout, gbl)
 	if err != nil {
 		h.Logger().Error("Failure writing GBL data to form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
@@ -690,7 +633,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	err = form.Output(aFile)
+	err = formFiller.Output(aFile)
 	if err != nil {
 		h.Logger().Error("Failure exporting GBL form to file.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()

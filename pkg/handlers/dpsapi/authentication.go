@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
 	"github.com/transcom/mymove/pkg/gen/dpsmessages"
@@ -32,8 +33,15 @@ var affiliationMap = map[models.ServiceMemberAffiliation]dpsmessages.Affiliation
 
 // Handle returns user information given an encrypted token
 func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
+	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
+	if clientCert == nil || !clientCert.AllowDpsAuthAPI {
+		h.Logger().Info("Client certificate is not authorized to access this API")
+		return dps.NewGetUserUnauthorized()
+	}
+
+	dpsParams := h.DPSAuthParams()
 	token := params.Token
-	loginGovID, err := dpsauth.CookieToLoginGovID(token)
+	loginGovID, err := dpsauth.CookieToLoginGovID(token, dpsParams.CookieSecret)
 	if err != nil {
 		h.Logger().Error("Extracting user ID from token", zap.Error(err))
 

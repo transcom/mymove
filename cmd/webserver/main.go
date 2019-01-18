@@ -10,10 +10,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/edi/gex"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -86,6 +90,14 @@ type errInvalidRegion struct {
 
 func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %s", e.Region)
+}
+
+type errInvalidPKCS7 struct {
+	Path string
+}
+
+func (e *errInvalidPKCS7) Error() string {
+	return fmt.Sprintf("invalid DER encoded PKCS7 package: %s", e.Path)
 }
 
 func stringSliceContains(stringSlice []string, value string) bool {
@@ -167,6 +179,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("dps-redirect-url", "", "DPS url to redirect to")
 	flag.String("dps-cookie-name", "", "Name of the DPS cookie")
 	flag.String("dps-cookie-domain", "sddclocal", "Domain of the DPS cookie")
+	flag.String("dps-auth-cookie-secret-key", "", "DPS auth cookie secret key, 32 byte long")
+	flag.Int("dps-cookie-expires-in-minutes", 240, "DPS cookie expiration in minutes")
 
 	// Initialize Swagger
 	flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
@@ -178,6 +192,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
 	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
 
+	flag.String("devlocal-ca", "", "Path to PEM-encoded devlocal CA certificate, enabled in development and test builds")
 	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String("move-mil-dod-tls-cert", "", "The DoD-signed TLS certificate for various move.mil services.")
@@ -209,7 +224,10 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("here-maps-app-code", "", "HERE maps App API code")
 
 	// EDI Invoice Config
+	flag.String("gex-basic-auth-username", "", "GEX api auth username")
+	flag.String("gex-basic-auth-password", "", "GEX api auth password")
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
@@ -217,6 +235,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
 	flag.String("aws-s3-key-namespace", "", "Key prefix for all objects written to S3")
 	flag.String("aws-ses-region", "", "AWS region used for SES")
+	flag.String("aws-ses-domain", "", "Domain used for SES")
 
 	// Honeycomb Config
 	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
@@ -239,31 +258,101 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 }
 
-func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]server.TLSCert, *x509.CertPool, error) {
+func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
-	moveMilCerts := []server.TLSCert{
-		server.TLSCert{
-			//Append move.mil cert with CA certificate chain
-			CertPEMBlock: bytes.Join([][]byte{
-				[]byte(v.GetString("move-mil-dod-tls-cert")),
-				[]byte(v.GetString("move-mil-dod-ca-cert"))},
-				[]byte("\n"),
-			),
-			KeyPEMBlock: []byte(v.GetString("move-mil-dod-tls-key")),
-		},
+	// https://tools.ietf.org/html/rfc7468#section-2
+	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
+	re := regexp.MustCompile("(?s)([-]{5}BEGIN CERTIFICATE[-]{5})(\\s*)(.+?)(\\s*)([-]{5}END CERTIFICATE[-]{5})")
+
+	certFormat := "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----"
+
+	tlsCert := v.GetString("move-mil-dod-tls-cert")
+	if len(tlsCert) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-cert")
 	}
 
-	pkcs7Package, err := ioutil.ReadFile(v.GetString("dod-ca-package")) // #nosec
+	tlsCertMatches := re.FindAllStringSubmatch(tlsCert, -1)
+	if len(tlsCertMatches) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
+	}
+	if len(tlsCertMatches) > 1 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s has too many certificate PEM blocks", "move-mil-dod-tls-cert")
+	}
+
+	tlsCerts := make([]string, 0, len(tlsCertMatches))
+	for _, m := range tlsCertMatches {
+		// each match will include a slice of strings starting with
+		// (0) the full match, then
+		// (1) "-----BEGIN CERTIFICATE-----",
+		// (2) whitespace if any,
+		// (3) base64-encoded certificate data,
+		// (4) whitespace if any, and then
+		// (5) -----END CERTIFICATE-----
+		tlsCerts = append(tlsCerts, fmt.Sprintf(certFormat, m[3]))
+	}
+
+	logger.Info("certitficate chain from move-mil-dod-tls-cert parsed", zap.Any("count", len(tlsCerts)))
+
+	caCert := v.GetString("move-mil-dod-ca-cert")
+	if len(caCert) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-ca-cert")
+	}
+
+	caCertMatches := re.FindAllStringSubmatch(caCert, -1)
+	if len(caCertMatches) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
+	}
+
+	caCerts := make([]string, 0, len(caCertMatches))
+	for _, m := range caCertMatches {
+		// each match will include a slice of strings starting with
+		// (0) the full match, then
+		// (1) "-----BEGIN CERTIFICATE-----",
+		// (2) whitespace if any,
+		// (3) base64-encoded certificate data,
+		// (4) whitespace if any, and then
+		// (5) -----END CERTIFICATE-----
+		caCerts = append(caCerts, fmt.Sprintf(certFormat, m[3]))
+	}
+
+	logger.Info("certitficate chain from move-mil-dod-ca-cert parsed", zap.Any("count", len(caCerts)))
+
+	//Append move.mil cert with intermediate CA to create a validate certificate chain
+	cert := strings.Join(append(append(make([]string, 0), tlsCerts...), caCerts...), "\n")
+
+	key := v.GetString("move-mil-dod-tls-key")
+	if len(key) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-key")
+	}
+
+	keyPair, err := tls.X509KeyPair([]byte(cert), []byte(key))
 	if err != nil {
-		return moveMilCerts, nil, errors.Wrap(err, "Failed to read DoD CA certificate package")
+		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD x509 keypair for server")
+	}
+
+	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
+
+	pathToPackage := v.GetString("dod-ca-package")
+	if len(pathToPackage) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", "dod-ca-package"))
+	}
+
+	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
+	if err != nil {
+		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", "dod-ca-package"))
+	}
+
+	if len(pkcs7Package) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", "dod-ca-package"))
 	}
 
 	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
 	if err != nil {
-		return moveMilCerts, dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
+		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
 	}
 
-	return moveMilCerts, dodCACertPool, nil
+	return []tls.Certificate{keyPair}, dodCACertPool, nil
+
 }
 
 func initRoutePlanner(v *viper.Viper, logger *zap.Logger) route.Planner {
@@ -393,6 +482,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkDPS(v)
+	if err != nil {
+		return err
+	}
+
 	err = checkCSRF(v)
 	if err != nil {
 		return err
@@ -404,6 +498,11 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	err = checkStorage(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkGEX(v)
 	if err != nil {
 		return err
 	}
@@ -470,6 +569,16 @@ func checkPorts(v *viper.Viper) error {
 	return nil
 }
 
+func checkDPS(v *viper.Viper) error {
+
+	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	if len(dpsCookieSecret) != 32 {
+		return errors.New("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: " + strconv.Itoa(len(dpsCookieSecret)))
+	}
+
+	return nil
+}
+
 func checkCSRF(v *viper.Viper) error {
 
 	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
@@ -494,6 +603,28 @@ func checkEmail(v *viper.Viper) error {
 		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
 		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+		if h := v.GetString("aws-ses-domain"); len(h) == 0 {
+			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
+		}
+	}
+
+	return nil
+}
+
+func checkGEX(v *viper.Viper) error {
+	gexURL := v.GetString("gex-url")
+	if len(gexURL) > 0 && gexURL != "https://gexweba.daas.dla.mil/msg_data/submit/" {
+		return fmt.Errorf("invalid gexUrl %s, expecting "+
+			"https://gexweba.daas.dla.mil/msg_data/submit/ or an empty string", gexURL)
+	}
+
+	if len(gexURL) > 0 {
+		if len(v.GetString("gex-basic-auth-username")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_USERNAME is missing")
+		}
+		if len(v.GetString("gex-basic-auth-password")) == 0 {
+			return fmt.Errorf("GEX_BASIC_AUTH_PASSWORD is missing")
 		}
 	}
 
@@ -615,6 +746,7 @@ func main() {
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
@@ -633,9 +765,11 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
+		sesDomain := v.GetString("aws-ses-domain")
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, sesDomain, logger))
 	} else {
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(logger))
+		domain := "milmovelocal"
+		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, logger))
 	}
 
 	build := v.GetString("build")
@@ -679,6 +813,41 @@ func main() {
 	}
 	handlerContext.SetFileStorer(storer)
 
+	certificates, rootCAs, err := initDODCertificates(v, logger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
+	}
+
+	logger.Debug("Server DOD Key Pair Loaded")
+	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
+
+	// Set the GexSender() and SendToGexHTTP fields
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	var gexRequester gex.SendToGex
+	gexURL := v.GetString("gex-url")
+	if len(gexURL) == 0 {
+		// this spins up a local test server
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		gexRequester = gex.SendToGexHTTP{
+			URL:                  server.URL,
+			IsTrueGexURL:         false,
+			TLSConfig:            &tls.Config{},
+			GEXBasicAuthUsername: "",
+			GEXBasicAuthPassword: "",
+		}
+	} else {
+		gexRequester = gex.SendToGexHTTP{
+			URL:                  v.GetString("gex-url"),
+			IsTrueGexURL:         true,
+			TLSConfig:            tlsConfig,
+			GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
+			GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
+		}
+	}
+	handlerContext.SetGexSender(gexRequester)
+
 	rbs, err := initRealTimeBrokerService(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
@@ -687,6 +856,9 @@ func main() {
 
 	sddcHostname := v.GetString("http-sddc-server-name")
 	dpsAuthSecretKey := v.GetString("dps-auth-secret-key")
+	dpsCookieDomain := v.GetString("dps-cookie-domain")
+	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	dpsCookieExpires := v.GetInt("dps-cookie-expires-in-minutes")
 	handlerContext.SetDPSAuthParams(
 		dpsauth.Params{
 			SDDCProtocol:   v.GetString("http-sddc-protocol"),
@@ -695,6 +867,9 @@ func main() {
 			SecretKey:      dpsAuthSecretKey,
 			DPSRedirectURL: v.GetString("dps-redirect-url"),
 			CookieName:     v.GetString("dps-cookie-name"),
+			CookieDomain:   dpsCookieDomain,
+			CookieSecret:   dpsCookieSecret,
+			CookieExpires:  dpsCookieExpires,
 		},
 	)
 
@@ -722,6 +897,32 @@ func main() {
 		if err != nil {
 			logger.Error("Failed encoding health check response", zap.Error(err))
 		}
+
+		// We are not using request middleware here so logging directly in the check
+		var protocol string
+		if r.TLS == nil {
+			protocol = "http"
+		} else {
+			protocol = "https"
+		}
+		zap.L().Info("Request",
+			zap.String("git-branch", gitBranch),
+			zap.String("git-commit", gitCommit),
+			zap.String("accepted-language", r.Header.Get("accepted-language")),
+			zap.Int64("content-length", r.ContentLength),
+			zap.String("host", r.Host),
+			zap.String("method", r.Method),
+			zap.String("protocol", protocol),
+			zap.String("protocol-version", r.Proto),
+			zap.String("referer", r.Header.Get("referer")),
+			zap.String("source", r.RemoteAddr),
+			zap.String("url", r.URL.String()),
+			zap.String("user-agent", r.UserAgent()),
+			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
+			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
+			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
+			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
+		)
 	})
 
 	// Allow public content through without any auth or app checks
@@ -734,6 +935,7 @@ func main() {
 	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-orders-server-name"))
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
+	ordersMux.Use(clientCertMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
 	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
@@ -743,6 +945,7 @@ func main() {
 	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-dps-server-name"))
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
+	dpsMux.Use(clientCertMiddleware)
 	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
 	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
@@ -753,7 +956,12 @@ func main() {
 	sddcDPSMux.Use(sddcDetectionMiddleware)
 	sddcDPSMux.Use(noCacheMiddleware)
 	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
-	sddcDPSMux.Handle(pat.Get("/set_cookie"), dpsauth.NewSetCookieHandler(logger, dpsAuthSecretKey, v.GetString("dps-cookie-domain")))
+	sddcDPSMux.Handle(pat.Get("/set_cookie"),
+		dpsauth.NewSetCookieHandler(logger,
+			dpsAuthSecretKey,
+			dpsCookieDomain,
+			dpsCookieSecret,
+			dpsCookieExpires))
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
@@ -820,6 +1028,13 @@ func main() {
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
 		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+
+		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
+		if err != nil {
+			logger.Error("No devlocal CA path defined")
+		} else {
+			rootCAs.AppendCertsFromPEM(devlocalCa)
+		}
 	}
 
 	if storageBackend == "filesystem" {
@@ -840,11 +1055,6 @@ func main() {
 
 	errChan := make(chan error)
 
-	moveMilCerts, dodCACertPool, err := initDODCertificates(v, logger)
-	if err != nil {
-		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
-	}
-
 	listenInterface := v.GetString("interface")
 
 	go func() {
@@ -864,7 +1074,7 @@ func main() {
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
 			Port:           v.GetInt("tls-port"),
-			TLSCerts:       moveMilCerts,
+			TLSCerts:       certificates,
 		}
 		errChan <- tlsServer.ListenAndServeTLS()
 	}()
@@ -873,13 +1083,13 @@ func main() {
 		mutualTLSServer := server.Server{
 			// Ensure that any DoD-signed client certificate can be validated,
 			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:     dodCACertPool,
+			CaCertPool:     rootCAs,
 			ClientAuthType: tls.RequireAndVerifyClientCert,
 			ListenAddress:  listenInterface,
 			HTTPHandler:    httpHandler,
 			Logger:         logger,
 			Port:           v.GetInt("mutual-tls-port"),
-			TLSCerts:       moveMilCerts,
+			TLSCerts:       certificates,
 		}
 		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()

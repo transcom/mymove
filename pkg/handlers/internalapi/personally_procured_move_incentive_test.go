@@ -11,11 +11,11 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
-	if err := scenario.RunRateEngineScenario2(suite.TestDB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateRequest(req, user)
@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		Weight:          7500,
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMIncentiveHandler{context}
 	showResponse := showHandler.Handle(params)
@@ -36,11 +36,11 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
-	if err := scenario.RunRateEngineScenario2(suite.TestDB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		Weight:          7500,
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMIncentiveHandler{context}
 	showResponse := showHandler.Handle(params)
@@ -65,11 +65,11 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	suite.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
-	if err := scenario.RunRateEngineScenario2(suite.TestDB()); err != nil {
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 		Weight:          600,
 	}
 
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMIncentiveHandler{context}
 	showResponse := showHandler.Handle(params)

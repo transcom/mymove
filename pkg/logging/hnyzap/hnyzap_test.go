@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
 type zapFieldSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	bool    bool
 	float32 float32
 	float64 float64

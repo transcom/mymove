@@ -10,7 +10,7 @@ import (
 func (suite *ModelSuite) Test_UploadCreate() {
 	t := suite.T()
 
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	upload := models.Upload{
 		DocumentID:  &document.ID,
@@ -21,7 +21,7 @@ func (suite *ModelSuite) Test_UploadCreate() {
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 	}
 
-	verrs, err := suite.db.ValidateAndSave(&upload)
+	verrs, err := suite.DB().ValidateAndSave(&upload)
 
 	if err != nil {
 		t.Fatalf("could not save Upload: %v", err)
@@ -35,7 +35,7 @@ func (suite *ModelSuite) Test_UploadCreate() {
 func (suite *ModelSuite) Test_UploadCreateWithID() {
 	t := suite.T()
 
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	id := uuid.Must(uuid.NewV4())
 	upload := models.Upload{
@@ -48,7 +48,7 @@ func (suite *ModelSuite) Test_UploadCreateWithID() {
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 	}
 
-	verrs, err := suite.db.ValidateAndSave(&upload)
+	verrs, err := suite.DB().ValidateAndSave(&upload)
 
 	if err != nil {
 		t.Fatalf("could not save Upload: %v", err)
@@ -71,7 +71,7 @@ func (suite *ModelSuite) Test_UploadValidations() {
 		"checksum":     {"Checksum can not be blank."},
 		"bytes":        {"Bytes can not be blank."},
 		"filename":     {"Filename can not be blank."},
-		"content_type": {"ContentType is not in the list [image/jpeg, image/png, application/pdf]."},
+		"content_type": {"ContentType is not in the list [image/jpeg, image/png, application/pdf, text/plain, text/plain; charset=utf-8]."},
 	}
 
 	suite.verifyValidationErrors(upload, expErrors)

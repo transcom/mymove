@@ -24,6 +24,7 @@
     },
     {
       "name": "webserver",
+      "cwd": "${workspaceRoot}",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -31,7 +32,7 @@
       "port": 2345,
       "host": "127.0.0.1",
       "program": "${workspaceRoot}/cmd/webserver/main.go",
-      "env": {},
+      "env": {"INTERFACE":"localhost", "DEBUG_LOGGING":"true"},
       "args": [],
       "showLog": true
     }

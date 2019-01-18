@@ -54,7 +54,7 @@ describe('testing CSRF protection updating shipment info', function() {
       .should('be.enabled')
       .click();
 
-    cy.reload();
+    cy.patientReload();
 
     cy.contains('CSRF Test');
   });
@@ -89,7 +89,7 @@ describe('testing CSRF protection updating shipment info', function() {
       .should('be.enabled')
       .click();
 
-    cy.reload();
+    cy.patientReload();
 
     // No error pops up so we check the value
     cy

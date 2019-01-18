@@ -24,7 +24,7 @@ func (suite *ModelSuite) Test_BasicTspUser() {
 		LoginGovUUID:  fakeUUID,
 		LoginGovEmail: userEmail,
 	}
-	suite.mustSave(&sally)
+	suite.MustSave(&sally)
 	tsp := CreateTestTsp(suite)
 
 	user := TspUser{
@@ -36,10 +36,10 @@ func (suite *ModelSuite) Test_BasicTspUser() {
 		User:                            sally,
 		TransportationServiceProviderID: tsp.ID,
 	}
-	suite.mustSave(&user)
+	suite.MustSave(&user)
 
 	var loadUser TspUser
-	err := suite.db.Eager().Find(&loadUser, user.ID)
+	err := suite.DB().Eager().Find(&loadUser, user.ID)
 	suite.Nil(err, "loading user")
 	suite.Equal(user.ID, loadUser.ID)
 	suite.Equal(tsp.ID, loadUser.TransportationServiceProvider.ID)
@@ -47,7 +47,7 @@ func (suite *ModelSuite) Test_BasicTspUser() {
 
 func (suite *ModelSuite) TestFetchTspUserByEmail() {
 
-	user, err := FetchTspUserByEmail(suite.db, "not_here@example.com")
+	user, err := FetchTspUserByEmail(suite.DB(), "not_here@example.com")
 	suite.Equal(err, ErrFetchNotFound)
 	suite.Nil(user)
 
@@ -60,9 +60,9 @@ func (suite *ModelSuite) TestFetchTspUserByEmail() {
 		Telephone:                       "(907) 555-1212",
 		TransportationServiceProviderID: tsp.ID,
 	}
-	suite.mustSave(&newUser)
+	suite.MustSave(&newUser)
 
-	user, err = FetchTspUserByEmail(suite.db, email)
+	user, err = FetchTspUserByEmail(suite.DB(), email)
 	suite.Nil(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)

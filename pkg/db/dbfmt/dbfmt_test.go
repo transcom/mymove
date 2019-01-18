@@ -1,48 +1,28 @@
 package dbfmt
 
 import (
-	"log"
 	"reflect"
 	"sort"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type DBFmtSuite struct {
-	suite.Suite
-	db *pop.Connection
+	testingsuite.PopTestSuite
 }
 
 func (suite *DBFmtSuite) SetupTest() {
-	suite.db.TruncateAll()
-}
-
-func (suite *DBFmtSuite) mustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() > 0 {
-		t.Fatalf("errors encountered saving %v: %v", model, verrs)
-	}
+	suite.DB().TruncateAll()
 }
 
 func TestDBFmtSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
+	hs := &DBFmtSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(),
 	}
-
-	hs := &DBFmtSuite{db: db}
 	suite.Run(t, hs)
 }
 
@@ -54,12 +34,12 @@ func sameStrings(a []string, b []string) bool {
 
 func (suite *DBFmtSuite) TestTheDBFmt() {
 
-	move := testdatagen.MakeDefaultMove(suite.db)
-	suite.mustSave(&move)
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	suite.MustSave(&move)
 	moveID := move.ID
 
 	move = models.Move{}
-	err := suite.db.Eager("Orders.Moves").Find(&move, moveID.String())
+	err := suite.DB().Eager("Orders.Moves").Find(&move, moveID.String())
 	suite.Nil(err)
 
 	littlemove := move.Orders.Moves[0]

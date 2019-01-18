@@ -23,6 +23,7 @@ echo "Code goes here"
 * Any new migrations/schema changes:
   * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](./docs/database.md#zero-downtime-migrations))
   * [ ] Have been communicated to #dp3-engineering
+  * [ ] Secure migrations have been tested using `bin/run-prod-migrations`
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in IE.
 * Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:

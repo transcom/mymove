@@ -3,7 +3,6 @@ import {
   LoadShipment,
   PatchShipment,
   AcceptShipment,
-  RejectShipment,
   TransportShipment,
   DeliverShipment,
   CompletePmSurvey,
@@ -20,7 +19,6 @@ import { getEntitlements } from 'shared/entitlements.js';
 const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
-const rejectShipmentType = 'REJECT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
 const deliverShipmentType = 'DELIVER_SHIPMENT';
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
@@ -37,7 +35,6 @@ const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(acceptShipmentType);
-const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(rejectShipmentType);
 const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipmentType);
 const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
 const COMPLETE_PM_SURVEY = ReduxHelpers.generateAsyncActionTypes(completePmSurveyType);
@@ -60,8 +57,6 @@ export const loadShipment = ReduxHelpers.generateAsyncActionCreator(loadShipment
 export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
 export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(acceptShipmentType, AcceptShipment);
-
-export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(rejectShipmentType, RejectShipment);
 
 export const transportShipment = ReduxHelpers.generateAsyncActionCreator(transportShipmentType, TransportShipment);
 
@@ -99,6 +94,10 @@ export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
   return async function(dispatch, getState) {
     if (serviceAgent.id) {
       return dispatch(updateServiceAgent(serviceAgent));
+    } else if (!serviceAgent.company || !serviceAgent.email || !serviceAgent.phone_number) {
+      // Don't send the service agent if it's not got enough details
+      // Currently, it should only be the destination agent that gets skipped
+      return;
     } else {
       return dispatch(createServiceAgent(shipmentId, serviceAgent));
     }
@@ -221,25 +220,6 @@ export function tspReducer(state = initialState, action) {
         shipmentIsAccepting: false,
         shipmentHasAcceptSuccess: false,
         shipmentHasAcceptError: null,
-        error: action.error.message,
-      });
-    case REJECT_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentIsRejecting: true,
-        shipmentHasRejectSuccess: false,
-      });
-    case REJECT_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentIsRejecting: false,
-        shipmentHasRejectSuccess: true,
-        shipmentHasRejectError: false,
-        shipment: action.payload,
-      });
-    case REJECT_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentIsRejecting: false,
-        shipmentHasRejectSuccess: false,
-        shipmentHasRejectError: null,
         error: action.error.message,
       });
     case TRANSPORT_SHIPMENT.start:

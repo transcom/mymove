@@ -28,19 +28,19 @@ func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
 	// Two shipment line items tied to two different shipments
-	acc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	acc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			ShipmentID: shipment.ID,
 		},
 	})
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -66,11 +66,11 @@ func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
-	acc1 := testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	acc1 := testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -96,11 +96,11 @@ func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateShipmentLineItemHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
-	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
-	tariffItem := makePreApprovalItem(suite.TestDB())
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	tariffItem := makePreApprovalItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/shipments", nil)
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestCreateShipmentLineItemHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := CreateShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -134,11 +134,11 @@ func (suite *HandlerSuite) TestCreateShipmentLineItemHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateShipmentLineItemForbidden() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
-	shipment := testdatagen.MakeDefaultShipment(suite.TestDB())
-	tariffItem := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	tariffItem := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/shipments", nil)
@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestCreateShipmentLineItemForbidden() {
 	}
 
 	// And: get shipment is returned
-	handler := CreateShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 403 status code
@@ -170,13 +170,13 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemTSPHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
 	// Two shipment line items tied to two different shipments
-	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			ShipmentID: shipment.ID,
 			Location:   models.ShipmentLineItemLocationDESTINATION,
@@ -186,9 +186,9 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemTSPHandler() {
 		},
 	})
 
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 	// create a new tariff400ngitem to test
-	updateAcc1 := makePreApprovalItem(suite.TestDB())
+	updateAcc1 := makePreApprovalItem(suite.DB())
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemTSPHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -227,10 +227,10 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemTSPHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateShipmentLineItemOfficeHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
-	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Location:  models.ShipmentLineItemLocationDESTINATION,
 			Quantity1: unit.BaseQuantity(int64(123456)),
@@ -238,10 +238,10 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemOfficeHandler() {
 			Notes:     "",
 		},
 	})
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	// create a new tariff400ngItem to test
-	updateAcc1 := makePreApprovalItem(suite.TestDB())
+	updateAcc1 := makePreApprovalItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
@@ -262,7 +262,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemOfficeHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -281,10 +281,10 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateShipmentLineItemForbidden() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
-	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Location:  models.ShipmentLineItemLocationDESTINATION,
 			Quantity1: unit.BaseQuantity(int64(123456)),
@@ -292,10 +292,10 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemForbidden() {
 			Notes:     "",
 		},
 	})
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	// create a new tariff400ngItem to test
-	updateAcc1 := testdatagen.MakeDefaultTariff400ngItem(suite.TestDB())
+	updateAcc1 := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PUT", "/shipments", nil)
@@ -316,7 +316,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemForbidden() {
 	}
 
 	// And: get shipment is returned
-	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 403 status code
@@ -328,14 +328,14 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
 	// Two shipment line items tied to two different shipments
-	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			ShipmentID: shipment.ID,
 			Location:   models.ShipmentLineItemLocationDESTINATION,
@@ -347,7 +347,7 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {
 			RequiresPreApproval: true,
 		},
 	})
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("DELETE", "/shipments", nil)
@@ -359,22 +359,22 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
 	if suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemOK{}, response) {
 		// Check if we actually deleted the shipment line
-		err = suite.TestDB().Find(&shipAcc1, shipAcc1.ID)
+		err = suite.DB().Find(&shipAcc1, shipAcc1.ID)
 		suite.Error(err)
 	}
 }
 
 func (suite *HandlerSuite) TestDeleteShipmentLineItemOfficeHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
-	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Location:  models.ShipmentLineItemLocationDESTINATION,
 			Quantity1: unit.BaseQuantity(int64(123456)),
@@ -385,7 +385,7 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemOfficeHandler() {
 			RequiresPreApproval: true,
 		},
 	})
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("DELETE", "/shipments", nil)
@@ -397,22 +397,22 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemOfficeHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
 	if suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemOK{}, response) {
 		// Check if we actually deleted the shipment line item
-		err := suite.TestDB().Find(&shipAcc1, shipAcc1.ID)
+		err := suite.DB().Find(&shipAcc1, shipAcc1.ID)
 		suite.Error(err)
 	}
 }
 
-func (suite *HandlerSuite) TestDeleteShipmentLineItemForbidden() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+func (suite *HandlerSuite) TestDeleteShipmentLineItemWithoutPreapprovalForbidden() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Two shipment line items tied to two different shipments
-	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Location:  models.ShipmentLineItemLocationDESTINATION,
 			Quantity1: unit.BaseQuantity(int64(123456)),
@@ -423,7 +423,6 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemForbidden() {
 			RequiresPreApproval: false,
 		},
 	})
-	testdatagen.MakeDefaultShipmentLineItem(suite.TestDB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("DELETE", "/shipments", nil)
@@ -435,18 +434,49 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemForbidden() {
 	}
 
 	// And: get shipment is returned
-	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 403 status code
 	suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemForbidden{}, response)
 }
 
+func (suite *HandlerSuite) TestDeleteShipmentLineItemWithInvoiceBadRequest() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// A ShipmentLineItem tied to an invoice
+	invoice := testdatagen.MakeDefaultInvoice(suite.DB())
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			InvoiceID: &invoice.ID,
+			Status:    models.ShipmentLineItemStatusAPPROVED,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("DELETE", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.DeleteShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(shipAcc1.ID.String()),
+	}
+
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 400 status code
+	suite.CheckResponseBadRequest(response)
+}
+
 func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// A shipment line item with an item that requires pre-approval
-	acc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	acc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
 			RequiresPreApproval: true,
 		},
@@ -462,7 +492,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -476,9 +506,9 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	item := testdatagen.MakeCompleteShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	item := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Status: models.ShipmentLineItemStatusSUBMITTED,
 		},
@@ -501,7 +531,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered()
 	}
 
 	// And: get shipment line item is returned
-	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -519,10 +549,10 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered()
 }
 
 func (suite *HandlerSuite) TestApproveShipmentLineItemNotRequired() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// A shipment line item with an item that requires pre-approval
-	acc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	acc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
 			RequiresPreApproval: false,
 		},
@@ -537,7 +567,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemNotRequired() {
 		ShipmentLineItemID: strfmt.UUID(acc1.ID.String()),
 	}
 
-	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect user to be forbidden from approving an item that doesn't require pre-approval
@@ -545,10 +575,10 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemNotRequired() {
 }
 
 func (suite *HandlerSuite) TestApproveShipmentLineItemAlreadyApproved() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// A shipment line item with an item that requires pre-approval
-	acc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	acc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			Status: models.ShipmentLineItemStatusAPPROVED,
 		},
@@ -566,7 +596,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemAlreadyApproved() {
 		ShipmentLineItemID: strfmt.UUID(acc1.ID.String()),
 	}
 
-	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect user to be forbidden from approving an item that is already approved
@@ -578,14 +608,14 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemTSPUser() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.TestDB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
 	// A shipment line item claimed by the tspUser's TSP, and item requires pre-approval
-	acc1 := testdatagen.MakeShipmentLineItem(suite.TestDB(), testdatagen.Assertions{
+	acc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
 			ShipmentID: shipment.ID,
 		},
@@ -603,7 +633,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemTSPUser() {
 		ShipmentLineItemID: strfmt.UUID(acc1.ID.String()),
 	}
 
-	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := ApproveShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect TSP user to be forbidden from approving

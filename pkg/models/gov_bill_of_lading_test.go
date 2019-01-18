@@ -8,15 +8,15 @@ import (
 )
 
 func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
-	SourceTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.db)
-	DestinationTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.db)
+	SourceTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+	DestinationTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
 	packDate := time.Now()
 	pickupDate := time.Now().AddDate(0, 0, 1)
 	deliveryDate := time.Now().AddDate(0, 0, 2)
 	edipi := "123456"
 	gblNumber := "ABC12345"
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			SourceGBLOC:                 &SourceTransOffice.Gbloc,
 			DestinationGBLOC:            &DestinationTransOffice.Gbloc,
@@ -34,15 +34,15 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 			TAC:                 models.StringPointer("78901234"),
 		},
 	})
-	testdatagen.MakeServiceAgent(suite.db, testdatagen.Assertions{
+	testdatagen.MakeServiceAgent(suite.DB(), testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
 			ShipmentID: shipment.ID,
 			Shipment:   &shipment,
 		},
 	})
 
-	tsp := testdatagen.MakeDefaultTSP(suite.db)
-	testdatagen.MakeShipmentOffer(suite.db, testdatagen.Assertions{
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
+	testdatagen.MakeShipmentOffer(suite.DB(), testdatagen.Assertions{
 		ShipmentOffer: models.ShipmentOffer{
 			ShipmentID:                      shipment.ID,
 			Shipment:                        shipment,
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 		},
 	})
 
-	gbl, err := models.FetchGovBillOfLadingExtractor(suite.db, shipment.ID)
+	gbl, err := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
 
 	suite.NoError(err)
 
