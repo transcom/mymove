@@ -1,9 +1,7 @@
 package storage
 
 import (
-	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -37,7 +35,7 @@ func DefaultFilesystemParams(localStorageRoot string, localStorageWebRoot string
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))
 	}
-	storagePath := path.Join(absTmpPath, "storage")
+	storagePath := path.Join(absTmpPath, localStorageWebRoot)
 	webRoot := "/" + localStorageWebRoot
 
 	return FilesystemParams{

@@ -818,7 +818,7 @@ func main() {
 		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
 	} else {
 		zap.L().Info("Using local storage backend",
-			zap.String("root", localStorageRoot),
+			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
 			zap.String("web root", localStorageWebRoot))
 		fsParams := storage.DefaultFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
 		storer = storage.NewFilesystem(fsParams)
