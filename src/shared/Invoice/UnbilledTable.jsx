@@ -75,7 +75,7 @@ export class UnbilledTable extends PureComponent {
     }
 
     return (
-      <div className="invoice-panel-table-cont">
+      <div className="invoice-panel-table-cont" data-cy="unbilled-table">
         {header}
         {itemsComponent}
       </div>

@@ -190,7 +190,7 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	}
 	// And: a move is submitted
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
+	context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
 	handler := SubmitMoveHandler{context}
 	response := handler.Handle(params)
 
@@ -228,7 +228,7 @@ func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 
 	// And: a move is submitted
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
+	context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
 	handler := SubmitMoveHandler{context}
 	response := handler.Handle(params)
 

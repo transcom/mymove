@@ -144,8 +144,8 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
-	scac := "ABCD"
-	supplierID := scac + "1234" //scac + payee code -- ABCD1234
+	scac := "ABBV"
+	supplierID := scac + "2708" //scac + payee code -- ABBV2708
 
 	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{

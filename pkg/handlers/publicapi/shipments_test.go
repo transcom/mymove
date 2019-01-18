@@ -43,6 +43,73 @@ func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsPresent() {
 	suite.Equal(shipmentPayload.TransportationServiceProviderID, expectedTspID)
 }
 
+func (suite *HandlerSuite) TestPayloadForShipmentWithNullValues() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	// Set all values that can be nil to nil
+	shipment.SourceGBLOC = nil
+	shipment.DestinationGBLOC = nil
+	shipment.GBLNumber = nil
+	shipment.Market = nil
+	shipment.TrafficDistributionListID = nil
+	shipment.TrafficDistributionList = nil
+	shipment.ActualPickupDate = nil
+	shipment.ActualPackDate = nil
+	shipment.ActualDeliveryDate = nil
+	shipment.BookDate = nil
+	shipment.RequestedPickupDate = nil
+	shipment.OriginalDeliveryDate = nil
+	shipment.OriginalPackDate = nil
+	shipment.EstimatedPackDays = nil
+	shipment.EstimatedTransitDays = nil
+	shipment.PickupAddressID = nil
+	shipment.PickupAddress = nil
+	shipment.SecondaryPickupAddressID = nil
+	shipment.SecondaryPickupAddress = nil
+	shipment.DeliveryAddressID = nil
+	shipment.DeliveryAddress = nil
+	shipment.PartialSITDeliveryAddressID = nil
+	shipment.PartialSITDeliveryAddress = nil
+	shipment.PmSurveyConductedDate = nil
+	shipment.PmSurveyCompletedAt = nil
+	shipment.PmSurveyPlannedPackDate = nil
+	shipment.PmSurveyPlannedPickupDate = nil
+	shipment.PmSurveyPlannedDeliveryDate = nil
+	shipment.PmSurveyWeightEstimate = nil
+	shipment.PmSurveyProgearWeightEstimate = nil
+	shipment.PmSurveySpouseProgearWeightEstimate = nil
+	shipment.PmSurveyNotes = nil
+
+	shipmentPayload := payloadForShipmentModel(shipment)
+	suite.Nil(shipmentPayload.SourceGbloc)
+	suite.Nil(shipmentPayload.DestinationGbloc)
+	suite.Nil(shipmentPayload.GblNumber)
+	suite.Nil(shipmentPayload.Market)
+	suite.Nil(shipmentPayload.TrafficDistributionList)
+	suite.Nil(shipmentPayload.ActualPickupDate)
+	suite.Nil(shipmentPayload.ActualPackDate)
+	suite.Nil(shipmentPayload.ActualDeliveryDate)
+	suite.Nil(shipmentPayload.BookDate)
+	suite.Nil(shipmentPayload.RequestedPickupDate)
+	suite.Nil(shipmentPayload.OriginalDeliveryDate)
+	suite.Nil(shipmentPayload.OriginalPackDate)
+	suite.Nil(shipmentPayload.EstimatedPackDays)
+	suite.Nil(shipmentPayload.EstimatedTransitDays)
+	suite.Nil(shipmentPayload.PickupAddress)
+	suite.Nil(shipmentPayload.SecondaryPickupAddress)
+	suite.Nil(shipmentPayload.DeliveryAddress)
+	suite.Nil(shipmentPayload.PartialSitDeliveryAddress)
+	suite.Nil(shipmentPayload.PmSurveyConductedDate)
+	suite.Nil(shipmentPayload.PmSurveyCompletedAt)
+	suite.Nil(shipmentPayload.PmSurveyPlannedPackDate)
+	suite.Nil(shipmentPayload.PmSurveyPlannedPickupDate)
+	suite.Nil(shipmentPayload.PmSurveyPlannedDeliveryDate)
+	suite.Nil(shipmentPayload.PmSurveyWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveyProgearWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveySpouseProgearWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveyNotes)
+}
+
 func (suite *HandlerSuite) TestGetShipmentHandler() {
 	numTspUsers := 1
 	numShipments := 1
@@ -724,6 +791,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 			RequiresPreApproval: true,
 		},
 	})
+
+	// Make sure there's a FuelEIADieselPrice to use
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}

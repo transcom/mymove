@@ -28,10 +28,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
 		ID:               *handlers.FmtUUID(s.ID),
 		Status:           apimessages.ShipmentStatus(s.Status),
-		SourceGbloc:      apimessages.GBLOC(*s.SourceGBLOC),
-		DestinationGbloc: apimessages.GBLOC(*s.DestinationGBLOC),
+		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
+		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
 		GblNumber:        s.GBLNumber,
-		Market:           apimessages.ShipmentMarket(*s.Market),
+		Market:           payloadForMarkets(s.Market),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
