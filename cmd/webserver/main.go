@@ -229,7 +229,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
-	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
+	flag.String("storage-backend", "local", "Storage backend to use, either local or s3.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
@@ -758,17 +758,23 @@ func main() {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
 		// below.
+		awsSESRegion := v.GetString("aws-ses-region")
+		awsSESDomain := v.GetString("aws-ses-domain")
+		zap.L().Info("Using ses email backend",
+			zap.String("region", awsSESRegion),
+			zap.String("domain", awsSESDomain))
 		sesSession, err := awssession.NewSession(&aws.Config{
-			Region: aws.String(v.GetString("aws-ses-region")),
+			Region: aws.String(awsSESRegion),
 		})
 		if err != nil {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		sesDomain := v.GetString("aws-ses-domain")
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, sesDomain, logger))
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, awsSESDomain, logger))
 	} else {
 		domain := "milmovelocal"
+		zap.L().Info("Using local email backend",
+			zap.String("domain", domain))
 		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, logger))
 	}
 
@@ -789,16 +795,19 @@ func main() {
 
 	var storer storage.FileStorer
 	if storageBackend == "s3" {
-		zap.L().Info("Using s3 storage backend")
 		awsS3Bucket := v.GetString("aws-s3-bucket-name")
+		awsS3Region := v.GetString("aws-s3-region")
+		awsS3KeyNamespace := v.GetString("aws-s3-key-namespace")
+		zap.L().Info("Using s3 storage backend",
+			zap.String("bucket", awsS3Bucket),
+			zap.String("region", awsS3Region),
+			zap.String("key", awsS3KeyNamespace))
 		if len(awsS3Bucket) == 0 {
 			log.Fatalln(errors.New("must provide aws-s3-bucket-name parameter, exiting"))
 		}
-		awsS3Region := v.GetString("aws-s3-region")
 		if len(awsS3Region) == 0 {
 			log.Fatalln(errors.New("Must provide aws-s3-region parameter, exiting"))
 		}
-		awsS3KeyNamespace := v.GetString("aws-s3-key-namespace")
 		if len(awsS3KeyNamespace) == 0 {
 			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
 		}
@@ -807,7 +816,7 @@ func main() {
 		}))
 		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
 	} else {
-		zap.L().Info("Using filesystem storage backend")
+		zap.L().Info("Using local storage backend")
 		fsParams := storage.DefaultFilesystemParams(logger)
 		storer = storage.NewFilesystem(fsParams)
 	}
@@ -1037,7 +1046,7 @@ func main() {
 		}
 	}
 
-	if storageBackend == "filesystem" {
+	if storageBackend == "local" {
 		// Add a file handler to provide access to files uploaded in development
 		fs := storage.NewFilesystemHandler("tmp")
 		root.Handle(pat.Get("/storage/*"), fs)
