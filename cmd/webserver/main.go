@@ -454,11 +454,6 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
-	err = checkSendProductionEDI(v)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -568,17 +563,6 @@ func checkGEX(v *viper.Viper) error {
 	}
 
 	return nil
-}
-
-func checkSendProductionEDI(v *viper.Viper) error {
-	sendProdEDI := v.GetBool("send-prod-invoice")
-
-	if sendProdEDI == true || sendProdEDI == false {
-		// passed
-		return nil
-	}
-
-	return fmt.Errorf("Failed to initialize SEND_PROD_INVOICE +%v", sendProdEDI)
 }
 
 func checkStorage(v *viper.Viper) error {

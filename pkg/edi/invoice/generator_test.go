@@ -1,7 +1,6 @@
 package ediinvoice_test
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -30,10 +29,6 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-// Flag to update the test EDI
-// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
-var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
 	shipment := helperShipment(suite)
@@ -84,7 +79,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	})
 
 	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.logger)
-	handlerContext.SetSendProductionInvoice(helperViperSendProductionInvoice())
+	handlerContext.SetSendProductionInvoice(suite.Viper.GetBool("send-prod-invoice"))
 	sendProdInvoice := handlerContext.SendProductionInvoice()
 	var usageIndicator string
 	var expectedUsageIndicator string
@@ -154,7 +149,10 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		const expectedEDI = "expected_invoice.edi.golden"
 		suite.NoError(err, "generates error")
-		if *update {
+		// Flag to update the test EDI
+		// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+		update := suite.Viper.GetBool("update")
+		if update {
 			goldenFile, err := os.Create(filepath.Join("testdata", expectedEDI))
 			defer goldenFile.Close()
 			suite.NoError(err, "Failed to open EDI file for update")
@@ -273,16 +271,6 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	return shipment
 }
 
-func helperViperSendProductionInvoice() bool {
-	flag := pflag.CommandLine
-	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
-	v := viper.New()
-	v.BindPFlags(flag)
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	return v.GetBool("send-prod-invoice")
-}
-
 func helperShipmentInvoice(suite *InvoiceSuite, shipment models.Shipment) models.Invoice {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
@@ -304,6 +292,7 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 type InvoiceSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+	Viper  *viper.Viper
 }
 
 func (suite *InvoiceSuite) SetupTest() {
@@ -314,9 +303,22 @@ func TestInvoiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
+	flag := pflag.CommandLine
+	// Flag to update the test EDI
+	// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+	flag.Bool("update", false, "update .golden files")
+	// Flag to toggle Invoice usage indicator from P>T (Production>Test)
+	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
+
+	v := viper.New()
+	v.BindPFlags(flag)
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
 	hs := &InvoiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
+		Viper:        v,
 	}
 	suite.Run(t, hs)
 }
