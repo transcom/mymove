@@ -1,11 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { reduxForm, Form, Field } from 'redux-form';
 
 import configureStore from 'redux-mock-store';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 
-import { PreApprovalForm, LocationSearch, formName } from './PreApprovalForm';
+import { PreApprovalForm } from './PreApprovalForm';
 
 const simpleSchema = {
   properties: {
@@ -88,8 +87,6 @@ const submit = jest.fn();
 const mockStore = configureStore();
 let store;
 let wrapper;
-
-const WrappedForm = reduxForm({ form: formName })(Form);
 
 describe('PreApprovalForm tests', () => {
   describe('When a PreApprovalForm is loaded', () => {
