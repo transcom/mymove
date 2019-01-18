@@ -7,7 +7,6 @@ describe('testing getDetailComponent()', () => {
     const DetailComponent = getDetailComponent();
 
     it('renders without crashing', () => {
-      // eslint-disable-next-line
       expect(DetailComponent).toBe(DefaultDetails);
     });
   });
@@ -16,7 +15,6 @@ describe('testing getDetailComponent()', () => {
     //pass in known code item with feature flag off
     let DetailComponent = getDetailComponent('105', false);
     it('renders default details without crashing', () => {
-      // eslint-disable-next-line
       expect(DetailComponent).toBe(DefaultDetails);
     });
   });
@@ -24,7 +22,6 @@ describe('testing getDetailComponent()', () => {
   describe('returns 105B/E details component with feature flag on', () => {
     let DetailComponent = getDetailComponent('105', true);
     it('renders 105 details without crashing', () => {
-      // eslint-disable-next-line
       expect(DetailComponent).toBe(Code105Details);
     });
   });
