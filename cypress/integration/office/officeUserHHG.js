@@ -163,7 +163,7 @@ function officeUserApprovesOnlyBasicsHHG() {
   // disabled because not on hhg tab
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -185,13 +185,13 @@ function officeUserApprovesOnlyBasicsHHG() {
   // disabled because shipment not yet accepted
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
 
   // Disabled because already approved and not delivered
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -227,7 +227,7 @@ function officeUserApprovesHHG() {
   // disabled because not on hhg tab
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -249,13 +249,13 @@ function officeUserApprovesHHG() {
   // Approve HHG
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .click();
 
   // Disabled because already approved and not delivered
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -305,7 +305,7 @@ function officeUserCompletesHHG() {
 
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
 
   cy.get('.status').contains('Completed');

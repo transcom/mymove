@@ -103,7 +103,7 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 
-	// Can approve shipment
+	// Can approve shipment (HHG)
 	err = shipment.Approve()
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
