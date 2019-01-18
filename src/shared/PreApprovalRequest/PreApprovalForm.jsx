@@ -58,10 +58,21 @@ export class Tariff400ngItemSearch extends Component {
 }
 
 export class LocationSearch extends Component {
+  componentDidMount() {
+    if (this.props.filteredLocations && this.props.filteredLocations.length === 1) {
+      this.props.change('location', this.props.filteredLocations[0]);
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.filteredLocations && this.props.filteredLocations.length === 1) {
+      this.props.change('location', this.props.filteredLocations[0]);
+    }
+  }
+
   render() {
     return this.props.filteredLocations && this.props.filteredLocations.length === 1 ? (
       <Fragment>
-        <input name="location" type="hidden" value={this.props.filteredLocations[0]} />
         <label htmlFor="location" className="usa-input-label">
           Location
         </label>
@@ -99,6 +110,7 @@ export class PreApprovalForm extends Component {
               <LocationSearch
                 filteredLocations={this.props.filteredLocations}
                 ship_line_item_schema={this.props.ship_line_item_schema}
+                change={this.props.change}
               />
             </div>
           </div>
