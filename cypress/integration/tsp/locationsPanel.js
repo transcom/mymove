@@ -5,25 +5,29 @@ const secondaryPickupAddress = {
   state: 'NJ',
   postal_code: '66666-6666',
 };
+const deliveryAddress2 = {
+  city: 'Des Moines',
+  state: 'IA',
+  postal_code: '50309',
+};
+const pickUpAddress = {
+  street_1: '123 Any Street',
+  street_2: 'P.O. Box 12345',
+  street_3: 'c/o Some Person',
+  city: 'Beverly Hills',
+  state: 'CA',
+  postal_code: '90210',
+};
+const deliveryAddress = {
+  street_1: '987 Any Avenue',
+  street_2: 'P.O. Box 9876',
+  street_3: 'c/o Some Person',
+  city: 'Fairfield',
+  state: 'CA',
+  postal_code: '94535',
+};
+
 describe('TSP User Checks Shipment Locations', function() {
-  const pickUpAddress = {
-    street_1: '123 Any Street',
-    street_2: 'P.O. Box 12345',
-    street_3: 'c/o Some Person',
-    city: 'Beverly Hills',
-    state: 'CA',
-    postal_code: '90210',
-  };
-
-  const deliveryAddress = {
-    street_1: '987 Any Avenue',
-    street_2: 'P.O. Box 9876',
-    street_3: 'c/o Some Person',
-    city: 'Fairfield',
-    state: 'CA',
-    postal_code: '94535',
-  };
-
   beforeEach(() => {
     cy.signIntoTSP();
   });
@@ -181,13 +185,8 @@ describe('TSP User Checks Shipment Locations', function() {
     });
   });
   it('tsp user primary delivery location when delivery address does not exist', function() {
-    const address = {
-      city: 'Des Moines',
-      state: 'IA',
-      postal_code: '50309',
-    };
     const expectation = text => {
-      expect(text).to.equal(`${address.city}, ${address.state} ${address.postal_code}`);
+      expect(text).to.equal(`${deliveryAddress2.city}, ${deliveryAddress2.state} ${deliveryAddress2.postal_code}`);
     };
 
     tspUserViewsLocation({
@@ -465,49 +464,6 @@ function tspUserEntersLocations() {
           expect(text).to.include(
             `${secondaryPickupAddress.city}, ${secondaryPickupAddress.state} ${secondaryPickupAddress.postal_code}`,
           );
-        });
-    });
-  cy
-    .get('.editable-panel-header')
-    .contains('Locations')
-    .siblings()
-    .click();
-
-  // Click every radio button, which means you'll end up with two 'No's selected
-  cy
-    .get('[type="radio"]')
-    .eq(1)
-    .check({ force: true });
-  cy
-    .get('[type="radio"]')
-    .eq(3)
-    .check({ force: true });
-
-  cy
-    .get('button')
-    .contains('Save')
-    .should('be.enabled');
-
-  cy
-    .get('button')
-    .contains('Save')
-    .click();
-
-  // Refresh browser and make sure changes persist
-  cy.patientReload();
-
-  cy
-    .contains('Locations')
-    .parents('.editable-panel')
-    .within(() => {
-      cy
-        .contains('Delivery')
-        .parent('.editable-panel-column')
-        .children('.panel-field')
-        .children('.field-value')
-        .should($div => {
-          const text = $div.text();
-          expect(text).to.include(`${deliveryAddress.city}, ${deliveryAddress.state} ${deliveryAddress.postal_code}`);
         });
     });
 }
