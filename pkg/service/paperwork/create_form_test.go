@@ -36,6 +36,7 @@ func TestCreateFormSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
+// TODO handle file creation at end of testing to delete all created files
 func (suite *CreateFormSuite) TestCreateFormFileStorerCreateFail() {
 	fileStorer := new(mocks.FileCreator)
 	fileStorer.On("Create", "something.png").Return(nil, errors.New("File error")).Times(1)
@@ -54,7 +55,6 @@ func (suite *CreateFormSuite) TestCreateFormFileStorerCreateFail() {
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
 	//assert.Equal(suite.T(), err.msg, "Error creating a new temp file for some-form-type form.", "should be equal")
-
 	fileStorer.AssertExpectations(suite.T())
 }
 
@@ -63,7 +63,8 @@ func (suite *CreateFormSuite) TestCreateFormFileStorerCreateSuccess() {
 	afs := &afero.Afero{Fs: fs}
 	f, _ := afs.TempFile("", "ioutil-test")
 
-	fileStorer := new(mocks.FileCreator)
+	//fileStorer := new(mocks.FileCreator)
+	fileStorer := &mocks.FileCreator{}
 	fileStorer.On("Create", mock.AnythingOfType("string")).Return(f, nil).Times(2)
 
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
@@ -79,4 +80,30 @@ func (suite *CreateFormSuite) TestCreateFormFileStorerCreateSuccess() {
 	assert.Nil(suite.T(), err)
 	assert.NotNil(suite.T(), file)
 	fileStorer.AssertExpectations(suite.T())
+}
+
+func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
+	fs := afero.NewMemMapFs()
+	afs := &afero.Afero{Fs: fs}
+	f, _ := afs.TempFile("", "ioutil-test")
+
+	fileStorer := new(mocks.FileCreator)
+	fileStorer.On("Create", mock.AnythingOfType("string")).Return(f, nil).Times(2)
+
+	//p := []byte{2, 3, 5}
+	fileInteractor := new(mocks.FileInteractor)
+	fileInteractor.On("Write", mock.AnythingOfType("byte slice")).Return(1, nil).Times(1)
+
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.DB(), tspUser)
+	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
+	suite.MustSave(&shipment.Move.Orders)
+
+	gbl, _ := models.FetchGovBillOfLadingExtractor(suite.DB(), shipment.ID)
+	createFormService := CreateForm{FileStorer: fileStorer}
+	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), file)
+	fileInteractor.AssertExpectations(suite.T())
 }
