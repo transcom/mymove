@@ -31,12 +31,12 @@ const configureDropDown = (swaggerField, props) => {
   return props;
 };
 
-const dropDownChildren = (swaggerField, props) => {
+const dropDownChildren = (swaggerField, filteredEnumListOverride, props) => {
   /* eslint-disable security/detect-object-injection */
   return (
     <Fragment>
       <option />
-      {swaggerField.enum.map(e => (
+      {(filteredEnumListOverride ? filteredEnumListOverride : swaggerField.enum).map(e => (
         <option key={e} value={e}>
           {swaggerField['x-display-value'][e]}
         </option>
@@ -211,7 +211,19 @@ const renderInputField = ({
 };
 
 export const SwaggerField = props => {
-  const { fieldName, swagger, required, className, disabled, component, title, onChange, validate, zipPattern } = props;
+  const {
+    fieldName,
+    swagger,
+    required,
+    className,
+    disabled,
+    component,
+    title,
+    onChange,
+    validate,
+    zipPattern,
+    filteredEnumListOverride,
+  } = props;
   let swaggerField;
   if (swagger.properties) {
     // eslint-disable-next-line security/detect-object-injection
@@ -241,6 +253,7 @@ export const SwaggerField = props => {
     onChange,
     validate,
     zipPattern,
+    filteredEnumListOverride,
   );
 };
 
@@ -257,6 +270,7 @@ const createSchemaField = (
   onChange,
   validate,
   zipPattern,
+  filteredEnumListOverride,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -298,7 +312,7 @@ const createSchemaField = (
     fieldProps.customComponent = component;
   } else if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
-    children = dropDownChildren(swaggerField);
+    children = dropDownChildren(swaggerField, filteredEnumListOverride);
     className += ' rounded';
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {

@@ -3194,9 +3194,11 @@ paths:
         403:
           description: not authorized to send this invoice
         409:
-          description: the shipment cannot be invoiced becuase of a data conflict
+          description: the shipment is in process or has already been submitted successfully
           schema:
             $ref: '#/definitions/Invoice'
+        412:
+          description: the shipment status not in delivered state
         500:
           description: server error
   /reimbursement/{reimbursementId}/approve:

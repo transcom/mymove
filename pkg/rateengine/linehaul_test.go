@@ -133,6 +133,10 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	zip3SanFrancisco := "941"
 	zip5SanFrancisco := "94103"
 
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
+
 	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1,
@@ -204,11 +208,15 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	}
 }
 
-// TODO: Once the fuel surcharge calculation is in place, add in a proper test for it.
 func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
-	fuelSurcharge, err := engine.fuelSurchargeComputation()
+
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
+
+	fuelSurcharge, err := engine.fuelSurchargeComputation(unit.Cents(12000), testdatagen.NonPeakRateCycleEnd)
+
 	suite.Nil(err)
-	suite.Equal(unit.Cents(0), fuelSurcharge.Fee)
-	suite.Equal(unit.Millicents(0), fuelSurcharge.Rate)
+	suite.Equal(unit.Cents(720), fuelSurcharge.Fee)
 }

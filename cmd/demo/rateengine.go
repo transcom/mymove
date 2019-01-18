@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"log"
 	"os"
 	"time"
@@ -150,7 +151,7 @@ func main() {
 		date := time.Date(2018, time.December, 5, 0, 0, 0, 0, time.UTC)
 		lhDiscount := unit.DiscountRate(0.67)
 
-		cost, err := engine.ComputeShipment(weight, originZip5, destinationZip5, date, 0, lhDiscount, 0)
+		cost, err := engine.ComputeShipment(weight, originZip5, destinationZip5, date, testdatagen.RateEngineDate, 0, lhDiscount, 0)
 		if err != nil {
 			log.Fatalf("could not compute PPM: %+v", errors.Cause(err))
 		}
