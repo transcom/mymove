@@ -4,14 +4,12 @@ import {
   MoveSummary,
   CanceledMoveSummary,
   ApprovedMoveSummary,
-  DraftMoveSummary,
   SubmittedPpmMoveSummary,
   SubmittedHhgMoveSummary,
 } from './MoveSummary';
 import moment from 'moment';
 
 describe('MoveSummary', () => {
-  let wrapper, div;
   const editMoveFn = jest.fn();
   const resumeMoveFn = jest.fn();
   const addPPMShipmentFn = jest.fn();
