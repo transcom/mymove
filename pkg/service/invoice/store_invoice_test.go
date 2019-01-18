@@ -83,4 +83,7 @@ func (suite *InvoiceServiceSuite) TestStoreInvoice858C() {
 	suite.NotNil(invoice)
 	suite.NotNil(invoice.Upload)
 	suite.NotNil(invoice.UploadID)
+	// Check that StoragKey matches expected filepath name
+	// {application-bucket}/app/invoice/{invoice_id}.edi
+	suite.Regexp("^/app/invoice/([a-z0-9-])+\\.edi$", invoice.Upload.StorageKey)
 }

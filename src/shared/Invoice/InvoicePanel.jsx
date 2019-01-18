@@ -64,7 +64,7 @@ export class InvoicePanel extends PureComponent {
         <BasicPanel title="Invoicing">
           <InvoicePaymentAlert
             createInvoiceStatus={this.state.createInvoiceRequestStatus}
-            invoiceError={this.props.lastInvoiceError}
+            lastInvoiceError={this.props.lastInvoiceError}
           />
 
           {hasUnbilled && (

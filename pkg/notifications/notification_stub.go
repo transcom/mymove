@@ -9,8 +9,9 @@ import (
 type StubNotificationSender NotificationSendingContext
 
 // NewStubNotificationSender returns a new StubNotificationSender
-func NewStubNotificationSender(logger *zap.Logger) StubNotificationSender {
+func NewStubNotificationSender(domain string, logger *zap.Logger) StubNotificationSender {
 	return StubNotificationSender{
+		domain: domain,
 		logger: logger,
 	}
 }
@@ -23,12 +24,12 @@ func (m StubNotificationSender) SendNotification(ctx context.Context, notificati
 	}
 
 	for _, email := range emails {
-		rawMessage, err := formatRawEmailMessage(email)
+		rawMessage, err := formatRawEmailMessage(email, m.domain)
 		if err != nil {
 			return err
 		}
 
-		m.logger.Info("Not sending this email",
+		m.logger.Debug("Not sending this email",
 			zap.String("destinations", email.recipientEmail),
 			zap.String("raw message", string(rawMessage[:])))
 	}

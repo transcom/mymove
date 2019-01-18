@@ -93,6 +93,10 @@ func (suite *webServerSuite) TestConfigPorts() {
 	suite.Nil(checkPorts(suite.viper))
 }
 
+func (suite *webServerSuite) TestConfigDPS() {
+	suite.Nil(checkDPS(suite.viper))
+}
+
 func (suite *webServerSuite) TestConfigCSRF() {
 	suite.Nil(checkCSRF(suite.viper))
 }

@@ -484,5 +484,5 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 
 	// assert we got back the conflict response
 	response := handler.Handle(params)
-	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), response)
+	suite.Equal(shipmentop.NewCreateAndSendHHGInvoicePreconditionFailed(), response)
 }
