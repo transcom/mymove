@@ -34,13 +34,13 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 
 	f, err := fs.Create(ediTmpFile)
 	if err != nil {
-		return verrs, errors.Wrapf(err, "afero.Create Failed in StoreInvoice858C() invoice number: %s", invoiceID)
+		return verrs, errors.Wrapf(err, "afero.Create Failed in StoreInvoice858C() invoice ID: %s", invoiceID)
 	}
 	defer f.Close()
 
 	_, err = io.WriteString(f, edi)
 	if err != nil {
-		return verrs, errors.Wrapf(err, "io.WriteString(edi) Failed in StoreInvoice858C() invoice number: %s", invoiceID)
+		return verrs, errors.Wrapf(err, "io.WriteString(edi) Failed in StoreInvoice858C() invoice ID: %s", invoiceID)
 	}
 
 	err = f.Sync()
@@ -70,11 +70,11 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 	upload, verrs2, err := loader.CreateUploadNoDocument(userID, &f)
 	verrs.Append(verrs2)
 	if err != nil {
-		return verrs, errors.Wrapf(err, "Failed to Create Upload for StoreInvoice858C(), invoice number: %s", invoiceID)
+		return verrs, errors.Wrapf(err, "Failed to Create Upload for StoreInvoice858C(), invoice ID: %s", invoiceID)
 	}
 
 	if upload == nil {
-		return verrs, errors.New("Failed to Create and Save new Upload object in database, invoice number: " + invoiceID)
+		return verrs, errors.New("Failed to Create and Save new Upload object in database, invoice ID: " + invoiceID)
 	}
 
 	// Save Upload to Invoice
