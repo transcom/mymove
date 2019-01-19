@@ -1299,65 +1299,6 @@ definitions:
       - bytes
       - created_at
       - updated_at
-  CreateIssuePayload:
-    type: object
-    properties:
-      description:
-        type: string
-        example: This is a test issue
-        format: textarea
-        minLength: 1
-        maxLength: 1024
-        title: Description
-      reporter_name:
-        type: string
-        example: Jane Doe
-        x-nullable: true
-        title: Reporter Name
-      due_date:
-        type: string
-        format: date
-        example: 2019-03-15
-        x-nullable: true
-        title: Due Date
-    required:
-      - description
-  IndexIssuesPayload:
-    type: array
-    items:
-      $ref: '#/definitions/IssuePayload'
-  IssuePayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      description:
-        type: string
-        example: This is a test issue
-        minLength: 1
-        maxLength: 1024
-      reporter_name:
-        type: string
-        example: Jane Doe
-        x-nullable: true
-      due_date:
-        type: string
-        format: date
-        example: 2019-03-15
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - description
-      - created_at
-      - updated_at
   SendGexRequestPayload:
     type: object
     properties:
@@ -2521,43 +2462,6 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /issues:
-    post:
-      summary: Create a new issue
-      description: Issues represent problems or suggestions for the app, this creates a new one.
-      operationId: createIssue
-      tags:
-        - issues
-      parameters:
-        - in: body
-          name: createIssuePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateIssuePayload'
-      responses:
-        201:
-          description: created issue
-          schema:
-            $ref: '#/definitions/IssuePayload'
-        400:
-          description: invalid request
-    get:
-      summary: List all issues
-      description: List all issues
-      operationId: indexIssues
-      tags:
-        - issues
-      responses:
-        200:
-          description: list of issues
-          schema:
-            $ref: '#/definitions/IndexIssuesPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
