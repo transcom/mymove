@@ -99,6 +99,7 @@ describe('PreApprovalForm tests', () => {
             ship_line_item_schema={simpleSchema}
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
+            tariff400ngItem={true}
           />
         </Provider>,
       );
@@ -119,6 +120,7 @@ describe('PreApprovalForm tests', () => {
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
             filteredLocations={filteredLocations}
+            tariff400ngItem={true}
           />
         </Provider>,
       );
@@ -136,6 +138,7 @@ describe('PreApprovalForm tests', () => {
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
             filteredLocations={['ORIGIN']}
+            tariff400ngItem={true}
           />
         </Provider>,
       );
