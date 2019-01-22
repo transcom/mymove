@@ -1340,12 +1340,20 @@
   packages = [
     "collate",
     "collate/build",
+    "feature/plural",
+    "internal",
+    "internal/catmsg",
     "internal/colltab",
+    "internal/format",
     "internal/gen",
+    "internal/number",
+    "internal/stringset",
     "internal/tag",
     "internal/triegen",
     "internal/ucd",
     "language",
+    "message",
+    "message/catalog",
     "secure/bidirule",
     "transform",
     "unicode/bidi",
@@ -1466,7 +1474,6 @@
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/gobuffalo/pop",
     "github.com/gobuffalo/pop/soda",
-    "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/gofrs/uuid",
@@ -1500,6 +1507,8 @@
     "goji.io/pat",
     "golang.org/x/crypto/bcrypt",
     "golang.org/x/net/netutil",
+    "golang.org/x/text/language",
+    "golang.org/x/text/message",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

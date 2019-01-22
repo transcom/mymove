@@ -131,8 +131,15 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal(fortBenning.Address.City, sswPage1.AuthorizedDestination.Address.City)
 	suite.Equal(fortBenning.Address.PostalCode, sswPage1.AuthorizedDestination.Address.PostalCode)
 
-	suite.Equal(wtgEntitlements.TotalWeightSelf, sswPage1.WeightAllotment.TotalWeightSelf)
-	suite.Equal(wtgEntitlements.ProGearWeight, sswPage1.WeightAllotment.ProGearWeight)
-	suite.Equal(wtgEntitlements.ProGearWeightSpouse, sswPage1.WeightAllotment.ProGearWeightSpouse)
-	suite.Equal(15500, sswPage1.TotalWeightAllotment)
+	suite.Equal("13,000", sswPage1.WeightAllotmentSelf)
+	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
+	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
+	suite.Equal("15,500", sswPage1.TotalWeightAllotment)
+}
+
+func (suite *ModelSuite) TestFormatWeights() {
+	suite.Equal("0", models.FormatWeights(0))
+	suite.Equal("10", models.FormatWeights(10))
+	suite.Equal("1,000", models.FormatWeights(1000))
+	suite.Equal("1,000,000", models.FormatWeights(1000000))
 }
