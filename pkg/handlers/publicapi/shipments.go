@@ -36,9 +36,12 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
 		// associations
-		TrafficDistributionList: payloadForTrafficDistributionListModel(s.TrafficDistributionList),
-		ServiceMember:           payloadForServiceMemberModel(&s.ServiceMember),
-		Move:                    payloadForMoveModel(&s.Move),
+		TrafficDistributionListID: handlers.FmtUUIDPtr(s.TrafficDistributionListID),
+		TrafficDistributionList:   payloadForTrafficDistributionListModel(s.TrafficDistributionList),
+		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
+		ServiceMember:             payloadForServiceMemberModel(&s.ServiceMember),
+		MoveID:                    strfmt.UUID(s.MoveID.String()),
+		Move:                      payloadForMoveModel(&s.Move),
 
 		// dates
 		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
