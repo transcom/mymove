@@ -2096,13 +2096,6 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
-      - SEPARATION
-      - RETIREMENT
-      - LOCAL_MOVE
-      - TEMPORARY_DUTY
-      - DEPENDENT_TRAVEL
-      - BLUEBARK
-      - VARIOUS
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       SEPARATION: Separation

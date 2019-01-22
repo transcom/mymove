@@ -228,7 +228,7 @@ function serviceMemberEditsContactInfoSection() {
 function serviceMemberVerifiesOrderWasEdited() {
   cy.get('.review-content').should($div => {
     const text = $div.text();
-    expect(text).to.include('Orders Type: Local Move');
+    expect(text).to.include('Orders Type: Permanent Change Of Station');
     expect(text).to.include('Orders Date:  05/26/2018');
     expect(text).to.include('Report-by Date: 09/01/2018');
     expect(text).to.include('New Duty Station:  NAS Fort Worth');
@@ -243,7 +243,7 @@ function serviceMemberEditsOrdersSection() {
     .eq(1)
     .click();
 
-  cy.get('select[name="orders_type"]').select('Local Move');
+  cy.get('select[name="orders_type"]').select('Permanent Change Of Station');
   typeInInput({ name: 'issue_date', value: '5/26/2018' });
   typeInInput({ name: 'report_by_date', value: '9/1/2018' });
   cy.get('input[type="radio"]').check('no', { force: true }); // checks yes for both radios on form
