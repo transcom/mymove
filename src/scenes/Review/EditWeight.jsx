@@ -14,6 +14,7 @@ import { createOrUpdatePpm, getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks'
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
+import scrollToTop from 'shared/scrollToTop';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -177,7 +178,7 @@ class EditWeight extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
 
   debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
@@ -209,7 +210,7 @@ class EditWeight extends Component {
           this.props.history.goBack();
           this.props.checkEntitlement(moveId);
         } else {
-          window.scrollTo(0, 0);
+          scrollToTop();
         }
       });
   };

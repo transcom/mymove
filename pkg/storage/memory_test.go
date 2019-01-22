@@ -6,14 +6,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestFilesystemPresignedURL(t *testing.T) {
+func TestMemoryPresignedURL(t *testing.T) {
 	logger := zap.NewNop()
-	fsParams := FilesystemParams{
+	fsParams := MemoryParams{
 		root:    "/home/username",
 		webRoot: "https://example.text/files",
 		logger:  logger,
 	}
-	fs := NewFilesystem(fsParams)
+	fs := NewMemory(fsParams)
 
 	url, err := fs.PresignedURL("key/to/file/12345", "image/jpeg")
 	if err != nil {

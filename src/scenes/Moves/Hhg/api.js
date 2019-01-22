@@ -1,5 +1,4 @@
 import { getClient, checkResponse } from 'shared/Swagger/api';
-import { formatDateString } from 'shared/utils';
 
 export async function GetShipment(moveId, shipmentId) {
   const client = await getClient();

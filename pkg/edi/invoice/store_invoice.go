@@ -25,8 +25,8 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 
 	// Create path for EDI file
 	// {application-bucket}/app/invoice/{invoice_id}.edi
-	invoiceNumber := invoice.ID.String()
-	ediFilename := invoiceNumber + ".edi"
+	invoiceID := invoice.ID.String()
+	ediFilename := invoiceID + ".edi"
 	ediFilePath := "/app/invoice/"
 	ediTmpFile := path.Join(ediFilePath, ediFilename)
 
@@ -34,13 +34,13 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 
 	f, err := fs.Create(ediTmpFile)
 	if err != nil {
-		return verrs, errors.Wrapf(err, "afero.Create Failed in StoreInvoice858C() invoice number: %s", invoiceNumber)
+		return verrs, errors.Wrapf(err, "afero.Create Failed in StoreInvoice858C() invoice ID: %s", invoiceID)
 	}
 	defer f.Close()
 
 	_, err = io.WriteString(f, edi)
 	if err != nil {
-		return verrs, errors.Wrapf(err, "io.WriteString(edi) Failed in StoreInvoice858C() invoice number: %s", invoiceNumber)
+		return verrs, errors.Wrapf(err, "io.WriteString(edi) Failed in StoreInvoice858C() invoice ID: %s", invoiceID)
 	}
 
 	err = f.Sync()
@@ -50,6 +50,8 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 
 	// Create Upload'r
 	loader := uploader.NewUploader(db, logger, *storer)
+	// Set Storagekey path for S3
+	loader.SetUploadStorageKey(ediTmpFile)
 
 	// Delete of previous upload, if it exist
 	// If Delete of Upload fails, ignoring this error because we still have a new Upload that needs to be saved
@@ -68,18 +70,18 @@ func StoreInvoice858C(edi string, invoice *models.Invoice, storer *storage.FileS
 	upload, verrs2, err := loader.CreateUploadNoDocument(userID, &f)
 	verrs.Append(verrs2)
 	if err != nil {
-		return verrs, errors.Wrapf(err, "Failed to Create Upload for StoreInvoice858C(), invoice number: %s", invoiceNumber)
+		return verrs, errors.Wrapf(err, "Failed to Create Upload for StoreInvoice858C(), invoice ID: %s", invoiceID)
 	}
 
 	if upload == nil {
-		return verrs, errors.New("Failed to Create and Save new Upload object in database, invoice number: " + invoiceNumber)
+		return verrs, errors.New("Failed to Create and Save new Upload object in database, invoice ID: " + invoiceID)
 	}
 
 	// Save Upload to Invoice
 	verrs2, err = invoiceop.UpdateInvoiceUpload{DB: db, Uploader: loader}.Call(invoice, upload)
 	verrs.Append(verrs2)
 	if err != nil {
-		return verrs, errors.New("Failed to save Upload to Invoice: " + invoiceNumber)
+		return verrs, errors.New("Failed to save Upload to Invoice: " + invoiceID)
 	}
 
 	if verrs.HasAny() {

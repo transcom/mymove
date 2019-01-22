@@ -1,11 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { reduxForm, Form, Field } from 'redux-form';
 
 import configureStore from 'redux-mock-store';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 
-import { PreApprovalForm, LocationSearch, formName } from './PreApprovalForm';
+import { PreApprovalForm } from './PreApprovalForm';
 
 const simpleSchema = {
   properties: {
@@ -89,8 +88,6 @@ const mockStore = configureStore();
 let store;
 let wrapper;
 
-const WrappedForm = reduxForm({ form: formName })(Form);
-
 describe('PreApprovalForm tests', () => {
   describe('When a PreApprovalForm is loaded', () => {
     beforeEach(() => {
@@ -102,6 +99,7 @@ describe('PreApprovalForm tests', () => {
             ship_line_item_schema={simpleSchema}
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
+            tariff400ngItem={true}
           />
         </Provider>,
       );
@@ -122,6 +120,7 @@ describe('PreApprovalForm tests', () => {
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
             filteredLocations={filteredLocations}
+            tariff400ngItem={true}
           />
         </Provider>,
       );
@@ -139,6 +138,7 @@ describe('PreApprovalForm tests', () => {
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
             filteredLocations={['ORIGIN']}
+            tariff400ngItem={true}
           />
         </Provider>,
       );

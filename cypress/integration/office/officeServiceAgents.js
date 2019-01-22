@@ -82,7 +82,7 @@ function officeUserEditsServiceAgentPanel() {
 }
 
 function officeUserSeesBlankTspData() {
-  const tspFields = cy
+  cy
     .get('.editable-panel-3-column')
     .contains('TSP')
     .parent()

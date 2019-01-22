@@ -41,6 +41,7 @@ func main() {
 	flag.String("gex-basic-auth-username", "", "GEX api auth username")
 	flag.String("gex-basic-auth-password", "", "GEX api auth password")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
+	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
 
 	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
@@ -98,6 +99,7 @@ func main() {
 		log.Fatal("Error in getting tls certs", err)
 	}
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	sendProdInvoice := v.GetBool("send-prod-invoice")
 	url := v.GetString("gex-url")
 	if len(url) == 0 {
 		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
@@ -110,7 +112,7 @@ func main() {
 		GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
 	}
 
-	resp, err := processInvoice(db, shipment, invoiceModel, &sendToGex, &transactionName, sendToGexHTTP)
+	resp, err := processInvoice(db, shipment, invoiceModel, &sendToGex, sendProdInvoice, &transactionName, sendToGexHTTP)
 	if resp != nil {
 		fmt.Printf("status code: %v\n", resp.StatusCode)
 	}
@@ -119,7 +121,7 @@ func main() {
 	}
 }
 
-func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex *bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex *bool, sendProdInvoice bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
 	defer func() {
 		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed
@@ -144,7 +146,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 		}
 	}()
 
-	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, clock.New())
+	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, sendProdInvoice, clock.New())
 	if err != nil {
 		return nil, err
 	}
