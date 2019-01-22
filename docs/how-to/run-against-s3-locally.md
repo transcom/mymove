@@ -13,8 +13,10 @@ The environment variable `STORAGE_BACKEND` specifies if files should be stored o
 Assuming your AWS credentials are setup properly, this command will configure the app to upload to the `transcom-ppp-app-devlocal-us-west-2` S3 bucket:
 
 ```console
-$ env STORAGE_BACKEND=s3 aws-vault exec $AWS_PROFILE -- bin/webserver
+$ env STORAGE_BACKEND=s3 make server_run_standalone
 ```
+
+_Please note that this does not use our usual setup to automatically reload the server when a change is made._
 
 ### Listing Files on S3
 
