@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/rickar/cal"
 
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -168,6 +170,21 @@ type CannotBeTrueIfFalse struct {
 func (v *CannotBeTrueIfFalse) IsValid(errors *validate.Errors) {
 	if v.Field1 == true && v.Field2 == false {
 		errors.Add(validators.GenerateKey(v.Name1), fmt.Sprintf("%s can not be true if %s is false", v.Name1, v.Name2))
+	}
+}
+
+// DateIsWorkday validates that field is on a workday
+type DateIsWorkday struct {
+	Name     string
+	Field    time.Time
+	Calendar *cal.Calendar
+}
+
+// IsValid adds error if field is not on valid workday
+func (v *DateIsWorkday) IsValid(errors *validate.Errors) {
+	if !v.Calendar.IsWorkday(v.Field) {
+		errors.Add(validators.GenerateKey(v.Name),
+			fmt.Sprintf("%s cannot be on a weekend or holiday, is %v", v.Name, v.Field))
 	}
 }
 

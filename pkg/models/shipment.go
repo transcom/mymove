@@ -121,6 +121,9 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
+		&DateIsWorkday{Field: *(s.RequestedPickupDate), Name: "requested_pickup_date", Calendar: dates.NewUSCalendar()},
+		&DateIsWorkday{Field: *(s.OriginalPackDate), Name: "original_pack_date", Calendar: dates.NewUSCalendar()},
+		&DateIsWorkday{Field: *(s.OriginalDeliveryDate), Name: "original_delivery_date", Calendar: dates.NewUSCalendar()},
 	), nil
 }
 
