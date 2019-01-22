@@ -11,6 +11,7 @@ import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 import { mobileSize } from 'shared/constants';
+import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
@@ -34,10 +35,10 @@ export class WizardFormPage extends Component {
     }
     /* eslint-enable security/detect-object-injection */
 
-    if (this.props.serverError) window.scrollTo(0, 0);
+    if (this.props.serverError) scrollToTop();
   }
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
   goto(path) {
     const {
