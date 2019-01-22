@@ -1,0 +1,13 @@
+create_table("invoices") {
+    t.Column("id", "uuid", {"primary": true})
+    t.Column("status", "string", {})
+    t.Column("invoiced_date", "datetime", {})
+    t.Column("invoice_number", "string", {})
+}
+
+add_column("shipment_line_items", "invoice_id", "uuid", {"null": true})
+add_foreign_key("shipment_line_items", "invoice_id", {"invoices": ["id"]}, {
+    "on_delete": "restrict",
+})
+
+add_column("shipment_line_items", "amount_cents", "integer", {"null": true})

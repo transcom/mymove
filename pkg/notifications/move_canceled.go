@@ -1,10 +1,11 @@
 package notifications
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -33,7 +34,7 @@ func NewMoveCanceled(db *pop.Connection,
 	}
 }
 
-func (m MoveCanceled) emails() ([]emailContent, error) {
+func (m MoveCanceled) emails(ctx context.Context) ([]emailContent, error) {
 	var emails []emailContent
 
 	move, err := models.FetchMove(m.db, m.session, m.moveID)
@@ -46,7 +47,7 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, m.db, m.session, orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}
@@ -69,7 +70,7 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 	// TODO: we will want some sort of templating system
 
 	introText := `Your move has been canceled.`
-	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was cancelled.",
+	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was canceled.",
 		dsTransportInfo.Name, orders.NewDutyStation.Name, move.Locator)
 	closingText := fmt.Sprintf("Contact your local PPPO %s at %s if you have any questions.",
 		dsTransportInfo.Name, dsTransportInfo.PhoneLine)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/models"
 	"log"
@@ -67,7 +67,7 @@ func main() {
 		LastName:               *lastName,
 		Telephone:              *number,
 		TransportationOfficeID: office.ID,
-		Email: *email,
+		Email:                  *email,
 	}
 	if user.ID != uuid.Nil {
 		newUser.UserID = &user.ID

@@ -2,7 +2,7 @@ package notifications
 
 import (
 	"bytes"
-	"os"
+	"context"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ses"
@@ -13,7 +13,7 @@ import (
 )
 
 type notification interface {
-	emails() ([]emailContent, error)
+	emails(ctx context.Context) ([]emailContent, error)
 }
 
 type emailContent struct {
@@ -26,36 +26,38 @@ type emailContent struct {
 
 // NotificationSender is an interface for sending notifications
 type NotificationSender interface {
-	SendNotification(notification) error
+	SendNotification(ctx context.Context, notification notification) error
 }
 
 // NotificationSendingContext provides context to a notification sender
 type NotificationSendingContext struct {
 	svc    sesiface.SESAPI
+	domain string
 	logger *zap.Logger
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationSender(svc sesiface.SESAPI, logger *zap.Logger) NotificationSendingContext {
+func NewNotificationSender(svc sesiface.SESAPI, domain string, logger *zap.Logger) NotificationSendingContext {
 	return NotificationSendingContext{
 		svc:    svc,
+		domain: domain,
 		logger: logger,
 	}
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-func (n NotificationSendingContext) SendNotification(notification notification) error {
-	emails, err := notification.emails()
+func (n NotificationSendingContext) SendNotification(ctx context.Context, notification notification) error {
+	emails, err := notification.emails(ctx)
 	if err != nil {
 		return err
 	}
 
-	return sendEmails(emails, n.svc, n.logger)
+	return sendEmails(emails, n.svc, n.domain, n.logger)
 }
 
-func sendEmails(emails []emailContent, svc sesiface.SESAPI, logger *zap.Logger) error {
+func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger *zap.Logger) error {
 	for _, email := range emails {
-		rawMessage, err := formatRawEmailMessage(email)
+		rawMessage, err := formatRawEmailMessage(email, domain)
 		if err != nil {
 			return err
 		}
@@ -63,7 +65,7 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, logger *zap.Logger) 
 		input := ses.SendRawEmailInput{
 			Destinations: []*string{aws.String(email.recipientEmail)},
 			RawMessage:   &ses.RawMessage{Data: rawMessage},
-			Source:       aws.String(senderEmail()),
+			Source:       aws.String(senderEmail(domain)),
 		}
 
 		// Returns the message ID. Should we store that somewhere?
@@ -79,9 +81,9 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, logger *zap.Logger) 
 	return nil
 }
 
-func formatRawEmailMessage(email emailContent) ([]byte, error) {
+func formatRawEmailMessage(email emailContent, domain string) ([]byte, error) {
 	m := gomail.NewMessage()
-	m.SetHeader("From", senderEmail())
+	m.SetHeader("From", senderEmail(domain))
 	m.SetHeader("To", email.recipientEmail)
 	m.SetHeader("Subject", email.subject)
 	m.SetBody("text/plain", email.textBody)
@@ -99,6 +101,6 @@ func formatRawEmailMessage(email emailContent) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func senderEmail() string {
-	return "noreply@" + os.Getenv("AWS_SES_DOMAIN")
+func senderEmail(domain string) string {
+	return "noreply@" + domain
 }

@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
@@ -22,6 +23,9 @@ import (
 func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			ctx, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
+			defer span.Send()
+
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
@@ -44,12 +48,12 @@ func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler
 			}
 
 			// Include session office, service member, tsp and user IDs to the beeline event
-			beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
-			beeline.AddField(r.Context(), "session.service_member_id", session.ServiceMemberID)
-			beeline.AddField(r.Context(), "session.tsp_user_id", session.TspUserID)
-			beeline.AddField(r.Context(), "session.user_id", session.UserID)
+			span.AddTraceField("auth.office_user_id", session.OfficeUserID)
+			span.AddTraceField("auth.service_member_id", session.ServiceMemberID)
+			span.AddTraceField("auth.tsp_user_id", session.TspUserID)
+			span.AddTraceField("auth.user_id", session.UserID)
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 		return http.HandlerFunc(mw)
@@ -68,11 +72,11 @@ type Context struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort string) Context {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
-		callbackTemplate: fmt.Sprintf("%s%%s:%s/", callbackProtocol, callbackPort),
+		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
 	}
 	return context
 }
@@ -167,6 +171,9 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	_, span := beeline.StartSpan(r.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
 		h.logger.Error("Session missing")
@@ -175,15 +182,18 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	lURL := h.landingURL(session)
 
-	authError := r.URL.Query().Get("error")
-	// The user has either cancelled or declined to authorize the client
-	if authError == "access_denied" {
-		http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
-		return
-	}
-	if authError == "invalid_request" {
-		h.logger.Error("INVALID_REQUEST error from login.gov")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	if err := r.URL.Query().Get("error"); len(err) > 0 {
+		switch err {
+		case "access_denied":
+			// The user has either cancelled or declined to authorize the client
+			http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+		case "invalid_request":
+			h.logger.Error("INVALID_REQUEST error from login.gov")
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		default:
+			h.logger.Error("unknown error from login.gov")
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -195,8 +205,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: validate the state is the same (pull from session)
-	code := r.URL.Query().Get("code")
-	openIDSession, err := fetchToken(h.logger, code, provider.ClientKey, h.loginGovProvider)
+	openIDSession, err := fetchToken(
+		h.logger,
+		r.URL.Query().Get("code"),
+		provider.ClientKey,
+		h.loginGovProvider)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -217,10 +230,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err == nil { // Someone we know already
 
 		session.UserID = userIdentity.ID
-		beeline.AddField(r.Context(), "session.user_id", session.UserID)
+		span.AddField("session.user_id", session.UserID)
 		if userIdentity.ServiceMemberID != nil {
 			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
-			beeline.AddField(r.Context(), "session.service_member_id", session.ServiceMemberID)
+			span.AddField("session.service_member_id", session.ServiceMemberID)
 		}
 
 		if userIdentity.OfficeUserID != nil {
@@ -238,7 +251,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.OfficeUserID = officeUser.ID
-			beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
+			span.AddField("session.office_user_id", session.OfficeUserID)
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {
@@ -263,7 +276,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.TspUserID = tspUser.ID
-			beeline.AddField(r.Context(), "session.tsp_user_id", session.TspUserID)
+			span.AddField("session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &userIdentity.ID
 			err = h.db.Save(tspUser)
 			if err != nil {
@@ -309,15 +322,15 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil { // Successfully created the user
 			session.UserID = user.ID
-			beeline.AddField(r.Context(), "session.user_id", session.UserID)
+			span.AddField("session.user_id", session.UserID)
 			if officeUser != nil {
 				session.OfficeUserID = officeUser.ID
-				beeline.AddField(r.Context(), "session.office_user_id", session.OfficeUserID)
+				span.AddField("session.office_user_id", session.OfficeUserID)
 				officeUser.UserID = &user.ID
 				err = h.db.Save(officeUser)
 			} else if tspUser != nil {
 				session.TspUserID = tspUser.ID
-				beeline.AddField(r.Context(), "session.tsp_user_id", session.TspUserID)
+				span.AddField("session.tsp_user_id", session.TspUserID)
 				tspUser.UserID = &user.ID
 				err = h.db.Save(tspUser)
 			}
@@ -332,7 +345,16 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+
+	session.Features, err = GetAllowedFeatures(h.db, *session)
+	if err != nil {
+		h.logger.Error("Error setting roles", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
 	h.logger.Info("logged in", zap.Any("session", session))
+
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
@@ -346,6 +368,7 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		return nil, err
 	}
 
+	/* #nosec G107 */
 	response, err := http.PostForm(tokenURL, params)
 	if err != nil {
 		logger.Error("Post to Login.gov token endpoint", zap.Error(err))
@@ -377,4 +400,18 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		IDToken:     parsedResponse.IDToken,
 	}
 	return &session, err
+}
+
+// GetAllowedFeatures returns a list of features the user has access to
+func GetAllowedFeatures(db *pop.Connection, session auth.Session) ([]auth.Feature, error) {
+	features := []auth.Feature{}
+	isDPSUser, err := models.IsDPSUser(db, session.Email)
+	if err != nil {
+		return features, err
+	}
+
+	if isDPSUser {
+		features = append(features, auth.FeatureDPS)
+	}
+	return features, nil
 }

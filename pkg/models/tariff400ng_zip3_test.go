@@ -42,7 +42,7 @@ func (suite *ModelSuite) Test_Zip3CreateAndSave() {
 		Region:        testdatagen.DefaultDstRegion,
 	}
 
-	suite.mustSave(&validZip3)
+	suite.MustSave(&validZip3)
 }
 
 func (suite *ModelSuite) Test_FetchRateAreaForZip5() {
@@ -57,9 +57,18 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5() {
 		Region:        testdatagen.DefaultDstRegion,
 	}
 
-	suite.mustSave(&zip3)
+	suite.MustSave(&zip3)
 
-	rateArea, err := FetchRateAreaForZip5(suite.db, "72014")
+	rateArea, err := FetchRateAreaForZip5(suite.DB(), "72014")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if rateArea != testdatagen.DefaultSrcRateArea {
+		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
+	}
+
+	rateArea, err = FetchRateAreaForZip5(suite.DB(), "72014-1234")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,16 +90,25 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5UsingZip5sTable() {
 		Region:        testdatagen.DefaultDstRegion,
 	}
 
-	suite.mustSave(&zip3)
+	suite.MustSave(&zip3)
 
 	zip5RateArea := Tariff400ngZip5RateArea{
 		Zip5:     "72014",
 		RateArea: testdatagen.DefaultSrcRateArea,
 	}
 
-	suite.mustSave(&zip5RateArea)
+	suite.MustSave(&zip5RateArea)
 
-	rateArea, err := FetchRateAreaForZip5(suite.db, "72014")
+	rateArea, err := FetchRateAreaForZip5(suite.DB(), "72014")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if rateArea != testdatagen.DefaultSrcRateArea {
+		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
+	}
+
+	rateArea, err = FetchRateAreaForZip5(suite.DB(), "72014-1234")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,9 +130,18 @@ func (suite *ModelSuite) Test_FetchRegionForZip5() {
 		Region:        testdatagen.DefaultDstRegion,
 	}
 
-	suite.mustSave(&zip3)
+	suite.MustSave(&zip3)
 
-	region, err := FetchRegionForZip5(suite.db, "72014")
+	region, err := FetchRegionForZip5(suite.DB(), "72014")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if region != testdatagen.DefaultDstRegion {
+		t.Errorf("wrong region: expected %s, got %s", testdatagen.DefaultDstRegion, region)
+	}
+
+	region, err = FetchRegionForZip5(suite.DB(), "72014-1234")
 	if err != nil {
 		t.Fatal(err)
 	}

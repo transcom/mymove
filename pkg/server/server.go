@@ -28,28 +28,21 @@ var ErrUnparseableCACert = errors.New("unable to parse CA certificate")
 
 type serverFunc func(server *http.Server) error
 
-// TLSCert encapsulates a public certificate and private key.
-// Each are represented as a slice of bytes.
-type TLSCert struct {
-	CertPEMBlock []byte
-	KeyPEMBlock  []byte
-}
-
 // Server represents an http or https listening server. HTTPS listeners support
 // requiring client authentication with a provided CA.
 type Server struct {
-	CACertPEMBlock []byte
+	CaCertPool     *x509.CertPool
 	ClientAuthType tls.ClientAuthType
 	HTTPHandler    http.Handler
 	ListenAddress  string
 	Logger         *zap.Logger
-	Port           string
-	TLSCerts       []TLSCert
+	Port           int
+	TLSCerts       []tls.Certificate
 }
 
 // addr generates an address:port string to be used in defining an http.Server
-func addr(listenAddress, port string) string {
-	return fmt.Sprintf("%s:%s", listenAddress, port)
+func addr(listenAddress string, port int) string {
+	return fmt.Sprintf("%s:%d", listenAddress, port)
 }
 
 // stdLogError creates a *log.logger based off an existing zap.Logger instance.
@@ -85,35 +78,16 @@ func (s Server) serverConfig(tlsConfig *tls.Config) (*http.Server, error) {
 	return serverConfig, err
 }
 
-// tlsConfig generates a new *tls.Config. It will
+// tlsConfig generates a new *tls.Config based on Mozilla's recommendations and returns an error, if any.
 func (s Server) tlsConfig() (*tls.Config, error) {
-	var caCerts *x509.CertPool
-	var tlsCerts []tls.Certificate
-	var err error
 
 	// Load client Certificate Authority (CA) if we are requiring client
 	// cert authentication.
 	if s.ClientAuthType == tls.VerifyClientCertIfGiven ||
 		s.ClientAuthType == tls.RequireAndVerifyClientCert {
-		if s.CACertPEMBlock == nil {
+		if s.CaCertPool == nil || len(s.CaCertPool.Subjects()) == 0 {
 			return nil, ErrMissingCACert
-
 		}
-		caCerts = x509.NewCertPool()
-		ok := caCerts.AppendCertsFromPEM(s.CACertPEMBlock)
-		if !ok {
-			return nil, ErrUnparseableCACert
-		}
-	}
-
-	// Parse and append all of the TLSCerts to the tls.Config
-	for _, cert := range s.TLSCerts {
-		parsedCert, err := tls.X509KeyPair(cert.CertPEMBlock, cert.KeyPEMBlock)
-		if err != nil {
-			s.Logger.Error("failed to parse tls certificate", zap.Error(err))
-			return nil, err
-		}
-		tlsCerts = append(tlsCerts, parsedCert)
 	}
 
 	// Follow Mozilla's "modern" server side TLS recommendations
@@ -130,9 +104,9 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
-		Certificates: tlsCerts,
+		Certificates: s.TLSCerts,
 		ClientAuth:   s.ClientAuthType,
-		ClientCAs:    caCerts,
+		ClientCAs:    s.CaCertPool,
 		CurvePreferences: []tls.CurveID{
 			tls.CurveP256,
 			tls.X25519,
@@ -143,12 +117,12 @@ func (s Server) tlsConfig() (*tls.Config, error) {
 	}
 
 	// Map certificates with the CommonName / DNSNames to support
-	// Subject Name Indication (SNI). In other words this will tell
+	// Server Name Indication (SNI). In other words this will tell
 	// the TLS listener to sever the appropriate certificate matching
 	// the requested hostname.
 	tlsConfig.BuildNameToCertificate()
 
-	return tlsConfig, err
+	return tlsConfig, nil
 }
 
 // ListenAndServeTLS returns a TLS Listener function for serving HTTPS requests
@@ -174,7 +148,7 @@ func (s Server) ListenAndServeTLS() error {
 		zap.Duration("idle-timeout", server.IdleTimeout),
 		zap.Any("listen-address", s.ListenAddress),
 		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.String("port", s.Port),
+		zap.Int("port", s.Port),
 	)
 
 	serverFunc = func(httpServer *http.Server) error {
@@ -208,7 +182,7 @@ func (s Server) ListenAndServe() error {
 		zap.Duration("idle-timeout", server.IdleTimeout),
 		zap.Any("listen-address", s.ListenAddress),
 		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.String("port", s.Port),
+		zap.Int("port", s.Port),
 	)
 
 	serverFunc = func(httpServer *http.Server) error {

@@ -13,6 +13,18 @@ describe('setting up service member profile', function() {
 
 function serviceMemberProfile(reloadAfterEveryPage) {
   //dod info
+  // does not have welcome message throughout setup
+  cy
+    .get('span')
+    .contains('Welcome,')
+    .should('not.exist');
+
+  // does not have a back button on first flow page
+  cy
+    .get('button')
+    .contains('Back')
+    .should('not.be.visible');
+
   cy.get('button.next').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
   cy.get('input[name="edipi"]').type('1234567890');
@@ -49,16 +61,11 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //duty station
   cy.get('button.next').should('be.disabled');
-  cy
-    .get('.duty-input-box #react-select-2-input')
-    .first()
-    .type('Ft Carson{downarrow}{enter}', { force: true, delay: 150 });
+  cy.selectDutyStation('Ft Carson', 'current_station');
 
   cy.nextPage();
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(
-      /^\/service-member\/[^/]+\/residence-address/,
-    );
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/residence-address/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
@@ -70,9 +77,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="postal_code"]').type('80913');
   cy.nextPage();
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(
-      /^\/service-member\/[^/]+\/backup-mailing-address/,
-    );
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/backup-mailing-address/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place

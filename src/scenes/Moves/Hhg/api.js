@@ -1,4 +1,4 @@
-import { getClient, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/Swagger/api';
 
 export async function GetShipment(moveId, shipmentId) {
   const client = await getClient();

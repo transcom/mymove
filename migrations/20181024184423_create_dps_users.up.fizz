@@ -1,0 +1,4 @@
+create_table("dps_users") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("login_gov_email", "text", {})
+}

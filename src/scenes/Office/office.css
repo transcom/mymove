@@ -16,6 +16,10 @@
   margin: 0 0.3em 0 0.5em;
 }
 
+.icon-grey {
+  color: rgba(171,171,171,1.00);
+}
+
 .form-column {
   display: inline-block;
   width: 45%;
@@ -160,27 +164,6 @@
   border: solid 2px navy;
   padding: 1em;
   margin-top: 1em;
-}
-
-.document-contents {
-  background: lightgray;
-}
-
-.document-contents .pdf-placeholder {
-  padding: 1em;
-  background: white;
-  font-style: italic;
-  text-align: right;
-}
-
-.document-contents .pdf-placeholder .filename {
-  font-weight: bold;
-  font-style: normal;
-  float: left;
-}
-
-.document-contents .page {
-  padding: 1em;
 }
 
 .orders-page-fields h3 {
@@ -456,4 +439,8 @@ head .panel-subhead {
 }
 .expense-panel table > tbody > tr > td:last-child {
   font-weight: normal;
+}
+.notes {
+  white-space: normal;
+  word-wrap: break-word;
 }

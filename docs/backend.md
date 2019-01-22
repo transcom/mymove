@@ -7,7 +7,9 @@
 * [Go](#go)
   * [Acronyms](#acronyms)
   * [Style and Conventions](#style-and-conventions)
+  * [Importing Dependencies](#importing-dependencies)
   * [Querying the Database Safely](#querying-the-database-safely)
+  * [`models.Fetch*` functions](#modelsfetch-functions)
   * [Logging](#logging)
     * [Logging Levels](#logging-levels)
   * [Errors](#errors)
@@ -21,8 +23,9 @@
   * [Learning](#learning)
   * [Testing](#testing)
     * [General](#general)
+    * [Coverage](#coverage)
     * [Models](#models)
-    * [Miscellaneous Tips](#miscellaneous-tips)
+  * [Miscellaneous Tips](#miscellaneous-tips)
 * [Environment settings](#environment-settings)
   * [Adding `ulimit`](#adding-ulimit)
 
@@ -72,6 +75,7 @@ Avoid:
 ### Style and Conventions
 
 Generally speaking, we will follow the recommendations laid out in [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments). By its own admission, this page:
+
 > _...collects common comments made during reviews of Go code, so that a single detailed explanation can be referred to by shorthands. This is a laundry list of common mistakes, not a style guide._
 
 Despite not being an official style guide, it covers a good amount of scope in a concise format, and should be able to keep our project code fairly consistent.
@@ -82,9 +86,19 @@ Beyond what is described above, the following contain additional insights into h
 * [Go best practices, six years in](https://peter.bourgon.org/go-best-practices-2016/)
 * [A theory of modern Go](https://peter.bourgon.org/blog/2017/06/09/theory-of-modern-go.html)
 
+### Importing Dependencies
+
+Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project:
+
+1. Add the package to the import statement of a Go file.
+1. `make clean`
+1. `make server_generate`
+1. `dep check` (to verify what's missing.) If it looks reasonable then...
+1. `dep ensure`
+
 ### Querying the Database Safely
 
-* SQL statements *must* use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and *never* interpolate values into SQL fragments in any other way.
+* SQL statements _must_ use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and _never_ interpolate values into SQL fragments in any other way.
 * SQL statements must only be defined in the `models` package.
 
 Here is an example of a safe query for a single `Shipment`:
@@ -102,34 +116,57 @@ if err = query.First(shipment); err == nil {
 }
 ```
 
+### `models.Fetch*` functions
+
+Functions that return model structs should return pointers.
+
+Do:
+
+```go
+func FetchShipment(db *pop.Connection, id uuid.UUID) (*Shipment, error) {}
+```
+
+Avoid:
+
+```go
+func FetchShipment(db *pop.Connection, id uuid.UUID) (Shipment, error) {}
+```
+
+This is for a few reasons:
+
+* Many Pop methods that accept models need to use pointers in order to modify the struct being passed in. Using them everywhere
+  models are used makes the code more consistent and avoids needing to convert to and from pointers.
+* Any methods on struct model instances need to have pointer receivers in order to mutate the struct. This is a common point of confusion
+  and an easy way to introduce bugs into a codebase.
+
 ### Logging
 
 We use the [Zap](https://github.com/uber-go/zap) logging framework from Uber to produce structured log records.
- To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
-  a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
+To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
+a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
 
 #### Logging Levels
 
 Another reason to use the Zap logging package is that it provides more nuanced logging levels than the basic Go logging package.
- That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
- the following indicates when each level of Logging should be used.
+That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
+the following indicates when each level of Logging should be used.
 
 * **Fatal** This should never be used outside of the server startup code in main.go. Fatal log messages call `sys.exit(1)` which unceremoniously kills the server without running any clean up code. This is almost certainly never what you want in production.
 
 * **Error** Reserved for system failures, e.g. cannot reach a database, a DB insert which was expected to work failed,
- or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
- all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
- then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
+  or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
+  all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
+  then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
 
 * **Warn** Don't use Warn - it rarely, if ever, adds any meaningful signal to the logs.
 
 * **Info** Use for recording 'Normal' events at a granularity that may be helpful to tracing and debugging requests,
- e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
+  e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
 
 * **Debug** Debug events are of questionable value and should be used during development, but probably best removed
- before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
- as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
- in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
+  before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
+  as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
+  in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
 
 ### Errors
 
@@ -139,10 +176,10 @@ Some general guidelines for errors:
 
 If a function or other action generates an error, assign it to a variable and either return it as part of your function's output or handle it in place (`if err != nil`, etc.). There will be the very occasional exception to this - one is within tests, depending on the test's goal. If you find yourself typing that underscore, take a moment to ask yourself why you're choosing that option. On those very rare occasions when it is the correct behavior, please add a comment explaining why.
 
-*Don't:*
-    `myVal, _ := functionThatShouldReturnAnInt()`
+_Don't:_
+`myVal, _ := functionThatShouldReturnAnInt()`
 
-*Do:*
+_Do:_
 
 ```golang
     myVal, err := functionThatShouldReturnAnInt()
@@ -214,11 +251,11 @@ if err != nil {
 
 `fmt` can provide useful error handling during initial debugging, but we strongly suggest logging instead, from when you write the initial lines of a new function. Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Error()`, perhaps with [Zap](https://github.com/uber-go/zap).
 
-*Don't:*
-    `fmt.Println("Blackout dates fetch failed: ", err)`
+_Don't:_
+`fmt.Println("Blackout dates fetch failed: ", err)`
 
-*Do:*
-    `logger.Error("Blackout dates fetch failed: ", err)`
+_Do:_
+`logger.Error("Blackout dates fetch failed: ", err)`
 
 #### If some of your errors are predictable, pattern match on them to provide more error detail
 
@@ -226,7 +263,7 @@ Some errors are predictable, such as those from the database that Pop returns to
 
 ```golang
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
- func FetchServiceMemberForUser(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
   var serviceMember ServiceMember
   err := db.Eager().Find(&serviceMember, id)
   if err != nil {
@@ -267,9 +304,9 @@ Additional resources:
 
 * [GoDoc](https://godoc.org/) (where you can read the docs for nearly any Go package)
 * Check out the [Go wiki](https://github.com/golang/go/wiki/Learn)
-* *Video*: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
-* *Book*: [The Go Programming Language](http://www.gopl.io/)
-* *Article*: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
+* Advanced Testing with Go [Video](https://www.youtube.com/watch?v=yszygk1cpEc) and [Article](https://about.sourcegraph.com/go/advanced-testing-in-go) (great overview of useful techniques, useful for all Go programmers)
+* _Book_: [The Go Programming Language](http://www.gopl.io/)
+* _Article_: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
 
 ### Testing
 
@@ -280,6 +317,17 @@ Knowing what deserves a test and what doesn’t can be tricky, especially early 
 * Use table-driven tests where appropriate.
 * Make judicious use of helper functions so that the intent of a test is not lost in a sea of error checking and boilerplate. Use [`t.Helper()`](https://golang.org/pkg/testing/#T.Helper) in your test helper functions to keep stack traces clean.
 
+#### Coverage
+
+* Always test exported functions.
+  Exported functions should be treated as an API layer for other packages.
+  Cover the expected behavior and error scenarios as a user of that API.
+* Try not to test unexported functions.
+  Unexported functions are implementation details of exported ones
+  and should not change the intended usage.
+  If you find that an unexported function is complex and needs testing,
+  it might mean it needs to be refactored as it's exported function elsewhere.
+
 #### Models
 
 In general, focus on testing non-trivial behavior.
@@ -289,7 +337,7 @@ In general, focus on testing non-trivial behavior.
 * Avoid testing functionality of libraries, e.g. model saving and loading (which is provided by Pop)
 * Try to leverage the type system to ensure that components are “hooked up correctly” instead of writing integration tests.
 
-#### Miscellaneous Tips
+### Miscellaneous Tips
 
 * Use `golang` instead of `go` in Google searches.
 * Try to use the standard lib as much as possible, especially when learning.

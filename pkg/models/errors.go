@@ -12,8 +12,14 @@ var ErrCreateViolatesUniqueConstraint = errors.New("CREATE_VIOLATES_UNIQUE")
 // ErrFetchNotFound means that the requested record does not exist
 var ErrFetchNotFound = errors.New("FETCH_NOT_FOUND")
 
+// ErrUserUnauthorized means that the user is not authorized to access a record
+var ErrUserUnauthorized = errors.New("USER_UNAUTHORIZED")
+
 // ErrFetchForbidden means that the record exists but that the user does not have access to it
 var ErrFetchForbidden = errors.New("FETCH_FORBIDDEN")
+
+// ErrDestroyForbidden means that a model cannot be destroyed in its current state
+var ErrDestroyForbidden = errors.New("DESTROY_FORBIDDEN")
 
 // ErrLocatorGeneration means that we got errors generating the Locator
 var ErrLocatorGeneration = errors.New("LOCATOR_ERRORS")

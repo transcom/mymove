@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/models"
 	"log"
@@ -47,7 +47,7 @@ func main() {
 
 	// Attempt to load the Truss TSP
 	var tsp models.TransportationServiceProvider
-	db.Where("standard_carrier_alpha_code = $1", "TRSS").First(&tsp)
+	db.Where("standard_carrier_alpha_code = $1", "TRS1").First(&tsp)
 	if tsp.ID == uuid.Nil {
 		// TSP not found, create one for Truss
 		tsp = models.TransportationServiceProvider{
@@ -61,7 +61,7 @@ func main() {
 		LastName:                        *lastName,
 		Telephone:                       *number,
 		TransportationServiceProviderID: tsp.ID,
-		Email: *email,
+		Email:                           *email,
 	}
 	if user.ID != uuid.Nil {
 		newUser.UserID = &user.ID

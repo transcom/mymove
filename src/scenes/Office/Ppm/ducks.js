@@ -5,29 +5,16 @@ import reduceReducers from 'reduce-reducers';
 const GET_PPM_INCENTIVE = 'GET_PPM_INCENTIVE';
 const GET_PPM_EXPENSE_SUMMARY = 'GET_PPM_EXPENSE_SUMMARY';
 const CLEAR_PPM_INCENTIVE = 'CLEAR_PPM_INCENTIVE';
-export const getIncentiveActionType = ReduxHelpers.generateAsyncActionTypes(
-  GET_PPM_INCENTIVE,
-);
-export const getPpmIncentive = ReduxHelpers.generateAsyncActionCreator(
-  GET_PPM_INCENTIVE,
-  GetPpmIncentive,
-);
+export const getIncentiveActionType = ReduxHelpers.generateAsyncActionTypes(GET_PPM_INCENTIVE);
+export const getPpmIncentive = ReduxHelpers.generateAsyncActionCreator(GET_PPM_INCENTIVE, GetPpmIncentive);
 
-export const getExpenseSummaryActionType = ReduxHelpers.generateAsyncActionTypes(
-  GET_PPM_EXPENSE_SUMMARY,
-);
-export const getPpmExpenseSummary = ReduxHelpers.generateAsyncActionCreator(
-  GET_PPM_EXPENSE_SUMMARY,
-  GetExpenseSummary,
-);
-const summaryReducer = ReduxHelpers.generateAsyncReducer(
-  GET_PPM_EXPENSE_SUMMARY,
-  v => {
-    return {
-      summary: { ...v },
-    };
-  },
-);
+export const getExpenseSummaryActionType = ReduxHelpers.generateAsyncActionTypes(GET_PPM_EXPENSE_SUMMARY);
+export const getPpmExpenseSummary = ReduxHelpers.generateAsyncActionCreator(GET_PPM_EXPENSE_SUMMARY, GetExpenseSummary);
+const summaryReducer = ReduxHelpers.generateAsyncReducer(GET_PPM_EXPENSE_SUMMARY, v => {
+  return {
+    summary: { ...v },
+  };
+});
 
 export const clearPpmIncentive = () => ({ type: CLEAR_PPM_INCENTIVE });
 
@@ -58,15 +45,11 @@ export const getTabularExpenses = (expenseData, movingExpenseSchema) => {
   return expenses;
 };
 function clearReducer(state, action) {
-  if (action.type === CLEAR_PPM_INCENTIVE)
-    return { ...state, calculation: null };
+  if (action.type === CLEAR_PPM_INCENTIVE) return { ...state, calculation: null };
   return state;
 }
-const incentiveReducer = ReduxHelpers.generateAsyncReducer(
-  GET_PPM_INCENTIVE,
-  v => ({
-    calculation: { ...v },
-  }),
-);
+const incentiveReducer = ReduxHelpers.generateAsyncReducer(GET_PPM_INCENTIVE, v => ({
+  calculation: { ...v },
+}));
 
 export default reduceReducers(clearReducer, incentiveReducer, summaryReducer);

@@ -1,2 +1,0 @@
-drop_column("transportation_service_provider_performances", "linehaul_rate")
-drop_column("transportation_service_provider_performances", "sit_rate")

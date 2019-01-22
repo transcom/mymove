@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -18,7 +20,7 @@ func (suite *HandlerSuite) TestSubmitIssueHandler() {
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -43,7 +45,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := CreateIssueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -69,17 +71,25 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handlerContext := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	handler := CreateIssueHandler{handlerContext}
 	createResponse := handler.Handle(newIssueParams)
 	// Assert we got back the 201 response
 	_ = createResponse.(*issueop.CreateIssueCreated)
 
-	// And: All issues are queried
-	indexIssuesParams := issueop.NewIndexIssuesParams()
+	// And: the user is an office user
+	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/issues", nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+
+	params := issueop.IndexIssuesParams{
+		HTTPRequest: req,
+	}
 	indexHandler := IndexIssuesHandler{handlerContext}
-	indexResponse := indexHandler.Handle(indexIssuesParams)
+	indexResponse := indexHandler.Handle(params)
 
 	// Then: Expect a 200 status code
 	okResponse := indexResponse.(*issueop.IndexIssuesOK)
@@ -97,4 +107,41 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 	if !issueExists {
 		t.Errorf("Expected an issue to contain '%v'. None do.", testDescription)
 	}
+}
+
+func (suite *HandlerSuite) TestIndexIssuesUnauthorizedHandler() {
+	// Given: no user is logged in
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/issues", nil)
+
+	params := issueop.IndexIssuesParams{
+		HTTPRequest: req,
+	}
+
+	// And: Issues are indexed
+	handler := IndexIssuesHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: response is Unauthorized
+	suite.Assertions.IsType(&issueop.IndexIssuesUnauthorized{}, response)
+}
+
+func (suite *HandlerSuite) TestIndexIssuesForbiddenHandler() {
+	// Given: an non-office User
+	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/issues", nil)
+	req = suite.AuthenticateRequest(req, user)
+
+	params := issueop.IndexIssuesParams{
+		HTTPRequest: req,
+	}
+	// And: issues are indexed
+	handler := IndexIssuesHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: response is Forbidden
+	suite.Assertions.IsType(&issueop.IndexIssuesForbidden{}, response)
 }

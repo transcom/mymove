@@ -2,7 +2,9 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
+	"reflect"
 
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -39,6 +41,10 @@ type CreateGenericMoveDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
+
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -60,7 +66,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.DB(), session, converted)
+		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}
@@ -76,7 +82,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}
-		if !uuid.Equal(ppm.MoveID, moveID) {
+		if ppm.MoveID != moveID {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()
 		}
 
@@ -88,7 +94,8 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
-		payload.Notes)
+		payload.Notes,
+		*move.SelectedMoveType)
 
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

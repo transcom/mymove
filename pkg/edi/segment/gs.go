@@ -3,7 +3,6 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // GS represents the GS EDI segment
@@ -13,25 +12,24 @@ type GS struct {
 	ApplicationReceiversCode string
 	Date                     string
 	Time                     string
-	GroupControlNumber       int
+	GroupControlNumber       int64
 	ResponsibleAgencyCode    string
 	Version                  string
 }
 
-// String converts GS to its X12 single line string representation
-func (s *GS) String(delimiter string) string {
-	elements := []string{
+// StringArray converts GS to an array of strings
+func (s *GS) StringArray() []string {
+	return []string{
 		"GS",
 		s.FunctionalIdentifierCode,
 		s.ApplicationSendersCode,
 		s.ApplicationReceiversCode,
 		s.Date,
 		s.Time,
-		strconv.Itoa(s.GroupControlNumber),
+		strconv.FormatInt(s.GroupControlNumber, 10),
 		s.ResponsibleAgencyCode,
 		s.Version,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the GS struct
@@ -47,7 +45,7 @@ func (s *GS) Parse(elements []string) error {
 	s.ApplicationReceiversCode = elements[2]
 	s.Date = elements[3]
 	s.Time = elements[4]
-	s.GroupControlNumber, err = strconv.Atoi(elements[5])
+	s.GroupControlNumber, err = strconv.ParseInt(elements[5], 10, 64)
 	if err != nil {
 		return err
 	}

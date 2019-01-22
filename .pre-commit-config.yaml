@@ -8,7 +8,7 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v1.4.0
+    rev: v2.0.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -31,21 +31,23 @@ repos:
         entry: markdownlint --ignore .github/*.md
 
   - repo: git://github.com/detailyang/pre-commit-shell
-    rev: 1.0.2
+    rev: 1.0.4
     hooks:
       - id: shell-lint
-
-  - repo: git://github.com/kintoandar/pre-commit.git
-    rev: v2.1.0
-    hooks:
-      - id: terraform_fmt
-      - id: terraform_validate
 
   - repo: local
     hooks:
       - id: prettier
         name: prettier
         entry: node_modules/.bin/prettier --write
+        language: node
+        files: \.(js|jsx)$
+
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: node_modules/.bin/eslint --ext .js --ext .jsx --max-warnings=0
         language: node
         files: \.(js|jsx)$
 
@@ -82,9 +84,9 @@ repos:
   - repo: git://github.com/dnephin/pre-commit-golang
     rev: v0.3.2
     hooks:
-    -   id: go-fmt
-    -   id: go-vet
-    -   id: go-lint
+      - id: go-fmt
+      - id: go-vet
+      - id: go-lint
 
   - repo: local
     hooks:
@@ -111,16 +113,14 @@ repos:
 
   - repo: local
     hooks:
-      - id: dep-version
-        name: dep version
-        entry: bin/check_dep_version
+      - id: gen-docs
+        name: regenerate docs index
+        entry: bin/gen-docs-index
         language: script
 
   - repo: local
     hooks:
-      - id: dep-status
-        name: dep status
-        entry: dep status -v
-        language: system
-        description: If this hook fails, try running `dep ensure`
-        files: \.go$
+      - id: dep-version
+        name: dep version
+        entry: bin/check_dep_version
+        language: script

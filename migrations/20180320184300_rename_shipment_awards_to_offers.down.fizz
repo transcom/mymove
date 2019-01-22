@@ -1,2 +1,0 @@
-rename_table("shipment_offers", "shipment_awards")
-rename_column("transportation_service_provider_performances", "offer_count", "award_count")

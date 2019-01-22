@@ -1,3 +1,0 @@
-drop_table("social_security_numbers")
-drop_column("service_members", "social_security_number_id")
-drop_foreign_key("service_members", "sm_ssn_fk", {"if_exists": true})

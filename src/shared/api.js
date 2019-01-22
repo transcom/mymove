@@ -1,29 +1,8 @@
-import Swagger from 'swagger-client';
-let client = null;
-let publicClient = null;
+import { getClient as getInternalClient, checkResponse, getPublicClient } from 'shared/Swagger/api';
 
-export async function getClient() {
-  if (!client) {
-    client = await Swagger('/internal/swagger.yaml');
-  }
-  return client;
-}
-
-export async function getPublicClient() {
-  if (!publicClient) {
-    publicClient = await Swagger('/api/v1/swagger.yaml');
-  }
-  return publicClient;
-}
-
-export function checkResponse(response, errorMessage) {
-  if (!response.ok) {
-    throw new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
-  }
-}
-
-export async function CreateUpload(fileUpload, documentId) {
-  const client = await getClient();
+export async function CreateUpload(fileUpload, documentId, isPublic = false) {
+  const clientToUse = isPublic ? getPublicClient : getInternalClient;
+  const client = await clientToUse();
   const response = await client.apis.uploads.createUpload({
     file: fileUpload,
     documentId,
@@ -32,8 +11,9 @@ export async function CreateUpload(fileUpload, documentId) {
   return response.body;
 }
 
-export async function DeleteUpload(uploadId) {
-  const client = await getClient();
+export async function DeleteUpload(uploadId, isPublic = false) {
+  const clientToUse = isPublic ? getPublicClient : getInternalClient;
+  const client = await clientToUse();
   const response = await client.apis.uploads.deleteUpload({
     uploadId,
   });
@@ -42,7 +22,7 @@ export async function DeleteUpload(uploadId) {
 }
 
 export async function DeleteUploads(uploadIds) {
-  const client = await getClient();
+  const client = await getInternalClient();
   const response = await client.apis.uploads.deleteUploads({
     uploadIds,
   });
@@ -51,7 +31,7 @@ export async function DeleteUploads(uploadIds) {
 }
 
 export async function CreateDocument(name, serviceMemberId) {
-  const client = await getClient();
+  const client = await getInternalClient();
   const response = await client.apis.documents.createDocument({
     documentPayload: {
       name: name,

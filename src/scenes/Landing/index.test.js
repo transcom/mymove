@@ -2,13 +2,12 @@ import 'raf/polyfill';
 import React from 'react';
 
 import { Provider } from 'react-redux';
-import ReactDOM from 'react-dom';
 import moment from 'moment';
 import configureStore from 'redux-mock-store';
 import { shallow, mount } from 'enzyme';
 
 import { Landing } from '.';
-import { MoveSummary, DraftMoveSummary } from './MoveSummary';
+import { MoveSummary } from './MoveSummary';
 
 describe('HomePage tests', () => {
   let wrapper;
@@ -45,11 +44,7 @@ describe('HomePage tests', () => {
             />
           </Provider>,
         );
-
-        const resumeMoveFn = jest.spyOn(
-          wrapper.children().instance(),
-          'resumeMove',
-        );
+        const resumeMoveFn = jest.spyOn(wrapper.children().instance(), 'resumeMove');
         wrapper.setProps({ createdServiceMemberIsLoading: true });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
       });
@@ -71,7 +66,7 @@ describe('HomePage tests', () => {
       });
     });
     describe('When the user profile is complete but orders have not been entered', () => {
-      const moveObj = { id: 'foo' };
+      const moveObj = { id: 'foo', selected_move_type: 'PPM' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
@@ -91,23 +86,27 @@ describe('HomePage tests', () => {
           />,
           div,
         );
-        expect(
+        const moveSummary = shallow(
           wrapper
             .find(MoveSummary)
             .dive()
+            .props()
+            .children(),
+        );
+
+        expect(
+          moveSummary
             .find('.status-component')
             .dive()
             .find('.step')
             .find('div.title')
             .first()
             .html(),
-        ).toEqual(
-          '<div class="title">Next Step: Finish setting up your move</div>',
-        );
+        ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
       });
     });
     describe('When orders have been entered but the move is not complete', () => {
-      const moveObj = { id: 'foo' };
+      const moveObj = { id: 'foo', selected_move_type: 'PPM', status: 'DRAFT' };
       const futureFortNight = moment().add(14, 'day');
       const orders = {
         orders_type: 'foo',
@@ -134,19 +133,22 @@ describe('HomePage tests', () => {
           />,
           div,
         );
-        expect(
+        const moveSummary = shallow(
           wrapper
             .find(MoveSummary)
             .dive()
+            .props()
+            .children(),
+        );
+        expect(
+          moveSummary
             .find('.status-component')
             .dive()
             .find('.step')
             .find('div.title')
             .first()
             .html(),
-        ).toEqual(
-          '<div class="title">Next Step: Finish setting up your move</div>',
-        );
+        ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
       });
     });
   });

@@ -3,7 +3,6 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // L0 represents the L0 EDI segment
@@ -16,14 +15,29 @@ type L0 struct {
 	WeightUnitCode         string
 }
 
-// String converts L0 to its X12 single line string representation
-func (s *L0) String(delimiter string) string {
-	elements := []string{
+// StringArray converts L0 to an array of strings
+func (s *L0) StringArray() []string {
+
+	var weight string
+	if s.Weight == 0 {
+		weight = ""
+	} else {
+		weight = strconv.FormatFloat(s.Weight, 'f', 3, 64)
+	}
+
+	var billedRatedAsQuantity string
+	if s.BilledRatedAsQuantity == 0 {
+		billedRatedAsQuantity = ""
+	} else {
+		billedRatedAsQuantity = strconv.FormatFloat(s.BilledRatedAsQuantity, 'f', 3, 64)
+	}
+
+	return []string{
 		"L0",
 		strconv.Itoa(s.LadingLineItemNumber),
-		strconv.FormatFloat(s.BilledRatedAsQuantity, 'f', 3, 64),
+		billedRatedAsQuantity,
 		s.BilledRatedAsQualifier,
-		strconv.FormatFloat(s.Weight, 'f', 3, 64),
+		weight,
 		s.WeightQualifier,
 		"",
 		"",
@@ -32,7 +46,6 @@ func (s *L0) String(delimiter string) string {
 		"",
 		s.WeightUnitCode,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the L0 struct

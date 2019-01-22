@@ -38,6 +38,11 @@ func (c Cents) Int64() int64 {
 	return int64(c)
 }
 
+// ToMillicents converts cents to millicents
+func (c Cents) ToMillicents() Millicents {
+	return Millicents(c.Int() * 1000)
+}
+
 // ToDollarString returns a dollar string representation of this value
 func (c Cents) ToDollarString() string {
 	d := float64(c) / 100.0

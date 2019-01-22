@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -65,7 +65,7 @@ func FetchTariff400ngServiceAreaForZip3(tx *pop.Connection, zip3 string, date ti
 			`
 	err := tx.RawQuery(sql, zip3, date).First(&serviceArea)
 	if err != nil {
-		return serviceArea, errors.Wrapf(err, "could not find a matching Tariff400ngServiceArea for zip3 %s", zip3)
+		return serviceArea, errors.Wrapf(err, "could not find a matching Tariff400ngServiceArea for zip3 %s and date %v", zip3, date)
 	}
 	return serviceArea, nil
 }

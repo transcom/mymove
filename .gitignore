@@ -21,21 +21,30 @@ __snapshots__
 /tmp
 
 # built binaries
-/bin/webserver
-/bin/tsp-award-queue
+/bin/generate-1203-form
+/bin/generate-shipment-summary
 /bin/generate-test-data
-/bin/make-office-user
+/bin/health_checker
+/bin/iws
 /bin/load-office-data
-/bin/make-tsp-user
 /bin/load-user-gen
+/bin/make-dps-user
+/bin/make-office-user
+/bin/make-tsp-user
 /bin/paperwork
 /bin/rateengine
+/bin/tsp-award-queue
+/bin/webserver
 
+/bin/chamber
 /bin/soda
 /bin/golint
 /bin/swagger
 /bin/gin
 /bin/gosec
+
+# Special bin folder for e2e test binaries
+/bin_linux/
 
 # pdf artifacts
 /cmd/generate_1203_form/*.pdf
@@ -52,6 +61,9 @@ __snapshots__
 .idea
 .vscode
 
+# In case somebody accidentally runs npm install instead of using yarn
+package-lock.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -67,5 +79,13 @@ public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
 
+# Cypress integration tests
 cypress/videos
 cypress/screenshots
+cypress/results
+
+# XLSX backup files
+~$*.xlsx
+
+# SQLEditor
+*.sqs

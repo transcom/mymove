@@ -1,13 +1,11 @@
-import { fillAndSavePremoveSurvey } from '../../support/testPremoveSurvey';
-
 /* global cy */
 describe('TSP Interacts With the Weights & Items Panel', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
 
-  it('tsp user enters actual weight', function() {
-    tspUserEntersActualWeight();
+  it('tsp user enters net weight', function() {
+    tspUserEntersNetWeight();
   });
 
   it('tsp user sees estimated weights from the customer and TSP', function() {
@@ -44,17 +42,17 @@ function testReadOnlyWeights() {
   cy.get('.pm_survey_progear_weight_estimate').should($div => {
     const text = $div.text();
     expect(text).to.include('TSP estimate');
-    expect(text).to.include('7,000 lbs');
+    expect(text).to.include('4,000 lbs');
   });
   cy.get('.spouse_progear_weight_estimate').should($div => {
     const text = $div.text();
     expect(text).to.include('Customer estimate');
-    expect(text).to.include('312 lbs');
+    expect(text).to.include('3,120 lbs');
   });
   cy.get('.pm_survey_spouse_progear_weight_estimate').should($div => {
     const text = $div.text();
     expect(text).to.include('TSP estimate');
-    expect(text).to.include('8,000 lbs');
+    expect(text).to.include('800 lbs');
   });
 }
 
@@ -70,10 +68,8 @@ function tspUserSeesEstimatedWeights() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
-
-  fillAndSavePremoveSurvey();
 
   // Check that the display view is correct for the estimated weights
   withinWeightsAndItemsPanel(() => testReadOnlyWeights);
@@ -99,7 +95,7 @@ function tspUserSeesEstimatedWeights() {
     .click();
 }
 
-function tspUserEntersActualWeight() {
+function tspUserEntersNetWeight() {
   // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -112,16 +108,12 @@ function tspUserEntersActualWeight() {
     .dblclick();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/shipments\/[^/]+/);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Check that the initial display view for actual weight is correct
+  // Check that the initial display view for net weight is correct
   withinWeightsAndItemsPanel(() => {
-    cy.get('.actual_weight').should($div => {
-      const text = $div.text();
-      expect(text).to.include('Actual Weight');
-      expect(text).to.include('missing');
-    });
+    cy.get('.net_weight').should('not.exist');
   });
 
   cy
@@ -135,15 +127,47 @@ function tspUserEntersActualWeight() {
     .contains('Save')
     .should('not.be.enabled');
 
-  // Fill out the actual weight and save it
+  // Fill out the net weight and save it
   withinWeightsAndItemsPanel(() => {
+    cy.get('label[for="weights.pm_survey_weight_estimate"]').should('have.text', 'TSP estimateOptional');
     cy
-      .get('label[for="weights.actual_weight"]')
-      .should('have.text', 'Actual Weight');
+      .get('input[name="weights.pm_survey_weight_estimate"]')
+      .clear()
+      .first()
+      .type('5000')
+      .blur();
+    cy.get('label[for="weights.gross_weight"]').should('have.text', 'Gross');
     cy
-      .get('input[name="weights.actual_weight"]')
+      .get('input[name="weights.gross_weight"]')
+      .first()
+      .type('30000')
+      .blur();
+    cy.get('label[for="weights.tare_weight"]').should('have.text', 'Tare');
+    cy
+      .get('input[name="weights.tare_weight"]')
+      .first()
+      .type('10000')
+      .blur();
+    cy.get('label[for="weights.net_weight"]').should('have.text', 'Net (Gross - Tare)');
+    cy
+      .get('input[name="weights.net_weight"]')
       .first()
       .type('40000')
+      .blur();
+
+    cy.get('label[for="weights.pm_survey_progear_weight_estimate"]').should('have.text', 'Service memberOptional');
+    cy
+      .get('input[name="weights.pm_survey_progear_weight_estimate"]')
+      .clear()
+      .first()
+      .type('4000')
+      .blur();
+    cy.get('label[for="weights.pm_survey_spouse_progear_weight_estimate"]').contains('Spouse');
+    cy
+      .get('input[name="weights.pm_survey_spouse_progear_weight_estimate"]')
+      .clear()
+      .first()
+      .type('800')
       .blur();
   });
 
@@ -159,9 +183,9 @@ function tspUserEntersActualWeight() {
 
   // Verify that the entered weight displays properly
   withinWeightsAndItemsPanel(() => {
-    cy.get('.actual_weight').should($div => {
+    cy.get('.net_weight').should($div => {
       const text = $div.text();
-      expect(text).to.include('Actual Weight');
+      expect(text).to.include('Actual');
       expect(text).to.include('40,000 lbs');
     });
   });

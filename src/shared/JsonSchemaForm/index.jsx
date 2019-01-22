@@ -14,12 +14,8 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
    validate group names don't colide with field names
   */
   const group = uiSchema.groups && uiSchema.groups[fieldName];
-  const isRef =
-    fields[fieldName] &&
-    fields[fieldName].$$ref &&
-    fields[fieldName].properties;
-  const isCustom =
-    uiSchema.custom_components && uiSchema.custom_components[fieldName];
+  const isRef = fields[fieldName] && fields[fieldName].$$ref && fields[fieldName].properties;
+  const isCustom = uiSchema.custom_components && uiSchema.custom_components[fieldName];
   if (group) {
     const keys = group.fields;
     return (
@@ -32,10 +28,7 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
     return (
       <Fragment key={fieldName}>
         <p>{fields[fieldName].title}</p>
-        <Field
-          name={fieldName}
-          component={uiSchema.custom_components[fieldName]}
-        />
+        <Field name={fieldName} component={uiSchema.custom_components[fieldName]} />
       </Fragment>
     );
   } else if (isRef) {
@@ -69,10 +62,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
   // first, check that all required fields are present
   if (spec.required) {
     spec.required.forEach(requiredFieldName => {
-      if (
-        values[requiredFieldName] === undefined ||
-        values[requiredFieldName] === ''
-      ) {
+      if (values[requiredFieldName] === undefined || values[requiredFieldName] === '') {
         // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
         let schemaForKey = spec.properties[requiredFieldName];
         if (schemaForKey) {
@@ -96,18 +86,13 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
     let schemaForKey = spec.properties[key];
     if (schemaForKey) {
       if (schemaForKey.type === 'object') {
-        let subErrors = recursivelyValidateRequiredFields(
-          values[key],
-          schemaForKey,
-        );
+        let subErrors = recursivelyValidateRequiredFields(values[key], schemaForKey);
         if (!isEmpty(subErrors)) {
           requiredErrors[key] = subErrors;
         }
       }
     } else {
-      console.error(
-        `The schema should have fields for all present values. Missing ${key}`,
-      );
+      console.error(`The schema should have fields for all present values. Missing ${key}`);
     }
   });
 
@@ -130,11 +115,7 @@ export const validateAdditionalFields = additionalFields => {
     let errors = {};
 
     additionalFields.forEach(fieldName => {
-      if (
-        values[fieldName] === undefined ||
-        values[fieldName] === '' ||
-        values[fieldName] === null
-      ) {
+      if (values[fieldName] === undefined || values[fieldName] === '' || values[fieldName] === null) {
         errors[fieldName] = 'Required.';
       }
     });
@@ -168,9 +149,7 @@ export const renderSchema = (schema, uiSchema, nameSpace = '') => {
     recursivelyAnnotateRequiredFields(schema);
 
     const fields = schema.properties || {};
-    return uiSchema.order.map(i =>
-      renderGroupOrField(i, fields, uiSchema, nameSpace),
-    );
+    return uiSchema.order.map(i => renderGroupOrField(i, fields, uiSchema, nameSpace));
   }
 };
 
@@ -233,5 +212,4 @@ JsonSchemaForm.defaultProps = {
   className: 'default',
 };
 
-export const reduxifyForm = name =>
-  reduxForm({ form: name, validate: validateRequiredFields })(JsonSchemaForm);
+export const reduxifyForm = name => reduxForm({ form: name, validate: validateRequiredFields })(JsonSchemaForm);

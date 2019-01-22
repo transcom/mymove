@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+#   Restarted the ECS services associated with the given environment.
+#
+set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+usage() {
+    echo "${0##*/} <environment>"
+    exit 1
+}
+[[ -z $1 ]] && usage
+
+# Display command being run
+echo "$0 $*"
+
+set -u
+
+
+readonly environment=$1
+readonly cluster=app-${environment}
+
+echo "* Restarting service \"app\""
+aws ecs update-service --cluster "$cluster" --service app --force-new-deployment > /dev/null
+
+echo "* Restarting service \"app-client-tls\""
+aws ecs update-service --cluster "$cluster" --service app-client-tls --force-new-deployment > /dev/null
+
+echo "* Waiting for service \"app\" and \"app-client-tls\" to stabilize (this takes a while)"
+time aws ecs wait services-stable --cluster "$cluster" --services app app-client-tls
+readonly exit_code=$?
+
+echo
+echo "****************************"
+echo "Last 5 events for service \"app\":"
+aws ecs describe-services --cluster "$cluster" --service app --query 'services[].events[:5]'
+echo
+
+echo
+echo "****************************"
+echo "Last 5 events for service \"app-client-tls\":"
+aws ecs describe-services --cluster "$cluster" --service app-client-tls --query 'services[].events[:5]'
+echo
+
+exit $exit_code

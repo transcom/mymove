@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"context"
+
 	. "github.com/transcom/mymove/pkg/models"
 )
 
@@ -8,7 +10,7 @@ func (suite *ModelSuite) TestSSNEncryption() {
 	t := suite.T()
 	fakeSSN := "123-12-1234"
 
-	mySSN, verrs, err := BuildSocialSecurityNumber(fakeSSN)
+	mySSN, verrs, err := BuildSocialSecurityNumber(context.Background(), fakeSSN)
 	if err != nil || verrs.HasAny() {
 		t.Error("don't expect an error here")
 	}
@@ -27,7 +29,7 @@ func (suite *ModelSuite) TestSSNEncryption() {
 		t.Error("A different SSN should not match the hash")
 	}
 
-	suite.mustSave(mySSN)
+	suite.MustSave(mySSN)
 }
 
 func (suite *ModelSuite) TestSSNFormat() {
@@ -43,7 +45,7 @@ func (suite *ModelSuite) TestSSNFormat() {
 	}
 
 	for _, sneakySSN := range sneakySSNs {
-		_, verrs, err := BuildSocialSecurityNumber(sneakySSN)
+		_, verrs, err := BuildSocialSecurityNumber(context.Background(), sneakySSN)
 		if err != nil || !verrs.HasAny() {
 			t.Error("Expected the bad formatter error.")
 		}
@@ -55,7 +57,7 @@ func (suite *ModelSuite) TestSSNSalt() {
 	t := suite.T()
 	fakeSSN := "123-12-1234"
 
-	mySSN, verrs, err := BuildSocialSecurityNumber(fakeSSN)
+	mySSN, verrs, err := BuildSocialSecurityNumber(context.Background(), fakeSSN)
 	if err != nil || verrs.HasAny() {
 		t.Error("don't expect an error here")
 	}
@@ -69,7 +71,7 @@ func (suite *ModelSuite) TestSSNSalt() {
 		t.Error("the source SSN should match the hash")
 	}
 
-	secondSSN, verrs, err := BuildSocialSecurityNumber(fakeSSN)
+	secondSSN, verrs, err := BuildSocialSecurityNumber(context.Background(), fakeSSN)
 	if err != nil || verrs.HasAny() {
 		t.Error("dont' expect an error here")
 	}
@@ -102,7 +104,7 @@ func (suite *ModelSuite) TestRawSSNNotAllowed() {
 			EncryptedHash: sneakySSN,
 		}
 
-		verrs, err := suite.db.ValidateAndCreate(&mySSN)
+		verrs, err := suite.DB().ValidateAndCreate(&mySSN)
 		if !verrs.HasAny() {
 			t.Error("It should not be possible to save an SSN to the db.")
 		}

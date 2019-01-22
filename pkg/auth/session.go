@@ -2,8 +2,9 @@ package auth
 
 import (
 	"context"
-	"github.com/gobuffalo/uuid"
 	"net/http"
+
+	"github.com/gofrs/uuid"
 )
 
 type authSessionKey string
@@ -23,6 +24,7 @@ type Session struct {
 	ServiceMemberID uuid.UUID
 	OfficeUserID    uuid.UUID
 	TspUserID       uuid.UUID
+	Features        []Feature
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
@@ -51,4 +53,15 @@ func (s *Session) IsOfficeUser() bool {
 // IsTspUser checks whether the authenticated user is a TspUser
 func (s *Session) IsTspUser() bool {
 	return s.TspUserID != uuid.Nil
+}
+
+// CanAccessFeature checks whether or not the authenticated user can access
+// a specific feature
+func (s *Session) CanAccessFeature(feature Feature) bool {
+	for _, f := range s.Features {
+		if f == feature {
+			return true
+		}
+	}
+	return false
 }

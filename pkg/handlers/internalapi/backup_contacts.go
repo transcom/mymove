@@ -1,8 +1,11 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/transcom/mymove/pkg/auth"
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -18,7 +21,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 		Name:       &contact.Name,
 		Email:      &contact.Email,
 		Telephone:  contact.Phone,
-		Permission: contact.Permission,
+		Permission: internalmessages.BackupContactPermission(contact.Permission),
 	}
 	return contactPayload
 }
@@ -30,11 +33,14 @@ type CreateBackupContactHandler struct {
 
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -43,7 +49,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 		*params.CreateBackupContactPayload.Name,
 		*params.CreateBackupContactPayload.Email,
 		params.CreateBackupContactPayload.Telephone,
-		params.CreateBackupContactPayload.Permission)
+		models.BackupContactPermission(params.CreateBackupContactPayload.Permission))
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
@@ -59,11 +65,14 @@ type IndexBackupContactsHandler struct {
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -118,7 +127,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
 	contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
 	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
-	contact.Permission = params.UpdateServiceMemberBackupContactPayload.Permission
+	contact.Permission = models.BackupContactPermission(params.UpdateServiceMemberBackupContactPayload.Permission)
 
 	if verrs, err := h.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

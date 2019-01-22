@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import './index.css';
+
 const DocumentContent = ({ contentType, filename, url }) => (
   <div className="page">
     {contentType === 'application/pdf' ? (

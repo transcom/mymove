@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181206143208_more-hackerone-users.sql")

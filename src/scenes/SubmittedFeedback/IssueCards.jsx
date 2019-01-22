@@ -7,8 +7,7 @@ import 'scenes/SubmittedFeedback/IssueCards.css';
 
 const IssueCards = ({ issues }) => {
   if (!issues) return <LoadingPlaceholder />;
-  if (issues.length === 0)
-    return <h2> There is no feedback at the moment! </h2>;
+  if (issues.length === 0) return <h2> There is no feedback at the moment! </h2>;
   return (
     <div className="issue-cards">
       {issues.map(issue => (

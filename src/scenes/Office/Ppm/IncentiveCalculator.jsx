@@ -50,18 +50,8 @@ const schema = {
 };
 export class IncentiveCalculator extends Component {
   calculate = values => {
-    const {
-      planned_move_date,
-      pickup_postal_code,
-      destination_postal_code,
-      weight,
-    } = values;
-    this.props.getPpmIncentive(
-      planned_move_date,
-      pickup_postal_code,
-      destination_postal_code,
-      weight,
-    );
+    const { planned_move_date, pickup_postal_code, destination_postal_code, weight } = values;
+    this.props.getPpmIncentive(planned_move_date, pickup_postal_code, destination_postal_code, weight);
   };
   reset = async () => {
     const { reset, clearPpmIncentive } = this.props;
@@ -72,14 +62,7 @@ export class IncentiveCalculator extends Component {
     this.reset();
   }
   render() {
-    const {
-      handleSubmit,
-      calculation,
-      invalid,
-      pristine,
-      submitting,
-      hasErrored,
-    } = this.props;
+    const { handleSubmit, calculation, invalid, pristine, submitting, hasErrored } = this.props;
     return (
       <div className="calculator-panel incentive-calc">
         <div className="calculator-panel-title">Incentive Calculator</div>
@@ -94,18 +77,8 @@ export class IncentiveCalculator extends Component {
             )}
 
             <div className="usa-width-one-half">
-              <SwaggerField
-                className="date-field"
-                fieldName="planned_move_date"
-                swagger={this.props.schema}
-                required
-              />
-              <SwaggerField
-                className="short-field"
-                fieldName="weight"
-                swagger={this.props.schema}
-                required
-              />
+              <SwaggerField className="date-field" fieldName="planned_move_date" swagger={this.props.schema} required />
+              <SwaggerField className="short-field" fieldName="weight" swagger={this.props.schema} required />
             </div>
             <div className="usa-width-one-half">
               <SwaggerField
@@ -125,11 +98,7 @@ export class IncentiveCalculator extends Component {
           <div className="usa-grid">
             <div className="usa-width-one-whole">
               <div className="buttons">
-                <button
-                  data-cy="calc"
-                  type="submit"
-                  disabled={pristine || submitting || invalid}
-                >
+                <button data-cy="calc" type="submit" disabled={pristine || submitting || invalid}>
                   Calculate
                 </button>
                 <button
@@ -163,9 +132,7 @@ export class IncentiveCalculator extends Component {
                         <td>
                           <b>PPM Incentive @ 95%</b>
                         </td>
-                        <td align="right">
-                          ${formatCents(calculation.incentive_percentage)}
-                        </td>
+                        <td align="right">${formatCents(calculation.incentive_percentage)}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -201,6 +168,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmIncentive, clearPpmIncentive }, dispatch);
 }
-export default connect(mapStateToProps, mapDispatchToProps)(
-  reduxForm({ form: formName })(IncentiveCalculator),
-);
+export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({ form: formName })(IncentiveCalculator));

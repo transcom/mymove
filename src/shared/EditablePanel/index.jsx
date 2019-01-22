@@ -41,9 +41,11 @@ PanelField.propTypes = {
 
 export const SwaggerValue = props => {
   const { fieldName, schema, values } = props;
-  /* eslint-disable security/detect-object-injection */
-  const swaggerProps = schema.properties[fieldName];
-
+  let swaggerProps = {};
+  if (schema.properties) {
+    /* eslint-disable security/detect-object-injection */
+    swaggerProps = schema.properties[fieldName];
+  }
   let value = values[fieldName] || '';
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
@@ -67,11 +69,11 @@ SwaggerValue.propTypes = {
 };
 
 export const PanelSwaggerField = props => {
-  const { fieldName, required, schema, values } = props;
-  const title =
-    props.title || get(schema, `properties.${fieldName}.title`, fieldName);
+  const { fieldName, className, required, schema, values } = props;
+  const title = props.title || get(schema, `properties.${fieldName}.title`, fieldName);
+  const classes = classNames(fieldName, className);
   let component = (
-    <PanelField title={title} className={fieldName}>
+    <PanelField title={title} className={classes}>
       <SwaggerValue {...props} />
       {props.children}
     </PanelField>
@@ -80,7 +82,7 @@ export const PanelSwaggerField = props => {
   /* eslint-disable security/detect-object-injection */
   if (required && !values[fieldName]) {
     component = (
-      <PanelField title={title} className={fieldName} required>
+      <PanelField title={title} className={classes} required>
         {props.children}
       </PanelField>
     );
@@ -96,6 +98,7 @@ PanelSwaggerField.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node,
   required: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export class EditablePanel extends Component {
@@ -121,10 +124,7 @@ export class EditablePanel extends Component {
       controls = (
         <div>
           <p>
-            <button
-              className="usa-button-secondary editable-panel-cancel"
-              onClick={this.handleCancelClick}
-            >
+            <button className="usa-button-secondary editable-panel-cancel" onClick={this.handleCancelClick}>
               Cancel
             </button>
             <button
@@ -168,45 +168,32 @@ export class EditablePanel extends Component {
 }
 
 // Convenience function for creating an editable panel given a display component and an edit component
-export function editablePanelify(
-  DisplayComponent,
-  EditComponent,
-  editEnabled = true,
-) {
+export function editablePanelify(DisplayComponent, EditComponent, editEnabled = true) {
   const Wrapper = class extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        isEditable: false,
-      };
-      // TODO: Figure out why bind is still needed when ostensibly it's not
-      this.save = this.save.bind(this);
-    }
+    state = {
+      isEditable: false,
+    };
 
     save = () => {
       let isValid = this.props.valid;
       if (isValid) {
         let args = this.props.getUpdateArgs();
         this.props.update(...args);
-        this.toggleEditable();
+        this.toggleEdit();
       }
+    };
+
+    toggleEdit = () => {
+      this.setState({ isEditable: !this.state.isEditable });
     };
 
     cancel = () => {
       this.props.reset();
-      this.toggleEditable();
-    };
-
-    toggleEditable = () => {
-      this.setState({
-        isEditable: !this.state.isEditable,
-      });
+      this.toggleEdit();
     };
 
     render() {
-      const isEditable =
-        (editEnabled && (this.state.isEditable || this.props.isUpdating)) ||
-        false;
+      const isEditable = (editEnabled && (this.state.isEditable || this.props.isUpdating)) || false;
       const Content = isEditable ? EditComponent : DisplayComponent;
 
       return (
@@ -220,7 +207,7 @@ export function editablePanelify(
             title={this.props.title}
             className={this.props.className}
             onSave={this.save}
-            onEdit={this.toggleEditable}
+            onEdit={this.toggleEdit}
             onCancel={this.cancel}
             isEditable={isEditable}
             editEnabled={editEnabled}
@@ -247,7 +234,7 @@ EditablePanel.propTypes = {
   children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
   editEnabled: PropTypes.bool,
-  isValid: PropTypes.bool.isRequired,
+  isValid: PropTypes.bool,
   onCancel: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,

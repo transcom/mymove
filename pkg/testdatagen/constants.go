@@ -5,10 +5,16 @@ import (
 )
 
 // TestYear is the default year for testing.
-var TestYear = 2019
+var TestYear = 2018
+
+// DefaultZip3 is the default zip3 for testing
+var DefaultZip3 = "902"
 
 // DefaultSrcGBLOC is the default GBLOC for testing.
-var DefaultSrcGBLOC = "OHAI"
+var DefaultSrcGBLOC = "KKFA"
+
+// DefaultDstGBLOC is the default GBLOC for testing.
+var DefaultDstGBLOC = "HAFC"
 
 // DefaultMarket is the default market for testing.
 var DefaultMarket = "dHHG"
@@ -29,7 +35,7 @@ var DefaultDstRegion = "6"
 var PeakRateCycleStart = time.Date(TestYear, time.May, 15, 0, 0, 0, 0, time.UTC)
 
 // PeakRateCycleEnd is the first instant that the peak rate cycle ends
-var PeakRateCycleEnd = time.Date(TestYear, time.October, 1, 0, 0, 0, 0, time.UTC)
+var PeakRateCycleEnd = time.Date(TestYear, time.September, 30, 0, 0, 0, 0, time.UTC)
 
 // DateInsidePeakRateCycle is available as a convenient test date inside the Peak Rate Cycle
 var DateInsidePeakRateCycle = time.Date(TestYear, time.May, 16, 0, 0, 0, 0, time.UTC)
@@ -41,7 +47,7 @@ var DateOutsidePeakRateCycle = time.Date(TestYear, time.October, 10, 0, 0, 0, 0,
 var NonPeakRateCycleStart = time.Date(TestYear, time.October, 1, 0, 0, 0, 0, time.UTC)
 
 // NonPeakRateCycleEnd is the first instant that the peak rate cycle ends
-var NonPeakRateCycleEnd = time.Date(TestYear+1, time.May, 15, 0, 0, 0, 0, time.UTC)
+var NonPeakRateCycleEnd = time.Date(TestYear+1, time.May, 14, 0, 0, 0, 0, time.UTC)
 
 // DateInsideNonPeakRateCycle is available as a convenient test date inside the NonPeak Rate Cycle
 var DateInsideNonPeakRateCycle = time.Date(TestYear, time.October, 2, 0, 0, 0, 0, time.UTC)
@@ -71,3 +77,9 @@ var DefaultDepartmentIndicator = "57 - United States Air Force"
 
 // DefaultTransportationAccountingCode (TAC) is an accounting code used for orders.
 var DefaultTransportationAccountingCode = "F8J1"
+
+// OneDay creates a 1 day period
+var OneDay = time.Hour * 24
+
+// OneWeek creates a 1 week period
+var OneWeek = time.Hour * 168

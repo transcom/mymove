@@ -66,13 +66,7 @@ export class StorageReimbursementCalculator extends Component {
     this.reset();
   }
   calculate = values => {
-    const {
-      planned_move_date,
-      pickup_postal_code,
-      destination_postal_code,
-      days_in_storage,
-      weight,
-    } = values;
+    const { planned_move_date, pickup_postal_code, destination_postal_code, days_in_storage, weight } = values;
     this.props.getPpmSitEstimate(
       planned_move_date,
       days_in_storage,
@@ -83,14 +77,7 @@ export class StorageReimbursementCalculator extends Component {
   };
 
   render() {
-    const {
-      handleSubmit,
-      sitReimbursement,
-      invalid,
-      pristine,
-      submitting,
-      hasEstimateError,
-    } = this.props;
+    const { handleSubmit, sitReimbursement, invalid, pristine, submitting, hasEstimateError } = this.props;
     return (
       <div className="calculator-panel storage-calc">
         <div className="calculator-panel-title">Storage Calculator</div>
@@ -104,18 +91,8 @@ export class StorageReimbursementCalculator extends Component {
               </div>
             )}
             <div className="usa-width-one-half">
-              <SwaggerField
-                className="date-field"
-                fieldName="planned_move_date"
-                swagger={this.props.schema}
-                required
-              />
-              <SwaggerField
-                className="short-field"
-                fieldName="weight"
-                swagger={this.props.schema}
-                required
-              />
+              <SwaggerField className="date-field" fieldName="planned_move_date" swagger={this.props.schema} required />
+              <SwaggerField className="short-field" fieldName="weight" swagger={this.props.schema} required />
             </div>
             <div className="usa-width-one-half">
               <SwaggerField
@@ -130,22 +107,13 @@ export class StorageReimbursementCalculator extends Component {
                 swagger={this.props.schema}
                 required
               />
-              <SwaggerField
-                className="short-field"
-                fieldName="days_in_storage"
-                swagger={this.props.schema}
-                required
-              />
+              <SwaggerField className="short-field" fieldName="days_in_storage" swagger={this.props.schema} required />
             </div>
           </div>
           <div className="usa-grid">
             <div className="usa-width-one-whole">
               <div className="buttons">
-                <button
-                  data-cy="calc"
-                  type="submit"
-                  disabled={pristine || submitting || invalid}
-                >
+                <button data-cy="calc" type="submit" disabled={pristine || submitting || invalid}>
                   Calculate
                 </button>
                 <button
@@ -195,10 +163,7 @@ function mapStateToProps(state) {
   return props;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { getPpmSitEstimate, clearPpmSitEstimate },
-    dispatch,
-  );
+  return bindActionCreators({ getPpmSitEstimate, clearPpmSitEstimate }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(

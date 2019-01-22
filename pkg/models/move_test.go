@@ -3,10 +3,9 @@ package models_test
 import (
 	"time"
 
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -23,10 +22,10 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 }
 
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
-	orders := testdatagen.MakeDefaultOrder(suite.db)
-	var selectedType = internalmessages.SelectedMoveTypeHHG
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
@@ -37,13 +36,13 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 }
 
 func (suite *ModelSuite) TestFetchMove() {
-	order1 := testdatagen.MakeDefaultOrder(suite.db)
-	order2 := testdatagen.MakeDefaultOrder(suite.db)
+	order1 := testdatagen.MakeDefaultOrder(suite.DB())
+	order2 := testdatagen.MakeDefaultOrder(suite.DB())
 
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
 
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
@@ -53,14 +52,14 @@ func (suite *ModelSuite) TestFetchMove() {
 		ServiceMemberID: order1.ServiceMemberID,
 		ApplicationName: auth.MyApp,
 	}
-	var selectedType = internalmessages.SelectedMoveTypeHHG
+	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := order1.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
 
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
@@ -68,37 +67,37 @@ func (suite *ModelSuite) TestFetchMove() {
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
-			ServiceMember:           &order1.ServiceMember,
+			ServiceMember:           order1.ServiceMember,
 			Move:                    *move,
 			MoveID:                  move.ID,
 		},
 	})
 
 	// All correct
-	fetchedMove, err := FetchMove(suite.db, session, move.ID)
+	fetchedMove, err := FetchMove(suite.DB(), session, move.ID)
 	suite.Nil(err, "Expected to get moveResult back.")
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
 	suite.Equal(fetchedMove.Shipments[0].PickupAddressID, shipment.PickupAddressID)
 
 	// Bad Move
-	fetchedMove, err = FetchMove(suite.db, session, uuid.Must(uuid.NewV4()))
+	fetchedMove, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
 	suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 
 	// Bad User
 	session.UserID = order2.ServiceMember.UserID
 	session.ServiceMemberID = order2.ServiceMemberID
-	fetchedMove, err = FetchMove(suite.db, session, move.ID)
+	fetchedMove, err = FetchMove(suite.DB(), session, move.ID)
 	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
 }
 
 func (suite *ModelSuite) TestMoveCancellationWithReason() {
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
-	suite.mustSave(&orders)
+	suite.MustSave(&orders)
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -118,13 +117,13 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 }
 
 func (suite *ModelSuite) TestMoveStateMachine() {
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
-	suite.mustSave(&orders)
+	suite.MustSave(&orders)
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	reason := ""
@@ -132,7 +131,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 	// Create PPM on this move
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-	ppm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: PersonallyProcuredMove{
 			Move:      *move,
 			MoveID:    move.ID,
@@ -146,11 +145,12 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	// Create hhg (shipment) on this move
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	sourceGBLOC := "KKFA"
+	destinationGBLOC := "HAFC"
 
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: Shipment{
 			MoveID:                  move.ID,
 			Move:                    *move,
@@ -159,6 +159,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 			ActualDeliveryDate:      &deliveryDate,
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
+			DestinationGBLOC:        &destinationGBLOC,
 			Market:                  &market,
 			Status:                  ShipmentStatusDRAFT,
 		},
@@ -168,8 +169,8 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 	// Once submitted
 	err = move.Submit()
-	suite.mustSave(move)
-	suite.db.Reload(move)
+	suite.MustSave(move)
+	suite.DB().Reload(move)
 	suite.Nil(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
@@ -183,20 +184,20 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	// Given: A move with Orders, PPM and Move all in submitted state
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
-	suite.mustSave(&orders)
+	suite.MustSave(&orders)
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
-	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
+	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.Nil(err)
 	suite.False(verrs.HasAny())
 
@@ -218,33 +219,33 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = ""
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveDependencies(suite.db, move)
+	verrs, err = SaveMoveDependencies(suite.DB(), move)
 	suite.True(verrs.HasAny(), "saving invalid statuses should yield an error")
 }
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveDependencies(suite.db, move)
+	verrs, err = SaveMoveDependencies(suite.DB(), move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
 	suite.Nil(err)
 }
@@ -252,27 +253,27 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	// Given: A shipment's move with orders in acceptable status
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember.DutyStationID = &dutyStation.ID
 	serviceMember.DutyStation = dutyStation
-	suite.mustSave(&serviceMember)
+	suite.MustSave(&serviceMember)
 
 	pickupDate := time.Now()
 	deliveryDate := time.Now().AddDate(0, 0, 1)
-	tdl := testdatagen.MakeDefaultTDL(suite.db)
+	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
 
-	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	selectedMoveType := SelectedMoveTypeHHGPPM
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 
-	shipment := testdatagen.MakeShipment(suite.db, testdatagen.Assertions{
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: Shipment{
 			RequestedPickupDate:     &pickupDate,
 			ActualPickupDate:        &pickupDate,
@@ -280,7 +281,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 			TrafficDistributionList: &tdl,
 			SourceGBLOC:             &sourceGBLOC,
 			Market:                  &market,
-			ServiceMember:           &serviceMember,
+			ServiceMember:           serviceMember,
 			Move:                    *move,
 			MoveID:                  move.ID,
 		},
@@ -291,10 +292,10 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 
 	// And: Move is in SUBMITTED state
 	move.Status = MoveStatusSUBMITTED
-	verrs, err = SaveMoveDependencies(suite.db, move)
+	verrs, err = SaveMoveDependencies(suite.DB(), move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
 	suite.Nil(err)
-	suite.db.Reload(&shipment)
+	suite.DB().Reload(&shipment)
 
 	// Then: Shipment GBLOCs will be equal to:
 	// destination GBLOC: orders' new duty station's transportation office's GBLOC

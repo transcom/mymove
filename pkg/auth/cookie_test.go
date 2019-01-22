@@ -5,11 +5,12 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/gobuffalo/uuid"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 func createRandomRSAPEM() (s string, err error) {
@@ -156,6 +157,77 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithExpiredToken() {
 	suite.Equal(uuid.Nil, resultingSession.UserID, "Expected no UUID from expired cookie")
 
 	// And the cookie should be set
+	setCookies := rr.HeaderMap["Set-Cookie"]
+	suite.Equal(1, len(setCookies), "expected cookie to be set")
+}
+
+func (suite *authSuite) TestSessionCookiePR161162731() {
+	t := suite.T()
+	email := "some_email@domain.com"
+	idToken := "fake_id_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+
+	pem, err := createRandomRSAPEM()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
+	incomingSession := Session{
+		UserID:  fakeUUID,
+		Email:   email,
+		IDToken: idToken,
+	}
+	ss, err := signTokenStringWithUserInfo(expiry, &incomingSession, pem)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr, req := getHandlerParamsWithToken(ss, expiry)
+
+	var resultingSession *Session
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resultingSession = SessionFromRequestContext(r)
+		WriteSessionCookie(w, resultingSession, "freddy", false, suite.logger)
+	})
+	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should get a 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+
+	// And there should be an ID token in the request context
+	suite.NotNil(resultingSession)
+	suite.Equal(idToken, resultingSession.IDToken, "handler returned wrong id_token")
+
+	// And the cookie should be renewed
+	setCookies := rr.HeaderMap["Set-Cookie"]
+	suite.Equal(1, len(setCookies), "expected cookie to be set")
+}
+
+func (suite *authSuite) TestMaskedCSRFMiddleware() {
+	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
+
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/protected", nil)
+
+	// Set a secure cookie on the request
+	cookie := http.Cookie{
+		Name:    MaskedGorillaCSRFToken,
+		Value:   "fakecsrftoken",
+		Path:    "/",
+		Expires: expiry,
+	}
+	req.AddCookie(&cookie)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := MaskedCSRFMiddleware(suite.logger, false)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should get a 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+
+	// And the cookie should be renewed
 	setCookies := rr.HeaderMap["Set-Cookie"]
 	suite.Equal(1, len(setCookies), "expected cookie to be set")
 }

@@ -1,32 +1,22 @@
 import { get, every, isNull, isNumber } from 'lodash';
-import {
-  CreatePpm,
-  UpdatePpm,
-  GetPpm,
-  GetPpmWeightEstimate,
-  GetPpmSitEstimate,
-  RequestPayment,
-} from './api.js';
+import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
+import { selectShipment } from 'shared/Entities/modules/shipments';
+import { getCurrentShipmentID } from 'shared/UI/ducks';
+import { change } from 'redux-form';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
 export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
 const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
-export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(
-  'CREATE_OR_UPDATE_PPM',
-);
+export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
-export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
-  'GET_PPM_ESTIMATE',
-);
-export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
-  'GET_SIT_ESTIMATE',
-);
+export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_PPM_ESTIMATE');
+export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
 
 // Action creation
 export function setPendingPpmSize(value) {
@@ -37,12 +27,7 @@ export function setPendingPpmWeight(value) {
   return { type: SET_PENDING_PPM_WEIGHT, payload: value };
 }
 
-export function getPpmWeightEstimate(
-  moveDate,
-  originZip,
-  destZip,
-  weightEstimate,
-) {
+export function getPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
@@ -52,21 +37,9 @@ export function getPpmWeightEstimate(
   };
 }
 
-export function getPpmSitEstimate(
-  moveDate,
-  sitDays,
-  originZip,
-  destZip,
-  weightEstimate,
-) {
+export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_SIT_ESTIMATE');
-  const canEstimate = every([
-    moveDate,
-    sitDays,
-    originZip,
-    destZip,
-    weightEstimate,
-  ]);
+  const canEstimate = every([moveDate, sitDays, originZip, destZip, weightEstimate]);
   return function(dispatch, getState) {
     if (!canEstimate) {
       return dispatch(action.success({ estimate: null }));
@@ -100,6 +73,14 @@ export function createOrUpdatePpm(moveId, ppm) {
   };
 }
 
+export function setInitialFormValues(plannedMoveDate, pickupPostalCode, destinationPostalCode) {
+  return function(dispatch) {
+    dispatch(change('ppp_date_and_location', 'planned_move_date', plannedMoveDate));
+    dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
+    dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
+  };
+}
+
 export function loadPpm(moveId) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM');
   return function(dispatch, getState) {
@@ -120,9 +101,7 @@ const REQUESTED_PAYMENT_ACTION = {
 };
 
 export function submitExpenseDocs(state) {
-  const updateAction = ReduxHelpers.generateAsyncActions(
-    'CREATE_OR_UPDATE_PPM',
-  );
+  const updateAction = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
   return function(dispatch, getState) {
     dispatch(updateAction.start());
     const state = getState();
@@ -172,6 +151,7 @@ export function getMaxAdvance(state) {
   // and we don't want to block the user from requesting an advance if the rate engine fails
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
 }
+
 export function getSelectedWeightInfo(state) {
   const weightInfo = getRawWeightInfo(state);
   const ppm = get(state, 'ppm.currentPpm', null);
@@ -181,6 +161,74 @@ export function getSelectedWeightInfo(state) {
 
   const size = ppm ? ppm.size : 'L';
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
+}
+
+export function isHHGPPMComboMove(state) {
+  return get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM';
+}
+
+const estimatedRemainingWeight = (sum, weight) => {
+  if (sum >= weight) {
+    return sum - weight;
+  } else {
+    return sum;
+  }
+};
+
+export function getEstimatedRemainingWeight(state) {
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
+
+  const { pm_survey_weight_estimate, weight_estimate } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (pm_survey_weight_estimate) {
+    return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
+  }
+
+  if (sum && weight_estimate >= 0) {
+    return estimatedRemainingWeight(sum, weight_estimate);
+  }
+}
+
+export function getActualRemainingWeight(state) {
+  const entitlements = loadEntitlementsFromState(state);
+
+  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+    return null;
+  }
+
+  const { sum } = entitlements;
+  const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
+
+  if (sum && gross_weight && tare_weight) {
+    return estimatedRemainingWeight(sum, gross_weight - tare_weight);
+  }
+}
+
+export function getDestinationPostalCode(state) {
+  const currentShipment = selectShipment(state, getCurrentShipmentID(state));
+  const addresses = state.entities.addresses;
+  const currentOrders = state.orders.currentOrders;
+
+  return currentShipment.has_delivery_address && addresses
+    ? addresses[currentShipment.delivery_address].postal_code
+    : currentOrders.new_duty_station.address.postal_code;
+}
+
+export function getPPM(state) {
+  const move = state.moves.currentMove || state.moves.latestMove || {};
+  const moveId = move.id;
+  const ppmsFromEntities = state.entities.personallyProcuredMove;
+  if (moveId && ppmsFromEntities) {
+    return Object.values(state.entities.personallyProcuredMove).find(ppm => ppm.move_id === moveId);
+  } else {
+    return state.ppm.currentPpm;
+  }
 }
 
 // Reducer
@@ -202,24 +250,16 @@ export function ppmReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       // Initialize state when we get the logged in user
-      const activeOrders = fetchActive(
-        get(action.payload, 'service_member.orders'),
-      );
+      const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
       const activeMove = fetchActive(get(activeOrders, 'moves'));
-      const activePpm = fetchActive(
-        get(activeMove, 'personally_procured_moves'),
-      );
+      const activePpm = fetchActive(get(activeMove, 'personally_procured_moves'));
       return Object.assign({}, state, {
         currentPpm: activePpm,
         pendingPpmSize: get(activePpm, 'size', null),
         pendingPpmWeight: get(activePpm, 'weight_estimate', null),
         incentive_estimate_min: get(activePpm, 'incentive_estimate_min', null),
         incentive_estimate_max: get(activePpm, 'incentive_estimate_max', null),
-        sitReimbursement: get(
-          activePpm,
-          'estimated_storage_reimbursement',
-          null,
-        ),
+        sitReimbursement: get(activePpm, 'estimated_storage_reimbursement', null),
         hasLoadSuccess: true,
         hasLoadError: false,
       });
@@ -239,21 +279,9 @@ export function ppmReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_PPM.success:
       return Object.assign({}, state, {
         currentPpm: action.payload,
-        incentive_estimate_min: get(
-          action.payload,
-          'incentive_estimate_min',
-          null,
-        ),
-        incentive_estimate_max: get(
-          action.payload,
-          'incentive_estimate_max',
-          null,
-        ),
-        sitReimbursement: get(
-          action.payload,
-          'estimated_storage_reimbursement',
-          null,
-        ),
+        incentive_estimate_min: get(action.payload, 'incentive_estimate_min', null),
+        incentive_estimate_max: get(action.payload, 'incentive_estimate_max', null),
+        sitReimbursement: get(action.payload, 'estimated_storage_reimbursement', null),
         pendingPpmSize: null,
         pendingPpmWeight: null,
         hasSubmitSuccess: true,
@@ -279,21 +307,9 @@ export function ppmReducer(state = initialState, action) {
       return Object.assign({}, state, {
         currentPpm: get(action.payload, '0', null),
         pendingPpmWeight: get(action.payload, '0.weight_estimate', null),
-        incentive_estimate_min: get(
-          action.payload,
-          '0.incentive_estimate_min',
-          null,
-        ),
-        incentive_estimate_max: get(
-          action.payload,
-          '0.incentive_estimate_max',
-          null,
-        ),
-        sitReimbursement: get(
-          action.payload,
-          '0.estimated_storage_reimbursement',
-          null,
-        ),
+        incentive_estimate_min: get(action.payload, '0.incentive_estimate_min', null),
+        incentive_estimate_max: get(action.payload, '0.incentive_estimate_max', null),
+        sitReimbursement: get(action.payload, '0.estimated_storage_reimbursement', null),
         hasLoadSuccess: true,
         hasLoadError: false,
       });

@@ -1,10 +1,13 @@
 package internalapi
 
 import (
+	"io"
 	"log"
 	"net/http"
 
 	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -25,11 +28,11 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{context}
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
-	internalAPI.CertificationIndexSignedCertificationsHandler = IndexSignedCertificationsHandler{context}
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{context}
+	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{context}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{context}
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{context}
@@ -45,10 +48,10 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{context}
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{context}
 
-	internalAPI.MovesCreateMoveHandler = CreateMoveHandler{context}
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{context}
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{context}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{context}
+	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
 
 	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
 	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
@@ -79,6 +82,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
 	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
 	internalAPI.ShipmentsCompleteHHGHandler = CompleteHHGHandler{context}
+	internalAPI.ShipmentsCreateAndSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
@@ -87,5 +91,27 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
 
+	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
+
+	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{context}
+
+	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{context}
+
+	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{context}
+
+	internalAPI.ApplicationPdfProducer = PDFProducer()
+
 	return internalAPI.Serve(nil)
+}
+
+// PDFProducer creates a new PDF producer
+func PDFProducer() runtime.Producer {
+	return runtime.ProducerFunc(func(writer io.Writer, data interface{}) error {
+		rw, ok := data.(io.ReadCloser)
+		if !ok {
+			return errors.Errorf("could not convert %+v to io.ReadCloser", data)
+		}
+		_, err := io.Copy(writer, rw)
+		return err
+	})
 }

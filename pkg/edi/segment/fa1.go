@@ -2,17 +2,16 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // AffiliationToAgency is a map from our affiliation to the FA1 segment's AgencyQualifierCode field
-var AffiliationToAgency = map[internalmessages.Affiliation]string{
-	internalmessages.AffiliationARMY:     "DZ",
-	internalmessages.AffiliationNAVY:     "DN",
-	internalmessages.AffiliationMARINES:  "DX",
-	internalmessages.AffiliationAIRFORCE: "DY",
+var AffiliationToAgency = map[models.ServiceMemberAffiliation]string{
+	models.AffiliationARMY:     "DZ",
+	models.AffiliationNAVY:     "DN",
+	models.AffiliationMARINES:  "DX",
+	models.AffiliationAIRFORCE: "DY",
 }
 
 // FA1 represents the FA1 EDI segment
@@ -20,9 +19,9 @@ type FA1 struct {
 	AgencyQualifierCode string
 }
 
-// String converts FA1 to its X12 single line string representation
-func (s *FA1) String(delimiter string) string {
-	return strings.Join([]string{"FA1", s.AgencyQualifierCode}, delimiter) + "\n"
+// StringArray converts FA1 to an array of strings
+func (s *FA1) StringArray() []string {
+	return []string{"FA1", s.AgencyQualifierCode}
 }
 
 // Parse parses an X12 string that's split into an array into the FA1 struct

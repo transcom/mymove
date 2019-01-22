@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/gobuffalo/pop"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -59,10 +58,10 @@ func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
 func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	residentialAddress := MakeDefaultAddress(db)
 	backupMailingAddress := MakeDefaultAddress(db)
-	Army := internalmessages.AffiliationARMY
-	E1 := internalmessages.ServiceMemberRankE1
+	Army := models.AffiliationARMY
+	E1 := models.ServiceMemberRankE1
 
-	station := MakeDefaultDutyStation(db)
+	station := FetchOrMakeDefaultDutyStation(db)
 	emailPreferred := true
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
@@ -89,7 +88,9 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 			ServiceMemberID: serviceMember.ID,
 		},
 	}
-	MakeBackupContact(db, contactAssertions)
+	backupContact := MakeBackupContact(db, contactAssertions)
+	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
+	mustSave(db, &serviceMember)
 
 	return serviceMember
 }

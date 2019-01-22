@@ -5,6 +5,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import './shared.css';
 
 export const swaggerDateFormat = 'YYYY-MM-DD';
 export const defaultDateFormat = 'M/D/YYYY';
@@ -36,10 +37,15 @@ export const upsert = (arr, newValue) => {
 };
 
 export function fetchActive(foos) {
+  return find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
+}
+
+export function fetchActiveShipment(shipments) {
   return (
-    find(foos, i =>
+    find(shipments, i =>
       includes(
-        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'PAYMENT_REQUESTED'],
+        // For now, this include all statuses, but this may be re-evaluated in the future.
+        ['DRAFT', 'SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
         get(i, 'status'),
       ),
     ) || null
@@ -72,29 +78,22 @@ export function formatPayload(payload, def) {
   });
 }
 
-export const convertDollarsToCents = dollars =>
-  Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
+export const convertDollarsToCents = dollars => Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
 
 export function renderStatusIcon(status) {
   if (!status) {
     return;
   }
-  if (
-    status === 'AWAITING_REVIEW' ||
-    status === 'DRAFT' ||
-    status === 'SUBMITTED'
-  ) {
+  if (status === 'AWAITING_REVIEW' || status === 'DRAFT' || status === 'SUBMITTED') {
     return <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />;
   }
   if (status === 'OK') {
     return <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />;
   }
+  if (status === 'APPROVED' || status === 'INVOICED') {
+    return <FontAwesomeIcon className="icon approved" icon={faCheck} />;
+  }
   if (status === 'HAS_ISSUE') {
-    return (
-      <FontAwesomeIcon
-        className="icon approval-problem"
-        icon={faExclamationCircle}
-      />
-    );
+    return <FontAwesomeIcon className="icon approval-problem" icon={faExclamationCircle} />;
   }
 }

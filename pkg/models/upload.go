@@ -1,13 +1,15 @@
 package models
 
 import (
+	"context"
 	"path"
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
 )
@@ -44,7 +46,7 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // BeforeCreate populates the StorageKey on a newly created Upload
 func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 	// Populate ID if not exists
-	if uuid.Equal(u.ID, uuid.UUID{}) {
+	if u.ID == uuid.Nil {
 		u.ID = uuid.Must(uuid.NewV4())
 	}
 
@@ -56,7 +58,11 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 }
 
 // FetchUpload returns an Upload if the user has access to that upload
-func FetchUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
+func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
+
+	ctx, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
+	defer span.Send()
+
 	var upload Upload
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
@@ -70,7 +76,7 @@ func FetchUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (Uploa
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if upload.DocumentID != nil {
-		_, docErr := FetchDocument(db, session, *upload.DocumentID)
+		_, docErr := FetchDocument(ctx, db, session, *upload.DocumentID)
 		if docErr != nil {
 			return Upload{}, docErr
 		}

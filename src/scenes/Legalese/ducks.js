@@ -1,52 +1,35 @@
-import {
-  GetCertifications,
-  GetCertificationText,
-  CreateCertification,
-} from './api.js';
+import { GetCertificationText, CreateCertification } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { get } from 'lodash';
+import { pick } from 'lodash';
 import { SubmitForApproval } from '../Moves/ducks.js';
+import { normalize } from 'normalizr';
+import { move } from 'shared/Entities/schema';
+import { addEntities } from 'shared/Entities/actions';
+import { swaggerRequest } from 'shared/Swagger/request';
+import { getClient } from 'shared/Swagger/api';
 
 const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
+const signAndSubmitPpmForApprovalType = 'SIGN_AND_SUBMIT_PPM_FOR_APPROVAL';
 
 // Actions
 
-export const CREATE_SIGNED_CERT = ReduxHelpers.generateAsyncActionTypes(
-  'CREATE_SIGNED_CERT',
-);
+export const CREATE_SIGNED_CERT = ReduxHelpers.generateAsyncActionTypes('CREATE_SIGNED_CERT');
 
-export const GET_LATEST_CERT = ReduxHelpers.generateAsyncActionTypes(
-  'GET_LATEST_CERT',
-);
+export const GET_LATEST_CERT = ReduxHelpers.generateAsyncActionTypes('GET_LATEST_CERT');
 
-export const GET_CERT_TEXT = ReduxHelpers.generateAsyncActionTypes(
-  'GET_CERT_TEXT',
-);
+export const GET_CERT_TEXT = ReduxHelpers.generateAsyncActionTypes('GET_CERT_TEXT');
 
 // Action creator
-export const loadCertificationText = ReduxHelpers.generateAsyncActionCreator(
-  'GET_CERT_TEXT',
-  GetCertificationText,
-);
+export const loadCertificationText = ReduxHelpers.generateAsyncActionCreator('GET_CERT_TEXT', GetCertificationText);
 
-const createSignedCertification = ReduxHelpers.generateAsyncActionCreator(
-  'CREATE_SIGNED_CERT',
-  CreateCertification,
-);
+const createSignedCertification = ReduxHelpers.generateAsyncActionCreator('CREATE_SIGNED_CERT', CreateCertification);
 
-const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(
-  signAndSubmitForApprovalType,
-);
+const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(signAndSubmitForApprovalType);
 
-const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(
-  signAndSubmitForApprovalType,
-);
-export const signAndSubmitForApproval = (
-  moveId,
-  certificationText,
-  signature,
-  dateSigned,
-) => {
+const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitForApprovalType);
+const signAndSubmitPpmForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitPpmForApprovalType);
+
+export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned) => {
   return async function(dispatch, getState) {
     dispatch(signAndSubmitForApprovalActions.start());
     try {
@@ -60,7 +43,10 @@ export const signAndSubmitForApproval = (
           },
         }),
       );
-      await dispatch(SubmitForApproval(moveId));
+      const response = await dispatch(SubmitForApproval(moveId));
+      const data = normalize(response.payload, move);
+      const filtered = pick(data.entities, ['shipments', 'moves']);
+      dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
       return dispatch(signAndSubmitForApprovalActions.error(error));
@@ -68,14 +54,36 @@ export const signAndSubmitForApproval = (
   };
 };
 
-export function loadLatestCertification(moveId) {
-  const action = ReduxHelpers.generateAsyncActions('GET_LATEST_CERT');
-  return function(dispatch, getState) {
-    dispatch(action.start);
-    return GetCertifications(moveId, 1)
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.error(error)));
+export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId) => {
+  return async function(dispatch, getState) {
+    dispatch(signAndSubmitPpmForApprovalActions.start());
+    try {
+      await dispatch(
+        createSignedCertification({
+          moveId,
+          createSignedCertificationPayload: {
+            certification_text: certificationText,
+            signature,
+            date: dateSigned,
+          },
+        }),
+      );
+      await dispatch(submitPpm(ppmId));
+      return dispatch(signAndSubmitPpmForApprovalActions.success());
+    } catch (error) {
+      console.log(error);
+      return dispatch(signAndSubmitPpmForApprovalActions.error(error));
+    }
   };
+};
+
+export function submitPpm(personallyProcuredMoveId) {
+  return swaggerRequest(
+    getClient,
+    'ppm.submitPersonallyProcuredMove',
+    { personallyProcuredMoveId },
+    { label: 'submit_ppm' },
+  );
 }
 
 // Reducer
@@ -83,8 +91,6 @@ const initialState = {
   hasSubmitError: false,
   hasSubmitSuccess: false,
   confirmationText: '',
-  getCertificationSuccess: false,
-  getCertificationError: false,
   latestSignedCertification: null,
   certificationText: null,
   error: null,
@@ -97,8 +103,7 @@ export function signedCertificationReducer(state = initialState, action) {
       });
     case GET_CERT_TEXT.failure:
       return Object.assign({}, state, {
-        certificationText:
-          '## Error retrieving legalese. Please reload the page.',
+        certificationText: '## Error retrieving legalese. Please reload the page.',
         error: action.error,
       });
     case CREATE_SIGNED_CERT.success:
@@ -112,25 +117,6 @@ export function signedCertificationReducer(state = initialState, action) {
         hasSubmitSuccess: false,
         hasSubmitError: true,
         confirmationText: 'Submission error.',
-      });
-    case GET_LATEST_CERT.start:
-      return Object.assign({}, state, {
-        getCertificationSuccess: false,
-      });
-    case GET_LATEST_CERT.success:
-      return Object.assign({}, state, {
-        getCertificationSuccess: true,
-        getCertificationError: false,
-        latestSignedCertification: get(action, 'payload.0', null),
-        certificationText: get(action, 'payload.0.certification_text', null),
-      });
-    case GET_LATEST_CERT.failure:
-      return Object.assign({}, state, {
-        getCertificationSuccess: false,
-        getCertificationError: true,
-        latestSignedCertification: null,
-        certificationText: null,
-        error: get(action, 'error', null),
       });
     case SIGN_AND_SUBMIT_FOR_APPROVAL.success:
       return { ...state, moveSubmitSuccess: true };

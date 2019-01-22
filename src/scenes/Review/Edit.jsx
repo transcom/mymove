@@ -1,9 +1,11 @@
 import React from 'react';
 import Summary from './Summary';
 import { withRouter } from 'react-router-dom';
+import scrollToTop from 'shared/scrollToTop';
+
 export class Edit extends React.Component {
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
   goBack = () => {
     this.props.history.goBack();
@@ -16,10 +18,7 @@ export class Edit extends React.Component {
             &lt;BACK TO HOME
           </a>
           <h1 className="edit-title">Edit Move</h1>
-          <p>
-            Changes to your orders or shipments could impact your move,
-            including the estimated PPM incentive.
-          </p>
+          <p>Changes to your orders or shipments could impact your move, including the estimated PPM incentive.</p>
           <Summary />
         </div>
       </div>

@@ -1,20 +1,19 @@
 package notifications
 
 import (
-	"log"
+	"context"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type NotificationSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
@@ -27,12 +26,13 @@ func (n testNotification) emails() ([]emailContent, error) {
 }
 
 func (suite *NotificationSuite) TestMoveApproved() {
+	ctx := context.Background()
 	t := suite.T()
 
-	approver := testdatagen.MakeDefaultUser(suite.db)
-	move := testdatagen.MakeDefaultMove(suite.db)
+	approver := testdatagen.MakeDefaultUser(suite.DB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := MoveApproved{
-		db:     suite.db,
+		db:     suite.DB(),
 		logger: suite.logger,
 		moveID: move.ID,
 		session: &auth.Session{
@@ -41,7 +41,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 		},
 	}
 
-	emails, err := notification.emails()
+	emails, err := notification.emails(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,11 +57,12 @@ func (suite *NotificationSuite) TestMoveApproved() {
 }
 
 func (suite *NotificationSuite) TestMoveSubmitted() {
+	ctx := context.Background()
 	t := suite.T()
 
-	move := testdatagen.MakeDefaultMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := MoveSubmitted{
-		db:     suite.db,
+		db:     suite.DB(),
 		logger: suite.logger,
 		moveID: move.ID,
 		session: &auth.Session{
@@ -70,7 +71,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 		},
 	}
 
-	emails, err := notification.emails()
+	emails, err := notification.emails(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,18 +96,11 @@ func (suite *NotificationSuite) GetTestEmailContent() emailContent {
 }
 
 func TestNotificationSuite(t *testing.T) {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, _ := zap.NewDevelopment()
 
 	s := &NotificationSuite{
-		db:     db,
-		logger: logger,
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+		logger:       logger,
 	}
 	suite.Run(t, s)
 }

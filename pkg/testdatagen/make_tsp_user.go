@@ -22,11 +22,19 @@ func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 		email = assertions.User.LoginGovEmail
 	}
 
-	tsp := MakeDefaultTSP(db)
+	var tsp models.TransportationServiceProvider
+	var tspAssertions = assertions.TransportationServiceProvider
+	if &tspAssertions == nil {
+		tsp = MakeDefaultTSP(db)
+	} else {
+		tsp = MakeTSP(db, Assertions{
+			TransportationServiceProvider: tspAssertions,
+		})
+	}
 
 	tspUser := models.TspUser{
-		UserID: &user.ID,
-		User:   user,
+		UserID:                          &user.ID,
+		User:                            user,
 		TransportationServiceProvider:   tsp,
 		TransportationServiceProviderID: tsp.ID,
 		FirstName:                       "Leo",

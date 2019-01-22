@@ -3,7 +3,6 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // SE represents the SE EDI segment
@@ -12,14 +11,13 @@ type SE struct {
 	TransactionSetControlNumber string
 }
 
-// String converts SE to its X12 single line string representation
-func (s *SE) String(delimiter string) string {
-	elements := []string{
+// StringArray converts SE to an array of strings
+func (s *SE) StringArray() []string {
+	return []string{
 		"SE",
 		strconv.Itoa(s.NumberOfIncludedSegments),
 		s.TransactionSetControlNumber,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the SE struct

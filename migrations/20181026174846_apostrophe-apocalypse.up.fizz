@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181026174846_apostrophe-apocalypse.sql")

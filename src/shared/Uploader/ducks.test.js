@@ -1,8 +1,4 @@
-import {
-  CREATE_DOCUMENT_SUCCESS,
-  CREATE_DOCUMENT_FAILURE,
-  documentReducer,
-} from './ducks';
+import { CREATE_DOCUMENT_SUCCESS, CREATE_DOCUMENT_FAILURE, documentReducer } from './ducks';
 
 describe('Document Reducer', () => {
   it('Should handle CREATE_DOCUMENT_SUCCESS', () => {

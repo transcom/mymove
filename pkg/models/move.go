@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -32,6 +32,27 @@ const (
 	MoveStatusCANCELED MoveStatus = "CANCELED"
 )
 
+// SelectedMoveType represents the type of move being represented
+type SelectedMoveType string
+
+// This lists available move types in the system
+// Combination move types like HHG+PPM should be added as an underscore separated list
+// The list should be lexigraphically sorted. Ex: UB + PPM will always be 'PPM_UB'
+const (
+	// MoveStatusHHG captures enum value "HHG" for House Hold Goods
+	SelectedMoveTypeHHG SelectedMoveType = "HHG"
+	// MoveStatusPPM captures enum value "PPM" for Personally Procured Move
+	SelectedMoveTypePPM SelectedMoveType = "PPM"
+	// MoveStatusUB captures enum value "UB" for Unaccompanied Baggage
+	SelectedMoveTypeUB SelectedMoveType = "UB"
+	// MoveStatusPOV captures enum value "POV" for Privately-Owned Vehicle
+	SelectedMoveTypePOV SelectedMoveType = "POV"
+	// MoveStatusNTS captures enum value "NTS" for Non-Temporary Storage
+	SelectedMoveTypeNTS SelectedMoveType = "NTS"
+	// MoveStatusHHGPPM captures enum value "HHG_PPM" for combination move HHG + PPM
+	SelectedMoveTypeHHGPPM SelectedMoveType = "HHG_PPM"
+)
+
 const maxLocatorAttempts = 3
 const locatorLength = 6
 
@@ -46,7 +67,7 @@ type Move struct {
 	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
 	OrdersID                uuid.UUID               `json:"orders_id" db:"orders_id"`
 	Orders                  Order                   `belongs_to:"orders"`
-	SelectedMoveType        *string                 `json:"selected_move_type" db:"selected_move_type"`
+	SelectedMoveType        *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
 	Shipments               Shipments               `has_many:"shipments"`
 	MoveDocuments           MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
@@ -232,7 +253,8 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	notes *string) (*MoveDocument, *validate.Errors, error) {
+	notes *string,
+	moveType SelectedMoveType) (*MoveDocument, *validate.Errors, error) {
 
 	var responseError error
 	responseVErrors := validate.NewErrors()
@@ -261,7 +283,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	}
 
 	var newMoveDocument *MoveDocument
-	if moveDocumentType == "GOV_BILL_OF_LADING" {
+	if moveType == "HHG" {
 		newMoveDocument = &MoveDocument{
 			Move:             m,
 			MoveID:           m.ID,
@@ -304,7 +326,8 @@ func (m Move) CreateMoveDocument(
 	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	notes *string) (*MoveDocument, *validate.Errors, error) {
+	notes *string,
+	moveType SelectedMoveType) (*MoveDocument, *validate.Errors, error) {
 
 	var newMoveDocument *MoveDocument
 	var responseError error
@@ -319,7 +342,8 @@ func (m Move) CreateMoveDocument(
 			modelID,
 			moveDocumentType,
 			title,
-			notes)
+			notes,
+			moveType)
 
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
@@ -342,7 +366,8 @@ func (m Move) CreateMovingExpenseDocument(
 	notes *string,
 	requestedAmountCents unit.Cents,
 	paymentMethod string,
-	movingExpenseType MovingExpenseType) (*MovingExpenseDocument, *validate.Errors, error) {
+	movingExpenseType MovingExpenseType,
+	moveType SelectedMoveType) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
 	var responseError error
@@ -358,7 +383,8 @@ func (m Move) CreateMovingExpenseDocument(
 			personallyProcuredMoveID,
 			moveDocumentType,
 			title,
-			notes)
+			notes,
+			moveType)
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}
@@ -402,20 +428,20 @@ func (m Move) CreatePPM(db *pop.Connection,
 	advance *Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
 
 	newPPM := PersonallyProcuredMove{
-		MoveID:                     m.ID,
-		Move:                       m,
-		Size:                       size,
-		WeightEstimate:             weightEstimate,
-		PlannedMoveDate:            plannedMoveDate,
-		PickupPostalCode:           pickupPostalCode,
-		HasAdditionalPostalCode:    hasAdditionalPostalCode,
-		AdditionalPickupPostalCode: additionalPickupPostalCode,
-		DestinationPostalCode:      destinationPostalCode,
-		HasSit:                     hasSit,
-		DaysInStorage:              daysInStorage,
-		Status:                     PPMStatusDRAFT,
-		HasRequestedAdvance:        hasRequestedAdvance,
-		Advance:                    advance,
+		MoveID:                        m.ID,
+		Move:                          m,
+		Size:                          size,
+		WeightEstimate:                weightEstimate,
+		PlannedMoveDate:               plannedMoveDate,
+		PickupPostalCode:              pickupPostalCode,
+		HasAdditionalPostalCode:       hasAdditionalPostalCode,
+		AdditionalPickupPostalCode:    additionalPickupPostalCode,
+		DestinationPostalCode:         destinationPostalCode,
+		HasSit:                        hasSit,
+		DaysInStorage:                 daysInStorage,
+		Status:                        PPMStatusDRAFT,
+		HasRequestedAdvance:           hasRequestedAdvance,
+		Advance:                       advance,
 		EstimatedStorageReimbursement: estimatedStorageReimbursement,
 	}
 
@@ -480,11 +506,11 @@ func GenerateLocator() string {
 // retry with a new record locator.
 func createNewMove(db *pop.Connection,
 	orders Order,
-	selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
+	selectedType *SelectedMoveType) (*Move, *validate.Errors, error) {
 
-	var stringSelectedType string
+	var stringSelectedType SelectedMoveType
 	if selectedType != nil {
-		stringSelectedType = string(*selectedType)
+		stringSelectedType = SelectedMoveType(*selectedType)
 	}
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
@@ -616,4 +642,19 @@ func FetchMoveForAdvancePaperwork(db *pop.Connection, moveID uuid.UUID) (Move, e
 		return move, errors.Wrap(err, "could not load move")
 	}
 	return move, nil
+}
+
+// FetchMoveForMoveDates returns a Move along with all the associations needed to determine
+// the move dates summary information.
+func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	err := db.
+		Eager(
+			"Orders.ServiceMember.DutyStation.Address",
+			"Orders.NewDutyStation.Address",
+			"Orders.ServiceMember",
+		).
+		Find(&move, moveID)
+
+	return move, err
 }

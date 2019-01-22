@@ -86,8 +86,8 @@ Next:
     1. Edit the production migration to have the actual change you wish to deploy
     2. Copy the production migration into the local migration, scrubbing sensitive data
     3. If everything looks good, upload the migration to S3 with this utility:
-       upload-secure-migration \\
+       bin/upload-secure-migration \\
           ${prod_migration_name}
-    4. Run bin/run_prod_migrations to verify that the upload worked and that the migration can be applied successfully.
+    4. Run bin/run-prod-migrations to verify that the upload worked and that the migration can be applied successfully.
     5. Open a pull request for this change; when it is accepted, your migration will run on staging.
 EOM

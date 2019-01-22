@@ -29,16 +29,7 @@ class BigButtonGroup extends Component {
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
     const hhgEnabled = this.props.context.flags.hhg;
-    const createButton = (
-      value,
-      description,
-      title,
-      icon,
-      prosList,
-      altTag,
-      isMobile,
-      isDisabled,
-    ) => {
+    const createButton = (value, description, title, icon, prosList, altTag, isMobile, isDisabled) => {
       const onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
       };
@@ -68,9 +59,7 @@ class BigButtonGroup extends Component {
                   return (
                     <div key={key.toString()}>
                       <p>{key}</p>
-                      <ul className="smaller-text">
-                        {pros.map(item => <li key={item}>{item}</li>)}
-                      </ul>
+                      <ul className="smaller-text">{pros.map(item => <li key={item}>{item}</li>)}</ul>
                     </div>
                   );
                 }, this)}
@@ -170,25 +159,17 @@ export class MoveType extends Component {
   render() {
     // TODO: once Combo and HHG options available, remove currentOption and disabled prop
     const { pendingMoveType, currentMove } = this.props;
-    const selectedOption =
-      pendingMoveType || (currentMove && currentMove.selected_move_type);
+    const selectedOption = pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
       <div className="usa-grid-full select-move-type">
         <h2>
           {' '}
           Select a move type{' '}
-          <a
-            href="https://www.move.mil/moving-guide"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://www.move.mil/moving-guide" target="_blank" rel="noopener noreferrer">
             Learn More
           </a>
         </h2>
-        <BigButtonGroupWithSize
-          selectedOption={selectedOption}
-          onMoveTypeSelected={this.onMoveTypeSelected}
-        />
+        <BigButtonGroupWithSize selectedOption={selectedOption} onMoveTypeSelected={this.onMoveTypeSelected} />
       </div>
     );
   }

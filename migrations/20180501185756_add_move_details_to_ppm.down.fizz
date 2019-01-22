@@ -1,5 +1,0 @@
-drop_column("personally_procured_moves", "planned_move_date")
-drop_column("personally_procured_moves", "pickup_zip")
-drop_column("personally_procured_moves", "additional_pickup_zip")
-drop_column("personally_procured_moves", "destination_zip")
-drop_column("personally_procured_moves", "days_in_storage")

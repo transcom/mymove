@@ -6,21 +6,19 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// GovBillOfLadingExtractor is an object representing a GBL form 1203
-type GovBillOfLadingExtractor struct {
+// GovBillOfLadingFormValues is an object representing a GBL form 1203
+type GovBillOfLadingFormValues struct {
 	// GBL Number is in two places on the form
 	GBLNumber1 string `db:"gbl_number_1"`
 	GBLNumber2 string `db:"gbl_number_2"`
-	// TBD - from TSP
+	// From TSP on shipmentOffer
 	TSPName string `db:"tsp_name"`
-	// TBD -from ServiceAgent
-	ServiceAgentName string `db:"service_agent_name"`
 	// From Shipment.TransportationServiceProvider.StandardCarrierAlphaCode
 	StandardCarrierAlphaCode string `db:"standard_carrier_alpha_code"`
 	// From Shipment.TrafficDistributionList.CodeOfService
@@ -59,7 +57,7 @@ type GovBillOfLadingExtractor struct {
 	// From Shipment pickup address, or NTS address and details (weight, lot number, etc.)
 	PickupAddressID uuid.UUID `db:"pickup_address_id"`
 	PickupAddress   Address   `belongs_to:"address"`
-	// From Shipment.DestinationGBLOC (look up Transportatoin office name from gbloc)
+	// From Shipment.DestinationGBLOC (look up Transportation office name from gbloc)
 	ResponsibleDestinationOffice string `db:"responsible_destination_office"`
 	// From Shipment.DestinationGBLOC
 	DestinationGbloc string `db:"destination_gbloc"`
@@ -70,9 +68,9 @@ type GovBillOfLadingExtractor struct {
 	// TSP enters
 	FreightBillNumber string
 	// Accounting info from orders - DI, TAC, and SAC (see description)
-	TAC                 string `db:"tac"`
-	SAC                 string `db:"sac"`
-	DepartmentIndicator string `db:"department_indicator"`
+	TAC                 string                          `db:"tac"`
+	SAC                 string                          `db:"sac"`
+	DepartmentIndicator *internalmessages.DeptIndicator `db:"department_indicator"`
 	// (func to "getRemarks" with hardcoded values - See description - 16 cases account for. For now: "Direct Delivery Requested"). If any of ForUsePayingOffice... are true, must explain here
 	Remarks string `db:"remarks"`
 	// TGBL shipment case - see description ("LOT").
@@ -93,7 +91,7 @@ type GovBillOfLadingExtractor struct {
 	// ¿Officer in JPPSO/PPSO - the one who approved orders? leave blank for now
 	IssuingOfficerFullName string
 	IssuingOfficerTitle    string
-	// From Shipment.SourceGBLOC (look up Transportatoin office name from gbloc)
+	// From Shipment.SourceGBLOC (look up Transportation office name from gbloc)
 	IssuingOfficeName      string    `db:"issuing_office_name"`
 	IssuingOfficeAddressID uuid.UUID `db:"issuing_office_address_id"`
 	IssuingOfficeAddress   Address   `belongs_to:"address"`
@@ -121,17 +119,16 @@ type GovBillOfLadingExtractor struct {
 	CertOfTSPBillingAuthorizedAgentSignature *SignedCertification
 }
 
-// FetchGovBillOfLadingExtractor fetches a single GovBillOfLadingExtractor for a given Shipment ID
-func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (GovBillOfLadingExtractor, error) {
-	var gbl GovBillOfLadingExtractor
+// FetchGovBillOfLadingFormValues fetches a single GovBillOfLadingFormValues for a given Shipment ID
+func FetchGovBillOfLadingFormValues(db *pop.Connection, shipmentID uuid.UUID) (GovBillOfLadingFormValues, error) {
+	var gbl GovBillOfLadingFormValues
 	sql := `SELECT
-				-- TODO use new GBL number
-				'ABC123456' AS gbl_number_1,
-				'ABC123456' AS gbl_number_2,
-				s.book_date AS date_issued,
+				s.gbl_number AS gbl_number_1,
+				s.gbl_number AS gbl_number_2,
 				s.pm_survey_planned_pack_date AS requested_pack_date,
 				s.pm_survey_planned_pickup_date AS requested_pickup_date,
 				s.pm_survey_planned_delivery_date AS required_delivery_date,
+				CASE WHEN s.has_delivery_address THEN s.delivery_address_id ELSE ds.address_id END AS consignee_address_id,
 				s.secondary_pickup_address_id,
 				s.pickup_address_id,
 				s.destination_gbloc,
@@ -140,11 +137,10 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				sm.edipi AS service_member_edipi,
 				sm.rank AS service_member_rank,
 				sm.affiliation AS service_member_affiliation,
-				sm.residential_address_id AS consignee_address_id,
 				o.issue_date AS orders_issue_date,
 				concat_ws(' ', o.orders_number, o.paragraph_number, o.orders_issuing_agency) AS authority_for_shipment,
 				CASE WHEN o.has_dependents THEN 'WD' ELSE 'WOD' END AS service_member_dependent_status,
-				sa.company AS service_agent_name,
+				tsp.name AS tsp_name,
 				tsp.standard_carrier_alpha_code,
 				tdl.code_of_service,
 				source_to.name AS full_name_of_shipper,
@@ -152,7 +148,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				source_to.name AS issuing_office_name,
 				source_to.address_id AS issuing_office_address_id,
 				s.source_gbloc AS issuing_office_gbloc,
-				concat('DI: ', o.department_indicator) AS department_indicator,
+				o.department_indicator AS department_indicator,
 				concat('SAC: ', o.sac) AS sac,
 				concat('TAC: ', o.tac) AS tac,
 				perf.linehaul_rate AS linehaul_transportation_rate
@@ -163,18 +159,20 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				ON s.move_id = m.id
 			INNER JOIN orders o
 				ON m.orders_id = o.id
+			INNER JOIN duty_stations ds
+				ON o.new_duty_station_id = ds.id
 			INNER JOIN service_agents sa
 			ON s.id = sa.shipment_id
 			INNER JOIN transportation_offices source_to
-				ON s.source_gbloc = source_to.gbloc
+				ON s.source_gbloc = source_to.gbloc and source_to.shipping_office_id is NULL
 			INNER JOIN transportation_offices dest_to
-				ON s.destination_gbloc = dest_to.gbloc
+				ON s.destination_gbloc = dest_to.gbloc and dest_to.shipping_office_id is NULL
 			LEFT JOIN shipment_offers so
 				ON s.id = so.shipment_id
 			LEFT JOIN transportation_service_providers tsp
 				ON so.transportation_service_provider_id = tsp.id
 			LEFT JOIN transportation_service_provider_performances perf
-				ON tsp.id = perf.transportation_service_provider_id
+				ON so.transportation_service_provider_performance_id = perf.transportation_service_provider_id
 			LEFT JOIN traffic_distribution_lists tdl
 				ON s.traffic_distribution_list_id = tdl.id
 			WHERE s.id = $1
@@ -185,6 +183,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 				AND s.pm_survey_planned_delivery_date IS NOT NULL
 				AND sm.edipi IS NOT NULL
 				AND sa.company IS NOT NULL
+				AND tsp.name IS NOT NULL
 				AND o.department_indicator IS NOT NULL
 				AND o.sac IS NOT NULL
 				AND o.tac IS NOT NULL
@@ -195,6 +194,7 @@ func FetchGovBillOfLadingExtractor(db *pop.Connection, shipmentID uuid.UUID) (Go
 	}
 
 	// These values are hardcoded for now
+	gbl.DateIssued = time.Now()
 	gbl.BillChargesToName = "US Bank PowerTrack\n" +
 		"Minneapolis, MN\n" +
 		"800-417-1844\n" +

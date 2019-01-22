@@ -14,7 +14,7 @@ type L7 struct {
 	TariffDistance       int
 }
 
-// String converts L7 to its X12 single line string representation
+// StringArray converts L7 to an array of strings
 func (s *L7) String(delimiter string) string {
 	elements := []string{
 		"L7",
@@ -32,7 +32,7 @@ func (s *L7) String(delimiter string) string {
 		"",
 		strconv.Itoa(s.TariffDistance),
 	}
-	return strings.Join(elements, delimiter) + "\n"
+	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the L7 struct

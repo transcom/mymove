@@ -1,26 +1,28 @@
+import { isNull, get } from 'lodash';
 import {
   LoadShipment,
   PatchShipment,
   AcceptShipment,
-  RejectShipment,
   TransportShipment,
   DeliverShipment,
+  CompletePmSurvey,
   CreateServiceAgent,
   IndexServiceAgents,
   UpdateServiceAgent,
-  GenerateGBL,
+  GetAllShipmentDocuments,
 } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
+import { getEntitlements } from 'shared/entitlements.js';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadShipmentType = 'LOAD_SHIPMENT';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
-const generateGBLType = 'GENERATE_GBL';
-const rejectShipmentType = 'REJECT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
-const deliverShipmentType = 'TRANSPORT_SHIPMENT';
+const deliverShipmentType = 'DELIVER_SHIPMENT';
+const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
+const completePmSurveyType = 'COMPLETE_PM_SURVEY';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
@@ -32,90 +34,46 @@ const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 // SINGLE RESOURCE ACTION TYPES
 const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
-const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  acceptShipmentType,
-);
-const REJECT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  rejectShipmentType,
-);
-const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  transportShipmentType,
-);
-const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
-  deliverShipmentType,
-);
+const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(acceptShipmentType);
+const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipmentType);
+const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
+const COMPLETE_PM_SURVEY = ReduxHelpers.generateAsyncActionTypes(completePmSurveyType);
+const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
 
-const GENERATE_GBL = ReduxHelpers.generateAsyncActionTypes(generateGBLType);
+const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceAgentsType);
 
-const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
-  indexServiceAgentsType,
-);
+const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(createServiceAgentsType);
 
-const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
-  createServiceAgentsType,
-);
-
-const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(
-  updateServiceAgentsType,
-);
+const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(updateServiceAgentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
-const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
-  loadTspDependenciesType,
-);
+const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadTspDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
 
-export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
-  loadShipmentType,
-  LoadShipment,
+export const loadShipment = ReduxHelpers.generateAsyncActionCreator(loadShipmentType, LoadShipment);
+
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
+
+export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(acceptShipmentType, AcceptShipment);
+
+export const transportShipment = ReduxHelpers.generateAsyncActionCreator(transportShipmentType, TransportShipment);
+
+export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(deliverShipmentType, DeliverShipment);
+
+export const completePmSurvey = ReduxHelpers.generateAsyncActionCreator(completePmSurveyType, CompletePmSurvey);
+
+export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
+  loadShipmentDocumentsType,
+  GetAllShipmentDocuments,
 );
 
-export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
-  patchShipmentType,
-  PatchShipment,
-);
+export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(indexServiceAgentsType, IndexServiceAgents);
 
-export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(
-  acceptShipmentType,
-  AcceptShipment,
-);
+export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(createServiceAgentsType, CreateServiceAgent);
 
-export const generateGBL = ReduxHelpers.generateAsyncActionCreator(
-  generateGBLType,
-  GenerateGBL,
-);
-
-export const rejectShipment = ReduxHelpers.generateAsyncActionCreator(
-  rejectShipmentType,
-  RejectShipment,
-);
-
-export const transportShipment = ReduxHelpers.generateAsyncActionCreator(
-  transportShipmentType,
-  TransportShipment,
-);
-
-export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(
-  deliverShipmentType,
-  DeliverShipment,
-);
-
-export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(
-  indexServiceAgentsType,
-  IndexServiceAgents,
-);
-
-export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(
-  createServiceAgentsType,
-  CreateServiceAgent,
-);
-
-export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(
-  updateServiceAgentsType,
-  UpdateServiceAgent,
-);
+export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(updateServiceAgentsType, UpdateServiceAgent);
 
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
@@ -123,10 +81,23 @@ export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(
 // perform their work and exist to encapsulate when multiple requests
 // need to be made in response to a user action.
 
+export function handleServiceAgents(shipmentId, serviceAgents) {
+  return async function(dispatch, getState) {
+    for (const serviceAgent in serviceAgents) {
+      // eslint-disable-next-line security/detect-object-injection
+      dispatch(createOrUpdateServiceAgent(shipmentId, serviceAgents[serviceAgent]));
+    }
+  };
+}
+
 export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
   return async function(dispatch, getState) {
     if (serviceAgent.id) {
       return dispatch(updateServiceAgent(serviceAgent));
+    } else if (!serviceAgent.company || !serviceAgent.email || !serviceAgent.phone_number) {
+      // Don't send the service agent if it's not got enough details
+      // Currently, it should only be the destination agent that gets skipped
+      return;
     } else {
       return dispatch(createServiceAgent(shipmentId, serviceAgent));
     }
@@ -138,19 +109,25 @@ export function loadShipmentDependencies(shipmentId) {
   return async function(dispatch, getState) {
     dispatch(actions.start());
     try {
-      await Promise.all([
-        dispatch(loadShipment(shipmentId)),
-        dispatch(indexServiceAgents(shipmentId)),
-      ]);
+      await Promise.all([dispatch(loadShipment(shipmentId)), dispatch(indexServiceAgents(shipmentId))]);
       return dispatch(actions.success());
     } catch (ex) {
-      return dispatch(actions.error(ex));
+      dispatch(actions.error(ex));
+      throw new Error(ex);
     }
   };
 }
 
 // Selectors
-
+export function loadEntitlements(state) {
+  const hasDependents = get(state, 'tsp.shipment.move.has_dependents', null);
+  const spouseHasProGear = get(state, 'tsp.shipment.move.spouse_has_pro_gear', null);
+  const rank = get(state, 'tsp.shipment.service_member.rank', null);
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
+}
 // Reducer
 const initialState = {
   shipmentIsLoading: false,
@@ -179,12 +156,11 @@ const initialState = {
   serviceAgentIsUpdating: false,
   serviceAgentHasUpdatedSucces: false,
   serviceAgentHasUpdatedError: null,
+  shipment: {},
   loadTspDependenciesHasSuccess: false,
   loadTspDependenciesHasError: null,
   flashMessage: false,
   serviceAgents: [],
-  generateGBLSuccess: false,
-  generateGBLError: null,
 };
 
 export function tspReducer(state = initialState, action) {
@@ -209,7 +185,6 @@ export function tspReducer(state = initialState, action) {
         shipmentIsLoading: false,
         shipmentHasLoadSuccess: false,
         shipmentHasLoadError: null,
-        shipment: null,
         error: action.error.message,
       });
     case PATCH_SHIPMENT.start:
@@ -245,25 +220,6 @@ export function tspReducer(state = initialState, action) {
         shipmentIsAccepting: false,
         shipmentHasAcceptSuccess: false,
         shipmentHasAcceptError: null,
-        error: action.error.message,
-      });
-    case REJECT_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentIsRejecting: true,
-        shipmentHasRejectSuccess: false,
-      });
-    case REJECT_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentIsRejecting: false,
-        shipmentHasRejectSuccess: true,
-        shipmentHasRejectError: false,
-        shipment: action.payload,
-      });
-    case REJECT_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentIsRejecting: false,
-        shipmentHasRejectSuccess: false,
-        shipmentHasRejectError: null,
         error: action.error.message,
       });
     case TRANSPORT_SHIPMENT.start:
@@ -302,6 +258,48 @@ export function tspReducer(state = initialState, action) {
         shipmentIsDelivering: false,
         shipmentHasDeliverSuccess: false,
         shipmentHasDeliverError: null,
+        error: action.error.message,
+      });
+
+    // PM SURVEY ACTION
+    case COMPLETE_PM_SURVEY.start:
+      return Object.assign({}, state, {
+        pmSurveyIsCompleting: true,
+        pmSurveyHasCompletionSuccess: false,
+      });
+    case COMPLETE_PM_SURVEY.success:
+      return Object.assign({}, state, {
+        pmSurveyIsCompleting: false,
+        pmSurveyHasCompletionSuccess: true,
+        pmSurveyHasCompletionError: false,
+        shipment: action.payload,
+      });
+    case COMPLETE_PM_SURVEY.failure:
+      return Object.assign({}, state, {
+        pmSurveyIsCompleting: false,
+        pmSurveyHasCompletionSuccess: false,
+        pmSurveyHasCompletionError: null,
+        error: action.error.message,
+      });
+
+    // LOAD SHIPMENT DOCUMENTS
+    case LOAD_SHIPMENT_DOCUMENTS.start:
+      return Object.assign({}, state, {
+        loadingShipmentDocuments: true,
+        loadShipmentDocumentsSuccess: false,
+      });
+    case LOAD_SHIPMENT_DOCUMENTS.success:
+      return Object.assign({}, state, {
+        loadingShipmentDocuments: false,
+        loadShipmentDocumentsSuccess: true,
+        loadingShipmentDocumentsError: false,
+        shipmentDocuments: action.payload,
+      });
+    case LOAD_SHIPMENT_DOCUMENTS.failure:
+      return Object.assign({}, state, {
+        loadingShipmentDocuments: false,
+        loadShipmentDocumentsSuccess: false,
+        loadingShipmentDocumentsError: true,
         error: action.error.message,
       });
 
@@ -368,10 +366,7 @@ export function tspReducer(state = initialState, action) {
         }
       });
       if (!extant) {
-        console.log(
-          'WARNING: An updated Agent did not exist before updating: ',
-          updatedAgent.id,
-        );
+        console.log('WARNING: An updated Agent did not exist before updating: ', updatedAgent.id);
         updatedAgents.push(updatedAgent);
       }
 
@@ -388,23 +383,6 @@ export function tspReducer(state = initialState, action) {
         serviceAgentHasUpdatedError: null,
         serviceAgents: [],
         error: action.error.message,
-      });
-    // Gov bill of lading
-    case GENERATE_GBL.start:
-      return Object.assign({}, state, {
-        generateGBLSuccess: false,
-        generateGBLError: null,
-      });
-    case GENERATE_GBL.success:
-      return Object.assign({}, state, {
-        generateGBLSuccess: true,
-        generateGBLError: false,
-      });
-    case GENERATE_GBL.failure:
-      return Object.assign({}, state, {
-        generateGBLSuccess: false,
-        generateGBLError: true,
-        error: action.error,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES

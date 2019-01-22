@@ -1,6 +1,8 @@
+import { denormalize } from 'normalizr';
+import { swaggerRequest } from 'shared/Swagger/request';
+import { getPublicClient } from 'shared/Swagger/api';
 import { uploads } from '../schema';
 import { ADD_ENTITIES } from '../actions';
-import { denormalize } from 'normalizr';
 
 export const STATE_KEY = 'uploads';
 
@@ -15,6 +17,17 @@ export default function reducer(state = {}, action) {
     default:
       return state;
   }
+}
+
+export const createShipmentDocumentLabel = 'Uploads.createShipmentDocument';
+
+export function createShipmentDocument(label, shipmentId, createGenericMoveDocument) {
+  return swaggerRequest(
+    getPublicClient,
+    'move_docs.createGenericMoveDocument',
+    { shipmentId, createGenericMoveDocument },
+    { label },
+  );
 }
 
 export const selectUpload = (state, id) => {

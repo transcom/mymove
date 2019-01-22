@@ -1,17 +1,27 @@
 package handlers
 
 import (
+	"context"
+
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 // HandlerContext provides access to all the contextual references needed by individual handlers
 type HandlerContext interface {
 	DB() *pop.Connection
 	Logger() *zap.Logger
+	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -22,17 +32,31 @@ type HandlerContext interface {
 	SetCookieSecret(secret string)
 	NoSessionTimeout() bool
 	SetNoSessionTimeout()
+	IWSRealTimeBrokerService() iws.RealTimeBrokerService
+	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
+	SendProductionInvoice() bool
+	SetSendProductionInvoice(sendProductionInvoice bool)
+	GexSender() gex.SendToGex
+	SetGexSender(gexSender gex.SendToGex)
+	DPSAuthParams() dpsauth.Params
+	SetDPSAuthParams(params dpsauth.Params)
+	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
+	RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder
 }
 
 // A single handlerContext is passed to each handler
 type handlerContext struct {
-	db                 *pop.Connection
-	logger             *zap.Logger
-	cookieSecret       string
-	noSessionTimeout   bool
-	planner            route.Planner
-	storage            storage.FileStorer
-	notificationSender notifications.NotificationSender
+	db                       *pop.Connection
+	logger                   *zap.Logger
+	cookieSecret             string
+	noSessionTimeout         bool
+	planner                  route.Planner
+	storage                  storage.FileStorer
+	notificationSender       notifications.NotificationSender
+	iwsRealTimeBrokerService iws.RealTimeBrokerService
+	sendProductionInvoice    bool
+	dpsAuthParams            dpsauth.Params
+	senderToGex              gex.SendToGex
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -44,61 +68,112 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 }
 
 // DB returns a POP db connection for the context
-func (context *handlerContext) DB() *pop.Connection {
-	return context.db
+func (hctx *handlerContext) DB() *pop.Connection {
+	return hctx.db
 }
 
 // Logger returns the logger to use in this context
-func (context *handlerContext) Logger() *zap.Logger {
-	return context.logger
+func (hctx *handlerContext) Logger() *zap.Logger {
+	return hctx.logger
+}
+
+// HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
+func (hctx *handlerContext) HoneyZapLogger() *hnyzap.Logger {
+	return &hnyzap.Logger{Logger: hctx.logger}
+}
+
+// RespondAndTraceError uses Honeycomb to trace errors and then passes response to the standard ResponseForError
+func (hctx *handlerContext) RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder {
+	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
+	return ResponseForError(hctx.Logger(), err)
+}
+
+// RespondAndTraceVErrors uses Honeycomb to trace errors and then passes response to the standard ResponseForVErrors
+func (hctx *handlerContext) RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder {
+	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
+	return ResponseForVErrors(hctx.Logger(), verrs, err)
 }
 
 // FileStorer returns the storage to use in the current context
-func (context *handlerContext) FileStorer() storage.FileStorer {
-	return context.storage
+func (hctx *handlerContext) FileStorer() storage.FileStorer {
+	return hctx.storage
 }
 
 // SetFileStorer is a simple setter for storage private field
-func (context *handlerContext) SetFileStorer(storer storage.FileStorer) {
-	context.storage = storer
+func (hctx *handlerContext) SetFileStorer(storer storage.FileStorer) {
+	hctx.storage = storer
 }
 
 // NotificationSender returns the sender to use in the current context
-func (context *handlerContext) NotificationSender() notifications.NotificationSender {
-	return context.notificationSender
+func (hctx *handlerContext) NotificationSender() notifications.NotificationSender {
+	return hctx.notificationSender
 }
 
 // SetNotificationSender is a simple setter for AWS SES private field
-func (context *handlerContext) SetNotificationSender(sender notifications.NotificationSender) {
-	context.notificationSender = sender
+func (hctx *handlerContext) SetNotificationSender(sender notifications.NotificationSender) {
+	hctx.notificationSender = sender
 }
 
 // Planner is a simple setter for the route.Planner private field
-func (context *handlerContext) Planner() route.Planner {
-	return context.planner
+func (hctx *handlerContext) Planner() route.Planner {
+	return hctx.planner
 }
 
 // SetPlanner is a simple setter for the route.Planner private field
-func (context *handlerContext) SetPlanner(planner route.Planner) {
-	context.planner = planner
+func (hctx *handlerContext) SetPlanner(planner route.Planner) {
+	hctx.planner = planner
 }
 
 // CookieSecret returns the secret key to use when signing cookies
-func (context *handlerContext) CookieSecret() string {
-	return context.cookieSecret
+func (hctx *handlerContext) CookieSecret() string {
+	return hctx.cookieSecret
 }
 
 // SetCookieSecret is a simple setter for the cookieSeecret private Field
-func (context *handlerContext) SetCookieSecret(cookieSecret string) {
-	context.cookieSecret = cookieSecret
+func (hctx *handlerContext) SetCookieSecret(cookieSecret string) {
+	hctx.cookieSecret = cookieSecret
 }
 
 // NoSessionTimeout is a flag which, when true, indicates that sessions should not timeout. Used in dev.
-func (context *handlerContext) NoSessionTimeout() bool {
-	return context.noSessionTimeout
+func (hctx *handlerContext) NoSessionTimeout() bool {
+	return hctx.noSessionTimeout
 }
 
 // SetNoSessionTimeout is a simple setter for the noSessionTimeout private Field
-func (context *handlerContext) SetNoSessionTimeout() {
-	context.noSessionTimeout = true
+func (hctx *handlerContext) SetNoSessionTimeout() {
+	hctx.noSessionTimeout = true
+}
+
+func (hctx *handlerContext) IWSRealTimeBrokerService() iws.RealTimeBrokerService {
+	return hctx.iwsRealTimeBrokerService
+}
+
+func (hctx *handlerContext) SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService) {
+	hctx.iwsRealTimeBrokerService = rbs
+}
+
+// SendProductionInvoice is a flag to notify EDI invoice generation whether it should be sent as a test or production transaction
+func (hctx *handlerContext) SendProductionInvoice() bool {
+	return hctx.sendProductionInvoice
+}
+
+// Set UsageIndicator flag for use in EDI invoicing (ediinvoice pkg)
+func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
+	hctx.sendProductionInvoice = sendProductionInvoice
+}
+
+func (hctx *handlerContext) GexSender() gex.SendToGex {
+	return hctx.senderToGex
+}
+
+func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SendToGex) {
+	hctx.senderToGex = sendGexRequest
+}
+
+func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {
+	return hctx.dpsAuthParams
+}
+
+func (hctx *handlerContext) SetDPSAuthParams(params dpsauth.Params) {
+	hctx.dpsAuthParams = params
 }

@@ -1,1 +1,0 @@
-drop_table("quality_band_assignments")

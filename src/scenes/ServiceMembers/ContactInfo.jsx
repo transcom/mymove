@@ -20,14 +20,11 @@ const subsetOfFields = [
   'email_is_preferred',
 ];
 
-const validateContactForm = (values, form) => {
+const validateContactForm = values => {
   let errors = {};
 
-  let prefSelected = false;
-  prefSelected = Boolean(
-    values.phone_is_preferred ||
-      values.text_message_is_preferred ||
-      values.email_is_preferred,
+  let prefSelected = Boolean(
+    values.phone_is_preferred || values.text_message_is_preferred || values.email_is_preferred,
   );
   if (!prefSelected) {
     const newError = {
@@ -49,18 +46,9 @@ export class ContactInfo extends Component {
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      currentServiceMember,
-      userEmail,
-      schema,
-    } = this.props;
+    const { pages, pageKey, error, currentServiceMember, userEmail, schema } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentServiceMember
-      ? pick(currentServiceMember, subsetOfFields)
-      : null;
+    const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
     if (initialValues && !initialValues.personal_email) {
       initialValues.personal_email = userEmail;
     }
@@ -79,15 +67,9 @@ export class ContactInfo extends Component {
         <SwaggerField fieldName="personal_email" swagger={schema} required />
 
         <fieldset key="contact_preferences">
-          <legend htmlFor="contact_preferences">
-            Preferred contact method(s) during your move:
-          </legend>
+          <legend htmlFor="contact_preferences">Preferred contact method(s) during your move:</legend>
           <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-          <SwaggerField
-            fieldName="text_message_is_preferred"
-            swagger={schema}
-            disabled={true}
-          />
+          <SwaggerField fieldName="text_message_is_preferred" swagger={schema} disabled={true} />
           <SwaggerField fieldName="email_is_preferred" swagger={schema} />
         </fieldset>
       </ContactWizardForm>
@@ -108,11 +90,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     userEmail: state.user.email,
-    schema: get(
-      state,
-      'swagger.spec.definitions.CreateServiceMemberPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
     ...state.serviceMember,
   };

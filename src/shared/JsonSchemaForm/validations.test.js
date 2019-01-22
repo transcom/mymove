@@ -32,19 +32,13 @@ describe('SchemaField tests', () => {
 
   const testField = (field, tests) => {
     const store = createStore(combineReducers({ form: formReducer }));
-    const testField = JsonSchemaField.createSchemaField(
-      'test_field',
-      field,
-      '',
-    );
+    const testField = JsonSchemaField.createSchemaField('test_field', field, '');
     let subject = mountField(store, testField);
 
     tests.forEach(testCase => {
       const [testValue, expectedValue, expectedError] = testCase;
 
-      it(`${testValue} results in ${
-        !expectedError ? 'no error' : `error: ${expectedError}`
-      }`, () => {
+      it(`${testValue} results in ${!expectedError ? 'no error' : `error: ${expectedError}`}`, () => {
         let input = subject.find('input');
         if (input.length === 0) {
           input = subject.find('textarea');
@@ -227,17 +221,9 @@ describe('SchemaField tests', () => {
       ['615-222-3323', '615-222-3323', null],
       ['6152223323', '615-222-3323', null],
       ['615-222-332sdfsdfsd3', '615-222-3323', null],
-      [
-        '615-222-332',
-        '615-222-332',
-        'Number must have 10 digits and a valid area code.',
-      ],
+      ['615-222-332', '615-222-332', 'Number must have 10 digits and a valid area code.'],
       ['615-222-33233', '615-222-3323', null],
-      [
-        '115-222-33233',
-        '115-222-3323',
-        'Number must have 10 digits and a valid area code.',
-      ],
+      ['115-222-33233', '115-222-3323', 'Number must have 10 digits and a valid area code.'],
     ];
 
     testField(telephoneField, stringTests);

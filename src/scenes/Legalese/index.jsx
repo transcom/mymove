@@ -9,32 +9,22 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import CertificationText from './CertificationText';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { formatSwaggerDate } from 'shared/formatters';
+import WizardHeader from 'scenes/Moves/WizardHeader';
+import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import reviewGray from 'shared/icon/review-gray.svg';
 import './index.css';
 
-import {
-  loadCertificationText,
-  loadLatestCertification,
-  signAndSubmitForApproval,
-} from './ducks';
+import { loadCertificationText, signAndSubmitForApproval } from './ducks';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
 
 export class SignedCertification extends Component {
   componentDidMount() {
-    this.props.loadLatestCertification(this.props.match.params.moveId);
-  }
-
-  componentDidUpdate() {
-    const {
-      getCertificationSuccess,
-      hasLoggedInUser,
-      certificationText,
-      has_advance,
-      has_sit,
-    } = this.props;
-    if (hasLoggedInUser && getCertificationSuccess && !certificationText) {
-      this.props.loadCertificationText(has_sit, has_advance);
+    const { hasLoggedInUser, certificationText, has_advance, has_sit, selectedMoveType } = this.props;
+    if (hasLoggedInUser && !certificationText) {
+      this.props.loadCertificationText(has_sit, has_advance, selectedMoveType);
       return;
     }
   }
@@ -49,14 +39,10 @@ export class SignedCertification extends Component {
 
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
+      const { certificationText, ppmId } = this.props;
 
       return this.props
-        .signAndSubmitForApproval(
-          moveId,
-          this.props.certificationText,
-          pendingValues.signature,
-          pendingValues.date,
-        )
+        .signAndSubmitForApproval(moveId, certificationText, pendingValues.signature, pendingValues.date, ppmId)
         .then(() => this.props.push('/'));
     }
   };
@@ -64,77 +50,84 @@ export class SignedCertification extends Component {
     window.print();
   }
   render() {
-    const {
-      hasSubmitError,
-      pages,
-      pageKey,
-      latestSignedCertification,
-    } = this.props;
-    const today = new Date(Date.now()).toISOString().split('T')[0];
+    const { hasSubmitError, pages, pageKey, latestSignedCertification, isHHGPPMComboMove } = this.props;
+    const today = formatSwaggerDate(new Date());
     const initialValues = {
       date: get(latestSignedCertification, 'date', today),
       signature: get(latestSignedCertification, 'signature', null),
     };
     return (
-      <div className="legalese">
-        {this.props.certificationText && (
-          <SignatureWizardForm
-            handleSubmit={this.handleSubmit}
-            className={formName}
-            pageList={pages}
-            pageKey={pageKey}
-            initialValues={initialValues}
-            discardOnBack
-          >
-            <div className="usa-grid">
-              <h2>Now for the official part...</h2>
-              <span className="box_top">
-                <p className="instructions">
-                  Before officially booking your move, please carefully read and
-                  then sign the following.
-                </p>
-                <a className="pdf" onClick={this.print}>
-                  Print
-                </a>
-              </span>
+      <div>
+        {isHHGPPMComboMove && (
+          <WizardHeader
+            icon={reviewGray}
+            title="Review"
+            right={
+              <ProgressTimeline>
+                <ProgressTimelineStep name="Move Setup" completed />
+                <ProgressTimelineStep name="Review" current />
+              </ProgressTimeline>
+            }
+          />
+        )}
+        <div className="legalese">
+          {this.props.certificationText && (
+            <SignatureWizardForm
+              handleSubmit={this.handleSubmit}
+              className={formName}
+              pageList={pages}
+              pageKey={pageKey}
+              initialValues={initialValues}
+              discardOnBack
+            >
+              <div className="usa-width-one-whole">
+                <div>
+                  <h2>Now for the official part...</h2>
+                  <span className="box_top">
+                    <p className="instructions">
+                      Before officially booking your move, please carefully read and then sign the following.
+                    </p>
+                    <a className="pdf" onClick={this.print}>
+                      Print
+                    </a>
+                  </span>
 
-              <CertificationText
-                certificationText={this.props.certificationText}
-              />
+                  <CertificationText certificationText={this.props.certificationText} />
 
-              <div className="signature-box">
-                <h3>SIGNATURE</h3>
-                <p>
-                  I agree that I have read and understand the above
-                  notifications.
-                </p>
-                <div className="signature-fields">
-                  <SwaggerField
-                    className="signature"
-                    fieldName="signature"
-                    swagger={this.props.schema}
-                    required
-                    disabled={!!initialValues.signature}
-                  />
-                  <SwaggerField
-                    className="signature-date"
-                    fieldName="date"
-                    swagger={this.props.schema}
-                    required
-                    disabled
-                  />
+                  <div className="signature-box">
+                    <h3>SIGNATURE</h3>
+                    <p>
+                      In consideration of said household goods or mobile homes being shipped at Government expense,{' '}
+                      <strong>I hereby agree to the certifications stated above.</strong>
+                    </p>
+                    <div className="signature-fields">
+                      <SwaggerField
+                        className="signature"
+                        fieldName="signature"
+                        swagger={this.props.schema}
+                        required
+                        disabled={!!initialValues.signature}
+                      />
+                      <SwaggerField
+                        className="signature-date"
+                        fieldName="date"
+                        swagger={this.props.schema}
+                        required
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  {hasSubmitError && (
+                    <Alert type="error" heading="Server Error">
+                      There was a problem saving your signature. Please reload the page.
+                    </Alert>
+                  )}
                 </div>
               </div>
-
-              {hasSubmitError && (
-                <Alert type="error" heading="Server Error">
-                  There was a problem saving your signature. Please reload the
-                  page.
-                </Alert>
-              )}
-            </div>
-          </SignatureWizardForm>
-        )}
+            </SignatureWizardForm>
+          )}
+        </div>
       </div>
     );
   }
@@ -142,25 +135,22 @@ export class SignedCertification extends Component {
 
 SignedCertification.propTypes = {
   signAndSubmitForApproval: PropTypes.func.isRequired,
-  loadLatestCertification: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func,
   hasSubmitError: PropTypes.bool.isRequired,
   hasSubmitSuccess: PropTypes.bool.isRequired,
+  ppmId: PropTypes.string,
 };
 
 function mapStateToProps(state) {
   return {
-    schema: get(
-      state,
-      'swagger.spec.definitions.CreateSignedCertificationPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: state.loggedInUser.hasSucceeded,
     values: getFormValues(formName)(state),
     ...state.signedCertification,
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    selectedMoveType: get(state.moves.currentMove, 'selected_move_type', null),
   };
 }
 
@@ -168,7 +158,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       loadCertificationText,
-      loadLatestCertification,
       signAndSubmitForApproval,
       push,
     },
@@ -176,6 +165,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  SignedCertification,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

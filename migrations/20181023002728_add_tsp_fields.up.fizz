@@ -1,0 +1,10 @@
+add_column("transportation_service_providers", "name", "text", {null: true})
+add_column("transportation_service_providers", "supplier_id", "text", {null: true})
+
+add_column("transportation_service_providers", "poc_general_name", "text", {null: true})
+add_column("transportation_service_providers", "poc_general_email", "text", {null: true})
+add_column("transportation_service_providers", "poc_general_phone", "text", {null: true})
+
+add_column("transportation_service_providers", "poc_claims_name", "text", {null: true})
+add_column("transportation_service_providers", "poc_claims_email", "text", {null: true})
+add_column("transportation_service_providers", "poc_claims_phone", "text", {null: true})

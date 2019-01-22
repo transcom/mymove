@@ -1,2 +1,0 @@
-add_column("blackout_dates", "code_of_service", "string", {"null": true})
-add_column("blackout_dates", "channel", "string", {"null": true})

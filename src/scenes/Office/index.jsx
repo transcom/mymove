@@ -12,10 +12,12 @@ import MoveInfo from './MoveInfo';
 import OrdersInfo from './OrdersInfo';
 import DocumentViewer from './DocumentViewer';
 import { loadLoggedInUser } from 'shared/User/ducks';
-import { loadSchema } from 'shared/Swagger/ducks';
+import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
+import ScratchPad from 'shared/ScratchPad';
+import { isProduction } from 'shared/constants';
 
 import './office.css';
 
@@ -39,7 +41,8 @@ class Queues extends Component {
 class OfficeWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
-    this.props.loadSchema();
+    this.props.loadInternalSchema();
+    this.props.loadPublicSchema();
   }
 
   render() {
@@ -52,19 +55,11 @@ class OfficeWrapper extends Component {
               <LogoutOnInactivity />
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
-                <PrivateRoute
-                  path="/queues/:queueType/moves/:moveId"
-                  component={MoveInfo}
-                />
+                <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
                 <PrivateRoute path="/queues/:queueType" component={Queues} />
-                <PrivateRoute
-                  path="/moves/:moveId/orders"
-                  component={OrdersInfo}
-                />
-                <PrivateRoute
-                  path="/moves/:moveId/documents/:moveDocumentId?"
-                  component={DocumentViewer}
-                />
+                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
+                <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
+                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
               </Switch>
             </div>
           </main>
@@ -75,15 +70,16 @@ class OfficeWrapper extends Component {
 }
 
 OfficeWrapper.defaultProps = {
-  loadSchema: no_op,
+  loadInternalSchema: no_op,
+  loadPublicSchema: no_op,
   loadLoggedInUser: no_op,
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
+  swaggerError: state.swaggerInternal.hasErrored,
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ loadInternalSchema, loadPublicSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper);

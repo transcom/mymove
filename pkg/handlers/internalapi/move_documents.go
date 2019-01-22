@@ -2,7 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
@@ -22,8 +22,8 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:     handlers.FmtUUID(moveDoc.ID),
-		MoveID: handlers.FmtUUID(moveDoc.MoveID),
+		ID:                       handlers.FmtUUID(moveDoc.ID),
+		MoveID:                   handlers.FmtUUID(moveDoc.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(moveDoc.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &moveDoc.Title,
@@ -62,8 +62,8 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:     handlers.FmtUUID(docExtractor.ID),
-		MoveID: handlers.FmtUUID(docExtractor.MoveID),
+		ID:                       handlers.FmtUUID(docExtractor.ID),
+		MoveID:                   handlers.FmtUUID(docExtractor.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(docExtractor.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &docExtractor.Title,
@@ -101,7 +101,7 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocs))
+	moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {

@@ -11,12 +11,7 @@ const SaveCancelButtons = props => {
       <button type="submit" disabled={submitting || !valid}>
         Save
       </button>
-      <button
-        type="button"
-        className="usa-button-secondary"
-        disabled={submitting}
-        onClick={goBack}
-      >
+      <button type="button" className="usa-button-secondary" disabled={submitting} onClick={goBack}>
         Cancel
       </button>
     </div>

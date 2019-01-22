@@ -2,6 +2,44 @@
 	white-space: pre-wrap;
 }
 
-.usa-alert.usa-alert-success p{
+.usa-alert.usa-alert-success p {
 	margin-bottom: 1rem;
+}
+
+.usa-alert .usa-alert-no-padding {
+  padding: 0em;
+}
+
+.usa-alert .usa-alert-right {
+  float: right;
+}
+
+.body--heading {
+  display: flex;
+  align-items: center;
+}
+
+.usa-alert-heading {
+  display: inline;
+}
+
+.usa-alert-loading {
+  background-color: #e1f3f8;
+}
+
+.heading--icon {
+  margin-right: 2em;
+}
+
+.remove-icon {
+  position: absolute;
+  right: 2em;
+}
+
+.usa-alert-loading::before {
+  background-color: #02bfe7;
+}
+
+.actionable.actionable-secondary {
+  color: #999999;
 }

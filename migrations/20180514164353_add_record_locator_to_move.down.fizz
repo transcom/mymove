@@ -1,2 +1,0 @@
-drop_index("moves_locator_idx")
-drop_column("moves", "locator")

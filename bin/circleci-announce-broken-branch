@@ -1,22 +1,89 @@
 #!/bin/bash
 set -euo pipefail
 
-payload=$(
+NOW=$(date '+%s')
+NOW_ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+pretext="CircleCI $CIRCLE_BRANCH branch failure!"
+title="CircleCI build #$CIRCLE_BUILD_NUM failed on job $CIRCLE_JOB"
+message="The $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE_JOB! Contact $CIRCLE_USERNAME for more information."
+
+#####
+## Announce in Slack channel
+#####
+# 'color' can be any hex code or the key words 'good', 'warning', or 'danger'
+color="warning"
+if [[ $CIRCLE_JOB == *"deploy"* ]]; then
+  color="danger"
+fi
+
+slack_payload=$(
 cat <<EOM
 {
-    "channel": "#dp3-engineering",
+    "channel": "#dp3-bat-team",
     "attachments": [
         {
-            "fallback": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken: $CIRCLE_BUILD_URL",
-            "color": "#ff0000",
-            "pretext": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken!",
-            "title": "CircleCI job #$CIRCLE_BUILD_NUM",
+            "fallback": "$message $CIRCLE_BUILD_URL",
+            "color": "$color",
+            "pretext": "$pretext",
+            "author_name": "$CIRCLE_USERNAME",
+            "title": "$title",
             "title_link": "$CIRCLE_BUILD_URL",
-            "text": "$(git --no-pager show --format=format:'%s')",
-            "ts": $(date '+%s')
+            "text": "$message",
+            "ts": $NOW
         }
     ]
 }
 EOM
 )
-curl -X POST --data-urlencode payload="$payload" "$SLACK_WEBHOOK_URL"
+
+echo
+echo "Slack Payload:"
+echo "$slack_payload"
+echo
+
+curl -X POST --data-urlencode payload="$slack_payload" "$SLACK_WEBHOOK_URL"
+
+#####
+## Exit and do nothing else unless a deploy job
+#####
+if [[ $CIRCLE_JOB != *"deploy"* ]]; then
+  exit 0
+fi
+
+#####
+## Page the on-call via PagerDuty
+#####
+
+pd_payload=$(
+cat <<EOM
+{
+  "payload": {
+    "summary": "$message",
+    "timestamp": "$NOW_ISO8601",
+    "source": "$pretext $title",
+    "severity": "info",
+    "class": "cicd failure"
+  },
+  "routing_key": "$PD_ROUTING_KEY",
+  "dedup_key": "circle-$CIRCLE_WORKFLOW_ID",
+  "links": [{
+    "href": "$CIRCLE_BUILD_URL",
+    "text": "CircleCI Build URL"
+  }],
+  "event_action": "trigger"
+}
+EOM
+)
+
+echo
+echo "Pager Duty Payload:"
+echo "$pd_payload"
+echo
+
+curl -XPOST \
+  -H "Authorization: Token token=$PD_AUTH_TOKEN" \
+  -H "Accept: application/vnd.pagerduty+json;version=2" \
+  -H "Content-Type: application/json" \
+  --data "$pd_payload" \
+  "https://events.pagerduty.com/v2/enqueue"

@@ -1,31 +1,14 @@
-# This container will be used by the CI system to run migrations in the Staging
-# and Production environments.
-
-# Start from a Debian image with the latest version of Go installed
-# and a workspace (GOPATH) configured at /go.
-FROM golang:1.10.0 AS build
-
-RUN go get github.com/golang/dep/cmd/dep
-
-COPY ./ /go/src/github.com/transcom/mymove/
-WORKDIR /go/src/github.com/transcom/mymove/
-RUN dep ensure -vendor-only
-
-# Install tools required to build the project
-# These linker flags create a standalone binary that will run in scratch.
-RUN go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
-RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
-
-# Copy build artifacts into a new container with a minimal Linux distro.
-# We need to have something with minimal tooling as the migrations container runs shell scripts
-# and uses AWS tools.
 FROM alpine:3.7
-COPY --from=build /bin/soda /bin/soda
-COPY --from=build /bin/chamber /bin/chamber
+
+COPY bin/soda /bin/soda
+COPY bin/chamber /bin/chamber
 COPY bin/apply-secure-migration.sh /bin
+
 COPY migrations /migrate/migrations
 COPY config/database.yml /migrate
+
 RUN mkdir /migrate/secure
+
 ENV GO_ENV=container
 
 # Install tools needed in container

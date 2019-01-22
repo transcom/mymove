@@ -15,6 +15,7 @@ import {
   CancelMove,
   DownloadPPMAttachments,
   PatchShipment,
+  SendHHGInvoice,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -36,11 +37,15 @@ const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveHHGType = 'APPROVE_HHG';
+const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const completeHHGType = 'COMPLETE_HHG';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
+const RESET_MOVE = 'RESET_MOVE';
+const DRAFT_HHG_INVOICE = 'DRAFT_INVOICE';
+const RESET_HHG_INVOICE = 'RESET_INVOICE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -48,6 +53,18 @@ const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
+
+export const resetMove = () => ({
+  type: RESET_MOVE,
+});
+
+export const draftInvoice = () => ({
+  type: DRAFT_HHG_INVOICE,
+});
+
+export const resetInvoiceFlow = () => ({
+  type: RESET_HHG_INVOICE,
+});
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
@@ -57,21 +74,13 @@ const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
 
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
-const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
-  loadServiceMemberType,
-);
+const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(loadServiceMemberType);
 
-const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
-  updateServiceMemberType,
-);
+const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(updateServiceMemberType);
 
-const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
-  loadBackupContactType,
-);
+const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(loadBackupContactType);
 
-const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
-  updateBackupContactType,
-);
+const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
 
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
@@ -85,103 +94,59 @@ const APPROVE_HHG = ReduxHelpers.generateAsyncActionTypes(approveHHGType);
 
 const COMPLETE_HHG = ReduxHelpers.generateAsyncActionTypes(completeHHGType);
 
-export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
-  cancelMoveType,
-);
+const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
 
-export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
-  approveReimbursementType,
-);
+export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(cancelMoveType);
 
-export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(
-  downloadPPMAttachmentsType,
-);
+export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
+
+export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(downloadPPMAttachmentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
-const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
-  updateBackupInfoType,
-);
+const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(updateBackupInfoType);
 
-const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(
-  updateOrdersInfoType,
-);
+const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(updateOrdersInfoType);
 
-const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
-  loadDependenciesType,
-);
+const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
 
-export const loadMove = ReduxHelpers.generateAsyncActionCreator(
-  loadMoveType,
-  LoadMove,
-);
+export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
 
-export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
-  loadOrdersType,
-  LoadOrders,
-);
+export const loadOrders = ReduxHelpers.generateAsyncActionCreator(loadOrdersType, LoadOrders);
 
-export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
-  updateOrdersType,
-  UpdateOrders,
-);
+export const updateOrders = ReduxHelpers.generateAsyncActionCreator(updateOrdersType, UpdateOrders);
 
-export const patchShipment = ReduxHelpers.generateAsyncActionCreator(
-  patchShipmentType,
-  PatchShipment,
-);
+export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
-export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
-  loadServiceMemberType,
-  LoadServiceMember,
-);
+export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(loadServiceMemberType, LoadServiceMember);
 
 export const updateServiceMember = ReduxHelpers.generateAsyncActionCreator(
   updateServiceMemberType,
   UpdateServiceMember,
 );
 
-export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(
-  loadBackupContactType,
-  LoadBackupContacts,
-);
+export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(loadBackupContactType, LoadBackupContacts);
 
 export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
   updateBackupContactType,
   UpdateBackupContact,
 );
 
-export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
-  loadPPMsType,
-  LoadPPMs,
-);
+export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, LoadPPMs);
 
-export const updatePPM = ReduxHelpers.generateAsyncActionCreator(
-  updatePPMType,
-  UpdatePpm,
-);
+export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
 
-export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
-  approveBasicsType,
-  ApproveBasics,
-);
+export const approveBasics = ReduxHelpers.generateAsyncActionCreator(approveBasicsType, ApproveBasics);
 
-export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
-  approvePPMType,
-  ApprovePPM,
-);
+export const approvePPM = ReduxHelpers.generateAsyncActionCreator(approvePPMType, ApprovePPM);
 
-export const approveHHG = ReduxHelpers.generateAsyncActionCreator(
-  approveHHGType,
-  ApproveHHG,
-);
+export const approveHHG = ReduxHelpers.generateAsyncActionCreator(approveHHGType, ApproveHHG);
 
-export const completeHHG = ReduxHelpers.generateAsyncActionCreator(
-  completeHHGType,
-  CompleteHHG,
-);
+export const completeHHG = ReduxHelpers.generateAsyncActionCreator(completeHHGType, CompleteHHG);
+
+export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
   approveReimbursementType,
@@ -198,10 +163,7 @@ export const cancelMove = (moveId, changeReason) => {
   return async function(dispatch, getState) {
     dispatch(actions.start());
     return CancelMove(moveId, changeReason)
-      .then(
-        item => dispatch(actions.success(item)),
-        error => dispatch(actions.error(error)),
-      )
+      .then(item => dispatch(actions.success(item)), error => dispatch(actions.error(error)))
       .then(() => {
         setTimeout(() => dispatch(removeBanner()), 10000);
       });
@@ -220,20 +182,13 @@ export const removeBanner = () => {
 // perform their work and exist to encapsulate when multiple requests
 // need to be made in response to a user action.
 
-export function updateBackupInfo(
-  serviceMemberId,
-  serviceMemberPayload,
-  backupContactId,
-  backupContact,
-) {
+export function updateBackupInfo(serviceMemberId, serviceMemberPayload, backupContactId, backupContact) {
   const actions = ReduxHelpers.generateAsyncActions(updateBackupInfoType);
   return async function(dispatch, getState) {
     dispatch(actions.start());
     try {
       // TODO: perform these requests concurrently
-      await dispatch(
-        updateServiceMember(serviceMemberId, serviceMemberPayload),
-      );
+      await dispatch(updateServiceMember(serviceMemberId, serviceMemberPayload));
       await dispatch(updateBackupContact(backupContactId, backupContact));
       return dispatch(actions.success());
     } catch (ex) {
@@ -242,12 +197,7 @@ export function updateBackupInfo(
   };
 }
 
-export function updateOrdersInfo(
-  ordersId,
-  orders,
-  serviceMemberId,
-  serviceMember,
-) {
+export function updateOrdersInfo(ordersId, orders, serviceMemberId, serviceMember) {
   const actions = ReduxHelpers.generateAsyncActions(updateOrdersInfoType);
   return async function(dispatch, getState) {
     dispatch(actions.start());
@@ -293,11 +243,7 @@ export function loadMoveDependencies(moveId) {
 // Selectors
 export function loadEntitlements(state) {
   const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
-  const spouseHasProGear = get(
-    state,
-    'office.officeOrders.spouse_has_pro_gear',
-    null,
-  );
+  const spouseHasProGear = get(state, 'office.officeOrders.spouse_has_pro_gear', null);
   const rank = get(state, 'office.officeServiceMember.rank', null);
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
@@ -317,6 +263,7 @@ const initialState = {
   moveIsCanceling: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
+  officeMove: {},
   ordersHaveLoadError: null,
   ordersHaveLoadSuccess: false,
   ordersHaveUploadError: null,
@@ -332,6 +279,10 @@ const initialState = {
   ppmsHaveLoadSuccess: false,
   ppmHasUpdateError: null,
   ppmHasUpdateSuccess: false,
+  hhgInvoiceIsSending: false,
+  hhgInvoiceHasSendSuccess: false,
+  hhgInvoiceHasFailure: false,
+  hhgInvoiceInDraft: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   moveHasApproveError: false,
@@ -428,6 +379,41 @@ export function officeReducer(state = initialState, action) {
         shipmentPatchSuccess: false,
         shipmentPatchError: true,
         error: action.error.message,
+      });
+    case SEND_HHG_INVOICE.start:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: true,
+        hhgInvoiceHasSendSuccess: false,
+        hhgInvoiceHasFailure: false,
+        hhgInvoiceInDraft: false,
+      });
+    case SEND_HHG_INVOICE.success:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasSendSuccess: true,
+        hhgInvoiceHasFailure: false,
+        hhgInvoiceInDraft: false,
+      });
+    case SEND_HHG_INVOICE.failure:
+      return Object.assign({}, state, {
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasFailure: true,
+        hhgInvoiceInDraft: false,
+        error: action.error.message,
+      });
+    case DRAFT_HHG_INVOICE:
+      return Object.assign({}, state, {
+        hhgInvoiceInDraft: true,
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasSendSuccess: false,
+        hhgInvoiceHasFailure: false,
+      });
+    case RESET_HHG_INVOICE:
+      return Object.assign({}, state, {
+        hhgInvoiceInDraft: false,
+        hhgInvoiceIsSending: false,
+        hhgInvoiceHasSendSuccess: false,
+        hhgInvoiceHasFailure: false,
       });
 
     // SERVICE_MEMBER
@@ -724,6 +710,10 @@ export function officeReducer(state = initialState, action) {
     case DOWNLOAD_ATTACHMENTS.failure:
       return Object.assign({}, state, {
         downloadAttachmentsHasError: action.error,
+      });
+    case RESET_MOVE:
+      return Object.assign({}, state, {
+        officeShipment: {},
       });
     default:
       return state;

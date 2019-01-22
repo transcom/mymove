@@ -14,20 +14,15 @@ import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
-import { moveIsApproved } from 'scenes/Moves/ducks';
-import {
-  editBegin,
-  editSuccessful,
-  entitlementChangeBegin,
-  entitlementChanged,
-} from './ducks';
+import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
+import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
+import scrollToTop from 'shared/scrollToTop';
 
 import './Review.css';
 import profileImage from './images/profile.png';
 
 const editOrdersFormName = 'edit_orders';
-const uploaderLabelIdle =
-  'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
+const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 let EditOrdersForm = props => {
   const {
@@ -52,11 +47,7 @@ let EditOrdersForm = props => {
       <SwaggerField fieldName="orders_type" swagger={schema} required />
       <SwaggerField fieldName="issue_date" swagger={schema} required />
       <SwaggerField fieldName="report_by_date" swagger={schema} required />
-      <SwaggerField
-        fieldName="has_dependents"
-        swagger={schema}
-        component={YesNoBoolean}
-      />
+      <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
       {get(props, 'formValues.has_dependents', false) && (
         <Fragment>
           <SwaggerField
@@ -70,15 +61,9 @@ let EditOrdersForm = props => {
       <br />
       <Field name="new_duty_station" component={DutyStationSearchBox} />
       <p>Uploads:</p>
-      {Boolean(visibleUploads.length) && (
-        <UploadsTable uploads={visibleUploads} onDelete={onDelete} />
-      )}
+      {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
-        <Uploader
-          document={initialValues.uploaded_orders}
-          onChange={onUpload}
-          labelIdle={uploaderLabelIdle}
-        />
+        <Uploader document={initialValues.uploaded_orders} onChange={onUpload} labelIdle={uploaderLabelIdle} />
       )}
       <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
@@ -107,7 +92,7 @@ class EditOrders extends Component {
       if (!this.props.hasSubmitError) {
         this.returnToReview();
       } else {
-        window.scrollTo(0, 0);
+        scrollToTop();
       }
     });
   };
@@ -123,8 +108,7 @@ class EditOrders extends Component {
 
   updateOrders = fieldValues => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
-    fieldValues.spouse_has_pro_gear =
-      (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
+    fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
     if (
@@ -140,8 +124,11 @@ class EditOrders extends Component {
         if (!this.props.hasSubmitError) {
           this.props.editSuccessful();
           this.props.history.goBack();
+          if (this.props.isPpm) {
+            this.props.checkEntitlement(this.props.match.params.moveId);
+          }
         } else {
-          window.scrollTo(0, 0);
+          scrollToTop();
         }
       });
   };
@@ -152,14 +139,7 @@ class EditOrders extends Component {
   }
 
   render() {
-    const {
-      error,
-      schema,
-      currentOrders,
-      formValues,
-      existingUploads,
-      moveIsApproved,
-    } = this.props;
+    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
 
     return (
       <div className="usa-grid">
@@ -173,8 +153,7 @@ class EditOrders extends Component {
         {moveIsApproved && (
           <div className="usa-width-one-whole error-message">
             <Alert type="warning" heading="Your move is approved">
-              To make a change to your orders, you will need to contact your
-              local PPPO office.
+              To make a change to your orders, you will need to contact your local PPPO office.
             </Alert>
           </div>
         )}
@@ -202,15 +181,12 @@ function mapStateToProps(state) {
   const props = {
     currentOrders: state.orders.currentOrders,
     error: get(state, 'orders.error'),
-    existingUploads: get(
-      state,
-      `orders.currentOrders.uploaded_orders.uploads`,
-      [],
-    ),
+    existingUploads: get(state, `orders.currentOrders.uploaded_orders.uploads`, []),
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),
-    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+    isPpm: isPpm(state),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
   };
   return props;
 }
@@ -226,6 +202,7 @@ function mapDispatchToProps(dispatch) {
       entitlementChangeBegin,
       editSuccessful,
       entitlementChanged,
+      checkEntitlement,
     },
     dispatch,
   );

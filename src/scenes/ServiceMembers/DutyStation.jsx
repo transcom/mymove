@@ -27,10 +27,7 @@ const validateDutyStationForm = (values, form) => {
 };
 
 const dutyStationFormName = 'duty_station';
-const DutyStationWizardForm = reduxifyWizardForm(
-  dutyStationFormName,
-  validateDutyStationForm,
-);
+const DutyStationWizardForm = reduxifyWizardForm(dutyStationFormName, validateDutyStationForm);
 
 export class DutyStation extends Component {
   constructor(props) {
@@ -87,9 +84,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const currentServiceMember = state.serviceMember.currentServiceMember;
   const dutyStation =
-    currentServiceMember && currentServiceMember.current_station
-      ? currentServiceMember.current_station
-      : null;
+    currentServiceMember && currentServiceMember.current_station ? currentServiceMember.current_station : null;
   const props = {
     values: getFormValues(dutyStationFormName)(state),
     existingStation: dutyStation,

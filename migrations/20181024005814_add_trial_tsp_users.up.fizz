@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181024005814_add_trial_tsp_users.sql")

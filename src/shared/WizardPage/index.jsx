@@ -9,14 +9,9 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
 import { mobileSize } from 'shared/constants';
+import scrollToTop from 'shared/scrollToTop';
 
-import {
-  getNextPagePath,
-  getPreviousPagePath,
-  isFirstPage,
-  isLastPage,
-  beforeTransition,
-} from './utils';
+import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
 export class WizardPage extends Component {
   constructor(props) {
@@ -27,10 +22,10 @@ export class WizardPage extends Component {
     this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate() {
-    if (this.props.error) window.scrollTo(0, 0);
+    if (this.props.error) scrollToTop();
   }
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
   cancelFlow() {
     this.props.push(`/`);
@@ -42,9 +37,7 @@ export class WizardPage extends Component {
       match: { params },
       additionalParams,
     } = this.props;
-    const combinedParams = additionalParams
-      ? Object.assign({}, additionalParams, params)
-      : params;
+    const combinedParams = additionalParams ? Object.assign({}, additionalParams, params) : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
   }
@@ -59,18 +52,9 @@ export class WizardPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const {
-      handleSubmit,
-      pageKey,
-      pageList,
-      children,
-      error,
-      pageIsValid,
-      dirty,
-    } = this.props;
+    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty } = this.props;
     const canMoveForward = pageIsValid;
-    const canMoveBackward =
-      (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
+    const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
       <div className="usa-grid">
         {error && (
@@ -84,38 +68,22 @@ export class WizardPage extends Component {
         <div className="usa-width-one-whole lower-nav-btns">
           {!isMobile && (
             <div className="left cancel">
-              <button
-                className="usa-button-secondary"
-                onClick={this.cancelFlow}
-                disabled={false}
-              >
+              <button className="usa-button-secondary" onClick={this.cancelFlow} disabled={false}>
                 Cancel
               </button>
             </div>
           )}
           <div className="prev-next">
-            <button
-              className="usa-button-secondary prev"
-              onClick={this.previousPage}
-              disabled={!canMoveBackward}
-            >
+            <button className="usa-button-secondary prev" onClick={this.previousPage} disabled={!canMoveBackward}>
               Back
             </button>
             {!isLastPage(pageList, pageKey) && (
-              <button
-                className="usa-button-primary next"
-                onClick={this.nextPage}
-                disabled={!canMoveForward}
-              >
+              <button className="usa-button-primary next" onClick={this.nextPage} disabled={!canMoveForward}>
                 Next
               </button>
             )}
             {isLastPage(pageList, pageKey) && (
-              <button
-                className="usa-button-primary next"
-                onClick={handleSubmit}
-                disabled={!canMoveForward}
-              >
+              <button className="usa-button-primary next" onClick={handleSubmit} disabled={!canMoveForward}>
                 Complete
               </button>
             )}
@@ -149,6 +117,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 const wizardFormPageWithSize = windowSize(WizardPage);
-export default withRouter(
-  connect(null, mapDispatchToProps)(wizardFormPageWithSize),
-);
+export default withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize));

@@ -18,13 +18,13 @@ var statusToQueueMap = map[string]string{
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	for status, queueType := range statusToQueueMap {
 
-		suite.TestDB().TruncateAll()
+		suite.DB().TruncateAll()
 
 		// Given: An office user
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.TestDB())
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 		//  A set of orders and a move belonging to those orders
-		order := testdatagen.MakeDefaultOrder(suite.TestDB())
+		order := testdatagen.MakeDefaultOrder(suite.DB())
 
 		newMove := models.Move{
 			OrdersID: order.ID,
@@ -33,20 +33,12 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		suite.MustSave(&newMove)
 
 		// Make a PPM
-		newMove.CreatePPM(suite.TestDB(),
-			nil,
-			models.Int64Pointer(8000),
-			models.TimePointer(testdatagen.DateInsidePeakRateCycle),
-			models.StringPointer("72017"),
-			models.BoolPointer(false),
-			nil,
-			models.StringPointer("60605"),
-			models.BoolPointer(false),
-			nil,
-			models.StringPointer("estimate sit"),
-			true,
-			nil,
-		)
+		testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{
+				Move:   newMove,
+				MoveID: newMove.ID,
+			},
+		})
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
@@ -58,7 +50,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 200 status code
@@ -78,7 +70,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 	for _, queueType := range statusToQueueMap {
 
 		// Given: A non-office user
-		user := testdatagen.MakeDefaultServiceMember(suite.TestDB())
+		user := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
@@ -90,7 +82,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 			QueueType:   queueType,
 		}
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 403 status code

@@ -22,15 +22,7 @@ const parseNumberField = value => {
 
 // ----- Field configuration -----
 const createCheckbox = (fieldName, field, nameAttr, isDisabled) => {
-  return (
-    <Field
-      id={fieldName}
-      name={nameAttr}
-      component="input"
-      type="checkbox"
-      disabled={isDisabled}
-    />
-  );
+  return <Field id={fieldName} name={nameAttr} component="input" type="checkbox" disabled={isDisabled} />;
 };
 
 const configureDropDown = (swaggerField, props) => {
@@ -39,12 +31,12 @@ const configureDropDown = (swaggerField, props) => {
   return props;
 };
 
-const dropDownChildren = (swaggerField, props) => {
+const dropDownChildren = (swaggerField, filteredEnumListOverride, props) => {
   /* eslint-disable security/detect-object-injection */
   return (
     <Fragment>
       <option />
-      {swaggerField.enum.map(e => (
+      {(filteredEnumListOverride ? filteredEnumListOverride : swaggerField.enum).map(e => (
         <option key={e} value={e}>
           {swaggerField['x-display-value'][e]}
         </option>
@@ -90,27 +82,36 @@ const configureCentsField = (swaggerField, props) => {
   return props;
 };
 
+// This field allows the form field to accept floats and converts values to
+// "base quantity" units for db storage (value * 10,000)
+const configureBaseQuantityField = (swaggerField, props) => {
+  props.normalize = validator.normalizeBaseQuantity;
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Base quantity must have only up to 4 decimals.'));
+  props.validate.push(validator.isNumber);
+  props.type = 'text';
+  return props;
+};
+
 const configureTelephoneField = (swaggerField, props) => {
   props.normalize = validator.normalizePhone;
   props.validate.push(
-    validator.patternMatches(
-      swaggerField.pattern,
-      'Number must have 10 digits and a valid area code.',
-    ),
+    validator.patternMatches(swaggerField.pattern, 'Number must have 10 digits and a valid area code.'),
   );
   props.type = 'text';
 
   return props;
 };
 
-const configureZipField = (swaggerField, props) => {
+const configureZipField = (swaggerField, props, zipPattern) => {
   props.normalize = validator.normalizeZip;
-  props.validate.push(
-    validator.patternMatches(
-      swaggerField.pattern,
-      'Zip code must have 5 or 9 digits.',
-    ),
-  );
+  if (zipPattern) {
+    if (zipPattern === 'USA') {
+      const zipRegex = '^[0-9]{5}(?:-[0-9]{4})?$';
+      props.validate.push(validator.patternMatches(zipRegex, 'Zip code must have 5 or 9 digits.'));
+    }
+  } else if (swaggerField.pattern) {
+    props.validate.push(validator.patternMatches(swaggerField.pattern, 'Zip code must have 5 or 9 digits.'));
+  }
   props.type = 'text';
 
   return props;
@@ -139,21 +140,14 @@ const configureTextField = (swaggerField, props) => {
 };
 
 const configureEdipiField = (swaggerField, props) => {
-  props.validate.push(
-    validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'),
-  );
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'));
   props.type = 'text';
 
   return props;
 };
 
 const configureEmailField = (swaggerField, props) => {
-  props.validate.push(
-    validator.patternMatches(
-      swaggerField.pattern,
-      'Must be a valid email address',
-    ),
-  );
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid email address'));
   props.type = 'text';
 
   return props;
@@ -182,10 +176,7 @@ const renderInputField = ({
   }
 
   if (componentNameOverride && customComponent) {
-    console.error(
-      'You should not have specified a componentNameOverride as well as a customComponent. For: ',
-      title,
-    );
+    console.error('You should not have specified a componentNameOverride as well as a customComponent. For: ', title);
   }
 
   const FieldComponent = React.createElement(
@@ -201,27 +192,16 @@ const renderInputField = ({
   );
 
   const displayError = touched && error;
-  const classes = `${
-    displayError ? 'usa-input-error' : 'usa-input'
-  } ${className}`;
+  const classes = `${displayError ? 'usa-input-error' : 'usa-input'} ${className}`;
   return (
     <div className={classes}>
-      <label
-        className={displayError ? 'usa-input-error-label' : 'usa-input-label'}
-        htmlFor={input.name}
-      >
+      <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={input.name}>
         {title}
-        {!always_required &&
-          type !== 'boolean' &&
-          !customComponent && <span className="label-optional">Optional</span>}
+        {!always_required && type !== 'boolean' && !customComponent && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (
-          <span
-            className="usa-input-error-message"
-            id={input.name + '-error'}
-            role="alert"
-          >
+          <span className="usa-input-error-message" id={input.name + '-error'} role="alert">
             {error}
           </span>
         )}
@@ -241,6 +221,8 @@ export const SwaggerField = props => {
     title,
     onChange,
     validate,
+    zipPattern,
+    filteredEnumListOverride,
   } = props;
   let swaggerField;
   if (swagger.properties) {
@@ -255,6 +237,9 @@ export const SwaggerField = props => {
   if (required) {
     // eslint-disable-next-line security/detect-object-injection
     swaggerField[ALWAYS_REQUIRED_KEY] = true;
+  } else {
+    // eslint-disable-next-line security/detect-object-injection
+    swaggerField[ALWAYS_REQUIRED_KEY] = false;
   }
 
   return createSchemaField(
@@ -267,6 +252,8 @@ export const SwaggerField = props => {
     title,
     onChange,
     validate,
+    zipPattern,
+    filteredEnumListOverride,
   );
 };
 
@@ -282,6 +269,8 @@ const createSchemaField = (
   title,
   onChange,
   validate,
+  zipPattern,
+  filteredEnumListOverride,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -323,11 +312,13 @@ const createSchemaField = (
     fieldProps.customComponent = component;
   } else if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
-    children = dropDownChildren(swaggerField);
+    children = dropDownChildren(swaggerField, filteredEnumListOverride);
     className += ' rounded';
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {
       fieldProps = configureCentsField(swaggerField, fieldProps);
+    } else if (swaggerField.format === 'basequantity') {
+      fieldProps = configureBaseQuantityField(swaggerField, fieldProps);
     } else {
       fieldProps = configureNumberField(swaggerField, fieldProps);
     }
@@ -338,7 +329,7 @@ const createSchemaField = (
     } else if (fieldFormat === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
     } else if (fieldFormat === 'zip') {
-      fieldProps = configureZipField(swaggerField, fieldProps);
+      fieldProps = configureZipField(swaggerField, fieldProps, zipPattern);
     } else if (fieldFormat === 'edipi') {
       fieldProps = configureEdipiField(swaggerField, fieldProps);
     } else if (fieldFormat === 'x-email') {
@@ -353,9 +344,7 @@ const createSchemaField = (
         console.error(
           "Since it's not feasible to generate a sensible error message from a regex, please add a new format and matching validator",
         );
-        fieldProps.validate.push(
-          validator.patternMatches(swaggerField.pattern, swaggerField.example),
-        );
+        fieldProps.validate.push(validator.patternMatches(swaggerField.pattern, swaggerField.example));
       }
       // The last case is the simple text field / textarea which are the same but the componentNameOverride
       if (swaggerField.format === 'textarea') {
@@ -364,18 +353,10 @@ const createSchemaField = (
       fieldProps = configureTextField(swaggerField, fieldProps);
     }
   } else {
-    console.error(
-      'ERROR: This is an unimplemented type in our JSONSchemaForm implementation',
-    );
+    console.error('ERROR: This is an unimplemented type in our JSONSchemaForm implementation');
   }
   return (
-    <Field
-      key={fieldName}
-      className={className}
-      inputProps={inputProps}
-      {...fieldProps}
-      onChange={onChange}
-    >
+    <Field key={fieldName} className={className} inputProps={inputProps} {...fieldProps} onChange={onChange}>
       {children}
     </Field>
   );

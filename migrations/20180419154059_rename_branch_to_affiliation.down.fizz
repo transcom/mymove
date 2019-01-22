@@ -1,2 +1,0 @@
-rename_column("service_members", "affiliation", "branch")
-rename_column("duty_stations", "affiliation", "branch")

@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181026202620_truss_tsp_in_prod.sql")

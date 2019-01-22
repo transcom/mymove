@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	. "github.com/transcom/mymove/pkg/models"
 )
 
@@ -24,30 +24,29 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 		LoginGovUUID:  fakeUUID,
 		LoginGovEmail: userEmail,
 	}
-	suite.mustSave(&sally)
+	suite.MustSave(&sally)
 	office := CreateTestShippingOffice(suite)
 
 	user := OfficeUser{
-		LastName:  "Tester",
-		FirstName: "Sally",
-		Email:     "sally.work@government.gov",
-		Telephone: "(907) 555-1212",
-		UserID:    &sally.ID,
-		User:      sally,
+		LastName:               "Tester",
+		FirstName:              "Sally",
+		Email:                  "sally.work@government.gov",
+		Telephone:              "(907) 555-1212",
+		UserID:                 &sally.ID,
+		User:                   sally,
 		TransportationOfficeID: office.ID,
 	}
-	suite.mustSave(&user)
+	suite.MustSave(&user)
 
 	var loadUser OfficeUser
-	err := suite.db.Eager().Find(&loadUser, user.ID)
+	err := suite.DB().Eager().Find(&loadUser, user.ID)
 	suite.Nil(err, "loading user")
 	suite.Equal(user.ID, loadUser.ID)
 	suite.Equal(office.ID, loadUser.TransportationOffice.ID)
 }
 
 func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
-
-	user, err := FetchOfficeUserByEmail(suite.db, "not_here@example.com")
+	user, err := FetchOfficeUserByEmail(suite.DB(), "not_here@example.com")
 	suite.Equal(err, ErrFetchNotFound)
 	suite.Nil(user)
 
@@ -60,9 +59,31 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
 		Telephone:              "(907) 555-1212",
 		TransportationOfficeID: office.ID,
 	}
-	suite.mustSave(&newUser)
+	suite.MustSave(&newUser)
 
-	user, err = FetchOfficeUserByEmail(suite.db, email)
+	user, err = FetchOfficeUserByEmail(suite.DB(), email)
+	suite.Nil(err)
+	suite.NotNil(user)
+	suite.Equal(newUser.ID, user.ID)
+}
+
+func (suite *ModelSuite) TestFetchOfficeUserByID() {
+	fakeUUID, _ := uuid.FromString("99999999-8888-7777-8b57-e39519f42dc1")
+
+	user, err := FetchOfficeUserByID(suite.DB(), fakeUUID)
+	suite.NotNil(err)
+
+	office := CreateTestShippingOffice(suite)
+	newUser := OfficeUser{
+		LastName:               "Tester",
+		FirstName:              "Sally",
+		Email:                  "test@test.com",
+		Telephone:              "(907) 555-1212",
+		TransportationOfficeID: office.ID,
+	}
+	suite.MustSave(&newUser)
+
+	user, err = FetchOfficeUserByID(suite.DB(), newUser.ID)
 	suite.Nil(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)

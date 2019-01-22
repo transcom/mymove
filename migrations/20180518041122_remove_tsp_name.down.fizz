@@ -1,1 +1,0 @@
-add_column("transportation_service_providers", "name", "string", {"null": false})

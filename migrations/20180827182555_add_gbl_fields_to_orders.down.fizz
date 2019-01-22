@@ -1,3 +1,0 @@
-drop_column("orders", "orders_issuing_agency")
-drop_column("orders", "paragraph_number")
-drop_column("orders", "sac")

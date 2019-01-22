@@ -13,6 +13,14 @@
   flex: 1 0 auto; /* using auto fixes a bug in IE11 where the footer would float over everything. */
 }
 
+.my-move-container {
+  padding-top: 20px;
+}
+
+.my-move-container .usa-alert {
+  margin-top: 0px;
+}
+
 img._fix-ie-11-height {
   max-height: 80px; /* After using auto in .site__content.flex, the transcom logo in IE11 on win8 was not constrained vertically. */
 }

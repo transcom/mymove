@@ -4,8 +4,8 @@ import (
 	"io"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -20,18 +20,25 @@ var ErrZeroLengthFile = errors.New("File has length of 0")
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
 // generating pre-signed URLs for file access, and deleting Uploads.
 type Uploader struct {
-	db     *pop.Connection
-	logger *zap.Logger
-	Storer storage.FileStorer
+	db               *pop.Connection
+	logger           *zap.Logger
+	Storer           storage.FileStorer
+	UploadStorageKey string
 }
 
 // NewUploader creates and returns a new uploader
 func NewUploader(db *pop.Connection, logger *zap.Logger, storer storage.FileStorer) *Uploader {
 	return &Uploader{
-		db:     db,
-		logger: logger,
-		Storer: storer,
+		db:               db,
+		logger:           logger,
+		Storer:           storer,
+		UploadStorageKey: "",
 	}
+}
+
+// SetUploadStorageKey set the Upload.StorageKey member
+func (u *Uploader) SetUploadStorageKey(key string) {
+	u.UploadStorageKey = key
 }
 
 // CreateUpload creates a new Upload by performing validations, storing the specified
@@ -74,6 +81,11 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 		Checksum:    checksum,
 	}
 
+	// Set the Upload.StorageKey if set
+	if u.UploadStorageKey != "" {
+		newUpload.StorageKey = u.UploadStorageKey
+	}
+
 	u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
@@ -101,6 +113,11 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 	return newUpload, responseVErrors, responseError
 }
 
+// CreateUploadNoDocument stores Upload but does not create a Document
+func (u *Uploader) CreateUploadNoDocument(userID uuid.UUID, aFile *afero.File) (*models.Upload, *validate.Errors, error) {
+	return u.CreateUpload(nil, userID, *aFile)
+}
+
 // PresignedURL returns a URL that can be used to access an Upload's file.
 func (u *Uploader) PresignedURL(upload *models.Upload) (string, error) {
 	url, err := u.Storer.PresignedURL(upload.StorageKey, upload.ContentType)
@@ -118,10 +135,7 @@ func (u *Uploader) DeleteUpload(upload *models.Upload) error {
 		return err
 	}
 
-	if err := models.DeleteUpload(u.db, upload); err != nil {
-		return err
-	}
-	return nil
+	return models.DeleteUpload(u.db, upload)
 }
 
 // Download fetches an Upload's file and stores it in a tempfile. The path to this

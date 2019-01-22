@@ -1,4 +1,4 @@
-import { getClient, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/Swagger/api';
 import { formatPayload } from 'shared/utils';
 
 export async function CreateOrders(orders) {

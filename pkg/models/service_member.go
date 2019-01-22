@@ -1,49 +1,67 @@
 package models
 
 import (
+	"context"
 	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
+// ServiceMemberAffiliation represents a service member's branch
+type ServiceMemberAffiliation string
+
+const (
+	// AffiliationARMY captures enum value "ARMY"
+	AffiliationARMY ServiceMemberAffiliation = "ARMY"
+	// AffiliationNAVY captures enum value "NAVY"
+	AffiliationNAVY ServiceMemberAffiliation = "NAVY"
+	// AffiliationMARINES captures enum value "MARINES"
+	AffiliationMARINES ServiceMemberAffiliation = "MARINES"
+	// AffiliationAIRFORCE captures enum value "AIR_FORCE"
+	AffiliationAIRFORCE ServiceMemberAffiliation = "AIR_FORCE"
+	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
+	AffiliationCOASTGUARD ServiceMemberAffiliation = "COAST_GUARD"
+)
+
 // ServiceMember is a user of type service member
 type ServiceMember struct {
-	ID                     uuid.UUID                           `json:"id" db:"id"`
-	CreatedAt              time.Time                           `json:"created_at" db:"created_at"`
-	UpdatedAt              time.Time                           `json:"updated_at" db:"updated_at"`
-	UserID                 uuid.UUID                           `json:"user_id" db:"user_id"`
-	User                   User                                `belongs_to:"user"`
-	Edipi                  *string                             `json:"edipi" db:"edipi"`
-	Affiliation            *internalmessages.Affiliation       `json:"affiliation" db:"affiliation"`
-	Rank                   *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
-	FirstName              *string                             `json:"first_name" db:"first_name"`
-	MiddleName             *string                             `json:"middle_name" db:"middle_name"`
-	LastName               *string                             `json:"last_name" db:"last_name"`
-	Suffix                 *string                             `json:"suffix" db:"suffix"`
-	Telephone              *string                             `json:"telephone" db:"telephone"`
-	SecondaryTelephone     *string                             `json:"secondary_telephone" db:"secondary_telephone"`
-	PersonalEmail          *string                             `json:"personal_email" db:"personal_email"`
-	PhoneIsPreferred       *bool                               `json:"phone_is_preferred" db:"phone_is_preferred"`
-	TextMessageIsPreferred *bool                               `json:"text_message_is_preferred" db:"text_message_is_preferred"`
-	EmailIsPreferred       *bool                               `json:"email_is_preferred" db:"email_is_preferred"`
-	ResidentialAddressID   *uuid.UUID                          `json:"residential_address_id" db:"residential_address_id"`
-	ResidentialAddress     *Address                            `belongs_to:"address"`
-	BackupMailingAddressID *uuid.UUID                          `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
-	BackupMailingAddress   *Address                            `belongs_to:"address"`
-	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
-	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
-	Orders                 Orders                              `has_many:"orders" order_by:"created_at desc"`
-	BackupContacts         BackupContacts                      `has_many:"backup_contacts"`
-	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            DutyStation                         `belongs_to:"duty_stations"`
+	ID                     uuid.UUID                 `json:"id" db:"id"`
+	CreatedAt              time.Time                 `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time                 `json:"updated_at" db:"updated_at"`
+	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
+	User                   User                      `belongs_to:"user"`
+	Edipi                  *string                   `json:"edipi" db:"edipi"`
+	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
+	Rank                   *ServiceMemberRank        `json:"rank" db:"rank"`
+	FirstName              *string                   `json:"first_name" db:"first_name"`
+	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
+	LastName               *string                   `json:"last_name" db:"last_name"`
+	Suffix                 *string                   `json:"suffix" db:"suffix"`
+	Telephone              *string                   `json:"telephone" db:"telephone"`
+	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
+	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
+	PhoneIsPreferred       *bool                     `json:"phone_is_preferred" db:"phone_is_preferred"`
+	TextMessageIsPreferred *bool                     `json:"text_message_is_preferred" db:"text_message_is_preferred"`
+	EmailIsPreferred       *bool                     `json:"email_is_preferred" db:"email_is_preferred"`
+	ResidentialAddressID   *uuid.UUID                `json:"residential_address_id" db:"residential_address_id"`
+	ResidentialAddress     *Address                  `belongs_to:"address"`
+	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
+	BackupMailingAddress   *Address                  `belongs_to:"address"`
+	SocialSecurityNumberID *uuid.UUID                `json:"social_security_number_id" db:"social_security_number_id"`
+	SocialSecurityNumber   *SocialSecurityNumber     `belongs_to:"social_security_numbers"`
+	Orders                 Orders                    `has_many:"orders" order_by:"created_at desc"`
+	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
+	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
+	DutyStation            DutyStation               `belongs_to:"duty_stations"`
 }
 
 // ServiceMembers is not required by pop and may be deleted
@@ -71,7 +89,11 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+
+	ctx, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
+	defer span.Send()
+
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
@@ -84,6 +106,25 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
 	if session.IsMyApp() && serviceMember.ID != session.ServiceMemberID {
 		return ServiceMember{}, ErrFetchForbidden
+	} else if session.IsTspApp() {
+		// A TspUser is only allowed to interact with a service member if they are associated with one of their shipments.
+		query := `
+			SELECT tsp_users.id FROM tsp_users, shipment_offers, shipments
+			WHERE
+				tsp_users.transportation_service_provider_id = shipment_offers.transportation_service_provider_id
+				AND shipment_offers.shipment_id = shipments.id
+				AND shipment_offers.accepted IS NOT FALSE
+				AND tsp_users.id = $1
+				AND shipments.service_member_id = $2
+		`
+
+		count, err := db.RawQuery(query, session.TspUserID, serviceMember.ID).Count(TspUser{})
+		if err != nil {
+			return ServiceMember{}, err
+		}
+		if count == 0 {
+			return ServiceMember{}, ErrFetchForbidden
+		}
 	}
 
 	// TODO: Remove this when Pop's eager loader stops populating blank structs into these fields
@@ -118,7 +159,11 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 }
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+
+	ctx, span := beeline.StartSpan(ctx, "SaveServiceMember")
+	defer span.Send()
+
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -167,7 +212,7 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 }
 
 // CreateBackupContact creates a backup contact model tied to the service member
-func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone *string, permission internalmessages.BackupContactPermission) (BackupContact, *validate.Errors, error) {
+func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone *string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
 	newContact := BackupContact{
 		ServiceMemberID: s.ID,
 		ServiceMember:   s,
@@ -298,7 +343,10 @@ func (s *ServiceMember) IsProfileComplete() bool {
 }
 
 // FetchLatestOrder gets the latest order for a service member
-func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
+func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
+	ctx, span := beeline.StartSpan(ctx, "FetchLatestOrder")
+	defer span.Send()
+
 	var order Order
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.Eager("ServiceMember.User",

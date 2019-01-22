@@ -1,14 +1,17 @@
 package auth
 
 import (
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"log"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type authSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	logger *zap.Logger
 }
 

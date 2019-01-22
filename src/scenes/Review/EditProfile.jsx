@@ -11,14 +11,10 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-import {
-  editBegin,
-  editSuccessful,
-  entitlementChangeBegin,
-  entitlementChanged,
-} from './ducks';
+import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
+import scrollToTop from 'shared/scrollToTop';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -38,10 +34,7 @@ let EditProfileForm = props => {
     serviceMember,
   } = props;
   const currentStation = get(serviceMember, 'current_station');
-  const stationPhone = get(
-    currentStation,
-    'transportation_office.phone_lines.0',
-  );
+  const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Profile
@@ -63,14 +56,11 @@ let EditProfileForm = props => {
       {moveIsApproved && (
         <Fragment>
           <div>
-            To change the fields below, contact your local PPPO office at{' '}
-            {get(currentStation, 'name')}{' '}
+            To change the fields below, contact your local PPPO office at {get(currentStation, 'name')}{' '}
             {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
           <label>Branch</label>
-          <strong>
-            {schemaAffiliation['x-display-value'][initialValues.affiliation]}
-          </strong>
+          <strong>{schemaAffiliation['x-display-value'][initialValues.affiliation]}</strong>
           <label>Rank</label>
           <strong>{schemaRank['x-display-value'][initialValues.rank]}</strong>
           <label>DoD ID #</label>
@@ -96,13 +86,17 @@ class EditProfile extends Component {
     if (fieldValues.rank !== this.props.serviceMember.rank) {
       this.props.entitlementChanged();
     }
+    const moveId = this.props.move.id;
     return this.props.updateServiceMember(fieldValues).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
         this.props.editSuccessful();
         this.props.history.goBack();
+        if (this.props.isPpm) {
+          this.props.checkEntitlement(moveId);
+        }
       } else {
-        window.scrollTo(0, 0);
+        scrollToTop();
       }
     });
   };
@@ -113,14 +107,7 @@ class EditProfile extends Component {
   }
 
   render() {
-    const {
-      error,
-      schema,
-      serviceMember,
-      moveIsApproved,
-      schemaAffiliation,
-      schemaRank,
-    } = this.props;
+    const { error, schema, serviceMember, moveIsApproved, schemaAffiliation, schemaRank } = this.props;
 
     return (
       <div className="usa-grid">
@@ -154,14 +141,11 @@ function mapStateToProps(state) {
     move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
-    schema: get(
-      state,
-      'swagger.spec.definitions.CreateServiceMemberPayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     moveIsApproved: moveIsApproved(state),
-    schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
-    schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
+    isPpm: isPpm(state),
+    schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
+    schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
   };
 }
 
@@ -174,6 +158,7 @@ function mapDispatchToProps(dispatch) {
       entitlementChangeBegin,
       editSuccessful,
       entitlementChanged,
+      checkEntitlement,
     },
     dispatch,
   );

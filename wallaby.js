@@ -12,10 +12,7 @@ module.exports = function(wallaby) {
   require('module').Module._initPaths();
 
   return {
-    files: [
-      'src/**/*.+(js|jsx|json|snap|css|less|sass|scss|jpg|jpeg|gif|png|svg)',
-      '!src/**/*.test.js?(x)',
-    ],
+    files: ['src/**/*.+(js|jsx|json|snap|css|less|sass|scss|jpg|jpeg|gif|png|svg)', '!src/**/*.test.js?(x)'],
 
     tests: ['src/**/*.test.js?(x)'],
 
@@ -32,8 +29,8 @@ module.exports = function(wallaby) {
     },
 
     setup: wallaby => {
-      const jestConfig = require('react-scripts/scripts/utils/createJestConfig')(
-        p => require.resolve('react-scripts/' + p),
+      const jestConfig = require('react-scripts/scripts/utils/createJestConfig')(p =>
+        require.resolve('react-scripts/' + p),
       );
       delete jestConfig.transform['^.+\\.(js|jsx)$'];
       delete jestConfig.testEnvironment;

@@ -5,9 +5,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 const editBeginType = 'EDIT_BEGIN';
 const entitlementChangeBeginType = 'ENTITLEMENT_CHANGE_BEGIN';
 const validateEntitlement = 'VALIDATE_ENTITLEMENT';
-export const VALIDATE_ENTITLEMENT = ReduxHelpers.generateAsyncActionTypes(
-  validateEntitlement,
-);
+export const VALIDATE_ENTITLEMENT = ReduxHelpers.generateAsyncActionTypes(validateEntitlement);
 
 const editSuccessfulType = 'EDIT_SUCCESS';
 const entitlementChangeType = 'ENTITLEMENT_CHANGED';
@@ -37,10 +35,7 @@ export function entitlementChanged() {
   };
 }
 
-export const checkEntitlement = ReduxHelpers.generateAsyncActionCreator(
-  validateEntitlement,
-  ValidateEntitlement,
-);
+export const checkEntitlement = ReduxHelpers.generateAsyncActionCreator(validateEntitlement, ValidateEntitlement);
 
 // Reducer
 const initialState = {

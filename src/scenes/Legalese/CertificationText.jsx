@@ -10,11 +10,7 @@ function CertificationText({ certificationText }) {
 
   return (
     <div className="certification_text_box">
-      {certificationMarkup ? (
-        <div dangerouslySetInnerHTML={{ __html: certificationMarkup }} />
-      ) : (
-        'Loading...'
-      )}
+      {certificationMarkup ? <div dangerouslySetInnerHTML={{ __html: certificationMarkup }} /> : 'Loading...'}
     </div>
   );
 }

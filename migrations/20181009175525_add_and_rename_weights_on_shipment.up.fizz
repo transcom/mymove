@@ -1,0 +1,4 @@
+rename_column("shipments", "actual_weight", "net_weight")
+add_column("shipments", "gross_weight", "integer", {"null": true})
+add_column("shipments", "tare_weight", "integer", {"null": true})
+

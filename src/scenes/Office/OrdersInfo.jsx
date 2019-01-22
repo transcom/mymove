@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { compact, get } from 'lodash';
+import { get } from 'lodash';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { loadMoveDependencies } from './ducks.js';
+import { stringifyName } from 'shared/utils/serviceMember';
 
 import './office.css';
 
@@ -20,10 +21,7 @@ class OrdersInfo extends Component {
   render() {
     const orders = this.props.orders;
     const serviceMember = this.props.serviceMember;
-    const name = compact([
-      serviceMember.last_name,
-      serviceMember.first_name,
-    ]).join(', ');
+    const name = stringifyName(serviceMember);
 
     let uploads;
     if (orders && orders.uploaded_orders) {
@@ -39,11 +37,7 @@ class OrdersInfo extends Component {
       uploads = [];
     }
 
-    if (
-      !this.props.loadDependenciesHasSuccess &&
-      !this.props.loadDependenciesHasError
-    )
-      return <LoadingPlaceholder />;
+    if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
         <div className="usa-grid">
@@ -57,15 +51,9 @@ class OrdersInfo extends Component {
     return (
       <div>
         <div className="usa-grid">
-          <div className="usa-width-two-thirds document-contents">
-            {uploads}
-          </div>
+          <div className="usa-width-two-thirds document-contents">{uploads}</div>
           <div className="usa-width-one-third orders-page-fields">
-            <OrdersViewerPanel
-              title={name}
-              className="document-viewer"
-              moveId={this.props.match.params.moveId}
-            />
+            <OrdersViewerPanel title={name} className="document-viewer" moveId={this.props.match.params.moveId} />
           </div>
         </div>
       </div>
@@ -78,15 +66,14 @@ OrdersInfo.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
-  ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+  swaggerError: state.swaggerInternal.hasErrored,
+  ordersSchema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
   orders: state.office.officeOrders || {},
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ loadMoveDependencies }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);

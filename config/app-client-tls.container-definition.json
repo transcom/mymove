@@ -17,11 +17,15 @@
     "/bin/mymove-server"
   ],
   "command": [
-    "-env",
+    "--env",
     "container",
-    "-debug_logging"
+    "--debug-logging"
   ],
-  "environment": [
+    "environment": [
+    {
+      "name": "SERVICE_NAME",
+      "value": "app-client-tls"
+    },
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
@@ -69,6 +73,10 @@
     {
       "name": "HTTP_ORDERS_SERVER_NAME",
       "value": "orders.{{ .domain }}"
+    },
+    {
+      "name": "HTTP_DPS_SERVER_NAME",
+      "value": "dps.{{ .domain }}"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",
@@ -119,12 +127,16 @@
       "value": "{{ .HONEYCOMB_DATASET }}"
     },
     {
-      "name": "NEW_RELIC_APPLICATION_ID",
-      "value": "{{ .NEW_RELIC_APPLICATION_ID }}"
+      "name": "DOD_CA_PACKAGE",
+      "value": "/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b"
     },
     {
-      "name": "NEW_RELIC_LICENSE_KEY",
-      "value": "{{ .NEW_RELIC_LICENSE_KEY }}"
+      "name": "IWS_RBS_HOST",
+      "value": "{{ .IWS_RBS_HOST }}"
+    },
+    {
+      "name": "GEX_URL",
+      "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
     }
   ],
   "logConfiguration": {

@@ -10,13 +10,12 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import {
-  createOrUpdatePpm,
-  getPpmWeightEstimate,
-} from 'scenes/Moves/Ppm/ducks';
+import { createOrUpdatePpm, getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
+import scrollToTop from 'shared/scrollToTop';
+
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
@@ -71,17 +70,11 @@ let EditWeightForm = props => {
   let fieldClass = dirty ? 'warn' : '';
   let advanceError = false;
   const advanceAmt = get(initialValues, 'advance.requested_amount', 0);
-  if (
-    incentive_estimate_max &&
-    advanceAmt &&
-    incentive_estimate_max < formatCents(advanceAmt)
-  ) {
+  if (incentive_estimate_max && advanceAmt && incentive_estimate_max < formatCents(advanceAmt)) {
     advanceError = true;
     incentiveClass = 'error';
     fieldClass = 'error';
-  } else if (
-    get(initialValues, 'incentive_estimate_min') !== incentive_estimate_min
-  ) {
+  } else if (get(initialValues, 'incentive_estimate_min') !== incentive_estimate_min) {
     // Min and max are linked, so we only need to check one
     incentiveClass = 'warn';
   }
@@ -92,9 +85,7 @@ let EditWeightForm = props => {
       <img src={profileImage} alt="" /> Profile
       <hr />
       <h3 className="sm-heading">Edit PPM Weight:</h3>
-      <p>
-        Changes could impact your move, including the estimated PPM incentive.
-      </p>
+      <p>Changes could impact your move, including the estimated PPM incentive.</p>
       <EntitlementBar entitlement={entitlement} />
       <div className="edit-weight-container">
         <div className="usa-width-one-half">
@@ -117,16 +108,12 @@ let EditWeightForm = props => {
               dirty && (
                 <div className="usa-alert usa-alert-warning">
                   <div className="usa-alert-body">
-                    <p className="usa-alert-text">
-                      This update will change your incentive.
-                    </p>
+                    <p className="usa-alert-text">This update will change your incentive.</p>
                   </div>
                 </div>
               )}
             {advanceError && (
-              <p className="advance-error">
-                Weight is too low and will require paying back the advance.
-              </p>
+              <p className="advance-error">Weight is too low and will require paying back the advance.</p>
             )}
           </div>
 
@@ -134,22 +121,15 @@ let EditWeightForm = props => {
             <p>Estimated Incentive</p>
             <p className={incentiveClass}>
               <strong>
-                {formatCentsRange(
-                  incentive_estimate_min,
-                  incentive_estimate_max,
-                ) || 'Unable to Calculate'}
+                {formatCentsRange(incentive_estimate_min, incentive_estimate_max) || 'Unable to Calculate'}
               </strong>
             </p>
             {initialValues &&
               initialValues.incentive_estimate_min &&
-              initialValues.incentive_estimate_min !==
-                incentive_estimate_min && (
+              initialValues.incentive_estimate_min !== incentive_estimate_min && (
                 <p className="subtext">
                   Originally{' '}
-                  {formatCentsRange(
-                    initialValues.incentive_estimate_min,
-                    initialValues.incentive_estimate_min,
-                  )}
+                  {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_min)}
                 </p>
               )}
           </div>
@@ -158,9 +138,7 @@ let EditWeightForm = props => {
             <div className="display-value">
               <p>Advance</p>
               <p>
-                <strong>
-                  ${formatCents(initialValues.advance.requested_amount)}
-                </strong>
+                <strong>${formatCents(initialValues.advance.requested_amount)}</strong>
               </p>
             </div>
           )}
@@ -200,13 +178,10 @@ class EditWeight extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
 
-  debouncedGetPpmWeightEstimate = debounce(
-    this.props.getPpmWeightEstimate,
-    weightEstimateDebounce,
-  );
+  debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
 
   onWeightChange = (e, newValue, oldValue, fieldName) => {
     const { currentPpm, entitlement } = this.props;
@@ -233,8 +208,9 @@ class EditWeight extends Component {
         if (!this.props.hasSubmitError) {
           this.props.editSuccessful();
           this.props.history.goBack();
+          this.props.checkEntitlement(moveId);
         } else {
-          window.scrollTo(0, 0);
+          scrollToTop();
         }
       });
   };
@@ -262,8 +238,8 @@ class EditWeight extends Component {
         {hasEstimateError && (
           <div className="usa-width-one-whole error-message">
             <Alert type="warning" heading="Could not retrieve estimate">
-              There was an issue retrieving an estimate for your incentive. You
-              still qualify but may need to talk with your local PPPO.
+              There was an issue retrieving an estimate for your incentive. You still qualify but may need to talk with
+              your local PPPO.
             </Alert>
           </div>
         )}
@@ -289,11 +265,7 @@ function mapStateToProps(state) {
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlementsFromState(state),
-    schema: get(
-      state,
-      'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
-      {},
-    ),
+    schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
   };
 }
 
@@ -306,6 +278,7 @@ function mapDispatchToProps(dispatch) {
       editBegin,
       editSuccessful,
       entitlementChangeBegin,
+      checkEntitlement,
     },
     dispatch,
   );

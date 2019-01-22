@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -23,7 +21,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	station := assertions.Order.NewDutyStation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyStationID) {
-		station = MakeDefaultDutyStation(db)
+		station = FetchOrMakeDefaultDutyStation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -46,24 +44,30 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		document.Uploads = append(document.Uploads, u)
 	}
 
-	ordersNumber := "ORDER" + strconv.Itoa(rand.Intn(100))
-	TAC := "tac-placeholder"
+	ordersNumber := "ORDER3"
+	TAC := "F8E1"
+	SAC := "SAC"
+	departmentIndicator := "AIR_FORCE"
+	hasDependents := assertions.Order.HasDependents || false
+	spouseHasProGear := assertions.Order.SpouseHasProGear || false
 
 	order := models.Order{
-		ServiceMember:    sm,
-		ServiceMemberID:  sm.ID,
-		NewDutyStation:   station,
-		NewDutyStationID: station.ID,
-		UploadedOrders:   document,
-		UploadedOrdersID: document.ID,
-		IssueDate:        time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:     &ordersNumber,
-		HasDependents:    true,
-		SpouseHasProGear: true,
-		Status:           models.OrderStatusDRAFT,
-		TAC:              &TAC,
+		ServiceMember:       sm,
+		ServiceMemberID:     sm.ID,
+		NewDutyStation:      station,
+		NewDutyStationID:    station.ID,
+		UploadedOrders:      document,
+		UploadedOrdersID:    document.ID,
+		IssueDate:           time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:        time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
+		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:        &ordersNumber,
+		HasDependents:       hasDependents,
+		SpouseHasProGear:    spouseHasProGear,
+		Status:              models.OrderStatusDRAFT,
+		TAC:                 &TAC,
+		SAC:                 &SAC,
+		DepartmentIndicator: &departmentIndicator,
 	}
 
 	// Overwrite values with those from assertions

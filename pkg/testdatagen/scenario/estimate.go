@@ -70,7 +70,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		LinehaulFactor:     unit.Cents(39),
 		ServiceChargeCents: unit.Cents(350),
 		EffectiveDateLower: May15_2018,
-		EffectiveDateUpper: May15_2019,
+		EffectiveDateUpper: May14_2019,
 		SIT185ARateCents:   unit.Cents(1402),
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      3,
@@ -85,7 +85,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		LinehaulFactor:     unit.Cents(43),
 		ServiceChargeCents: unit.Cents(350),
 		EffectiveDateLower: May15_2018,
-		EffectiveDateUpper: May15_2019,
+		EffectiveDateUpper: May14_2019,
 		SIT185ARateCents:   unit.Cents(1292),
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      2,
@@ -96,10 +96,10 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          May15_2018,
-		PerformancePeriodEnd:            Oct15_2018,
-		RateCycleStart:                  May15_2018,
-		RateCycleEnd:                    Oct15_2018,
+		PerformancePeriodStart:          Oct1_2018,
+		PerformancePeriodEnd:            Dec31_2018,
+		RateCycleStart:                  Oct1_2018,
+		RateCycleEnd:                    May14_2019,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,

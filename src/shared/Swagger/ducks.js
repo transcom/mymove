@@ -1,14 +1,21 @@
 import * as helpers from 'shared/ReduxHelpers';
-import { GetSpec, GetPublicSpec } from './api';
-const resource = 'SWAGGER';
+import { getSpec, getPublicSpec } from './api';
 
-export const actionsTypes = helpers.generateAsyncActionTypes(resource);
+const resourceInternal = 'SWAGGER_INTERNAL';
 
-export const loadSchema = helpers.generateAsyncActionCreator(resource, GetSpec);
+export const actionsTypesInternal = helpers.generateAsyncActionTypes(resourceInternal);
 
-export const loadPublicSchema = helpers.generateAsyncActionCreator(
-  resource,
-  GetPublicSpec,
-);
+export const loadInternalSchema = helpers.generateAsyncActionCreator(resourceInternal, getSpec);
 
-export default helpers.generateAsyncReducer(resource, v => ({ spec: v }));
+export const swaggerReducerInternal = helpers.generateAsyncReducer(resourceInternal, v => ({
+  spec: v,
+}));
+
+const resourcePublic = 'SWAGGER_PUBLIC';
+
+export const actionsTypesPublic = helpers.generateAsyncActionTypes(resourcePublic);
+
+export const loadPublicSchema = helpers.generateAsyncActionCreator(resourcePublic, getPublicSpec);
+export const swaggerReducerPublic = helpers.generateAsyncReducer(resourcePublic, v => ({
+  spec: v,
+}));

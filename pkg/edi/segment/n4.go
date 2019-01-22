@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"strings"
 )
 
 // N4 represents the N4 EDI segment
@@ -15,9 +14,9 @@ type N4 struct {
 	LocationIdentifier  string
 }
 
-// String converts N4 to its X12 single line string representation
-func (s *N4) String(delimiter string) string {
-	elements := []string{
+// StringArray converts N4 to an array of strings
+func (s *N4) StringArray() []string {
+	return []string{
 		"N4",
 		s.CityName,
 		s.StateOrProvinceCode,
@@ -26,7 +25,6 @@ func (s *N4) String(delimiter string) string {
 		s.LocationQualifier,
 		s.LocationIdentifier,
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the N4 struct

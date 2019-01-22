@@ -11,16 +11,13 @@ import { no_op } from 'shared/utils';
 
 export class TransportationOfficeContactInfo extends Component {
   componentDidMount() {
-    this.props.loadDutyStationTransportationOffice(
-      get(this.props, 'dutyStation.id'),
-    );
+    this.props.loadDutyStationTransportationOffice(get(this.props, 'dutyStation.id'));
   }
   render() {
     const { isOrigin, dutyStation, transportationOffice } = this.props;
     const transportationOfficeName = get(transportationOffice, 'name');
     const officeName =
-      transportationOfficeName &&
-      get(dutyStation, 'name') !== transportationOfficeName
+      transportationOfficeName && get(dutyStation, 'name') !== transportationOfficeName
         ? transportationOffice.name
         : 'Transportation Office';
     const contactInfo = Boolean(get(transportationOffice, 'phone_lines[0]'));
@@ -30,11 +27,7 @@ export class TransportationOfficeContactInfo extends Component {
         <div>
           {isOrigin ? 'Origin' : 'Destination'} {officeName}
         </div>
-        <div>
-          {contactInfo
-            ? get(transportationOffice, 'phone_lines[0]')
-            : 'Contact Info Not Available'}
-        </div>
+        <div>{contactInfo ? get(transportationOffice, 'phone_lines[0]') : 'Contact Info Not Available'}</div>
       </div>
     );
   }
@@ -55,16 +48,11 @@ TransportationOfficeContactInfo.defaultProps = {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-  transportationOffice: getDutyStationTransportationOffice(
-    state,
-    get(ownProps, 'dutyStation.id'),
-  ),
+  transportationOffice: getDutyStationTransportationOffice(state, get(ownProps, 'dutyStation.id')),
 });
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadDutyStationTransportationOffice }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  TransportationOfficeContactInfo,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(TransportationOfficeContactInfo);

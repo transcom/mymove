@@ -1,1 +1,0 @@
-drop_index("service_members", "service_members_user_id_uniq_idx")

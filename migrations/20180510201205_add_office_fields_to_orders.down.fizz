@@ -1,3 +1,0 @@
-drop_column("orders", "orders_number")
-drop_column("orders", "orders_type_detail")
-drop_column("orders", "current_duty_station_id")

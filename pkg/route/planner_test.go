@@ -7,11 +7,12 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
 )
 
 type PlannerSuite struct {
-	suite.Suite
+	testingsuite.BaseTestSuite
 	logger *zap.Logger
 }
 
@@ -36,17 +37,23 @@ func (suite *PlannerSuite) TestUrlencodeAddress() {
 	}
 }
 
+var usaStr = "USA"
+
 var realAddressSource = models.Address{
-	StreetAddress1: "1333 Minna St",
-	City:           "San Francisco",
-	State:          "CA",
-	PostalCode:     "94103"}
+	StreetAddress1: "",
+	City:           "Joint Base Lewis-McChord",
+	State:          "WA",
+	PostalCode:     "98438",
+	Country:        &usaStr,
+}
 
 var realAddressDestination = models.Address{
-	StreetAddress1: "1000 Defense Pentagon",
+	StreetAddress1: "100 Maple St. NW",
 	City:           "Washington",
 	State:          "DC",
-	PostalCode:     "20301-1000"}
+	PostalCode:     "20001",
+	Country:        &usaStr,
+}
 
 // TestAddressPlanner is an expensive test which calls out to the Bing API.
 func (suite *PlannerFullSuite) TestAddressPlanner() {

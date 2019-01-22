@@ -31,11 +31,11 @@ func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string
 }
 
 func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
-	order := testdatagen.MakeDefaultOrder(suite.db)
+	order := testdatagen.MakeDefaultOrder(suite.DB())
 
-	document := testdatagen.MakeDefaultDocument(suite.db)
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
 	suite.FatalNil(err)
 
 	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
@@ -54,19 +54,19 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Nil(err)
 
-	err = suite.db.Load(&document, "Uploads")
+	err = suite.DB().Load(&document, "Uploads")
 	suite.FatalNil(err)
 	suite.Equal(3, len(document.Uploads))
 
 	order.UploadedOrders = document
 	order.UploadedOrdersID = document.ID
-	suite.mustSave(&order)
+	suite.MustSave(&order)
 
 	return generator, order
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages() {
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
 	suite.FatalNil(err)
 
 	images := []inputFile{
@@ -79,18 +79,18 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	}
 
 	generatedPath, err := generator.PDFFromImages(images)
-	suite.Nil(err, "failed to generate pdf")
+	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 
 	// verify that the images are in the pdf by extracting them and checking their checksums
 	tmpdir, err := afero.TempDir(generator.fs, "", "extracted_images")
-	suite.Nil(err, "could not create temp dir")
+	suite.FatalNil(err, "could not create temp dir")
 
 	api.ExtractImages(generatedPath, tmpdir, []string{"-2"}, generator.pdfConfig)
 
 	checksums := make([]string, 2)
 	files, err := afero.ReadDir(generator.fs, tmpdir)
-	suite.Nil(err)
+	suite.FatalNil(err)
 
 	suite.Equal(2, len(files), "did not find 2 images")
 
@@ -110,6 +110,24 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
 	suite.Nil(err, "error calculating hash")
 	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
+}
+
+func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
+	images := []inputFile{
+		// The below image isn't getting extracted by pdfcpu for some reason.
+		// We're adding it because gofpdf can't process 16-bit PNG images, so we
+		// just care that PDFFromImages doesn't error
+		{Path: "testdata/16bitpng.png", ContentType: "image/png"},
+	}
+	_, err = suite.openLocalFile(images[0].Path, generator.fs)
+	suite.FatalNil(err)
+
+	generatedPath, err := generator.PDFFromImages(images)
+	suite.FatalNil(err, "failed to generate pdf")
+	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 }
 
 func (suite *PaperworkSuite) TestGenerateUploadsPDF() {

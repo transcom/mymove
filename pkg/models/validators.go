@@ -76,17 +76,17 @@ func (v *OptionalIntIsPositive) IsValid(errors *validate.Errors) {
 	}
 }
 
-// OptionalPoundIsPositive adds an error if the Field is less than or equal to zero
-type OptionalPoundIsPositive struct {
+// OptionalPoundIsNonNegative adds an error if the Field is less than zero
+type OptionalPoundIsNonNegative struct {
 	Name  string
 	Field *unit.Pound
 }
 
-// IsValid adds an error if the Field is less than or equal to zero
-func (v *OptionalPoundIsPositive) IsValid(errors *validate.Errors) {
+// IsValid adds an error if the Field is less than zero
+func (v *OptionalPoundIsNonNegative) IsValid(errors *validate.Errors) {
 	if v.Field != nil {
-		if *v.Field <= 0 {
-			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than or equal to zero.", *v.Field))
+		if *v.Field < 0 {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than zero.", *v.Field))
 		}
 	}
 }
@@ -127,7 +127,7 @@ func NewAllowedFileTypeValidator(field string, name string) *AllowedFileType {
 	return &AllowedFileType{
 		validators.StringInclusion{Name: name,
 			Field: field,
-			List:  []string{"image/jpeg", "image/png", "application/pdf"}}}
+			List:  []string{"image/jpeg", "image/png", "application/pdf", "text/plain", "text/plain; charset=utf-8"}}}
 }
 
 // AffiliationIsPresent validates that a branch is present
@@ -138,19 +138,6 @@ type AffiliationIsPresent struct {
 
 // IsValid adds an error if the string value is blank.
 func (v *AffiliationIsPresent) IsValid(errors *validate.Errors) {
-	if string(v.Field) == "" {
-		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
-	}
-}
-
-// BackupContactPermissionIsPresent validates that permission field is present
-type BackupContactPermissionIsPresent struct {
-	Name  string
-	Field internalmessages.BackupContactPermission
-}
-
-// IsValid adds an error if the string value is blank.
-func (v *BackupContactPermissionIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}

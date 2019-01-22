@@ -7,21 +7,14 @@ describe('utils', () => {
       const arr = [{ id: 'bar', name: 'foo' }, { id: 'baz', name: 'baz' }];
       utils.upsert(arr, item);
       it('should be appended to the array', () => {
-        expect(arr).toEqual([
-          { id: 'bar', name: 'foo' },
-          { id: 'baz', name: 'baz' },
-          item,
-        ]);
+        expect(arr).toEqual([{ id: 'bar', name: 'foo' }, { id: 'baz', name: 'baz' }, item]);
       });
     });
     describe('when upserting an update to an array', () => {
       const arr = [{ id: 'foo', name: 'foo' }, { id: 'baz', name: 'baz' }];
       utils.upsert(arr, item);
       it('should be appended to the array', () => {
-        expect(arr).toEqual([
-          { id: 'foo', name: 'something' },
-          { id: 'baz', name: 'baz' },
-        ]);
+        expect(arr).toEqual([{ id: 'foo', name: 'something' }, { id: 'baz', name: 'baz' }]);
       });
     });
   });
@@ -46,11 +39,36 @@ describe('utils', () => {
       });
     });
     describe('when there are only inactive foos', () => {
-      const foos = [
-        { status: 'CANCELED', id: 'foo' },
-        { status: 'COMPLETED', id: 'foo' },
-      ];
+      const foos = [{ status: 'CANCELED', id: 'foo' }, { status: 'COMPLETED', id: 'foo' }];
       let res = utils.fetchActive(foos);
+      it('should return null', () => {
+        expect(res).toBeNull();
+      });
+    });
+  });
+
+  describe('fetch Active Shipment', () => {
+    describe('when there are no foos', () => {
+      const foos = null;
+      let res = utils.fetchActiveShipment(foos);
+      it('should return null', () => {
+        expect(res).toBeNull();
+      });
+    });
+    describe('when there are some active and some inactive foos', () => {
+      const foos = [
+        { status: 'CANCELED', id: 'foo0' },
+        { status: 'DRAFT', id: 'foo1' },
+        { status: 'SUBMITTED', id: 'foo2' },
+      ];
+      let res = utils.fetchActiveShipment(foos);
+      it('should return the first active foo', () => {
+        expect(res.id).toEqual('foo1');
+      });
+    });
+    describe('when there are only inactive foos', () => {
+      const foos = [{ status: 'CANCELED', id: 'foo' }];
+      let res = utils.fetchActiveShipment(foos);
       it('should return null', () => {
         expect(res).toBeNull();
       });

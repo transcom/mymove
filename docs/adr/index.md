@@ -33,6 +33,12 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0024](0024-model-authorization-and-handler-design.md) - Model Authorization and Handler Design
 - [ADR-0025](0025-client-side-feature-flags.md) - Client Side Feature Flags using Custom JavaScript
 - [ADR-0026](0026-use-snyk-vulnerability-scanning.md) - Use Snyk Vulnerability Scanning
+- [ADR-0027](0027-pdf-generation.md) - PDF Generation
+- [ADR-0028](0028-config-management.md) - Config Management
+- [ADR-0029](0029-honeycomb-integration.md) - Honeycomb Integration
+- [ADR-0030](0030-rds-iam.md) - IAM Authentication for Database
+- [ADR-0031](0031-css-tooling.md) - CSS Tooling
+- [ADR-0032](0032-csrf-protection.md) - CSRF Protection for the Application
 
 <!-- adrlogstop -->
 

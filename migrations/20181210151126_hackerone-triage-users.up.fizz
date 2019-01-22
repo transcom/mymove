@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181210151126_hackerone-triage-users.sql")

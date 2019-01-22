@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20180927194656_tspp-update-oct2018.sql")

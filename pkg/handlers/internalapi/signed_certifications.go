@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -52,31 +52,4 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 // IndexSignedCertificationsHandler creates a new issue via POST /issue
 type IndexSignedCertificationsHandler struct {
 	handlers.HandlerContext
-}
-
-// Handle returns a SignedCertification for a given moveID
-func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	// #nosec Format of UUID is checked by swagger
-	moveID, _ := uuid.FromString(params.MoveID.String())
-
-	move, err := models.FetchMove(h.DB(), session, moveID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	certs := move.SignedCertifications
-
-	limit := len(certs)
-	if params.Limit != nil && limit > int(*params.Limit) {
-		limit = int(*params.Limit)
-	}
-
-	payload := make(internalmessages.IndexSignedCertificationsPayload, limit)
-	for i := 0; i < limit; i++ {
-		cert := certs[i]
-		payload[i] = payloadForSignedCertificationModel(cert)
-	}
-
-	return certop.NewIndexSignedCertificationsOK().WithPayload(payload)
 }

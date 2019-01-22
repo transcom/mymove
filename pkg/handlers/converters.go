@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -28,13 +28,17 @@ func FmtUUIDPtr(u *uuid.UUID) *strfmt.UUID {
 
 // FmtDateTime converts pop type to go-swagger type
 func FmtDateTime(dateTime time.Time) *strfmt.DateTime {
+	if dateTime.IsZero() {
+		return nil
+	}
+
 	fmtDateTime := strfmt.DateTime(dateTime)
 	return &fmtDateTime
 }
 
 // FmtDateTimePtr converts pop type to go-swagger type
 func FmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
-	if dateTime == nil {
+	if dateTime == nil || dateTime.IsZero() {
 		return nil
 	}
 	return (*strfmt.DateTime)(dateTime)
@@ -42,13 +46,26 @@ func FmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
 
 // FmtDate converts pop type to go-swagger type
 func FmtDate(date time.Time) *strfmt.Date {
+	if date.IsZero() {
+		return nil
+	}
+
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
 }
 
+// FmtDateSlice converts []time.Time to []strfmt.Date
+func FmtDateSlice(dates []time.Time) []strfmt.Date {
+	s := make([]strfmt.Date, len(dates))
+	for i, date := range dates {
+		s[i] = strfmt.Date(date)
+	}
+	return s
+}
+
 // FmtDatePtr converts pop type to go-swagger type
 func FmtDatePtr(date *time.Time) *strfmt.Date {
-	if date == nil {
+	if date == nil || date.IsZero() {
 		return nil
 	}
 	return (*strfmt.Date)(date)
@@ -115,6 +132,14 @@ func StringFromEmail(email *strfmt.Email) *string {
 // FmtString converts pop type to go-swagger type
 func FmtString(s string) *string {
 	return &s
+}
+
+// FmtStringPtr converts pop type to go-swagger type
+func FmtStringPtr(s *string) *string {
+	if s == nil {
+		return nil
+	}
+	return FmtString(*s)
 }
 
 // FmtSSN converts pop type to go-swagger type

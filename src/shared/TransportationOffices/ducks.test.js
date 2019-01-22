@@ -41,12 +41,7 @@ describe('TransportationOffices', () => {
             created_at: '2018-05-28T14:27:39.635Z',
             id: 'ff6f1f7c-5309-4436-b9ff-e5dcac95b750',
             name: 'White Sands Missile Range',
-            phone_lines: [
-              '(575) 678-5005',
-              '(575) 678-3506',
-              '258-5055',
-              '258-3506',
-            ],
+            phone_lines: ['(575) 678-5005', '(575) 678-3506', '258-5055', '258-3506'],
             updated_at: '2018-05-28T14:27:39.635Z',
           },
           dutyStationId: '4FFFB7F8-603C-46E1-9A0F-7F2EAD11700C',
@@ -58,8 +53,7 @@ describe('TransportationOffices', () => {
         hasLoaded: true,
         allIds: ['ff6f1f7c-5309-4436-b9ff-e5dcac95b750'],
         byDutyStationId: {
-          '4FFFB7F8-603C-46E1-9A0F-7F2EAD11700C':
-            'ff6f1f7c-5309-4436-b9ff-e5dcac95b750',
+          '4FFFB7F8-603C-46E1-9A0F-7F2EAD11700C': 'ff6f1f7c-5309-4436-b9ff-e5dcac95b750',
         },
         byId: {
           'ff6f1f7c-5309-4436-b9ff-e5dcac95b750': {
@@ -74,12 +68,7 @@ describe('TransportationOffices', () => {
             created_at: '2018-05-28T14:27:39.635Z',
             id: 'ff6f1f7c-5309-4436-b9ff-e5dcac95b750',
             name: 'White Sands Missile Range',
-            phone_lines: [
-              '(575) 678-5005',
-              '(575) 678-3506',
-              '258-5055',
-              '258-3506',
-            ],
+            phone_lines: ['(575) 678-5005', '(575) 678-3506', '258-5055', '258-3506'],
             updated_at: '2018-05-28T14:27:39.635Z',
           },
         },

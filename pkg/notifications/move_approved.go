@@ -1,11 +1,12 @@
 package notifications
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -34,7 +35,7 @@ func NewMoveApproved(db *pop.Connection,
 	}
 }
 
-func (m MoveApproved) emails() ([]emailContent, error) {
+func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 	var emails []emailContent
 
 	move, err := models.FetchMove(m.db, m.session, m.moveID)
@@ -47,7 +48,7 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, m.db, m.session, orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}

@@ -1,0 +1,4 @@
+add_column("invoices", "shipment_id", "uuid", {"null": false})
+add_foreign_key("invoices", "shipment_id", {"shipments": ["id"]}, {"on_delete": "restrict",})
+
+

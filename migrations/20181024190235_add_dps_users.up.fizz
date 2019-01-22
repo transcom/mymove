@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20181024190235_add_dps_users.sql")

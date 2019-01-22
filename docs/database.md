@@ -7,6 +7,7 @@
 <!-- toc -->
 
 * [Migrations](#migrations)
+  * [Creating a migration](#creating-a-migration)
 * [Zero-Downtime Migrations](#zero-downtime-migrations)
 * [Secure Migrations](#secure-migrations)
 
@@ -18,13 +19,15 @@ Regenerate with "bin/generate-md-toc.sh"
 
 If you need to change the database schema, you'll need to write a migration.
 
-Creating a migration:
+### Creating a migration
 
 Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `./bin/soda` that sets the go environment and working directory correctly.
 
-If you are generating a new model, use `./bin/gen_model model-name column-name:type column-name:type ...`. id, created_at and updated_at are all created automatically.
+If you are generating a new model, use: `./bin/gen_model model-name column-name:type column-name:type ...`. The fields `id`, `created_at`, and `updated_at` are all created automatically.
 
-If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/gobuffalo/fizz) yourself to the created files.
+If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
+
+**Note**: We don't use down-migrations to revert changes to the schema; any problems are to be fixed by a follow-up migration.
 
 ## Zero-Downtime Migrations
 
@@ -51,9 +54,20 @@ To create a secure migration:
 * Copy the production migration into the local test migration.
 * Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
 * Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
+* If you are wanting to run a secure migration for a specific non-production environment, then **please read the next section first**.
 * Upload the migration to S3 with: `bin/upload-secure-migration <production_migration_file>`
+* Run `bin/run-prod-migrations` to verify that the upload worked and that the migration can be applied successfully
 * Open a pull request!
 * When the pull request lands, the production migrations will be run on Staging and Prod.
+
+To run a secure migration on ONLY staging (or other chosen environment), upload the migration only to the S3 environment and blank files to the others:
+
+* Instead of the "Upload the migration" step above, run `aws s3 cp --sse AES256 $YOUR_TMP_MIGRATION_FILE s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+* Check that it is listed in the S3 staging secure-migrations folder: `aws s3 ls s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+* Check that it is NOT listed in the S3 production folder: `aws s3 ls s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+* Now upload empty files of the same name to the prod environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+* Now upload empty files of the same name to the experimental environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-experimental-us-west-2/secure-migrations/`
+* To verify upload and that the migration can be applied, temporarily change the S3 bucket to the staging bucket in the run-prod-migration file and then run `bin/run-prod-migrations`
 
 Gory Details:
 

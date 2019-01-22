@@ -44,7 +44,7 @@ func (suite *ModelSuite) TestBasicReimbursement() {
 
 	reimbursement.Request()
 
-	verrs, err := suite.db.ValidateAndCreate(&reimbursement)
+	verrs, err := suite.DB().ValidateAndCreate(&reimbursement)
 	suite.Nil(err)
 	suite.False(verrs.HasAny())
 

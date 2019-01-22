@@ -3,23 +3,21 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // IEA represents the IEA EDI segment
 type IEA struct {
 	NumberOfIncludedFunctionalGroups int
-	InterchangeControlNumber         int
+	InterchangeControlNumber         int64
 }
 
-// String converts IEA to its X12 single line string representation
-func (s *IEA) String(delimiter string) string {
-	elements := []string{
+// StringArray converts IEA to an array of strings
+func (s *IEA) StringArray() []string {
+	return []string{
 		"IEA",
 		strconv.Itoa(s.NumberOfIncludedFunctionalGroups),
 		fmt.Sprintf("%09d", s.InterchangeControlNumber),
 	}
-	return strings.Join(elements, delimiter) + "\n"
 }
 
 // Parse parses an X12 string that's split into an array into the IEA struct
@@ -34,6 +32,6 @@ func (s *IEA) Parse(elements []string) error {
 	if err != nil {
 		return err
 	}
-	s.InterchangeControlNumber, err = strconv.Atoi(elements[1])
+	s.InterchangeControlNumber, err = strconv.ParseInt(elements[1], 10, 64)
 	return err
 }

@@ -1,9 +1,5 @@
 import configureStore from 'redux-mock-store';
-import issuesReducer, {
-  createShowIssuesRequest,
-  createShowIssuesSuccess,
-  createShowIssuesFailure,
-} from './ducks';
+import issuesReducer, { createShowIssuesRequest, createShowIssuesSuccess, createShowIssuesFailure } from './ducks';
 
 jest.mock('./api');
 
@@ -51,17 +47,13 @@ describe('Issues Actions', () => {
   it('Should check action on dispatching ', () => {
     let action;
     store.dispatch(createShowIssuesRequest());
-    store.dispatch(
-      createShowIssuesSuccess([{ id: '11', description: 'too few dogs' }]),
-    );
+    store.dispatch(createShowIssuesSuccess([{ id: '11', description: 'too few dogs' }]));
     store.dispatch(createShowIssuesFailure('Tests r not fun.'));
     action = store.getActions();
     // Add expect about what the contents will be.
     expect(action[0].type).toBe('SHOW_ISSUES');
     expect(action[1].type).toBe('SHOW_ISSUES_SUCCESS');
-    expect(action[1].items).toEqual([
-      { id: '11', description: 'too few dogs' },
-    ]);
+    expect(action[1].items).toEqual([{ id: '11', description: 'too few dogs' }]);
     expect(action[2].type).toBe('SHOW_ISSUES_FAILURE');
     expect(action[2].error).toEqual('Tests r not fun.');
   });

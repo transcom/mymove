@@ -1,12 +1,11 @@
 package testdatagen
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/gobuffalo/pop"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakeShipment creates a single shipment record
@@ -25,8 +24,8 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 	}
 
 	serviceMember := assertions.Shipment.ServiceMember
-	if serviceMember == nil {
-		serviceMember = &move.Orders.ServiceMember
+	if isZeroUUID(assertions.Shipment.ServiceMemberID) {
+		serviceMember = move.Orders.ServiceMember
 	}
 
 	pickupAddress := assertions.Shipment.PickupAddress
@@ -35,9 +34,10 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		pickupAddress = &newPickupAddress
 	}
 
+	hasDeliveryAddress := assertions.Shipment.HasDeliveryAddress
 	deliveryAddress := assertions.Shipment.DeliveryAddress
-	if deliveryAddress == nil {
-		newDeliveryAddress := MakeAddress(db, Assertions{})
+	if deliveryAddress == nil && hasDeliveryAddress {
+		newDeliveryAddress := MakeAddress2(db, Assertions{})
 		deliveryAddress = &newDeliveryAddress
 	}
 
@@ -46,37 +46,88 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		status = models.ShipmentStatusDRAFT
 	}
 
+	sourceGBLOC := assertions.Shipment.SourceGBLOC
+	if sourceGBLOC == nil {
+		sourceGBLOC = stringPointer(DefaultSrcGBLOC)
+	}
+
+	destinationGBLOC := assertions.Shipment.DestinationGBLOC
+	if destinationGBLOC == nil {
+		destinationGBLOC = stringPointer(DefaultDstGBLOC)
+	}
+
+	requestedPickupDate := assertions.Shipment.RequestedPickupDate
+	if requestedPickupDate == nil {
+		requestedPickupDate = &PerformancePeriodStart
+	}
+	var summary dates.MoveDatesSummary
+	summary.CalculateMoveDates(*requestedPickupDate, 2, 3)
+
 	shipment := models.Shipment{
-		TrafficDistributionListID:    uuidPointer(tdl.ID),
-		TrafficDistributionList:      tdl,
-		ServiceMemberID:              serviceMember.ID,
-		ServiceMember:                serviceMember,
-		ActualPickupDate:             timePointer(DateInsidePerformancePeriod),
-		ActualDeliveryDate:           timePointer(DateOutsidePerformancePeriod),
-		SourceGBLOC:                  stringPointer(DefaultSrcGBLOC),
-		DestinationGBLOC:             stringPointer(DefaultSrcGBLOC),
-		Market:                       &DefaultMarket,
-		BookDate:                     timePointer(DateInsidePerformancePeriod),
-		RequestedPickupDate:          timePointer(PerformancePeriodStart),
-		MoveID:                       move.ID,
-		Move:                         move,
-		Status:                       status,
-		EstimatedPackDays:            models.Int64Pointer(2),
-		EstimatedTransitDays:         models.Int64Pointer(3),
+		Status:           status,
+		SourceGBLOC:      sourceGBLOC,
+		DestinationGBLOC: destinationGBLOC,
+		GBLNumber:        nil,
+		Market:           &DefaultMarket,
+
+		// associations
+		TrafficDistributionListID: uuidPointer(tdl.ID),
+		TrafficDistributionList:   tdl,
+		ServiceMemberID:           serviceMember.ID,
+		ServiceMember:             serviceMember,
+		MoveID:                    move.ID,
+		Move:                      move,
+
+		// dates
+		ActualPickupDate:     nil,
+		ActualPackDate:       nil,
+		ActualDeliveryDate:   nil,
+		BookDate:             timePointer(DateInsidePerformancePeriod),
+		OriginalPackDate:     timePointer(summary.PackDays[0]),
+		RequestedPickupDate:  timePointer(summary.MoveDate),
+		OriginalDeliveryDate: timePointer(summary.DeliveryDays[0]),
+
+		// calculated durations
+		EstimatedPackDays:    models.Int64Pointer(int64(summary.EstimatedPackDays)),
+		EstimatedTransitDays: models.Int64Pointer(int64(summary.EstimatedTransitDays)),
+
+		// addresses
 		PickupAddressID:              &pickupAddress.ID,
 		PickupAddress:                pickupAddress,
 		HasSecondaryPickupAddress:    false,
 		SecondaryPickupAddressID:     nil,
 		SecondaryPickupAddress:       nil,
-		HasDeliveryAddress:           true,
-		DeliveryAddressID:            &deliveryAddress.ID,
-		DeliveryAddress:              deliveryAddress,
+		HasDeliveryAddress:           hasDeliveryAddress,
+		DeliveryAddressID:            nil,
+		DeliveryAddress:              nil,
 		HasPartialSITDeliveryAddress: false,
 		PartialSITDeliveryAddressID:  nil,
 		PartialSITDeliveryAddress:    nil,
-		WeightEstimate:               poundPointer(2000),
-		ProgearWeightEstimate:        poundPointer(225),
-		SpouseProgearWeightEstimate:  poundPointer(312),
+
+		// weights
+		WeightEstimate:              poundPointer(2000),
+		ProgearWeightEstimate:       poundPointer(225),
+		SpouseProgearWeightEstimate: poundPointer(312),
+		NetWeight:                   nil,
+		GrossWeight:                 nil,
+		TareWeight:                  nil,
+
+		// pre-move survey
+		PmSurveyConductedDate:               nil,
+		PmSurveyCompletedAt:                 nil,
+		PmSurveyPlannedPackDate:             nil,
+		PmSurveyPlannedPickupDate:           nil,
+		PmSurveyPlannedDeliveryDate:         nil,
+		PmSurveyWeightEstimate:              nil,
+		PmSurveyProgearWeightEstimate:       nil,
+		PmSurveySpouseProgearWeightEstimate: nil,
+		PmSurveyNotes:                       nil,
+		PmSurveyMethod:                      "",
+	}
+
+	if hasDeliveryAddress {
+		shipment.DeliveryAddressID = &deliveryAddress.ID
+		shipment.DeliveryAddress = deliveryAddress
 	}
 
 	// Overwrite values with those from assertions
@@ -94,55 +145,27 @@ func MakeDefaultShipment(db *pop.Connection) models.Shipment {
 	return MakeShipment(db, Assertions{})
 }
 
-// MakeShipmentData creates three shipment records
-func MakeShipmentData(db *pop.Connection) {
-	// Grab three UUIDs for individual TDLs
-	// TODO: should this query be made in main, between creation functions,
-	// and then sourced from one central place?
-	tdlList := []models.TrafficDistributionList{}
-	err := db.All(&tdlList)
-	if err != nil {
-		fmt.Println("TDL ID import failed.")
+// MakeShipmentForPricing makes a Shipment with necessary depdendent models for calculating an invoice
+func MakeShipmentForPricing(db *pop.Connection, assertions Assertions) (models.Shipment, error) {
+	var shipment models.Shipment
+
+	// Shipment must have a NetWeight
+	if assertions.Shipment.NetWeight == nil {
+		weight := unit.Pound(5000)
+		assertions.Shipment.NetWeight = &weight
 	}
 
-	// Add three shipment table records using UUIDs from TDLs
-	oneWeek, _ := time.ParseDuration("7d")
-	now := time.Now()
-	nowPlusOne := now.Add(oneWeek)
-	nowPlusTwo := now.Add(oneWeek * 2)
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	shipment = MakeShipment(db, assertions)
 
-	MakeShipment(db, Assertions{
-		Shipment: models.Shipment{
-			RequestedPickupDate:     &now,
-			ActualPickupDate:        &now,
-			ActualDeliveryDate:      &now,
-			TrafficDistributionList: &tdlList[0],
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
+	MakeTariff400ngGeoModelsForShipment(db, shipment)
+
+	// Shipments should have had a shipment offer too
+	MakeShipmentOffer(db, Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
 		},
 	})
 
-	MakeShipment(db, Assertions{
-		Shipment: models.Shipment{
-			RequestedPickupDate:     &nowPlusOne,
-			ActualPickupDate:        &nowPlusOne,
-			ActualDeliveryDate:      &nowPlusOne,
-			TrafficDistributionList: &tdlList[1],
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
-		},
-	})
-
-	MakeShipment(db, Assertions{
-		Shipment: models.Shipment{
-			RequestedPickupDate:     &nowPlusTwo,
-			ActualPickupDate:        &nowPlusTwo,
-			ActualDeliveryDate:      &nowPlusTwo,
-			TrafficDistributionList: &tdlList[2],
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
-		},
-	})
+	return shipment, nil
 }

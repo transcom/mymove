@@ -28,7 +28,7 @@ export default class ConfirmWithReasonButton extends Component {
   };
 
   render() {
-    const { buttonTitle, reasonPrompt, warningPrompt } = this.props;
+    const { buttonTitle, reasonPrompt, warningPrompt, buttonDisabled } = this.props;
 
     const reasonPresent = this.state.cancelReason !== '';
 
@@ -73,7 +73,7 @@ export default class ConfirmWithReasonButton extends Component {
       );
     } else if (this.state.displayState === 'BUTTON') {
       return (
-        <button className="usa-button-secondary" onClick={this.setConfirmState}>
+        <button className="usa-button-secondary" onClick={this.setConfirmState} disabled={buttonDisabled}>
           {buttonTitle}
         </button>
       );

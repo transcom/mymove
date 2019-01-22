@@ -6,14 +6,7 @@ import { defaultDateFormat } from 'shared/utils';
 import 'react-day-picker/lib/style.css';
 
 // First date format is take to be the default
-const allowedDateFormats = [
-  defaultDateFormat,
-  'YYYY/M/D',
-  'YYYY-M-D',
-  'M-D-YYYY',
-  'D-MMM-YYYY',
-  'MMM-D-YYYY',
-];
+const allowedDateFormats = [defaultDateFormat, 'YYYY/M/D', 'YYYY-M-D', 'M-D-YYYY', 'D-MMM-YYYY', 'MMM-D-YYYY'];
 
 function parseDate(str, _format, locale = 'en') {
   // Ignore default format, and attempt to parse date using allowed formats

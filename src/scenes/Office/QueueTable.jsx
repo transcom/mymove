@@ -34,24 +34,36 @@ class QueueTable extends Component {
     lastName: '',
   };
 
-  fetchData() {
-    RetrieveMovesForOffice(this.props.queueType).then(
-      response => {
+  async fetchData() {
+    const loadingQueueType = this.props.queueType;
+
+    this.setState({
+      data: [],
+      pages: null,
+      loading: true,
+      loadingQueue: loadingQueueType,
+    });
+
+    // Catch any errors here and render an empty queue
+    try {
+      const body = await RetrieveMovesForOffice(this.props.queueType);
+
+      // Only update the queue list if the request that is returning
+      // is for the same queue as the most recent request.
+      if (this.state.loadingQueue === loadingQueueType) {
         this.setState({
-          data: response,
+          data: body,
           pages: 1,
           loading: false,
         });
-      },
-      response => {
-        // TODO: add error handling, for now just reset state
-        this.setState({
-          data: [],
-          pages: null,
-          loading: true,
-        });
-      },
-    );
+      }
+    } catch (e) {
+      this.setState({
+        data: [],
+        pages: 1,
+        loading: false,
+      });
+    }
   }
 
   render() {
@@ -77,8 +89,7 @@ class QueueTable extends Component {
       <div>
         {this.props.flashMessage ? (
           <Alert type="success" heading="Success">
-            Move #{this.props.moveLocator} for {this.props.lastName},{' '}
-            {this.props.firstName} has been canceled <br />
+            Move #{this.props.moveLocator} for {this.props.lastName}, {this.props.firstName} has been canceled <br />
             An email confirmation has been sent to the customer.
             <br />
           </Alert>
@@ -129,8 +140,7 @@ class QueueTable extends Component {
             pageSize={this.state.data.length}
             className="-striped -highlight"
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`new/moves/${rowInfo.original.id}`),
+              onDoubleClick: e => this.props.history.push(`new/moves/${rowInfo.original.id}`),
             })}
           />
         </div>

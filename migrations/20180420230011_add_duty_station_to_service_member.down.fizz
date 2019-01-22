@@ -1,2 +1,0 @@
-drop_foreign_key("service_members", "sm_duty_station_fk", {"if_exists": true})
-drop_column("service_members", "duty_station_id")

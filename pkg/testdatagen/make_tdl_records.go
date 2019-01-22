@@ -56,29 +56,3 @@ func MakeTDL(db *pop.Connection, assertions Assertions) models.TrafficDistributi
 func MakeDefaultTDL(db *pop.Connection) models.TrafficDistributionList {
 	return MakeTDL(db, Assertions{})
 }
-
-// MakeTDLData creates three TDL records
-func MakeTDLData(db *pop.Connection) {
-	// It would be nice to make this less repetitive
-	MakeTDL(db, Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			SourceRateArea:    "US1",
-			DestinationRegion: "2",
-			CodeOfService:     "2",
-		},
-	})
-	MakeTDL(db, Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			SourceRateArea:    "US10",
-			DestinationRegion: "9",
-			CodeOfService:     "2",
-		},
-	})
-	MakeTDL(db, Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			SourceRateArea:    "US4964400",
-			DestinationRegion: "4",
-			CodeOfService:     "D",
-		},
-	})
-}

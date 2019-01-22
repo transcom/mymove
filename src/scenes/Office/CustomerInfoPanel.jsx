@@ -1,20 +1,16 @@
-import { get, compact } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import { addressElementDisplay, addressElementEdit } from './AddressElement';
+import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
 import { updateServiceMember } from './ducks';
-import {
-  PanelSwaggerField,
-  PanelField,
-  SwaggerValue,
-  editablePanelify,
-} from 'shared/EditablePanel';
+import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
+import { stringifyName } from 'shared/utils/serviceMember';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -27,7 +23,7 @@ const CustomerInfoDisplay = props => {
     values: props.serviceMember,
   };
   const values = props.serviceMember;
-  const name = compact([values.last_name, values.first_name]).join(', ');
+  const name = stringifyName(values);
   const address = get(values, 'residential_address', {});
 
   return (
@@ -36,26 +32,13 @@ const CustomerInfoDisplay = props => {
         <PanelField title="Name" value={name} />
         <PanelSwaggerField title="DoD ID" fieldName="edipi" {...fieldProps} />
         <PanelField title="Branch & rank">
-          <SwaggerValue fieldName="affiliation" {...fieldProps} /> -{' '}
-          <SwaggerValue fieldName="rank" {...fieldProps} />
+          <SwaggerValue fieldName="affiliation" {...fieldProps} /> - <SwaggerValue fieldName="rank" {...fieldProps} />
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          title="Phone"
-          fieldName="telephone"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Alt. Phone"
-          fieldName="secondary_telephone"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Email"
-          fieldName="personal_email"
-          {...fieldProps}
-        />
+        <PanelSwaggerField title="Phone" fieldName="telephone" {...fieldProps} />
+        <PanelSwaggerField title="Alt. Phone" fieldName="secondary_telephone" {...fieldProps} />
+        <PanelSwaggerField title="Email" fieldName="personal_email" {...fieldProps} />
         <PanelField title="Pref. contact" className="contact-prefs">
           {values.phone_is_preferred && (
             <span>
@@ -76,7 +59,7 @@ const CustomerInfoDisplay = props => {
             </span>
           )}
         </PanelField>
-        {addressElementDisplay(address, 'Current Address')}
+        <AddressElementDisplay address={address} title="Current Address" />
       </div>
     </React.Fragment>
   );
@@ -114,21 +97,14 @@ const CustomerInfoEdit = props => {
             <div className="panel-subhead">Contact</div>
             <SwaggerField fieldName="telephone" swagger={schema} required />
             <SwaggerField fieldName="secondary_telephone" swagger={schema} />
-            <SwaggerField
-              fieldName="personal_email"
-              swagger={schema}
-              required
-            />
+            <SwaggerField fieldName="personal_email" swagger={schema} required />
 
             <fieldset key="contact_preferences">
               <legend htmlFor="contact_preferences">
                 <p>Preferred contact method</p>
               </legend>
               <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-              <SwaggerField
-                fieldName="text_message_is_preferred"
-                swagger={schema}
-              />
+              <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
               <SwaggerField fieldName="email_is_preferred" swagger={schema} />
             </fieldset>
           </FormSection>
@@ -136,7 +112,7 @@ const CustomerInfoEdit = props => {
 
         <div className="editable-panel-column">
           <FormSection name="address">
-            {addressElementEdit(addressProps, 'Current Residence Address')}
+            <AddressElementEdit addressProps={addressProps} title="Current Residence Address" />
           </FormSection>
         </div>
       </div>
@@ -163,18 +139,13 @@ function mapStateToProps(state) {
       address: customerInfo.residential_address,
     },
 
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
 
     // CustomerInfoEdit
-    serviceMemberSchema: get(
-      state,
-      'swagger.spec.definitions.ServiceMemberPayload',
-    ),
+    serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberPayload'),
     serviceMember: state.office.officeServiceMember,
 
-    hasError:
-      state.office.serviceMemberHasLoadError ||
-      state.office.serviceMemberHasUpdateError,
+    hasError: state.office.serviceMemberHasLoadError || state.office.serviceMemberHasUpdateError,
     errorMessage: state.office.error,
     isUpdating: false,
 

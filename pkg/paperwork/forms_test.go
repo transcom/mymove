@@ -26,10 +26,8 @@ func (suite *PaperworkSuite) TestFormFillerSmokeTest() {
 		FieldName: "Data goes here",
 	}
 
-	form, err := NewTemplateForm(f, fields)
-	suite.FatalNil(err)
-
-	err = form.DrawData(data)
+	formFiller := NewFormFiller()
+	err = formFiller.AppendPage(f, fields, data)
 	suite.FatalNil(err)
 
 	testFs := afero.NewMemMapFs()
@@ -37,6 +35,6 @@ func (suite *PaperworkSuite) TestFormFillerSmokeTest() {
 	output, err := testFs.Create("test-output.pdf")
 	suite.FatalNil(err)
 
-	err = form.Output(output)
+	err = formFiller.Output(output)
 	suite.FatalNil(err)
 }

@@ -16,20 +16,20 @@ echo "Code goes here"
 
 ## Code Review Verification Steps
 
-* [ ] End to end tests pass (`make e2e_test`).
 * [ ] Code follows the guidelines for [Logging](./docs/backend.md#logging)
 * [ ] The requirements listed in
  [Querying the Database Safely](./docs/backend.md#querying-the-database-safely)
  have been satisfied.
 * Any new migrations/schema changes:
-  * [ ] Update the diagram in docs/schema/dp3.sqs (see [Updating and changing the model](./docs/schema/README.md#updating-and-changing-the-model))
   * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](./docs/database.md#zero-downtime-migrations))
   * [ ] Have been communicated to #dp3-engineering
+  * [ ] Secure migrations have been tested using `bin/run-prod-migrations`
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in IE.
 * Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:
   * [ ] Communicated to @willowbl00
   * [ ] Added to the list of [network dependencies](https://github.com/transcom/mymove#client-network-dependencies)
+* [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
 * [ ] Request review from a member of a different team.
 * [ ] Have the Pivotal acceptance criteria been met for this change?
 

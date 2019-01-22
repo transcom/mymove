@@ -3,7 +3,7 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())}
+	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

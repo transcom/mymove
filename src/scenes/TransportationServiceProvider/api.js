@@ -1,26 +1,24 @@
-import { getPublicClient, checkResponse } from 'shared/api';
+import { getPublicClient, checkResponse } from 'shared/Swagger/api';
 import { formatPayload } from 'shared/utils';
 
 // SHIPMENT QUEUE
 export async function RetrieveShipmentsForTSP(queueType) {
   const queueToStatus = {
     new: ['AWARDED'],
-    in_transit: ['IN_TRANSIT'],
+    accepted: ['ACCEPTED'],
     approved: ['APPROVED'],
+    in_transit: ['IN_TRANSIT'],
     delivered: ['DELIVERED'],
+    completed: ['COMPLETED'],
     all: [],
   };
   /* eslint-disable security/detect-object-injection */
-  const status =
-    (queueType &&
-      queueToStatus[queueType] &&
-      queueToStatus[queueType].join(',')) ||
-    '';
+  const status = (queueType && queueToStatus[queueType] && queueToStatus[queueType].join(',')) || '';
   /* eslint-enable security/detect-object-injection */
   const client = await getPublicClient();
   const response = await client.apis.shipments.indexShipments({
     status,
-    limit: 25,
+    limit: 100,
     offset: 1,
   });
   checkResponse(response, 'failed to retrieve moves due to server error');
@@ -47,19 +45,9 @@ export async function AcceptShipment(shipmentId) {
   return response.body;
 }
 
-export async function RejectShipment(shipmentId, reason) {
-  const client = await getPublicClient();
-  const response = await client.apis.shipments.rejectShipment({
-    shipmentId: shipmentId,
-    payload: { reason },
-  });
-  checkResponse(response, 'failed to accept shipment due to server error');
-  return response.body;
-}
-
 export async function TransportShipment(shipmentId, payload) {
   const client = await getPublicClient();
-  const payloadDef = client.spec.definitions.ActualPickupDate;
+  const payloadDef = client.spec.definitions.TransportPayload;
   const response = await client.apis.shipments.transportShipment({
     shipmentId,
     payload: formatPayload(payload, payloadDef),
@@ -75,7 +63,7 @@ export async function DeliverShipment(shipmentId, payload) {
     shipmentId,
     payload: formatPayload(payload, payloadDef),
   });
-  checkResponse(response, 'failed to pick up shipment due to server error');
+  checkResponse(response, 'failed to deliver shipment due to server error');
   return response.body;
 }
 
@@ -87,6 +75,15 @@ export async function PatchShipment(shipmentId, shipment) {
     update: formatPayload(shipment, payloadDef),
   });
   checkResponse(response, 'failed to load shipment due to server error');
+  return response.body;
+}
+
+export async function CompletePmSurvey(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.completePmSurvey({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to complete pre-move survey due to server error');
   return response.body;
 }
 
@@ -121,15 +118,12 @@ export async function IndexServiceAgents(shipmentId) {
   return response.body;
 }
 
-// Generate Gov Bill of Lading
-export async function GenerateGBL(shipmentId) {
+// All documents for shipment
+export async function GetAllShipmentDocuments(shipmentId) {
   const client = await getPublicClient();
-  const response = await client.apis.shipments.createGovBillOfLading({
-    shipmentId: shipmentId,
+  const response = await client.apis.move_docs.indexMoveDocuments({
+    shipmentId,
   });
-  checkResponse(
-    response,
-    'failed to create government bill of lading due to server error',
-  );
+  checkResponse(response, 'failed to load shipment documents due to server error');
   return response.body;
 }
