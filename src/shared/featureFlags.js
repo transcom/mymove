@@ -26,7 +26,6 @@ const environmentFlags = {
   staging: Object.assign({}, defaultFlags),
 
   production: Object.assign({}, defaultFlags, {
-    hhgAndPpm: false,
     allowHhgInvoicePayment: false,
   }),
 };
