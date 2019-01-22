@@ -9,6 +9,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
 import { mobileSize } from 'shared/constants';
+import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
@@ -21,10 +22,10 @@ export class WizardPage extends Component {
     this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate() {
-    if (this.props.error) window.scrollTo(0, 0);
+    if (this.props.error) scrollToTop();
   }
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
   cancelFlow() {
     this.props.push(`/`);

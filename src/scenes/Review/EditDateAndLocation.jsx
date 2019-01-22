@@ -15,6 +15,7 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import { isHHGPPMComboMove } from '../Moves/Ppm/ducks';
+import scrollToTop from 'shared/scrollToTop';
 
 const sitEstimateDebounceTime = 300;
 
@@ -99,7 +100,7 @@ class EditDateAndLocation extends Component {
           this.props.editSuccessful();
           this.props.history.goBack();
         } else {
-          window.scrollTo(0, 0);
+          scrollToTop();
         }
       });
     }
