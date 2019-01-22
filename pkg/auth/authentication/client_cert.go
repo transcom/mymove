@@ -16,7 +16,7 @@ type authClientCertKey string
 
 const clientCertContextKey authClientCertKey = "clientCert"
 
-// SetClientCertInRequestContext modifies the request's Context() to add the client certificate data
+// SetClientCertInRequestContext returns a copy of the request's Context() with the client certificate data
 func SetClientCertInRequestContext(r *http.Request, clientCert *models.ClientCert) context.Context {
 	return context.WithValue(r.Context(), clientCertContextKey, clientCert)
 }

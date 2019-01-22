@@ -2,8 +2,10 @@ package dpsapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
 	"github.com/transcom/mymove/pkg/gen/dpsmessages"
@@ -14,8 +16,13 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetUserHandler() {
-	context := handlers.NewHandlerContext(suite.TestDB(), suite.TestLogger())
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetIWSPersonLookup(iws.TestingPersonLookup{})
+	dpsParams := dpsauth.Params{
+		CookieSecret:  []byte("cookie secret"),
+		CookieExpires: 60,
+	}
+	context.SetDPSAuthParams(dpsParams)
 	handler := GetUserHandler{context}
 
 	affiliation := models.AffiliationARMY
@@ -29,16 +36,33 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 		Telephone:   models.StringPointer("555-555-5555"),
 	}
 	assertions := testdatagen.Assertions{ServiceMember: smData}
-	serviceMember := testdatagen.MakeServiceMember(suite.TestDB(), assertions)
+	serviceMember := testdatagen.MakeServiceMember(suite.DB(), assertions)
 	loginGovID := serviceMember.User.LoginGovUUID.String()
-	cookie, err := dpsauth.LoginGovIDToCookie(loginGovID)
+	cookie, err := dpsauth.LoginGovIDToCookie(loginGovID, dpsParams.CookieSecret, dpsParams.CookieExpires)
 	suite.Nil(err)
 
 	request := httptest.NewRequest("GET", "/dps/v0/authentication/user", nil)
 	params := dps.GetUserParams{Token: cookie.Value}
 	params.HTTPRequest = request
 
+	// Missing client certificate
 	response := handler.Handle(params)
+	_, ok := response.(*dps.GetUserUnauthorized)
+	suite.True(ok)
+
+	// With client certificate
+	digest := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+	subject := "/C=US/ST=DC/L=Washington/O=Test/OU=Test Cert/CN=localhost"
+	clientCert := models.ClientCert{
+		Sha256Digest:    digest,
+		Subject:         subject,
+		AllowDpsAuthAPI: true,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+	requestContext := authentication.SetClientCertInRequestContext(request, &clientCert)
+	params.HTTPRequest = request.WithContext(requestContext)
+	response = handler.Handle(params)
 	okResponse := response.(*dps.GetUserOK)
 	suite.Equal(*okResponse.Payload.Affiliation, dpsmessages.AffiliationArmy)
 	suite.Equal(okResponse.Payload.Email, serviceMember.User.LoginGovEmail)

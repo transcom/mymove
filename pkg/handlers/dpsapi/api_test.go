@@ -4,34 +4,27 @@ import (
 	"log"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/notifications"
 	"go.uber.org/zap"
 )
 
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
-	handlers.BaseTestSuite
+	handlers.BaseHandlerTestSuite
 }
 
 // TestHandlerSuite creates our test suite
 func TestHandlerSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	hs := &HandlerSuite{}
-	hs.SetTestDB(db)
-	hs.SetTestLogger(logger)
+	hs := &HandlerSuite{
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger)),
+	}
 
 	suite.Run(t, hs)
 }
