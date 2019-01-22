@@ -122,6 +122,11 @@ function tspUserEntersLocations() {
     state: 'NJ',
     postal_code: '66666-6666',
   };
+  const newDutyStationAddress = {
+    city: 'Augusta',
+    state: 'GA',
+    postal_code: '30813',
+  };
 
   // Open new shipments queue
   cy.location().should(loc => {
@@ -377,7 +382,9 @@ function tspUserEntersLocations() {
         .children('.field-value')
         .should($div => {
           const text = $div.text();
-          expect(text).to.include(`${deliveryAddress.city}, ${deliveryAddress.state} ${deliveryAddress.postal_code}`);
+          expect(text).to.include(
+            `${newDutyStationAddress.city}, ${newDutyStationAddress.state} ${newDutyStationAddress.postal_code}`,
+          );
         });
     });
 }
