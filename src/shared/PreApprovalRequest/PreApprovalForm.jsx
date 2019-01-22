@@ -2,10 +2,12 @@ import { get, includes, reject } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import Select, { createFilter } from 'react-select';
 import { connect } from 'react-redux';
+import { withContext } from 'shared/AppContext';
 import PropTypes from 'prop-types';
 import { reduxForm, Form, Field } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { getDetailComponent } from './DetailsHelper';
 import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
 
 import './PreApprovalRequest.css';
@@ -83,6 +85,9 @@ export class LocationSearch extends Component {
 
 export class PreApprovalForm extends Component {
   render() {
+    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
+    const DetailComponent = getDetailComponent(this.props.tariff400ng_item_code, robustAccessorial);
+
     return (
       <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
@@ -107,29 +112,7 @@ export class PreApprovalForm extends Component {
           {this.props.tariff400ngItem && (
             <Fragment>
               <div className="usa-width-one-third">
-                <SwaggerField
-                  fieldName="quantity_1"
-                  className="half-width"
-                  swagger={this.props.ship_line_item_schema}
-                  required
-                />
-                <div className="bq-explanation">
-                  <p>
-                    Enter numbers only, no symbols or units. <em>Examples:</em>
-                  </p>
-                  <ul>
-                    <li>
-                      Crating: enter "<strong>47.4</strong>" for crate size of 47.4 cu. ft.
-                    </li>
-                    <li>
-                      {' '}
-                      3rd-party service: enter "<strong>1299.99</strong>" for cost of $1,299.99.
-                    </li>
-                    <li>
-                      Bulky item: enter "<strong>1</strong>" for a single item.
-                    </li>
-                  </ul>
-                </div>
+                <DetailComponent swagger={this.props.ship_line_item_schema} />
               </div>
               <div className="usa-width-one-third">
                 <SwaggerField
@@ -163,10 +146,11 @@ PreApprovalForm = reduxForm({
 
 function mapStateToProps(state) {
   return {
+    tariff400ng_item_code: get(state, 'form.preapproval_request_form.values.tariff400ng_item.code'),
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
     tariff400ngItem: get(state, 'form.preapproval_request_form.values.tariff400ng_item'),
     filteredLocations: selectLocationFromTariff400ngItem(state),
   };
 }
 
-export default connect(mapStateToProps)(PreApprovalForm);
+export default withContext(connect(mapStateToProps)(PreApprovalForm));
