@@ -88,8 +88,7 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*S
 // Delete deletes the file at the specified key
 func (fs *Filesystem) Delete(key string) error {
 	joined := filepath.Join(fs.root, key)
-
-	return fs.fs.Remove(joined)
+	return errors.Wrap(fs.fs.Remove(joined), "could not remove file")
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 mintes.
@@ -106,7 +105,8 @@ func (fs *Filesystem) PresignedURL(key, contentType string) (string, error) {
 // It is the caller's responsibility to delete the tempfile.
 func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 	sourcePath := filepath.Join(fs.root, key)
-	return fs.fs.Open(sourcePath)
+	f, err := fs.fs.Open(sourcePath)
+	return f, errors.Wrap(err, "could not open file")
 }
 
 // FileSystem returns the underlying afero filesystem
