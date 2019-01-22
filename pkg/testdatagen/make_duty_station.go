@@ -75,6 +75,16 @@ func FetchOrMakeDefaultNewOrdersDutyStation(db *pop.Connection) models.DutyStati
 				Name: "Fort Gordon",
 			},
 		}
+		FetchOrMakeTariff400ngZip3(db, Assertions{
+			Tariff400ngZip3: models.Tariff400ngZip3{
+				Zip3:          "308",
+				BasepointCity: "Harlem",
+				State:         "GA",
+				ServiceArea:   "208",
+				RateArea:      "US45",
+				Region:        "12",
+			},
+		})
 		return MakeDutyStation(db, fortGordonAssertions)
 	}
 	return fortGordon
