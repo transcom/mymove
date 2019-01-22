@@ -1,6 +1,5 @@
 import {
   selectUnbilledShipmentLineItems,
-  selectTotalFromUnbilledLineItems,
   selectSortedPreApprovalShipmentLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 

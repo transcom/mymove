@@ -42,6 +42,8 @@ const simpleSchema = {
     location: {
       type: 'string',
       title: 'Location',
+      enum: ['ORIGIN', 'DESTINATION'],
+      'x-display-value': { ORIGIN: 'Origin', DESTINATION: 'Destination' },
     },
     notes: {
       type: 'string',
@@ -80,23 +82,69 @@ const tariff400ng_items = [
     item: 'Long Haul',
   },
 ];
+const filteredLocations = ['ORIGIN', 'DESTINATION'];
 const submit = jest.fn();
 const mockStore = configureStore();
 let store;
 let wrapper;
-beforeEach(() => {
-  store = mockStore({});
-  //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
-  wrapper = mount(
-    <Provider store={store}>
-      <PreApprovalForm ship_line_item_schema={simpleSchema} tariff400ngItems={tariff400ng_items} onSubmit={submit} />
-    </Provider>,
-  );
-});
 
-it('renders without crashing', () => {
-  // eslint-disable-next-line
-  expect(wrapper.exists('div.usa-grid-full')).toBe(true);
-  // Check that it renders swagger field content
-  expect(wrapper.find('.half-width').length).toBe(6);
+describe('PreApprovalForm tests', () => {
+  describe('When a PreApprovalForm is loaded', () => {
+    beforeEach(() => {
+      store = mockStore({});
+      //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
+      wrapper = mount(
+        <Provider store={store}>
+          <PreApprovalForm
+            ship_line_item_schema={simpleSchema}
+            tariff400ngItems={tariff400ng_items}
+            onSubmit={submit}
+            tariff400ngItem={true}
+          />
+        </Provider>,
+      );
+    });
+    it('renders without crashing', () => {
+      // eslint-disable-next-line
+      expect(wrapper.exists('div.usa-grid-full')).toBe(true);
+      // Check that it renders swagger field content
+      expect(wrapper.find('.half-width').length).toBe(6);
+    });
+  });
+  describe('When a LocationSearch box is loaded with multiple possible locations', () => {
+    beforeEach(() => {
+      wrapper = mount(
+        <Provider store={store}>
+          <PreApprovalForm
+            ship_line_item_schema={simpleSchema}
+            tariff400ngItems={tariff400ng_items}
+            onSubmit={submit}
+            filteredLocations={filteredLocations}
+            tariff400ngItem={true}
+          />
+        </Provider>,
+      );
+    });
+    it('shows a dropdown', () => {
+      expect(wrapper.exists('select')).toBe(true);
+    });
+  });
+  describe('When a LocationSearch box is loaded with only one possible location', () => {
+    beforeEach(() => {
+      wrapper = mount(
+        <Provider store={store}>
+          <PreApprovalForm
+            ship_line_item_schema={simpleSchema}
+            tariff400ngItems={tariff400ng_items}
+            onSubmit={submit}
+            filteredLocations={['ORIGIN']}
+            tariff400ngItem={true}
+          />
+        </Provider>,
+      );
+    });
+    it('shows text', () => {
+      expect(wrapper.find('.location-select div').text()).toEqual('Origin');
+    });
+  });
 });

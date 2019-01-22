@@ -13,6 +13,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -230,6 +231,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either local, memory or s3.")
+	flag.String("local-storage-root", "tmp", "Local storage root directory. Default is tmp.")
+	flag.String("local-storage-web-root", "storage", "Local storage web root directory. Default is storage.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
@@ -652,6 +655,11 @@ func checkStorage(v *viper.Viper) error {
 		if _, ok := regions[r]; !ok {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
 		}
+	} else if storageBackend == "local" {
+		localStorageRoot := v.GetString("local-storage-root")
+		if _, err := filepath.Abs(localStorageRoot); err != nil {
+			return fmt.Errorf("could not get absolute path for %s", localStorageRoot)
+		}
 	}
 
 	return nil
@@ -758,17 +766,23 @@ func main() {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
 		// below.
+		awsSESRegion := v.GetString("aws-ses-region")
+		awsSESDomain := v.GetString("aws-ses-domain")
+		zap.L().Info("Using ses email backend",
+			zap.String("region", awsSESRegion),
+			zap.String("domain", awsSESDomain))
 		sesSession, err := awssession.NewSession(&aws.Config{
-			Region: aws.String(v.GetString("aws-ses-region")),
+			Region: aws.String(awsSESRegion),
 		})
 		if err != nil {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		sesDomain := v.GetString("aws-ses-domain")
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, sesDomain, logger))
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, awsSESDomain, logger))
 	} else {
 		domain := "milmovelocal"
+		zap.L().Info("Using local email backend",
+			zap.String("domain", domain))
 		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, logger))
 	}
 
@@ -786,19 +800,24 @@ func main() {
 	handlerContext.SetSendProductionInvoice(v.GetBool("send-prod-invoice"))
 
 	storageBackend := v.GetString("storage-backend")
+	localStorageRoot := v.GetString("local-storage-root")
+	localStorageWebRoot := v.GetString("local-storage-web-root")
 
 	var storer storage.FileStorer
 	if storageBackend == "s3" {
-		zap.L().Info("Using s3 storage backend")
 		awsS3Bucket := v.GetString("aws-s3-bucket-name")
+		awsS3Region := v.GetString("aws-s3-region")
+		awsS3KeyNamespace := v.GetString("aws-s3-key-namespace")
+		zap.L().Info("Using s3 storage backend",
+			zap.String("bucket", awsS3Bucket),
+			zap.String("region", awsS3Region),
+			zap.String("key", awsS3KeyNamespace))
 		if len(awsS3Bucket) == 0 {
 			log.Fatalln(errors.New("must provide aws-s3-bucket-name parameter, exiting"))
 		}
-		awsS3Region := v.GetString("aws-s3-region")
 		if len(awsS3Region) == 0 {
 			log.Fatalln(errors.New("Must provide aws-s3-region parameter, exiting"))
 		}
-		awsS3KeyNamespace := v.GetString("aws-s3-key-namespace")
 		if len(awsS3KeyNamespace) == 0 {
 			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
 		}
@@ -811,8 +830,10 @@ func main() {
 		fsParams := storage.DefaultMemoryParams(logger)
 		storer = storage.NewMemory(fsParams)
 	} else {
-		zap.L().Info("Using filesystem storage backend")
-		fsParams := storage.DefaultFilesystemParams(logger)
+		zap.L().Info("Using local storage backend",
+			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
+			zap.String("web root", localStorageWebRoot))
+		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
@@ -1041,10 +1062,10 @@ func main() {
 		}
 	}
 
-	if storageBackend == "filesystem" {
+	if storageBackend == "local" {
 		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler("tmp")
-		root.Handle(pat.Get("/storage/*"), fs)
+		fs := storage.NewFilesystemHandler(localStorageRoot)
+		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,

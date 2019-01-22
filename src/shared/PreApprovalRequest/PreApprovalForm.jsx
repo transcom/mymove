@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { reduxForm, Form, Field } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
 
 import './PreApprovalRequest.css';
 
@@ -45,13 +46,37 @@ export class Tariff400ngItemSearch extends Component {
           getOptionValue={getOptionValue}
           value={this.props.input.value || null}
           onChange={this.localOnChange}
-          placeholder="Select an item..."
+          placeholder="Enter code or item"
           className={`tariff400-select ${this.props.input.name}`}
           classNamePrefix="tariff400"
           filterOption={filterOption}
           defaultValue={this.props.meta.initial || null}
         />
       </Fragment>
+    );
+  }
+}
+
+export class LocationSearch extends Component {
+  render() {
+    return this.props.filteredLocations && this.props.filteredLocations.length === 1 ? (
+      <Fragment>
+        <input name="location" type="hidden" value={this.props.filteredLocations[0]} />
+        <label htmlFor="location" className="usa-input-label">
+          Location
+        </label>
+        <div>
+          {this.props.ship_line_item_schema.properties.location['x-display-value'][this.props.filteredLocations[0]]}
+        </div>
+      </Fragment>
+    ) : (
+      <SwaggerField
+        fieldName="location"
+        className="rounded"
+        swagger={this.props.ship_line_item_schema}
+        filteredEnumListOverride={this.props.filteredLocations}
+        required
+      />
     );
   }
 }
@@ -70,46 +95,51 @@ export class PreApprovalForm extends Component {
                 tariff400ngItems={this.props.tariff400ngItems}
               />
             </div>
-            {/* TODO andrea - set schema location enum array to tariff400ng_item selected location value */}
-            <SwaggerField
-              fieldName="location"
-              className="rounded"
-              swagger={this.props.ship_line_item_schema}
-              required
-            />
+            {this.props.tariff400ngItem && (
+              <div className="location-select">
+                <LocationSearch
+                  filteredLocations={this.props.filteredLocations}
+                  ship_line_item_schema={this.props.ship_line_item_schema}
+                />
+              </div>
+            )}
           </div>
-          <div className="usa-width-one-third">
-            <SwaggerField
-              fieldName="quantity_1"
-              className="half-width"
-              swagger={this.props.ship_line_item_schema}
-              required
-            />
-            <div className="bq-explanation">
-              <p>
-                Enter numbers only, no symbols or units. <em>Examples:</em>
-              </p>
-              <ul>
-                <li>
-                  Crating: enter "<strong>47.4</strong>" for crate size of 47.4 cu. ft.
-                </li>
-                <li>
-                  {' '}
-                  3rd-party service: enter "<strong>1299.99</strong>" for cost of $1,299.99.
-                </li>
-                <li>
-                  Bulky item: enter "<strong>1</strong>" for a single item.
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="usa-width-one-third">
-            <SwaggerField
-              fieldName="notes"
-              className="three-quarter-width"
-              swagger={this.props.ship_line_item_schema}
-            />
-          </div>
+          {this.props.tariff400ngItem && (
+            <Fragment>
+              <div className="usa-width-one-third">
+                <SwaggerField
+                  fieldName="quantity_1"
+                  className="half-width"
+                  swagger={this.props.ship_line_item_schema}
+                  required
+                />
+                <div className="bq-explanation">
+                  <p>
+                    Enter numbers only, no symbols or units. <em>Examples:</em>
+                  </p>
+                  <ul>
+                    <li>
+                      Crating: enter "<strong>47.4</strong>" for crate size of 47.4 cu. ft.
+                    </li>
+                    <li>
+                      {' '}
+                      3rd-party service: enter "<strong>1299.99</strong>" for cost of $1,299.99.
+                    </li>
+                    <li>
+                      Bulky item: enter "<strong>1</strong>" for a single item.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="usa-width-one-third">
+                <SwaggerField
+                  fieldName="notes"
+                  className="three-quarter-width"
+                  swagger={this.props.ship_line_item_schema}
+                />
+              </div>
+            </Fragment>
+          )}
         </div>
       </Form>
     );
@@ -131,9 +161,11 @@ PreApprovalForm = reduxForm({
   validate: validateItemSelect,
 })(PreApprovalForm);
 
-function mapStateToProps(state, props) {
+function mapStateToProps(state) {
   return {
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
+    tariff400ngItem: get(state, 'form.preapproval_request_form.values.tariff400ng_item'),
+    filteredLocations: selectLocationFromTariff400ngItem(state),
   };
 }
 
