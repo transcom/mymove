@@ -826,8 +826,10 @@ func main() {
 		}))
 		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
 	} else if storageBackend == "memory" {
-		zap.L().Info("Using memory storage backend")
-		fsParams := storage.DefaultMemoryParams(logger)
+		zap.L().Info("Using memory storage backend",
+			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
+			zap.String("web root", localStorageWebRoot))
+		fsParams := storage.NewMemoryParams(localStorageRoot, localStorageWebRoot, logger)
 		storer = storage.NewMemory(fsParams)
 	} else {
 		zap.L().Info("Using local storage backend",
