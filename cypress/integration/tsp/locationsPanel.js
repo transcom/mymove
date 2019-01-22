@@ -122,11 +122,6 @@ function tspUserEntersLocations() {
     state: 'NJ',
     postal_code: '66666-6666',
   };
-  const newDutyStation = {
-    city: 'Augusta',
-    state: 'GA',
-    postal_code: '30813',
-  };
 
   // Open new shipments queue
   cy.location().should(loc => {
