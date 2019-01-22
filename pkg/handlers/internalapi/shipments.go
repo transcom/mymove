@@ -76,6 +76,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		// associations
 		TrafficDistributionListID: handlers.FmtUUIDPtr(s.TrafficDistributionListID),
 		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
+		TrafficDistributionList:   payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		MoveID:                    strfmt.UUID(s.MoveID.String()),
 		ServiceAgents:             serviceAgentPayloads,
 
