@@ -1,4 +1,4 @@
-import { withContext, defaultMyMoveContext, AppContext } from '.';
+import { withContext } from '.';
 import React from 'react';
 import { shallow } from 'enzyme';
 const Dummy = withContext(({ context }) => {
