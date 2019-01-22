@@ -109,6 +109,7 @@ func payloadForShipmentModel(s models.Shipment, storer storage.FileStorer) (*int
 		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
 		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
 		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
 
@@ -123,6 +124,10 @@ func payloadForShipmentModel(s models.Shipment, storer storage.FileStorer) (*int
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+	}
+	tspID := s.CurrentTransportationServiceProviderID()
+	if tspID != uuid.Nil {
+		shipmentPayload.TransportationServiceProviderID = *handlers.FmtUUID(tspID)
 	}
 	return shipmentPayload, nil
 }
