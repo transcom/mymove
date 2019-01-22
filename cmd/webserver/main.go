@@ -1052,7 +1052,7 @@ func main() {
 	if storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development
 		fs := storage.NewFilesystemHandler(localStorageRoot)
-		root.Handle(pat.Get(fmt.Sprintf("/%s/*", localStorageWebRoot)), fs)
+		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,
