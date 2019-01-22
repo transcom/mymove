@@ -36,11 +36,7 @@ describe('UnbilledTable tests', () => {
           approvePayment={no_op}
           cancelPayment={no_op}
           allowPayments={true}
-          createInvoiceStatus={{
-            error: null,
-            isLoading: false,
-            isSuccess: false,
-          }}
+          createInvoiceStatus={null}
         />,
       );
       expect(wrapper.find('div.invoice-panel-header-cont').length).toEqual(1);
@@ -56,11 +52,7 @@ describe('UnbilledTable tests', () => {
           approvePayment={no_op}
           cancelPayment={no_op}
           allowPayments={true}
-          createInvoiceStatus={{
-            error: null,
-            isLoading: false,
-            isSuccess: false,
-          }}
+          createInvoiceStatus={null}
         />,
       );
       expect(wrapper.find('button').text()).toMatch('Approve Payment');
