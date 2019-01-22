@@ -31,8 +31,8 @@ type FilesystemParams struct {
 	logger  *zap.Logger
 }
 
-// DefaultFilesystemParams returns default values for FilesystemParams
-func DefaultFilesystemParams(localStorageRoot string, localStorageWebRoot string, logger *zap.Logger) FilesystemParams {
+// NewFilesystemParams returns FilesystemParams after checking path
+func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, logger *zap.Logger) FilesystemParams {
 	absTmpPath, err := filepath.Abs(localStorageRoot)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))

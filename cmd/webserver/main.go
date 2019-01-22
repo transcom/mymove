@@ -820,7 +820,7 @@ func main() {
 		zap.L().Info("Using local storage backend",
 			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
 			zap.String("web root", localStorageWebRoot))
-		fsParams := storage.DefaultFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
+		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
