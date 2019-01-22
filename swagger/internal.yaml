@@ -1452,6 +1452,25 @@ definitions:
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
       MARINES: 17 - United States Marines
+  TrafficDistributionList:
+    type: object
+    properties:
+      source_rate_area:
+        type: string
+        example: US34
+      destination_region:
+        type: string
+        example: '5'
+      code_of_service:
+        type: string
+        example: D
+        enum:
+          - D
+          - '2'
+    required:
+      - source_rate_area
+      - destination_region
+      - code_of_service
   Shipment:
     type: object
     properties:
@@ -1460,21 +1479,8 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      move_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      traffic_distribution_list_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-        readOnly: true
-      service_member_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/ShipmentStatus'
         readOnly: true
       source_gbloc:
         $ref: '#/definitions/GBLOC'
@@ -1483,13 +1489,42 @@ definitions:
         $ref: '#/definitions/GBLOC'
       market:
         $ref: '#/definitions/ShipmentMarket'
+        readOnly: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      move_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      move:
+        $ref: '#/definitions/MovePayload'
+        x-nullable: true
+      traffic_distribution_list_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      traffic_distribution_list:
+        $ref: '#/definitions/TrafficDistributionList'
+        readOnly: true
+      service_member_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      service_member:
+        $ref: '#/definitions/ServiceMemberPayload'
+        readOnly: true
       code_of_service:
         type: string
         x-nullable: true
         title: Code of service
         readOnly: true
-      status:
-        $ref: '#/definitions/ShipmentStatus'
       book_date:
         type: string
         format: date
@@ -1579,6 +1614,10 @@ definitions:
       pickup_address:
         $ref: '#/definitions/Address'
         title: Pickup Address
+      has_secondary_pickup_address:
+        type: boolean
+        default: false
+        title: 'Do you have household goods at any other pickup location?'
       secondary_pickup_address_id:
         type: string
         format: uuid
@@ -1588,6 +1627,10 @@ definitions:
         $ref: '#/definitions/Address'
         title: Secondary Pickup Address
         x-nullable: true
+      has_delivery_address:
+        type: boolean
+        default: false
+        title: 'Do you know the delivery address at destination yet?'
       delivery_address_id:
         type: string
         format: uuid
@@ -1597,6 +1640,10 @@ definitions:
         $ref: '#/definitions/Address'
         title: Delivery Address
         x-nullable: true
+      has_partial_sit_delivery_address:
+        type: boolean
+        default: false
+        title: 'Will some of your items be stored in transit?'
       partial_sit_delivery_address_id:
         type: string
         format: uuid
@@ -1606,32 +1653,6 @@ definitions:
         $ref: '#/definitions/Address'
         title: Partial SIT Delivery Address
         x-nullable: true
-      has_secondary_pickup_address:
-        type: boolean
-        default: false
-        title: 'Do you have household goods at any other pickup location?'
-      has_delivery_address:
-        type: boolean
-        default: false
-        title: 'Do you know your home address at your destination yet?'
-      has_partial_sit_delivery_address:
-        type: boolean
-        default: false
-        title: 'Do you know the delivery address at destination yet?'
-      gross_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Gross Weight
-        x-nullable: true
-        x-formatting: weight
-      tare_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Tare Weight
-        x-nullable: true
-        x-formatting: weight
       weight_estimate:
         type: integer
         minimum: 0
@@ -1651,6 +1672,28 @@ definitions:
         minimum: 0
         example: 200
         title: Spouse's Pro-Gear
+        x-nullable: true
+        x-formatting: weight
+      net_weight:
+        type: integer
+        description: Actual net weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Net
+      gross_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Gross Weight
+        x-nullable: true
+        x-formatting: weight
+      tare_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Tare Weight
         x-nullable: true
         x-formatting: weight
       pm_survey_completed_at:
@@ -1735,12 +1778,11 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ServiceAgent'
-      created_at:
+      transportation_service_provider_id:
         type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
   ServiceAgentRole:
     type: string
     title: Service Agent Role
