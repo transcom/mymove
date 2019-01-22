@@ -4,6 +4,10 @@ The app defaults to using the local filesystem to store uploaded files in develo
 make it easy to inspect uploaded files while developing features. In some situations, though, it is desirable to instead have
 uploaded files stored on the real S3 service.
 
+## Prerequisites
+
+You need to have followed [the instructions to setup your AWS developer credentials](https://github.com/transcom/ppp-infra/tree/master/transcom-ppp) in order for the following commands to work.
+
 ## Upload Files to S3
 
 The environment variable `STORAGE_BACKEND` specifies if files should be stored on `s3`, on the `local` filesystem, or in `memory`. The default value is `local` in development and `s3` when the app is running in any deployed environment.
