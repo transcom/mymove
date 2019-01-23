@@ -1,4 +1,4 @@
-/* global cy, Cypress*/
+/* global cy */
 export function fillAndSavePreApprovalRequest() {
   // Click on add Pre Approval Request
   cy

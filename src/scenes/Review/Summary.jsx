@@ -66,6 +66,7 @@ export class Summary extends Component {
     const showHHGShipmentSummary =
       (currentShipment && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
 
+    const showProfileAndOrders = (isReviewPage && !isHHGPPMComboMove) || !isReviewPage;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -86,16 +87,18 @@ export class Summary extends Component {
             </Alert>
           )}
 
-        <ServiceMemberSummary
-          orders={currentOrders}
-          backupContacts={currentBackupContacts}
-          serviceMember={serviceMember}
-          schemaRank={schemaRank}
-          schemaAffiliation={schemaAffiliation}
-          schemaOrdersType={schemaOrdersType}
-          moveIsApproved={moveIsApproved}
-          editOrdersPath={editOrdersPath}
-        />
+        {showProfileAndOrders && (
+          <ServiceMemberSummary
+            orders={currentOrders}
+            backupContacts={currentBackupContacts}
+            serviceMember={serviceMember}
+            schemaRank={schemaRank}
+            schemaAffiliation={schemaAffiliation}
+            schemaOrdersType={schemaOrdersType}
+            moveIsApproved={moveIsApproved}
+            editOrdersPath={editOrdersPath}
+          />
+        )}
 
         {showHHGShipmentSummary && (
           <HHGShipmentSummary shipment={currentShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />

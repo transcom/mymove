@@ -123,10 +123,22 @@ export const displayDateRange = (dates, formatType = 'long') => {
 
 // Office Formatters
 
-// Format a date and ignore any time values, e.g. 03-Jan-2018
+// Format a date and ignore any time values, e.g. 03-Jan-18
 export function formatDate(date) {
   if (date) {
     return moment(date).format('DD-MMM-YY');
+  }
+}
+
+export function formatDate4DigitYear(date) {
+  if (date) {
+    return moment(date).format('DD-MMM-YYYY');
+  }
+}
+
+export function formatTime(date) {
+  if (date) {
+    return moment(date).format('HH:mm');
   }
 }
 

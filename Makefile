@@ -153,17 +153,19 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
 build_tools: server_deps server_generate
-	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/rateengine ./cmd/demo/rateengine.go
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
-	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
-	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
+	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
+	go build -i -ldflags "$(LDFLAGS)" -o bin/rateengine ./cmd/demo/rateengine.go
+	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
@@ -176,14 +178,16 @@ webserver_test: server_generate
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 \
-	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
-	aws-vault exec $$AWS_PROFILE -- \
-	chamber exec app-$$TEST_ACC_ENV -- \
-	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_CWD=$$(PWD) \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	aws-vault exec $(AWS_PROFILE) -- \
+	chamber exec app-$(TEST_ACC_ENV) -- \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 endif
 
 server_test: server_deps server_generate db_test_reset db_test_migrate

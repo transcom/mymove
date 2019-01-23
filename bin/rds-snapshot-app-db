@@ -14,10 +14,29 @@ set -u
 
 readonly environment=$1
 
-readonly db_instance_identifer=app-$environment
-readonly db_snapshot_identifer=$db_instance_identifer-$(date +%s)
+readonly db_instance_identifier=app-$environment
+readonly db_snapshot_identifier=$db_instance_identifier-$(date +%s)
 readonly tags=("Key=Environment,Value=$environment" "Key=Tool,Value=$(basename "$0")")
 
-time aws rds wait db-snapshot-completed --db-instance-identifier "$db_instance_identifer" # Wait for concurrent databse snapshots to complete before continuing
-aws rds create-db-snapshot --db-instance-identifier "$db_instance_identifer" --db-snapshot-identifier "$db_snapshot_identifer" --tags "${tags[@]}"
-time aws rds wait db-snapshot-completed --db-snapshot-identifier "$db_snapshot_identifer"
+echo
+echo "Wait for concurrent database snapshots for ${db_instance_identifier} to complete before continuing ..."
+time aws rds wait db-snapshot-completed --db-instance-identifier "$db_instance_identifier"
+
+echo
+echo "Create database snapshot for ${db_instance_identifier} with identifier ${db_snapshot_identifier}"
+aws rds create-db-snapshot --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
+
+echo
+echo "Wait for current database snapshot ${db_snapshot_identifier} to complete before continuing ..."
+time aws rds wait db-snapshot-completed --db-snapshot-identifier "$db_snapshot_identifier"
+
+echo
+echo "Describe the database snapshot ${db_snapshot_identifier}"
+db_description=$(aws rds describe-db-snapshots --db-snapshot-identifier "$db_snapshot_identifier")
+echo "${db_description}"
+db_status=$(echo "${db_description}" | jq -r ".DBSnapshots[].Status")
+if [[ "${db_status}" != "available" ]]; then
+  echo
+  echo "DB Status is '${db_status}', expected 'available'"
+  exit 1
+fi

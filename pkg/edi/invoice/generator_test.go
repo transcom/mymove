@@ -1,15 +1,18 @@
 package ediinvoice_test
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/facebookgo/clock"
 
@@ -26,10 +29,6 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-// Flag to update the test EDI
-// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
-var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
 	shipment := helperShipment(suite)
@@ -68,6 +67,37 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
+	})
+
+	suite.T().Run("usageIndicator='P'", func(t *testing.T) {
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), true, clock.NewMock())
+
+		suite.NoError(err)
+		suite.Equal("P", generatedTransactions.ISA.UsageIndicator)
+	})
+
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.logger)
+	handlerContext.SetSendProductionInvoice(suite.Viper.GetBool("send-prod-invoice"))
+	sendProdInvoice := handlerContext.SendProductionInvoice()
+	var usageIndicator string
+	var expectedUsageIndicator string
+	if sendProdInvoice {
+		usageIndicator = "usageIndicator='P'"
+		expectedUsageIndicator = "P"
+	} else {
+		usageIndicator = "usageIndicator='T'"
+		expectedUsageIndicator = "T"
+	}
+
+	suite.T().Run(usageIndicator, func(t *testing.T) {
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), sendProdInvoice, clock.NewMock())
+
+		suite.NoError(err)
+		suite.Equal(expectedUsageIndicator, generatedTransactions.ISA.UsageIndicator)
 	})
 
 	suite.T().Run("invoiceNumber is provided and found in EDI", func(t *testing.T) {
@@ -119,7 +149,10 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		const expectedEDI = "expected_invoice.edi.golden"
 		suite.NoError(err, "generates error")
-		if *update {
+		// Flag to update the test EDI
+		// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+		update := suite.Viper.GetBool("update")
+		if update {
 			goldenFile, err := os.Create(filepath.Join("testdata", expectedEDI))
 			defer goldenFile.Close()
 			suite.NoError(err, "Failed to open EDI file for update")
@@ -144,8 +177,8 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 	suite.NoError(err, "could not assign GBLNumber")
 
 	// Create an accepted shipment offer and the associated TSP.
-	scac := "ABCD"
-	supplierID := scac + "1234" //scac + payee code -- ABCD1234
+	scac := "ABBV"
+	supplierID := scac + "2708" //scac + payee code -- ABBV2708
 
 	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProvider: models.TransportationServiceProvider{
@@ -259,6 +292,7 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 type InvoiceSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+	Viper  *viper.Viper
 }
 
 func (suite *InvoiceSuite) SetupTest() {
@@ -269,9 +303,22 @@ func TestInvoiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
+	flag := pflag.CommandLine
+	// Flag to update the test EDI
+	// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+	flag.Bool("update", false, "update .golden files")
+	// Flag to toggle Invoice usage indicator from P>T (Production>Test)
+	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
+
+	v := viper.New()
+	v.BindPFlags(flag)
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
 	hs := &InvoiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
+		Viper:        v,
 	}
 	suite.Run(t, hs)
 }

@@ -49,12 +49,43 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 	return station
 }
 
-// FetchOrMakeDefaultDutyStation returns a default duty station - Yuma AFB
-func FetchOrMakeDefaultDutyStation(db *pop.Connection) models.DutyStation {
+// FetchOrMakeDefaultCurrentDutyStation returns a default duty station - Yuma AFB
+func FetchOrMakeDefaultCurrentDutyStation(db *pop.Connection) models.DutyStation {
 	// Check if Yuma Duty Station exists, if not, create it.
 	defaultStation, err := models.FetchDutyStationByName(db, "Yuma AFB")
 	if err != nil {
 		return MakeDutyStation(db, Assertions{})
 	}
 	return defaultStation
+}
+
+// FetchOrMakeDefaultNewOrdersDutyStation returns a default duty station - Yuma AFB
+func FetchOrMakeDefaultNewOrdersDutyStation(db *pop.Connection) models.DutyStation {
+	// Check if Fort Gordon exists, if not, create
+	// Move date picker for this test case only works with an address of street name "Fort Gordon"
+	fortGordon, err := models.FetchDutyStationByName(db, "Fort Gordon")
+	if err != nil {
+		fortGordonAssertions := Assertions{
+			Address: models.Address{
+				City:       "Augusta",
+				State:      "GA",
+				PostalCode: "30813",
+			},
+			DutyStation: models.DutyStation{
+				Name: "Fort Gordon",
+			},
+		}
+		FetchOrMakeTariff400ngZip3(db, Assertions{
+			Tariff400ngZip3: models.Tariff400ngZip3{
+				Zip3:          "308",
+				BasepointCity: "Harlem",
+				State:         "GA",
+				ServiceArea:   "208",
+				RateArea:      "US45",
+				Region:        "12",
+			},
+		})
+		return MakeDutyStation(db, fortGordonAssertions)
+	}
+	return fortGordon
 }

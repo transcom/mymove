@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"time"
@@ -27,10 +28,10 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
 		ID:               *handlers.FmtUUID(s.ID),
 		Status:           apimessages.ShipmentStatus(s.Status),
-		SourceGbloc:      apimessages.GBLOC(*s.SourceGBLOC),
-		DestinationGbloc: apimessages.GBLOC(*s.DestinationGBLOC),
+		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
+		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
 		GblNumber:        s.GBLNumber,
-		Market:           apimessages.ShipmentMarket(*s.Market),
+		Market:           payloadForMarkets(s.Market),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
@@ -601,7 +602,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	// Create PDF for GBL
-	gbl, err := models.FetchGovBillOfLadingExtractor(h.DB(), shipmentID)
+	gbl, err := models.FetchGovBillOfLadingFormValues(h.DB(), shipmentID)
 	if err != nil {
 		// TODO: (andrea) Pass info of exactly what is missing in custom error message
 		h.Logger().Error("Failed retrieving the GBL data.", zap.Error(err))
@@ -615,22 +616,12 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		h.Logger().Error("Error reading template file", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
-	f, err := h.FileStorer().FileSystem().Create("something.png")
-	_, err = f.Write(data)
-	if err != nil {
-		h.Logger().Error("Error writing template bytes to file", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
-	f.Seek(0, 0)
 
-	form, err := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
-	if err != nil {
-		h.Logger().Error("Error initializing GBL template form.", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
+	templateBuffer := bytes.NewReader(data)
+	formFiller := paperwork.NewFormFiller()
 
 	// Populate form fields with GBL data
-	err = form.DrawData(gbl)
+	err = formFiller.AppendPage(templateBuffer, formLayout.FieldsLayout, gbl)
 	if err != nil {
 		h.Logger().Error("Failure writing GBL data to form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
@@ -642,7 +633,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	err = form.Output(aFile)
+	err = formFiller.Output(aFile)
 	if err != nil {
 		h.Logger().Error("Failure exporting GBL form to file.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()

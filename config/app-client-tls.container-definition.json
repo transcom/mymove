@@ -137,6 +137,10 @@
     {
       "name": "GEX_URL",
       "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
+    },
+    {
+      "name": "SEND_PROD_INVOICE",
+      "value": "{{ .SEND_PROD_INVOICE }}"
     }
   ],
   "logConfiguration": {

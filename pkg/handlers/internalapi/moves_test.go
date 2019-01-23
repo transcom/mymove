@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"bytes"
 	"fmt"
 	"net/http/httptest"
 	"time"
@@ -189,7 +190,7 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	}
 	// And: a move is submitted
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
+	context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
 	handler := SubmitMoveHandler{context}
 	response := handler.Handle(params)
 
@@ -227,7 +228,7 @@ func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 
 	// And: a move is submitted
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.TestLogger()))
+	context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
 	handler := SubmitMoveHandler{context}
 	response := handler.Handle(params)
 
@@ -389,4 +390,30 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	// Then: expect a forbidden response
 	suite.CheckResponseForbidden(response)
 
+}
+
+func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+
+	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	params := moveop.ShowShipmentSummaryWorksheetParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	handler := ShowShipmentSummaryWorksheetHandler{context}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&moveop.ShowShipmentSummaryWorksheetOK{}, response)
+	okResponse := response.(*moveop.ShowShipmentSummaryWorksheetOK)
+
+	// check that the payload wasn't empty
+	buf := new(bytes.Buffer)
+	bytesRead, err := buf.ReadFrom(okResponse.Payload)
+	suite.NoError(err)
+	suite.NotZero(bytesRead)
 }

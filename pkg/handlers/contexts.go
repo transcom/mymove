@@ -32,8 +32,8 @@ type HandlerContext interface {
 	SetCookieSecret(secret string)
 	NoSessionTimeout() bool
 	SetNoSessionTimeout()
-	IWSRealTimeBrokerService() iws.RealTimeBrokerService
-	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
+	IWSPersonLookup() iws.PersonLookup
+	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	GexSender() gex.SendToGex
@@ -46,17 +46,17 @@ type HandlerContext interface {
 
 // A single handlerContext is passed to each handler
 type handlerContext struct {
-	db                       *pop.Connection
-	logger                   *zap.Logger
-	cookieSecret             string
-	noSessionTimeout         bool
-	planner                  route.Planner
-	storage                  storage.FileStorer
-	notificationSender       notifications.NotificationSender
-	iwsRealTimeBrokerService iws.RealTimeBrokerService
-	sendProductionInvoice    bool
-	dpsAuthParams            dpsauth.Params
-	senderToGex              gex.SendToGex
+	db                    *pop.Connection
+	logger                *zap.Logger
+	cookieSecret          string
+	noSessionTimeout      bool
+	planner               route.Planner
+	storage               storage.FileStorer
+	notificationSender    notifications.NotificationSender
+	iwsPersonLookup       iws.PersonLookup
+	sendProductionInvoice bool
+	dpsAuthParams         dpsauth.Params
+	senderToGex           gex.SendToGex
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -144,12 +144,12 @@ func (hctx *handlerContext) SetNoSessionTimeout() {
 	hctx.noSessionTimeout = true
 }
 
-func (hctx *handlerContext) IWSRealTimeBrokerService() iws.RealTimeBrokerService {
-	return hctx.iwsRealTimeBrokerService
+func (hctx *handlerContext) IWSPersonLookup() iws.PersonLookup {
+	return hctx.iwsPersonLookup
 }
 
-func (hctx *handlerContext) SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService) {
-	hctx.iwsRealTimeBrokerService = rbs
+func (hctx *handlerContext) SetIWSPersonLookup(rbs iws.PersonLookup) {
+	hctx.iwsPersonLookup = rbs
 }
 
 // SendProductionInvoice is a flag to notify EDI invoice generation whether it should be sent as a test or production transaction

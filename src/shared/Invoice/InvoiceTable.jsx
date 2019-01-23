@@ -16,8 +16,8 @@ class InvoiceTable extends PureComponent {
   render() {
     const tableTitle = (
       <div className="invoice-panel-header-cont">
-        <div className="usa-width-one-half">
-          <h5>
+        <div>
+          <h5 data-cy="invoice--detail">
             Invoice {this.props.invoice.invoice_number}{' '}
             <span className="detail">
               Approved: <strong>{formatDateTime(this.props.invoice.invoiced_date)}</strong> by{' '}
@@ -29,7 +29,7 @@ class InvoiceTable extends PureComponent {
     );
 
     return (
-      <div className="invoice-panel-table-cont">
+      <div className="invoice-panel-table-cont" data-cy="invoice-table">
         <LineItemTable
           shipmentLineItems={this.props.lineItems}
           totalAmount={this.props.lineItemsTotal}
