@@ -161,10 +161,11 @@ func (suite *ModelSuite) TestFormatOrdersIssueDate() {
 
 func (suite *ModelSuite) TestFormatOrdersType() {
 	pcsOrder := models.Order{OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION}
-	localMoveOrder := models.Order{OrdersType: internalmessages.OrdersTypeLOCALMOVE}
+	var unknownOrdersType internalmessages.OrdersType = "UNKNOWN_ORDERS_TYPE"
+	localMoveOrder := models.Order{OrdersType: unknownOrdersType}
 
 	suite.Equal("PCS", models.FormatOrdersType(pcsOrder))
-	suite.Equal("?", models.FormatOrdersType(localMoveOrder))
+	suite.Equal("", models.FormatOrdersType(localMoveOrder))
 }
 
 func (suite *ModelSuite) TestFormatIssuingBranchOrAgency() {

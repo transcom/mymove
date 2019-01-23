@@ -165,7 +165,7 @@ func FormatOrdersType(order Order) string {
 		return "PCS"
 		// TODO determine what abbr are for other order types
 	default:
-		return "?"
+		return ""
 	}
 }
 
