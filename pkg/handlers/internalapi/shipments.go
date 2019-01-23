@@ -75,6 +75,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 
 		// associations
 		TrafficDistributionListID: handlers.FmtUUIDPtr(s.TrafficDistributionListID),
+		TrafficDistributionList:   payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
 		MoveID:                    strfmt.UUID(s.MoveID.String()),
 		ServiceAgents:             serviceAgentPayloads,
@@ -106,6 +107,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
 		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
 		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
 
@@ -120,6 +122,10 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+	}
+	tspID := s.CurrentTransportationServiceProviderID()
+	if tspID != uuid.Nil {
+		shipmentPayload.TransportationServiceProviderID = *handlers.FmtUUID(tspID)
 	}
 	return shipmentPayload, nil
 }
