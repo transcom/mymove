@@ -27,6 +27,10 @@ shipment.define({
 
 export const shipments = new schema.Array(shipment);
 
+export const serviceAgent = new schema.Entity('serviceAgents');
+
+export const serviceAgents = new schema.Array(serviceAgent);
+
 // Moves
 export const move = new schema.Entity('moves', {
   personally_procured_moves: personallyProcuredMoves,
