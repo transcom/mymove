@@ -42,10 +42,6 @@ func CreatePastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHol
 func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, allowEarlierOrSameEndDate bool, calendar *cal.Calendar) ([]time.Time, error) {
 	var dates []time.Time
 
-	if !calendar.IsWorkday(endDate) && !includeWeekendsAndHolidays {
-		return dates, errors.New("End date cannot be a weekend or holiday")
-	}
-
 	if startDate.After(endDate) || startDate == endDate {
 		if allowEarlierOrSameEndDate == true {
 			return dates, nil
