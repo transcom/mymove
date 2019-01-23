@@ -176,6 +176,7 @@ function mapStateToProps(state) {
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
     filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
     selectedLocation: selector(state, 'location'),
+    tariff400ngItem: selector(state, 'tariff400ng_item'),
   };
 }
 
