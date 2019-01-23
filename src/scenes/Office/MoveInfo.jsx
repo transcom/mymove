@@ -22,7 +22,7 @@ import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import Dates from 'shared/ShipmentDates';
 import RoutingPanel from './Hhg/RoutingPanel';
-import TspContainer from 'shared/TspPanel/TspContainer';
+import ServiceAgentsContainer from './Hhg/ServiceAgentsContainer';
 import Weights from 'shared/ShipmentWeights';
 import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
@@ -111,7 +111,7 @@ const HHGTabContent = props => {
           error={props.surveyError}
         />
       )}
-      <TspContainer
+      <ServiceAgentsContainer
         title="TSP & Servicing Agents"
         shipment={props.officeShipment}
         serviceAgents={props.serviceAgents}
