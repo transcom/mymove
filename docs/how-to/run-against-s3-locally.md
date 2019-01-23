@@ -34,3 +34,13 @@ $ aws s3 ls --recursive s3://transcom-ppp-app-devlocal-us-west-2/$AWS_S3_KEY_NAM
 # to your local username
 $ aws s3 ls --recursive s3://transcom-ppp-app-devlocal-us-west-2/bilbo
 ```
+
+### Cleaning up S3
+
+When you are done testing, remove any uploaded objects from the S3 bucket using the following command:
+
+```bash
+$ aws s3 rm --recursive s3://transcom-ppp-app-devlocal-us-west-2/$AWS_S3_KEY_NAMESPACE
+```
+
+This will delete all files from the `dev-local` bucket that were uploaded by you. Use the above listing command to verify that this worked.
