@@ -20,7 +20,7 @@ Assuming your AWS credentials are setup properly, this command will configure th
 $ env STORAGE_BACKEND=s3 make server_run_standalone
 ```
 
-_Please note that this does not use our usual setup to automatically reload the server when a change is made._
+_Please note that this does not use our usual setup to automatically reload changes to files in the `swagger` directory. Other code changes should still be detected, however._
 
 ### Listing Files on S3
 
