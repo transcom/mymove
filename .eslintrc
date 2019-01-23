@@ -2,6 +2,8 @@
   "plugins": ["security"],
   "extends": ["react-app", "plugin:security/recommended"],
   "rules": {
-    "no-debugger": "warn"
+    "no-debugger": "warn",
+    "jsx-a11y/anchor-is-valid": "off",
+    "react/jsx-no-target-blank": "off"
   }
 }

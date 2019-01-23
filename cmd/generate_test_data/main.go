@@ -37,7 +37,7 @@ func main() {
 
 	// Initialize storage and uploader
 	zap.L().Info("Using filesystem storage backend")
-	fsParams := storage.DefaultFilesystemParams(logger)
+	fsParams := storage.NewFilesystemParams("tmp", "storage", logger)
 	storer := storage.NewFilesystem(fsParams)
 	loader := uploader.NewUploader(db, logger, storer)
 

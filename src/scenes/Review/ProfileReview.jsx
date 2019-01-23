@@ -10,10 +10,11 @@ import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 
 import ServiceMemberSummary from './ServiceMemberSummary';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
+import scrollToTop from 'shared/scrollToTop';
 
 class ProfileReview extends Component {
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
   resumeMove = () => {
     this.props.push(this.getNextIncompletePage());

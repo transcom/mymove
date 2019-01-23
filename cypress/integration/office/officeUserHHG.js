@@ -24,10 +24,6 @@ describe('office user finds the shipment', function() {
   it('office user with approved move completes delivered HHG shipment', function() {
     officeUserCompletesHHG();
   });
-  // Commenting this out for now since unbilled invoice line items are still in development
-  // it('office user with completed move approve payment for invoice (sends invoice)', function() {
-  //   officeUserApprovePaymentInvoice();
-  // });
 });
 
 function officeUserViewsMoves() {
@@ -163,7 +159,7 @@ function officeUserApprovesOnlyBasicsHHG() {
   // disabled because not on hhg tab
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -185,13 +181,13 @@ function officeUserApprovesOnlyBasicsHHG() {
   // disabled because shipment not yet accepted
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
 
   // Disabled because already approved and not delivered
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -227,7 +223,7 @@ function officeUserApprovesHHG() {
   // disabled because not on hhg tab
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -249,13 +245,13 @@ function officeUserApprovesHHG() {
   // Approve HHG
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .click();
 
   // Disabled because already approved and not delivered
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
   cy
     .get('button')
@@ -305,48 +301,8 @@ function officeUserCompletesHHG() {
 
   cy
     .get('button')
-    .contains('Approve Shipment')
+    .contains('Approve HHG')
     .should('be.disabled');
 
   cy.get('.status').contains('Completed');
-}
-
-function officeUserApprovePaymentInvoice() {
-  // Open completed hhg queue
-  cy.patientVisit('/queues/hhg_delivered');
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
-  });
-
-  // Find move and open it
-  cy
-    .get('div')
-    .contains('DOOB')
-    .dblclick();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  // Basics Approved
-  cy.get('.status').contains('Approved');
-
-  // Click on HHG tab
-  cy
-    .get('span')
-    .contains('HHG')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
-  });
-
-  // Submit Invoice for HHG
-  cy.get('.status').contains('Delivered');
-
-  cy
-    .get('.invoice-panel button')
-    .contains('Approve Payment')
-    .should('be.disabled');
-  // .click();  TODO: figure out how not to make call to GEX
 }

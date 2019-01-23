@@ -61,5 +61,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0029 [Honeycomb Integration](adr/0029-honeycomb-integration.md#honeycomb-integration)
 * 0030 [IAM Authentication for Database](adr/0030-rds-iam.md#iam-authentication-for-database)
 * 0031 [*CSS Tooling*](adr/0031-css-tooling.md#css-tooling)
+* 0032 [CSRF Protection for the Application](adr/0032-csrf-protection.md#csrf-protection-for-the-application)
 
 <!--endindex-->
