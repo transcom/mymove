@@ -2455,7 +2455,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	formFiller := paperwork.NewFormFiller()
 	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
+	aFile, _ := storer.Create(gbl.GBLNumber1)
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
@@ -2592,7 +2592,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	formFiller := paperwork.NewFormFiller()
 	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
+	aFile, _ := storer.Create(gbl.GBLNumber1)
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
