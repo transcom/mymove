@@ -25,7 +25,7 @@ for task_arn in $(aws ecs list-tasks --cluster "$cluster" --service-name "$name"
     [[ -z $task_arn ]] && { echo "Missing task ARN"; exit 1; }
 
     # Parse out the task ID
-    task_id=$(echo "$task_arn" | perl -ne 'm|^arn:aws:ecs:([^:]+:){2}task/([\S]+)/([\S]+)|; print "$3\n";')
+    task_id=$(echo "$task_arn" | perl -ne 'm|^arn:aws:ecs:([^:]+:){2}task/([\S]+)|; print "$2\n";')
     [[ -z $task_id ]] && { echo "Couldn't parse task ID: $task_arn"; exit 1; }
 
     # Display logs for this task
