@@ -32,9 +32,10 @@ check_arn() {
 show_logs() {
     local arn=$1
     local task_id
-    task_id=$(echo "$arn" | grep -Eo ':task/([[:alnum:]-]+)$' | cut -d / -f 2)
-    echo
     echo "Attempting to get CloudWatch logs for ${arn}:"
+    task_id=$(echo "${arn}" | grep -Eo ":task/${cluster}/([[:alnum:]-]+)$" | cut -d / -f 3)
+    echo "Found task_id ${task_id} for cluster ${cluster}"
+    echo
     aws logs get-log-events --log-group-name "ecs-tasks-$cluster" --log-stream-name "$log_prefix/$container_name/$task_id" --query 'events[].message' || true
     echo
 }
