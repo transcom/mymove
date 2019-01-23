@@ -131,9 +131,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 
 //FormatDutyStation formats DutyStation for Shipment Summary Worksheet
 func FormatDutyStation(dutyStation DutyStation) string {
-	//TODO confirm how we want to handle short names e.g. Fort -> Ft.
-	newDutyStationShortName := strings.Replace(dutyStation.Name, "Fort", "Ft.", 1)
-	return fmt.Sprintf("%s, %s", newDutyStationShortName, dutyStation.Address.State)
+	return fmt.Sprintf("%s, %s", dutyStation.Name, dutyStation.Address.State)
 }
 
 //FormatOrdersIssueDate formats Order.IssueDate for Shipment Summary Worksheet
@@ -151,8 +149,6 @@ func FormatOrdersTypeAndOrdersNumber(order Order) string {
 
 //FormatIssuingBranchOrAgency formats OrdersIssuingAgency for Shipment Summary Worksheet
 func FormatIssuingBranchOrAgency(order Order) string {
-	//TODO when look at test cases in orders table none have orders_issuing_agency,
-	//TODO should this field be derived elsewhere
 	if order.OrdersIssuingAgency != nil {
 		words := strings.Split(strings.ToLower(*order.OrdersIssuingAgency), "_")
 		return strings.Title(strings.Join(words, " "))
@@ -165,7 +161,6 @@ func FormatOrdersType(order Order) string {
 	switch order.OrdersType {
 	case internalmessages.OrdersTypePERMANENTCHANGEOFSTATION:
 		return "PCS"
-		// TODO determine what abbr are for other order types
 	default:
 		return ""
 	}

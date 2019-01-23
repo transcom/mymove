@@ -126,7 +126,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal(fortBragg.Address.City, sswPage1.AuthorizedOrigin.Address.City)
 	suite.Equal(fortBragg.Address.PostalCode, sswPage1.AuthorizedOrigin.Address.PostalCode)
 
-	suite.Equal("Ft. Benning, GA", sswPage1.NewDutyAssignment)
+	suite.Equal("Fort Benning, GA", sswPage1.NewDutyAssignment)
 
 	suite.Equal("13,000", sswPage1.WeightAllotmentSelf)
 	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
@@ -145,7 +145,7 @@ func (suite *ModelSuite) TestFormatDutyStation() {
 	fortBenning := models.DutyStation{Name: "Fort Benning", Address: models.Address{State: "GA"}}
 	yuma := models.DutyStation{Name: "Yuma AFB", Address: models.Address{State: "AZ"}}
 
-	suite.Equal("Ft. Benning, GA", models.FormatDutyStation(fortBenning))
+	suite.Equal("Fort Benning, GA", models.FormatDutyStation(fortBenning))
 	suite.Equal("Yuma AFB, AZ", models.FormatDutyStation(yuma))
 }
 
