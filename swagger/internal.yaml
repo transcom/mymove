@@ -4049,28 +4049,6 @@ paths:
           description: personally procured move not found
         409:
           description: Requested weight estimate is above allotted entitlement
-  /gex/send_request:
-    post:
-      summary: Sends a request to GEX
-      description: Sends a request to GEX
-      operationId: sendGexRequest
-      tags:
-        - gex
-      parameters:
-        - in: body
-          name: sendGexRequestPayload
-          required: true
-          schema:
-            $ref: '#/definitions/SendGexRequestPayload'
-      responses:
-        200:
-          description: sent request
-          schema:
-            $ref: '#/definitions/GexResponsePayload'
-        400:
-          description: invalid request
-        500:
-          description: internal server error
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar
