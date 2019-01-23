@@ -15,6 +15,9 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9
+	requestedPickupDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	originalDeliveryDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	originalPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
 
 	shipment := &Shipment{
 		EstimatedPackDays:           &packDays,
@@ -22,6 +25,9 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		WeightEstimate:              &weightEstimate,
 		ProgearWeightEstimate:       &progearWeightEstimate,
 		SpouseProgearWeightEstimate: &spouseProgearWeightEstimate,
+		RequestedPickupDate:         &requestedPickupDate,
+		OriginalDeliveryDate:        &originalDeliveryDate,
+		OriginalPackDate:            &originalPackDate,
 	}
 
 	expErrors := map[string][]string{
@@ -32,6 +38,9 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		"weight_estimate":                []string{"-3 is less than zero."},
 		"progear_weight_estimate":        []string{"-12 is less than zero."},
 		"spouse_progear_weight_estimate": []string{"-9 is less than zero."},
+		"requested_pickup_date":          []string{"requested_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"original_delivery_date":         []string{"original_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"original_pack_date":             []string{"original_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
