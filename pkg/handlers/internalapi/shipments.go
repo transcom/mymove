@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
-	"github.com/transcom/mymove/pkg/storage"
 )
 
 func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
@@ -35,7 +34,7 @@ func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
 	}
 }
 
-func payloadForShipmentModel(s models.Shipment, storer storage.FileStorer) (*internalmessages.Shipment, error) {
+func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
 	// TODO: closely match the database structure.
@@ -78,7 +77,6 @@ func payloadForShipmentModel(s models.Shipment, storer storage.FileStorer) (*int
 		TrafficDistributionListID: handlers.FmtUUIDPtr(s.TrafficDistributionListID),
 		TrafficDistributionList:   payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
-		ServiceMember:             payloadForServiceMemberModel(storer, s.ServiceMember),
 		MoveID:                    strfmt.UUID(s.MoveID.String()),
 		ServiceAgents:             serviceAgentPayloads,
 
@@ -207,7 +205,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(newShipment, h.FileStorer())
+	shipmentPayload, err := payloadForShipmentModel(newShipment)
 	if err != nil {
 		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
 	}
@@ -348,7 +346,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment, h.FileStorer())
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
 		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
 	}
@@ -399,7 +397,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment, h.FileStorer())
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
 		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
 	}
@@ -436,7 +434,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment, h.FileStorer())
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
 		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
 	}
@@ -472,7 +470,7 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	shipmentPayload, err := payloadForShipmentModel(*shipment, h.FileStorer())
+	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
 		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
 	}
