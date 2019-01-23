@@ -113,6 +113,7 @@ type Shipments []Shipment
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	calendar := dates.NewUSCalendar()
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
@@ -121,9 +122,9 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
-		&DateIsWorkday{Field: *(s.RequestedPickupDate), Name: "requested_pickup_date", Calendar: dates.NewUSCalendar()},
-		&DateIsWorkday{Field: *(s.OriginalPackDate), Name: "original_pack_date", Calendar: dates.NewUSCalendar()},
-		&DateIsWorkday{Field: *(s.OriginalDeliveryDate), Name: "original_delivery_date", Calendar: dates.NewUSCalendar()},
+		&DateIsWorkday{Field: *(s.RequestedPickupDate), Name: "requested_pickup_date", Calendar: calendar},
+		&DateIsWorkday{Field: *(s.OriginalPackDate), Name: "original_pack_date", Calendar: calendar},
+		&DateIsWorkday{Field: *(s.OriginalDeliveryDate), Name: "original_delivery_date", Calendar: calendar},
 	), nil
 }
 
