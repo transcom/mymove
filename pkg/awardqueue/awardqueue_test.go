@@ -99,8 +99,8 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		},
 	})
 
-	pickupDate := blackoutEndDate.AddDate(0, 0, 1)
-	deliveryDate := blackoutEndDate.AddDate(0, 0, 2)
+	pickupDate := blackoutEndDate.AddDate(0, 0, 2)
+	deliveryDate := blackoutEndDate.AddDate(0, 0, 3)
 
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
