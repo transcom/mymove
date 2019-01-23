@@ -151,6 +151,8 @@ func FormatOrdersTypeAndOrdersNumber(order Order) string {
 
 //FormatIssuingBranchOrAgency formats OrdersIssuingAgency for Shipment Summary Worksheet
 func FormatIssuingBranchOrAgency(order Order) string {
+	//TODO when look at test cases in orders table none have orders_issuing_agency,
+	//TODO should this field be derived elsewhere
 	if order.OrdersIssuingAgency != nil {
 		words := strings.Split(strings.ToLower(*order.OrdersIssuingAgency), "_")
 		return strings.Title(strings.Join(words, " "))
