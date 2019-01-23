@@ -1078,11 +1078,13 @@ definitions:
       - IN_PROCESS
       - SUBMITTED
       - SUBMISSION_FAILURE
+      - UPDATE_FAILURE
     x-display-value:
       DRAFT: Draft
       IN_PROCESS: In Process
       SUBMITTED: Submitted
       SUBMISSION_FAILURE: Submission Failure
+      UPDATE_FAILURE: Update Failure
   ServiceMemberBackupContactPayload:
     type: object
     properties:

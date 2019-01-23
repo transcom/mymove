@@ -23,15 +23,17 @@ type ProcessInvoice struct {
 func (p ProcessInvoice) Call(invoice *models.Invoice, shipment models.Shipment) (*string, *validate.Errors, error) {
 	ediString, err := p.generateAndSendInvoiceData(invoice, shipment)
 	if err != nil {
-		verrs, err := p.updateInvoiceFailed(invoice, validate.NewErrors(), err)
+		// The invoice submission has failed, so we record the failure.
+		verrs, err := p.updateInvoiceFailed(invoice, models.InvoiceStatusSUBMISSIONFAILURE, validate.NewErrors(), err)
 		return ediString, verrs, err
 	}
 
 	// Update invoice record as submitted
 	verrs, err := UpdateInvoiceSubmitted{DB: p.DB}.Call(invoice, shipment.ShipmentLineItems)
 	if err != nil || verrs.HasAny() {
-		// Updating as submitted failed, so we need to try to mark it as failed (which could fail too).
-		verrs, err := p.updateInvoiceFailed(invoice, verrs, err)
+		// Updating as submitted failed (although the invoice submission succeeded), so we try to mark it as a
+		// status update failure to prevent the invoice from being submitted again.
+		verrs, err := p.updateInvoiceFailed(invoice, models.InvoiceStatusUPDATEFAILURE, verrs, err)
 		return ediString, verrs, err
 	}
 
@@ -65,9 +67,9 @@ func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, ship
 	return &invoice858CString, nil
 }
 
-func (p ProcessInvoice) updateInvoiceFailed(invoice *models.Invoice, causeVerrs *validate.Errors, cause error) (*validate.Errors, error) {
+func (p ProcessInvoice) updateInvoiceFailed(invoice *models.Invoice, invoiceStatus models.InvoiceStatus, causeVerrs *validate.Errors, cause error) (*validate.Errors, error) {
 	// Update invoice record as failed
-	invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
+	invoice.Status = invoiceStatus
 	verrs, err := p.DB.ValidateAndSave(invoice)
 	if err != nil || verrs.HasAny() {
 		verrs.Append(causeVerrs)
