@@ -113,8 +113,7 @@ type Shipments []Shipment
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	calendar := dates.NewUSCalendar()
-	return validate.Validate(
+	validators := []validate.Validator{
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
 		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
@@ -122,10 +121,20 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
-		&DateIsWorkday{Field: *(s.RequestedPickupDate), Name: "requested_pickup_date", Calendar: calendar},
-		&DateIsWorkday{Field: *(s.OriginalPackDate), Name: "original_pack_date", Calendar: calendar},
-		&DateIsWorkday{Field: *(s.OriginalDeliveryDate), Name: "original_delivery_date", Calendar: calendar},
-	), nil
+	}
+
+	calendar := dates.NewUSCalendar()
+	if s.RequestedPickupDate != nil {
+		validators = append(validators, &DateIsWorkday{Field: *(s.RequestedPickupDate), Name: "requested_pickup_date", Calendar: calendar})
+	}
+	if s.OriginalPackDate != nil {
+		validators = append(validators, &DateIsWorkday{Field: *(s.OriginalPackDate), Name: "original_pack_date", Calendar: calendar})
+	}
+	if s.OriginalDeliveryDate != nil {
+		validators = append(validators, &DateIsWorkday{Field: *(s.OriginalDeliveryDate), Name: "original_delivery_date", Calendar: calendar})
+	}
+
+	return validate.Validate(validators...), nil
 }
 
 // CurrentTransportationServiceProviderID returns the id for the current TSP for a shipment
