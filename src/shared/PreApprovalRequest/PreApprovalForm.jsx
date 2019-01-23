@@ -4,7 +4,7 @@ import Select, { createFilter } from 'react-select';
 import { connect } from 'react-redux';
 import { withContext } from 'shared/AppContext';
 import PropTypes from 'prop-types';
-import { reduxForm, Form, Field } from 'redux-form';
+import { reduxForm, Form, Field, formValueSelector } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { getDetailComponent } from './DetailsHelper';
@@ -60,10 +60,27 @@ export class Tariff400ngItemSearch extends Component {
 }
 
 export class LocationSearch extends Component {
+  componentDidMount() {
+    this.updateLocationValue();
+  }
+
+  componentDidUpdate() {
+    this.updateLocationValue();
+  }
+
+  updateLocationValue() {
+    if (
+      this.props.filteredLocations &&
+      this.props.filteredLocations.length === 1 &&
+      this.props.filteredLocations[0] !== this.props.value
+    ) {
+      this.props.change('location', this.props.filteredLocations[0]);
+    }
+  }
+
   render() {
     return this.props.filteredLocations && this.props.filteredLocations.length === 1 ? (
       <Fragment>
-        <input name="location" type="hidden" value={this.props.filteredLocations[0]} />
         <label htmlFor="location" className="usa-input-label">
           Location
         </label>
@@ -105,6 +122,8 @@ export class PreApprovalForm extends Component {
                 <LocationSearch
                   filteredLocations={this.props.filteredLocations}
                   ship_line_item_schema={this.props.ship_line_item_schema}
+                  change={this.props.change}
+                  value={this.props.selectedLocation}
                 />
               </div>
             )}
@@ -134,6 +153,12 @@ PreApprovalForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
+LocationSearch.propTypes = {
+  filteredLocations: PropTypes.arrayOf(PropTypes.string),
+  change: PropTypes.func,
+  ship_line_item_schema: PropTypes.object,
+};
+
 const validateItemSelect = validateAdditionalFields(['tariff400ng_item']);
 export const formName = 'preapproval_request_form';
 
@@ -144,12 +169,14 @@ PreApprovalForm = reduxForm({
   validate: validateItemSelect,
 })(PreApprovalForm);
 
+const selector = formValueSelector(formName);
 function mapStateToProps(state) {
   return {
     tariff400ng_item_code: get(state, 'form.preapproval_request_form.values.tariff400ng_item.code'),
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
-    tariff400ngItem: get(state, 'form.preapproval_request_form.values.tariff400ng_item'),
-    filteredLocations: selectLocationFromTariff400ngItem(state),
+    filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
+    selectedLocation: selector(state, 'location'),
+    tariff400ngItem: selector(state, 'tariff400ng_item'),
   };
 }
 
