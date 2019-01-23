@@ -50,7 +50,7 @@ var nowMinusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -5), cal)
 var nowMinusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Memory) {
 	/*
 	 * Basic user with tsp access
 	 */
@@ -2358,7 +2358,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 }
 
 // MakeHhgWithGBL creates a scenario for an approved shipment with a GBL generated
-func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Filesystem) models.Shipment {
+func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
@@ -2475,7 +2475,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	return offer.Shipment
 }
 
-func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Filesystem) models.Shipment {
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */
