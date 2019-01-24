@@ -9,7 +9,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -2456,8 +2455,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
 	// Write to a temporary file system
-	fs := afero.NewMemMapFs()
-	aFile, _ := fs.Create(gbl.GBLNumber1)
+	aFile, _ := storer.TempFileSystem().Create(gbl.GBLNumber1)
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
@@ -2595,8 +2593,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
 	// Write to a temporary file system
-	fs := afero.NewMemMapFs()
-	aFile, _ := fs.Create(gbl.GBLNumber1)
+	aFile, _ := storer.TempFileSystem().Create(gbl.GBLNumber1)
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)

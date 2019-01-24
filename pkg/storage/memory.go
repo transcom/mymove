@@ -61,28 +61,6 @@ func NewMemory(params MemoryParams) *Memory {
 	}
 }
 
-// Create makes a new file with no content at the specified key.
-func (fs *Memory) Create(key string) (afero.File, error) {
-	if key == "" {
-		return nil, errors.New("A valid file name must be set before a file can be created")
-	}
-
-	joined := filepath.Join(fs.root, key)
-	dir := filepath.Dir(joined)
-
-	err := fs.fs.MkdirAll(dir, 0755)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create parent directory")
-	}
-
-	file, err := fs.fs.Create(joined)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not open file")
-	}
-
-	return file, err
-}
-
 // Store stores the content from an io.ReadSeeker at the specified key.
 func (fs *Memory) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
 	if key == "" {

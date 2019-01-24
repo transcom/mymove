@@ -38,29 +38,6 @@ func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *sess
 	}
 }
 
-// Create makes a new file with no content at the specified key.
-func (s *S3) Create(key string) (afero.File, error) {
-	if key == "" {
-		return nil, errors.New("A valid file name must be set before a file can be created")
-	}
-
-	namespacedKey := path.Join(s.keyNamespace, key)
-	joined := path.Join(s.bucket, namespacedKey)
-	dir := filepath.Dir(joined)
-
-	err := s.tempFs.MkdirAll(dir, 0755)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create parent directory")
-	}
-
-	file, err := s.tempFs.Create(joined)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not open file")
-	}
-
-	return file, err
-}
-
 // Store stores the content from an io.ReadSeeker at the specified key.
 func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
 	if key == "" {
