@@ -11,7 +11,6 @@ import { forEach } from 'lodash';
 const defaultFlags = {
   ppm: true,
   hhg: true,
-  hhgAndPpm: true,
   documentViewer: true,
   allowHhgInvoicePayment: true,
   robustAccessorial: true,
