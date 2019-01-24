@@ -114,7 +114,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("444-555-8888", sswPage1.PreferredPhone)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
 	suite.Equal("1234567890", sswPage1.DODId)
-	suite.Equal(string(serviceBranch), sswPage1.ServiceBranch)
 	suite.Equal(string(rank), sswPage1.Rank)
 
 	suite.Equal("Air Force", sswPage1.IssuingBranchOrAgency)
@@ -168,12 +167,10 @@ func (suite *ModelSuite) TestFormatOrdersType() {
 	suite.Equal("", models.FormatOrdersType(localMoveOrder))
 }
 
-func (suite *ModelSuite) TestFormatIssuingBranchOrAgency() {
-	airForce := models.Order{OrdersIssuingAgency: models.StringPointer("AIR_FORCE")}
-	other := models.Order{OrdersIssuingAgency: models.StringPointer("OTHER")}
-	missing := models.Order{OrdersIssuingAgency: nil}
+func (suite *ModelSuite) TestFormatServiceMemberAffilation() {
+	airForce := models.AffiliationAIRFORCE
+	marines := models.AffiliationMARINES
 
-	suite.Equal("Air Force", models.FormatIssuingBranchOrAgency(airForce))
-	suite.Equal("Other", models.FormatIssuingBranchOrAgency(other))
-	suite.Equal("", models.FormatIssuingBranchOrAgency(missing))
+	suite.Equal("Air Force", models.FormatServiceMemberAffiliation(&airForce))
+	suite.Equal("Marines", models.FormatServiceMemberAffiliation(&marines))
 }

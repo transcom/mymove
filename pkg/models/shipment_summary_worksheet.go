@@ -36,7 +36,6 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	PreferredPhone               string
 	PreferredEmail               string
 	DODId                        string
-	ServiceBranch                string
 	Rank                         string
 	IssuingBranchOrAgency        string
 	OrdersIssueDate              string
@@ -109,10 +108,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.PreferredPhone = derefStringTypes(sm.Telephone)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
-	page1.ServiceBranch = derefStringTypes(sm.Affiliation)
 	page1.Rank = derefStringTypes(sm.Rank)
 
-	page1.IssuingBranchOrAgency = FormatIssuingBranchOrAgency(data.Order)
+	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatOrdersIssueDate(data.Order)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 
@@ -147,10 +145,10 @@ func FormatOrdersTypeAndOrdersNumber(order Order) string {
 	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
 }
 
-//FormatIssuingBranchOrAgency formats OrdersIssuingAgency for Shipment Summary Worksheet
-func FormatIssuingBranchOrAgency(order Order) string {
-	if order.OrdersIssuingAgency != nil {
-		words := strings.Split(strings.ToLower(*order.OrdersIssuingAgency), "_")
+//FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
+func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) string {
+	if affiliation != nil {
+		words := strings.Split(strings.ToLower(string(*affiliation)), "_")
 		return strings.Title(strings.Join(words, " "))
 	}
 	return ""
@@ -204,11 +202,6 @@ func derefStringTypes(st interface{}) string {
 	case string:
 		return v
 	case *ServiceMemberRank:
-		if v != nil {
-			return string(*v)
-		}
-		return ""
-	case *ServiceMemberAffiliation:
 		if v != nil {
 			return string(*v)
 		}
