@@ -12,6 +12,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"WeightAllotmentProgear":       FormField(74, 110, 16, floatPtr(10), nil),
 		"WeightAllotmentProgearSpouse": FormField(74, 115, 16, floatPtr(10), nil),
 		"TotalWeightAllotment":         FormField(74, 120, 16, floatPtr(10), nil),
+		"POVAuthorized":                FormField(103, 115, 45, floatPtr(10), nil),
 	},
 }
 

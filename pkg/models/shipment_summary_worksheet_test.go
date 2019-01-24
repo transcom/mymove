@@ -110,6 +110,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
+	suite.Equal("NO", sswPage1.POVAuthorized)
 	suite.Equal("444-555-8888", sswPage1.PreferredPhone)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
 	suite.Equal("1234567890", sswPage1.DODId)

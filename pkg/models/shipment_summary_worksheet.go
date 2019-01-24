@@ -49,6 +49,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	WeightAllotmentProgear       string
 	WeightAllotmentProgearSpouse string
 	TotalWeightAllotment         string
+	POVAuthorized                string
 }
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
@@ -96,6 +97,8 @@ func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID)
 func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
 	page1 := ShipmentSummaryWorksheetPage1Values{}
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
+	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
+	page1.POVAuthorized = "NO"
 
 	sm := data.ServiceMember
 	lastName := derefStringTypes(sm.LastName)
