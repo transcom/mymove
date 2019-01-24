@@ -15,9 +15,15 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9
+	originalPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
 	originalDeliveryDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	originalPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	pmSurveyPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	pmSurveyPickupDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	pmSurveyDeliveryDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	actualPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	actualDeliveryDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
 
 	shipment := &Shipment{
 		EstimatedPackDays:           &packDays,
@@ -28,19 +34,31 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		RequestedPickupDate:         &requestedPickupDate,
 		OriginalDeliveryDate:        &originalDeliveryDate,
 		OriginalPackDate:            &originalPackDate,
+		PmSurveyPlannedPackDate:     &pmSurveyPackDate,
+		PmSurveyPlannedPickupDate:   &pmSurveyPickupDate,
+		PmSurveyPlannedDeliveryDate: &pmSurveyDeliveryDate,
+		ActualPackDate:              &actualPackDate,
+		ActualPickupDate:            &actualPickupDate,
+		ActualDeliveryDate:          &actualDeliveryDate,
 	}
 
 	expErrors := map[string][]string{
-		"move_id":                        []string{"move_id can not be blank."},
-		"status":                         []string{"status can not be blank."},
-		"estimated_pack_days":            []string{"-2 is less than or equal to zero."},
-		"estimated_transit_days":         []string{"0 is less than or equal to zero."},
-		"weight_estimate":                []string{"-3 is less than zero."},
-		"progear_weight_estimate":        []string{"-12 is less than zero."},
-		"spouse_progear_weight_estimate": []string{"-9 is less than zero."},
-		"requested_pickup_date":          []string{"requested_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"original_delivery_date":         []string{"original_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"original_pack_date":             []string{"original_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"move_id":                         []string{"move_id can not be blank."},
+		"status":                          []string{"status can not be blank."},
+		"estimated_pack_days":             []string{"-2 is less than or equal to zero."},
+		"estimated_transit_days":          []string{"0 is less than or equal to zero."},
+		"weight_estimate":                 []string{"-3 is less than zero."},
+		"progear_weight_estimate":         []string{"-12 is less than zero."},
+		"spouse_progear_weight_estimate":  []string{"-9 is less than zero."},
+		"requested_pickup_date":           []string{"requested_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"original_delivery_date":          []string{"original_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"original_pack_date":              []string{"original_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"pm_survey_planned_pack_date":     []string{"pm_survey_planned_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"pm_survey_planned_pickup_date":   []string{"pm_survey_planned_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"pm_survey_planned_delivery_date": []string{"pm_survey_planned_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"actual_pack_date":                []string{"actual_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"actual_pickup_date":              []string{"actual_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"actual_delivery_date":            []string{"actual_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)

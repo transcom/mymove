@@ -124,16 +124,40 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
 		&OptionalDateIsWorkday{
-			Field:    s.RequestedPickupDate,
-			Name:     "requested_pickup_date",
-			Calendar: calendar},
-		&OptionalDateIsWorkday{
 			Field:    s.OriginalPackDate,
 			Name:     "original_pack_date",
 			Calendar: calendar},
 		&OptionalDateIsWorkday{
+			Field:    s.RequestedPickupDate,
+			Name:     "requested_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
 			Field:    s.OriginalDeliveryDate,
 			Name:     "original_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPackDate,
+			Name:     "pm_survey_planned_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPickupDate,
+			Name:     "pm_survey_planned_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedDeliveryDate,
+			Name:     "pm_survey_planned_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPackDate,
+			Name:     "actual_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPickupDate,
+			Name:     "actual_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualDeliveryDate,
+			Name:     "actual_delivery_date",
 			Calendar: calendar},
 	), nil
 }
