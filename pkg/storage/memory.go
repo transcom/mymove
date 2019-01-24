@@ -21,6 +21,7 @@ type Memory struct {
 	webRoot string
 	logger  *zap.Logger
 	fs      *afero.Afero
+	tempFs  *afero.Afero
 }
 
 // MemoryParams contains parameter for instantiating a Memory storage backend
@@ -49,12 +50,14 @@ func NewMemoryParams(localStorageRoot string, localStorageWebRoot string, logger
 // NewMemory creates a new Memory struct using the provided MemoryParams
 func NewMemory(params MemoryParams) *Memory {
 	var fs = afero.NewMemMapFs()
+	var tempFs = afero.NewOsFs()
 
 	return &Memory{
 		root:    params.root,
 		webRoot: params.webRoot,
 		logger:  params.logger,
 		fs:      &afero.Afero{Fs: fs},
+		tempFs:  &afero.Afero{Fs: tempFs},
 	}
 }
 
@@ -134,6 +137,11 @@ func (fs *Memory) Fetch(key string) (io.ReadCloser, error) {
 // FileSystem returns the underlying afero filesystem
 func (fs *Memory) FileSystem() *afero.Afero {
 	return fs.fs
+}
+
+// TempFileSystem returns the temporary afero filesystem
+func (fs *Memory) TempFileSystem() *afero.Afero {
+	return fs.tempFs
 }
 
 // NewMemoryHandler returns an Handler that adds a Content-Type header so that
