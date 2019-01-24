@@ -93,24 +93,27 @@ func main() {
 		log.Fatal(verrs)
 	}
 
-	certificates, rootCAs, err := initDODCertificates(v, logger)
-	if certificates == nil || rootCAs == nil || err != nil {
-		log.Fatal("Error in getting tls certs", err)
-	}
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
-	url := v.GetString("gex-url")
-	if len(url) == 0 {
-		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
-	}
-	sendToGexHTTP := gex.SendToGexHTTP{
-		URL:                  url,
-		IsTrueGexURL:         true,
-		TLSConfig:            tlsConfig,
-		GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
-		GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
+	var sendToGexHTTP gex.SendToGexHTTP
+	if sendToGex {
+		certificates, rootCAs, err := initDODCertificates(v, logger)
+		if certificates == nil || rootCAs == nil || err != nil {
+			log.Fatal("Error in getting tls certs", err)
+		}
+		tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+		url := v.GetString("gex-url")
+		if len(url) == 0 {
+			log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
+		}
+		sendToGexHTTP = gex.SendToGexHTTP{
+			URL:                  url,
+			IsTrueGexURL:         true,
+			TLSConfig:            tlsConfig,
+			GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
+			GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
+		}
 	}
 
-	resp, err := processInvoice(db, shipment, invoiceModel, &sendToGex, &transactionName, sendToGexHTTP)
+	resp, err := processInvoice(db, shipment, invoiceModel, sendToGex, &transactionName, sendToGexHTTP)
 	if resp != nil {
 		fmt.Printf("status code: %v\n", resp.StatusCode)
 	}
@@ -119,7 +122,7 @@ func main() {
 	}
 }
 
-func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex *bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
 	defer func() {
 		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed
@@ -145,7 +148,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 	}()
 
 	var icnSequencer sequence.Sequencer
-	if *sendToGex {
+	if sendToGex {
 		icnSequencer, err = sequence.NewRandomSequencer(100000000, 999999999)
 		if err != nil {
 			log.Fatal("Could not create random sequencer for ICN", err)
@@ -159,7 +162,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 		return nil, err
 	}
 
-	if *sendToGex {
+	if sendToGex {
 		fmt.Println("Sending to GEX. . .")
 		invoice858CString, err := invoice858C.EDIString()
 		if err != nil {
