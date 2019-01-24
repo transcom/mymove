@@ -3,7 +3,6 @@ package storage
 import (
 	"io"
 	"path"
-	"path/filepath"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
