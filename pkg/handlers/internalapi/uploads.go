@@ -70,7 +70,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	// Read the incoming data into a new afero.File for consumption
-	aFile, err := h.FileStorer().FileSystem().Create(file.Header.Filename)
+	aFile, err := h.FileStorer().Create(file.Header.Filename)
 	if err != nil {
 		h.Logger().Error("Error opening afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
