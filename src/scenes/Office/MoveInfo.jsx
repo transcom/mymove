@@ -100,7 +100,7 @@ const HHGTabContent = props => {
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
-      <Dates title="Dates" shipment={props.officeShipment} update={props.updatePublicShipment} />
+      <Dates title="Dates" shipment={props.shipment} update={props.updatePublicShipment} />
       <LocationsContainer update={props.updatePublicShipment} shipmentId={props.shipment.id} />
       <Weights title="Weights & Items" shipment={props.shipment} update={props.updatePublicShipment} />
       {props.officeShipment && (
