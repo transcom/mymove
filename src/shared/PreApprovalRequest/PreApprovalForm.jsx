@@ -131,7 +131,7 @@ export class PreApprovalForm extends Component {
           {this.props.tariff400ngItem && (
             <Fragment>
               <div className="usa-width-one-third">
-                <DetailComponent swagger={this.props.ship_line_item_schema} />
+                <DetailComponent {...this.props} />
               </div>
               <div className="usa-width-one-third">
                 <SwaggerField
