@@ -6,6 +6,7 @@ export const Code105Details = props => {
   const { swagger } = props;
   return (
     <Fragment>
+      <div>More to come!</div>
       <SwaggerField
         fieldName="description"
         className="three-quarter-width"
