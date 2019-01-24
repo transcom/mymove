@@ -26,6 +26,20 @@ func (fake *FakeS3Storage) Delete(key string) error {
 	return f.Close()
 }
 
+// Create creates a file.
+func (fake *FakeS3Storage) Create(key string) (afero.File, error) {
+	if key == "" {
+		return nil, errors.New("A valid file name must be set before a file can be created")
+	}
+
+	file, err := fake.fs.Create(key)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not open file")
+	}
+
+	return file, err
+}
+
 // Store stores a file.
 func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*storage.StoreResult, error) {
 	f, err := fake.fs.Create(key)
