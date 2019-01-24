@@ -1299,26 +1299,6 @@ definitions:
       - bytes
       - created_at
       - updated_at
-  SendGexRequestPayload:
-    type: object
-    properties:
-      transaction_name:
-        type: string
-        title: Transaction Name
-        example: 858-1.edi
-      transaction_body:
-        type: string
-        title: Transaction Body
-        format: textarea
-    required:
-      - transaction_name
-      - transaction_body
-  GexResponsePayload:
-    type: object
-    properties:
-      gex_response:
-        type: string
-        title: The HTTP response body received from GEX
   DPSAuthCookieURLPayload:
     type: object
     properties:
