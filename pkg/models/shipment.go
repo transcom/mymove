@@ -125,13 +125,25 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	calendar := dates.NewUSCalendar()
 	if s.RequestedPickupDate != nil {
-		validators = append(validators, &DateIsWorkday{Field: *(s.RequestedPickupDate), Name: "requested_pickup_date", Calendar: calendar})
+		validators = append(validators,
+			&DateIsWorkday{
+				Field:    s.RequestedPickupDate,
+				Name:     "requested_pickup_date",
+				Calendar: calendar, Optional: true})
 	}
 	if s.OriginalPackDate != nil {
-		validators = append(validators, &DateIsWorkday{Field: *(s.OriginalPackDate), Name: "original_pack_date", Calendar: calendar})
+		validators = append(validators,
+			&DateIsWorkday{
+				Field:    s.OriginalPackDate,
+				Name:     "original_pack_date",
+				Calendar: calendar, Optional: true})
 	}
 	if s.OriginalDeliveryDate != nil {
-		validators = append(validators, &DateIsWorkday{Field: *(s.OriginalDeliveryDate), Name: "original_delivery_date", Calendar: calendar})
+		validators = append(validators,
+			&DateIsWorkday{
+				Field:    s.OriginalDeliveryDate,
+				Name:     "original_delivery_date",
+				Calendar: calendar, Optional: true})
 	}
 
 	return validate.Validate(validators...), nil
