@@ -307,11 +307,16 @@ definitions:
         description: unit is millicents
       location:
         $ref: '#/definitions/ShipmentLineItemLocation'
+      description:
+        type: string
+        format: textarea
+        title: Description
+        example: Mounted deer head
       notes:
         type: string
         format: textarea
         title: Notes
-        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+        example: Needed for gun safe moving
       status:
         $ref: '#/definitions/ShipmentLineItemStatus'
       invoice_id:
