@@ -181,11 +181,13 @@ definitions:
       - IN_PROCESS
       - SUBMITTED
       - SUBMISSION_FAILURE
+      - UPDATE_FAILURE
     x-display-value:
       DRAFT: Draft
       IN_PROCESS: In Process
       SUBMITTED: Submitted
       SUBMISSION_FAILURE: Submission Failure
+      UPDATE_FAILURE: Update Failure
   Tariff400ngItems:
     type: array
     items:
@@ -980,11 +982,26 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      traffic_distribution_list_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       traffic_distribution_list:
         $ref: '#/definitions/TrafficDistributionList'
         readOnly: true
+      service_member_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       service_member:
         $ref: '#/definitions/ServiceMember'
+        readOnly: true
+      move_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       move:
         $ref: '#/definitions/Move'

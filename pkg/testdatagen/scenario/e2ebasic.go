@@ -373,23 +373,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	// Check if Fort Gordon exists, if not, create
-	// Move date picker for this test case only works with an address of street name "Fort Gordon"
-	fortGordon, err := models.FetchDutyStationByName(db, "Fort Gordon")
-	if err != nil {
-		fortGordonAssertions := testdatagen.Assertions{
-			Address: models.Address{
-				City:       "Augusta",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			DutyStation: models.DutyStation{
-				Name: "Fort Gordon",
-			},
-		}
-		fortGordon = testdatagen.MakeDutyStation(db, fortGordonAssertions)
-	}
-
 	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("b5d1f44b-5ceb-4a0e-9119-5687808996ff"),
@@ -398,8 +381,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson"),
 			Edipi:         models.StringPointer("6833908163"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &fortGordon.ID,
-			DutyStation:   fortGordon,
 		},
 		Order: models.Order{
 			HasDependents:    true,
@@ -432,8 +413,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson2"),
 			Edipi:         models.StringPointer("6833908164"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &fortGordon.ID,
-			DutyStation:   fortGordon,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),

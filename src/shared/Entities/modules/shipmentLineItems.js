@@ -103,12 +103,11 @@ export const selectTotalFromInvoicedLineItems = createSelector([selectInvoicesSh
   }, 0);
 });
 
-export const selectLocationFromTariff400ngItem = state => {
+export const selectLocationFromTariff400ngItem = (state, selectedTariff400ngItem) => {
+  if (!selectedTariff400ngItem) return [];
   const lineItemLocations = get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}).properties.location;
-  const tariff400ngItemLocation = get(state, 'form.preapproval_request_form.values.tariff400ng_item.location');
-  if (!lineItemLocations.enum) {
-    return [];
-  }
+  if (!lineItemLocations.enum) return [];
+  const tariff400ngItemLocation = selectedTariff400ngItem.location;
   // Choose location options based on tariff400ng choice.
   return lineItemLocations.enum.filter(lineItemLocation => {
     return tariff400ngItemLocation === 'EITHER'

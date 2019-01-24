@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -27,23 +30,26 @@ func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, moveID uuid.UUI
 
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage1Values struct {
-	ServiceMemberName        string
-	MaxSITStorageEntitlement string
-	PreferredPhone           string
-	PreferredEmail           string
-	DODId                    string
-	ServiceBranch            string
-	Rank                     string
-	OrdersNumber             string
-	IssuingAgency            string
-	OrderIssueDate           time.Time
-	OrdersType               internalmessages.OrdersType
-	DutyStationID            uuid.UUID
-	AuthorizedOrigin         DutyStation
-	NewDutyStationID         uuid.UUID
-	AuthorizedDestination    DutyStation
-	WeightAllotment          WeightAllotment
-	TotalWeightAllotment     int
+	ServiceMemberName            string
+	MaxSITStorageEntitlement     string
+	PreferredPhone               string
+	PreferredEmail               string
+	DODId                        string
+	ServiceBranch                string
+	Rank                         string
+	OrdersNumber                 string
+	IssuingAgency                string
+	OrderIssueDate               time.Time
+	OrdersType                   internalmessages.OrdersType
+	DutyStationID                uuid.UUID
+	AuthorizedOrigin             DutyStation
+	NewDutyStationID             uuid.UUID
+	AuthorizedDestination        DutyStation
+	WeightAllotmentSelf          string
+	WeightAllotmentProgear       string
+	WeightAllotmentProgearSpouse string
+	TotalWeightAllotment         string
+	POVAuthorized                string
 }
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
@@ -91,6 +97,8 @@ func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID)
 func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
 	page1 := ShipmentSummaryWorksheetPage1Values{}
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
+	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
+	page1.POVAuthorized = "NO"
 
 	sm := data.ServiceMember
 	lastName := derefStringTypes(sm.LastName)
@@ -113,11 +121,20 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 
 	page1.AuthorizedOrigin = data.CurrentDutyStation
 	page1.AuthorizedDestination = data.NewDutyStation
-	page1.WeightAllotment = data.WeightAllotment
-	page1.TotalWeightAllotment = data.WeightAllotment.TotalWeightSelf +
+	page1.WeightAllotmentSelf = FormatWeights(data.WeightAllotment.TotalWeightSelf)
+	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGearWeight)
+	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.ProGearWeightSpouse)
+	total := data.WeightAllotment.TotalWeightSelf +
 		data.WeightAllotment.ProGearWeight +
 		data.WeightAllotment.ProGearWeightSpouse
+	page1.TotalWeightAllotment = FormatWeights(total)
 	return page1
+}
+
+//FormatWeights formats an int using 000s separator
+func FormatWeights(wtg int) string {
+	p := message.NewPrinter(language.English)
+	return p.Sprintf("%d", wtg)
 }
 
 type requiredFields struct {

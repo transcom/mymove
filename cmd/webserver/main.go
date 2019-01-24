@@ -227,7 +227,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// EDI Invoice Config
 	flag.String("gex-basic-auth-username", "", "GEX api auth username")
 	flag.String("gex-basic-auth-password", "", "GEX api auth password")
-	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either local, memory or s3.")
@@ -392,8 +392,8 @@ func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
 	return false
 }
 
-func initRealTimeBrokerService(v *viper.Viper, logger *zap.Logger) (*iws.RealTimeBrokerService, error) {
-	return iws.NewRealTimeBrokerService(
+func initRBSPersonLookup(v *viper.Viper, logger *zap.Logger) (*iws.RBSPersonLookup, error) {
+	return iws.NewRBSPersonLookup(
 		v.GetString("iws-rbs-host"),
 		v.GetString("dod-ca-package"),
 		v.GetString("move-mil-dod-tls-cert"),
@@ -875,11 +875,11 @@ func main() {
 	}
 	handlerContext.SetGexSender(gexRequester)
 
-	rbs, err := initRealTimeBrokerService(v, logger)
+	rbs, err := initRBSPersonLookup(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
-	handlerContext.SetIWSRealTimeBrokerService(*rbs)
+	handlerContext.SetIWSPersonLookup(*rbs)
 
 	sddcHostname := v.GetString("http-sddc-server-name")
 	dpsAuthSecretKey := v.GetString("dps-auth-secret-key")

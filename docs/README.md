@@ -18,6 +18,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
 * [Instrument Data in Honeycomb](how-to/instrument-data-in-honeycomb.md#how-to-instrument-data-in-honeycomb)
 * [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
+* [Run Against S3 Locally](how-to/run-against-s3-locally.md#how-to-run-against-s3-locally)
 * [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)

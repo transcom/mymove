@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
-	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
+	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 
 	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
-	station := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
+	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	station.TransportationOffice = models.TransportationOffice{}
 	station.TransportationOfficeID = nil
 	suite.MustSave(&station)
