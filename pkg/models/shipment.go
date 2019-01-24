@@ -123,18 +123,19 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
-		&DateIsWorkday{
+		&OptionalDateIsWorkday{
 			Field:    s.RequestedPickupDate,
 			Name:     "requested_pickup_date",
-			Calendar: calendar, Optional: true},
-		&DateIsWorkday{
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
 			Field:    s.OriginalPackDate,
 			Name:     "original_pack_date",
-			Calendar: calendar, Optional: true},
-		&DateIsWorkday{
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
 			Field:    s.OriginalDeliveryDate,
 			Name:     "original_delivery_date",
-			Calendar: calendar, Optional: true}), nil
+			Calendar: calendar},
+	), nil
 }
 
 // CurrentTransportationServiceProviderID returns the id for the current TSP for a shipment
