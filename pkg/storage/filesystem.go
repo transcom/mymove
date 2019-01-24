@@ -50,7 +50,7 @@ func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, lo
 // NewFilesystem creates a new Filesystem struct using the provided FilesystemParams
 func NewFilesystem(params FilesystemParams) *Filesystem {
 	var fs = afero.NewOsFs()
-	var tempFs = afero.NewOsFs()
+	var tempFs = afero.NewMemMapFs()
 
 	return &Filesystem{
 		root:    params.root,

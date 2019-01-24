@@ -50,7 +50,7 @@ func NewMemoryParams(localStorageRoot string, localStorageWebRoot string, logger
 // NewMemory creates a new Memory struct using the provided MemoryParams
 func NewMemory(params MemoryParams) *Memory {
 	var fs = afero.NewMemMapFs()
-	var tempFs = afero.NewOsFs()
+	var tempFs = afero.NewMemMapFs()
 
 	return &Memory{
 		root:    params.root,
