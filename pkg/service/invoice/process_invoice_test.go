@@ -8,7 +8,9 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -36,6 +38,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 	processInvoice := ProcessInvoice{
 		DB:                    suite.DB(),
 		SendProductionInvoice: false,
+		ICNSequencer:          sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName),
 		// GexSender set by each test below.
 	}
 

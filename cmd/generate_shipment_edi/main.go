@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -10,16 +11,15 @@ import (
 	"os"
 	"strings"
 
-	"bytes"
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
@@ -29,7 +29,7 @@ import (
 	"github.com/transcom/mymove/pkg/service/invoice"
 )
 
-// Call this from command line with go run cmd/generate_shipment_edi/main.go -shipmentID <UUID> --approver <email>
+// Call this from command line with go run cmd/generate_shipment_edi/main.go --shipmentID <UUID> --approver <email>
 // Must use a shipment that is delivered, but not yet approved for payment (that does not already have a submitted invoice)
 func main() {
 	flag := pflag.CommandLine
@@ -41,7 +41,6 @@ func main() {
 	flag.String("gex-basic-auth-username", "", "GEX api auth username")
 	flag.String("gex-basic-auth-password", "", "GEX api auth password")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
-	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
 
 	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
@@ -99,7 +98,6 @@ func main() {
 		log.Fatal("Error in getting tls certs", err)
 	}
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
-	sendProdInvoice := v.GetBool("send-prod-invoice")
 	url := v.GetString("gex-url")
 	if len(url) == 0 {
 		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
@@ -112,7 +110,7 @@ func main() {
 		GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
 	}
 
-	resp, err := processInvoice(db, shipment, invoiceModel, &sendToGex, sendProdInvoice, &transactionName, sendToGexHTTP)
+	resp, err := processInvoice(db, shipment, invoiceModel, &sendToGex, &transactionName, sendToGexHTTP)
 	if resp != nil {
 		fmt.Printf("status code: %v\n", resp.StatusCode)
 	}
@@ -121,7 +119,7 @@ func main() {
 	}
 }
 
-func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex *bool, sendProdInvoice bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex *bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
 	defer func() {
 		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed
@@ -146,12 +144,22 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 		}
 	}()
 
-	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, sendProdInvoice, clock.New())
+	var icnSequencer sequence.Sequencer
+	if *sendToGex {
+		icnSequencer, err = sequence.NewRandomSequencer(100000000, 999999999)
+		if err != nil {
+			log.Fatal("Could not create random sequencer for ICN", err)
+		}
+	} else {
+		icnSequencer = sequence.NewDatabaseSequencer(db, ediinvoice.ICNSequenceName)
+	}
+
+	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, icnSequencer, clock.New())
 	if err != nil {
 		return nil, err
 	}
 
-	if *sendToGex == true {
+	if *sendToGex {
 		fmt.Println("Sending to GEX. . .")
 		invoice858CString, err := invoice858C.EDIString()
 		if err != nil {
@@ -162,7 +170,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 			log.Fatal("Gex Sender had no response", err)
 		}
 
-		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
+		fmt.Printf("status code: %v, error: %v\n", resp.StatusCode, err)
 	}
 	ediWriter := edi.NewWriter(os.Stdout)
 	err = ediWriter.WriteAll(invoice858C.Segments())

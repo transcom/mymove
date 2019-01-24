@@ -74,10 +74,10 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, icnSequencer sequence.Sequencer, clock clock.Clock) (Invoice858C, error) {
 	currentTime := clock.Now().UTC()
 
-	interchangeControlNumber, err := sequence.NextVal(db, ICNSequenceName)
+	interchangeControlNumber, err := icnSequencer.NextVal()
 	if err != nil {
 		return Invoice858C{}, errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
 	}
