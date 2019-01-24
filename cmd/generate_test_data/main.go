@@ -24,7 +24,7 @@ func main() {
 	flag.Parse()
 
 	//DB connection
-	err = pop.AddLookupPaths(*config)
+	err := pop.AddLookupPaths(*config)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -75,6 +75,9 @@ func main() {
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
 		// Initialize logger
 		logger, err := zap.NewDevelopment()
+		if err != nil {
+			log.Panic(err)
+		}
 
 		// Initialize storage and uploader
 		zap.L().Info("Using memory storage backend")
