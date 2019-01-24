@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
@@ -15,13 +16,13 @@ import (
 )
 
 // FetchShipmentSummaryWorksheetFormValues fetches the pages for the Shipment Summary Worksheet for a given Shipment ID
-func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, moveID uuid.UUID) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
+func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, move *Move) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
 	var err error
 	var ssfd ShipmentSummaryFormData
 	var page1 ShipmentSummaryWorksheetPage1Values
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 
-	ssfd, err = FetchDataShipmentSummaryWorksFormData(db, moveID)
+	ssfd, err = FetchDataShipmentSummaryWorksFormData(db, move)
 	if err != nil {
 		return page1, page2, err
 	}
@@ -31,24 +32,37 @@ func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, moveID uuid.UUI
 
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage1Values struct {
-	ServiceMemberName            string
-	MaxSITStorageEntitlement     string
-	PreferredPhone               string
-	PreferredEmail               string
-	DODId                        string
-	Rank                         string
-	IssuingBranchOrAgency        string
-	OrdersIssueDate              string
-	OrdersTypeAndOrdersNumber    string
-	DutyStationID                uuid.UUID
-	AuthorizedOrigin             DutyStation
-	NewDutyAssignment            string
-	WeightAllotmentSelf          string
-	WeightAllotmentProgear       string
-	WeightAllotmentProgearSpouse string
-	TotalWeightAllotment         string
-	POVAuthorized                string
-	TAC                          string
+	ServiceMemberName              string
+	MaxSITStorageEntitlement       string
+	PreferredPhone                 string
+	PreferredEmail                 string
+	DODId                          string
+	ServiceBranch                  string
+	Rank                           string
+	IssuingBranchOrAgency          string
+	OrdersIssueDate                string
+	OrdersTypeAndOrdersNumber      string
+	DutyStationID                  uuid.UUID
+	AuthorizedOrigin               DutyStation
+	NewDutyAssignment              string
+	WeightAllotmentSelf            string
+	WeightAllotmentProgear         string
+	WeightAllotmentProgearSpouse   string
+	TotalWeightAllotment           string
+	POVAuthorized                  string
+	TAC                            string
+	Shipment1NumberAndType         string
+	Shipment1PickUpDate            string
+	Shipment1Weight                string
+	Shipment1CurrentShipmentStatus string
+}
+
+//ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
+type ShipmentSummaryWorkSheetShipments struct {
+	ShipmentNumberAndType string
+	PickUpDate            string
+	ShipmentWeight        string
+	CurrentShipmentStatus string
 }
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
@@ -62,32 +76,31 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyStation DutyStation
 	NewDutyStation     DutyStation
 	WeightAllotment    WeightAllotment
+	Shipments          Shipments
 }
 
 // FetchDataShipmentSummaryWorksFormData fetches the data required for the Shipment Summary Worksheet
-func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, moveID uuid.UUID) (data ShipmentSummaryFormData, err error) {
+func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, move *Move) (data ShipmentSummaryFormData, err error) {
 	ssd := ShipmentSummaryFormData{}
-	reqFields, err := getRequiredFields(db, moveID)
+	ssd.Order = move.Orders
+	ssd.ServiceMember, err = FetchServiceMember(db, move.Orders.ServiceMemberID)
 	if err != nil {
 		return ssd, err
 	}
-	ssd.Order, err = FetchOrder(db, reqFields.OrdersID)
+	ssd.NewDutyStation = ssd.Order.NewDutyStation
+	ssd.CurrentDutyStation, err = FetchDutyStation(context.TODO(), db, *ssd.ServiceMember.DutyStationID)
 	if err != nil {
 		return ssd, err
 	}
-	ssd.ServiceMember, err = FetchServiceMember(db, reqFields.ServiceMemberID)
-	if err != nil {
-		return ssd, err
-	}
-	ssd.CurrentDutyStation, err = FetchDutyStation(context.TODO(), db, reqFields.ServiceMemberDutyStationID)
-	if err != nil {
-		return ssd, err
+	ssd.Shipments = move.Shipments
+	var rank ServiceMemberRank
+	if ssd.ServiceMember.Rank != nil {
+		rank = ServiceMemberRank(*ssd.ServiceMember.Rank)
 	}
 	ssd.NewDutyStation, err = FetchDutyStation(context.TODO(), db, ssd.Order.NewDutyStationID)
 	if err != nil {
 		return ssd, err
 	}
-	rank := ServiceMemberRank(reqFields.ServiceMemberRank)
 	ssd.WeightAllotment = GetWeightAllotment(rank)
 	return ssd, nil
 }
@@ -100,19 +113,13 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.POVAuthorized = "NO"
 
 	sm := data.ServiceMember
-	lastName := derefStringTypes(sm.LastName)
-	suffix := derefStringTypes(sm.Suffix)
-	firstName := derefStringTypes(sm.FirstName)
-	middleName := derefStringTypes(sm.MiddleName)
-	fullName := fmt.Sprintf("%s %s, %s %s", lastName, suffix, firstName, middleName)
-	page1.ServiceMemberName = fullName
+	page1.ServiceMemberName = FormatServiceMemberFullName(sm)
 	page1.PreferredPhone = derefStringTypes(sm.Telephone)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
-	page1.Rank = derefStringTypes(sm.Rank)
 
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
-	page1.OrdersIssueDate = FormatOrdersIssueDate(data.Order)
+	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 	page1.TAC = derefStringTypes(data.Order.TAC)
 
@@ -126,18 +133,73 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 		data.WeightAllotment.ProGearWeight +
 		data.WeightAllotment.ProGearWeightSpouse
 	page1.TotalWeightAllotment = FormatWeights(total)
+
+	formattedShipments := FormatShipments(data.Shipments)
+	if len(formattedShipments) != 0 {
+		page1.Shipment1NumberAndType = formattedShipments[0].ShipmentNumberAndType
+		page1.Shipment1PickUpDate = formattedShipments[0].PickUpDate
+		page1.Shipment1CurrentShipmentStatus = formattedShipments[0].CurrentShipmentStatus
+		page1.Shipment1Weight = formattedShipments[0].ShipmentWeight
+	}
 	return page1
+}
+
+//FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
+func FormatServiceMemberFullName(serviceMember ServiceMember) string {
+	lastName := derefStringTypes(serviceMember.LastName)
+	suffix := derefStringTypes(serviceMember.Suffix)
+	firstName := derefStringTypes(serviceMember.FirstName)
+	middleName := derefStringTypes(serviceMember.MiddleName)
+	if suffix != "" {
+		return fmt.Sprintf("%s %s, %s %s", lastName, suffix, firstName, middleName)
+	}
+	return strings.TrimSpace(fmt.Sprintf("%s, %s %s", lastName, firstName, middleName))
+}
+
+//FormatShipments formats Shipment line items for the Shipment Summary Worksheet
+func FormatShipments(shipments Shipments) []ShipmentSummaryWorkSheetShipments {
+	formattedShipments := make([]ShipmentSummaryWorkSheetShipments, len(shipments))
+	for i, shipment := range shipments {
+		formattedShipments[i].ShipmentNumberAndType = FormatShipmentNumberAndType(i)
+		formattedShipments[i].PickUpDate = FormatShipmentPickupDate(shipment)
+		formattedShipments[i].ShipmentWeight = FormatShipmentWeight(shipment)
+		formattedShipments[i].CurrentShipmentStatus = FormatCurrentShipmentStatus(shipment)
+	}
+	return formattedShipments
+}
+
+//FormatCurrentShipmentStatus formats FormatCurrentShipmentStatus for the Shipment Summary Worksheet
+func FormatCurrentShipmentStatus(shipment Shipment) string {
+	return FormatEnum(string(shipment.Status))
+}
+
+//FormatShipmentNumberAndType formats FormatShipmentNumberAndType for the Shipment Summary Worksheet
+func FormatShipmentNumberAndType(i int) string {
+	return fmt.Sprintf("%02d - PPM", i+1)
+}
+
+//FormatShipmentWeight formats a shipments ShipmentWeight for the Shipment Summary Worksheet
+func FormatShipmentWeight(shipment Shipment) string {
+	//TODO Several different Weight fields figure out which one to use
+	if shipment.NetWeight != nil {
+		wtg := FormatWeights(int(*shipment.NetWeight))
+		return fmt.Sprintf("%s lbs - FINAL", wtg)
+	}
+	return ""
+}
+
+//FormatShipmentPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
+func FormatShipmentPickupDate(shipment Shipment) string {
+	//TODO Check if want ActualPickupDate or RequestedPickupDate
+	if shipment.ActualPickupDate != nil {
+		return FormatDate(*shipment.ActualPickupDate)
+	}
+	return ""
 }
 
 //FormatDutyStation formats DutyStation for Shipment Summary Worksheet
 func FormatDutyStation(dutyStation DutyStation) string {
 	return fmt.Sprintf("%s, %s", dutyStation.Name, dutyStation.Address.State)
-}
-
-//FormatOrdersIssueDate formats Order.IssueDate for Shipment Summary Worksheet
-func FormatOrdersIssueDate(order Order) string {
-	dateLayout := "2-Jan-2006"
-	return order.IssueDate.Format(dateLayout)
 }
 
 //FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
@@ -150,8 +212,8 @@ func FormatOrdersTypeAndOrdersNumber(order Order) string {
 //FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
 func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) string {
 	if affiliation != nil {
-		words := strings.Split(strings.ToLower(string(*affiliation)), "_")
-		return strings.Title(strings.Join(words, " "))
+		formattedSerivceMeberAffiliation := FormatEnum(string(*affiliation))
+		return formattedSerivceMeberAffiliation
 	}
 	return ""
 }
@@ -166,33 +228,23 @@ func FormatOrdersType(order Order) string {
 	}
 }
 
+//FormatDate formats Dates for Shipment Summary Worksheet
+func FormatDate(date time.Time) string {
+	dateLayout := "2-Jan-2006"
+	return date.Format(dateLayout)
+}
+
+//FormatEnum titlecases string const types (e.g. THIS_CONSTANT -> This Constant)
+func FormatEnum(s string) string {
+	words := strings.Split(strings.ToLower(s), "_")
+	formattedSerivceMeberAffiliation := strings.Title(strings.Join(words, " "))
+	return formattedSerivceMeberAffiliation
+}
+
 //FormatWeights formats an int using 000s separator
 func FormatWeights(wtg int) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("%d", wtg)
-}
-
-type requiredFields struct {
-	OrdersID                   uuid.UUID `db:"orders_id"`
-	ServiceMemberID            uuid.UUID `db:"service_member_id"`
-	ServiceMemberDutyStationID uuid.UUID `db:"duty_station_id"`
-	ServiceMemberRank          string    `db:"rank"`
-}
-
-func getRequiredFields(db *pop.Connection, moveID uuid.UUID) (requiredFields, error) {
-	var err error
-	p := requiredFields{}
-	sql := `
-		SELECT orders_id,
-			   service_member_id,
-			   duty_station_id,
-			   rank
-		FROM moves m
-				 INNER JOIN orders o ON m.orders_id = o.id
-				 INNER JOIN service_members sm ON o.service_member_id = sm.id
-		WHERE m.id = $1`
-	err = db.RawQuery(sql, moveID).First(&p)
-	return p, err
 }
 
 func derefStringTypes(st interface{}) string {
@@ -203,11 +255,6 @@ func derefStringTypes(st interface{}) string {
 		}
 	case string:
 		return v
-	case *ServiceMemberRank:
-		if v != nil {
-			return string(*v)
-		}
-		return ""
 	}
 	return ""
 }

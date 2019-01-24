@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -240,12 +240,12 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	_, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), moveID)
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), move)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
