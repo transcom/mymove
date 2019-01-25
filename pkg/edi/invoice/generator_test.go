@@ -3,13 +3,13 @@ package ediinvoice_test
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/spf13/afero"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -153,7 +153,9 @@ func (suite *InvoiceSuite) TestEDIString() {
 		// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
 		update := suite.Viper.GetBool("update")
 		if update {
-			goldenFile, err := os.Create(filepath.Join("testdata", expectedEDI))
+			// Write to a temporary file system
+			fs := afero.NewMemMapFs()
+			goldenFile, err := fs.Create(filepath.Join("testdata", expectedEDI))
 			defer goldenFile.Close()
 			suite.NoError(err, "Failed to open EDI file for update")
 			writer := edi.NewWriter(goldenFile)
