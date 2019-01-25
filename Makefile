@@ -184,7 +184,7 @@ else
 ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
-	TEST_ACC_CWD=$$(PWD) \
+	TEST_ACC_CWD=$(PWD) \
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
 	bin/chamber exec app-$(TEST_ACC_ENV) -- \
@@ -192,7 +192,7 @@ ifndef CIRCLECI
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
-	TEST_ACC_CWD=$$(PWD) \
+	TEST_ACC_CWD=$(PWD) \
 	bin/chamber exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 endif
