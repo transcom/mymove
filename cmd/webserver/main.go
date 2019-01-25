@@ -919,6 +919,9 @@ func main() {
 		}
 
 		// Check and see if we should disable DB query with '?database=false'
+		// Disabling the DB is useful for Route53 health checks which require the TLS
+		// handshake be less than 4 seconds and the status code return in less than
+		// two seconds. https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html
 		showDB, ok := r.URL.Query()["database"]
 
 		// Always show DB unless key set to "false"
