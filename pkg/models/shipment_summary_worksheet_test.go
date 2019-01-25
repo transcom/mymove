@@ -114,23 +114,18 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("444-555-8888", sswPage1.PreferredPhone)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
 	suite.Equal("1234567890", sswPage1.DODId)
-	suite.Equal(string(serviceBranch), sswPage1.ServiceBranch)
 	suite.Equal(string(rank), sswPage1.Rank)
 
-	suite.Equal("012345", sswPage1.OrdersNumber)
-	suite.Equal(string(serviceBranch), sswPage1.IssuingAgency)
-	suite.True(orderIssueDate.Equal(sswPage1.OrderIssueDate))
-	suite.Equal(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, sswPage1.OrdersType)
+	suite.Equal("Air Force", sswPage1.IssuingBranchOrAgency)
+	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
+	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
 
 	suite.Equal(fortBragg.ID, sswPage1.AuthorizedOrigin.ID)
 	suite.Equal(fortBragg.Address.State, sswPage1.AuthorizedOrigin.Address.State)
 	suite.Equal(fortBragg.Address.City, sswPage1.AuthorizedOrigin.Address.City)
 	suite.Equal(fortBragg.Address.PostalCode, sswPage1.AuthorizedOrigin.Address.PostalCode)
 
-	suite.Equal(fortBenning.ID, sswPage1.AuthorizedDestination.ID)
-	suite.Equal(fortBenning.Address.State, sswPage1.AuthorizedDestination.Address.State)
-	suite.Equal(fortBenning.Address.City, sswPage1.AuthorizedDestination.Address.City)
-	suite.Equal(fortBenning.Address.PostalCode, sswPage1.AuthorizedDestination.Address.PostalCode)
+	suite.Equal("Fort Benning, GA", sswPage1.NewDutyAssignment)
 
 	suite.Equal("13,000", sswPage1.WeightAllotmentSelf)
 	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
@@ -143,4 +138,39 @@ func (suite *ModelSuite) TestFormatWeights() {
 	suite.Equal("10", models.FormatWeights(10))
 	suite.Equal("1,000", models.FormatWeights(1000))
 	suite.Equal("1,000,000", models.FormatWeights(1000000))
+}
+
+func (suite *ModelSuite) TestFormatDutyStation() {
+	fortBenning := models.DutyStation{Name: "Fort Benning", Address: models.Address{State: "GA"}}
+	yuma := models.DutyStation{Name: "Yuma AFB", Address: models.Address{State: "AZ"}}
+
+	suite.Equal("Fort Benning, GA", models.FormatDutyStation(fortBenning))
+	suite.Equal("Yuma AFB, AZ", models.FormatDutyStation(yuma))
+}
+
+func (suite *ModelSuite) TestFormatOrdersIssueDate() {
+	orderIssueDate1 := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+	dec212018 := models.Order{IssueDate: orderIssueDate1}
+	orderIssueDate2 := time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
+	jan012019 := models.Order{IssueDate: orderIssueDate2}
+
+	suite.Equal("21-Dec-2018", models.FormatOrdersIssueDate(dec212018))
+	suite.Equal("1-Jan-2019", models.FormatOrdersIssueDate(jan012019))
+}
+
+func (suite *ModelSuite) TestFormatOrdersType() {
+	pcsOrder := models.Order{OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION}
+	var unknownOrdersType internalmessages.OrdersType = "UNKNOWN_ORDERS_TYPE"
+	localMoveOrder := models.Order{OrdersType: unknownOrdersType}
+
+	suite.Equal("PCS", models.FormatOrdersType(pcsOrder))
+	suite.Equal("", models.FormatOrdersType(localMoveOrder))
+}
+
+func (suite *ModelSuite) TestFormatServiceMemberAffilation() {
+	airForce := models.AffiliationAIRFORCE
+	marines := models.AffiliationMARINES
+
+	suite.Equal("Air Force", models.FormatServiceMemberAffiliation(&airForce))
+	suite.Equal("Marines", models.FormatServiceMemberAffiliation(&marines))
 }

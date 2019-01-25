@@ -3,14 +3,15 @@ package models
 import (
 	"context"
 	"fmt"
-	"time"
+	"strings"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // FetchShipmentSummaryWorksheetFormValues fetches the pages for the Shipment Summary Worksheet for a given Shipment ID
@@ -35,16 +36,13 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	PreferredPhone               string
 	PreferredEmail               string
 	DODId                        string
-	ServiceBranch                string
 	Rank                         string
-	OrdersNumber                 string
-	IssuingAgency                string
-	OrderIssueDate               time.Time
-	OrdersType                   internalmessages.OrdersType
+	IssuingBranchOrAgency        string
+	OrdersIssueDate              string
+	OrdersTypeAndOrdersNumber    string
 	DutyStationID                uuid.UUID
 	AuthorizedOrigin             DutyStation
-	NewDutyStationID             uuid.UUID
-	AuthorizedDestination        DutyStation
+	NewDutyAssignment            string
 	WeightAllotmentSelf          string
 	WeightAllotmentProgear       string
 	WeightAllotmentProgearSpouse string
@@ -110,17 +108,15 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.PreferredPhone = derefStringTypes(sm.Telephone)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
-	page1.ServiceBranch = derefStringTypes(sm.Affiliation)
 	page1.Rank = derefStringTypes(sm.Rank)
 
-	o := data.Order
-	page1.OrdersNumber = derefStringTypes(o.OrdersNumber)
-	page1.IssuingAgency = derefStringTypes(o.OrdersIssuingAgency)
-	page1.OrderIssueDate = o.IssueDate
-	page1.OrdersType = o.OrdersType
+	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
+	page1.OrdersIssueDate = FormatOrdersIssueDate(data.Order)
+	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 
 	page1.AuthorizedOrigin = data.CurrentDutyStation
-	page1.AuthorizedDestination = data.NewDutyStation
+	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)
+
 	page1.WeightAllotmentSelf = FormatWeights(data.WeightAllotment.TotalWeightSelf)
 	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGearWeight)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.ProGearWeightSpouse)
@@ -129,6 +125,43 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 		data.WeightAllotment.ProGearWeightSpouse
 	page1.TotalWeightAllotment = FormatWeights(total)
 	return page1
+}
+
+//FormatDutyStation formats DutyStation for Shipment Summary Worksheet
+func FormatDutyStation(dutyStation DutyStation) string {
+	return fmt.Sprintf("%s, %s", dutyStation.Name, dutyStation.Address.State)
+}
+
+//FormatOrdersIssueDate formats Order.IssueDate for Shipment Summary Worksheet
+func FormatOrdersIssueDate(order Order) string {
+	dateLayout := "2-Jan-2006"
+	return order.IssueDate.Format(dateLayout)
+}
+
+//FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
+func FormatOrdersTypeAndOrdersNumber(order Order) string {
+	issuingBranch := FormatOrdersType(order)
+	ordersNumber := derefStringTypes(order.OrdersNumber)
+	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
+}
+
+//FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
+func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) string {
+	if affiliation != nil {
+		words := strings.Split(strings.ToLower(string(*affiliation)), "_")
+		return strings.Title(strings.Join(words, " "))
+	}
+	return ""
+}
+
+//FormatOrdersType formats OrdersType for Shipment Summary Worksheet
+func FormatOrdersType(order Order) string {
+	switch order.OrdersType {
+	case internalmessages.OrdersTypePERMANENTCHANGEOFSTATION:
+		return "PCS"
+	default:
+		return ""
+	}
 }
 
 //FormatWeights formats an int using 000s separator
@@ -169,11 +202,6 @@ func derefStringTypes(st interface{}) string {
 	case string:
 		return v
 	case *ServiceMemberRank:
-		if v != nil {
-			return string(*v)
-		}
-		return ""
-	case *ServiceMemberAffiliation:
 		if v != nil {
 			return string(*v)
 		}
