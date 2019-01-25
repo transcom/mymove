@@ -181,6 +181,7 @@ ifndef TEST_ACC_ENV
 	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
+ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$$(PWD) \
@@ -188,6 +189,13 @@ else
 	aws-vault exec $(AWS_PROFILE) -- \
 	chamber exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
+else
+	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_CWD=$$(PWD) \
+	chamber exec app-$(TEST_ACC_ENV) -- \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
+endif
 endif
 
 server_test: server_deps server_generate db_test_reset db_test_migrate
