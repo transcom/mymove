@@ -1,6 +1,6 @@
 import { get, has, isNull, sum } from 'lodash';
 
-export function getEntitlements(rank, hasDependents = false, spouseHasProGear = false) {
+export function getEntitlements(rank, hasDependents = false, spouseHasProGear = false, storage_in_transit = 90) {
   if (!has(entitlements, rank)) {
     return null;
   }
@@ -13,6 +13,7 @@ export function getEntitlements(rank, hasDependents = false, spouseHasProGear = 
     weight: rankEntitlement[totalKey],
     pro_gear: rankEntitlement.pro_gear_weight,
     pro_gear_spouse: spouseHasProGear ? rankEntitlement.pro_gear_weight_spouse : 0,
+    storage_in_transit: storage_in_transit,
   };
   entitlement.sum = sum([entitlement.weight, entitlement.pro_gear, entitlement.pro_gear_spouse]);
   return entitlement;
@@ -25,7 +26,8 @@ export function loadEntitlementsFromState(state) {
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
-  return getEntitlements(rank, hasDependents, spouseHasProGear);
+  const sit = 90;
+  return getEntitlements(rank, hasDependents, spouseHasProGear, sit);
 }
 
 /*
