@@ -164,7 +164,6 @@ build_tools: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
-	go build -i -ldflags "$(LDFLAGS)" -o bin/rateengine ./cmd/demo/rateengine.go
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
 tsp_run: build_tools db_dev_run
