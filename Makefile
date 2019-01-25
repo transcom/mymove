@@ -174,7 +174,7 @@ build: server_build build_tools client_build
 
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
-webserver_test: server_generate
+webserver_test: server_generate build_chamber
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -187,13 +187,13 @@ ifndef CIRCLECI
 	TEST_ACC_CWD=$$(PWD) \
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
-	chamber exec app-$(TEST_ACC_ENV) -- \
+	bin/chamber exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$$(PWD) \
-	chamber exec app-$(TEST_ACC_ENV) -- \
+	bin/chamber exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 endif
 endif
