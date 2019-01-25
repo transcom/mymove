@@ -405,7 +405,7 @@ class ShipmentInfo extends Component {
                     <StorageInTransitPanel
                       shipmentId={this.props.match.params.shipmentId}
                       /* TODO: use property to set entitlement SITEntitlement={this.props.entitlement.storage_in_transit} */
-                      SITEntitlement="90"
+                      SITEntitlement={90}
                     />
                   )}
 

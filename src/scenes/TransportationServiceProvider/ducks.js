@@ -126,8 +126,9 @@ export function loadEntitlements(state) {
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
-  const sit = 90;
-  return getEntitlements(rank, hasDependents, spouseHasProGear, sit);
+  /* TODO: const sit = 90;
+  *  return getEntitlements(rank, hasDependents, spouseHasProGear, sit); */
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 // Reducer
 const initialState = {
