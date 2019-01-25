@@ -268,6 +268,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            PWD: /home/circleci/go/src/github.com/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
       - announce_failure
@@ -496,6 +497,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            PWD: /home/circleci/go/src/github.com/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
