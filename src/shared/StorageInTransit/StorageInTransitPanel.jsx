@@ -22,7 +22,7 @@ export class StorageInTransitPanel extends Component {
 
   render() {
     return (
-      <div className="pre-approval-panel">
+      <div className="storage-in-transit-panel">
         <BasicPanel title={'Storage in Transit (SIT)'}>
           {this.state.error && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
@@ -52,7 +52,7 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createSITRequestInfo, deleteSITRequest, approveSITRequest, updateSITRequest },
+    { createSITRequest, deleteSITRequest, approveSITRequest, updateSITRequest },
     dispatch,
   );
 }
