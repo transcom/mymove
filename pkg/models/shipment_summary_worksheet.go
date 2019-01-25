@@ -1,10 +1,12 @@
 package models
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
@@ -16,13 +18,13 @@ import (
 )
 
 // FetchShipmentSummaryWorksheetFormValues fetches the pages for the Shipment Summary Worksheet for a given Shipment ID
-func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, move *Move) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
+func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
 	var err error
 	var ssfd ShipmentSummaryFormData
 	var page1 ShipmentSummaryWorksheetPage1Values
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 
-	ssfd, err = FetchDataShipmentSummaryWorksFormData(db, move)
+	ssfd, err = FetchDataShipmentSummaryWorksheetFormData(db, session, moveID)
 	if err != nil {
 		return page1, page2, err
 	}
@@ -42,7 +44,6 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	IssuingBranchOrAgency          string
 	OrdersIssueDate                string
 	OrdersTypeAndOrdersNumber      string
-	DutyStationID                  uuid.UUID
 	AuthorizedOrigin               DutyStation
 	NewDutyAssignment              string
 	WeightAllotmentSelf            string
@@ -79,29 +80,44 @@ type ShipmentSummaryFormData struct {
 	Shipments          Shipments
 }
 
-// FetchDataShipmentSummaryWorksFormData fetches the data required for the Shipment Summary Worksheet
-func FetchDataShipmentSummaryWorksFormData(db *pop.Connection, move *Move) (data ShipmentSummaryFormData, err error) {
-	ssd := ShipmentSummaryFormData{}
-	ssd.Order = move.Orders
-	ssd.ServiceMember, err = FetchServiceMember(db, move.Orders.ServiceMemberID)
+// FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
+func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (data ShipmentSummaryFormData, err error) {
+	move := Move{}
+	err = db.Q().Eager(
+		"Orders",
+		"Orders.NewDutyStation",
+		"Orders.ServiceMember",
+		"Orders.ServiceMember.DutyStation",
+		"Shipments",
+	).Find(&move, moveID)
+
 	if err != nil {
-		return ssd, err
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return ShipmentSummaryFormData{}, ErrFetchNotFound
+		}
+		return ShipmentSummaryFormData{}, err
 	}
-	ssd.NewDutyStation = ssd.Order.NewDutyStation
-	ssd.CurrentDutyStation, err = FetchDutyStation(context.TODO(), db, *ssd.ServiceMember.DutyStationID)
-	if err != nil {
-		return ssd, err
+
+	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
+	if authErr != nil {
+		return ShipmentSummaryFormData{}, authErr
 	}
-	ssd.Shipments = move.Shipments
+
+	serviceMember := move.Orders.ServiceMember
 	var rank ServiceMemberRank
-	if ssd.ServiceMember.Rank != nil {
-		rank = ServiceMemberRank(*ssd.ServiceMember.Rank)
+	if serviceMember.Rank != nil {
+		rank = ServiceMemberRank(*serviceMember.Rank)
 	}
-	ssd.NewDutyStation, err = FetchDutyStation(context.TODO(), db, ssd.Order.NewDutyStationID)
-	if err != nil {
-		return ssd, err
+	weightAllotment := GetWeightAllotment(rank)
+
+	ssd := ShipmentSummaryFormData{
+		ServiceMember:      serviceMember,
+		Order:              move.Orders,
+		CurrentDutyStation: serviceMember.DutyStation,
+		NewDutyStation:     move.Orders.NewDutyStation,
+		WeightAllotment:    weightAllotment,
+		Shipments:          move.Shipments,
 	}
-	ssd.WeightAllotment = GetWeightAllotment(rank)
 	return ssd, nil
 }
 
@@ -135,6 +151,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.TotalWeightAllotment = FormatWeights(total)
 
 	formattedShipments := FormatShipments(data.Shipments)
+	// This will need to be revised slightly to handle multiple shipments
 	if len(formattedShipments) != 0 {
 		page1.Shipment1NumberAndType = formattedShipments[0].ShipmentNumberAndType
 		page1.Shipment1PickUpDate = formattedShipments[0].PickUpDate

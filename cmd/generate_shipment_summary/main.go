@@ -7,10 +7,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 )
@@ -54,8 +54,7 @@ func main() {
 		formFiller.Debug()
 	}
 
-	move, err := models.FetchMove(db, &auth.Session{}, parsedID)
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, move)
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, &auth.Session{}, parsedID)
 	noErr(err)
 
 	// page 1
