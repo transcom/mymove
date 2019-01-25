@@ -881,8 +881,8 @@ func main() {
 	// test ICNs in Syncada.
 	var icnSequencer sequence.Sequencer
 	if isDevOrTest && len(gexURL) > 0 {
-		// ICNs are 9-digit numbers; reserve the ones >= 100 million for development/testing.
-		icnSequencer, err = sequence.NewRandomSequencer(100000000, 999999999)
+		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
+		icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
 		if err != nil {
 			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}

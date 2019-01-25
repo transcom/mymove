@@ -149,7 +149,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 
 	var icnSequencer sequence.Sequencer
 	if sendToGex {
-		icnSequencer, err = sequence.NewRandomSequencer(100000000, 999999999)
+		icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
 		if err != nil {
 			log.Fatal("Could not create random sequencer for ICN", err)
 		}

@@ -5,6 +5,7 @@ import (
 	"math/rand"
 )
 
+// randomSequencer represents a sequencer that produces a random number between min and max, inclusive
 type randomSequencer struct {
 	min int64
 	max int64

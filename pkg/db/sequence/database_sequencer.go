@@ -7,6 +7,7 @@ import (
 // Using PostgreSQL Sequences
 // https://www.postgresql.org/docs/10/sql-createsequence.html
 
+// databaseSequencer represents a database-backed sequence with the given connection and sequence name
 type databaseSequencer struct {
 	db           *pop.Connection
 	sequenceName string
