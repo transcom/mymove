@@ -15,15 +15,7 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9
-	originalPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	requestedPickupDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	originalDeliveryDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	pmSurveyPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	pmSurveyPickupDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	pmSurveyDeliveryDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	actualPackDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	actualPickupDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
-	actualDeliveryDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	weekendDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
 
 	shipment := &Shipment{
 		EstimatedPackDays:           &packDays,
@@ -31,15 +23,15 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		WeightEstimate:              &weightEstimate,
 		ProgearWeightEstimate:       &progearWeightEstimate,
 		SpouseProgearWeightEstimate: &spouseProgearWeightEstimate,
-		RequestedPickupDate:         &requestedPickupDate,
-		OriginalDeliveryDate:        &originalDeliveryDate,
-		OriginalPackDate:            &originalPackDate,
-		PmSurveyPlannedPackDate:     &pmSurveyPackDate,
-		PmSurveyPlannedPickupDate:   &pmSurveyPickupDate,
-		PmSurveyPlannedDeliveryDate: &pmSurveyDeliveryDate,
-		ActualPackDate:              &actualPackDate,
-		ActualPickupDate:            &actualPickupDate,
-		ActualDeliveryDate:          &actualDeliveryDate,
+		RequestedPickupDate:         &weekendDate,
+		OriginalDeliveryDate:        &weekendDate,
+		OriginalPackDate:            &weekendDate,
+		PmSurveyPlannedPackDate:     &weekendDate,
+		PmSurveyPlannedPickupDate:   &weekendDate,
+		PmSurveyPlannedDeliveryDate: &weekendDate,
+		ActualPackDate:              &weekendDate,
+		ActualPickupDate:            &weekendDate,
+		ActualDeliveryDate:          &weekendDate,
 	}
 
 	expErrors := map[string][]string{

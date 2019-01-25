@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -39,8 +37,8 @@ func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.DB())
 	order2 := testdatagen.MakeDefaultOrder(suite.DB())
 
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	pickupDate := testdatagen.SampleMondayDate
+	deliveryDate := pickupDate.AddDate(0, 0, 1)
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 
@@ -143,8 +141,8 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 	// Create hhg (shipment) on this move
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	pickupDate := testdatagen.SampleMondayDate
+	deliveryDate := pickupDate.AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
@@ -259,8 +257,8 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	serviceMember.DutyStation = dutyStation
 	suite.MustSave(&serviceMember)
 
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	pickupDate := testdatagen.SampleMondayDate
+	deliveryDate := pickupDate.AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
 	sourceGBLOC := "BMLK"
