@@ -30,7 +30,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 
 	pickupDate := blackoutStartDate.Add(time.Hour)
-	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 60)
+	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 61) // +1 to avoid weekend
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
