@@ -912,15 +912,25 @@ func main() {
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
-		err := dbConnection.RawQuery("SELECT 1;").Exec()
-		if err != nil {
-			logger.Error("Failed database health check", zap.Error(err))
-		}
-		err = json.NewEncoder(w).Encode(map[string]interface{}{
+
+		data := map[string]interface{}{
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
-			"database":  err == nil,
-		})
+		}
+
+		// Check and see if we should disable DB query with '?database=false'
+		showDB, ok := r.URL.Query()["database"]
+
+		// Always show DB unless key set to "false"
+		if !ok || (ok && showDB[0] != "false") {
+			dbErr := dbConnection.RawQuery("SELECT 1;").Exec()
+			if dbErr != nil {
+				logger.Error("Failed database health check", zap.Error(dbErr))
+			}
+			data["database"] = dbErr == nil
+		}
+
+		err := json.NewEncoder(w).Encode(data)
 		if err != nil {
 			logger.Error("Failed encoding health check response", zap.Error(err))
 		}
