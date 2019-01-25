@@ -11,9 +11,9 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 	SourceTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 	DestinationTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
-	packDate := time.Now()
-	pickupDate := time.Now().AddDate(0, 0, 1)
-	deliveryDate := time.Now().AddDate(0, 0, 2)
+	packDate := time.Date(2019, time.January, 22, 0, 0, 0, 0, time.UTC)
+	pickupDate := packDate.AddDate(0, 0, 1)
+	deliveryDate := packDate.AddDate(0, 0, 2)
 	edipi := "123456"
 	gblNumber := "ABC12345"
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
