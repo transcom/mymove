@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"time"
-
 	"github.com/go-openapi/swag"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -24,8 +22,8 @@ func (suite *ModelSuite) Test_ShipmentOfferValidations() {
 // Test_CreateShipmentOffer tests that a shipment is created when expected
 func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	t := suite.T()
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	pickupDate := testdatagen.SampleMondayDate
+	deliveryDate := pickupDate.AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
 	tspp := testdatagen.MakeDefaultTSPPerformance(suite.DB())
