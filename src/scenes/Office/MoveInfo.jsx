@@ -40,6 +40,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
@@ -100,14 +101,14 @@ const HHGTabContent = props => {
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
-      <Dates title="Dates" shipment={props.shipment} update={props.updatePublicShipment} />
+      <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
       <LocationsContainer update={props.updatePublicShipment} shipmentId={props.shipment.id} />
       <Weights title="Weights & Items" shipment={props.shipment} update={props.updatePublicShipment} />
       {props.officeShipment && (
         <PremoveSurvey
           title="Premove Survey"
           shipment={props.officeShipment}
-          update={props.updatePublicShipment}
+          update={props.patchShipment}
           error={props.surveyError}
         />
       )}
@@ -327,6 +328,7 @@ class MoveInfo extends Component {
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
                     officeShipment={this.props.officeShipment}
+                    patchShipment={this.props.patchShipment}
                     updatePublicShipment={this.props.updatePublicShipment}
                     moveId={this.props.match.params.moveId}
                     shipment={this.props.shipment}
@@ -505,6 +507,7 @@ const mapDispatchToProps = dispatch =>
       resetMove,
       getTspForShipment,
       getServiceAgentsForShipment,
+      patchShipment,
     },
     dispatch,
   );
