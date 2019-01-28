@@ -63,7 +63,6 @@ func (suite *CreateFormSuite) TestCreateFormFileStorerCreateSuccess() {
 	afs := &afero.Afero{Fs: fs}
 	f, _ := afs.TempFile("", "ioutil-test")
 
-	//fileStorer := new(mocks.FileCreator)
 	fileStorer := &mocks.FileCreator{}
 	fileStorer.On("Create", mock.AnythingOfType("string")).Return(f, nil).Times(2)
 
@@ -83,6 +82,33 @@ func (suite *CreateFormSuite) TestCreateFormFileStorerCreateSuccess() {
 }
 
 func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
+	aferoFile := &mocks.File{}
+	var offset int64
+	//var whence = 0
+	aferoFile.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil).Times(1)
+	aferoFile.On("Seek", mock.AnythingOfType("int64"), mock.AnythingOfType("int")).Return(offset, nil).Times(1)
+	aferoFile.On("Read", mock.AnythingOfType("[]uint8")).Return(1, nil)
+
+	fileStorer := &mocks.FileCreator{}
+	fileStorer.On("Create", mock.AnythingOfType("string")).Return(aferoFile, nil).Times(2)
+
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.DB(), tspUser)
+	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
+	suite.MustSave(&shipment.Move.Orders)
+
+	gbl, _ := models.FetchGovBillOfLadingExtractor(suite.DB(), shipment.ID)
+
+	createFormService := CreateForm{FileStorer: fileStorer}
+	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), file)
+	fileStorer.AssertExpectations(suite.T())
+}
+
+/*
+func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
 	fs := afero.NewMemMapFs()
 	afs := &afero.Afero{Fs: fs}
 	f, _ := afs.TempFile("", "ioutil-test")
@@ -90,7 +116,6 @@ func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
 	fileStorer := new(mocks.FileCreator)
 	fileStorer.On("Create", mock.AnythingOfType("string")).Return(f, nil).Times(2)
 
-	//p := []byte{2, 3, 5}
 	fileInteractor := new(mocks.FileInteractor)
 	fileInteractor.On("Write", mock.AnythingOfType("byte slice")).Return(1, nil).Times(1)
 
@@ -107,3 +132,4 @@ func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
 	assert.NotNil(suite.T(), file)
 	fileInteractor.AssertExpectations(suite.T())
 }
+*/
