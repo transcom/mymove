@@ -11,26 +11,41 @@ export class StorageInTransitPanel extends Component {
   constructor() {
     super();
     this.state = {
-      isRequestActionable: true,
       isCreatorActionable: true,
       error: null,
     };
   }
+
   closeError = () => {
     this.setState({ error: null });
+  };
+
+  error = () => {
+    const { error } = this.state;
+    return error;
+  };
+
+  isCreatorActionable = () => {
+    const { isCreatorActionable } = this.state;
+    return isCreatorActionable;
+  };
+
+  sitEntitlement = () => {
+    const { sitEntitlement } = this.props;
+    return sitEntitlement;
   };
 
   render() {
     return (
       <div className="storage-in-transit-panel">
-        <BasicPanel title={'Storage in Transit (SIT)'}>
-          {this.state.error && (
+        <BasicPanel title="Storage in Transit (SIT)">
+          {this.error() && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
               <span className="warning--header">Please refresh the page and try again.</span>
             </Alert>
           )}
-          <div className="column-subhead">Entitlement: {this.props.SITEntitlement} days</div>
-          {this.state.isCreatorActionable && <Creator SITRequests={this.props.SITRequests} />}
+          <div className="column-subhead">Entitlement: {this.sitEntitlement()} days</div>
+          {this.isCreatorActionable() && <Creator />}
         </BasicPanel>
       </div>
     );
@@ -38,21 +53,21 @@ export class StorageInTransitPanel extends Component {
 }
 
 StorageInTransitPanel.propTypes = {
-  SITRequests: PropTypes.array,
+  sitRequests: PropTypes.array,
   shipmentId: PropTypes.string,
-  SITEntitlement: PropTypes.number,
+  sitEntitlement: PropTypes.number,
 };
 
 /*
 function mapStateToProps(state, ownProps) {
   return {
-    SITRequests: selectSortedSITRequests(state, ownProps.shipmentId),
+    sitRequests: selectSortedSitRequests(state, ownProps.shipmentId),
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createSITRequest, deleteSITRequest, approveSITRequest, updateSITRequest },
+    { createSitRequest, deleteSitRequest, approveSitRequest, updateSitRequest },
     dispatch,
   );
 }

@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
-import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 export class Creator extends Component {
-  state = { showForm: false, closeOnSubmit: true };
+  state = {};
+
+  openForm = e => {
+    e.preventDefault();
+  };
 
   render() {
-    if (this.state.showForm)
-      return {
-        /* TODO: Render form here */
-      };
     return (
       <div className="add-request">
         <a onClick={this.openForm}>
@@ -23,29 +23,15 @@ export class Creator extends Component {
     );
   }
 }
-Creator.propTypes = {
-  SITRequests: PropTypes.array,
-};
+
+Creator.propTypes = {};
 
 function mapStateToProps(state) {
-  return {
-    /*
-    formEnabled: isValid(SITRequestFormName)(state) && !isSubmitting(SITRequestFormName)(state),
-    hasSubmitSucceeded: hasSubmitSucceeded(SITRequestFormName)(state),
-    */
-  };
+  return {};
 }
 
 function mapDispatchToProps(dispatch) {
   // Bind an action, which submit the form by its name
-  return bindActionCreators(
-    {
-      /*
-      submitForm: () => submit(SITRequestFormName),
-      clearForm: () => reset(SITRequestFormName),
-      */
-    },
-    dispatch,
-  );
+  return bindActionCreators({}, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);

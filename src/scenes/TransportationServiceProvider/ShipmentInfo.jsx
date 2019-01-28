@@ -32,6 +32,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -403,9 +404,10 @@ class ShipmentInfo extends Component {
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   {!isProduction && (
                     <StorageInTransitPanel
+                      sitRequests={this.props.sitRequests}
                       shipmentId={this.props.match.params.shipmentId}
                       /* TODO: use property to set entitlement SITEntitlement={this.props.entitlement.storage_in_transit} */
-                      SITEntitlement={90}
+                      sitEntitlement={90}
                     />
                   )}
 
@@ -482,6 +484,7 @@ const mapStateToProps = state => {
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
     entitlement: loadEntitlements(state),
+    sitRequests: selectSitRequests(),
   };
 };
 
