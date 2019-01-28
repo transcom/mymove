@@ -85,7 +85,9 @@ export class LocationSearch extends Component {
           Location
         </label>
         <div>
-          {this.props.ship_line_item_schema.properties.location['x-display-value'][this.props.filteredLocations[0]]}
+          <strong>
+            {this.props.ship_line_item_schema.properties.location['x-display-value'][this.props.filteredLocations[0]]}
+          </strong>
         </div>
       </Fragment>
     ) : (
