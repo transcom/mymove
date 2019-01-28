@@ -20,32 +20,19 @@ export class StorageInTransitPanel extends Component {
     this.setState({ error: null });
   };
 
-  error = () => {
-    const { error } = this.state;
-    return error;
-  };
-
-  isCreatorActionable = () => {
-    const { isCreatorActionable } = this.state;
-    return isCreatorActionable;
-  };
-
-  sitEntitlement = () => {
-    const { sitEntitlement } = this.props;
-    return sitEntitlement;
-  };
-
   render() {
+    const { sitEntitlement } = this.props;
+    const { error, isCreatorActionable } = this.state;
     return (
       <div className="storage-in-transit-panel">
         <BasicPanel title="Storage in Transit (SIT)">
-          {this.error() && (
+          {error && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
               <span className="warning--header">Please refresh the page and try again.</span>
             </Alert>
           )}
-          <div className="column-subhead">Entitlement: {this.sitEntitlement()} days</div>
-          {this.isCreatorActionable() && <Creator />}
+          <div className="column-subhead">Entitlement: {sitEntitlement} days</div>
+          {isCreatorActionable && <Creator />}
         </BasicPanel>
       </div>
     );
