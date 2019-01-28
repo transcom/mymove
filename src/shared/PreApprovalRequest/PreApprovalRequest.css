@@ -93,7 +93,7 @@
   max-width: 100% !important;
 }
 
-.pre-approval-panel-modal textarea {
+.pre-approval-panel-modal textarea[name='description'] {
   height: 8rem !important;
 }
 
