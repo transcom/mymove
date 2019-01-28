@@ -17,6 +17,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"OrdersTypeAndOrdersNumber":    FormField(54, 85, 44, floatPtr(10), nil),
 		"IssuingBranchOrAgency":        FormField(103, 85, 47, floatPtr(10), nil),
 		"NewDutyAssignment":            FormField(154, 85, 60, floatPtr(10), nil),
+		"TAC":                          FormField(53, 233, 45, floatPtr(10), nil),
 	},
 }
 

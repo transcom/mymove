@@ -48,6 +48,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	WeightAllotmentProgearSpouse string
 	TotalWeightAllotment         string
 	POVAuthorized                string
+	TAC                          string
 }
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
@@ -113,6 +114,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatOrdersIssueDate(data.Order)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
+	page1.TAC = derefStringTypes(data.Order.TAC)
 
 	page1.AuthorizedOrigin = data.CurrentDutyStation
 	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)

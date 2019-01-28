@@ -98,6 +98,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		OrdersNumber:        models.StringPointer("012345"),
 		NewDutyStationID:    fortBenning.ID,
 		OrdersIssuingAgency: models.StringPointer(string(serviceBranch)),
+		TAC:                 models.StringPointer("NTA4"),
 	}
 	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:      serviceMember,
@@ -119,6 +120,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("Air Force", sswPage1.IssuingBranchOrAgency)
 	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
 	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
+	suite.Equal("NTA4", sswPage1.TAC)
 
 	suite.Equal(fortBragg.ID, sswPage1.AuthorizedOrigin.ID)
 	suite.Equal(fortBragg.Address.State, sswPage1.AuthorizedOrigin.Address.State)
