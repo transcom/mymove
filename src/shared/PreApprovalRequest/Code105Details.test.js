@@ -83,7 +83,7 @@ describe('code 105B/E details component', () => {
 
     it('without crashing', () => {
       // eslint-disable-next-line
-      expect(wrapper.exists('div')).toBe(true);
+      expect(wrapper.exists('SwaggerField')).toBe(true);
     });
   });
 });
