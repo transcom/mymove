@@ -239,13 +239,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	// Validate that this move belongs to the current user
-	_, err := models.FetchMove(h.DB(), session, moveID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), moveID)
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), session, moveID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

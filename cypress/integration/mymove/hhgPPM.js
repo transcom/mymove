@@ -30,8 +30,20 @@ describe('service member adds a ppm to an hhg', function() {
     serviceMemberVerifiesPPMDatesAndLocationsEdited();
     serviceMemberEditsPPMWeight();
     serviceMemberVerifiesPPMWeightsEdited();
+    serviceMemberGoesBackToHomepage();
   });
 });
+
+function serviceMemberGoesBackToHomepage() {
+  cy
+    .get('.back-to-home')
+    .contains('BACK TO HOME')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.eq('/');
+  });
+}
 
 function serviceMemberEditsHHGMoveDates() {
   cy.get('[data-cy="edit-move"]').click();

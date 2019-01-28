@@ -21,6 +21,7 @@ type Filesystem struct {
 	webRoot string
 	logger  *zap.Logger
 	fs      *afero.Afero
+	tempFs  *afero.Afero
 }
 
 // FilesystemParams contains parameter for instantiating a Filesystem storage backend
@@ -49,12 +50,14 @@ func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, lo
 // NewFilesystem creates a new Filesystem struct using the provided FilesystemParams
 func NewFilesystem(params FilesystemParams) *Filesystem {
 	var fs = afero.NewOsFs()
+	var tempFs = afero.NewMemMapFs()
 
 	return &Filesystem{
 		root:    params.root,
 		webRoot: params.webRoot,
 		logger:  params.logger,
 		fs:      &afero.Afero{Fs: fs},
+		tempFs:  &afero.Afero{Fs: tempFs},
 	}
 }
 
@@ -112,6 +115,11 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 // FileSystem returns the underlying afero filesystem
 func (fs *Filesystem) FileSystem() *afero.Afero {
 	return fs.fs
+}
+
+// TempFileSystem returns the temporary afero filesystem
+func (fs *Filesystem) TempFileSystem() *afero.Afero {
+	return fs.tempFs
 }
 
 // NewFilesystemHandler returns an Handler that adds a Content-Type header so that
