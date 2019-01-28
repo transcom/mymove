@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"

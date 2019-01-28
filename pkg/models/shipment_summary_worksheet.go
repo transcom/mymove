@@ -197,7 +197,6 @@ func FormatShipmentNumberAndType(i int) string {
 
 //FormatShipmentWeight formats a shipments ShipmentWeight for the Shipment Summary Worksheet
 func FormatShipmentWeight(shipment Shipment) string {
-	//TODO Several different Weight fields figure out which one to use
 	if shipment.NetWeight != nil {
 		wtg := FormatWeights(int(*shipment.NetWeight))
 		return fmt.Sprintf("%s lbs - FINAL", wtg)
@@ -207,7 +206,6 @@ func FormatShipmentWeight(shipment Shipment) string {
 
 //FormatShipmentPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatShipmentPickupDate(shipment Shipment) string {
-	//TODO Check if want ActualPickupDate or RequestedPickupDate
 	if shipment.ActualPickupDate != nil {
 		return FormatDate(*shipment.ActualPickupDate)
 	}
