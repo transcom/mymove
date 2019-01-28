@@ -20,7 +20,6 @@ type CreateForm struct {
 }
 
 // Call creates a form with the given data
-// TODO should it be *CreateForm
 func (c CreateForm) Call(data interface{}, formLayout paperwork.FormLayout, fileName string, formType string) (afero.File, error) {
 	// Read in bytes from Asset pkg
 	asset, err := assets.Asset(formLayout.TemplateImagePath)

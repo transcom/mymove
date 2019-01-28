@@ -1,10 +1,8 @@
 package publicapi
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/assets"
 	"net/http"
 	"time"
 

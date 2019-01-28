@@ -48,7 +48,7 @@ func (suite *CreateFormSuite) TestCreateFormFileStorerCreateFail() {
 	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
 	suite.MustSave(&shipment.Move.Orders)
 
-	gbl, _ := models.FetchGovBillOfLadingExtractor(suite.DB(), shipment.ID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
 
 	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
 
@@ -71,7 +71,7 @@ func (suite *CreateFormSuite) TestCreateFormFileStorerCreateSuccess() {
 	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
 	suite.MustSave(&shipment.Move.Orders)
 
-	gbl, _ := models.FetchGovBillOfLadingExtractor(suite.DB(), shipment.ID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
 
 	createFormService := CreateForm{FileStorer: fileStorer}
 	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
@@ -97,7 +97,7 @@ func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
 	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
 	suite.MustSave(&shipment.Move.Orders)
 
-	gbl, _ := models.FetchGovBillOfLadingExtractor(suite.DB(), shipment.ID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
 
 	createFormService := CreateForm{FileStorer: fileStorer}
 	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
