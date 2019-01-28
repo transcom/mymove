@@ -422,3 +422,6 @@ _Regenerate
 transportation_service_provider_performances
 transportation_service_provider_performances
  - ./docs/data/tspp-data-creation.md
+ - ./docs/how-to/display-dates-and-times.md
+DD-Mon-YYYY
+29-Mar-2018
