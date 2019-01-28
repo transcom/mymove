@@ -109,9 +109,11 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStation:     fortGordon,
 		WeightAllotment:    wtgEntitlements,
 		Shipments:          shipments,
+		PreparationDate:    time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 	}
-
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
+
+	suite.Equal("01-Jan-2019", sswPage1.PreparationDate)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)

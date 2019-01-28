@@ -3407,6 +3407,12 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - in: query
+          name: preparationDate
+          type: string
+          format: date
+          required: true
+          description: The preparationDate of PDF
       produces:
         - application/pdf
       responses:
