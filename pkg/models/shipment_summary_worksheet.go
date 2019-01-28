@@ -229,8 +229,7 @@ func FormatOrdersTypeAndOrdersNumber(order Order) string {
 //FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
 func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) string {
 	if affiliation != nil {
-		formattedSerivceMeberAffiliation := FormatEnum(string(*affiliation))
-		return formattedSerivceMeberAffiliation
+		return FormatEnum(string(*affiliation))
 	}
 	return ""
 }
@@ -254,8 +253,7 @@ func FormatDate(date time.Time) string {
 //FormatEnum titlecases string const types (e.g. THIS_CONSTANT -> This Constant)
 func FormatEnum(s string) string {
 	words := strings.Split(strings.ToLower(s), "_")
-	formattedSerivceMeberAffiliation := strings.Title(strings.Join(words, " "))
-	return formattedSerivceMeberAffiliation
+	return strings.Title(strings.Join(words, " "))
 }
 
 //FormatWeights formats an int using 000s separator

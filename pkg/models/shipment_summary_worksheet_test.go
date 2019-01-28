@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -50,12 +49,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	if len(ssd.Shipments) == 1 {
-		suite.Equal(shipment.ID, ssd.Shipments[0].ID)
-	} else {
-		msg := fmt.Sprintf("Expected len(ssd.Shipments) %d != 1", len(ssd.Shipments))
-		suite.Fail(msg)
-	}
+	suite.Require().Len(ssd.Shipments, 1)
+	suite.Equal(shipment.ID, ssd.Shipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
 	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
@@ -183,7 +178,7 @@ func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 	multipleShipmentsFormatted := models.FormatShipments(multipleShipments)
 
 	suite.Equal("01 - PPM", models.FormatShipments(singleShipment)[0].ShipmentNumberAndType)
-	suite.Len(multipleShipmentsFormatted, 2)
+	suite.Require().Len(multipleShipmentsFormatted, 2)
 	suite.Equal("01 - PPM", multipleShipmentsFormatted[0].ShipmentNumberAndType)
 	suite.Equal("02 - PPM", multipleShipmentsFormatted[1].ShipmentNumberAndType)
 
