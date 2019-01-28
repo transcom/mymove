@@ -114,7 +114,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatOrdersIssueDate(data.Order)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
-	page1.TAC = derefStringTypes(o.TAC)
+	page1.TAC = derefStringTypes(data.Order.TAC)
 
 	page1.AuthorizedOrigin = data.CurrentDutyStation
 	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)
