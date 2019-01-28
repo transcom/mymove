@@ -47,7 +47,7 @@
 }
 
 .cancel-link {
-  padding: 1em;
+  padding: 1em 1em 1em 0;
   cursor: pointer;
 }
 .pre-approval-panel th,
@@ -89,8 +89,16 @@
   padding-bottom: 9px;
 }
 
+.pre-approval-panel-modal .usa-grid-full {
+  max-width: 100% !important;
+}
+
+.pre-approval-panel-modal textarea {
+  height: 8rem !important;
+}
+
 .pre-approval-edit {
-  background-color: #F6FDFE;
+  background-color: #f6fdfe;
 }
 
 .pre-approval-panel-modal .title {
@@ -152,8 +160,8 @@ tr.delete-active {
   border-top: 2px dashed #00a6d2;
   border-left: 2px dashed #00a6d2;
   border-right: 2px dashed #00a6d2;
-  border-bottom: 2px solid #6BD7F4;
-  background-color: #D3F3FA;
+  border-bottom: 2px solid #6bd7f4;
+  background-color: #d3f3fa;
 }
 
 tr.delete-active td {
@@ -164,7 +172,7 @@ tr.delete-confirm-row td.delete-confirm {
   border-bottom: 2px dashed #00a6d2;
   border-left: 2px dashed #00a6d2;
   border-right: 2px dashed #00a6d2;
-  background-color: #F6FDFE;
+  background-color: #f6fdfe;
 
   display: table-cell;
   border-collapse: collapse;
