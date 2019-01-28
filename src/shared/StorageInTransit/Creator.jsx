@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
+import './StorageInTransitPanel.css';
+
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -14,7 +16,7 @@ export class Creator extends Component {
 
   render() {
     return (
-      <div className="add-request">
+      <div className="add-request storage-in-transit-hr-top">
         <a onClick={this.openForm}>
           <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
           Request SIT
