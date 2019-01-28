@@ -244,7 +244,7 @@ func FormatOrdersType(order Order) string {
 
 //FormatDate formats Dates for Shipment Summary Worksheet
 func FormatDate(date time.Time) string {
-	dateLayout := "2-Jan-2006"
+	dateLayout := "02-Jan-2006"
 	return date.Format(dateLayout)
 }
 

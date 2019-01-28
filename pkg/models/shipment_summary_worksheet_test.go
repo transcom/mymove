@@ -156,9 +156,6 @@ func (suite *ModelSuite) TestFormatServiceMemberFullName() {
 		LastName:  models.StringPointer("Smith"),
 	}
 
-	//TODO confirm formatting of name in pivotal #162922723 showed name formatted as
-	//TODO Smith, Jr., Tom James but based on form seems like should maybe be
-	//TODO Smith, Tom Jr., James
 	suite.Equal("Smith Jr., Tom James", models.FormatServiceMemberFullName(sm1))
 	suite.Equal("Smith, Tom", models.FormatServiceMemberFullName(sm2))
 }
@@ -195,7 +192,7 @@ func (suite *ModelSuite) TestFormatPickupDate() {
 	pickupDate := time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)
 	shipment := models.Shipment{ActualPickupDate: &pickupDate}
 
-	suite.Equal("1-Dec-2018", models.FormatShipmentPickupDate(shipment))
+	suite.Equal("01-Dec-2018", models.FormatShipmentPickupDate(shipment))
 }
 
 func (suite *ModelSuite) TestFormatWeights() {
@@ -218,7 +215,7 @@ func (suite *ModelSuite) TestFormatOrdersIssueDate() {
 	jan012019 := time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 	suite.Equal("21-Dec-2018", models.FormatDate(dec212018))
-	suite.Equal("1-Jan-2019", models.FormatDate(jan012019))
+	suite.Equal("01-Jan-2019", models.FormatDate(jan012019))
 }
 
 func (suite *ModelSuite) TestFormatOrdersType() {
