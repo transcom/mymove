@@ -8,7 +8,7 @@ import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
+import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
@@ -22,7 +22,7 @@ import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import Dates from 'shared/ShipmentDates';
 import RoutingPanel from './Hhg/RoutingPanel';
-import TspContainer from 'shared/TspPanel/TspContainer';
+import ServiceAgentsContainer from './Hhg/ServiceAgentsContainer';
 import Weights from 'shared/ShipmentWeights';
 import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
@@ -40,9 +40,11 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
+import { patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
+import { getPublicShipment, updatePublicShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
 import {
   loadMoveDependencies,
@@ -54,7 +56,6 @@ import {
   sendHHGInvoice,
   resetMove,
 } from './ducks';
-import { loadShipmentDependencies, patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -101,7 +102,7 @@ const HHGTabContent = props => {
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
       <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
-      <LocationsContainer update={props.patchShipment} />
+      <LocationsContainer update={props.updatePublicShipment} shipmentId={props.shipment.id} />
       <Weights title="Weights & Items" shipment={props.shipment} update={props.updatePublicShipment} />
       {props.officeShipment && (
         <PremoveSurvey
@@ -111,7 +112,7 @@ const HHGTabContent = props => {
           error={props.surveyError}
         />
       )}
-      <TspContainer
+      <ServiceAgentsContainer
         title="TSP & Servicing Agents"
         shipment={props.officeShipment}
         serviceAgents={props.serviceAgents}
@@ -157,7 +158,7 @@ class MoveInfo extends Component {
     this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
     this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
     this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
-    this.props.loadShipmentDependencies(shipmentId);
+    this.props.getServiceAgentsForShipment(shipmentId);
   };
 
   approveBasics = () => {
@@ -468,7 +469,7 @@ const mapStateToProps = state => {
     swaggerError: get(state, 'swagger.hasErrored'),
     officeMove,
     officeShipment: get(state, 'office.officeShipment', {}),
-    shipment: get(state, `entities.shipments.${shipmentId}`, {}),
+    shipment: selectShipment(state, shipmentId),
     officeOrders: get(state, 'office.officeOrders', {}),
     officeServiceMember: get(state, 'office.officeServiceMember', {}),
     officeBackupContacts: get(state, 'office.officeBackupContacts', []),
@@ -477,7 +478,7 @@ const mapStateToProps = state => {
     ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
     moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
     tariff400ngItems: selectTariff400ngItems(state),
-    serviceAgents: get(state, 'tsp.serviceAgents', []),
+    serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     shipmentLineItems: selectSortedShipmentLineItems(state),
     loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
     loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
@@ -492,7 +493,6 @@ const mapDispatchToProps = dispatch =>
     {
       getPublicShipment,
       updatePublicShipment,
-      loadShipmentDependencies,
       loadMoveDependencies,
       getMoveDocumentsForMove,
       approveBasics,
@@ -500,13 +500,14 @@ const mapDispatchToProps = dispatch =>
       approveHHG,
       completeHHG,
       cancelMove,
-      patchShipment,
       sendHHGInvoice,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
       getAllInvoices,
       resetMove,
       getTspForShipment,
+      getServiceAgentsForShipment,
+      patchShipment,
     },
     dispatch,
   );

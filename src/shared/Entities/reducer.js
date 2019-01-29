@@ -32,6 +32,7 @@ const initialState = {
   moveDocuments: {},
   shipments: {},
   tariff400ngItems: {},
+  serviceAgents: {},
   shipmentLineItems: {},
   invoices: {},
   transportationServiceProviders: {},

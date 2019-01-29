@@ -1272,7 +1272,7 @@ definitions:
     required:
     - standard_carrier_alpha_code
     - enrolled
-  IndexServiceAgents:
+  ServiceAgents:
     type: array
     items:
       $ref: '#/definitions/ServiceAgent'
@@ -2051,7 +2051,7 @@ paths:
         200:
           description: returns an array of Service Agents
           schema:
-            $ref: '#/definitions/IndexServiceAgents'
+            $ref: '#/definitions/ServiceAgents'
         400:
           description: invalid request
         401:
@@ -2114,7 +2114,7 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: patchServiceAgentPayload
+        - name: serviceAgent
           in: body
           required: true
           schema:
