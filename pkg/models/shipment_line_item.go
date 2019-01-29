@@ -59,6 +59,13 @@ type ShipmentLineItem struct {
 	Description      string                 `json:"description" db:"description"`
 }
 
+// Dimension a generic struct to hold length, width, and height
+type Dimension struct {
+	Length float32
+	Width  float32
+	Height float32
+}
+
 // ShipmentLineItems is not required by pop and may be deleted
 type ShipmentLineItems []ShipmentLineItem
 
