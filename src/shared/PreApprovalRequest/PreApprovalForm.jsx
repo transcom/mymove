@@ -111,7 +111,7 @@ export class PreApprovalForm extends Component {
       <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
           <div className="usa-width-one-third">
-            <div className="tariff400-select">
+            <div className="tariff400-select usa-input">
               <Field
                 name="tariff400ng_item"
                 title="Code & Item"
