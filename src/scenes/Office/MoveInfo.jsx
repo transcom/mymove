@@ -55,6 +55,9 @@ import {
   sendHHGInvoice,
   resetMove,
 } from './ducks';
+import {
+  selectMoveStatus,
+} from 'shared/Entities/modules/moves'
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -72,9 +75,9 @@ const BasicsTabContent = props => {
   return (
     <div className="office-tab">
       <OrdersPanel title="Orders" />
-      <CustomerInfoPanel title="Customer Info" moveId={props.match.params.moveId} />
-      <BackupInfoPanel title="Backup Info" moveId={props.match.params.moveId} />
-      <AccountingPanel title="Accounting" moveId={props.match.params.moveId} />
+      <CustomerInfoPanel title="Customer Info" moveId={props.moveId} />
+      <BackupInfoPanel title="Backup Info" moveId={props.moveId} />
+      <AccountingPanel title="Accounting" moveId={props.moveId} />
     </div>
   );
 };
@@ -82,11 +85,11 @@ const BasicsTabContent = props => {
 const PPMTabContent = props => {
   return (
     <div className="office-tab">
-      <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <PaymentsPanel title="Payments" moveId={props.moveId} />
       <ExpensesPanel title="Expenses" />
       <IncentiveCalculator />
       <StorageReimbursementCalculator />
-      <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
+      <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
 };
@@ -133,8 +136,9 @@ class MoveInfo extends Component {
   };
 
   componentDidMount() {
-    this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
+    const { moveId } = this.props;
+    this.props.loadMoveDependencies(moveId);
+    this.props.getMoveDocumentsForMove(moveId);
     this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
   }
 
@@ -157,7 +161,7 @@ class MoveInfo extends Component {
   };
 
   approveBasics = () => {
-    this.props.approveBasics(this.props.match.params.moveId);
+    this.props.approveBasics(this.props.moveId);
   };
 
   approvePPM = () => {
@@ -206,7 +210,7 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments } = this.props;
+    const { moveDocuments, moveStatus } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
@@ -229,7 +233,7 @@ class MoveInfo extends Component {
     const hhgAccepted = hhg.status === 'ACCEPTED';
     const hhgDelivered = hhg.status === 'DELIVERED';
     const hhgCompleted = hhg.status === 'COMPLETED';
-    const moveApproved = move.status === 'APPROVED';
+    const moveApproved = moveStatus === 'APPROVED';
 
     const moveDate = isPPM ? ppm.planned_move_date : hhg.requested_pickup_date;
     if (this.state.redirectToHome) {
@@ -290,7 +294,7 @@ class MoveInfo extends Component {
                 <span className="title">Basics</span>
                 <span className="status">
                   <FontAwesomeIcon className="icon" icon={faPlayCircle} />
-                  {capitalize(move.status)}
+                  {capitalize(this.props.moveStatus)}
                 </span>
               </NavTab>
               {(isPPM || isHHGPPM) && (
@@ -324,7 +328,7 @@ class MoveInfo extends Component {
                     <HHGTabContent
                       officeHHG={JSON.stringify(this.props.officeHHG)}
                       updatePublicShipment={this.props.updatePublicShipment}
-                      moveId={this.props.match.params.moveId}
+                      moveId={this.props.moveId}
                       shipment={this.props.shipment}
                       serviceAgents={this.props.serviceAgents}
                       surveyError={this.props.shipmentPatchError && this.props.errorMessage}
@@ -432,10 +436,7 @@ class MoveInfo extends Component {
                 </div>
               )}
               {showDocumentViewer && (
-                <DocumentList
-                  detailUrlPrefix={`/moves/${this.props.match.params.moveId}/documents`}
-                  moveDocuments={moveDocuments}
-                />
+                <DocumentList detailUrlPrefix={`/moves/${this.props.moveId}/documents`} moveDocuments={moveDocuments} />
               )}
             </div>
           </div>
@@ -456,30 +457,34 @@ MoveInfo.propTypes = {
   }).isRequired,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
+  const moveId = ownProps.match.params.moveId;
   const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
 
   return {
-    swaggerError: get(state, 'swagger.hasErrored'),
-    officeMove,
-    shipmentId,
-    shipment: selectShipment(state, shipmentId),
-    officeOrders: get(state, 'office.officeOrders', {}),
-    officeServiceMember: get(state, 'office.officeServiceMember', {}),
-    officeBackupContacts: get(state, 'office.officeBackupContacts', []),
-    officePPM: get(state, 'office.officePPMs.0', {}),
-    officeHHG: get(state, 'office.officeMove.shipments.0', {}),
-    ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
-    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
-    tariff400ngItems: selectTariff400ngItems(state),
-    serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
-    shipmentLineItems: selectSortedShipmentLineItems(state),
-    loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
-    loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
-    shipmentPatchError: get(state, 'office.shipmentPatchError'),
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
+    loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
+    loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
+    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    moveId,
+    moveStatus: selectMoveStatus(state, moveId),
+    officeBackupContacts: get(state, 'office.officeBackupContacts', []),
+    officeHHG: get(state, 'office.officeMove.shipments.0', {}),
+    officeMove,
+    officeOrders: get(state, 'office.officeOrders', {}),
+    officePPM: get(state, 'office.officePPMs.0', {}),
+    officeServiceMember: get(state, 'office.officeServiceMember', {}),
+    officeShipment: get(state, 'office.officeShipment', {}),
+    ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
+    serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
+    shipment: selectShipment(state, shipmentId),
+    shipmentId,
+    shipmentLineItems: selectSortedShipmentLineItems(state),
+    shipmentPatchError: get(state, 'office.shipmentPatchError'),
+    swaggerError: get(state, 'swagger.hasErrored'),
+    tariff400ngItems: selectTariff400ngItems(state),
   };
 };
 

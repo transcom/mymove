@@ -38,3 +38,12 @@ export function selectMoveDatesSummary(state, moveId, moveDate) {
   }
   return get(state, `entities.moveDatesSummaries.${moveId}:${moveDate}`);
 }
+
+export function selectMoveStatus(state, moveId) {
+  const entitiesMove = get(state, `entities.moves.${moveId}`);
+  if (entitiesMove) {
+    return entitiesMove.status;
+  } else {
+    return get(state, 'office.officeMove.status', '');
+  }
+}
