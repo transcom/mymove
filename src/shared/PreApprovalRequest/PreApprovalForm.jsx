@@ -108,7 +108,7 @@ export class PreApprovalForm extends Component {
     const DetailComponent = getDetailComponent(this.props.tariff400ng_item_code, robustAccessorial);
 
     return (
-      <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
+      <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
           <div className="usa-width-one-third">
             <div className="tariff400-select">
