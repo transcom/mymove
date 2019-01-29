@@ -124,19 +124,6 @@ export async function ApproveReimbursement(reimbursementId) {
   return response.body;
 }
 
-// Move status
-export async function CancelMove(moveId, cancelReason) {
-  const client = await getClient();
-  const response = await client.apis.office.cancelMove({
-    moveId,
-    cancelMove: {
-      cancel_reason: cancelReason,
-    },
-  });
-  checkResponse(response, 'failed to cancel move and associated dependencies due to server error');
-  return response.body;
-}
-
 // PPM attachments
 export async function DownloadPPMAttachments(ppmId, docTypes) {
   const client = await getClient();

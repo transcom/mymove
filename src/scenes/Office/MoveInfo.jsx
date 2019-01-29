@@ -52,8 +52,8 @@ import {
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, approvePPM, cancelMove, sendHHGInvoice, resetMove } from './ducks';
-import { selectMoveStatus, approveBasics } from 'shared/Entities/modules/moves';
+import { loadMoveDependencies, approvePPM, sendHHGInvoice, resetMove, showBanner, removeBanner } from './ducks';
+import { selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -172,8 +172,10 @@ class MoveInfo extends Component {
     this.props.completeShipment(this.props.shipmentId);
   };
 
-  cancelMove = cancelReason => {
+  cancelMoveAndRedirect = cancelReason => {
     this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
+      this.props.showBanner();
+      setTimeout(() => this.props.removeBanner(), 10000);
       this.setState({ redirectToHome: true });
     });
   };
@@ -395,7 +397,7 @@ class MoveInfo extends Component {
                 buttonTitle="Cancel Move"
                 reasonPrompt="Why is the move being canceled?"
                 warningPrompt="Are you sure you want to cancel the entire move?"
-                onConfirm={this.cancelMove}
+                onConfirm={this.cancelMoveAndRedirect}
               />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
@@ -505,6 +507,8 @@ const mapDispatchToProps = dispatch =>
       resetMove,
       getTspForShipment,
       getServiceAgentsForShipment,
+      showBanner,
+      removeBanner,
     },
     dispatch,
   );

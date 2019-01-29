@@ -9,7 +9,6 @@ import {
   LoadPPMs,
   ApprovePPM,
   ApproveReimbursement,
-  CancelMove,
   DownloadPPMAttachments,
   PatchShipment,
   SendHHGInvoice,
@@ -35,8 +34,8 @@ const approvePPMType = 'APPROVE_PPM';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
-const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
+const SHOW_BANNER = 'SHOW_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
 const DRAFT_HHG_INVOICE = 'DRAFT_INVOICE';
 const RESET_HHG_INVOICE = 'RESET_INVOICE';
@@ -83,8 +82,6 @@ const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
-
-export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(cancelMoveType);
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
 
@@ -140,24 +137,17 @@ export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
   DownloadPPMAttachments,
 );
 
-export const cancelMove = (moveId, changeReason) => {
-  const actions = ReduxHelpers.generateAsyncActions(cancelMoveType);
-  return async function(dispatch, getState) {
-    dispatch(actions.start());
-    return CancelMove(moveId, changeReason)
-      .then(item => dispatch(actions.success(item)), error => dispatch(actions.error(error)))
-      .then(() => {
-        setTimeout(() => dispatch(removeBanner()), 10000);
-      });
-  };
-};
-
 export const removeBanner = () => {
   return {
     type: REMOVE_BANNER,
   };
 };
 
+export const showBanner = () => {
+  return {
+    type: SHOW_BANNER,
+  };
+};
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
 // These action types typically dispatch to other actions above to
@@ -523,22 +513,9 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
-    // MOVE STATUS
-    case CANCEL_MOVE.start:
+    case SHOW_BANNER:
       return Object.assign({}, state, {
-        moveIsCanceling: true,
-      });
-    case CANCEL_MOVE.success:
-      return Object.assign({}, state, {
-        moveIsCanceling: false,
-        officeMove: action.payload,
         flashMessage: true,
-      });
-    case CANCEL_MOVE.failure:
-      return Object.assign({}, state, {
-        moveIsCanceling: false,
-        error: action.error.message,
-        flashMessage: false,
       });
     case REMOVE_BANNER:
       return Object.assign({}, state, {
