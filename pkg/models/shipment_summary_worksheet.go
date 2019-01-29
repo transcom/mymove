@@ -86,9 +86,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	move := Move{}
 	err = db.Q().Eager(
 		"Orders",
-		"Orders.NewDutyStation",
+		"Orders.NewDutyStation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation",
+		"Orders.ServiceMember.DutyStation.Address",
 		"Shipments",
 	).Find(&move, moveID)
 
