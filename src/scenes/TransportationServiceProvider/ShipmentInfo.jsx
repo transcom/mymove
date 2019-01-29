@@ -484,7 +484,7 @@ const mapStateToProps = state => {
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
     entitlement: loadEntitlements(state),
-    sitRequests: selectSitRequests(),
+    sitRequests: selectSitRequests(state, shipment.id),
   };
 };
 
