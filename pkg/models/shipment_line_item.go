@@ -1,11 +1,11 @@
 package models
 
 import (
+	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 	"time"
 
-	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -42,18 +42,21 @@ type ShipmentLineItem struct {
 	// Crating: enter "47.4" for crate size of 47.4 cu. ft.
 	// 3rd-party service: enter "1299.99" for cost of $1,299.99.
 	// Bulky item: enter "1" for a single item.
-	Quantity1     unit.BaseQuantity      `json:"quantity_1" db:"quantity_1"`
-	Quantity2     unit.BaseQuantity      `json:"quantity_2" db:"quantity_2"`
-	Notes         string                 `json:"notes" db:"notes"`
-	Status        ShipmentLineItemStatus `json:"status" db:"status"`
-	InvoiceID     *uuid.UUID             `json:"invoice_id" db:"invoice_id"`
-	Invoice       Invoice                `belongs_to:"invoices"`
-	AmountCents   *unit.Cents            `json:"amount_cents" db:"amount_cents"`
-	AppliedRate   *unit.Millicents       `json:"applied_rate" db:"applied_rate"`
-	SubmittedDate time.Time              `json:"submitted_date" db:"submitted_date"`
-	ApprovedDate  time.Time              `json:"approved_date" db:"approved_date"`
-	CreatedAt     time.Time              `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time              `json:"updated_at" db:"updated_at"`
+	Quantity1        unit.BaseQuantity      `json:"quantity_1" db:"quantity_1"`
+	Quantity2        unit.BaseQuantity      `json:"quantity_2" db:"quantity_2"`
+	Notes            string                 `json:"notes" db:"notes"`
+	Status           ShipmentLineItemStatus `json:"status" db:"status"`
+	InvoiceID        *uuid.UUID             `json:"invoice_id" db:"invoice_id"`
+	Invoice          Invoice                `belongs_to:"invoices"`
+	AmountCents      *unit.Cents            `json:"amount_cents" db:"amount_cents"`
+	AppliedRate      *unit.Millicents       `json:"applied_rate" db:"applied_rate"`
+	SubmittedDate    time.Time              `json:"submitted_date" db:"submitted_date"`
+	ApprovedDate     time.Time              `json:"approved_date" db:"approved_date"`
+	CreatedAt        time.Time              `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time              `json:"updated_at" db:"updated_at"`
+	ItemDimensionID  *uuid.UUID             `json:"item_dimension_id" belongs_to:"shipment_line_item_dimension"`
+	CrateDimensionID *uuid.UUID             `json:"crate_dimension_id" belongs_to:"shipment_line_item_dimension"`
+	Description      string                 `json:"description" db:"description"`
 }
 
 // ShipmentLineItems is not required by pop and may be deleted
