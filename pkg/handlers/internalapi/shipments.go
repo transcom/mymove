@@ -396,6 +396,9 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
+	// TODO RecalculateInvoice
+	// TODO FetchShipmentForInvoice
+
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
 		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
