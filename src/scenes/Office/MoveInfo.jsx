@@ -41,23 +41,18 @@ import {
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { getPublicShipment, updatePublicShipment, selectShipment } from 'shared/Entities/modules/shipments';
+import {
+  getPublicShipment,
+  updatePublicShipment,
+  approveShipment,
+  selectShipment,
+  selectShipmentStatus,
+} from 'shared/Entities/modules/shipments';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import {
-  loadMoveDependencies,
-  approvePPM,
-  approveHHG,
-  completeHHG,
-  cancelMove,
-  sendHHGInvoice,
-  resetMove,
-} from './ducks';
-import {
-  selectMoveStatus,
-  approveBasics,
-} from 'shared/Entities/modules/moves'
+import { loadMoveDependencies, approvePPM, completeHHG, cancelMove, sendHHGInvoice, resetMove } from './ducks';
+import { selectMoveStatus, approveBasics } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -168,8 +163,8 @@ class MoveInfo extends Component {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
   };
 
-  approveHHG = () => {
-    this.props.approveHHG(this.props.shipmentId);
+  approveShipment = () => {
+    this.props.approveShipment(this.props.shipmentId);
   };
 
   completeHHG = () => {
@@ -210,7 +205,7 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus } = this.props;
+    const { moveDocuments, moveStatus, shipmentStatus } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
@@ -229,10 +224,10 @@ class MoveInfo extends Component {
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], hhg.status);
-    const hhgAccepted = hhg.status === 'ACCEPTED';
-    const hhgDelivered = hhg.status === 'DELIVERED';
-    const hhgCompleted = hhg.status === 'COMPLETED';
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+    const hhgAccepted = shipmentStatus === 'ACCEPTED';
+    const hhgDelivered = shipmentStatus === 'DELIVERED';
+    const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
 
     const moveDate = isPPM ? ppm.planned_move_date : hhg.requested_pickup_date;
@@ -308,7 +303,7 @@ class MoveInfo extends Component {
                   <span className="title">HHG</span>
                   <span className="status">
                     <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-                    {capitalize(hhg.status)}
+                    {capitalize(shipmentStatus)}
                   </span>
                 </NavTab>
               )}
@@ -330,6 +325,7 @@ class MoveInfo extends Component {
                       updatePublicShipment={this.props.updatePublicShipment}
                       moveId={this.props.moveId}
                       shipment={this.props.shipment}
+                      shipmentStatus={this.props.shipmentStatus}
                       serviceAgents={this.props.serviceAgents}
                       surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                       canApprovePaymentInvoice={hhgDelivered}
@@ -370,7 +366,7 @@ class MoveInfo extends Component {
               {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approveHHG}
+                  onClick={this.approveShipment}
                   disabled={
                     !hhgAccepted ||
                     hhgApproved ||
@@ -483,6 +479,7 @@ const mapStateToProps = (state, ownProps) => {
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
     shipmentPatchError: get(state, 'office.shipmentPatchError'),
+    shipmentStatus: selectShipmentStatus(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
   };
@@ -497,7 +494,7 @@ const mapDispatchToProps = dispatch =>
       getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
-      approveHHG,
+      approveShipment,
       completeHHG,
       cancelMove,
       sendHHGInvoice,
