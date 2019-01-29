@@ -3,8 +3,6 @@ create_table("shipment_line_item_dimensions") {
     t.Column("length", "integer")
     t.Column("width", "integer")
     t.Column("height", "integer")
-    t.Column("unit", "string")
-    t.Column("decimal_places", "integer")
 }
 
 add_column("shipment_line_items", "item_dimension_id", "uuid", {"null": true})
