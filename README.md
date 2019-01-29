@@ -309,7 +309,6 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 * `make db_test_create_docker`
 * `make db_test_reset_docker`
 * `make db_test_migrate_docker`
-* `make db_test_e2e_populate_docker`
 
 #### Migrations
 

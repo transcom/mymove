@@ -19,11 +19,13 @@ type S3 struct {
 	logger       *zap.Logger
 	client       *s3.S3
 	fs           *afero.Afero
+	tempFs       *afero.Afero
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
 func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *session.Session) *S3 {
 	var fs = afero.NewMemMapFs()
+	var tempFs = afero.NewMemMapFs()
 	client := s3.New(session)
 	return &S3{
 		bucket:       bucket,
@@ -31,6 +33,7 @@ func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *sess
 		logger:       logger,
 		client:       client,
 		fs:           &afero.Afero{Fs: fs},
+		tempFs:       &afero.Afero{Fs: tempFs},
 	}
 }
 
@@ -96,6 +99,11 @@ func (s *S3) Fetch(key string) (io.ReadCloser, error) {
 // FileSystem returns the underlying afero filesystem
 func (s *S3) FileSystem() *afero.Afero {
 	return s.fs
+}
+
+// TempFileSystem returns the temporary afero filesystem
+func (s *S3) TempFileSystem() *afero.Afero {
+	return s.tempFs
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 minutes.

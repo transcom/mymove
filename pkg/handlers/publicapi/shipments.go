@@ -638,7 +638,8 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
-	aFile, err := h.FileStorer().FileSystem().Create(gbl.GBLNumber1)
+	// Read the incoming data into a temporary afero.File for consumption
+	aFile, err := h.FileStorer().TempFileSystem().Create(gbl.GBLNumber1)
 	if err != nil {
 		h.Logger().Error("Error creating a new afero file for GBL form.", zap.Error(err))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()

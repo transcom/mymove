@@ -912,15 +912,28 @@ func main() {
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
-		err := dbConnection.RawQuery("SELECT 1;").Exec()
-		if err != nil {
-			logger.Error("Failed database health check", zap.Error(err))
-		}
-		err = json.NewEncoder(w).Encode(map[string]interface{}{
+
+		data := map[string]interface{}{
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
-			"database":  err == nil,
-		})
+		}
+
+		// Check and see if we should disable DB query with '?database=false'
+		// Disabling the DB is useful for Route53 health checks which require the TLS
+		// handshake be less than 4 seconds and the status code return in less than
+		// two seconds. https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html
+		showDB, ok := r.URL.Query()["database"]
+
+		// Always show DB unless key set to "false"
+		if !ok || (ok && showDB[0] != "false") {
+			dbErr := dbConnection.RawQuery("SELECT 1;").Exec()
+			if dbErr != nil {
+				logger.Error("Failed database health check", zap.Error(dbErr))
+			}
+			data["database"] = dbErr == nil
+		}
+
+		err := json.NewEncoder(w).Encode(data)
 		if err != nil {
 			logger.Error("Failed encoding health check response", zap.Error(err))
 		}
