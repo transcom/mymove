@@ -42,7 +42,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { getPublicShipment, updatePublicShipment } from 'shared/Entities/modules/shipments';
+import { getPublicShipment, updatePublicShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
@@ -469,7 +469,7 @@ const mapStateToProps = state => {
     swaggerError: get(state, 'swagger.hasErrored'),
     officeMove,
     officeShipment: get(state, 'office.officeShipment', {}),
-    shipment: get(state, `entities.shipments.${shipmentId}`, {}),
+    shipment: selectShipment(state, shipmentId),
     officeOrders: get(state, 'office.officeOrders', {}),
     officeServiceMember: get(state, 'office.officeServiceMember', {}),
     officeBackupContacts: get(state, 'office.officeBackupContacts', []),
