@@ -5,7 +5,7 @@ export const Code105Details = props => {
   const { ship_line_item_schema } = props;
   return (
     <Fragment>
-      <SwaggerField fieldName="description" className="three-quarter-width" swagger={ship_line_item_schema} required />
+      <SwaggerField fieldName="description" swagger={ship_line_item_schema} required />
     </Fragment>
   );
 };
