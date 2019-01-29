@@ -108,17 +108,20 @@ const normalizeZip = (value, previousValue) => {
   return normalizedZip;
 };
 
-const normalizeBaseQuantity = value => {
-  if (!value) {
-    return value;
-  }
-  var onlyNumsAndDots = value.replace(/[^\d.]/g, '');
+const normalizeBaseQuantity = decimalDigits => {
+  return value => {
+    if (!value) {
+      return value;
+    }
+    var onlyNumsAndDots = value.replace(/[^\d.]/g, '');
 
-  if (onlyNumsAndDots.indexOf('.') >= 0) {
-    value =
-      onlyNumsAndDots.substr(0, onlyNumsAndDots.indexOf('.')) + onlyNumsAndDots.substr(onlyNumsAndDots.indexOf('.'), 5);
-  }
-  return value;
+    if (onlyNumsAndDots.indexOf('.') >= 0) {
+      value =
+        onlyNumsAndDots.substr(0, onlyNumsAndDots.indexOf('.')) +
+        onlyNumsAndDots.substr(onlyNumsAndDots.indexOf('.'), decimalDigits + 1);
+    }
+    return value;
+  };
 };
 
 const patternMatches = memoize((pattern, message) => {
