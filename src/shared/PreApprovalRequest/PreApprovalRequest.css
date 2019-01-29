@@ -94,7 +94,7 @@
 }
 
 .pre-approval-panel-modal textarea[name='description'] {
-  height: 8rem !important;
+  height: 8rem;
 }
 
 .pre-approval-edit {
