@@ -104,16 +104,6 @@ export async function ApprovePPM(moveId, ppmId) {
   return response.body;
 }
 
-// HHG status
-export async function CompleteHHG(shipmentId) {
-  const client = await getClient();
-  const response = await client.apis.shipments.completeHHG({
-    shipmentId,
-  });
-  checkResponse(response, 'failed to complete hhg due to server error');
-  return response.body;
-}
-
 // HHG invoice
 export async function SendHHGInvoice(shipmentId) {
   const client = await getClient();

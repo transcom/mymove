@@ -6,6 +6,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient, getPublicClient } from 'shared/Swagger/api';
 
 const approveShipmentLabel = 'Shipments.approveShipment';
+const completeShipmentLabel = 'Shipments.completeShipment';
 
 export function createOrUpdateShipment(label, moveId, shipment, id) {
   if (id) {
@@ -54,6 +55,12 @@ export function updatePublicShipment(
 export function approveShipment(shipmentId) {
   const label = approveShipmentLabel;
   const swaggerTag = 'shipments.approveHHG';
+  return swaggerRequest(getClient, swaggerTag, { shipmentId }, { label });
+}
+
+export function completeShipment(shipmentId) {
+  const label = completeShipmentLabel;
+  const swaggerTag = 'shipments.completeHHG';
   return swaggerRequest(getClient, swaggerTag, { shipmentId }, { label });
 }
 

@@ -45,13 +45,14 @@ import {
   getPublicShipment,
   updatePublicShipment,
   approveShipment,
+  completeShipment,
   selectShipment,
   selectShipmentStatus,
 } from 'shared/Entities/modules/shipments';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, approvePPM, completeHHG, cancelMove, sendHHGInvoice, resetMove } from './ducks';
+import { loadMoveDependencies, approvePPM, cancelMove, sendHHGInvoice, resetMove } from './ducks';
 import { selectMoveStatus, approveBasics } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -167,8 +168,8 @@ class MoveInfo extends Component {
     this.props.approveShipment(this.props.shipmentId);
   };
 
-  completeHHG = () => {
-    this.props.completeHHG(this.props.shipmentId);
+  completeShipment = () => {
+    this.props.completeShipment(this.props.shipmentId);
   };
 
   cancelMove = cancelReason => {
@@ -383,7 +384,7 @@ class MoveInfo extends Component {
               {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
-                  onClick={this.completeHHG}
+                  onClick={this.completeShipment}
                   disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
                 >
                   Complete Shipments
@@ -495,7 +496,7 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveShipment,
-      completeHHG,
+      completeShipment,
       cancelMove,
       sendHHGInvoice,
       getAllTariff400ngItems,

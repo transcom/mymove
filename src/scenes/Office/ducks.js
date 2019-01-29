@@ -8,7 +8,6 @@ import {
   UpdateBackupContact,
   LoadPPMs,
   ApprovePPM,
-  CompleteHHG,
   ApproveReimbursement,
   CancelMove,
   DownloadPPMAttachments,
@@ -35,7 +34,6 @@ const updatePPMType = 'UPDATE_PPM';
 const approvePPMType = 'APPROVE_PPM';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
-const completeHHGType = 'COMPLETE_HHG';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
@@ -84,8 +82,6 @@ const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
 
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
-const COMPLETE_HHG = ReduxHelpers.generateAsyncActionTypes(completeHHGType);
-
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
 
 export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(cancelMoveType);
@@ -131,8 +127,6 @@ export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, Lo
 export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
 
 export const approvePPM = ReduxHelpers.generateAsyncActionCreator(approvePPMType, ApprovePPM);
-
-export const completeHHG = ReduxHelpers.generateAsyncActionCreator(completeHHGType, CompleteHHG);
 
 export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
@@ -564,18 +558,6 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_PPM.failure:
       return Object.assign({}, state, {
         ppmIsApproving: false,
-        error: action.error.message,
-      });
-
-    case COMPLETE_HHG.success:
-      return Object.assign({}, state, {
-        officeMove: {
-          ...state.officeMove,
-          shipments: [action.payload],
-        },
-      });
-    case COMPLETE_HHG.failure:
-      return Object.assign({}, state, {
         error: action.error.message,
       });
 
