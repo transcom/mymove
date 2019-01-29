@@ -44,7 +44,8 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	IssuingBranchOrAgency          string
 	OrdersIssueDate                string
 	OrdersTypeAndOrdersNumber      string
-	AuthorizedOrigin               DutyStation
+	AuthorizedOrigin               string
+	AuthorizedDestination          string
 	NewDutyAssignment              string
 	WeightAllotmentSelf            string
 	WeightAllotmentProgear         string
@@ -85,9 +86,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	move := Move{}
 	err = db.Q().Eager(
 		"Orders",
-		"Orders.NewDutyStation",
+		"Orders.NewDutyStation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation",
+		"Orders.ServiceMember.DutyStation.Address",
 		"Shipments",
 	).Find(&move, moveID)
 
@@ -139,7 +140,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 	page1.TAC = derefStringTypes(data.Order.TAC)
 
-	page1.AuthorizedOrigin = data.CurrentDutyStation
+	page1.AuthorizedOrigin = FormatAuthorizedLocation(data.CurrentDutyStation)
+	page1.AuthorizedDestination = FormatAuthorizedLocation(data.NewDutyStation)
 	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)
 
 	page1.WeightAllotmentSelf = FormatWeights(data.WeightAllotment.TotalWeightSelf)
@@ -159,6 +161,11 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 		page1.Shipment1Weight = formattedShipments[0].ShipmentWeight
 	}
 	return page1
+}
+
+//FormatAuthorizedLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
+func FormatAuthorizedLocation(dutyStation DutyStation) string {
+	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
 }
 
 //FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
