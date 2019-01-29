@@ -6,6 +6,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 
 export const STATE_KEY = 'moves';
+const approveBasicsLabel = 'Moves.ApproveBasics';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -37,6 +38,12 @@ export function selectMoveDatesSummary(state, moveId, moveDate) {
     return null;
   }
   return get(state, `entities.moveDatesSummaries.${moveId}:${moveDate}`);
+}
+
+export function approveBasics(moveId) {
+  const label = approveBasicsLabel;
+  const swaggerTag = 'office.approveMove';
+  return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
 }
 
 export function selectMoveStatus(state, moveId) {

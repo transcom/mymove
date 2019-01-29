@@ -7,7 +7,6 @@ import {
   LoadBackupContacts,
   UpdateBackupContact,
   LoadPPMs,
-  ApproveBasics,
   ApprovePPM,
   ApproveHHG,
   CompleteHHG,
@@ -34,7 +33,6 @@ const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
-const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveHHGType = 'APPROVE_HHG';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
@@ -86,8 +84,6 @@ const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
 const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
 
-const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
-
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
 const APPROVE_HHG = ReduxHelpers.generateAsyncActionTypes(approveHHGType);
@@ -137,8 +133,6 @@ export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
 export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, LoadPPMs);
 
 export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
-
-export const approveBasics = ReduxHelpers.generateAsyncActionCreator(approveBasicsType, ApproveBasics);
 
 export const approvePPM = ReduxHelpers.generateAsyncActionCreator(approvePPMType, ApprovePPM);
 
@@ -542,23 +536,6 @@ export function officeReducer(state = initialState, action) {
       });
 
     // MOVE STATUS
-    case APPROVE_BASICS.start:
-      return Object.assign({}, state, {
-        basicsIsApproving: true,
-        moveHasApproveError: false,
-      });
-    case APPROVE_BASICS.success:
-      return Object.assign({}, state, {
-        basicsIsApproving: false,
-        officeMove: action.payload,
-        moveHasApproveError: false,
-      });
-    case APPROVE_BASICS.failure:
-      return Object.assign({}, state, {
-        basicsIsApproving: false,
-        error: action.error.message,
-        moveHasApproveError: true,
-      });
     case CANCEL_MOVE.start:
       return Object.assign({}, state, {
         moveIsCanceling: true,

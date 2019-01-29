@@ -47,7 +47,6 @@ import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'sha
 
 import {
   loadMoveDependencies,
-  approveBasics,
   approvePPM,
   approveHHG,
   completeHHG,
@@ -57,6 +56,7 @@ import {
 } from './ducks';
 import {
   selectMoveStatus,
+  approveBasics,
 } from 'shared/Entities/modules/moves'
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';

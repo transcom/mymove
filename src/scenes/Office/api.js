@@ -93,16 +93,6 @@ export async function LoadPPMs(moveId) {
   return response.body;
 }
 
-// Move status
-export async function ApproveBasics(moveId) {
-  const client = await getClient();
-  const response = await client.apis.office.approveMove({
-    moveId,
-  });
-  checkResponse(response, 'failed to approve move due to server error');
-  return response.body;
-}
-
 // PPM status
 export async function ApprovePPM(moveId, ppmId) {
   const client = await getClient();
