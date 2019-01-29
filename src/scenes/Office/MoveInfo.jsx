@@ -41,6 +41,7 @@ import {
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
+import { approvePPM, selectPpmStatus } from 'shared/Entities/modules/ppms';
 import {
   getPublicShipment,
   updatePublicShipment,
@@ -52,7 +53,7 @@ import {
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, approvePPM, sendHHGInvoice, resetMove, showBanner, removeBanner } from './ducks';
+import { loadMoveDependencies, sendHHGInvoice, resetMove, showBanner, removeBanner } from './ducks';
 import { selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -161,7 +162,7 @@ class MoveInfo extends Component {
   };
 
   approvePPM = () => {
-    this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
+    this.props.approvePPM(this.props.officePPM.id);
   };
 
   approveShipment = () => {
@@ -181,7 +182,7 @@ class MoveInfo extends Component {
   };
 
   renderPPMTabStatus = () => {
-    if (this.props.officePPM.status === 'APPROVED') {
+    if (this.props.ppmStatus === 'APPROVED') {
       if (this.props.ppmAdvance.status === 'APPROVED' || !this.props.ppmAdvance.status) {
         return (
           <span className="status">
@@ -208,7 +209,7 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus, shipmentStatus } = this.props;
+    const { moveDocuments, moveStatus, ppmStatus, shipmentStatus } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
@@ -226,7 +227,7 @@ class MoveInfo extends Component {
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
-    const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
+    const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppmStatus);
     const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
     const hhgAccepted = shipmentStatus === 'ACCEPTED';
     const hhgDelivered = shipmentStatus === 'DELIVERED';
@@ -327,6 +328,7 @@ class MoveInfo extends Component {
                       officeHHG={JSON.stringify(this.props.officeHHG)}
                       updatePublicShipment={this.props.updatePublicShipment}
                       moveId={this.props.moveId}
+                      ppmStatus={this.props.ppmStatus}
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       serviceAgents={this.props.serviceAgents}
@@ -460,6 +462,7 @@ const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
+  const officePPM = get(state, 'office.officePPMs.0', {});
 
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
@@ -473,10 +476,11 @@ const mapStateToProps = (state, ownProps) => {
     officeHHG: get(state, 'office.officeMove.shipments.0', {}),
     officeMove,
     officeOrders: get(state, 'office.officeOrders', {}),
-    officePPM: get(state, 'office.officePPMs.0', {}),
+    officePPM,
     officeServiceMember: get(state, 'office.officeServiceMember', {}),
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
+    ppmStatus: selectPpmStatus(state, officePPM.id),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     shipment: selectShipment(state, shipmentId),
     shipmentId,

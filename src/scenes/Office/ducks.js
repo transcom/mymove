@@ -7,7 +7,6 @@ import {
   LoadBackupContacts,
   UpdateBackupContact,
   LoadPPMs,
-  ApprovePPM,
   ApproveReimbursement,
   DownloadPPMAttachments,
   PatchShipment,
@@ -30,7 +29,6 @@ const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
-const approvePPMType = 'APPROVE_PPM';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
@@ -79,8 +77,6 @@ const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
 const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
 
-const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
-
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
@@ -122,8 +118,6 @@ export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
 export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, LoadPPMs);
 
 export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
-
-export const approvePPM = ReduxHelpers.generateAsyncActionCreator(approvePPMType, ApprovePPM);
 
 export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
@@ -520,22 +514,6 @@ export function officeReducer(state = initialState, action) {
     case REMOVE_BANNER:
       return Object.assign({}, state, {
         flashMessage: false,
-      });
-
-    // PPM STATUS
-    case APPROVE_PPM.start:
-      return Object.assign({}, state, {
-        ppmIsApproving: true,
-      });
-    case APPROVE_PPM.success:
-      return Object.assign({}, state, {
-        ppmIsApproving: false,
-        officePPMs: [action.payload],
-      });
-    case APPROVE_PPM.failure:
-      return Object.assign({}, state, {
-        ppmIsApproving: false,
-        error: action.error.message,
       });
 
     // REIMBURSEMENT STATUS

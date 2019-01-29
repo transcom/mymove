@@ -93,17 +93,6 @@ export async function LoadPPMs(moveId) {
   return response.body;
 }
 
-// PPM status
-export async function ApprovePPM(moveId, ppmId) {
-  const client = await getClient();
-  const response = await client.apis.office.approvePPM({
-    moveId,
-    personallyProcuredMoveId: ppmId,
-  });
-  checkResponse(response, 'failed to approve ppm due to server error');
-  return response.body;
-}
-
 // HHG invoice
 export async function SendHHGInvoice(shipmentId) {
   const client = await getClient();
