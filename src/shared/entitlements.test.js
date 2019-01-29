@@ -9,6 +9,7 @@ describe('entitlements', () => {
           pro_gear_spouse: 500,
           sum: 10500,
           weight: 8000,
+          storage_in_transit: 90,
         });
       });
     });
@@ -20,6 +21,7 @@ describe('entitlements', () => {
           pro_gear_spouse: 0,
           sum: 10000,
           weight: 8000,
+          storage_in_transit: 90,
         });
       });
     });
@@ -32,6 +34,7 @@ describe('entitlements', () => {
         pro_gear_spouse: 0,
         sum: 7000,
         weight: 5000,
+        storage_in_transit: 90,
       });
     });
   });
