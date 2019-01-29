@@ -88,8 +88,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
 
-	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
-
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{context}
 
 	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{context}

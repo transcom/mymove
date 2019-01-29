@@ -25,6 +25,7 @@ type FileStorer interface {
 	Delete(string) error
 	PresignedURL(string, string) (string, error)
 	FileSystem() *afero.Afero
+	TempFileSystem() *afero.Afero
 }
 
 // ComputeChecksum calculates the MD% checksum for the provided data. It expects that
