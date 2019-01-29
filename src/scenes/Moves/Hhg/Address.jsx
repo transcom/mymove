@@ -16,7 +16,7 @@ export class ShipmentAddress extends Component {
 
     return (
       <div className="form-section">
-        <h3 className="instruction-heading">Now let's review your pickup and delivery locations</h3>
+        <h3 className="instruction-heading">Pickup and delivery locations</h3>
 
         <div className="usa-grid">
           <div className="usa-width-one-whole">
