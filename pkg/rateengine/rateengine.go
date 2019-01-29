@@ -30,9 +30,13 @@ type CostComputation struct {
 	LinehaulCostComputation
 	NonLinehaulCostComputation
 
-	SITFee unit.Cents
-	SITMax unit.Cents
-	GCC    unit.Cents
+	SITFee      unit.Cents
+	SITMax      unit.Cents
+	GCC         unit.Cents
+	LHDiscount  unit.DiscountRate
+	SITDiscount unit.DiscountRate
+	Weight      unit.Pound
+	ShipmentID  uuid.UUID
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -47,10 +51,10 @@ func (c *CostComputation) Scale(factor float64) {
 
 // MarshalLogObject allows CostComputation to be logged by Zap.
 func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddInt("BaseLinehaul", c.BaseLinehaul.Int())
-	encoder.AddInt("OriginLinehaulFactor", c.OriginLinehaulFactor.Int())
-	encoder.AddInt("DestinationLinehaulFactor", c.DestinationLinehaulFactor.Int())
-	encoder.AddInt("ShorthaulCharge", c.ShorthaulCharge.Int())
+	if err := encoder.AddObject("Linehaul Components", c.LinehaulCostComputation); err != nil {
+		return err
+	}
+
 	encoder.AddInt("LinehaulChargeTotal", c.LinehaulChargeTotal.Int())
 	encoder.AddInt("FuelSurcharge", c.FuelSurcharge.Fee.Int())
 
@@ -62,6 +66,12 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("SITFee", c.SITFee.Int())
 
 	encoder.AddInt("GCC", c.GCC.Int())
+
+	encoder.AddFloat64("LHDiscount", float64(c.LHDiscount))
+	encoder.AddFloat64("SITDiscount", float64(c.SITDiscount))
+	encoder.AddInt("Miles", c.Mileage)
+	encoder.AddInt("Weight", c.Weight.Int())
+	encoder.AddString("ShipmentID", c.ShipmentID.String())
 
 	return nil
 }
@@ -141,6 +151,9 @@ func (re *RateEngine) ComputePPM(
 		SITFee:                     sitFee,
 		SITMax:                     maxSITFee,
 		GCC:                        gcc,
+		LHDiscount:                 lhDiscount,
+		SITDiscount:                sitDiscount,
+		Weight:                     weight,
 	}
 
 	// Finally, scale by prorate factor
@@ -153,21 +166,23 @@ func (re *RateEngine) ComputePPM(
 
 // ComputeShipment Calculates the cost of an HHG move.
 func (re *RateEngine) ComputeShipment(
-	weight unit.Pound,
-	originZip5 string,
-	destinationZip5 string,
-	pickupDate time.Time,
-	bookDate time.Time,
+	shipment models.Shipment,
 	daysInSIT int,
 	lhDiscount unit.DiscountRate,
 	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
 
 	// Weights below 1000lbs are prorated to the 1000lb rate
 	prorateFactor := 1.0
+	weight := *shipment.NetWeight
 	if weight.Int() < 1000 {
 		prorateFactor = weight.Float64() / 1000.0
 		weight = unit.Pound(1000)
 	}
+
+	originZip5 := shipment.PickupAddress.PostalCode
+	destinationZip5 := shipment.Move.Orders.NewDutyStation.Address.PostalCode
+	pickupDate := time.Time(*shipment.ActualPickupDate)
+	bookDate := time.Time(*shipment.BookDate)
 
 	// Linehaul charges
 	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate)
@@ -233,12 +248,18 @@ func (re *RateEngine) ComputeShipment(
 		nonLinehaulCostComputation.Pack.Fee +
 		nonLinehaulCostComputation.Unpack.Fee
 
+	shipmentID := shipment.ID
+
 	cost = CostComputation{
 		LinehaulCostComputation:    linehaulCostComputation,
 		NonLinehaulCostComputation: nonLinehaulCostComputation,
 		SITFee:                     sitFee,
 		SITMax:                     maxSITFee,
 		GCC:                        gcc,
+		LHDiscount:                 lhDiscount,
+		SITDiscount:                sitDiscount,
+		Weight:                     weight,
+		ShipmentID:                 shipmentID,
 	}
 
 	// Finally, scale by prorate factor
@@ -300,11 +321,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 
 	// Apply rate engine to shipment
 	var shipmentCost CostByShipment
-	cost, err := re.ComputeShipment(*shipment.NetWeight,
-		shipment.PickupAddress.PostalCode,
-		shipment.Move.Orders.NewDutyStation.Address.PostalCode,
-		time.Time(*shipment.ActualPickupDate),
-		time.Time(*shipment.BookDate),
+	cost, err := re.ComputeShipment(shipment,
 		daysInSIT, // We don't want any SIT charges
 		lhDiscount,
 		sitDiscount,

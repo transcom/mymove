@@ -7,14 +7,16 @@ export class Edit extends React.Component {
   componentDidMount() {
     scrollToTop();
   }
-  goBack = () => {
-    this.props.history.goBack();
+
+  goHome = () => {
+    this.props.history.push('/');
   };
+
   render() {
     return (
       <div className="usa-grid">
         <div className="usa-width-one-whole">
-          <a className="back-to-home" onClick={this.goBack}>
+          <a className="back-to-home" onClick={this.goHome}>
             &lt;BACK TO HOME
           </a>
           <h1 className="edit-title">Edit Move</h1>

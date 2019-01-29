@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -28,6 +29,16 @@ func (c *LinehaulCostComputation) Scale(factor float64) {
 	c.DestinationLinehaulFactor = c.DestinationLinehaulFactor.MultiplyFloat64(factor)
 	c.ShorthaulCharge = c.ShorthaulCharge.MultiplyFloat64(factor)
 	c.LinehaulChargeTotal = c.LinehaulChargeTotal.MultiplyFloat64(factor)
+}
+
+// MarshalLogObject allows LinehaulCostComputation to be logged by Zap.
+func (c LinehaulCostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("BaseLinehaul", c.BaseLinehaul.Int())
+	encoder.AddInt("OriginLinehaulFactor", c.OriginLinehaulFactor.Int())
+	encoder.AddInt("DestinationLinehaulFactor", c.DestinationLinehaulFactor.Int())
+	encoder.AddInt("ShorthaulCharge", c.ShorthaulCharge.Int())
+
+	return nil
 }
 
 func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string) (mileage int, err error) {
