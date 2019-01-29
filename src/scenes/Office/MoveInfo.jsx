@@ -40,7 +40,6 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { patchShipment } from 'scenes/TransportationServiceProvider/ducks';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getPublicShipment, updatePublicShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
@@ -94,34 +93,34 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
-  let shipment = props.officeMove.shipments.find(x => x.id === props.officeShipment.id);
+  const { shipment, updatePublicShipment } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
   }
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={props.moveId} />
-      <Dates title="Dates" shipment={props.officeShipment} update={props.patchShipment} />
-      <LocationsContainer update={props.updatePublicShipment} shipmentId={props.shipment.id} />
-      <Weights title="Weights & Items" shipment={props.shipment} update={props.updatePublicShipment} />
-      {props.officeShipment && (
+      <Dates title="Dates" shipment={shipment} update={updatePublicShipment} />
+      <LocationsContainer update={updatePublicShipment} shipmentId={shipment.id} />
+      <Weights title="Weights & Items" shipment={shipment} update={updatePublicShipment} />
+      {shipment && (
         <PremoveSurvey
           title="Premove Survey"
-          shipment={props.officeShipment}
-          update={props.patchShipment}
+          shipment={shipment}
+          update={updatePublicShipment}
           error={props.surveyError}
         />
       )}
       <ServiceAgentsContainer
         title="TSP & Servicing Agents"
-        shipment={props.officeShipment}
+        shipment={shipment}
         serviceAgents={props.serviceAgents}
-        transportationServiceProviderId={props.shipment.transportation_service_provider_id}
+        transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
-      {has(props, 'officeShipment.id') && <PreApprovalPanel shipmentId={props.officeShipment.id} />}
-      {has(props, 'officeShipment.id') && (
+      {has(props, 'shipment.id') && <PreApprovalPanel shipmentId={props.shipment.id} />}
+      {has(props, 'shipment.id') && (
         <InvoicePanel
-          shipmentId={props.officeShipment.id}
+          shipmentId={shipment.id}
           shipmentStatus={shipmentStatus}
           onApprovePayment={props.sendHHGInvoice}
           canApprove={props.canApprovePaymentInvoice}
@@ -507,7 +506,6 @@ const mapDispatchToProps = dispatch =>
       resetMove,
       getTspForShipment,
       getServiceAgentsForShipment,
-      patchShipment,
     },
     dispatch,
   );
