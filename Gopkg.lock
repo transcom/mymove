@@ -89,6 +89,7 @@
     "private/protocol/xml/xmlutil",
     "service/s3",
     "service/s3/s3iface",
+    "service/s3/s3manager",
     "service/ses",
     "service/ses/sesiface",
     "service/ssm",
@@ -1192,14 +1193,6 @@
   revision = "6d33b5a963d922d182c91e8a1c88d81fd150cfd4"
 
 [[projects]]
-  digest = "1:711eebe744c0151a9d09af2315f0bb729b2ec7637ef4c410fa90a18ef74b65b6"
-  name = "github.com/stretchr/objx"
-  packages = ["."]
-  pruneopts = ""
-  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
-  version = "v0.1.1"
-
-[[projects]]
   digest = "1:c587772fb8ad29ad4db67575dad25ba17a51f072ff18a22b4f0257a4d9c24f75"
   name = "github.com/stretchr/testify"
   packages = [
@@ -1477,6 +1470,7 @@
     "github.com/aws/aws-sdk-go/aws/endpoints",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/aws/aws-sdk-go/service/s3/s3manager",
     "github.com/aws/aws-sdk-go/service/ses",
     "github.com/aws/aws-sdk-go/service/ses/sesiface",
     "github.com/codegangsta/gin",
@@ -1522,6 +1516,7 @@
     "github.com/spf13/afero",
     "github.com/spf13/pflag",
     "github.com/spf13/viper",
+    "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/suite",
     "github.com/tealeg/xlsx",
