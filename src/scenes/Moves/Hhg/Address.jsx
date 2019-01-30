@@ -9,6 +9,12 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './Address.css';
 
 export class ShipmentAddress extends Component {
+  handleClick = () => {
+    alert(
+      "If you don't know your destination address before the movers arrive at your destination city, they will put your belongings into storage. Depending on the season, it can take from a few days to a month to get your stuff out of storage. If you are concerned that you might not have a new address in time, make sure to keep essential living items with you.",
+    );
+  };
+
   render() {
     const hasSecondary = get(this.props, 'formValues.has_secondary_pickup_address', false);
     const hasDelivery = get(this.props, 'formValues.has_delivery_address', false);
@@ -70,15 +76,18 @@ export class ShipmentAddress extends Component {
                 </FormSection>
               </Fragment>
             )}
+            <h4>Delivery Location</h4>
             <SwaggerField
               className="radio-title"
               fieldName="has_delivery_address"
               swagger={this.props.schema}
               component={YesNoBoolean}
             />
+            <div>
+              <a onClick={this.handleClick}>What happens if I don't know before I move?</a>
+            </div>
             {hasDelivery && (
               <Fragment>
-                <h4>Delivery Location</h4>
                 <FormSection name="delivery_address">
                   <div className="address-segment usa-grid">
                     <SwaggerField fieldName="street_address_1" swagger={addressSchema} required={hasDelivery} />
