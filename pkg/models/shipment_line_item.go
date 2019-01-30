@@ -1,9 +1,10 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
-	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/unit"
