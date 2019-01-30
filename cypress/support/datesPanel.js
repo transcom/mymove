@@ -101,12 +101,12 @@ export function userEntersDates() {
   cy
     .get('input[name="dates.pm_survey_planned_delivery_date"]')
     .first()
-    .type('10/7/2018')
+    .type('10/9/2018')
     .blur();
   cy
     .get('input[name="dates.actual_delivery_date"]')
     .first()
-    .type('10/8/2018');
+    .type('10/10/2018');
 
   cy
     .get('button')
@@ -121,9 +121,9 @@ export function userEntersDates() {
   cy.patientReload();
 
   cy.get('div.original_delivery_date').contains('21-May-18');
-  cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
-  cy.get('div.actual_delivery_date').contains('08-Oct-18');
-  cy.get('div.rdd').contains('07-Oct-18');
+  cy.get('div.pm_survey_planned_delivery_date').contains('09-Oct-18');
+  cy.get('div.actual_delivery_date').contains('10-Oct-18');
+  cy.get('div.rdd').contains('09-Oct-18');
 
   // Notes
   cy
@@ -194,12 +194,12 @@ export function userEntersAndRemovesDates() {
   cy
     .get('input[name="dates.pm_survey_planned_delivery_date"]')
     .first()
-    .type('10/7/2018')
+    .type('10/9/2018')
     .blur();
   cy
     .get('input[name="dates.actual_delivery_date"]')
     .first()
-    .type('10/8/2018')
+    .type('10/10/2018')
     .blur();
 
   // Notes
@@ -232,9 +232,9 @@ export function userEntersAndRemovesDates() {
   cy.get('div.pm_survey_planned_pickup_date').contains('02-Aug-18');
   cy.get('div.actual_pickup_date').contains('03-Aug-18');
   cy.get('div.original_delivery_date').contains('21-May-18');
-  cy.get('div.pm_survey_planned_delivery_date').contains('07-Oct-18');
-  cy.get('div.actual_delivery_date').contains('08-Oct-18');
-  cy.get('div.rdd').contains('07-Oct-18');
+  cy.get('div.pm_survey_planned_delivery_date').contains('09-Oct-18');
+  cy.get('div.actual_delivery_date').contains('10-Oct-18');
+  cy.get('div.rdd').contains('09-Oct-18');
   cy.get('div.pm_survey_notes').contains('Notes notes notes for dates');
 
   // Now remove all the dates
