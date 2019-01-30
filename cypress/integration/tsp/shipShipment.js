@@ -339,7 +339,7 @@ function tspUserDeliversShipment() {
 
   cy
     .get('div')
-    .contains('13')
+    .contains('15')
     .click();
 
   cy
