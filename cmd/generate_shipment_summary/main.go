@@ -54,7 +54,7 @@ func main() {
 		formFiller.Debug()
 	}
 
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, &auth.Session{}, parsedID)
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, &auth.Session{}, parsedID, time.Now())
 	noErr(err)
 
 	// page 1

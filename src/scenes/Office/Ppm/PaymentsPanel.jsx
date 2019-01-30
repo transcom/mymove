@@ -23,6 +23,10 @@ const attachmentsErrorMessages = {
   500: 'An unexpected error has occurred',
 };
 
+function getUserDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
 class PaymentsTable extends Component {
   state = {
     showPaperwork: false,
@@ -60,8 +64,10 @@ class PaymentsTable extends Component {
 
   downloadShipmentSummary = () => {
     let moveID = get(this.props, 'move.id');
+    const userDate = getUserDate();
+
     // eslint-disable-next-line
-    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet`);
+    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet/?preparationDate=${userDate}`);
   };
 
   renderAdvanceAction = () => {
