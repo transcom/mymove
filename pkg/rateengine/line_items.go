@@ -137,5 +137,11 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 	}
 	lineItems = append(lineItems, fuelSurcharge)
 
+	// Check that all base line items were added
+	err = models.VerifyBaseShipmentLineItems(lineItems)
+	if err != nil {
+		return nil, err
+	}
+
 	return lineItems, nil
 }

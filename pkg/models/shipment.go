@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/unit"
@@ -37,6 +36,8 @@ const (
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
 	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
 	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
+	// ShipmentStatusRECALCULATE captures enuam value "RECALCULATE"
+	ShipmentStatusRECALCULATE ShipmentStatus = "RECALCULATE"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -110,6 +111,40 @@ type Shipment struct {
 
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
+
+// BaseShipmentLineItem describes a base line items
+type BaseShipmentLineItem struct {
+	Code        string
+	Description string
+}
+
+// BaseShipmentLineItems lists all of the mandatory Shipment Line Items
+var BaseShipmentLineItems = []BaseShipmentLineItem{
+	{
+		Code:        "LHS",
+		Description: "Linehaul charges",
+	},
+	{
+		Code:        "135A",
+		Description: "Origin service fee",
+	},
+	{
+		Code:        "135B",
+		Description: "Destination service",
+	},
+	{
+		Code:        "105A",
+		Description: "Pack Fee",
+	},
+	{
+		Code:        "105C",
+		Description: "Unpack Fee",
+	},
+	{
+		Code:        "16A",
+		Description: "Fuel Surcharge",
+	},
+}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
@@ -223,6 +258,27 @@ func (s *Shipment) Complete() error {
 		return errors.Wrap(ErrInvalidTransition, "Completed")
 	}
 	s.Status = ShipmentStatusCOMPLETED
+	return nil
+}
+
+// Recalculate marks the Shipment for either ShipmentStatusRECALCULATE or ShipmentStatusDELIVERED/ShipmentStatusCOMPLETED.
+// The original Shipment Status should be ShipmentStatusDELIVERED/ShipmentStatusCOMPLETED.
+// ShipmentStatusRECALCULATE is temporary status that will be used while a Shipment is being recalculated.
+func (s *Shipment) Recalculate(status ShipmentStatus) error {
+	if s.Status != ShipmentStatusDELIVERED && s.Status != ShipmentStatusCOMPLETED {
+		return errors.Wrap(ErrInvalidTransition, "Recalculate")
+	}
+	switch status {
+	case ShipmentStatusDELIVERED:
+		s.Status = status
+	case ShipmentStatusCOMPLETED:
+		s.Status = status
+	case ShipmentStatusRECALCULATE:
+		s.Status = status
+	default:
+		return errors.Wrap(ErrInvalidTransition, "Recalculate")
+	}
+
 	return nil
 }
 
@@ -817,4 +873,45 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	}
 
 	return &acceptedOffers[0], nil
+}
+
+func findBaseShipmentLineItem(code string) bool {
+	for _, base := range BaseShipmentLineItems {
+		if code == base.Code {
+		}
+		return true
+	}
+	return false
+}
+
+// VerifyBaseShipmentLineItems checks that all of the expected base line items are in use, as they are mandatory for
+// every shipment
+func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
+	if len(BaseShipmentLineItems) != len(lineItems) {
+		return fmt.Errorf("Missing Base Shipment Line Item expected length: %d actual length: %d", len(BaseShipmentLineItems), len(lineItems))
+	}
+
+	for _, item := range lineItems {
+		if !findBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+			return errors.New("Unexpected Base Shipment Line Item found in Shipment's Line Items with Code: " + item.Tariff400ngItem.Code)
+		}
+	}
+
+	return nil
+}
+
+// DeleteBaseShipmentLineItems removes all base shipment line items from a shipment
+func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
+	for _, item := range s.ShipmentLineItems {
+		if item.Tariff400ngItem.RequiresPreApproval {
+			continue
+		}
+		if findBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+			err := db.Destroy(&item)
+			if err != nil {
+				return fmt.Errorf("Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code)
+			}
+		}
+	}
+	return nil
 }
