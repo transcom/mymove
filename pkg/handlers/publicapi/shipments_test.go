@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/go-openapi/strfmt"
@@ -197,7 +198,8 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {
 	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
-	genericDate := testdatagen.SampleWeekday
+	calendar := dates.NewUSCalendar()
+	genericDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
 		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
@@ -253,7 +255,8 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurveyWrongTSP() {
 	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, otherTspUser)
 
-	genericDate := testdatagen.SampleWeekday
+	calendar := dates.NewUSCalendar()
+	genericDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
 		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
@@ -800,7 +803,8 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	path := fmt.Sprintf("/shipments/%s/deliver", shipment.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	actualDeliveryDate := testdatagen.SampleWeekday
+	calendar := dates.NewUSCalendar()
+	actualDeliveryDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
 	body := apimessages.ActualDeliveryDate{
 		ActualDeliveryDate: handlers.FmtDatePtr(&actualDeliveryDate),
 	}
