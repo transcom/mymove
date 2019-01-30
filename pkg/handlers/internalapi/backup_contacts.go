@@ -15,13 +15,14 @@ import (
 
 func payloadForBackupContactModel(contact models.BackupContact) internalmessages.ServiceMemberBackupContactPayload {
 	contactPayload := internalmessages.ServiceMemberBackupContactPayload{
-		ID:         handlers.FmtUUID(contact.ID),
-		UpdatedAt:  handlers.FmtDateTime(contact.UpdatedAt),
-		CreatedAt:  handlers.FmtDateTime(contact.CreatedAt),
-		Name:       &contact.Name,
-		Email:      &contact.Email,
-		Telephone:  contact.Phone,
-		Permission: internalmessages.BackupContactPermission(contact.Permission),
+		ID:              handlers.FmtUUID(contact.ID),
+		ServiceMemberID: *handlers.FmtUUID(contact.ServiceMemberID),
+		UpdatedAt:       handlers.FmtDateTime(contact.UpdatedAt),
+		CreatedAt:       handlers.FmtDateTime(contact.CreatedAt),
+		Name:            &contact.Name,
+		Email:           &contact.Email,
+		Telephone:       contact.Phone,
+		Permission:      internalmessages.BackupContactPermission(contact.Permission),
 	}
 	return contactPayload
 }
