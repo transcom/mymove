@@ -4,6 +4,8 @@
 
 -- New local user with password
 CREATE USER ecs_user WITH PASSWORD 'md58037cee937aa16b186790d62ede15db5';
+-- rds_iam is an empty role in development
+GRANT rds_iam TO ecs_user;
 
 -- Modify existing tables, sequences, and functions
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ecs_user;
