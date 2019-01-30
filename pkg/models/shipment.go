@@ -319,11 +319,12 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 
 // BaseShipmentLineItemParams holds the basic parameters for a ShipmentLineItem
 type BaseShipmentLineItemParams struct {
-	Tariff400ngItemID uuid.UUID
-	Quantity1         *int64
-	Quantity2         *int64
-	Location          string
-	Notes             *string
+	Tariff400ngItemID   uuid.UUID
+	Tariff400ngItemCode string
+	Quantity1           *int64
+	Quantity2           *int64
+	Location            string
+	Notes               *string
 }
 
 // AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
@@ -351,15 +352,25 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		notesVal = *baseParams.Notes
 	}
 
-	shipmentLineItem := ShipmentLineItem{
-		ShipmentID:        s.ID,
-		Tariff400ngItemID: baseParams.Tariff400ngItemID,
-		Quantity1:         unit.BaseQuantity(*baseParams.Quantity1),
-		Quantity2:         quantity2,
-		Location:          ShipmentLineItemLocation(baseParams.Location),
-		Notes:             notesVal,
-		SubmittedDate:     time.Now(),
-		Status:            ShipmentLineItemStatusSUBMITTED,
+	//We can do validation for specific item codes here
+	// Example: 105B/E
+	var shipmentLineItem ShipmentLineItem
+	switch baseParams.Tariff400ngItemCode {
+	case "105B":
+		fallthrough
+	case "105E":
+		//check if item and crate dimensions exist
+	default:
+		shipmentLineItem = ShipmentLineItem{
+			ShipmentID:        s.ID,
+			Tariff400ngItemID: baseParams.Tariff400ngItemID,
+			Quantity1:         unit.BaseQuantity(*baseParams.Quantity1),
+			Quantity2:         quantity2,
+			Location:          ShipmentLineItemLocation(baseParams.Location),
+			Notes:             notesVal,
+			SubmittedDate:     time.Now(),
+			Status:            ShipmentLineItemStatusSUBMITTED,
+		}
 	}
 
 	verrs, err := db.ValidateAndCreate(&shipmentLineItem)
