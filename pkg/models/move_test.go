@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.DB())
 	order2 := testdatagen.MakeDefaultOrder(suite.DB())
 
-	pickupDate := testdatagen.SampleMondayDate
+	pickupDate := testdatagen.SampleWeekday
 	deliveryDate := pickupDate.AddDate(0, 0, 1)
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
@@ -141,7 +141,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 	// Create hhg (shipment) on this move
-	pickupDate := testdatagen.SampleMondayDate
+	pickupDate := testdatagen.SampleWeekday
 	deliveryDate := pickupDate.AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
@@ -257,7 +257,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	serviceMember.DutyStation = dutyStation
 	suite.MustSave(&serviceMember)
 
-	pickupDate := testdatagen.SampleMondayDate
+	pickupDate := testdatagen.SampleWeekday
 	deliveryDate := pickupDate.AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"

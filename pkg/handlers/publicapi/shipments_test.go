@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurvey() {
 	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
-	genericDate := testdatagen.SampleMondayDate
+	genericDate := testdatagen.SampleWeekday
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
 		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
@@ -253,7 +253,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerPmSurveyWrongTSP() {
 	req := httptest.NewRequest("PATCH", "/shipments/shipmentId", nil)
 	req = suite.AuthenticateTspRequest(req, otherTspUser)
 
-	genericDate := testdatagen.SampleMondayDate
+	genericDate := testdatagen.SampleWeekday
 	UpdatePayload := apimessages.Shipment{
 		PmSurveyPlannedPackDate:             handlers.FmtDatePtr(&genericDate),
 		PmSurveyConductedDate:               handlers.FmtDatePtr(&genericDate),
@@ -800,7 +800,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	path := fmt.Sprintf("/shipments/%s/deliver", shipment.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	actualDeliveryDate := testdatagen.SampleMondayDate
+	actualDeliveryDate := testdatagen.SampleWeekday
 	body := apimessages.ActualDeliveryDate{
 		ActualDeliveryDate: handlers.FmtDatePtr(&actualDeliveryDate),
 	}

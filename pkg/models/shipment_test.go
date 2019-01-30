@@ -63,7 +63,7 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 // Test_FetchUnofferedShipments tests that a shipment is returned when we fetch shipments with offers.
 func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	t := suite.T()
-	pickupDate := testdatagen.SampleMondayDate
+	pickupDate := testdatagen.SampleWeekday
 	deliveryDate := pickupDate.AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"

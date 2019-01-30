@@ -22,7 +22,7 @@ func (suite *ModelSuite) Test_ShipmentOfferValidations() {
 // Test_CreateShipmentOffer tests that a shipment is created when expected
 func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	t := suite.T()
-	pickupDate := testdatagen.SampleMondayDate
+	pickupDate := testdatagen.SampleWeekday
 	deliveryDate := pickupDate.AddDate(0, 0, 1)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())

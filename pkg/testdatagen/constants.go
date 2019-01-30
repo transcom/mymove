@@ -84,5 +84,5 @@ var OneDay = time.Hour * 24
 // OneWeek creates a 1 week period
 var OneWeek = time.Hour * 168
 
-// SampleMondayDate is a weekday date to help avoid weekend/holiday conflicts
-var SampleMondayDate = time.Date(2019, time.January, 28, 0, 0, 0, 0, time.UTC)
+// SampleWeekday is a weekday date to help avoid weekend/holiday conflicts
+var SampleWeekday = time.Date(TestYear, time.January, 28, 0, 0, 0, 0, time.UTC)
