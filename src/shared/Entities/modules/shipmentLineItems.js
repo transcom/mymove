@@ -30,20 +30,21 @@ export function getAllShipmentLineItems(label, shipmentId) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
 }
 
-function forceLinehaulSort(items) {
+// Show linehaul (and related) items before any accessorial items by adding isLinehaul property.
+function listLinehaulItemsBeforeAccessorials(items) {
   const linehaulRelatedItems = ['LHS', '135A', '135B', '105A', '105C', '16A'];
   return items.map(item => {
     return {
       ...item,
-      linehaulSort: linehaulRelatedItems.includes(item.tariff400ng_item.code) ? 1 : 10,
+      isLinehaul: linehaulRelatedItems.includes(item.tariff400ng_item.code) ? 1 : 10,
     };
   });
 }
 
 function orderItemsBy(items) {
   const sortOrder = {
-    fields: ['linehaulSort', 'status', 'approved_date', 'submitted_date', 'tariff400ng_item.code'],
-    order: ['asc', 'asc', 'desc', 'desc', 'asc'],
+    fields: ['isLinehaul', 'status', 'approved_date', 'submitted_date', 'tariff400ng_item.code'],
+    order: ['asc', 'asc', 'desc', 'desc', 'desc'],
   };
   return orderBy(items, sortOrder.fields, sortOrder.order);
 }
@@ -64,7 +65,7 @@ const selectShipmentLineItems = (state, shipmentId) => {
 };
 
 export const selectSortedShipmentLineItems = createSelector([selectShipmentLineItems], items =>
-  flow([forceLinehaulSort, orderItemsBy])(items),
+  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
 export const selectSortedPreApprovalShipmentLineItems = createSelector(
@@ -102,11 +103,11 @@ const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
 };
 
 export const selectUnbilledShipmentLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items =>
-  flow([forceLinehaulSort, orderItemsBy])(items),
+  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
 export const selectInvoiceShipmentLineItems = createSelector([selectInvoicesShipmentLineItemsByInvoiceId], items =>
-  flow([forceLinehaulSort, orderItemsBy])(items),
+  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
 export const selectTotalFromUnbilledLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items => {
