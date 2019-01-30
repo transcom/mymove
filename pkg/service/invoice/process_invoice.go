@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,6 +18,7 @@ type ProcessInvoice struct {
 	DB                    *pop.Connection
 	GexSender             gex.SendToGex
 	SendProductionInvoice bool
+	ICNSequencer          sequence.Sequencer
 }
 
 // Call processes an invoice by generating the EDI, sending the invoice to GEX, and recording the status.
@@ -43,7 +45,7 @@ func (p ProcessInvoice) Call(invoice *models.Invoice, shipment models.Shipment) 
 
 func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, shipment models.Shipment) (*string, error) {
 	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(shipment, *invoice, p.DB, p.SendProductionInvoice, clock.New())
+	invoice858C, err := ediinvoice.Generate858C(shipment, *invoice, p.DB, p.SendProductionInvoice, p.ICNSequencer, clock.New())
 	if err != nil {
 		return nil, err
 	}
