@@ -226,7 +226,6 @@ const initialState = {
   backupContactsAreLoading: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
-  moveIsCanceling: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   officeMove: {},
@@ -251,9 +250,6 @@ const initialState = {
   hhgInvoiceInDraft: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
-  moveHasApproveError: false,
-  moveHasCancelError: false,
-  moveHasCancelSuccess: false,
   flashMessage: false,
 };
 
