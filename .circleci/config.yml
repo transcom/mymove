@@ -710,6 +710,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
       - build_tools:
           requires:
