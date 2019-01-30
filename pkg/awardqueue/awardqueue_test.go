@@ -84,11 +84,12 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
+	calendar := dates.NewUSCalendar()
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
-	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
+	blackoutEndDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 1, 0))
 
-	blackoutPickupDate := blackoutStartDate.AddDate(0, 0, 1)
-	blackoutDeliverDate := blackoutStartDate.AddDate(0, 0, 5)
+	blackoutPickupDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 0, 1))
+	blackoutDeliverDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 0, 5))
 
 	blackoutShipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
