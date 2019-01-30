@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/go-openapi/swag"
@@ -29,8 +30,9 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 
-	pickupDate := blackoutStartDate.Add(time.Hour)
-	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 61) // +1 to avoid weekend
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, blackoutStartDate.Add(time.Hour))
+	deliveryDate := dates.NextWorkday(*calendar, blackoutStartDate.Add(time.Hour*24*60))
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
