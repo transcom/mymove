@@ -1,9 +1,11 @@
 package models_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/dates"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -15,7 +17,8 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9
-	weekendDate := time.Date(2019, time.January, 20, 0, 0, 0, 0, time.UTC)
+	calendar := dates.NewUSCalendar()
+	weekendDate := dates.NextNonWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 25, 0, 0, 0, 0, time.UTC))
 
 	shipment := &Shipment{
 		EstimatedPackDays:           &packDays,
@@ -34,6 +37,7 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		ActualDeliveryDate:          &weekendDate,
 	}
 
+	stringDate := weekendDate.Format("2006-01-02 15:04:05 -0700 UTC")
 	expErrors := map[string][]string{
 		"move_id":                         []string{"move_id can not be blank."},
 		"status":                          []string{"status can not be blank."},
@@ -42,15 +46,15 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		"weight_estimate":                 []string{"-3 is less than zero."},
 		"progear_weight_estimate":         []string{"-12 is less than zero."},
 		"spouse_progear_weight_estimate":  []string{"-9 is less than zero."},
-		"requested_pickup_date":           []string{"requested_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"original_delivery_date":          []string{"original_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"original_pack_date":              []string{"original_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"pm_survey_planned_pack_date":     []string{"pm_survey_planned_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"pm_survey_planned_pickup_date":   []string{"pm_survey_planned_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"pm_survey_planned_delivery_date": []string{"pm_survey_planned_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"actual_pack_date":                []string{"actual_pack_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"actual_pickup_date":              []string{"actual_pickup_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
-		"actual_delivery_date":            []string{"actual_delivery_date cannot be on a weekend or holiday, is 2019-01-20 00:00:00 +0000 UTC"},
+		"requested_pickup_date":           []string{fmt.Sprintf("requested_pickup_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_delivery_date":          []string{fmt.Sprintf("original_delivery_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_pack_date":              []string{fmt.Sprintf("original_pack_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pack_date":     []string{fmt.Sprintf("pm_survey_planned_pack_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pickup_date":   []string{fmt.Sprintf("pm_survey_planned_pickup_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_delivery_date": []string{fmt.Sprintf("pm_survey_planned_delivery_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pack_date":                []string{fmt.Sprintf("actual_pack_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pickup_date":              []string{fmt.Sprintf("actual_pickup_date cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_delivery_date":            []string{fmt.Sprintf("actual_delivery_date cannot be on a weekend or holiday, is %v", stringDate)},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
