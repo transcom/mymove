@@ -11,7 +11,7 @@ $ make server_test
 All of the commands in this section assume that `test_db` is setup properly. This can be done using:
 
 ```console
-$ make db_test_reset
+$ make db_test_reset && make db_test_migrate
 ```
 
 ## Run Acceptance Tests
