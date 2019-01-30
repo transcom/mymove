@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export DB_NAME=prod_migrations
+# shellcheck source=bin/psql
+. "$(dirname "$0")"/psql
