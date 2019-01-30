@@ -136,13 +136,32 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		return accessorialop.NewCreateShipmentLineItemForbidden()
 	}
 
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID: tariff400ngItemID,
+		Quantity1:         params.Payload.Quantity1,
+		Quantity2:         params.Payload.Quantity2,
+		Location:          string(params.Payload.Location),
+		Notes:             handlers.FmtString(params.Payload.Notes),
+	}
+
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimension: &models.AdditionalLineItemDimension{
+			Length: params.Payload.ItemDimension.Length,
+			Width:  params.Payload.ItemDimension.Width,
+			Height: params.Payload.ItemDimension.Height,
+		},
+		CrateDimension: &models.AdditionalLineItemDimension{
+			Length: params.Payload.CrateDimension.Length,
+			Width:  params.Payload.CrateDimension.Width,
+			Height: params.Payload.CrateDimension.Height,
+		},
+	}
+
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
-		tariff400ngItemID,
-		params.Payload.Quantity1,
-		params.Payload.Quantity2,
-		string(params.Payload.Location),
-		handlers.FmtString(params.Payload.Notes),
+		baseParams,
+		additionalParams,
 	)
+
 	if verrs.HasAny() || err != nil {
 		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

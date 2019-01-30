@@ -317,24 +317,46 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	return &trafficDistributionList, nil
 }
 
+// BaseShipmentLineItemParams holds the basic parameters for a ShipmentLineItem
+type BaseShipmentLineItemParams struct {
+	Tariff400ngItemID uuid.UUID
+	Quantity1         *int64
+	Quantity2         *int64
+	Location          string
+	Notes             *string
+}
+
+// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
+type AdditionalShipmentLineItemParams struct {
+	ItemDimension  *AdditionalLineItemDimension
+	CrateDimension *AdditionalLineItemDimension
+}
+
+// AdditionalLineItemDimension holds the length, width and height that will be converted to inches
+type AdditionalLineItemDimension struct {
+	Length int64
+	Width  int64
+	Height int64
+}
+
 // CreateShipmentLineItem creates a new ShipmentLineItem tied to the Shipment
-func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentLineItem, *validate.Errors, error) {
+func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams) (*ShipmentLineItem, *validate.Errors, error) {
 	var quantity2 unit.BaseQuantity
-	if q2 != nil {
-		quantity2 = unit.BaseQuantity(*q2)
+	if baseParams.Quantity2 != nil {
+		quantity2 = unit.BaseQuantity(*baseParams.Quantity2)
 	}
 
 	var notesVal string
-	if notes != nil {
-		notesVal = *notes
+	if baseParams.Notes != nil {
+		notesVal = *baseParams.Notes
 	}
 
 	shipmentLineItem := ShipmentLineItem{
 		ShipmentID:        s.ID,
-		Tariff400ngItemID: tariff400ngItemID,
-		Quantity1:         unit.BaseQuantity(*q1),
+		Tariff400ngItemID: baseParams.Tariff400ngItemID,
+		Quantity1:         unit.BaseQuantity(*baseParams.Quantity1),
 		Quantity2:         quantity2,
-		Location:          ShipmentLineItemLocation(location),
+		Location:          ShipmentLineItemLocation(baseParams.Location),
 		Notes:             notesVal,
 		SubmittedDate:     time.Now(),
 		Status:            ShipmentLineItemStatusSUBMITTED,
