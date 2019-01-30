@@ -359,8 +359,19 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	case "105B":
 		fallthrough
 	case "105E":
-		//check if item and crate dimensions exist
+		//Additional validation check if item and crate dimensions exist
+		// for 105B/E
+		if additionalParams.ItemDimension != nil && additionalParams.CrateDimension != nil {
+			return &ShipmentLineItem{}, validate.NewErrors(), errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+		}
+
+		// otherwise, continue to
+		/*
+			1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
+			2. Add item and crate dimensions
+		*/
 	default:
+		// Non-specified item code
 		shipmentLineItem = ShipmentLineItem{
 			ShipmentID:        s.ID,
 			Tariff400ngItemID: baseParams.Tariff400ngItemID,
