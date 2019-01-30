@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -36,100 +37,126 @@ func TestCreateFormSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-// TODO handle file creation at end of testing to delete all created files
-func (suite *CreateFormSuite) TestCreateFormFileStorerCreateFail() {
-	fileStorer := new(mocks.FileCreator)
-	fileStorer.On("Create", "something.png").Return(nil, errors.New("File error")).Times(1)
-
-	createFormService := CreateForm{FileStorer: fileStorer}
-
+func (suite *CreateFormSuite) GenerateGBLFormValues() models.GovBillOfLadingFormValues {
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.DB(), tspUser)
 	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
 	suite.MustSave(&shipment.Move.Orders)
 
 	gbl, _ := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
+	return gbl
+}
 
+func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
+	FileStorer := &mocks.FileStorer{}
+	FormFiller := &mocks.FormFiller{}
+
+	gbl := suite.GenerateGBLFormValues()
+	fs := afero.NewMemMapFs()
+	afs := &afero.Afero{Fs: fs}
+	f, _ := afs.TempFile("", "ioutil-test")
+
+	FormFiller.On("AppendPage",
+		mock.AnythingOfType("*bytes.Reader"),
+		mock.AnythingOfType("map[string]paperwork.FieldPos"),
+		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
+	).Return(nil).Times(1)
+
+	FileStorer.On("Create",
+		mock.AnythingOfType("string"),
+	).Return(f, nil)
+
+	FormFiller.On("Output",
+		f,
+	).Return(nil)
+
+	createFormService := CreateForm{FileStorer, FormFiller}
+	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+
+	assert.NotNil(suite.T(), file)
+	assert.Nil(suite.T(), err)
+	FormFiller.AssertExpectations(suite.T())
+}
+
+func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure() {
+	FileStorer := &mocks.FileStorer{}
+	FormFiller := &mocks.FormFiller{}
+
+	gbl := suite.GenerateGBLFormValues()
+
+	FormFiller.On("AppendPage",
+		mock.AnythingOfType("*bytes.Reader"),
+		mock.AnythingOfType("map[string]paperwork.FieldPos"),
+		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
+	).Return(errors.New("Error for FormFiller.AppendPage()")).Times(1)
+
+	createFormService := CreateForm{FileStorer, FormFiller}
+	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+
+	assert.NotNil(suite.T(), err)
+	assert.Nil(suite.T(), file)
+	FormFiller.AssertExpectations(suite.T())
+}
+
+func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
+	FileStorer := &mocks.FileStorer{}
+	FormFiller := &mocks.FormFiller{}
+
+	gbl := suite.GenerateGBLFormValues()
+
+	FormFiller.On("AppendPage",
+		mock.AnythingOfType("*bytes.Reader"),
+		mock.AnythingOfType("map[string]paperwork.FieldPos"),
+		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
+	).Return(nil).Times(1)
+
+	FileStorer.On("Create",
+		mock.AnythingOfType("string"),
+	).Return(nil, errors.New("Error for FileStorer.Create()"))
+
+	createFormService := CreateForm{FileStorer, FormFiller}
 	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
 
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
+	// check error message
 	//assert.Equal(suite.T(), err.msg, "Error creating a new temp file for some-form-type form.", "should be equal")
-	fileStorer.AssertExpectations(suite.T())
+	FormFiller.AssertExpectations(suite.T())
 }
 
-func (suite *CreateFormSuite) TestCreateFormFileStorerCreateSuccess() {
+func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
+	FileStorer := &mocks.FileStorer{}
+	FormFiller := &mocks.FormFiller{}
+
+	gbl := suite.GenerateGBLFormValues()
 	fs := afero.NewMemMapFs()
 	afs := &afero.Afero{Fs: fs}
 	f, _ := afs.TempFile("", "ioutil-test")
 
-	fileStorer := &mocks.FileCreator{}
-	fileStorer.On("Create", mock.AnythingOfType("string")).Return(f, nil).Times(2)
+	FormFiller.On("AppendPage",
+		mock.AnythingOfType("*bytes.Reader"),
+		mock.AnythingOfType("map[string]paperwork.FieldPos"),
+		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
+	).Return(nil).Times(1)
 
-	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
-	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.DB(), tspUser)
-	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
-	suite.MustSave(&shipment.Move.Orders)
+	FileStorer.On("Create",
+		mock.AnythingOfType("string"),
+	).Return(f, nil)
 
-	gbl, _ := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
+	FormFiller.On("Output",
+		f,
+	).Return(errors.New("Error for FormFiller.Output()"))
 
-	createFormService := CreateForm{FileStorer: fileStorer}
+	createFormService := CreateForm{FileStorer, FormFiller}
 	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
 
-	assert.Nil(suite.T(), err)
-	assert.NotNil(suite.T(), file)
-	fileStorer.AssertExpectations(suite.T())
+	assert.Nil(suite.T(), file)
+	assert.NotNil(suite.T(), err)
+
+	errMsg := errors.Cause(err)
+	fmt.Println(errMsg)
+	fmt.Println(err)
+
+	assert.Equal(suite.T(), "Failure exporting some-form-type form to file.: Error for FormFiller.Output()", errMsg.Error(), "should be equal")
+	FormFiller.AssertExpectations(suite.T())
 }
-
-func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
-	aferoFile := &mocks.File{}
-	var offset int64
-	//var whence = 0
-	aferoFile.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil).Times(1)
-	aferoFile.On("Seek", mock.AnythingOfType("int64"), mock.AnythingOfType("int")).Return(offset, nil).Times(1)
-	aferoFile.On("Read", mock.AnythingOfType("[]uint8")).Return(1, nil)
-
-	fileStorer := &mocks.FileCreator{}
-	fileStorer.On("Create", mock.AnythingOfType("string")).Return(aferoFile, nil).Times(2)
-
-	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
-	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.DB(), tspUser)
-	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
-	suite.MustSave(&shipment.Move.Orders)
-
-	gbl, _ := models.FetchGovBillOfLadingFormValues(suite.DB(), shipment.ID)
-
-	createFormService := CreateForm{FileStorer: fileStorer}
-	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
-
-	assert.Nil(suite.T(), err)
-	assert.NotNil(suite.T(), file)
-	fileStorer.AssertExpectations(suite.T())
-}
-
-/*
-func (suite *CreateFormSuite) TestCreateFormFileWriterSuccess() {
-	fs := afero.NewMemMapFs()
-	afs := &afero.Afero{Fs: fs}
-	f, _ := afs.TempFile("", "ioutil-test")
-
-	fileStorer := new(mocks.FileCreator)
-	fileStorer.On("Create", mock.AnythingOfType("string")).Return(f, nil).Times(2)
-
-	fileInteractor := new(mocks.FileInteractor)
-	fileInteractor.On("Write", mock.AnythingOfType("byte slice")).Return(1, nil).Times(1)
-
-	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
-	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.DB(), tspUser)
-	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
-	suite.MustSave(&shipment.Move.Orders)
-
-	gbl, _ := models.FetchGovBillOfLadingExtractor(suite.DB(), shipment.ID)
-	createFormService := CreateForm{FileStorer: fileStorer}
-	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
-
-	assert.Nil(suite.T(), err)
-	assert.NotNil(suite.T(), file)
-	fileInteractor.AssertExpectations(suite.T())
-}
-*/
