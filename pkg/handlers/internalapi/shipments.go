@@ -42,12 +42,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		codeOfService = &s.TrafficDistributionList.CodeOfService
 	}
 
-	var serviceAgentPayloads []*internalmessages.ServiceAgent
-	for _, serviceAgent := range s.ServiceAgents {
-		payload := payloadForServiceAgentModel(serviceAgent)
-		serviceAgentPayloads = append(serviceAgentPayloads, payload)
-	}
-
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
 		summary, err := calculateMoveDatesFromShipment(&s)
@@ -77,7 +71,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		TrafficDistributionList:   payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
 		MoveID:                    strfmt.UUID(s.MoveID.String()),
-		ServiceAgents:             serviceAgentPayloads,
 
 		// dates
 		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
@@ -530,6 +523,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		DB:                    h.DB(),
 		GexSender:             h.GexSender(),
 		SendProductionInvoice: h.SendProductionInvoice(),
+		ICNSequencer:          h.ICNSequencer(),
 	}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

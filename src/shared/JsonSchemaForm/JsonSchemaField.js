@@ -4,7 +4,7 @@ import validator from './validator';
 import { Field } from 'redux-form';
 import moment from 'moment';
 import SingleDatePicker from './SingleDatePicker';
-import { defaultDateFormat } from 'shared/utils';
+import { swaggerDateFormat } from 'shared/utils';
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -118,7 +118,7 @@ const configureZipField = (swaggerField, props, zipPattern) => {
 };
 
 const normalizeDates = value => {
-  return value ? moment(value).format(defaultDateFormat) : value;
+  return value ? moment(value).format(swaggerDateFormat) : value;
 };
 
 const configureDateField = (swaggerField, props) => {

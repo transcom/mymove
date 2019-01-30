@@ -232,7 +232,7 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// is created/updated.
 	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
 	if err != nil {
-		return errors.Wrapf(err, "Could not determine TDL for shipment ID %s for move ID %s", s.ID, s.MoveID)
+		return errors.Wrapf(ErrFetchNotFound, "Could not determine TDL for shipment ID %s for move ID %s"+"\n Error from attempt: \n %s", s.ID, s.MoveID, err.Error())
 	}
 
 	if trafficDistributionList != nil {

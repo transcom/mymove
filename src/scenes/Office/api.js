@@ -93,46 +93,6 @@ export async function LoadPPMs(moveId) {
   return response.body;
 }
 
-// Move status
-export async function ApproveBasics(moveId) {
-  const client = await getClient();
-  const response = await client.apis.office.approveMove({
-    moveId,
-  });
-  checkResponse(response, 'failed to approve move due to server error');
-  return response.body;
-}
-
-// PPM status
-export async function ApprovePPM(moveId, ppmId) {
-  const client = await getClient();
-  const response = await client.apis.office.approvePPM({
-    moveId,
-    personallyProcuredMoveId: ppmId,
-  });
-  checkResponse(response, 'failed to approve ppm due to server error');
-  return response.body;
-}
-
-// HHG status
-export async function ApproveHHG(shipmentId) {
-  const client = await getClient();
-  const response = await client.apis.shipments.approveHHG({
-    shipmentId,
-  });
-  checkResponse(response, 'failed to approve hhg due to server error');
-  return response.body;
-}
-
-export async function CompleteHHG(shipmentId) {
-  const client = await getClient();
-  const response = await client.apis.shipments.completeHHG({
-    shipmentId,
-  });
-  checkResponse(response, 'failed to complete hhg due to server error');
-  return response.body;
-}
-
 // HHG invoice
 export async function SendHHGInvoice(shipmentId) {
   const client = await getClient();
@@ -150,19 +110,6 @@ export async function ApproveReimbursement(reimbursementId) {
     reimbursementId,
   });
   checkResponse(response, 'failed to approve reimbursement due to server error');
-  return response.body;
-}
-
-// Move status
-export async function CancelMove(moveId, cancelReason) {
-  const client = await getClient();
-  const response = await client.apis.office.cancelMove({
-    moveId,
-    cancelMove: {
-      cancel_reason: cancelReason,
-    },
-  });
-  checkResponse(response, 'failed to cancel move and associated dependencies due to server error');
   return response.body;
 }
 
