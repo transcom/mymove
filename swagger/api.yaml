@@ -281,6 +281,12 @@ definitions:
         type: integer
       height:
         type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
   ShipmentLineItem:
     type: object
     properties:
@@ -327,10 +333,20 @@ definitions:
         example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
       description:
         type: string
+      item_dimension_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       item_dimension:
         $ref: '#/definitions/ShipmentLineItemDimension'
       crate_dimension:
         $ref: '#/definitions/ShipmentLineItemDimension'
+      crate_dimension_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       status:
         $ref: '#/definitions/ShipmentLineItemStatus'
       invoice_id:
