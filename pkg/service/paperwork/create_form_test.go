@@ -1,7 +1,6 @@
 package paperwork
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -95,6 +94,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 
 	assert.NotNil(suite.T(), err)
 	assert.Nil(suite.T(), file)
+	serviceErrMsg := errors.Cause(err)
+	assert.Equal(suite.T(), "Error for FormFiller.AppendPage()", serviceErrMsg.Error(), "should be equal")
+	assert.Equal(suite.T(), "Failure writing some-form-type data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -119,8 +121,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
-	// check error message
-	//assert.Equal(suite.T(), err.msg, "Error creating a new temp file for some-form-type form.", "should be equal")
+	serviceErrMsg := errors.Cause(err)
+	assert.Equal(suite.T(), "Error for FileStorer.Create()", serviceErrMsg.Error(), "should be equal")
+	assert.Equal(suite.T(), "Error creating a new afero file for some-form-type form.: Error for FileStorer.Create()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -152,11 +155,8 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
-
-	errMsg := errors.Cause(err)
-	fmt.Println(errMsg)
-	fmt.Println(err)
-
-	assert.Equal(suite.T(), "Failure exporting some-form-type form to file.: Error for FormFiller.Output()", errMsg.Error(), "should be equal")
+	serviceErrMsg := errors.Cause(err)
+	assert.Equal(suite.T(), "Error for FormFiller.Output()", serviceErrMsg.Error(), "should be equal")
+	assert.Equal(suite.T(), "Failure exporting some-form-type form to file.: Error for FormFiller.Output()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }

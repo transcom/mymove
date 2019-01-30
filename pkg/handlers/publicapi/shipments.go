@@ -604,7 +604,6 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if orders.IsCompleteForGBL() != true {
 		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"), http.StatusExpectationFailed)
 	}
-	//-------- START ----------
 
 	// Create PDF for GBL
 	gbl, err := models.FetchGovBillOfLadingFormValues(h.DB(), shipmentID)
@@ -632,7 +631,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	uploads := []models.Upload{*upload}
-	//-------- END ----------
+
 	// Create GBL move document associated to the shipment
 	doc, verrs, err := shipment.Move.CreateMoveDocument(h.DB(),
 		uploads,

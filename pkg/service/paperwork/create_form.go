@@ -58,6 +58,7 @@ func (c CreateForm) Call(data interface{}, formLayout paperwork.FormLayout, file
 		return nil, errors.Wrap(err, fmt.Sprintf("Error creating a new afero file for %s form.", formType))
 	}
 
+	// Export file from form filler
 	err = c.FormFiller.Output(file)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Failure exporting %s form to file.", formType))
