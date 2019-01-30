@@ -22,7 +22,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID: moveID,
+			ID:               moveID,
+			SelectedMoveType: models.SelectedMoveTypeHHGPPM,
 		},
 		Order: models.Order{
 			OrdersType:       ordersType,
@@ -32,6 +33,12 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 			ID:            serviceMemberID,
 			DutyStationID: &yuma.ID,
 			Rank:          &rank,
+		},
+	})
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Move: move,
 		},
 	})
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
@@ -49,8 +56,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Require().Len(ssd.Shipments, 1)
+	suite.Require().Len(ssd.Shipments, 2)
 	suite.Equal(shipment.ID, ssd.Shipments[0].ID)
+	suite.Equal(ppm.ID, ssd.Shipments[1].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
@@ -180,10 +188,11 @@ func (suite *ModelSuite) TestFormatCurrentShipmentStatus() {
 func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 	singleShipment := models.Shipments{models.Shipment{}}
 	multipleShipments := models.Shipments{models.Shipment{}, models.Shipment{}}
+	var blankPPMSlice []models.PersonallyProcuredMove
 
-	multipleShipmentsFormatted := models.FormatShipments(multipleShipments)
+	multipleShipmentsFormatted := models.FormatAllShipments(blankPPMSlice, multipleShipments)
 
-	suite.Equal("01 - PPM", models.FormatShipments(singleShipment)[0].ShipmentNumberAndType)
+	suite.Equal("01 - PPM", models.FormatAllShipments(blankPPMSlice, singleShipment)[0].ShipmentNumberAndType)
 	suite.Require().Len(multipleShipmentsFormatted, 2)
 	suite.Equal("01 - PPM", multipleShipmentsFormatted[0].ShipmentNumberAndType)
 	suite.Equal("02 - PPM", multipleShipmentsFormatted[1].ShipmentNumberAndType)

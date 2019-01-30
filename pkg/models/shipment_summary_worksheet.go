@@ -71,13 +71,14 @@ type ShipmentSummaryWorksheetPage2Values struct {
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
 type ShipmentSummaryFormData struct {
-	ServiceMember      ServiceMember
-	Order              Order
-	CurrentDutyStation DutyStation
-	NewDutyStation     DutyStation
-	WeightAllotment    WeightAllotment
-	Shipments          Shipments
-	PreparationDate    time.Time
+	ServiceMember           ServiceMember
+	Order                   Order
+	CurrentDutyStation      DutyStation
+	NewDutyStation          DutyStation
+	WeightAllotment         WeightAllotment
+	Shipments               Shipments
+	PreparationDate         time.Time
+	PersonallyProcuredMoves PersonallyProcuredMoves
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
@@ -89,6 +90,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.DutyStation.Address",
 		"Shipments",
+		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 
 	if err != nil {
@@ -111,12 +113,13 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	weightAllotment := GetWeightAllotment(rank)
 
 	ssd := ShipmentSummaryFormData{
-		ServiceMember:      serviceMember,
-		Order:              move.Orders,
-		CurrentDutyStation: serviceMember.DutyStation,
-		NewDutyStation:     move.Orders.NewDutyStation,
-		WeightAllotment:    weightAllotment,
-		Shipments:          move.Shipments,
+		ServiceMember:           serviceMember,
+		Order:                   move.Orders,
+		CurrentDutyStation:      serviceMember.DutyStation,
+		NewDutyStation:          move.Orders.NewDutyStation,
+		WeightAllotment:         weightAllotment,
+		Shipments:               move.Shipments,
+		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 	}
 	return ssd, nil
 }
@@ -152,7 +155,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 		data.WeightAllotment.ProGearWeightSpouse
 	page1.TotalWeightAllotment = FormatWeights(total)
 
-	formattedShipments := FormatShipments(data.Shipments)
+	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves, data.Shipments)
 	// This will need to be revised slightly to handle multiple shipments
 	if len(formattedShipments) != 0 {
 		page1.Shipment1NumberAndType = formattedShipments[0].ShipmentNumberAndType
@@ -180,14 +183,22 @@ func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 	return strings.TrimSpace(fmt.Sprintf("%s, %s %s", lastName, firstName, middleName))
 }
 
-//FormatShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatShipments(shipments Shipments) []ShipmentSummaryWorkSheetShipments {
-	formattedShipments := make([]ShipmentSummaryWorkSheetShipments, len(shipments))
+//FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
+func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) []ShipmentSummaryWorkSheetShipments {
+	formattedShipments := make([]ShipmentSummaryWorkSheetShipments, len(shipments)+len(ppms))
 	for i, shipment := range shipments {
 		formattedShipments[i].ShipmentNumberAndType = FormatShipmentNumberAndType(i)
 		formattedShipments[i].PickUpDate = FormatShipmentPickupDate(shipment)
 		formattedShipments[i].ShipmentWeight = FormatShipmentWeight(shipment)
 		formattedShipments[i].CurrentShipmentStatus = FormatCurrentShipmentStatus(shipment)
+	}
+	for i, ppm := range ppms {
+		j := i + len(shipments)
+		formattedShipments[j].ShipmentNumberAndType = FormatPPMNumberAndType(j)
+		formattedShipments[j].PickUpDate = FormatPPMPickupDate(ppm)
+		// We don't have an actual weight for ppms yet, so we're leaving it blank for now
+		formattedShipments[j].ShipmentWeight = " "
+		formattedShipments[j].CurrentShipmentStatus = FormatCurrentPPMStatus(ppm)
 	}
 	return formattedShipments
 }
@@ -197,8 +208,18 @@ func FormatCurrentShipmentStatus(shipment Shipment) string {
 	return FormatEnum(string(shipment.Status))
 }
 
+//FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
+func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
+	return FormatEnum(string(ppm.Status))
+}
+
 //FormatShipmentNumberAndType formats FormatShipmentNumberAndType for the Shipment Summary Worksheet
 func FormatShipmentNumberAndType(i int) string {
+	return fmt.Sprintf("%02d - HHG (GBL)", i+1)
+}
+
+//FormatPPMNumberAndType formats FormatShipmentNumberAndType for the Shipment Summary Worksheet
+func FormatPPMNumberAndType(i int) string {
 	return fmt.Sprintf("%02d - PPM", i+1)
 }
 
@@ -215,6 +236,14 @@ func FormatShipmentWeight(shipment Shipment) string {
 func FormatShipmentPickupDate(shipment Shipment) string {
 	if shipment.ActualPickupDate != nil {
 		return FormatDate(*shipment.ActualPickupDate)
+	}
+	return ""
+}
+
+//FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
+func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
+	if ppm.PlannedMoveDate != nil {
+		return FormatDate(*ppm.PlannedMoveDate)
 	}
 	return ""
 }
