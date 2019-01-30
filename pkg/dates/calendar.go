@@ -24,3 +24,13 @@ func NextWorkday(cal cal.Calendar, date time.Time) time.Time {
 		}
 	}
 }
+
+// NextNonWorkday returns the next weekend or holiday after the given date, using the given calendar
+func NextNonWorkday(cal cal.Calendar, date time.Time) time.Time {
+	for {
+		date = date.AddDate(0, 0, 1)
+		if !cal.IsWorkday(date) {
+			return date
+		}
+	}
+}
