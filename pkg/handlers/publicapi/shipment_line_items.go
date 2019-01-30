@@ -157,24 +157,32 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	}
 
 	baseParams := models.BaseShipmentLineItemParams{
-		Tariff400ngItemID: tariff400ngItemID,
-		Quantity1:         params.Payload.Quantity1,
-		Quantity2:         params.Payload.Quantity2,
-		Location:          string(params.Payload.Location),
-		Notes:             handlers.FmtString(params.Payload.Notes),
+		Tariff400ngItemID:   tariff400ngItemID,
+		Tariff400ngItemCode: tariff400ngItem.Code,
+		Quantity1:           params.Payload.Quantity1,
+		Quantity2:           params.Payload.Quantity2,
+		Location:            string(params.Payload.Location),
+		Notes:               handlers.FmtString(params.Payload.Notes),
 	}
 
-	additionalParams := models.AdditionalShipmentLineItemParams{
-		ItemDimension: &models.AdditionalLineItemDimension{
+	var itemDimension, crateDimension *models.AdditionalLineItemDimension
+	if params.Payload.ItemDimension != nil {
+		itemDimension := &models.AdditionalLineItemDimension{
 			Length: params.Payload.ItemDimension.Length,
 			Width:  params.Payload.ItemDimension.Width,
 			Height: params.Payload.ItemDimension.Height,
-		},
-		CrateDimension: &models.AdditionalLineItemDimension{
+		}
+	}
+	if params.Payload.CrateDimension != nil {
+		CrateDimension := &models.AdditionalLineItemDimension{
 			Length: params.Payload.CrateDimension.Length,
 			Width:  params.Payload.CrateDimension.Width,
 			Height: params.Payload.CrateDimension.Height,
-		},
+		}
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimension:  itemDimension,
+		CrateDimension: crateDimension,
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
