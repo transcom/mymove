@@ -209,12 +209,11 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus, ppmStatus, shipmentStatus } = this.props;
+    const { moveDocuments, moveStatus, ppmStatus, shipment, shipmentStatus } = this.props;
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
-    const hhg = this.props.officeHHG;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
@@ -234,7 +233,7 @@ class MoveInfo extends Component {
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
 
-    const moveDate = isPPM ? ppm.planned_move_date : hhg.requested_pickup_date;
+    const moveDate = isPPM ? ppm.planned_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -325,7 +324,6 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
-                      officeHHG={JSON.stringify(this.props.officeHHG)}
                       updatePublicShipment={this.props.updatePublicShipment}
                       moveId={this.props.moveId}
                       ppmStatus={this.props.ppmStatus}
@@ -473,7 +471,6 @@ const mapStateToProps = (state, ownProps) => {
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
     officeBackupContacts: get(state, 'office.officeBackupContacts', []),
-    officeHHG: get(state, 'office.officeMove.shipments.0', {}),
     officeMove,
     officeOrders: get(state, 'office.officeOrders', {}),
     officePPM,
