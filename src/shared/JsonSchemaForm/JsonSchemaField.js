@@ -85,7 +85,7 @@ const configureCentsField = (swaggerField, props) => {
 // This field allows the form field to accept floats and converts values to
 // decimal units for db storage (value * (10 ^ decimalLength))
 const configureDecimalField = (swaggerField, props, decimalLength, warningMessage) => {
-  props.normalize = validator.normalizeBaseQuantity(decimalLength);
+  props.normalize = validator.createBaseQuantityNormalizer(decimalLength);
   props.validate.push(validator.patternMatches(swaggerField.pattern, warningMessage));
   props.validate.push(validator.isNumber);
   props.type = 'text';
@@ -228,7 +228,6 @@ export const SwaggerField = props => {
     validate,
     zipPattern,
     filteredEnumListOverride,
-    dimensionComponent,
     hideLabel,
   } = props;
   let swaggerField;
@@ -261,7 +260,6 @@ export const SwaggerField = props => {
     validate,
     zipPattern,
     filteredEnumListOverride,
-    dimensionComponent,
     hideLabel,
   );
 };
@@ -280,7 +278,6 @@ const createSchemaField = (
   validate,
   zipPattern,
   filteredEnumListOverride,
-  dimensionComponent,
   hideLabel,
 ) => {
   // Early return here, this is an edge case for label placement.
@@ -337,13 +334,11 @@ const createSchemaField = (
         4,
         'Base quantity must be only up to 4 decimal places.',
       );
+    } else if (swaggerField.format === 'dimension') {
+      fieldProps.name = nameAttr;
+      fieldProps = configureDecimalField(swaggerField, fieldProps, 2, 'Dimension must be only up to 2 decimal places.');
     } else {
       fieldProps = configureNumberField(swaggerField, fieldProps);
-    }
-  } else if (swaggerField.type === 'object') {
-    if (swaggerField.format === 'dimensions') {
-      fieldProps.name = nameAttr + '.' + dimensionComponent;
-      fieldProps = configureDecimalField(swaggerField, fieldProps, 2, 'Dimension must be only up to 2 decimal places.');
     }
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
