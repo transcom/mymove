@@ -4,7 +4,6 @@ import {
   LoadOrders,
   LoadServiceMember,
   UpdateServiceMember,
-  LoadBackupContacts,
   UpdateBackupContact,
   LoadPPMs,
   ApproveReimbursement,
@@ -16,6 +15,7 @@ import {
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
 import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
+import { loadBackupContacts } from 'shared/Entities/modules/serviceMembers';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
@@ -25,7 +25,6 @@ const updateOrdersType = 'UPDATE_ORDERS';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
-const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
@@ -69,8 +68,6 @@ const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(loadServiceMem
 
 const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(updateServiceMemberType);
 
-const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(loadBackupContactType);
-
 const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
 
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
@@ -107,8 +104,6 @@ export const updateServiceMember = ReduxHelpers.generateAsyncActionCreator(
   updateServiceMemberType,
   UpdateServiceMember,
 );
-
-export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(loadBackupContactType, LoadBackupContacts);
 
 export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
   updateBackupContactType,
@@ -223,7 +218,6 @@ const initialState = {
   ordersAreLoading: false,
   ordersAreUpdating: false,
   serviceMemberIsLoading: false,
-  backupContactsAreLoading: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
   moveHasLoadError: null,
@@ -237,8 +231,6 @@ const initialState = {
   serviceMemberHasLoadSuccess: false,
   serviceMemberHasUpdateError: null,
   serviceMemberHasUpdateSuccess: false,
-  backupContactsHaveLoadError: null,
-  backupContactsHaveLoadSuccess: false,
   downloadAttachmentsHasError: null,
   ppmsHaveLoadError: null,
   ppmsHaveLoadSuccess: false,
@@ -416,28 +408,6 @@ export function officeReducer(state = initialState, action) {
         serviceMemberIsUpdating: false,
         serviceMemberHasUpdateSuccess: false,
         serviceMemberHasUpdateError: true,
-        error: action.error.message,
-      });
-
-    // BACKUP CONTACT
-    case LOAD_BACKUP_CONTACT.start:
-      return Object.assign({}, state, {
-        backupContactsAreLoading: true,
-        backupContactsHaveLoadSuccess: false,
-      });
-    case LOAD_BACKUP_CONTACT.success:
-      return Object.assign({}, state, {
-        backupContactsAreLoading: false,
-        officeBackupContacts: action.payload,
-        backupContactsHaveLoadSuccess: true,
-        backupContactsHaveLoadError: false,
-      });
-    case LOAD_BACKUP_CONTACT.failure:
-      return Object.assign({}, state, {
-        backupContactsAreLoading: false,
-        officeBackupContacts: null,
-        backupContactsHaveLoadSuccess: false,
-        backupContactsHaveLoadError: true,
         error: action.error.message,
       });
 
