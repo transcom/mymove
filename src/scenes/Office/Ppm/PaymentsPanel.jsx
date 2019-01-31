@@ -5,6 +5,7 @@ import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 
 import { approveReimbursement, downloadPPMAttachments } from '../ducks';
+import { selectPpmStatus } from 'shared/Entities/modules/ppms';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
@@ -22,6 +23,10 @@ const attachmentsErrorMessages = {
   424: 'Could not find any receipts or documents for this PPM',
   500: 'An unexpected error has occurred',
 };
+
+function getUserDate() {
+  return new Date().toISOString().split('T')[0];
+}
 
 class PaymentsTable extends Component {
   state = {
@@ -60,12 +65,14 @@ class PaymentsTable extends Component {
 
   downloadShipmentSummary = () => {
     let moveID = get(this.props, 'move.id');
+    const userDate = getUserDate();
+
     // eslint-disable-next-line
-    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet`);
+    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet/?preparationDate=${userDate}`);
   };
 
   renderAdvanceAction = () => {
-    if (this.props.ppm.status === 'APPROVED') {
+    if (this.props.ppmStatus === 'APPROVED') {
       if (this.props.advance.status === 'APPROVED') {
         return <div>{/* Further actions to come*/}</div>;
       } else {
@@ -233,14 +240,19 @@ class PaymentsTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  ppm: get(state, 'office.officePPMs[0]', {}),
-  move: get(state, 'office.officeMove', {}),
-  advance: get(state, 'office.officePPMs[0].advance', {}),
-  hasError: false,
-  errorMessage: state.office.error,
-  attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
-});
+const mapStateToProps = state => {
+  const ppm = get(state, 'office.officePPMs.0', {});
+
+  return {
+    ppm,
+    ppmStatus: selectPpmStatus(state, ppm.id),
+    move: get(state, 'office.officeMove', {}),
+    advance: get(state, 'office.officePPMs[0].advance', {}),
+    hasError: false,
+    errorMessage: state.office.error,
+    attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
+  };
+};
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(

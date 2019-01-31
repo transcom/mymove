@@ -3,30 +3,11 @@ package sequence
 import (
 	"testing"
 
-	"github.com/magiconair/properties/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
-
-const testSequence = "test_sequence"
-
-func (suite *SequenceSuite) TestSetVal() {
-	err := SetVal(suite.DB(), testSequence, 30)
-	suite.NoError(err, "Error setting value of sequence")
-
-	var nextVal int64
-	err = suite.DB().RawQuery("SELECT nextval($1);", testSequence).First(&nextVal)
-	suite.NoError(err, "Error getting current value of sequence")
-	assert.Equal(suite.T(), nextVal, int64(31))
-}
-
-func (suite *SequenceSuite) TestNextVal() {
-	actual, err := NextVal(suite.DB(), testSequence)
-	if suite.NoError(err) {
-		assert.Equal(suite.T(), actual, int64(2))
-	}
-}
 
 type SequenceSuite struct {
 	testingsuite.PopTestSuite

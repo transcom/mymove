@@ -303,11 +303,11 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (linehaulDiscount unit.DiscountRate, sitDiscount unit.DiscountRate, err error) {
 	rateArea, err := FetchRateAreaForZip5(db, originZip)
 	if err != nil {
-		return 0.0, 0.0, errors.Wrapf(err, "could not find a rate area for zip %s", originZip)
+		return 0.0, 0.0, errors.Wrapf(ErrFetchNotFound, "could not find a rate area for zip %s"+"\n Error from attempt: \n %s", originZip, err.Error())
 	}
 	region, err := FetchRegionForZip5(db, destinationZip)
 	if err != nil {
-		return 0.0, 0.0, errors.Wrapf(err, "could not find a region for zip %s", destinationZip)
+		return 0.0, 0.0, errors.Wrapf(ErrFetchNotFound, "could not find a region for zip %s"+"\n Error from attempt: \n %s", destinationZip, err.Error())
 	}
 
 	var tspPerformance TransportationServiceProviderPerformance

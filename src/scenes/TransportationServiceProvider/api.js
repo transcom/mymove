@@ -69,10 +69,9 @@ export async function DeliverShipment(shipmentId, payload) {
 
 export async function PatchShipment(shipmentId, shipment) {
   const client = await getPublicClient();
-  const payloadDef = client.spec.definitions.Shipment;
   const response = await client.apis.shipments.patchShipment({
     shipmentId,
-    update: formatPayload(shipment, payloadDef),
+    update: shipment,
   });
   checkResponse(response, 'failed to load shipment due to server error');
   return response.body;
@@ -103,7 +102,7 @@ export async function UpdateServiceAgent(payload) {
   const response = await client.apis.service_agents.patchServiceAgent({
     shipmentId: payload.shipment_id,
     serviceAgentId: payload.id,
-    patchServiceAgentPayload: payload,
+    serviceAgent: payload,
   });
   checkResponse(response, 'failed to update service agent due to server error');
   return response.body;

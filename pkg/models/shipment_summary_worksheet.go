@@ -5,26 +5,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/auth"
-
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 // FetchShipmentSummaryWorksheetFormValues fetches the pages for the Shipment Summary Worksheet for a given Shipment ID
-func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
+func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, session *auth.Session, moveID uuid.UUID, preparationDate time.Time) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
 	var err error
-	var ssfd ShipmentSummaryFormData
 	var page1 ShipmentSummaryWorksheetPage1Values
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 
-	ssfd, err = FetchDataShipmentSummaryWorksheetFormData(db, session, moveID)
+	ssfd, err := FetchDataShipmentSummaryWorksheetFormData(db, session, moveID)
+	ssfd.PreparationDate = preparationDate
 	if err != nil {
 		return page1, page2, err
 	}
@@ -44,7 +41,8 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	IssuingBranchOrAgency          string
 	OrdersIssueDate                string
 	OrdersTypeAndOrdersNumber      string
-	AuthorizedOrigin               DutyStation
+	AuthorizedOrigin               string
+	AuthorizedDestination          string
 	NewDutyAssignment              string
 	WeightAllotmentSelf            string
 	WeightAllotmentProgear         string
@@ -56,6 +54,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	Shipment1PickUpDate            string
 	Shipment1Weight                string
 	Shipment1CurrentShipmentStatus string
+	PreparationDate                string
 }
 
 //ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
@@ -78,6 +77,7 @@ type ShipmentSummaryFormData struct {
 	NewDutyStation     DutyStation
 	WeightAllotment    WeightAllotment
 	Shipments          Shipments
+	PreparationDate    time.Time
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
@@ -85,9 +85,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	move := Move{}
 	err = db.Q().Eager(
 		"Orders",
-		"Orders.NewDutyStation",
+		"Orders.NewDutyStation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation",
+		"Orders.ServiceMember.DutyStation.Address",
 		"Shipments",
 	).Find(&move, moveID)
 
@@ -127,6 +127,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
 	page1.POVAuthorized = "NO"
+	page1.PreparationDate = FormatDate(data.PreparationDate)
 
 	sm := data.ServiceMember
 	page1.ServiceMemberName = FormatServiceMemberFullName(sm)
@@ -139,7 +140,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 	page1.TAC = derefStringTypes(data.Order.TAC)
 
-	page1.AuthorizedOrigin = data.CurrentDutyStation
+	page1.AuthorizedOrigin = FormatAuthorizedLocation(data.CurrentDutyStation)
+	page1.AuthorizedDestination = FormatAuthorizedLocation(data.NewDutyStation)
 	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)
 
 	page1.WeightAllotmentSelf = FormatWeights(data.WeightAllotment.TotalWeightSelf)
@@ -159,6 +161,11 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 		page1.Shipment1Weight = formattedShipments[0].ShipmentWeight
 	}
 	return page1
+}
+
+//FormatAuthorizedLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
+func FormatAuthorizedLocation(dutyStation DutyStation) string {
+	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
 }
 
 //FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
