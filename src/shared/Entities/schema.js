@@ -100,3 +100,5 @@ export const backupContact = new schema.Entity('backupContacts');
 export const backupContacts = new schema.Array(backupContact);
 
 export const indexServiceMemberBackupContacts = new schema.Array(backupContact);
+
+export const serviceMemberBackupContact = backupContact;

@@ -4,7 +4,6 @@ import {
   LoadOrders,
   LoadServiceMember,
   UpdateServiceMember,
-  UpdateBackupContact,
   LoadPPMs,
   ApproveReimbursement,
   DownloadPPMAttachments,
@@ -15,7 +14,7 @@ import {
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
 import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
-import { loadBackupContacts } from 'shared/Entities/modules/serviceMembers';
+import { loadBackupContacts, updateBackupContact } from 'shared/Entities/modules/serviceMembers';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
@@ -25,7 +24,6 @@ const updateOrdersType = 'UPDATE_ORDERS';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
-const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
@@ -68,8 +66,6 @@ const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(loadServiceMem
 
 const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(updateServiceMemberType);
 
-const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
-
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
 const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
@@ -103,11 +99,6 @@ export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(loadSer
 export const updateServiceMember = ReduxHelpers.generateAsyncActionCreator(
   updateServiceMemberType,
   UpdateServiceMember,
-);
-
-export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
-  updateBackupContactType,
-  UpdateBackupContact,
 );
 
 export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, LoadPPMs);
@@ -408,26 +399,6 @@ export function officeReducer(state = initialState, action) {
         serviceMemberIsUpdating: false,
         serviceMemberHasUpdateSuccess: false,
         serviceMemberHasUpdateError: true,
-        error: action.error.message,
-      });
-
-    case UPDATE_BACKUP_CONTACT.start:
-      return Object.assign({}, state, {
-        backupContactIsUpdating: true,
-        backupContactHasUpdateSuccess: false,
-      });
-    case UPDATE_BACKUP_CONTACT.success:
-      return Object.assign({}, state, {
-        backupContactIsUpdating: false,
-        officeBackupContacts: [action.payload], // there is only one
-        backupContactHasUpdateSuccess: true,
-        backupContactHasUpdateFailure: false,
-      });
-    case UPDATE_BACKUP_CONTACT.failure:
-      return Object.assign({}, state, {
-        backupContactIsUpdating: false,
-        backupContactHasUpdateSuccess: false,
-        backupContactHasUpdateFailure: true,
         error: action.error.message,
       });
 
