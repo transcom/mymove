@@ -3,6 +3,7 @@ package models_test
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -11,7 +12,8 @@ func (suite *ModelSuite) TestFetchGovBillOfLadingExtractor() {
 	SourceTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 	DestinationTransOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
-	packDate := time.Date(2019, time.January, 22, 0, 0, 0, 0, time.UTC)
+	calendar := dates.NewUSCalendar()
+	packDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 22, 0, 0, 0, 0, time.UTC))
 	pickupDate := packDate.AddDate(0, 0, 1)
 	deliveryDate := packDate.AddDate(0, 0, 2)
 	edipi := "123456"
