@@ -56,9 +56,9 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		Quantity2:         handlers.FmtInt64(int64(s.Quantity2)),
 		Status:            apimessages.ShipmentLineItemStatus(s.Status),
 		InvoiceID:         handlers.FmtUUIDPtr(s.InvoiceID),
-		ItemDimensionID:   *handlers.FmtUUIDPtr(s.ItemDimensionID),
+		ItemDimensionID:   handlers.FmtUUIDPtr(s.ItemDimensionID),
 		ItemDimension:     payloadForShipmentLineItemDimensionModel(&s.ItemDimension),
-		CrateDimensionID:  *handlers.FmtUUIDPtr(s.CrateDimensionID),
+		CrateDimensionID:  handlers.FmtUUIDPtr(s.CrateDimensionID),
 		CrateDimension:    payloadForShipmentLineItemDimensionModel(&s.CrateDimension),
 		AmountCents:       amt,
 		AppliedRate:       rate,
@@ -167,14 +167,14 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 
 	var itemDimension, crateDimension *models.AdditionalLineItemDimension
 	if params.Payload.ItemDimension != nil {
-		itemDimension := &models.AdditionalLineItemDimension{
+		itemDimension = &models.AdditionalLineItemDimension{
 			Length: params.Payload.ItemDimension.Length,
 			Width:  params.Payload.ItemDimension.Width,
 			Height: params.Payload.ItemDimension.Height,
 		}
 	}
 	if params.Payload.CrateDimension != nil {
-		CrateDimension := &models.AdditionalLineItemDimension{
+		crateDimension = &models.AdditionalLineItemDimension{
 			Length: params.Payload.CrateDimension.Length,
 			Width:  params.Payload.CrateDimension.Width,
 			Height: params.Payload.CrateDimension.Height,
