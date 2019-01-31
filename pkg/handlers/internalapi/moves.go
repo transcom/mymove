@@ -238,8 +238,10 @@ type ShowShipmentSummaryWorksheetHandler struct {
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
+	preparationDate := time.Time(params.PreparationDate)
 
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), session, moveID)
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), session, moveID, preparationDate)
+
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

@@ -53,7 +53,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 	suite.Equal(shipment.ID, ssd.Shipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
+	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
 	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
+	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
 	rankWtgAllotment := models.GetWeightAllotment(rank)
 	suite.Equal(rankWtgAllotment, ssd.WeightAllotment)
 }
@@ -109,12 +111,16 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStation:     fortGordon,
 		WeightAllotment:    wtgEntitlements,
 		Shipments:          shipments,
+		PreparationDate:    time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 	}
-
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
+
+	suite.Equal("01-Jan-2019", sswPage1.PreparationDate)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
+	suite.Equal("Yuma AFB, IA 50309", sswPage1.AuthorizedOrigin)
+	suite.Equal("Fort Gordon, GA 30813", sswPage1.AuthorizedDestination)
 	suite.Equal("NO", sswPage1.POVAuthorized)
 	suite.Equal("444-555-8888", sswPage1.PreferredPhone)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
@@ -124,11 +130,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
 	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
 	suite.Equal("NTA4", sswPage1.TAC)
-
-	suite.Equal(yuma.ID, sswPage1.AuthorizedOrigin.ID)
-	suite.Equal(yuma.Address.State, sswPage1.AuthorizedOrigin.Address.State)
-	suite.Equal(yuma.Address.City, sswPage1.AuthorizedOrigin.Address.City)
-	suite.Equal(yuma.Address.PostalCode, sswPage1.AuthorizedOrigin.Address.PostalCode)
 
 	suite.Equal("Fort Gordon, GA", sswPage1.NewDutyAssignment)
 
@@ -142,6 +143,14 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("5,000 lbs - FINAL", sswPage1.Shipment1Weight)
 	suite.Equal("Delivered", sswPage1.Shipment1CurrentShipmentStatus)
 
+}
+
+func (suite *ModelSuite) FormatAuthorizedLocation() {
+	fortGordon := models.DutyStation{Name: "Fort Gordon", Address: models.Address{State: "GA", PostalCode: "30813"}}
+	yuma := models.DutyStation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
+
+	suite.Equal("Fort Gordon, GA 30813", models.FormatDutyStation(fortGordon))
+	suite.Equal("Yuma AFB, IA 50309", models.FormatDutyStation(yuma))
 }
 
 func (suite *ModelSuite) TestFormatServiceMemberFullName() {

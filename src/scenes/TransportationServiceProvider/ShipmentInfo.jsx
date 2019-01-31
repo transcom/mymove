@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
-import { titleCase } from 'shared/constants.js';
+import { titleCase, isProduction } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -32,6 +32,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -46,6 +47,7 @@ import {
   transportShipment,
   deliverShipment,
   handleServiceAgents,
+  loadEntitlements,
 } from './ducks';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
@@ -54,6 +56,7 @@ import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
@@ -399,6 +402,13 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
+                  {!isProduction && (
+                    <StorageInTransitPanel
+                      sitRequests={this.props.sitRequests}
+                      shipmentId={this.props.match.params.shipmentId}
+                      sitEntitlement={this.props.entitlement.storage_in_transit}
+                    />
+                  )}
 
                   <TspContainer
                     title="TSP & Servicing Agents"
@@ -472,6 +482,8 @@ const mapStateToProps = state => {
     serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
+    entitlement: loadEntitlements(state),
+    sitRequests: selectSitRequests(state, shipment.id),
   };
 };
 
