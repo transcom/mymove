@@ -1606,6 +1606,58 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  StorageInTransit:
+    type: object
+    properties:
+      sit_location:
+        type: string
+        title: SIT Location
+        enum:
+          - ORIGIN
+          - DESTINATION
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      estimated_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Estimated start date
+      notes:
+        type: string
+        example: Good to go!
+        x-nullable: true
+        title: Note
+      warehouse_id:
+        type: string
+        example: '000383'
+        title: Warehouse ID number
+      warehouse_name:
+        type: string
+        example: ABC Warehouse, Inc.
+        title: Warehouse Name
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      personal_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      address:
+        $ref: '#/definitions/Address'
+    required:
+      - sit_location
+      - address
+      - warehouse_id
+      - warehouse_name
+      - estimated_start_date
 paths:
   /tariff_400ng_items:
     get:
