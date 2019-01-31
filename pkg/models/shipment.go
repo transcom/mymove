@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
@@ -354,39 +355,62 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 
 	//We can do validation for specific item codes here
 	// Example: 105B/E
-	var shipmentLineItem ShipmentLineItem
-	switch baseParams.Tariff400ngItemCode {
-	case "105B":
-		fallthrough
-	case "105E":
-		//Additional validation check if item and crate dimensions exist
-		// for 105B/E
-		if additionalParams.ItemDimension != nil && additionalParams.CrateDimension != nil {
-			return &ShipmentLineItem{}, validate.NewErrors(), errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+	shipmentLineItem := ShipmentLineItem{}
+	// getting environment variable
+	v := viper.New()
+	env := v.GetString("env")
+	isDevOrTest := env == "development" || env == "test"
+	// item code for tariff400ngItemCode
+	itemCode := baseParams.Tariff400ngItemCode
+
+	err := db.Transaction(func(connection *pop.Connection) error {
+		// ToDo: Another story, will remove isDevOrTest when we release the feature
+		if (itemCode == "105B" || itemCode == "105E") && isDevOrTest {
+			//Additional validation check if item and crate dimensions exist
+			// for 105B/E
+			if additionalParams.ItemDimension != nil && additionalParams.CrateDimension != nil {
+				return errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+			}
+
+			// save dimensions to shipmentLineItem
+			shipmentLineItem.ItemDimension = ShipmentLineItemDimension{
+				Length: unit.Inch(additionalParams.ItemDimension.Length),
+				Width:  unit.Inch(additionalParams.ItemDimension.Width),
+				Height: unit.Inch(additionalParams.ItemDimension.Height),
+			}
+			shipmentLineItem.CrateDimension = ShipmentLineItemDimension{
+				Length: unit.Inch(additionalParams.CrateDimension.Length),
+				Width:  unit.Inch(additionalParams.CrateDimension.Width),
+				Height: unit.Inch(additionalParams.CrateDimension.Height),
+			}
+
+			// ToDo: For another story
+			/*
+				1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
+				2. Add item and crate dimensions
+			*/
 		}
 
-		// otherwise, continue to
-		/*
-			1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
-			2. Add item and crate dimensions
-		*/
-	default:
 		// Non-specified item code
-		shipmentLineItem = ShipmentLineItem{
-			ShipmentID:        s.ID,
-			Tariff400ngItemID: baseParams.Tariff400ngItemID,
-			Quantity1:         unit.BaseQuantity(*baseParams.Quantity1),
-			Quantity2:         quantity2,
-			Location:          ShipmentLineItemLocation(baseParams.Location),
-			Notes:             notesVal,
-			SubmittedDate:     time.Now(),
-			Status:            ShipmentLineItemStatusSUBMITTED,
-		}
-	}
+		shipmentLineItem.ShipmentID = s.ID
+		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+		shipmentLineItem.Quantity1 = unit.BaseQuantity(*baseParams.Quantity1)
+		shipmentLineItem.Quantity2 = quantity2
+		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
+		shipmentLineItem.Notes = notesVal
+		shipmentLineItem.SubmittedDate = time.Now()
+		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
 
-	verrs, err := db.ValidateAndCreate(&shipmentLineItem)
-	if verrs.HasAny() || err != nil {
-		return &ShipmentLineItem{}, verrs, err
+		verrs, err := db.ValidateAndCreate(&shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return &ShipmentLineItem{}, validate.NewErrors(), err
 	}
 
 	// Loads line item information
