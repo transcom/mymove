@@ -8,7 +8,7 @@ import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
-import { updateServiceMember } from './ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 import { stringifyName } from 'shared/utils/serviceMember';
 
@@ -130,8 +130,8 @@ CustomerInfoPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(CustomerInfoPanel);
 
-function mapStateToProps(state) {
-  let customerInfo = get(state, 'office.officeServiceMember', {});
+function mapStateToProps(state, ownProps) {
+  let customerInfo = ownProps.serviceMember;
   return {
     // reduxForm
     initialValues: {
@@ -143,7 +143,7 @@ function mapStateToProps(state) {
 
     // CustomerInfoEdit
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberPayload'),
-    serviceMember: state.office.officeServiceMember,
+    serviceMember: ownProps.serviceMember,
 
     hasError: state.office.serviceMemberHasLoadError || state.office.serviceMemberHasUpdateError,
     errorMessage: state.office.error,
@@ -154,7 +154,7 @@ function mapStateToProps(state) {
       let values = getFormValues(formName)(state);
       let serviceMember = values.serviceMember;
       serviceMember.residential_address = values.address;
-      return [state.office.officeServiceMember.id, serviceMember];
+      return [ownProps.serviceMember.id, serviceMember];
     },
   };
 }
