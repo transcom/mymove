@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { DimensionsField } from '../JsonSchemaForm/DimensionsField';
 
 export const Code105Details = props => {
   const { ship_line_item_schema } = props;
-  return ( 
+  return (
     <Fragment>
       <SwaggerField fieldName="description" swagger={ship_line_item_schema} required />
       <DimensionsField fieldName="item_dimensions" swagger={props.swagger} labelText="Item Dimensions (inches)" />
