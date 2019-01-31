@@ -10,7 +10,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"PreparationDate":                 FormField(155.5, 22, 46, floatPtr(10), nil),
 		"ServiceMemberName":               FormField(45, 42, 105, floatPtr(10), nil),
 		"MaxSITStorageEntitlement":        FormField(153.75, 115, 49, floatPtr(10), nil),
-		"WeightAllotmentSelf":             FormField(74, 104, 16, floatPtr(10), nil),
+		"WeightAllotment":                 FormField(74, 104, 16, floatPtr(10), nil),
 		"WeightAllotmentProgear":          FormField(74, 110, 16, floatPtr(10), nil),
 		"WeightAllotmentProgearSpouse":    FormField(74, 115, 16, floatPtr(10), nil),
 		"TotalWeightAllotment":            FormField(74, 120, 16, floatPtr(10), nil),
@@ -26,6 +26,9 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"ShipmentPickUpDates":             FormField(54, 135, 46, floatPtr(10), nil),
 		"ShipmentWeights":                 FormField(103, 135, 41, floatPtr(10), nil),
 		"ShipmentCurrentShipmentStatuses": FormField(153.5, 135, 41, floatPtr(10), nil),
+		"GCC100":                          FormField(74, 195, 22, floatPtr(10), nil),
+		"GCC95":                           FormField(74, 201, 22, floatPtr(10), nil),
+		"GCCMaxAdvance":                   FormField(74, 213, 22, floatPtr(10), nil),
 	},
 }
 
