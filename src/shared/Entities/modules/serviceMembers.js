@@ -12,12 +12,6 @@ export function loadBackupContacts(serviceMemberId) {
   return swaggerRequest(getClient, swaggerTag, { serviceMemberId }, { label });
 }
 
-export function selectBackupContactForServiceMember(state, serviceMemberId) {
-  return Object.values(state.entities.backupContacts).find(backupContact => {
-    return backupContact.service_member_id === serviceMemberId;
-  });
-}
-
 export function updateBackupContact(backupContactId, backupContact) {
   const label = updateBackupContactLabel;
   const swaggerTag = 'backup_contacts.updateServiceMemberBackupContact';
@@ -35,10 +29,6 @@ export function loadServiceMember(serviceMemberId) {
   return swaggerRequest(getClient, swaggerTag, { serviceMemberId }, { label });
 }
 
-export function selectServiceMember(state, serviceMemberId) {
-  return get(state, `entities.serviceMembers.${serviceMemberId}`, {});
-}
-
 export function updateServiceMember(serviceMemberId, serviceMember) {
   const label = updateServiceMemberLabel;
   const swaggerTag = 'service_members.patchServiceMember';
@@ -48,4 +38,14 @@ export function updateServiceMember(serviceMemberId, serviceMember) {
     { serviceMemberId, patchServiceMemberPayload: serviceMember },
     { label },
   );
+}
+
+export function selectServiceMember(state, serviceMemberId) {
+  return get(state, `entities.serviceMembers.${serviceMemberId}`, {});
+}
+
+export function selectBackupContactForServiceMember(state, serviceMemberId) {
+  return Object.values(state.entities.backupContacts).find(backupContact => {
+    return backupContact.service_member_id === serviceMemberId;
+  });
 }
