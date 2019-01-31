@@ -7,8 +7,16 @@ export const Code105Details = props => {
   return (
     <Fragment>
       <SwaggerField fieldName="description" swagger={ship_line_item_schema} required />
-      <DimensionsField fieldName="item_dimensions" swagger={props.swagger} labelText="Item Dimensions (inches)" />
-      <DimensionsField fieldName="crate_dimensions" swagger={props.swagger} labelText="Crate Dimensions (inches)" />
+      <DimensionsField
+        fieldName="item_dimensions"
+        swagger={ship_line_item_schema}
+        labelText="Item Dimensions (inches)"
+      />
+      <DimensionsField
+        fieldName="crate_dimensions"
+        swagger={ship_line_item_schema}
+        labelText="Crate Dimensions (inches)"
+      />
       <div className="bq-explanation">
         <p>Crate can only exceed item size by:</p>
         <ul>

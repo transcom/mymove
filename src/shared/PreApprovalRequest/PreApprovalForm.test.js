@@ -26,6 +26,38 @@ const simpleSchema = {
     item_dimensions: {
       type: 'object',
       format: 'dimensions',
+      properties: {
+        length: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        width: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        height: {
+          type: 'integer',
+          format: 'dimension',
+        },
+      },
+    },
+    crate_dimensions: {
+      type: 'object',
+      format: 'dimensions',
+      properties: {
+        length: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        width: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        height: {
+          type: 'integer',
+          format: 'dimension',
+        },
+      },
     },
     quantity_1: {
       type: 'integer',
@@ -102,9 +134,11 @@ let store;
 let wrapper;
 
 describe('PreApprovalForm tests', () => {
+  beforeEach(() => {
+    store = mockStore({});
+  });
   describe('When a PreApprovalForm is loaded', () => {
     beforeEach(() => {
-      store = mockStore({});
       //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
       wrapper = mount(
         <Provider store={store}>
