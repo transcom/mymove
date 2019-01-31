@@ -85,7 +85,7 @@ const configureCentsField = (swaggerField, props) => {
 // This field allows the form field to accept floats and converts values to
 // decimal units for db storage (value * (10 ^ decimalLength))
 const configureDecimalField = (swaggerField, props, decimalLength, warningMessage) => {
-  props.normalize = validator.createBaseQuantityNormalizer(decimalLength);
+  props.normalize = validator.createDecimalNormalizer(decimalLength);
   props.validate.push(validator.patternMatches(swaggerField.pattern, warningMessage));
   props.validate.push(validator.isNumber);
   props.type = 'text';

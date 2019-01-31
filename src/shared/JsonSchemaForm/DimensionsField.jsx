@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 
 export class DimensionsField extends Component {
   render() {
-    console.log(get(this.props, 'swagger.properties.' + this.props.fieldName));
     return (
       <FormSection name={this.props.fieldName}>
         <label htmlFor={this.props.fieldName} className="usa-input-label">

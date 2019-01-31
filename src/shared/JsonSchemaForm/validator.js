@@ -108,7 +108,7 @@ const normalizeZip = (value, previousValue) => {
   return normalizedZip;
 };
 
-const createBaseQuantityNormalizer = decimalDigits => {
+const createDecimalNormalizer = decimalDigits => {
   return value => {
     if (!value) {
       return value;
@@ -148,5 +148,5 @@ export default {
   normalizeSSN,
   normalizeZip,
   patternMatches,
-  createBaseQuantityNormalizer,
+  createDecimalNormalizer,
 };
