@@ -74,7 +74,7 @@ const simpleSchema = {
 let wrapper;
 describe('Renders without crashing', () => {
   describe('Base quantity default details', () => {
-    wrapper = shallow(<DefaultDetails swagger={simpleSchema} />);
+    wrapper = shallow(<DefaultDetails ship_line_item_schema={simpleSchema} />);
 
     it('renders without crashing', () => {
       // eslint-disable-next-line

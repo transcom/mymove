@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/iws"
@@ -38,6 +39,8 @@ type HandlerContext interface {
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	GexSender() gex.SendToGex
 	SetGexSender(gexSender gex.SendToGex)
+	ICNSequencer() sequence.Sequencer
+	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
@@ -57,6 +60,7 @@ type handlerContext struct {
 	sendProductionInvoice bool
 	dpsAuthParams         dpsauth.Params
 	senderToGex           gex.SendToGex
+	icnSequencer          sequence.Sequencer
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -168,6 +172,14 @@ func (hctx *handlerContext) GexSender() gex.SendToGex {
 
 func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SendToGex) {
 	hctx.senderToGex = sendGexRequest
+}
+
+func (hctx *handlerContext) ICNSequencer() sequence.Sequencer {
+	return hctx.icnSequencer
+}
+
+func (hctx *handlerContext) SetICNSequencer(sequencer sequence.Sequencer) {
+	hctx.icnSequencer = sequencer
 }
 
 func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {

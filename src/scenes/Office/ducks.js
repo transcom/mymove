@@ -7,12 +7,7 @@ import {
   LoadBackupContacts,
   UpdateBackupContact,
   LoadPPMs,
-  ApproveBasics,
-  ApprovePPM,
-  ApproveHHG,
-  CompleteHHG,
   ApproveReimbursement,
-  CancelMove,
   DownloadPPMAttachments,
   PatchShipment,
   SendHHGInvoice,
@@ -34,15 +29,11 @@ const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
-const approveBasicsType = 'APPROVE_BASICS';
-const approvePPMType = 'APPROVE_PPM';
-const approveHHGType = 'APPROVE_HHG';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
-const completeHHGType = 'COMPLETE_HHG';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
-const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
+const SHOW_BANNER = 'SHOW_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
 const DRAFT_HHG_INVOICE = 'DRAFT_INVOICE';
 const RESET_HHG_INVOICE = 'RESET_INVOICE';
@@ -86,17 +77,7 @@ const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
 const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
 
-const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
-
-const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
-
-const APPROVE_HHG = ReduxHelpers.generateAsyncActionTypes(approveHHGType);
-
-const COMPLETE_HHG = ReduxHelpers.generateAsyncActionTypes(completeHHGType);
-
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
-
-export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(cancelMoveType);
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
 
@@ -138,14 +119,6 @@ export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, Lo
 
 export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
 
-export const approveBasics = ReduxHelpers.generateAsyncActionCreator(approveBasicsType, ApproveBasics);
-
-export const approvePPM = ReduxHelpers.generateAsyncActionCreator(approvePPMType, ApprovePPM);
-
-export const approveHHG = ReduxHelpers.generateAsyncActionCreator(approveHHGType, ApproveHHG);
-
-export const completeHHG = ReduxHelpers.generateAsyncActionCreator(completeHHGType, CompleteHHG);
-
 export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
@@ -158,24 +131,17 @@ export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
   DownloadPPMAttachments,
 );
 
-export const cancelMove = (moveId, changeReason) => {
-  const actions = ReduxHelpers.generateAsyncActions(cancelMoveType);
-  return async function(dispatch, getState) {
-    dispatch(actions.start());
-    return CancelMove(moveId, changeReason)
-      .then(item => dispatch(actions.success(item)), error => dispatch(actions.error(error)))
-      .then(() => {
-        setTimeout(() => dispatch(removeBanner()), 10000);
-      });
-  };
-};
-
 export const removeBanner = () => {
   return {
     type: REMOVE_BANNER,
   };
 };
 
+export const showBanner = () => {
+  return {
+    type: SHOW_BANNER,
+  };
+};
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
 // These action types typically dispatch to other actions above to
@@ -260,7 +226,6 @@ const initialState = {
   backupContactsAreLoading: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
-  moveIsCanceling: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   officeMove: {},
@@ -285,9 +250,6 @@ const initialState = {
   hhgInvoiceInDraft: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
-  moveHasApproveError: false,
-  moveHasCancelError: false,
-  moveHasCancelSuccess: false,
   flashMessage: false,
 };
 
@@ -541,84 +503,13 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
-    // MOVE STATUS
-    case APPROVE_BASICS.start:
+    case SHOW_BANNER:
       return Object.assign({}, state, {
-        basicsIsApproving: true,
-        moveHasApproveError: false,
-      });
-    case APPROVE_BASICS.success:
-      return Object.assign({}, state, {
-        basicsIsApproving: false,
-        officeMove: action.payload,
-        moveHasApproveError: false,
-      });
-    case APPROVE_BASICS.failure:
-      return Object.assign({}, state, {
-        basicsIsApproving: false,
-        error: action.error.message,
-        moveHasApproveError: true,
-      });
-    case CANCEL_MOVE.start:
-      return Object.assign({}, state, {
-        moveIsCanceling: true,
-      });
-    case CANCEL_MOVE.success:
-      return Object.assign({}, state, {
-        moveIsCanceling: false,
-        officeMove: action.payload,
         flashMessage: true,
-      });
-    case CANCEL_MOVE.failure:
-      return Object.assign({}, state, {
-        moveIsCanceling: false,
-        error: action.error.message,
-        flashMessage: false,
       });
     case REMOVE_BANNER:
       return Object.assign({}, state, {
         flashMessage: false,
-      });
-
-    // PPM STATUS
-    case APPROVE_PPM.start:
-      return Object.assign({}, state, {
-        ppmIsApproving: true,
-      });
-    case APPROVE_PPM.success:
-      return Object.assign({}, state, {
-        ppmIsApproving: false,
-        officePPMs: [action.payload],
-      });
-    case APPROVE_PPM.failure:
-      return Object.assign({}, state, {
-        ppmIsApproving: false,
-        error: action.error.message,
-      });
-
-    // HHG STATUS
-    case APPROVE_HHG.success:
-      return Object.assign({}, state, {
-        officeMove: {
-          ...state.officeMove,
-          shipments: [action.payload],
-        },
-      });
-    case APPROVE_HHG.failure:
-      return Object.assign({}, state, {
-        error: action.error.message,
-      });
-
-    case COMPLETE_HHG.success:
-      return Object.assign({}, state, {
-        officeMove: {
-          ...state.officeMove,
-          shipments: [action.payload],
-        },
-      });
-    case COMPLETE_HHG.failure:
-      return Object.assign({}, state, {
-        error: action.error.message,
       });
 
     // REIMBURSEMENT STATUS
