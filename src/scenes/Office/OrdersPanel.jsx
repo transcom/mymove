@@ -6,6 +6,7 @@ import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import { loadEntitlements, updateOrdersInfo } from './ducks';
+import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate } from 'shared/formatters';
 
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
@@ -130,35 +131,23 @@ OrdersPanel = reduxForm({
 
 function mapStateToProps(state) {
   let formValues = getFormValues(formName)(state);
+  const orders = get(state, 'office.officeOrders', {});
+  const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {
     // reduxForm
     formValues: formValues,
-    initialValues: {
-      orders: get(state, 'office.officeOrders', {}),
-      serviceMember: get(state, 'office.officeServiceMember', {}),
-    },
-
+    initialValues: { orders, serviceMember },
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
-
     hasError: false,
     errorMessage: state.office.error,
     entitlements: loadEntitlements(state),
     isUpdating: false,
-
-    orders: get(state, 'office.officeOrders', {}),
-    serviceMember: get(state, 'office.officeServiceMember', {}),
+    orders,
+    serviceMember,
     move: get(state, 'office.officeMove', {}),
-
     // editablePanelify
-    getUpdateArgs: function() {
-      return [
-        get(state, 'office.officeOrders.id'),
-        formValues.orders,
-        get(state, 'office.officeServiceMember.id'),
-        formValues.serviceMember,
-      ];
-    },
+    getUpdateArgs: () => [orders.id, formValues.orders, serviceMember.id, formValues.serviceMember],
   };
 }
 

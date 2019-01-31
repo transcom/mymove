@@ -44,17 +44,21 @@ export function selectServiceMember(state, serviceMemberId) {
   return get(state, `entities.serviceMembers.${serviceMemberId}`, {});
 }
 
-export function selectServiceMemberForMove(state, moveId) {
-  const move = get(state, `entities.moves.${moveId}`);
-  if (!move) {
-    return {};
-  }
-  const orders = get(state, `entities.orders.${move.orders_id}`);
+export function selectServiceMemberForOrders(state, ordersId) {
+  const orders = get(state, `entities.orders.${ordersId}`);
   if (!orders) {
     return {};
   }
   const serviceMember = get(state, `entities.serviceMembers.${orders.service_member_id}`);
   return serviceMember || {};
+}
+
+export function selectServiceMemberForMove(state, moveId) {
+  const move = get(state, `entities.moves.${moveId}`);
+  if (!move) {
+    return {};
+  }
+  return selectServiceMemberForOrders(state, move.orders_id);
 }
 
 export function selectBackupContactForServiceMember(state, serviceMemberId) {
