@@ -53,9 +53,9 @@ type ShipmentLineItem struct {
 	AppliedRate      *unit.Millicents          `json:"applied_rate" db:"applied_rate"`
 	SubmittedDate    time.Time                 `json:"submitted_date" db:"submitted_date"`
 	ApprovedDate     time.Time                 `json:"approved_date" db:"approved_date"`
-	ItemDimensionID  uuid.UUID                 `json:"item_dimension_id" db:"item_dimension_id"`
+	ItemDimensionID  *uuid.UUID                `json:"item_dimension_id" db:"item_dimension_id"`
 	ItemDimension    ShipmentLineItemDimension `belongs_to:"shipment_line_item_dimensions"`
-	CrateDimensionID uuid.UUID                 `json:"crate_dimension_id" db:"crate_dimension_id"`
+	CrateDimensionID *uuid.UUID                `json:"crate_dimension_id" db:"crate_dimension_id"`
 	CrateDimension   ShipmentLineItemDimension `belongs_to:"shipment_line_item_dimensions"`
 	Description      string                    `json:"description" db:"description"`
 	CreatedAt        time.Time                 `json:"created_at" db:"created_at"`
