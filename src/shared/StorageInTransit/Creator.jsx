@@ -6,15 +6,35 @@ import './StorageInTransitPanel.css';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import StorageInTransitForm from './StorageInTransitForm';
 
 export class Creator extends Component {
-  state = {};
+  state = { showForm: false };
 
-  openForm = e => {
-    e.preventDefault();
+  openForm = () => {
+    this.setState({ showForm: true });
+  };
+  closeForm = () => {
+    this.setState({ showForm: false });
   };
 
   render() {
+    if (this.state.showForm)
+      return (
+        <div className="pre-approval-panel-modal">
+          <div className="title">Request SIT</div>
+          <StorageInTransitForm />
+          <div className="usa-grid-full">
+            <div className="usa-width-one-half">
+              <p className="cancel-link">
+                <a className="usa-button-secondary" onClick={this.closeForm}>
+                  Cancel
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      );
     return (
       <div className="add-request storage-in-transit-hr-top">
         <a onClick={this.openForm}>
