@@ -36,7 +36,28 @@ var ShipmentSummaryPage1Layout = FormLayout{
 // ShipmentSummaryPage2Layout specifies the layout and template of a
 // Shipment Summary Worksheet
 var ShipmentSummaryPage2Layout = FormLayout{
+
 	TemplateImagePath: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page2.png",
 
-	FieldsLayout: map[string]FieldPos{},
+	FieldsLayout: map[string]FieldPos{
+		"PreparationDate":             FormField(155.5, 22, 46, floatPtr(10), nil),
+		"ContractedExpenseMemberPaid": FormField(156.5, 49, 20, floatPtr(10), nil),
+		"RentalEquipmentMemberPaid":   FormField(156.5, 55.5, 20, floatPtr(10), nil),
+		"PackingMaterialsMemberPaid":  FormField(156.5, 61.5, 20, floatPtr(10), nil),
+		"WeighingFeesMemberPaid":      FormField(156.5, 68, 20, floatPtr(10), nil),
+		"GasMemberPaid":               FormField(156.5, 74, 20, floatPtr(10), nil),
+		"TollsMemberPaid":             FormField(156.5, 80, 20, floatPtr(10), nil),
+		"OilMemberPaid":               FormField(156.5, 86.5, 20, floatPtr(10), nil),
+		"OtherMemberPaid":             FormField(156.5, 93, 20, floatPtr(10), nil),
+		"TotalMemberPaid":             FormField(156.5, 99, 20, floatPtr(10), nil),
+		"ContractedExpenseGTCCPaid":   FormField(181.5, 49, 20, floatPtr(10), nil),
+		"RentalEquipmentGTCCPaid":     FormField(181.5, 55.5, 20, floatPtr(10), nil),
+		"PackingMaterialsGTCCPaid":    FormField(181.5, 61.5, 20, floatPtr(10), nil),
+		"WeighingFeesGTCCPaid":        FormField(181.5, 68, 20, floatPtr(10), nil),
+		"GasGTCCPaid":                 FormField(181.5, 74, 20, floatPtr(10), nil),
+		"TollsGTCCPaid":               FormField(181.5, 80, 20, floatPtr(10), nil),
+		"OilGTCCPaid":                 FormField(181.5, 86.5, 20, floatPtr(10), nil),
+		"OtherGTCCPaid":               FormField(181.5, 93, 20, floatPtr(10), nil),
+		"TotalGTCCPaid":               FormField(181.5, 99, 20, floatPtr(10), nil),
+	},
 }
