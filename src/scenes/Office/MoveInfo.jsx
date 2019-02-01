@@ -41,7 +41,7 @@ import {
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { approvePPM, selectPpmStatus } from 'shared/Entities/modules/ppms';
+import { approvePPM, selectPpmStatus, selectPPM } from 'shared/Entities/modules/ppms';
 import {
   getPublicShipment,
   updatePublicShipment,
@@ -460,23 +460,22 @@ const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
-  const officePPM = get(state, 'office.officePPMs.0', {});
-
+  const officePPM = selectPPM(state);
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
     loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
     loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
     moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    officePPM,
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
     officeBackupContacts: get(state, 'office.officeBackupContacts', []),
     officeMove,
     officeOrders: get(state, 'office.officeOrders', {}),
-    officePPM,
     officeServiceMember: get(state, 'office.officeServiceMember', {}),
     officeShipment: get(state, 'office.officeShipment', {}),
-    ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
+    ppmAdvance: selectPPM(state).advance,
     ppmStatus: selectPpmStatus(state, officePPM.id),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     shipment: selectShipment(state, shipmentId),

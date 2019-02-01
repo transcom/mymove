@@ -5,7 +5,7 @@ import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 
 import { approveReimbursement, downloadPPMAttachments } from '../ducks';
-import { selectPpmStatus } from 'shared/Entities/modules/ppms';
+import { selectPpmStatus, selectPPM } from 'shared/Entities/modules/ppms';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
@@ -241,7 +241,7 @@ class PaymentsTable extends Component {
 }
 
 const mapStateToProps = state => {
-  const ppm = get(state, 'office.officePPMs.0', {});
+  const ppm = selectPPM(state);
 
   return {
     ppm,
