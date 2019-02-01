@@ -31,25 +31,9 @@ export class Creator extends Component {
     }
 
     //Convert item dimensions to base quantity unit before hitting endpoint
-    if (values.item_dimensions) {
-      let dimLength = get(values, 'item_dimensions.length', 0);
-      let width = get(values, 'item_dimensions.width', 0);
-      let height = get(values, 'item_dimensions.height', 0);
-
-      values.item_dimensions.length = formatToBaseDimensions(dimLength);
-      values.item_dimensions.width = formatToBaseDimensions(width);
-      values.item_dimensions.height = formatToBaseDimensions(height);
-    }
+    formatDimensions(get(values, 'item_dimensions'));
     //Convert crate dimensions to base quantity unit before hitting endpoint
-    if (values.crate_dimensions) {
-      let dimLength = get(values, 'crate_dimensions.length', 0);
-      let width = get(values, 'crate_dimensions.width', 0);
-      let height = get(values, 'item_dimensions.height', 0);
-
-      values.crate_dimensions.length = formatToBaseDimensions(dimLength);
-      values.crate_dimensions.width = formatToBaseDimensions(width);
-      values.crate_dimensions.height = formatToBaseDimensions(height);
-    }
+    formatDimensions(get(values, 'crate_dimensions'));
 
     values.tariff400ng_item_id = values.tariff400ng_item.id;
     this.props.savePreApprovalRequest(values);
@@ -118,6 +102,16 @@ Creator.propTypes = {
   clearForm: PropTypes.func.isRequired,
   onFormActivation: PropTypes.func.isRequired,
 };
+
+function formatDimensions(dimensions) {
+  if (!dimensions) {
+    return;
+  }
+
+  dimensions.length = formatToBaseDimensions(dimensions.length);
+  dimensions.width = formatToBaseDimensions(dimensions.width);
+  dimensions.height = formatToBaseDimensions(dimensions.height);
+}
 
 function mapStateToProps(state) {
   return {
