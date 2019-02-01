@@ -1,4 +1,4 @@
-package gex
+package invoice
 
 import (
 	"crypto/tls"
@@ -9,23 +9,31 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/service"
 )
 
 // gexRequestTimeout is how long to wait on Gex request before timing out (30 seconds).
 const gexRequestTimeout = time.Duration(30) * time.Second
 
-// SendToGex is an interface for sending and receiving a request
-type SendToGex interface {
-	Call(edi string, transactionName string) (resp *http.Response, err error)
+// NewSendToGexHTTP creates a new SendToGex service object
+func NewSendToGexHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) service.SendToGex {
+	return SendToGexHTTP{
+		url,
+		isTrueGexURL,
+		tlsConfig,
+		gexBasicAuthUsername,
+		gexBasicAuthPassword,
+	}
 }
 
 // SendToGexHTTP represents a struct to contain an actual gex request function
 type SendToGexHTTP struct {
-	URL                  string
-	IsTrueGexURL         bool
-	TLSConfig            *tls.Config
-	GEXBasicAuthUsername string
-	GEXBasicAuthPassword string
+	url                  string
+	isTrueGexURL         bool
+	tlsConfig            *tls.Config
+	gexBasicAuthUsername string
+	gexBasicAuthPassword string
 }
 
 // Call sends an edi file string as a POST to the gex api
@@ -34,13 +42,13 @@ type SendToGexHTTP struct {
 func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Response, err error) {
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
 	edi = strings.TrimSpace(edi) + "\n"
-	URL := s.URL
+	URL := s.url
 	parsedURL, err := url.Parse(URL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if s.IsTrueGexURL {
+	if s.isTrueGexURL {
 		parsedURL.Path = parsedURL.Path + transactionName
 		URL = parsedURL.String()
 	}
@@ -56,9 +64,9 @@ func (s SendToGexHTTP) Call(edi string, transactionName string) (resp *http.Resp
 
 	// We need to provide basic auth credentials for the GEX server, as well as
 	// our client certificate for the proxy in front of the GEX server.
-	request.SetBasicAuth(s.GEXBasicAuthUsername, s.GEXBasicAuthPassword)
+	request.SetBasicAuth(s.gexBasicAuthUsername, s.gexBasicAuthPassword)
 
-	tr := &http.Transport{TLSClientConfig: s.TLSConfig}
+	tr := &http.Transport{TLSClientConfig: s.tlsConfig}
 	client := &http.Client{Transport: tr, Timeout: gexRequestTimeout}
 
 	resp, err = client.Do(request)
