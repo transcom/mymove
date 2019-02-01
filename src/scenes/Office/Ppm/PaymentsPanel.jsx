@@ -5,7 +5,7 @@ import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 
 import { approveReimbursement, downloadPPMAttachments } from '../ducks';
-import { selectPpmStatus, selectPPM } from 'shared/Entities/modules/ppms';
+import { selectPPM } from 'shared/Entities/modules/ppms';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
@@ -245,7 +245,7 @@ const mapStateToProps = state => {
 
   return {
     ppm,
-    ppmStatus: selectPpmStatus(state, ppm.id),
+    ppmStatus: ppm.status,
     move: get(state, 'office.officeMove', {}),
     advance: get(state, 'office.officePPMs[0].advance', {}),
     hasError: false,

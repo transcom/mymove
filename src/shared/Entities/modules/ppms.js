@@ -16,15 +16,6 @@ export function loadPPMs(moveId) {
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
 }
 
-export function selectPpmStatus(state, id) {
-  const ppm = get(state, `entities.personallyProcuredMove.${id}`);
-  if (ppm) {
-    return ppm.status;
-  } else {
-    return get(state, 'office.officePPMs.0.status', '');
-  }
-}
-
 export function selectPPM(state) {
   // Note: will need to be changed when we support multiple PPMS
   const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {}))[0];

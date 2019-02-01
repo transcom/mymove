@@ -41,7 +41,7 @@ import {
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { approvePPM, selectPpmStatus, selectPPM } from 'shared/Entities/modules/ppms';
+import { approvePPM, selectPPM } from 'shared/Entities/modules/ppms';
 import {
   getPublicShipment,
   updatePublicShipment,
@@ -475,8 +475,8 @@ const mapStateToProps = (state, ownProps) => {
     officeOrders: get(state, 'office.officeOrders', {}),
     officeServiceMember: get(state, 'office.officeServiceMember', {}),
     officeShipment: get(state, 'office.officeShipment', {}),
-    ppmAdvance: selectPPM(state).advance,
-    ppmStatus: selectPpmStatus(state, officePPM.id),
+    ppmAdvance: officePPM.advance,
+    ppmStatus: officePPM.status,
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     shipment: selectShipment(state, shipmentId),
     shipmentId,
