@@ -17,7 +17,7 @@
   width: calc(60% + 1.9rem);
 }
 
-textarea {
+.storage-in-transit-request-form textarea {
   height: 75px;
 }
 
