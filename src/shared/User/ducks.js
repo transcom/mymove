@@ -1,7 +1,7 @@
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
-import { hostname } from 'shared/constants';
+import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
 import { GetLoggedInUser } from './api.js';
 import { normalize } from 'normalizr';
 import { pick } from 'lodash';
@@ -72,7 +72,8 @@ const loggedOutUser = {
 };
 
 function getUserInfo() {
-  const cookieName = hostname + '_session_token';
+  let cookiePrefix = (isMilmoveSite && 'my') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
+  const cookieName = cookiePrefix + '_session_token';
   const cookie = Cookies.get(cookieName);
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);

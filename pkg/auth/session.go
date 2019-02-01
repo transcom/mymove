@@ -13,7 +13,7 @@ const sessionContextKey authSessionKey = "session"
 
 // Session stores information about the currently logged in session
 type Session struct {
-	ApplicationName application
+	ApplicationName Application
 	Hostname        string
 	IDToken         string
 	UserID          uuid.UUID

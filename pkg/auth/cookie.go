@@ -60,10 +60,9 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 	return ss, err
 }
 
-func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *SessionClaims, ok bool) {
+func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
 	// Name the cookie with the host name, use the same method as in the DetectorMiddleware
-	appName := strings.Split(strings.Split(r.Host, ":")[0], ".")[0]
-	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(appName), UserSessionCookieName)
+	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), UserSessionCookieName)
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		// No cookie set on client
@@ -127,7 +126,7 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next h
 func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
 
 	// Delete the cookie
-	cookieName := fmt.Sprintf("%s_%s", strings.Split(string(session.Hostname), "."), UserSessionCookieName)
+	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(session.ApplicationName)), UserSessionCookieName)
 	cookie := http.Cookie{
 		Name:    cookieName,
 		Value:   "blank",
@@ -164,11 +163,18 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
+func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool, myHostname, officeHostname, tspHostname string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := Session{}
-			claims, ok := sessionClaimsFromRequest(logger, secret, r)
+
+			hostname := strings.Split(r.Host, ":")[0]
+			appName, err := ApplicationName(hostname, myHostname, officeHostname, tspHostname)
+			if err != nil {
+				logger.Error("Bad hostname", zap.String("hostname", r.Host))
+				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+			}
+			claims, ok := sessionClaimsFromRequest(logger, secret, appName, r)
 			if ok {
 				session = claims.SessionValue
 			}
