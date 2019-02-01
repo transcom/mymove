@@ -9,11 +9,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/dpsauth"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/service"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -36,8 +36,8 @@ type HandlerContext interface {
 	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
-	GexSender() gex.SendToGex
-	SetGexSender(gexSender gex.SendToGex)
+	GexSender() service.SendToGex
+	SetGexSender(gexSender service.SendToGex)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
