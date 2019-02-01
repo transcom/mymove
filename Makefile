@@ -213,7 +213,7 @@ server_test_coverage: server_deps server_generate db_test_reset db_test_migrate
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
 	# Then open coverage tracker in HTML
-	go test -coverprofile=coverage.out -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	go test -coverprofile=coverage.out -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 	# go tool cover -html=coverage.out
 
 e2e_test: server_deps server_generate server_build client_build db_e2e_init
