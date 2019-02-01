@@ -1,3 +1,12 @@
+.storage-in-transit-panel-modal {
+  border: 3px dashed #00a6d2;
+  padding-left: 1.7rem;
+  padding-right: 1.7rem;
+  padding-top: 8px;
+  padding-bottom: 9px;
+  margin-top: 20px;
+}
+
 .storage-in-transit-hr-top {
   border-top: 1px solid #f1f1f1;
   margin-top: 1.5em;

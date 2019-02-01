@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
-import './StorageInTransitPanel.css';
+import './StorageInTransit.css';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -21,7 +21,7 @@ export class Creator extends Component {
   render() {
     if (this.state.showForm)
       return (
-        <div className="pre-approval-panel-modal">
+        <div className="storage-in-transit-panel-modal">
           <StorageInTransitForm />
           <div className="usa-grid-full">
             <div className="usa-width-one-half">

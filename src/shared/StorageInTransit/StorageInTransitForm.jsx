@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import './StorageInTransitForm.css';
+import './StorageInTransit.css';
 
 export class StorageInTransitForm extends Component {
   //form submission is still to be implemented
@@ -46,7 +46,7 @@ export class StorageInTransitForm extends Component {
           </div>
           <div className="editable-panel-column">
             <SwaggerField fieldName="street_address_1" swagger={addressSchema} required />
-            <SwaggerField fieldName="street_address_2" swagger={addressSchema} required />
+            <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
             <SwaggerField fieldName="city" swagger={addressSchema} required />
             <SwaggerField fieldName="state" swagger={addressSchema} required />
             <SwaggerField fieldName="postal_code" swagger={addressSchema} required />
