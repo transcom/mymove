@@ -816,6 +816,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	}
 
 	response := handler.Handle(params)
+	suite.CheckNotErrorResponse(response)
 	suite.Assertions.IsType(&shipmentop.DeliverShipmentOK{}, response)
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
