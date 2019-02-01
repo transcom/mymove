@@ -461,6 +461,7 @@ const mapStateToProps = (state, ownProps) => {
   const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
   const officePPM = get(state, 'office.officePPMs.0', {});
+  const officeServiceMember = get(state, 'office.officeServiceMember', {});
 
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
@@ -470,11 +471,10 @@ const mapStateToProps = (state, ownProps) => {
     moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
-    officeBackupContacts: get(state, 'office.officeBackupContacts', []),
     officeMove,
     officeOrders: get(state, 'office.officeOrders', {}),
     officePPM,
-    officeServiceMember: get(state, 'office.officeServiceMember', {}),
+    officeServiceMember,
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
     ppmStatus: selectPpmStatus(state, officePPM.id),
