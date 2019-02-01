@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import PreApprovalForm, { formName as PreApprovalFormName } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
-import { formatToBaseQuantity } from 'shared/formatters';
+import { formatToBaseQuantity, formatToBaseDimensions } from 'shared/formatters';
 import { submit, isValid, isSubmitting, reset, hasSubmitSucceeded } from 'redux-form';
 
 import { connect } from 'react-redux';
@@ -28,6 +29,28 @@ export class Creator extends Component {
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
+
+    //Convert item dimensions to base quantity unit before hitting endpoint
+    if (values.item_dimensions) {
+      let dimLength = get(values, 'item_dimensions.length', 0);
+      let width = get(values, 'item_dimensions.width', 0);
+      let height = get(values, 'item_dimensions.height', 0);
+
+      values.item_dimensions.length = formatToBaseDimensions(dimLength);
+      values.item_dimensions.width = formatToBaseDimensions(width);
+      values.item_dimensions.height = formatToBaseDimensions(height);
+    }
+    //Convert crate dimensions to base quantity unit before hitting endpoint
+    if (values.crate_dimensions) {
+      let dimLength = get(values, 'crate_dimensions.length', 0);
+      let width = get(values, 'crate_dimensions.width', 0);
+      let height = get(values, 'item_dimensions.height', 0);
+
+      values.crate_dimensions.length = formatToBaseDimensions(dimLength);
+      values.crate_dimensions.width = formatToBaseDimensions(width);
+      values.crate_dimensions.height = formatToBaseDimensions(height);
+    }
+
     values.tariff400ng_item_id = values.tariff400ng_item.id;
     this.props.savePreApprovalRequest(values);
   };

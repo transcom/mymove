@@ -49,6 +49,11 @@ export function formatToBaseQuantity(baseQuantity) {
   return baseQuantity;
 }
 
+// Format user-entered dimension into base dimension, e.g. 15.25 -> 1525
+export function formatToBaseDimensions(val) {
+  return parseFloat(String(val).replace(',', '')) * 100;
+}
+
 export function formatCentsRange(min, max) {
   if (!isFinite(min) || !isFinite(max)) {
     return '';
