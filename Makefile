@@ -267,11 +267,13 @@ db_dev_run: db_run db_dev_create
 
 db_dev_reset: db_destroy db_dev_run
 
-db_dev_migrate: server_deps
+db_dev_migrate_standalone:
 	@echo "Migrating the ${DB_NAME} database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
 		./soda -c ../config/database.yml -p ../migrations migrate up
+
+db_dev_migrate: server_deps db_dev_migrate_standalone
 
 db_test_create:
 	@echo "Create the test database..."
@@ -296,12 +298,14 @@ db_test_migrations_build: .db_test_migrations_build.stamp
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
-db_test_migrate: server_deps
+db_test_migrate_standalone:
 	@echo "Migrating the test database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
 		DB_NAME=test_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
+
+db_test_migrate: server_deps db_test_migrate_standalone
 
 db_test_migrate_docker: db_test_migrations_build
 	@echo "Migrating the test database with docker command..."

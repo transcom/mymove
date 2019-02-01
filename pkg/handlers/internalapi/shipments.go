@@ -523,6 +523,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		DB:                    h.DB(),
 		GexSender:             h.GexSender(),
 		SendProductionInvoice: h.SendProductionInvoice(),
+		ICNSequencer:          h.ICNSequencer(),
 	}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
