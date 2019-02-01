@@ -1,0 +1,5 @@
+create_table("tariff400ng_recalculate_logs") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("shipment_id", "uuid", {})
+}
+add_foreign_key("tariff400ng_recalculate_logs", "shipment_id", {"shipments": ["id"]}, {})

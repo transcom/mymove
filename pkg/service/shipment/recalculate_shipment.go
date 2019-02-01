@@ -41,41 +41,5 @@ func (c RecalculateShipment) Call(shipment *models.Shipment) (*validate.Errors, 
 	}
 	defer c.saveShipmentStatus(saveStatus, shipment)
 
-	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
-	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
-	shipmentCost, err := c.Engine.HandleRunOnShipment(*shipment)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
-
-	// Delete Base Shipment Line Items for repricing
-	err = shipment.DeleteBaseShipmentLineItems(c.DB)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
-
-	// Save and validate Shipment after deleting Base Shipment Line Items
-	verrs, err := models.SaveShipment(c.DB, shipment)
-	if verrs.HasAny() || err != nil {
-		saveError := errors.Wrap(err, "Error saving shipment for RecalculateShipment")
-		return verrs, saveError
-	}
-
-	lineItems, err := rateengine.CreateBaseShipmentLineItems(c.DB, shipmentCost)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
-
-	// When the shipment is delivered we should also price existing approved pre-approval requests
-	preApprovals, err := c.Engine.PricePreapprovalRequestsForShipment(*shipment)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
-
-	verrs, err = shipment.SaveShipmentAndLineItems(c.DB, lineItems, preApprovals)
-	if err != nil || verrs.HasAny() {
-		return verrs, err
-	}
-
-	return validate.NewErrors(), nil
+	return PriceShipment{DB: c.DB, Engine: c.Engine}.Call(shipment, ShipmentPriceRECALCULATE)
 }

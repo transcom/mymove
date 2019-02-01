@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	shipmentop "github.com/transcom/mymove/pkg/service/shipment"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -68,6 +68,36 @@ type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
 }
 
+func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems) (bool, middleware.Responder) {
+	update := false
+	// Check if this shipment's line items need to be recalculated
+	// If the shipment needs recalculation, then perform the recalculation
+	// before returning.
+	if len(shipmentLineItems) == 0 {
+		return update, nil
+	}
+
+	var invoiceID *uuid.UUID
+	invoiceID = shipmentLineItems[0].InvoiceID
+	var shipment *models.Shipment
+	shipment = &shipmentLineItems[0].Shipment
+
+	// Once an InvoiceID has been generated that indicates the invoice has already been sent to GEX
+	if invoiceID == nil && shipment != nil {
+		update, err := shipmentop.ProcessRecalculateShipment{
+			DB:     h.DB(),
+			Logger: h.Logger(),
+		}.Call(shipment, shipmentLineItems, h.Planner())
+
+		if err != nil {
+			h.Logger().Error("Error re-pricing line items for shipment", zap.Error(err))
+			return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
+		}
+	}
+
+	return update, nil
+}
+
 // Handle returns a specified shipment line item
 func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLineItemsParams) middleware.Responder {
 
@@ -92,28 +122,15 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 		return accessorialop.NewGetShipmentLineItemsInternalServerError()
 	}
 
-	// Check if this shipment's line items need to be recalculated
-	// If the shipment needs recalculation, then perform the recalculation
-	// before returning.
-	if len(shipmentLineItems) > 0 {
-		var shipment *models.Shipment
-		shipment = &shipmentLineItems[0].Shipment
-		if shipment != nil {
-			update, err := invoice.RecalculateInvoice{
-				DB:     h.DB(),
-				Logger: h.Logger(),
-			}.Call(shipment, shipmentLineItems, h.Planner())
-			if update {
-				shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
-				if err != nil {
-					h.Logger().Error("Error fetching line items for shipment after re-calculation", zap.Error(err))
-					return accessorialop.NewGetShipmentLineItemsInternalServerError()
-				}
-			}
-			if err != nil {
-				h.Logger().Error("Error re-pricing line items for shipment", zap.Error(err))
-				return accessorialop.NewGetShipmentLineItemsInternalServerError()
-			}
+	update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems)
+	if recalculateError != nil {
+		return recalculateError
+	}
+	if update {
+		shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching line items for shipment after re-calculation", zap.Error(err))
+			return accessorialop.NewGetShipmentLineItemsInternalServerError()
 		}
 	}
 

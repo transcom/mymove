@@ -1,4 +1,4 @@
-package invoice
+package shipment
 
 import (
 	"fmt"
@@ -10,26 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	shipmentop "github.com/transcom/mymove/pkg/service/shipment"
 	"go.uber.org/zap"
 )
-
-// TODO: Create model tariff400ng_recalcuate
-// TODO: This will have the start and end dates for when to recalculate a shipment's invoice
-
-// Tariff400ngRecalculate struct
-type Tariff400ngRecalculate struct {
-	ShipmentUpdatedBefore time.Time
-	ShipmentCreatedAfter  time.Time
-}
-
-var recalculateInfo = Tariff400ngRecalculate{
-	ShipmentUpdatedBefore: time.Date(2019, time.January, 01, 00, 00, 00, 0, time.UTC),
-	ShipmentCreatedAfter:  time.Date(1970, time.January, 01, 00, 00, 00, 0, time.UTC),
-}
-
-// TODO: Create model tariff400ng_recalculate_log
-// TODO: When a shipment is recalculated then store the shipmentID, old_price, new_price, date_recalculated
 
 // Tariff400ngRecalculateLog struct
 type Tariff400ngRecalculateLog struct {
@@ -40,16 +22,16 @@ type Tariff400ngRecalculateLog struct {
 	AfterPrice       float64
 }
 
-// RecalculateInvoice is a service object to recalculate a Shipment's Invoice
-type RecalculateInvoice struct {
+// ProcessRecalculateShipment is a service object to recalculate a Shipment's Line Items
+type ProcessRecalculateShipment struct {
 	DB     *pop.Connection
 	Logger *zap.Logger
 }
 
 /*
-	Recalculate a shipment's invoice is temporary functionality that will be used when it has been
-    determined there is is some shipment that requires recalcuation. A shipment does not contain an invoice
-    (or line items) until it has reached the DELIVERED state.
+	Recalculate a shipment's line items is temporary functionality that will be used when it has been
+    determined there is is some shipment that requires recalcuation. A shipment does not contain a line items
+    until it has reached the DELIVERED state.
 
     Some of the reasons a recalculation can happen are:
       - missing required pre-approved line items
@@ -67,10 +49,13 @@ type RecalculateInvoice struct {
     The API that will call this method is GET /shipments/{shipmentId}/accessorials
 */
 
-// Call recalculates a Shipment's Invoice
-func (r RecalculateInvoice) Call(shipment *models.Shipment,
-	lineItems models.ShipmentLineItems,
-	planner route.Planner) (bool, error) {
+// Call recalculates a Shipment's Line Items
+func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems models.ShipmentLineItems, planner route.Planner) (bool, error) {
+
+	recalculateDates, err := models.FetchTariff400ngRecalculateDates(r.DB)
+	if recalculateDates == nil || err != nil {
+		return false, nil
+	}
 
 	// If the Shipment is in the DELIVERED or COMPLETED state continue
 	shipmentStatus := shipment.Status
@@ -79,18 +64,18 @@ func (r RecalculateInvoice) Call(shipment *models.Shipment,
 	}
 
 	// If the Shipment was created before "ShipmentUpdatedBefore" date then continue
-	if !r.updatedInDateRange(shipment.CreatedAt) {
+	if !r.updatedInDateRange(shipment.CreatedAt, recalculateDates) {
 		return false, nil
 	}
 
 	// If there are any line items that have been updated in the date range continue
-	if !r.shipmentLineItemsUpdatedInDateRange(lineItems) {
+	if !r.shipmentLineItemsUpdatedInDateRange(lineItems, recalculateDates) {
 		return false, nil
 	}
 
 	// Re-calculate the Shipment!
 	engine := rateengine.NewRateEngine(r.DB, r.Logger, planner)
-	verrs, err := shipmentop.RecalculateShipment{DB: r.DB, Engine: engine}.Call(shipment)
+	verrs, err := RecalculateShipment{DB: r.DB, Engine: engine}.Call(shipment)
 	if verrs.HasAny() || err != nil {
 		verrsString := ""
 		if verrs.HasAny() {
@@ -104,22 +89,18 @@ func (r RecalculateInvoice) Call(shipment *models.Shipment,
 	return true, nil
 }
 
-func (r RecalculateInvoice) shipmentLineItemsUpdatedInDateRange(lineItems models.ShipmentLineItems) bool {
+func (r ProcessRecalculateShipment) shipmentLineItemsUpdatedInDateRange(lineItems models.ShipmentLineItems, recalculateDates *models.Tariff400ngRecalculate) bool {
 	for _, item := range lineItems {
-		if r.updatedInDateRange(item.UpdatedAt) {
+		if r.updatedInDateRange(item.UpdatedAt, recalculateDates) {
 			return true
 		}
 	}
 	return false
 }
 
-func (r RecalculateInvoice) updatedInDateRange(update time.Time) bool {
-	if update.After(recalculateInfo.ShipmentCreatedAfter) && update.Before(recalculateInfo.ShipmentUpdatedBefore) {
+func (r ProcessRecalculateShipment) updatedInDateRange(update time.Time, recalculateDates *models.Tariff400ngRecalculate) bool {
+	if update.After(recalculateDates.ShipmentUpdatedAfter) && update.Before(recalculateDates.ShipmentUdpatedBefore) {
 		return true
 	}
 	return false
-}
-
-func (r RecalculateInvoice) getRecalculateDateRange() /*updated_after, updated_before*/ {
-
 }
