@@ -1,13 +1,10 @@
 package auth
 
 import (
-	"net/http"
-
-	"net/http/httptest"
-
-	"strings"
-
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 )
 
 func (suite *authSuite) TestMiddlewareConstructor() {
@@ -27,7 +24,7 @@ func (suite *authSuite) TestMiddlewareMyApp() {
 	})
 	milMoveMiddleware := DetectorMiddleware(suite.logger, MyHost, OfficeHost, TspHost)(milMoveTestHandler)
 
-	req, _ := http.NewRequest("GET", fmt.Sprintf("http://%s/some_url", MyHost), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", MyHost), nil)
 	session := Session{}
 	milMoveMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 
@@ -52,7 +49,7 @@ func (suite *authSuite) TestMiddlwareOfficeApp() {
 	})
 	officeMiddleware := DetectorMiddleware(suite.logger, MyHost, OfficeHost, TspHost)(officeTestHandler)
 
-	req, _ := http.NewRequest("GET", fmt.Sprintf("http://%s/some_url", OfficeHost), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", OfficeHost), nil)
 	session := Session{}
 	officeMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 
@@ -77,7 +74,7 @@ func (suite *authSuite) TestMiddlwareTspApp() {
 	})
 	tspMiddleware := DetectorMiddleware(suite.logger, MyHost, OfficeHost, TspHost)(tspTestHandler)
 
-	req, _ := http.NewRequest("GET", fmt.Sprintf("http://%s/some_url", TspHost), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", TspHost), nil)
 	session := Session{}
 	tspMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 
@@ -98,7 +95,7 @@ func (suite *authSuite) TestMiddlewareBadApp() {
 	})
 	noAppMiddleware := DetectorMiddleware(suite.logger, MyHost, OfficeHost, TspHost)(noAppTestHandler)
 
-	req, _ := http.NewRequest("GET", "http://totally.bogus.hostname/some_url", nil)
+	req := httptest.NewRequest("GET", "http://totally.bogus.hostname/some_url", nil)
 	session := Session{}
 	noAppMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 	suite.Equal(http.StatusBadRequest, rr.Code, "Should get an error ")
