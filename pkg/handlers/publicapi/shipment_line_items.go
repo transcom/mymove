@@ -57,9 +57,9 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		Status:            apimessages.ShipmentLineItemStatus(s.Status),
 		InvoiceID:         handlers.FmtUUIDPtr(s.InvoiceID),
 		ItemDimensionID:   handlers.FmtUUIDPtr(s.ItemDimensionID),
-		ItemDimension:     payloadForShipmentLineItemDimensionModel(&s.ItemDimension),
+		ItemDimensions:    payloadForDimensionsModel(&s.ItemDimensions),
 		CrateDimensionID:  handlers.FmtUUIDPtr(s.CrateDimensionID),
-		CrateDimension:    payloadForShipmentLineItemDimensionModel(&s.CrateDimension),
+		CrateDimensions:   payloadForDimensionsModel(&s.CrateDimensions),
 		AmountCents:       amt,
 		AppliedRate:       rate,
 		SubmittedDate:     *handlers.FmtDateTime(s.SubmittedDate),
@@ -67,7 +67,7 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 	}
 }
 
-func payloadForShipmentLineItemDimensionModel(a *models.ShipmentLineItemDimension) *apimessages.ShipmentLineItemDimension {
+func payloadForDimensionsModel(a *models.Dimensions) *apimessages.Dimensions {
 	if a == nil {
 		return nil
 	}
@@ -76,7 +76,7 @@ func payloadForShipmentLineItemDimensionModel(a *models.ShipmentLineItemDimensio
 		return nil
 	}
 
-	return &apimessages.ShipmentLineItemDimension{
+	return &apimessages.Dimensions{
 		ID:        *handlers.FmtUUID(a.ID),
 		Length:    *handlers.FmtInt64(int64(a.Length)),
 		Width:     *handlers.FmtInt64(int64(a.Width)),

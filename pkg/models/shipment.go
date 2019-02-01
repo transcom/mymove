@@ -374,12 +374,12 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			}
 
 			// save dimensions to shipmentLineItem
-			shipmentLineItem.ItemDimension = ShipmentLineItemDimension{
+			shipmentLineItem.ItemDimensions = Dimensions{
 				Length: unit.Inch(additionalParams.ItemDimension.Length),
 				Width:  unit.Inch(additionalParams.ItemDimension.Width),
 				Height: unit.Inch(additionalParams.ItemDimension.Height),
 			}
-			shipmentLineItem.CrateDimension = ShipmentLineItemDimension{
+			shipmentLineItem.CrateDimensions = Dimensions{
 				Length: unit.Inch(additionalParams.CrateDimension.Length),
 				Width:  unit.Inch(additionalParams.CrateDimension.Width),
 				Height: unit.Inch(additionalParams.CrateDimension.Height),

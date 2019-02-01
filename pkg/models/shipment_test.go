@@ -229,12 +229,15 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 
 	q1 := int64(5)
 	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID: acc.ID,
+		Quantity1:         &q1,
+		Location:          "O",
+		Notes:             &notes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{}
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
-		acc.ID,
-		&q1,
-		nil,
-		"O",
-		&notes)
+		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
 		suite.Equal(5, shipmentLineItem.Quantity1.ToUnitInt())
