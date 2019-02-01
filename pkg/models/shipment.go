@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
@@ -326,6 +325,7 @@ type BaseShipmentLineItemParams struct {
 	Quantity2           *int64
 	Location            string
 	Notes               *string
+	Description         *string
 }
 
 // AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
@@ -353,19 +353,20 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		notesVal = *baseParams.Notes
 	}
 
+	var description string
+	if baseParams.Description != nil {
+		description = *baseParams.Description
+	}
+
 	//We can do validation for specific item codes here
 	// Example: 105B/E
 	shipmentLineItem := ShipmentLineItem{}
-	// getting environment variable
-	v := viper.New()
-	env := v.GetString("env")
-	isDevOrTest := env == "development" || env == "test"
 	// item code for tariff400ngItemCode
 	itemCode := baseParams.Tariff400ngItemCode
 
 	err := db.Transaction(func(connection *pop.Connection) error {
-		// ToDo: Another story, will remove isDevOrTest when we release the feature
-		if (itemCode == "105B" || itemCode == "105E") && isDevOrTest {
+		// Backwards compatible with "Old school" 105B/E
+		if (itemCode == "105B" || itemCode == "105E") && baseParams.Quantity1 == nil {
 			//Additional validation check if item and crate dimensions exist
 			// for 105B/E
 			if additionalParams.ItemDimension != nil && additionalParams.CrateDimension != nil {
@@ -387,10 +388,12 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			// ToDo: For another story
 			/*
 				1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
-				2. Add item and crate dimensions
 			*/
+		} else if baseParams.Quantity1 == nil {
+			// General pre-approval request
+			// Check if base quantity is filled out
+			return errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
 		}
-
 		// Non-specified item code
 		shipmentLineItem.ShipmentID = s.ID
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
@@ -400,6 +403,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		shipmentLineItem.Notes = notesVal
 		shipmentLineItem.SubmittedDate = time.Now()
 		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
+		shipmentLineItem.Description = description
 
 		verrs, err := db.ValidateAndCreate(&shipmentLineItem)
 		if verrs.HasAny() || err != nil {
