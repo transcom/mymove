@@ -31,30 +31,30 @@ func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, session *auth.S
 
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage1Values struct {
-	ServiceMemberName              string
-	MaxSITStorageEntitlement       string
-	PreferredPhone                 string
-	PreferredEmail                 string
-	DODId                          string
-	ServiceBranch                  string
-	Rank                           string
-	IssuingBranchOrAgency          string
-	OrdersIssueDate                string
-	OrdersTypeAndOrdersNumber      string
-	AuthorizedOrigin               string
-	AuthorizedDestination          string
-	NewDutyAssignment              string
-	WeightAllotmentSelf            string
-	WeightAllotmentProgear         string
-	WeightAllotmentProgearSpouse   string
-	TotalWeightAllotment           string
-	POVAuthorized                  string
-	TAC                            string
-	Shipment1NumberAndType         string
-	Shipment1PickUpDate            string
-	Shipment1Weight                string
-	Shipment1CurrentShipmentStatus string
-	PreparationDate                string
+	ServiceMemberName               string
+	MaxSITStorageEntitlement        string
+	PreferredPhone                  string
+	PreferredEmail                  string
+	DODId                           string
+	ServiceBranch                   string
+	Rank                            string
+	IssuingBranchOrAgency           string
+	OrdersIssueDate                 string
+	OrdersTypeAndOrdersNumber       string
+	AuthorizedOrigin                string
+	AuthorizedDestination           string
+	NewDutyAssignment               string
+	WeightAllotmentSelf             string
+	WeightAllotmentProgear          string
+	WeightAllotmentProgearSpouse    string
+	TotalWeightAllotment            string
+	POVAuthorized                   string
+	TAC                             string
+	ShipmentNumberAndTypes          []string
+	ShipmentPickUpDates             []string
+	ShipmentWeights                 []string
+	ShipmentCurrentShipmentStatuses []string
+	PreparationDate                 string
 }
 
 //ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
@@ -158,10 +158,20 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves, data.Shipments)
 	// This will need to be revised slightly to handle multiple shipments
 	if len(formattedShipments) != 0 {
-		page1.Shipment1NumberAndType = formattedShipments[0].ShipmentNumberAndType
-		page1.Shipment1PickUpDate = formattedShipments[0].PickUpDate
-		page1.Shipment1CurrentShipmentStatus = formattedShipments[0].CurrentShipmentStatus
-		page1.Shipment1Weight = formattedShipments[0].ShipmentWeight
+		shipmentNumberAndTypes := make([]string, len(formattedShipments))
+		shipmentPickUpDates := make([]string, len(formattedShipments))
+		shipmentCurrentShipmentStatuses := make([]string, len(formattedShipments))
+		shipmentWeights := make([]string, len(formattedShipments))
+		for i, shipment := range formattedShipments {
+			shipmentNumberAndTypes[i] = shipment.ShipmentNumberAndType
+			shipmentPickUpDates[i] = shipment.PickUpDate
+			shipmentCurrentShipmentStatuses[i] = shipment.CurrentShipmentStatus
+			shipmentWeights[i] = shipment.ShipmentWeight
+		}
+		page1.ShipmentNumberAndTypes = shipmentNumberAndTypes
+		page1.ShipmentPickUpDates = shipmentPickUpDates
+		page1.ShipmentCurrentShipmentStatuses = shipmentCurrentShipmentStatuses
+		page1.ShipmentWeights = shipmentWeights
 	}
 	return page1
 }
@@ -197,7 +207,7 @@ func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) []Shi
 		formattedShipments[j].ShipmentNumberAndType = FormatPPMNumberAndType(j)
 		formattedShipments[j].PickUpDate = FormatPPMPickupDate(ppm)
 		// We don't have an actual weight for ppms yet, so we're leaving it blank for now
-		formattedShipments[j].ShipmentWeight = " "
+		formattedShipments[j].ShipmentWeight = ""
 		formattedShipments[j].CurrentShipmentStatus = FormatCurrentPPMStatus(ppm)
 	}
 	return formattedShipments
@@ -210,6 +220,9 @@ func FormatCurrentShipmentStatus(shipment Shipment) string {
 
 //FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
 func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
+	if ppm.Status == "PAYMENT_REQUESTED" {
+		return "At destination"
+	}
 	return FormatEnum(string(ppm.Status))
 }
 

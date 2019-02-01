@@ -22,8 +22,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID:               moveID,
-			SelectedMoveType: models.SelectedMoveTypeHHGPPM,
+			ID: moveID,
+			// SelectedMoveType: models.SelectedMoveTypeHHGPPM,
 		},
 		Order: models.Order{
 			OrdersType:       ordersType,
@@ -36,15 +36,14 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 		},
 	})
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Move: move,
+			MoveID: move.ID,
 		},
 	})
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ServiceMemberID: serviceMemberID,
-			MoveID:          moveID,
+			MoveID:          move.ID,
 		},
 	})
 	session := auth.Session{
@@ -52,13 +51,21 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MyApp,
 	}
+	ppm.Move.Submit()
+	ppm.Move.Approve()
+	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
+	ppm.Move.PersonallyProcuredMoves[0].Submit()
+	ppm.Move.PersonallyProcuredMoves[0].Approve()
+	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
 	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Require().Len(ssd.Shipments, 2)
+	suite.Require().Len(ssd.Shipments, 1)
 	suite.Equal(shipment.ID, ssd.Shipments[0].ID)
-	suite.Equal(ppm.ID, ssd.Shipments[1].ID)
+	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
+	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
@@ -112,14 +119,22 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		},
 	}
 
+	personallyProcuredMoves := []models.PersonallyProcuredMove{
+		{
+			PlannedMoveDate: &pickupDate,
+			Status:          models.PPMStatusPAYMENTREQUESTED,
+		},
+	}
+
 	ssd := models.ShipmentSummaryFormData{
-		ServiceMember:      serviceMember,
-		Order:              order,
-		CurrentDutyStation: yuma,
-		NewDutyStation:     fortGordon,
-		WeightAllotment:    wtgEntitlements,
-		Shipments:          shipments,
-		PreparationDate:    time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		ServiceMember:           serviceMember,
+		Order:                   order,
+		CurrentDutyStation:      yuma,
+		NewDutyStation:          fortGordon,
+		WeightAllotment:         wtgEntitlements,
+		Shipments:               shipments,
+		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PersonallyProcuredMoves: personallyProcuredMoves,
 	}
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
 
@@ -146,11 +161,14 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("15,500", sswPage1.TotalWeightAllotment)
 
-	suite.Equal("01 - PPM", sswPage1.Shipment1NumberAndType)
-	suite.Equal("11-Jan-2019", sswPage1.Shipment1PickUpDate)
-	suite.Equal("5,000 lbs - FINAL", sswPage1.Shipment1Weight)
-	suite.Equal("Delivered", sswPage1.Shipment1CurrentShipmentStatus)
-
+	suite.Equal("01 - HHG (GBL)", sswPage1.ShipmentNumberAndTypes[0])
+	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates[0])
+	suite.Equal("5,000 lbs - FINAL", sswPage1.ShipmentWeights[0])
+	suite.Equal("Delivered", sswPage1.ShipmentCurrentShipmentStatuses[0])
+	suite.Equal("02 - PPM", sswPage1.ShipmentNumberAndTypes[1])
+	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates[1])
+	suite.Equal("", sswPage1.ShipmentWeights[1])
+	suite.Equal("Payment Requested", sswPage1.ShipmentCurrentShipmentStatuses[1])
 }
 
 func (suite *ModelSuite) FormatAuthorizedLocation() {
@@ -185,18 +203,45 @@ func (suite *ModelSuite) TestFormatCurrentShipmentStatus() {
 	suite.Equal("In Transit", models.FormatCurrentShipmentStatus(inTransit))
 }
 
+func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
+	paymentRequested := models.PersonallyProcuredMove{Status: models.PPMStatusPAYMENTREQUESTED}
+	completed := models.PersonallyProcuredMove{Status: models.PPMStatusCOMPLETED}
+
+	suite.Equal("At destination", models.FormatCurrentPPMStatus(paymentRequested))
+	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
+}
+
 func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 	singleShipment := models.Shipments{models.Shipment{}}
 	multipleShipments := models.Shipments{models.Shipment{}, models.Shipment{}}
+	singlePPM := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}}
+	multiplePPMs := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}, models.PersonallyProcuredMove{}}
+	var blankHHGSlice []models.Shipment
 	var blankPPMSlice []models.PersonallyProcuredMove
 
 	multipleShipmentsFormatted := models.FormatAllShipments(blankPPMSlice, multipleShipments)
+	multiplePPMsFormatted := models.FormatAllShipments(multiplePPMs, blankHHGSlice)
+	varietyOfShipmentsFormatted := models.FormatAllShipments(multiplePPMs, singleShipment)
 
-	suite.Equal("01 - PPM", models.FormatAllShipments(blankPPMSlice, singleShipment)[0].ShipmentNumberAndType)
+	// testing single shipment moves
+	suite.Equal("01 - HHG (GBL)", models.FormatAllShipments(blankPPMSlice, singleShipment)[0].ShipmentNumberAndType)
+	suite.Equal("01 - PPM", models.FormatAllShipments(singlePPM, blankHHGSlice)[0].ShipmentNumberAndType)
+
+	// testing multiple shipment moves
 	suite.Require().Len(multipleShipmentsFormatted, 2)
-	suite.Equal("01 - PPM", multipleShipmentsFormatted[0].ShipmentNumberAndType)
-	suite.Equal("02 - PPM", multipleShipmentsFormatted[1].ShipmentNumberAndType)
+	suite.Equal("01 - HHG (GBL)", multipleShipmentsFormatted[0].ShipmentNumberAndType)
+	suite.Equal("02 - HHG (GBL)", multipleShipmentsFormatted[1].ShipmentNumberAndType)
 
+	// testing multiple ppm moves
+	suite.Require().Len(multiplePPMsFormatted, 2)
+	suite.Equal("01 - PPM", multiplePPMsFormatted[0].ShipmentNumberAndType)
+	suite.Equal("02 - PPM", multiplePPMsFormatted[1].ShipmentNumberAndType)
+
+	// testing a variety of shipments and ppms
+	suite.Require().Len(varietyOfShipmentsFormatted, 3)
+	suite.Equal("01 - HHG (GBL)", varietyOfShipmentsFormatted[0].ShipmentNumberAndType)
+	suite.Equal("02 - PPM", varietyOfShipmentsFormatted[1].ShipmentNumberAndType)
+	suite.Equal("03 - PPM", varietyOfShipmentsFormatted[2].ShipmentNumberAndType)
 }
 
 func (suite *ModelSuite) TestFormatShipmentWeight() {
@@ -207,8 +252,8 @@ func (suite *ModelSuite) TestFormatShipmentWeight() {
 }
 
 func (suite *ModelSuite) TestFormatPickupDate() {
-	pickupDate := time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)
-	shipment := models.Shipment{ActualPickupDate: &pickupDate}
+	hhgPickupDate := time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)
+	shipment := models.Shipment{ActualPickupDate: &hhgPickupDate}
 
 	suite.Equal("01-Dec-2018", models.FormatShipmentPickupDate(shipment))
 }
