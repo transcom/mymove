@@ -5,3 +5,9 @@
 .address-segment {
   padding-bottom: 6rem;
 }
+
+.tool-tip {
+  float: right;
+  margin-top: -53px;
+  margin-right: 120px;
+}

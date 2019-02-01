@@ -158,7 +158,6 @@ const renderInputField = ({
   type,
   step,
   title,
-  dialogue,
   always_required,
   componentNameOverride,
   customComponent,
@@ -198,7 +197,6 @@ const renderInputField = ({
     <div className={classes}>
       <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={input.name}>
         {title}
-        {dialogue}
         {!always_required && type !== 'boolean' && !customComponent && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
@@ -221,7 +219,6 @@ export const SwaggerField = props => {
     disabled,
     component,
     title,
-    dialogue,
     onChange,
     validate,
     zipPattern,
@@ -253,7 +250,6 @@ export const SwaggerField = props => {
     disabled,
     component,
     title,
-    dialogue,
     onChange,
     validate,
     zipPattern,
@@ -271,7 +267,6 @@ const createSchemaField = (
   disabled = false,
   component,
   title,
-  dialogue,
   onChange,
   validate,
   zipPattern,
@@ -295,7 +290,6 @@ const createSchemaField = (
   let fieldProps = {};
   fieldProps.name = nameAttr;
   fieldProps.title = title || swaggerField.title || fieldName;
-  fieldProps.dialogue = dialogue;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   // eslint-disable-next-line security/detect-object-injection
