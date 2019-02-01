@@ -5,8 +5,10 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -35,8 +37,9 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 	req, _ := http.NewRequest("GET", "/protected", nil)
 
 	// Set a secure cookie on the request
+	cookieName := fmt.Sprintf("%s_%s", strings.Split(strings.Split(req.Hostname, ":")[0], "."), UserSessionCookieName)
 	cookie := http.Cookie{
-		Name:    UserSessionCookieName,
+		Name:    cookieName,
 		Value:   ss,
 		Path:    "/",
 		Expires: expiry,

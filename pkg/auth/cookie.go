@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// UserSessionCookieName is the key at which we're storing our token cookie
+// UserSessionCookieName is the key suffix at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
 
 // MaskedGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
@@ -62,8 +62,8 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 
 func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *SessionClaims, ok bool) {
 	// Name the cookie with the host name, use the same method as in the DetectorMiddleware
-	parts := strings.Split(r.Host, ":")
-	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(parts[0]), UserSessionCookieName)
+	appName := strings.Split(strings.Split(r.Host, ":")[0], ".")[0]
+	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(appName), UserSessionCookieName)
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		// No cookie set on client
@@ -127,7 +127,7 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next h
 func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
 
 	// Delete the cookie
-	cookieName := fmt.Sprintf("%s_%s", string(session.Hostname), UserSessionCookieName)
+	cookieName := fmt.Sprintf("%s_%s", strings.Split(string(session.Hostname), "."), UserSessionCookieName)
 	cookie := http.Cookie{
 		Name:    cookieName,
 		Value:   "blank",
