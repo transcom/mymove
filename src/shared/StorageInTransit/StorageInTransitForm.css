@@ -1,0 +1,39 @@
+.storage-in-transit-hr-top {
+  border-top: 1px solid #f1f1f1;
+  margin-top: 1.5em;
+  padding-top: 0.5em;
+}
+
+.storage-in-transit-location {
+  font-size: 1.4rem;
+  float: left;
+}
+
+.storage-in-transit-notes {
+  font-size: 1.4rem;
+  float: left;
+  margin-left: 270px;
+}
+
+textarea {
+  width: 400px;
+  height: 75px;
+}
+
+.storage-in-transit-warehouse-information {
+  font-size: 1.4rem;
+  float: left;
+  width: 350px;
+}
+
+.storage-in-transit-warehouse-id {
+  width: 150px;
+}
+
+.storage-in-transit-warehouse-address {
+  font-size: 1.4rem;
+  float: left;
+  width: 450px;
+  margin-left: 150px;
+}
+

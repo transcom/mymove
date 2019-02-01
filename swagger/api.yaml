@@ -1626,6 +1626,7 @@ definitions:
       notes:
         type: string
         example: Good to go!
+        format: textarea
         x-nullable: true
         title: Note
       warehouse_id:
