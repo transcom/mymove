@@ -18,28 +18,33 @@ export class StorageInTransitForm extends Component {
       <form onSubmit={this.handleSubmit} className="storage-in-transit-request-form">
         <fieldset key="sit-request-information">
           <h3>Request SIT</h3>
-          <div className="storage-in-transit-location">
-            <SwaggerField fieldName="sit_location" swagger={storageInTransitSchema} required />
+          <div className="editable-panel-column">
+            <SwaggerField
+              fieldName="sit_location"
+              swagger={storageInTransitSchema}
+              className="storage-in-transit-location"
+              required
+            />
             <SwaggerField fieldName="estimated_start_date" swagger={storageInTransitSchema} required />
           </div>
-          <div className="storage-in-transit-notes">
-            <SwaggerField fieldName="notes" className="three-quarter-width" swagger={storageInTransitSchema} />
+          <div className="editable-panel-column">
+            <SwaggerField fieldName="notes" swagger={storageInTransitSchema} />
           </div>
         </fieldset>
         <fieldset key="warehouse-information" className="storage-in-transit-hr-top">
           <h3>Warehouse</h3>
-          <div className="storage-in-transit-warehouse-information">
+          <div className="editable-panel-column">
             <SwaggerField
-              className="storage-in-transit-warehouse-id"
               fieldName="warehouse_id"
               swagger={storageInTransitSchema}
+              className="storage-in-transit-warehouse-id"
               required
             />
             <SwaggerField fieldName="warehouse_name" swagger={storageInTransitSchema} required />
             <SwaggerField fieldName="telephone" swagger={storageInTransitSchema} />
             <SwaggerField fieldName="personal_email" swagger={storageInTransitSchema} />
           </div>
-          <div className="storage-in-transit-warehouse-address">
+          <div className="editable-panel-column">
             <SwaggerField fieldName="street_address_1" swagger={addressSchema} required />
             <SwaggerField fieldName="street_address_2" swagger={addressSchema} required />
             <SwaggerField fieldName="city" swagger={addressSchema} required />

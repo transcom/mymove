@@ -5,35 +5,13 @@
 }
 
 .storage-in-transit-location {
-  font-size: 1.4rem;
-  float: left;
-}
-
-.storage-in-transit-notes {
-  font-size: 1.4rem;
-  float: left;
-  margin-left: 270px;
+  width: calc(60% + 1.9rem);
 }
 
 textarea {
-  width: 400px;
   height: 75px;
 }
 
-.storage-in-transit-warehouse-information {
-  font-size: 1.4rem;
-  float: left;
-  width: 350px;
-}
-
 .storage-in-transit-warehouse-id {
-  width: 150px;
+  width: calc(60% + 1.9rem);
 }
-
-.storage-in-transit-warehouse-address {
-  font-size: 1.4rem;
-  float: left;
-  width: 450px;
-  margin-left: 150px;
-}
-
