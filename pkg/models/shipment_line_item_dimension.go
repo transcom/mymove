@@ -7,8 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// Dimensions is an object representing dimensions of a shipment line item
-type Dimensions struct {
+// ShipmentLineItemDimensions is an object representing dimensions of a shipment line item
+type ShipmentLineItemDimensions struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	Length    unit.Inch `json:"length" db:"length"`
 	Width     unit.Inch `json:"width" db:"width"`

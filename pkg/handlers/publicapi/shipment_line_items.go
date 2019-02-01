@@ -56,9 +56,9 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		Quantity2:         handlers.FmtInt64(int64(s.Quantity2)),
 		Status:            apimessages.ShipmentLineItemStatus(s.Status),
 		InvoiceID:         handlers.FmtUUIDPtr(s.InvoiceID),
-		ItemDimensionID:   handlers.FmtUUIDPtr(s.ItemDimensionID),
+		ItemDimensionsID:  handlers.FmtUUIDPtr(s.ItemDimensionsID),
 		ItemDimensions:    payloadForDimensionsModel(&s.ItemDimensions),
-		CrateDimensionID:  handlers.FmtUUIDPtr(s.CrateDimensionID),
+		CrateDimensionsID: handlers.FmtUUIDPtr(s.CrateDimensionsID),
 		CrateDimensions:   payloadForDimensionsModel(&s.CrateDimensions),
 		AmountCents:       amt,
 		AppliedRate:       rate,
@@ -67,7 +67,7 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 	}
 }
 
-func payloadForDimensionsModel(a *models.Dimensions) *apimessages.Dimensions {
+func payloadForDimensionsModel(a *models.ShipmentLineItemDimensions) *apimessages.Dimensions {
 	if a == nil {
 		return nil
 	}

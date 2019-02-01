@@ -369,26 +369,40 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		if (itemCode == "105B" || itemCode == "105E") && baseParams.Quantity1 == nil {
 			//Additional validation check if item and crate dimensions exist
 			// for 105B/E
-			if additionalParams.ItemDimensions != nil && additionalParams.CrateDimensions != nil {
+			if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
 				return errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
 			}
 
 			// save dimensions to shipmentLineItem
-			shipmentLineItem.ItemDimensions = Dimensions{
+			shipmentLineItem.ItemDimensions = ShipmentLineItemDimensions{
 				Length: unit.Inch(additionalParams.ItemDimensions.Length),
 				Width:  unit.Inch(additionalParams.ItemDimensions.Width),
 				Height: unit.Inch(additionalParams.ItemDimensions.Height),
 			}
-			shipmentLineItem.CrateDimensions = Dimensions{
+			verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
+			if verrs.HasAny() || err != nil {
+				return err
+			}
+
+			shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
 				Length: unit.Inch(additionalParams.CrateDimensions.Length),
 				Width:  unit.Inch(additionalParams.CrateDimensions.Width),
 				Height: unit.Inch(additionalParams.CrateDimensions.Height),
 			}
+			verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
+			if verrs.HasAny() || err != nil {
+				return err
+			}
+
+			shipmentLineItem.ItemDimensionsID = &shipmentLineItem.ItemDimensions.ID
+			shipmentLineItem.CrateDimensionsID = &shipmentLineItem.CrateDimensions.ID
 
 			// ToDo: For another story
 			/*
 				1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
 			*/
+			var q1 int64
+			baseParams.Quantity1 = &q1
 		} else if baseParams.Quantity1 == nil {
 			// General pre-approval request
 			// Check if base quantity is filled out
