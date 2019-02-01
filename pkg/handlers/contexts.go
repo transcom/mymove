@@ -56,7 +56,7 @@ type handlerContext struct {
 	iwsRealTimeBrokerService iws.RealTimeBrokerService
 	sendProductionInvoice    bool
 	dpsAuthParams            dpsauth.Params
-	senderToGex              gex.SendToGex
+	senderToGex              service.SendToGex
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -162,11 +162,11 @@ func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool)
 	hctx.sendProductionInvoice = sendProductionInvoice
 }
 
-func (hctx *handlerContext) GexSender() gex.SendToGex {
+func (hctx *handlerContext) GexSender() service.SendToGex {
 	return hctx.senderToGex
 }
 
-func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SendToGex) {
+func (hctx *handlerContext) SetGexSender(sendGexRequest service.SendToGex) {
 	hctx.senderToGex = sendGexRequest
 }
 
