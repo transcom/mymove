@@ -1,0 +1,1 @@
+update tariff400ng_items set allowed_location = 'ORIGIN' where code = 'LHS';
