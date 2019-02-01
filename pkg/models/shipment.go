@@ -330,12 +330,12 @@ type BaseShipmentLineItemParams struct {
 
 // AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
 type AdditionalShipmentLineItemParams struct {
-	ItemDimension  *AdditionalLineItemDimension
-	CrateDimension *AdditionalLineItemDimension
+	ItemDimensions  *AdditionalLineItemDimensions
+	CrateDimensions *AdditionalLineItemDimensions
 }
 
-// AdditionalLineItemDimension holds the length, width and height that will be converted to inches
-type AdditionalLineItemDimension struct {
+// AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
+type AdditionalLineItemDimensions struct {
 	Length int64
 	Width  int64
 	Height int64
@@ -369,20 +369,20 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		if (itemCode == "105B" || itemCode == "105E") && baseParams.Quantity1 == nil {
 			//Additional validation check if item and crate dimensions exist
 			// for 105B/E
-			if additionalParams.ItemDimension != nil && additionalParams.CrateDimension != nil {
+			if additionalParams.ItemDimensions != nil && additionalParams.CrateDimensions != nil {
 				return errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
 			}
 
 			// save dimensions to shipmentLineItem
 			shipmentLineItem.ItemDimensions = Dimensions{
-				Length: unit.Inch(additionalParams.ItemDimension.Length),
-				Width:  unit.Inch(additionalParams.ItemDimension.Width),
-				Height: unit.Inch(additionalParams.ItemDimension.Height),
+				Length: unit.Inch(additionalParams.ItemDimensions.Length),
+				Width:  unit.Inch(additionalParams.ItemDimensions.Width),
+				Height: unit.Inch(additionalParams.ItemDimensions.Height),
 			}
 			shipmentLineItem.CrateDimensions = Dimensions{
-				Length: unit.Inch(additionalParams.CrateDimension.Length),
-				Width:  unit.Inch(additionalParams.CrateDimension.Width),
-				Height: unit.Inch(additionalParams.CrateDimension.Height),
+				Length: unit.Inch(additionalParams.CrateDimensions.Length),
+				Width:  unit.Inch(additionalParams.CrateDimensions.Width),
+				Height: unit.Inch(additionalParams.CrateDimensions.Height),
 			}
 
 			// ToDo: For another story

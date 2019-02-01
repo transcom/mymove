@@ -77,12 +77,10 @@ func payloadForDimensionsModel(a *models.Dimensions) *apimessages.Dimensions {
 	}
 
 	return &apimessages.Dimensions{
-		ID:        *handlers.FmtUUID(a.ID),
-		Length:    *handlers.FmtInt64(int64(a.Length)),
-		Width:     *handlers.FmtInt64(int64(a.Width)),
-		Height:    *handlers.FmtInt64(int64(a.Height)),
-		CreatedAt: *handlers.FmtDateTime(a.CreatedAt),
-		UpdatedAt: *handlers.FmtDateTime(a.UpdatedAt),
+		ID:     *handlers.FmtUUID(a.ID),
+		Length: handlers.FmtInt64(int64(a.Length)),
+		Width:  handlers.FmtInt64(int64(a.Width)),
+		Height: handlers.FmtInt64(int64(a.Height)),
 	}
 }
 
@@ -170,24 +168,24 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		Description:         handlers.FmtString(params.Payload.Description),
 	}
 
-	var itemDimension, crateDimension *models.AdditionalLineItemDimension
-	if params.Payload.ItemDimension != nil {
-		itemDimension = &models.AdditionalLineItemDimension{
-			Length: params.Payload.ItemDimension.Length,
-			Width:  params.Payload.ItemDimension.Width,
-			Height: params.Payload.ItemDimension.Height,
+	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
+	if params.Payload.ItemDimensions != nil {
+		itemDimensions = &models.AdditionalLineItemDimensions{
+			Length: *params.Payload.ItemDimensions.Length,
+			Width:  *params.Payload.ItemDimensions.Width,
+			Height: *params.Payload.ItemDimensions.Height,
 		}
 	}
-	if params.Payload.CrateDimension != nil {
-		crateDimension = &models.AdditionalLineItemDimension{
-			Length: params.Payload.CrateDimension.Length,
-			Width:  params.Payload.CrateDimension.Width,
-			Height: params.Payload.CrateDimension.Height,
+	if params.Payload.CrateDimensions != nil {
+		crateDimensions = &models.AdditionalLineItemDimensions{
+			Length: *params.Payload.CrateDimensions.Length,
+			Width:  *params.Payload.CrateDimensions.Width,
+			Height: *params.Payload.CrateDimensions.Height,
 		}
 	}
 	additionalParams := models.AdditionalShipmentLineItemParams{
-		ItemDimension:  itemDimension,
-		CrateDimension: crateDimension,
+		ItemDimensions:  itemDimensions,
+		CrateDimensions: crateDimensions,
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
