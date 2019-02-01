@@ -19,6 +19,7 @@ export class ShipmentAddress extends Component {
     const hasSecondary = get(this.props, 'formValues.has_secondary_pickup_address', false);
     const hasDelivery = get(this.props, 'formValues.has_delivery_address', false);
     const addressSchema = get(this.props, 'schema.properties.pickup_address', {});
+    // const questionLink = ;
 
     return (
       <div className="form-section">
@@ -81,11 +82,14 @@ export class ShipmentAddress extends Component {
               className="radio-title"
               fieldName="has_delivery_address"
               swagger={this.props.schema}
+              dialogue={
+                <a className="question" onClick={this.handleClick}>
+                  What happens if I don't know before I move?
+                </a>
+              }
               component={YesNoBoolean}
             />
-            <div>
-              <a onClick={this.handleClick}>What happens if I don't know before I move?</a>
-            </div>
+
             {hasDelivery && (
               <Fragment>
                 <FormSection name="delivery_address">
