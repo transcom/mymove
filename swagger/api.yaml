@@ -378,7 +378,6 @@ definitions:
         format: date-time
     required:
       - tariff400ng_item_id
-      - quantity_1
       - location
   Address:
     type: object
