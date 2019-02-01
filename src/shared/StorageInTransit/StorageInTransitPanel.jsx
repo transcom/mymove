@@ -23,6 +23,8 @@ export class StorageInTransitPanel extends Component {
   render() {
     const { sitEntitlement } = this.props;
     const { error, isCreatorActionable } = this.state;
+    const daysUsed = 0; // placeholder
+    const daysRemaining = sitEntitlement - daysUsed;
     return (
       <div className="storage-in-transit-panel">
         <BasicPanel title="Storage in Transit (SIT)">
@@ -31,7 +33,9 @@ export class StorageInTransitPanel extends Component {
               <span className="warning--header">Please refresh the page and try again.</span>
             </Alert>
           )}
-          <div className="column-subhead">Entitlement: {sitEntitlement} days</div>
+          <div className="column-subhead">
+            Entitlement: {sitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
+          </div>
           {isCreatorActionable && <Creator />}
         </BasicPanel>
       </div>

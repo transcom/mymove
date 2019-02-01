@@ -23,7 +23,7 @@ To run a single test, use `make e2e_test` and choose the tests you wish to run f
 If you have already run tests in the current database, you will need to reset the database to known good state:
 
 ```console
-$ make db_e2e_reset
+$ make db_test_e2e_populate
 ```
 
 ### Run End to End Tests in a File
@@ -35,7 +35,7 @@ $ yarn cypress run --spec cypress/integration/path/to/file.jsx
 If you have already run tests in the current database, you will need to reset the database to known good state:
 
 ```console
-$ make db_e2e_reset
+$ make db_test_e2e_populate
 ```
 
 ### Run End to End Tests with Docker
