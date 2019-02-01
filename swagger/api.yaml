@@ -1319,7 +1319,7 @@ definitions:
     required:
       - standard_carrier_alpha_code
       - enrolled
-  IndexServiceAgents:
+  ServiceAgents:
     type: array
     items:
       $ref: '#/definitions/ServiceAgent'
