@@ -70,5 +70,8 @@ func FetchTariff400ngRecalculateDates(db *pop.Connection) (*Tariff400ngRecalcula
 	if len(recalculate) > 1 {
 		return &Tariff400ngRecalculate{}, errors.New("Too many active re-calculate date records")
 	}
-	return &recalculate[0], nil
+	if len(recalculate) == 1 {
+		return &recalculate[0], nil
+	}
+	return &Tariff400ngRecalculate{}, errors.New("No active records for re-calculate dates")
 }
