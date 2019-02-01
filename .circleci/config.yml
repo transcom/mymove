@@ -750,6 +750,10 @@ workflows:
           requires:
             - pre_deps_golang
 
+      - server_test_coverage:
+          requires:
+            - pre_deps_golang
+
       - build_app:
           requires:
             - pre_deps_golang
