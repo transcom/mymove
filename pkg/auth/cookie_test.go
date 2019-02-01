@@ -34,10 +34,12 @@ func createRandomRSAPEM() (s string, err error) {
 
 func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
 	rr := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/protected", nil)
+	req := httptest.NewRequest("GET", "http://my.example.com/protected", nil)
+
+	appName, _ := ApplicationName(req.Host, MyHost, OfficeHost, TspHost)
 
 	// Set a secure cookie on the request
-	cookieName := fmt.Sprintf("%s_%s", strings.Split(strings.Split(req.Hostname, ":")[0], "."), UserSessionCookieName)
+	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), UserSessionCookieName)
 	cookie := http.Cookie{
 		Name:    cookieName,
 		Value:   ss,
@@ -60,7 +62,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
@@ -102,7 +104,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithValidToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -144,7 +146,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithExpiredToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
@@ -192,7 +194,7 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 		resultingSession = SessionFromRequestContext(r)
 		WriteSessionCookie(w, resultingSession, "freddy", false, suite.logger)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
 
 	middleware.ServeHTTP(rr, req)
 

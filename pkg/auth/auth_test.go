@@ -10,6 +10,15 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
+const (
+	// TspHost
+	TspHost string = "tsp.example.com"
+	// OfficeHost
+	OfficeHost string = "office.example.com"
+	// MyHost
+	MyHost string = "my.example.com"
+)
+
 type authSuite struct {
 	testingsuite.BaseTestSuite
 	logger *zap.Logger
