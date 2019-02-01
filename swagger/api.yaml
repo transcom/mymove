@@ -180,29 +180,28 @@ definitions:
       length:
         type: integer
         format: dimension
-        title: Base Quantity
-        description: 1st Tariff400ngItem base quantity
+        title: Length
+        description: Length recorded as base quantity unit, eg. baseQuantityInch
         minimum: 0
         example: 167000
       width:
         type: integer
         format: dimension
-        title: Base Quantity
-        description: 1st Tariff400ngItem base quantity
+        title: Width
+        description: Width recorded as base quantity unit, eg. baseQuantityInch
         minimum: 0
         example: 167000
       height:
         type: integer
         format: dimension
-        title: Base Quantity
-        description: 1st Tariff400ngItem base quantity
+        title: Height
+        description: Height recorded as base quantity unit, eg. baseQuantityInch
         minimum: 0
         example: 167000
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-
   InvoiceStatus:
     type: string
     title: Status
@@ -298,25 +297,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ShipmentLineItem'
-  ShipmentLineItemDimension:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      length:
-        type: integer
-      width:
-        type: integer
-      height:
-        type: integer
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
   ShipmentLineItem:
     type: object
     properties:
@@ -366,10 +346,10 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
-      item_dimension:
-        $ref: '#/definitions/ShipmentLineItemDimension'
-      crate_dimension:
-        $ref: '#/definitions/ShipmentLineItemDimension'
+      crate_dimensions:
+        $ref: '#/definitions/Dimensions'
+      item_dimensions:
+        $ref: '#/definitions/Dimensions'
       crate_dimension_id:
         type: string
         format: uuid
