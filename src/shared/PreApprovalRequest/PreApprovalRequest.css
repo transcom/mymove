@@ -4,7 +4,7 @@
   empty-cells: hide;
   margin-bottom: 18px;
 }
-.pre-approval-panel table {
+.pre-approval-panel-table-cont table {
   table-layout: fixed;
   display: table;
   width: 100%;
@@ -17,32 +17,32 @@
 
 /* Custom widths for columns in the preapproval request table */
 /*Code */
-.pre-approval-panel table > tbody > tr > th:nth-child(1) {
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(1) {
   width: 5%;
 }
 /* Loc. */
-.pre-approval-panel table > tbody > tr > th:nth-child(3) {
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(3) {
   width: 9%;
 }
 /*Base Quantity*/
-.pre-approval-panel table > tbody > tr > th:nth-child(4) {
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(4) {
   width: 10%;
 }
 /*Item*/
-.pre-approval-panel table > tbody > tr > th:nth-child(2) {
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(2) {
   width: 15%;
 }
 /*Notes*/
-.pre-approval-panel table > tbody > tr > th:nth-child(5) {
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(5) {
   width: 16%;
 }
 /*Status*/
-.pre-approval-panel table > tbody > tr > th:nth-child(7) {
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(7) {
   width: 12%;
 }
 /* submitted, action icons*/
-.pre-approval-panel table > tbody > tr > th:nth-child(6),
-.pre-approval-panel table > tbody > tr > th:nth-child(8) {
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(6),
+.pre-approval-panel-table-cont table > tbody > tr > th:nth-child(8) {
   width: 9%;
 }
 
@@ -56,7 +56,7 @@
   text-align: left;
 }
 
-.pre-approval-panel th {
+.pre-approval-panel-table-cont th {
   font-weight: bold;
   font-size: 0.8em;
   border-bottom: solid 1px #a2a2a2;
@@ -64,7 +64,7 @@
   padding: 0rem 2rem 1rem 0rem;
 }
 
-.pre-approval-panel table > tbody > tr > td {
+.pre-approval-panel-table-cont table > tbody > tr > td {
   border-bottom: 1px solid #f1f1f1;
   font-size: 0.8em;
   padding: 1rem 1rem 1rem 0rem;
@@ -144,11 +144,16 @@
 .bq-explanation p {
   line-height: 2rem;
   padding: 0rem 0rem 0rem 0rem;
+  margin-bottom: 0;
 }
 
 .bq-explanation li {
   line-height: 1.5em;
   margin: 0rem 0rem 0rem 0rem;
+}
+
+.bq-explanation ul {
+  margin-top: 0;
 }
 
 tr.delete-active {
@@ -194,4 +199,23 @@ td.delete-confirm strong {
   background-color: rgb(248, 248, 248) !important;
   box-shadow: none !important;
   border-radius: 7px !important;
+}
+
+.dimensions-form {
+  margin: 0;
+}
+.dimensions-form .dimensions-form-input {
+  margin: 0;
+}
+
+.dimensions-form .dimensions-form-input-cell {
+  padding: 0;
+}
+
+.dimensions-form .multiplication-sign {
+  text-align: center;
+}
+
+.dimensions-form .dimensions-form-header {
+  padding: 0;
 }
