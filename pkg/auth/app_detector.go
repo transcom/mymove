@@ -65,6 +65,7 @@ func DetectorMiddleware(logger *zap.Logger, myHostname string, officeHostname st
 			if err != nil {
 				logger.Error("Bad hostname", zap.String("hostname", r.Host))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				return
 			}
 			session.ApplicationName = appName
 			session.Hostname = strings.ToLower(hostname)

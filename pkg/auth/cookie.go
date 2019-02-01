@@ -173,6 +173,7 @@ func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout
 			if err != nil {
 				logger.Error("Bad hostname", zap.String("hostname", r.Host))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				return
 			}
 			claims, ok := sessionClaimsFromRequest(logger, secret, appName, r)
 			if ok {
