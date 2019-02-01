@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -59,7 +61,10 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 }
 
 func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *SessionClaims, ok bool) {
-	cookie, err := r.Cookie(UserSessionCookieName)
+	// Name the cookie with the host name, use the same method as in the DetectorMiddleware
+	parts := strings.Split(r.Host, ":")
+	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(parts[0]), UserSessionCookieName)
+	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		// No cookie set on client
 		return
@@ -122,8 +127,9 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next h
 func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
 
 	// Delete the cookie
+	cookieName := fmt.Sprintf("%s_%s", string(session.Hostname), UserSessionCookieName)
 	cookie := http.Cookie{
-		Name:    UserSessionCookieName,
+		Name:    cookieName,
 		Value:   "blank",
 		Path:    "/",
 		Expires: time.Unix(0, 0),
