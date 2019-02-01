@@ -3,8 +3,8 @@ import { getClient } from 'shared/Swagger/api';
 import { get } from 'lodash';
 const loadBackupContactsLabel = 'ServiceMember.loadBackupContacts';
 const updateBackupContactLabel = 'ServiceMember.updateBackupContact';
-const loadServiceMemberLabel = 'ServiceMember.loadServiceMember';
-const updateServiceMemberLabel = 'ServiceMember.updateServiceMember';
+export const loadServiceMemberLabel = 'ServiceMember.loadServiceMember';
+export const updateServiceMemberLabel = 'ServiceMember.updateServiceMember';
 
 export function loadBackupContacts(serviceMemberId) {
   const label = loadBackupContactsLabel;

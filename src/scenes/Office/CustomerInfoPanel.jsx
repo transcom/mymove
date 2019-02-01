@@ -8,9 +8,14 @@ import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import {
+  updateServiceMember,
+  loadServiceMemberLabel,
+  updateServiceMemberLabel,
+} from 'shared/Entities/modules/serviceMembers';
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 import { stringifyName } from 'shared/utils/serviceMember';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -132,6 +137,21 @@ CustomerInfoPanel = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   let customerInfo = ownProps.serviceMember;
+  const loadServiceMemberStatus = getRequestStatus(state, loadServiceMemberLabel);
+  const updateServiceMemberStatus = getRequestStatus(state, updateServiceMemberLabel);
+  let hasError = false;
+  let errorMessage = '';
+
+  if (loadServiceMemberStatus.isSuccess === false) {
+    hasError = true;
+    errorMessage = get(loadServiceMemberStatus, 'error.response.message', '');
+  }
+
+  if (updateServiceMemberStatus.isSuccess === false) {
+    hasError = true;
+    errorMessage = get(updateServiceMemberStatus, 'error.response.message', '');
+  }
+
   return {
     // reduxForm
     initialValues: {
@@ -145,8 +165,8 @@ function mapStateToProps(state, ownProps) {
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberPayload'),
     serviceMember: ownProps.serviceMember,
 
-    hasError: state.office.serviceMemberHasLoadError || state.office.serviceMemberHasUpdateError,
-    errorMessage: state.office.error,
+    hasError,
+    errorMessage,
     isUpdating: false,
 
     // editablePanelify
