@@ -36,7 +36,7 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "http://my.example.com/protected", nil)
 
-	appName, _ := ApplicationName(req.Host, MyHost, OfficeHost, TspHost)
+	appName, _ := ApplicationName(req.Host, MyTestHost, OfficeTestHost, TspTestHost)
 
 	// Set a secure cookie on the request
 	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), UserSessionCookieName)
@@ -62,7 +62,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyTestHost, OfficeTestHost, TspTestHost)(handler)
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
@@ -104,7 +104,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithValidToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyTestHost, OfficeTestHost, TspTestHost)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -146,7 +146,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithExpiredToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyTestHost, OfficeTestHost, TspTestHost)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
@@ -194,7 +194,7 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 		resultingSession = SessionFromRequestContext(r)
 		WriteSessionCookie(w, resultingSession, "freddy", false, suite.logger)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyHost, OfficeHost, TspHost)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MyTestHost, OfficeTestHost, TspTestHost)(handler)
 
 	middleware.ServeHTTP(rr, req)
 

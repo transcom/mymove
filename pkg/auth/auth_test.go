@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	// TspHost
-	TspHost string = "tsp.example.com"
-	// OfficeHost
-	OfficeHost string = "office.example.com"
-	// MyHost
-	MyHost string = "my.example.com"
+	// TspTestHost
+	TspTestHost string = "tsp.example.com"
+	// OfficeTestHost
+	OfficeTestHost string = "office.example.com"
+	// MyTestHost
+	MyTestHost string = "my.example.com"
 )
 
 type authSuite struct {
