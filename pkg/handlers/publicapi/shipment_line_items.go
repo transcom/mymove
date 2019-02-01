@@ -71,6 +71,10 @@ func payloadForShipmentLineItemDimensionModel(a *models.ShipmentLineItemDimensio
 	if a == nil {
 		return nil
 	}
+	if a.ID == (uuid.UUID{}) {
+		//zero value
+		return nil
+	}
 
 	return &apimessages.ShipmentLineItemDimension{
 		ID:        *handlers.FmtUUID(a.ID),
@@ -163,6 +167,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		Quantity2:           params.Payload.Quantity2,
 		Location:            string(params.Payload.Location),
 		Notes:               handlers.FmtString(params.Payload.Notes),
+		Description:         handlers.FmtString(params.Payload.Description),
 	}
 
 	var itemDimension, crateDimension *models.AdditionalLineItemDimension
